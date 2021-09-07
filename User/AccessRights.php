@@ -12,7 +12,7 @@ class AccessRights implements AccessRightsInterface
 
 	public $groupID;
 
-	protected $arCache = array();
+	protected $arCache = [];
 
 	/**
 	 * @var DBInterface
@@ -37,20 +37,23 @@ class AccessRights implements AccessRightsInterface
 
 	public function init($idGroup)
 	{
-		$res = $this->db->runSelectQuery($this->accessTable . ' /**/
+		$res = $this->db->runSelectQuery(
+			$this->accessTable . ' /**/
 			LEFT OUTER JOIN ' . $this->groupAccessTable . ' ON (
 				' . $this->accessTable . '.id = ' . $this->groupAccessTable . '.' . $this->id_useraccess . '
 				AND ' . $this->id_usergroup . ' = ' . $idGroup . ')',
-			array(), 'ORDER BY ' . $this->accessTable . '.name',
-			$this->accessTable . '.*, ' . $this->groupAccessTable . '.id as affirmative');
+			[],
+			'ORDER BY ' . $this->accessTable . '.name',
+			$this->accessTable . '.*, ' . $this->groupAccessTable . '.id as affirmative'
+		);
 		$data = $this->db->fetchAll($res);
 		$this->query = $this->db->lastQuery;
-//		debug($this->query);
+		//		debug($this->query);
 		//debug($data);
 		$data = new ArrayPlus($data);
 		$data = $data->column_assoc('name', 'affirmative')->getData();
 		foreach ($data as &$affirmative) {
-			$affirmative = $affirmative ? TRUE : FALSE;
+			$affirmative = $affirmative ? true : false;
 		}
 		$this->arCache = $data;
 		//debug($this->arCache);

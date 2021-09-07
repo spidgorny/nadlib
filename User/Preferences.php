@@ -4,20 +4,23 @@ class Preferences
 {
 
 	/**
-	 * @var User
+	 * @var LoginUser|NoUser
 	 */
 	protected $user;
 
-	public $prefs = array();    // for debug
+	public $prefs = [];    // for debug
 
 	/**
 	 * Preferences constructor.
-	 * @param $user User|NoUser
+	 * @param $user UserModelInterface
 	 */
 	public function __construct($user)
 	{
 		$this->user = $user;
-		$this->prefs = unserialize($this->user->data['prefs']);
+		$dbPrefs = ifsetor($this->user->data['prefs']);
+		if ($dbPrefs) {
+			$this->prefs = unserialize($dbPrefs);
+		}
 	}
 
 	public function set($key, $val)

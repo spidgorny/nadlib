@@ -3,7 +3,7 @@
 /**
  * Some places require a user object which does nothing if you're not logged-in
  */
-class NoUser extends UserBase
+class NoUser extends UserBase implements UserModelInterface
 {
 
 	/**
@@ -12,18 +12,23 @@ class NoUser extends UserBase
 	public $prefs;
 
 	/**
-	 * @var AccessRights
+	 * @var AccessRightsInterface
 	 */
-	public $access;
+	public $access = [];
 
 	public function __construct()
 	{
 		$this->prefs = new MockPreferences($this);
 	}
 
+	public function setAccess($name, $value)
+	{
+		$this->access[$name] = $value;
+	}
+
 	public function can($name)
 	{
-		return false;
+		return $this->access[$name];
 	}
 
 	public function renderMessages()
@@ -33,12 +38,12 @@ class NoUser extends UserBase
 
 	public function getPref($key)
 	{
-		return null;
+		return $this->prefs->get($key);
 	}
 
 	public function setPref($key, $val)
 	{
-		return null;
+		$this->prefs->set($key, $val);
 	}
 
 	/**
@@ -64,7 +69,7 @@ class NoUser extends UserBase
 		return [];
 	}
 
-	public function try2login()
+	public function try2login($user, $password = null)
 	{
 	}
 
@@ -75,11 +80,42 @@ class NoUser extends UserBase
 
 	public function getLogin()
 	{
-		return 'somebody';
+		return 'nobody';
 	}
 
 	public function getAvatarURL()
 	{
 		return 'http://avatar.com/';
 	}
+
+	public function prefs()
+	{
+		return $this->prefs;
+	}
+
+	public function getAllPrefs()
+	{
+		return $this->prefs()->getData();
+	}
+
+	public function getPerson()
+	{
+		return null;
+	}
+
+	public function isDev()
+	{
+		return false;
+	}
+
+	public function getGroup()
+	{
+		// TODO: Implement getGroup() method.
+	}
+
+	public function loginFromHTTP()
+	{
+		// do nothing, we failed to login with a session
+	}
+
 }

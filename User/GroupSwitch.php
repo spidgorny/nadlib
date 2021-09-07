@@ -2,7 +2,8 @@
 
 use spidgorny\nadlib\HTTP\URL;
 
-class GroupSwitch extends AppController {
+class GroupSwitch extends Controller
+{
 
 	/**
 	 * Debugging is only enabled for these people.
@@ -10,11 +11,11 @@ class GroupSwitch extends AppController {
 	 * @see Index
 	 * @var array
 	 */
-	public $allowedUsers = array();
+	public $allowedUsers = [];
 
-	protected $groups = array();
+	protected $groups = [];
 
-	function render()
+	public function render()
 	{
 		//debug($this->user->data);
 		$content = '';
@@ -26,22 +27,22 @@ class GroupSwitch extends AppController {
 		return $content;
 	}
 
-	function canSwitchGroup()
+	public function canSwitchGroup()
 	{
 		return in_array($this->user->getLogin(), $this->allowedUsers);
 	}
 
-	function fetchGroups()
+	public function fetchGroups()
 	{
 		return $this->groups;
 	}
 
-	function isCurrentGroup($groupID)
+	public function isCurrentGroup($groupID)
 	{
 		return $this->user->rights->groupID == $groupID;
 	}
 
-	function setGroupAction()
+	public function setGroupAction()
 	{
 		$this->user->pretendOtherDepartment($this->request->getInt('groupID'));
 		$referer = new URL($_SERVER['HTTP_REFERER']);
@@ -49,14 +50,14 @@ class GroupSwitch extends AppController {
 		$this->request->redirect($referer);
 	}
 
-	function renderGroups()
+	public function renderGroups()
 	{
-		$items = array();
+		$items = [];
 		foreach ($this->groups as $groupID => $groupName) {
-			$el = $this->makeLink($groupName, array(
+			$el = $this->makeLink($groupName, [
 					'action' => 'setGroup',
 					'groupID' => $groupID,
-				), get_class($this)) . ' ';
+				], get_class($this)) . ' ';
 			if ($this->isCurrentGroup($groupID)) {
 				$el = '<b>' . $el . '</b>';
 			}
