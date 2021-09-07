@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__.'/functions.php';
+
 /**
  * Class RandomStringGenerator
  * @package Utils
@@ -74,13 +76,13 @@ class RandomStringGenerator
 		$log = log($range, 2);
 
 		// Length in bytes.
-		$bytes = (int) ($log / 8) + 1;
+		$bytes = (int)($log / 8) + 1;
 
 		// Length in bits.
-		$bits = (int) $log + 1;
+		$bits = (int)$log + 1;
 
 		// Set all lower bits to 1.
-		$filter = (int) (1 << $bits) - 1;
+		$filter = (int)(1 << $bits) - 1;
 
 		do {
 			$rnd = hexdec(bin2hex(openssl_random_pseudo_bytes($bytes)));
@@ -93,16 +95,18 @@ class RandomStringGenerator
 		return ($min + $rnd);
 	}
 
-	function generateSplit4($length) {
+	function generateSplit4($length)
+	{
 		$continuous = $this->generate($length);
 		$parts = chunk_split($continuous, 4, '-');
-		if ($parts[strlen($parts)-1] == '-') {
+		if ($parts[strlen($parts) - 1] == '-') {
 			$parts = substr($parts, 0, strlen($parts) - 1);
 		}
 		return $parts;
 	}
 
-	static function likeYouTube() {
+	static function likeYouTube()
+	{
 		$gen = new self();
 		return $gen->generate(10);
 	}
@@ -112,42 +116,35 @@ class RandomStringGenerator
 	 * @param int $syllables
 	 * @return string
 	 */
-	public function generateReadablePassword($syllables = 3) {
+	public function generateReadablePassword($syllables = 3)
+	{
 		$use_prefix = false;
 		// Define function unless it is already exists
-		if (!function_exists('ae_arr')) {
-			// This function returns random array element
-			function ae_arr(&$arr) {
-				return $arr[rand(0, sizeof($arr)-1)];
-			}
-		}
-
 		// 20 prefixes
-		$prefix = array('aero', 'anti', 'auto', 'bi', 'bio',
+		$prefix = ['aero', 'anti', 'auto', 'bi', 'bio',
 			'cine', 'deca', 'demo', 'dyna', 'eco',
 			'ergo', 'geo', 'gyno', 'hypo', 'kilo',
-			'mega', 'tera', 'mini', 'nano', 'duo');
+			'mega', 'tera', 'mini', 'nano', 'duo'];
 
 		// 10 random suffixes
-		$suffix = array('dom', 'ity', 'ment', 'sion', 'ness',
-			'ence', 'er', 'ist', 'tion', 'or');
+		$suffix = ['dom', 'ity', 'ment', 'sion', 'ness',
+			'ence', 'er', 'ist', 'tion', 'or'];
 
 		// 8 vowel sounds
-		$vowels = array('a', 'o', 'e', 'i', 'y', 'u', 'ou', 'oo');
+		$vowels = ['a', 'o', 'e', 'i', 'y', 'u', 'ou', 'oo'];
 
 		// 20 random consonants
-		$consonants = array('w', 'r', 't', 'p', 's', 'd', 'f', 'g', 'h', 'j',
-			'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'qu');
+		$consonants = ['w', 'r', 't', 'p', 's', 'd', 'f', 'g', 'h', 'j',
+			'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'qu'];
 
-		$password = $use_prefix?ae_arr($prefix):'';
+		$password = $use_prefix ? ae_arr($prefix) : '';
 		$password_suffix = ae_arr($suffix);
 
-		for($i=0; $i<$syllables; $i++)
-		{
+		for ($i = 0; $i < $syllables; $i++) {
 			// selecting random consonant
-			$doubles = array('n', 'm', 't', 's');
+			$doubles = ['n', 'm', 't', 's'];
 			$c = ae_arr($consonants);
-			if (in_array($c, $doubles)&&($i!=0)) { // maybe double it
+			if (in_array($c, $doubles) && ($i != 0)) { // maybe double it
 				if (rand(0, 2) == 1) // 33% probability
 					$c .= $c;
 			}
@@ -170,3 +167,4 @@ class RandomStringGenerator
 	}
 
 }
+

@@ -3,6 +3,9 @@
 /**
  * Class dbLayer
  * @mixin SQLBuilder
+ * @method  fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
+ * @method  fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
+ * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
  */
 class DBLayer extends DBLayerBase implements DBInterface
 {
@@ -12,7 +15,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 */
 	public $connection = null;
 
-	var $LAST_PERFORM_RESULT;
+	public $LAST_PERFORM_RESULT;
 
 	/**
 	 * todo: use setter & getter method
@@ -23,7 +26,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 */
 	public $qb = null;
 
-	var $AFFECTED_ROWS = NULL;
+	public $AFFECTED_ROWS = null;
 
 	/**
 	 * @var MemcacheArray
@@ -44,19 +47,19 @@ class DBLayer extends DBLayerBase implements DBInterface
 	/**
 	 * @var string DB name
 	 */
-	var $db;
+	public $db;
 
-	var $reserved = [
+	public $reserved = [
 		'SELECT', 'LIKE', 'TO',
 	];
 
-	protected $dbName;
+	public $dbName;
 
 	protected $user;
 
 	protected $pass;
 
-	protected $host;
+	public $host;
 
 	protected $lastBacktrace;
 
@@ -67,10 +70,10 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 * @param string $host
 	 * @throws Exception
 	 */
-	function __construct($dbName = NULL, $user = NULL, $pass = NULL, $host = "localhost")
+	public function __construct($dbName = null, $user = null, $pass = null, $host = "localhost")
 	{
 //		debug_pre_print_backtrace();
-		$this->dbName = $dbName;
+		$this->database = $dbName;
 //		pre_print_r($this->dbName);
 		$this->user = $user;
 		$this->pass = $pass;
@@ -91,7 +94,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 		}
 	}
 
-	function getVersion()
+	public function getVersion()
 	{
 		$version = pg_version();
 		return $version['server'];
@@ -100,31 +103,41 @@ class DBLayer extends DBLayerBase implements DBInterface
 	/**
 	 * @return bool
 	 */
-	function isConnected()
+	public function isConnected()
 	{
 		return !!$this->connection
 			&& pg_connection_status($this->connection) === PGSQL_CONNECTION_OK;
 	}
 
-	function getConnection()
+	public function getConnection()
 	{
 		return $this->connection;
 	}
 
-	function reconnect()
+	public function reconnect()
 	{
-		$this->connect($this->dbName, $this->user, $this->pass, $this->host);
+		$this->connect($this->database, $this->user, $this->pass, $this->host);
 	}
 
-	function connect($dbName, $user, $pass, $host = "localhost")
+	public function connect($database = null, $user = null, $pass = null, $host = null)
 	{
-		$this->database = $dbName;
-		$string = "host=$host dbname=$dbName user=$user password=$pass";
-		#debug($string);
-		#debug_print_backtrace();
+		if ($database) {
+			$this->database = $database;
+		}
+		if ($user) {
+			$this->user = $user;
+		}
+		if ($pass) {
+			$this->pass = $pass;
+		}
+		if ($host) {
+			$this->host = $host;
+		}
+		$string = "host={$this->host} dbname={$this->database} user={$this->user} password={$this->pass}";
+//		debug($string);
 		$this->connection = pg_connect($string);
 		if (!$this->connection) {
-			throw new Exception("No PostgreSQL connection to $host.");
+			throw new Exception("No PostgreSQL connection to $host. ".json_encode(error_get_last()));
 			//printbr('Error: '.pg_errormessage());	// Warning: pg_errormessage(): No PostgreSQL link opened yet
 		} else {
 			$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
@@ -133,28 +146,42 @@ class DBLayer extends DBLayerBase implements DBInterface
 		return true;
 	}
 
+	public function reportIfLastQueryFailed()
+	{
+		if (false === $this->LAST_PERFORM_RESULT) {
+			$backtrace = array_map(function ($el) {
+				unset($el['object']);
+				unset($el['args']);
+				return $el;
+			}, $this->lastBacktrace);
+			$backtrace = array_map(function (array $el) {
+				return ifsetor($el['class']) . ifsetor($el['type']) . ifsetor($el['function']) .
+					' in ' . basename(ifsetor($el['file'])) . ':' . ifsetor($el['line']);
+			}, $backtrace);
+//			debug($this->lastQuery.'', pg_errormessage($this->connection));
+//			die(pg_errormessage($this->connection));
+			throw new DatabaseException(
+				'Last query has failed.' . PHP_EOL .
+				$this->lastQuery . PHP_EOL .
+				pg_errormessage($this->connection) . PHP_EOL .
+				implode(PHP_EOL, $backtrace)
+			);
+		}
+	}
+
 	/**
-	 * @param $query
+	 * @param string $query
 	 * @param array $params
 	 * @return resource|null
 	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	public function perform($query, array $params = [])
 	{
 //		echo $query, BR;
 		$prof = new Profiler();
 
-		if (false === $this->LAST_PERFORM_RESULT) {
-			$this->lastBacktrace = array_map(function ($el) {
-				unset($el['object']);
-				unset($el['args']);
-				return $el;
-			}, $this->lastBacktrace);
-//			debug($this->lastBacktrace);
-//			die(pg_errormessage($this->connection));
-			throw new DatabaseException('Last query has failed.' . PHP_EOL . $this->lastQuery . PHP_EOL . pg_errormessage($this->connection));
-		}
-
+//		$this->reportIfLastQueryFailed();
 		$this->lastQuery = $query;
 		if (!is_resource($this->connection)) {
 			debug('no connection', $this->connection, $query . '');
@@ -169,12 +196,23 @@ class DBLayer extends DBLayerBase implements DBInterface
 
 		try {
 			if ($params) {
-				pg_prepare($this->connection, '', $query);
+				$ok = pg_prepare($this->connection, '', $query);
+				if (!is_resource($ok)) {
+					throw new DatabaseException($query.' can not be prepared');
+				}
 				$this->LAST_PERFORM_RESULT = pg_execute($this->connection, '', $params);
 			} else {
-				$this->LAST_PERFORM_RESULT = @pg_query($this->connection, $query);
+				$this->LAST_PERFORM_RESULT = pg_query($this->connection, $query);
+				$lastError = pg_last_error($this->connection);
+				if ($lastError) {
+					// setQuery will be called in the catch below
+					throw new DatabaseException($lastError);
+				}
 			}
 			$this->queryTime = $prof->elapsed();
+			if ($this->logToLog) {
+				error_log($query . '' . ' => ' . $this->LAST_PERFORM_RESULT);
+			}
 		} catch (Exception $e) {
 			//debug($e->getMessage(), $query);
 			$errorMessage = is_resource($this->LAST_PERFORM_RESULT)
@@ -196,7 +234,8 @@ class DBLayer extends DBLayerBase implements DBInterface
 			//debug($query);
 			//debug($this->queryLog->queryLog);
 			$e = new DatabaseException(
-				pg_errormessage($this->connection)
+				pg_errormessage($this->connection) .
+				'Query: ' . $query
 			);
 			$e->setQuery($query);
 			throw $e;
@@ -207,7 +246,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 			$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS, $this->LAST_PERFORM_RESULT);
 		}
 
-		$this->logQuery($query);	// uses $this->queryTime
+		$this->logQuery($query);    // uses $this->queryTime
 
 		$this->lastQuery = $query;
 		$this->queryCount++;
@@ -236,7 +275,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 
 	/**
 	 * Return one dimensional array
-	 * @param $table
+	 * @param string $table
 	 * @return array
 	 */
 	public function getTableColumns($table)
@@ -319,10 +358,10 @@ class DBLayer extends DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param $table
-	 * @param $column
+	 * @param string $table
+	 * @param string $column
 	 * @param string $where
-	 * @param null $order
+	 * @param string $order
 	 * @param string $key
 	 * @return array
 	 * @throws Exception
@@ -359,11 +398,12 @@ class DBLayer extends DBLayerBase implements DBInterface
 
 	/**
 	 * fetchAll() equivalent with $key and $val properties
-	 * @param $query
-	 * @param null $key
-	 * @param null $val
+	 * @param string $query
+	 * @param string $key
+	 * @param mixed $val
 	 * @return array
 	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	public function getTableDataSql($query, $key = NULL, $val = null)
 	{
@@ -413,6 +453,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 * Returns a list of tables in the current database
 	 * @return string[]
 	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	public function getViews()
 	{
@@ -503,22 +544,22 @@ class DBLayer extends DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param $value
+	 * @param mixed $value
 	 * @param null $key
 	 * @return string
 	 * @throws MustBeStringException
 	 */
-	public function quoteSQL($value, $key = NULL)
+	public function quoteSQL($value, $key = null)
 	{
-		if ($value === NULL) {
+		if ($value === null) {
 			return "NULL";
-		} else if ($value === FALSE) {
+		} elseif ($value === false) {
 			return "'f'";
-		} else if ($value === TRUE) {
+		} elseif ($value === true) {
 			return "'t'";
-		} else if (is_int($value)) {    // is_numeric - bad: operator does not exist: character varying = integer
+		} else if (is_int($value)) {	// is_numeric - bad: operator does not exist: character varying = integer
 			return $value;
-		} else if (is_bool($value)) {
+		} elseif (is_bool($value)) {
 			return $value ? "'t'" : "'f'";
 		} else if ($value instanceof SQLParam) {
 			return $value;
@@ -571,12 +612,14 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 * @param resource/query $result
 	 * @return array
 	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	public function fetchAssoc($res)
 	{
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
+//		error_log(__METHOD__ . ' [' . $res . ']');
 		$row = pg_fetch_assoc($res);
 		/*      // problem in OODBase
 		 * 		if (!$row) {
@@ -587,15 +630,24 @@ class DBLayer extends DBLayerBase implements DBInterface
 
 	/**
 	 * Called after dataSeek()
-	 * @param $res
+	 * @param resource $res
 	 * @return array
 	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	public function fetchAssocSeek($res)
 	{
 		return $this->fetchAssoc($res);
 	}
 
+	/**
+	 * @param $query
+	 * @return array
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
+	 * @deprecated
+	 * @use fetchAll()
+	 */
 	public function getAllRows($query)
 	{
 		$result = $this->perform($query);
@@ -640,8 +692,8 @@ class DBLayer extends DBLayerBase implements DBInterface
 
 	/**
 	 * Compatibility.
-	 * @param $res
-	 * @param $table - optional
+	 * @param resource $res
+	 * @param string $table - optional
 	 * @return null
 	 */
 	public function lastInsertID($res, $table = null)
@@ -668,7 +720,7 @@ from
 	pg_catalog.pg_attribute a
 	inner join pg_catalog.pg_class c on a.attrelid = c.oid
 where
-		c.relname = ' . $this->quoteSQL($table) . '
+        c.relname = '.$this->quoteSQL($table).'
 	and a.attnum > 0
 	and a.attisdropped is false
 	and pg_catalog.pg_table_is_visible(c.oid)
@@ -682,11 +734,11 @@ order by a.attnum';
 
 	/**
 	 * Uses find_in_set function which is not built-in
-	 * @see SQLBuilder::array_intersect()
-	 *
 	 * @param array $options
 	 * @param string $field
 	 * @return string
+	 * @see SQLBuilder::array_intersect()
+	 *
 	 */
 	public function getArrayIntersect(array $options, $field = 'list_next')
 	{
@@ -704,7 +756,7 @@ order by a.attnum';
 	}
 
 	/**
-	 * @param $method
+	 * @param string $method
 	 * @param array $params
 	 * @return mixed
 	 * @throws Exception
@@ -723,6 +775,8 @@ order by a.attnum';
 	 * If the key contains special chars,
 	 * it thinks it's a function call like trim(field)
 	 * and quoting is not done.
+	 * @param string|AsIs $key
+	 * @return string
 	 */
 	public function quoteKey($key)
 	{
@@ -733,7 +787,9 @@ order by a.attnum';
 			} else {
 				$key = '"' . $key . '"';
 			}
-		} // else it can be functions (of something)
+		} elseif ($key instanceof AsIs) {
+			$key .= '';
+		}// else it can be functions (of something)
 		return $key;
 	}
 
@@ -784,7 +840,7 @@ order by a.attnum';
 	}
 
 	/**
-	 * @param $table
+	 * @param string $table
 	 * @return array
 	 * @throws Exception
 	 */
@@ -815,8 +871,7 @@ order by a.attnum';
 	public function getQb()
 	{
 		if (!isset($this->qb)) {
-			$db = Config::getInstance()->getDB();
-			$this->setQb(new SQLBuilder($db));
+			$this->setQb(new SQLBuilder($this));
 		}
 
 		return $this->qb;
@@ -870,7 +925,7 @@ WHERE ccu.table_name='" . $table . "'");
 	}
 
 	/**
-	 * @param $table
+	 * @param string $table
 	 * @param array $columns
 	 * @return string
 	 * @throws DatabaseException
@@ -928,6 +983,9 @@ WHERE ccu.table_name='" . $table . "'");
 		return pg_transaction_status($this->connection) == PGSQL_TRANSACTION_INTRANS;
 	}
 
+	/**
+	 * @return array
+	 */
 	public function getInfo()
 	{
 		return pg_version($this->connection) + [
@@ -941,6 +999,11 @@ WHERE ccu.table_name='" . $table . "'");
 				'host' => pg_host($this->connection),
 				'port' => pg_port($this->connection),
 			];
+	}
+
+	public function getDSN()
+	{
+		return 'pgsql://'.$this->user.'@'.$this->host.'/'.$this->database;
 	}
 
 }

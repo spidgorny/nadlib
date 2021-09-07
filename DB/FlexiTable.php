@@ -11,7 +11,7 @@ class FlexiTable extends OODBase
 	/**
 	 * @var array
 	 */
-	protected $columns = array();
+	protected $columns = [];
 
 	/**
 	 * Enables/disables FlexiTable functionality
@@ -26,29 +26,29 @@ class FlexiTable extends OODBase
 	 *
 	 * @var array
 	 */
-	static protected $tableColumns = array();
+	static protected $tableColumns = [];
 
 	/**
 	 * @var string 'ctime'
 	 */
-	var $ctimeField;
+	public $ctimeField;
 
 	/**
 	 * @var string 'cuser'
 	 */
-	var $cuserField;
+	public $cuserField;
 
 	/**
 	 * @var string 'mtime'
 	 */
-	var $mtimeField;
+	public $mtimeField;
 
 	/**
 	 * @var string 'muser'
 	 */
-	var $muserField;
+	public $muserField;
 
-	function __construct($id = NULL)
+	public function __construct($id = null)
 	{
 		parent::__construct($id);
 		$config = ifsetor(Config::getInstance()->config);
@@ -63,14 +63,14 @@ class FlexiTable extends OODBase
 		}
 	}
 
-	function insert(array $row)
+	public function insert(array $row)
 	{
 		if ($this->ctimeField && !ifsetor($row[$this->ctimeField])) {
 			$row[$this->ctimeField] = new SQLDateTime();
 		}
 		if ($this->cuserField && !ifsetor($row[$this->cuserField])) {
 			$user = Config::getInstance()->getUser();
-			$row[$this->cuserField] = ifsetor($user->id) ? $user->id : NULL;
+			$row[$this->cuserField] = ifsetor($user->id) ? $user->id : null;
 		}
 		if ($this->doCheck) {
 			$this->checkAllFields($row);
@@ -79,7 +79,7 @@ class FlexiTable extends OODBase
 		return $ret;
 	}
 
-	function update(array $row)
+	public function update(array $row)
 	{
 		if ($this->mtimeField && !ifsetor($row[$this->mtimeField])) {
 			$mtime = new Time();
@@ -101,7 +101,7 @@ class FlexiTable extends OODBase
 		return $res;
 	}
 
-	function findInDB(array $where, $orderBy = '', $selectPlus = null)
+	public function findInDB(array $where, $orderBy = '', $selectPlus = null)
 	{
 		if ($this->doCheck) {
 			$this->log(__METHOD__, 'Checking columns exist');
@@ -110,7 +110,7 @@ class FlexiTable extends OODBase
 		return parent::findInDB($where, $orderBy, $selectPlus);
 	}
 
-	function checkAllFields(array $row)
+	public function checkAllFields(array $row)
 	{
 		$this->fetchColumns();
 		foreach ($row as $field => $value) {
@@ -118,7 +118,7 @@ class FlexiTable extends OODBase
 		}
 	}
 
-	function fetchColumns($force = false)
+	public function fetchColumns($force = false)
 	{
 		//TaylorProfiler::start(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
 		$table = str_replace('`', '', $this->table);
@@ -131,36 +131,38 @@ class FlexiTable extends OODBase
 		//TaylorProfiler::stop(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
 	}
 
-	function checkCreateTable()
+	public function checkCreateTable()
 	{
 		$this->fetchColumns();
 		if (!$this->columns) {
-			$this->db->perform('CREATE TABLE ' . $this->db->escape($this->table) . ' (id integer auto_increment, PRIMARY KEY (id))');
+			$query = 'CREATE TABLE ' . $this->db->escape($this->table) .
+				' (id integer auto_increment, PRIMARY KEY (id))';
+			$this->db->perform($query);
 			$this->fetchColumns(true);
 		}
 	}
 
-	function checkCreateField($field, $value)
+	public function checkCreateField($field, $value)
 	{
 		//debug($this->columns);
 		$field = strtolower($field);
 		$existingField = ifsetor($this->columns[$field]['Field']);
-		if (strtolower($existingField) != $field) {
+		if (strtolower($existingField) !== $field) {
 			$this->db->perform('ALTER TABLE ' . $this->db->escape($this->table) .
 				' ADD COLUMN ' . $this->db->quoteKey($field) . ' ' . $this->getType($value));
 			$this->fetchColumns(true);
 		}
 	}
 
-	function getType($value)
+	public function getType($value)
 	{
 		if (is_int($value)) {
 			$type = 'integer';
-		} else if ($value instanceof Time) {
+		} elseif ($value instanceof Time) {
 			$type = 'timestamp';
-		} else if (is_numeric($value)) {
+		} elseif (is_numeric($value)) {
 			$type = 'float';
-		} else if ($value instanceof SimpleXMLElement) {
+		} elseif ($value instanceof SimpleXMLElement) {
 			$type = 'text';
 		} else {
 			$type = 'VARCHAR (255)';
@@ -176,12 +178,12 @@ class FlexiTable extends OODBase
 	 * and save the result into $this->$field
 	 * @param bool $debug
 	 */
-	function expand($debug = false)
+	public function expand($debug = false)
 	{
 		static $stopDebug = false;
 		$this->fetchColumns();
 		foreach ($this->columns as $field => &$info) {
-			if (in_array($info['Type'], array('blob', 'text')) && $this->data[$field]) {
+			if (in_array($info['Type'], ['blob', 'text']) && $this->data[$field]) {
 				$info['uncompress'] = 'try';
 				$uncompressed = $this->db->uncompress($this->data[$field]);
 				if (!$uncompressed) {
@@ -197,12 +199,12 @@ class FlexiTable extends OODBase
 				}
 				$this->data[$field] = $uncompressed;
 				$info['first'] = $this->data[$field]{0};
-				if ($this->data[$field]{0} == '<') {
+				if ($this->data[$field][0] === '<') {
 					//$uncompressed = html_entity_decode($uncompressed, ENT_QUOTES, "utf-8");
 					$this->$field = @simplexml_load_string($uncompressed);
 					unset($this->data[$field]);
 					$info['unxml'] = 'true';
-				} elseif ($this->data[$field]{0} == '{') {
+				} elseif ($this->data[$field][0] === '{') {
 					$this->$field = json_decode($uncompressed, false);    // make it look like SimpleXML
 					unset($this->data[$field]);
 					$info['unjson'] = 'true';
