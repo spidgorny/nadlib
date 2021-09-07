@@ -1,6 +1,7 @@
 <?php
 
-class MemcacheFile implements MemcacheInterface {
+class MemcacheFile implements MemcacheInterface
+{
 
 	/**
 	 * Can be set statically in the bootstrap to influence all instances
@@ -22,14 +23,15 @@ class MemcacheFile implements MemcacheInterface {
 	 * If you define $key and $expire in the constructor
 	 * you don't need to define it in each method below.
 	 * Otherwise, please specify.
-	 * @param null $key
+	 * @param string $key
 	 * @param int $expire
 	 */
-	function __construct($key = NULL, $expire = 0) {
+	public function __construct($folder = null, $expire = 0)
+	{
 		if (MemcacheArray::$debug) {
 			echo __METHOD__ . '(' . $key . ')' . BR;
 		}
-		$this->folder = self::$defaultFolder;
+		$this->folder = $folder ?: self::$defaultFolder;
 		if (!Path::isItAbsolute($this->folder)) {
 			// if relative, add current app
 			$appRoot = AutoLoad::getInstance()->getAppRoot();
@@ -40,16 +42,21 @@ class MemcacheFile implements MemcacheInterface {
 
 		$finalCachePath = realpath($sub . $this->folder);
 		if (!file_exists($finalCachePath) && !is_dir($finalCachePath)) {
-			debug(array(
+			debug([
 				'unable to access cache folder',
+				'env(storage)' => getenv('storage'),
+				'cwd' => getcwd(),
+				'open_basedir' => trimExplode(':', ini_get('open_basedir')),
+				'this->folder' => $this->folder,
+				'isAbsolute' => Path::isItAbsolute($this->folder),
 				'method' => __METHOD__,
 				'sub' => $sub,
 				'folder' => $this->folder,
 				'finalCachePath' => $finalCachePath,
-			));
-			die();
+			]);
+			die(__METHOD__);
 		} else {
-			$this->folder = cap($finalCachePath);	// important as we concat
+			$this->folder = cap($finalCachePath);    // important as we concat
 		}
 
 		if ($key) {
@@ -60,7 +67,8 @@ class MemcacheFile implements MemcacheInterface {
 		}
 	}
 
-	function map($key) {
+	public function map($key)
+	{
 		$key = str_replace('(', '-', $key);
 		$key = str_replace(')', '-', $key);
 		$key = str_replace('::', '-', $key);
@@ -73,24 +81,26 @@ class MemcacheFile implements MemcacheInterface {
 	}
 
 	/**
-	 * @param $key	- can be provided in the constructor, but repeated here for BWC
-	 * @param $val
+	 * @param string $key - can be provided in the constructor, but repeated here for BWC
+	 * @param mixed $val
 	 * @throws Exception
 	 */
-	function set($key, $val) {
+	public function set($key, $val)
+	{
 		TaylorProfiler::start(__METHOD__);
 		$file = $this->map($key);
 		if (is_writable($this->folder)) {
 			file_put_contents($file, serialize($val));
-			@chmod($file, 0777);	// needed for cronjob accessing cache files
+			@chmod($file, 0777);    // needed for cronjob accessing cache files
 		} else {
 			TaylorProfiler::stop(__METHOD__);
-			throw new Exception($file.' write access denied.');
+			throw new Exception($file . ' write access denied.');
 		}
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	function isValid($key = NULL, $expire = 0) {
+	public function isValid($key = NULL, $expire = 0)
+	{
 		$key = $key ?: $this->key;
 		$expire = $expire ?: $this->expire;
 		$file = $this->map($key);
@@ -103,11 +113,12 @@ class MemcacheFile implements MemcacheInterface {
 	}
 
 	/**
-	 * @param null $key	- can be NULL to be used from the constructor
-	 * @param int  $expire
+	 * @param null $key - can be NULL to be used from the constructor
+	 * @param int $expire
 	 * @return mixed|null|string
 	 */
-	function get($key = NULL, $expire = 0) {
+	public function get($key = NULL, $expire = 0)
+	{
 		TaylorProfiler::start(__METHOD__);
 		$val = NULL;
 		$key = $key ?: $this->key;
@@ -127,11 +138,13 @@ class MemcacheFile implements MemcacheInterface {
 		return $val;
 	}
 
-	function setValue($value) {
+	public function setValue($value)
+	{
 		$this->set($this->key, $value);
 	}
 
-	function clearCache($key = NULL) {
+	public function clearCache($key = null)
+	{
 		$file = $this->map($key ?: $this->key);
 		if (file_exists($file)) {
 			//echo '<font color="green">Deleting '.$file.'</font>', BR;
@@ -142,19 +155,20 @@ class MemcacheFile implements MemcacheInterface {
 	}
 
 	/**
-	 * @param $key
+	 * @param string $key
 	 * @return Duration
 	 */
-	function getAge($key) {
+	public function getAge($key)
+	{
 		$file = $this->map($key);
 		return new Duration(time() - @filemtime($file));
 	}
 
-/**
- * unfinished
- * static function getInstance($file, $expire) {
-		$mf = new self();
-		$get = $mf->get($file, $expire);
-	}
- */
+	/**
+	 * unfinished
+	 * static function getInstance($file, $expire) {
+	 * $mf = new self();
+	 * $get = $mf->get($file, $expire);
+	 * }
+	 */
 }

@@ -1,8 +1,10 @@
 <?php
 
-class VisibleColumns extends ArrayPlus {
+class VisibleColumns extends ArrayPlus
+{
 
-	function __construct(array $array = []) {
+	public function __construct(array $array = [])
+	{
 		if (!self::has_string_keys($array)) {
 			// only keys are provided
 			$array = array_fill_keys($array, true);
@@ -12,18 +14,22 @@ class VisibleColumns extends ArrayPlus {
 
 	/**
 	 * If there are no data then all columns are visible
-	 * @param $key
+	 * @param string $key
 	 * @return bool|null
 	 */
-	public function isVisible($key) {
-		if (!$this->count()) return true;
+	public function isVisible($key)
+	{
+		if (!$this->count()) {
+			return true;
+		}
 		return ifsetor($this[$key]);
 	}
 
-	public function getData() {
+	public function getData()
+	{
 		$data = parent::getData();
 		$onlySet = array_filter($data);
-		if (!$onlySet) {	// all unset
+		if (!$onlySet) {    // all unset
 			$data = array_fill_keys(array_keys($data), true); // all set
 		}
 		return $data;

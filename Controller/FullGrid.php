@@ -1,7 +1,5 @@
 <?php
 
-use nadlib\Controller\Filter;
-
 /**
  * Class FullGrid
  * handles sorting by columns, paging, filtering,
@@ -13,11 +11,11 @@ abstract class FullGrid extends Grid
 	/**
 	 * @var FilterController
 	 */
-	var $filterController;
+	public $filterController;
 
 	/**
 	 */
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 		// calls $this->initFilter();
@@ -29,7 +27,7 @@ abstract class FullGrid extends Grid
 		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
 		parent::initFilter();
 
-		$allowEdit = $this->request->getControllerString() == get_class($this);
+		$allowEdit = $this->request->getControllerString() === get_class($this);
 //		debug($allowEdit);
 		if ($allowEdit) {
 			$this->saveFilterAndSort(get_class($this));
@@ -46,46 +44,51 @@ abstract class FullGrid extends Grid
 	}
 
 	/**
-	 * @param null $collection
+	 * Will create collection object
+	 * @param string $collection
 	 * @throws LoginException
+	 * @throws ReflectionException
 	 */
 	public function postInit($collection = null)
 	{
 		if (!$this->collection) {
-			if (is_string($collection)) {
-				$this->log(__METHOD__ . ' new collection', $collection);
-				$this->collection = new $collection(null, [], $this->getOrderBy());
-				// after construct because we need to modify join
-				$this->collection->where = array_merge(
-					$this->collection->where,
-					$this->getFilterWhere()
-				);
+			$this->collection = $this->makeCollection($collection);
+			// after construct because we need to modify join
+			$this->collection->where = array_merge(
+				$this->collection->where,
+				$this->getFilterWhere()
+			);
 
-				//debug($this->collection->where);
-				//file_put_contents('tests/Fixture/SoftwareGridApostrophe.serial', serialize($this->collection->where));
-				//debug($this->collection->getQuery());
+			$this->log(__METHOD__, 'collection Where', $this->collection->where);
 
-				$this->collection->postInit();
-				$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : null);
-			} else {
-				if (!$collection) {
-					$re = new ReflectionClass($this);
-					$reCol = $re->getProperty('collection');
-					$doc = new DocCommentParser($reCol->getDocComment());
-					$collectionName = $doc->getFirstTagValue('var');
-					$collection = new $collectionName();
-				}
-				$this->collection = $collection;
-			}
+			$this->collection->postInit();
+			$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : null);
 		}
 		// after collection is made, to run getGridColumns
-		$allowEdit = $this->request->getControllerString() == get_class($this);
-		$this->setColumns(get_class($this->collection), $allowEdit);
+		$allowEdit = $this->request->getControllerString() === get_class($this);
+		$this->setColumns(get_class($this), $allowEdit);
+	}
+
+	public function makeCollection($collectionName)
+	{
+		if (is_string($collectionName)) {
+			$this->log(__METHOD__ . ' new collection', $collectionName);
+			$collection = new $collectionName(null, [], $this->getOrderBy());
+		} else {
+			$re = new ReflectionClass($this);
+			$reCol = $re->getProperty('collection');
+			$doc = new DocCommentParser($reCol->getDocComment());
+			$collectionName = $doc->getFirstTagValue('var');
+			$collectionName = first(trimExplode('|', $collectionName));
+			$this->log(__METHOD__ . ' new collection by reflection', $collectionName);
+			$collection = new $collectionName();
+		}
+		return $collection;
 	}
 
 	/**
 	 * Can't use $this->collection at this point as this function is used to initialize the collection!
-	 * @return string
+	 * @return string|null
 	 */
 	public function getOrderBy()
 	{
@@ -107,7 +110,7 @@ abstract class FullGrid extends Grid
 				$sortBy = $desc['source'];
 			}
 			if (ifsetor($desc['sortable']) === false) {
-				$sortBy = NULL;
+				$sortBy = null;
 			}
 		}
 		if (!$sortBy) {
@@ -126,14 +129,14 @@ abstract class FullGrid extends Grid
 		return $ret;
 	}
 
-	function render()
+	public function render()
 	{
 		$this->setVisibleColumns();
 		//$this->collection->pageSize = $this->pageSize;
 		return parent::render();
 	}
 
-	function setVisibleColumns()
+	public function setVisibleColumns()
 	{
 		if ($this->columns) {
 			foreach ($this->collection->thes as $cn => $_) {
@@ -149,13 +152,12 @@ abstract class FullGrid extends Grid
 	 * @return array
 	 * @throws Exception
 	 */
-	function getFilterWhere()
+	public function getFilterWhere()
 	{
-		return $this->filterController->getFilterWhere(
-			$this->getFilterDesc());
+		return $this->filterController->getFilterWhere();
 	}
 
-	function sidebar()
+	public function sidebar()
 	{
 		$fields = $this->collection->thes;
 		$content[] = $this->getFilterForm($fields);
@@ -165,10 +167,10 @@ abstract class FullGrid extends Grid
 
 	/**
 	 * @param array $fields
-	 * @return array|HTMLFormTable
+	 * @return HTMLForm
 	 * @throws Exception
 	 */
-	function getFilterForm(array $fields = [])
+	public function getFilterForm(array $fields = [])
 	{
 		if (method_exists($this, 'getFilterDesc')) {
 			$this->filterController->desc = $this->getFilterDesc($fields);
@@ -185,35 +187,35 @@ abstract class FullGrid extends Grid
 	 * Why manually? I don't know, it could change.
 	 *
 	 * @param array $fields
-	 * @throws Exception
 	 * @return array
+	 * @throws Exception
 	 */
-	function getFilterDesc(array $fields = NULL)
+	public function getFilterDesc(array $fields = null)
 	{
 		return $this->filterController->getFilterDesc($fields);
 	}
 
-	function getColumnsForm()
+	public function getColumnsForm()
 	{
 //		debug($this->getGridColumns());
 //		debug($this->columns->getData());
-		$desc = array(
-			'columns' => array(
+		$desc = [
+			'columns' => [
 				'label' => '<h2>' . __('Visible') . '</h2>',
 				'type' => 'keyset',
 				'options' => $this->getGridColumns(),
 				'value' => $this->columns->getData(),
 				'between' => '',
-			),
-			'collectionName' => array(
+			],
+			'collectionName' => [
 				'type' => 'hidden',
 				'value' => get_class($this->collection),
-			)
-		);
+			]
+		];
 		$f = new HTMLFormTable();
 		$f->method('GET');
 		$f->defaultBR = true;
-		$f->formHideArray($this->linkVars);
+		$f->formHideArray($this->linker->linkVars);
 		$f->showForm($desc);
 		$f->submit(__('Set Visible Columns'));
 		return $f;
@@ -222,7 +224,7 @@ abstract class FullGrid extends Grid
 	/**
 	 * @throws Exception
 	 */
-	function injectCollection()
+	public function injectCollection()
 	{
 		parent::injectCollection();
 		debug($this->collection->where,

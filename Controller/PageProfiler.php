@@ -23,7 +23,7 @@ class PageProfiler
 	{
 		if (class_exists('Index')) {
 			$index = Index::getInstance();
-			$exceptions = in_array($index->controller ? get_class($index->controller) : null, array('Lesser'));
+			$exceptions = in_array($index->controller ? get_class($index->controller) : null, ['Lesser']);
 		} else {
 			$exceptions = false;
 		}
@@ -104,6 +104,7 @@ class PageProfiler
 
 	/**
 	 * @return string
+	 * @throws Exception
 	 */
 	protected function getHeader()
 	{
@@ -121,6 +122,7 @@ class PageProfiler
 
 	/**
 	 * @return string
+	 * @throws Exception
 	 */
 	protected function getFooter()
 	{
