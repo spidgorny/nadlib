@@ -75,12 +75,12 @@ class AppRootDetector
 		}
 	}
 
-	function get()
+	public function get()
 	{
 		return $this->appRoot;
 	}
 
-	function log($a)
+	public function log($a)
 	{
 		if ($this->debug) {
 			echo __METHOD__, ' ', implode(' ', func_get_args()), BR;

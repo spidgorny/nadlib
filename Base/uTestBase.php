@@ -18,7 +18,7 @@ class uTestBase extends AppControllerBE
 		false => 0,
 	];
 
-	function render()
+	public function render()
 	{
 		$this->index->bodyClasses[] = 'fullScreen';
 		$content = '<style>
@@ -58,20 +58,21 @@ class uTestBase extends AppControllerBE
 		return $content;
 	}
 
-	function get_var_dump($a)
+	public function get_var_dump($a)
 	{
 		ob_start();
 		var_dump($a);
 		return ob_get_clean();
 	}
 
-	function assertEqual($v1, $v2, $comment = '', $bool = null)
+	public function assertEqual($v1, $v2, $comment = '', $bool = null)
 	{
 		$row = [];
 		$dbt = debug_backtrace();
 		$i = 0;
 		$db = $dbt[$i];
-		while (in_array($db['function'], ['assert', 'assertEqual', 'assertNotEqual', 'assertTrue', 'assertGreaterThan'])) {
+		$ignoreList = ['assert', 'assertEqual', 'assertNotEqual', 'assertTrue', 'assertGreaterThan'];
+		while (in_array($db['function'], $ignoreList)) {
 			$db = $dbt[++$i];
 		}
 		//Debug::peek($db);

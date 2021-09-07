@@ -55,6 +55,8 @@ class InitNADLIB {
 
 	public function init()
 	{
+		// maybe InitNADLIB was loaded by composer autoload
+		require_once __DIR__.'/../init.php';
 		//print_r($_SERVER);
 		$this->setDefaults();
 		$this->setErrorReporting();

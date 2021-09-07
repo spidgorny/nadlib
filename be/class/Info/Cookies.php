@@ -18,22 +18,22 @@ class Cookies extends AppControllerBE {
 	}
 
 	function sidebar() {
-		$f = new HTMLFormTable(array(
-			'key' => array(
+		$f = new HTMLFormTable([
+			'key' => [
 				'label' => 'Cookie name',
-			),
-			'val' => array(
+			],
+			'val' => [
 				'label' => 'Value',
-			),
-			'action' => array(
+			],
+			'action' => [
 				'type' => 'hidden',
 				'value' => 'add',
-			),
-			'submit' => array(
+			],
+			'submit' => [
 				'type' => 'submit',
 				'value' => 'Create cookie',
-			)
-		));
+			]
+		]);
 		$f->defaultBR = true;
 		return $f;
 	}
