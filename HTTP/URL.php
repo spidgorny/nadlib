@@ -2,9 +2,11 @@
 
 namespace spidgorny\nadlib\HTTP;
 
-use Request;
-use Path;
 use AutoLoad;
+use LogEntry;
+use nadlib\Proxy;
+use Path;
+use Request;
 use URLGet;
 
 class URL
@@ -49,23 +51,39 @@ class URL
 	 */
 	public $cookies = [];
 
+	public $headers = [];
+
+	public $user_agent;
+
+	public $cookie_file;
+
+	public $compression;
+
 	/**
-	 * @param null $url - if not specified then the current page URL is reconstructed
+	 * @var Proxy
+	 */
+	public $proxy;
+
+	/**
+	 * @param string $url - if not specified then the current page URL is reconstructed
 	 * @param array $params
 	 */
 	public function __construct($url = null, array $params = [])
 	{
 		if ($url instanceof URL) {
 			//return $url;	// doesn't work
-		}
-		if (!isset($url)) { // empty string should not default to localhost
+//			throw new \RuntimeException(__METHOD__);
+			foreach (get_object_vars($url) as $key => $val) {
+				$this->$key = $val;
+			}
+		} elseif (empty($url)) { // empty string should not default to localhost
 			$http = Request::getRequestType();
 			//debug($_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'], $_SERVER);
 			$host = ifsetor($_SERVER['HTTP_X_FORWARDED_HOST'], ifsetor($_SERVER['HTTP_HOST']));
 			if ($host) {
 				$url = $http . '://' . $host . ifsetor($_SERVER['REQUEST_URI'], '/');
 			} else {
-				$url = $http . '://localhost/';
+				$url = $http . '://' . (gethostname() ?: 'localhost') . '/';
 			}
 			$this->parseURL($url);
 		} else {
@@ -77,6 +95,9 @@ class URL
 //		if (class_exists('Config')) {
 //			$this->setDocumentRoot(Config::getInstance()->documentRoot);
 //		}
+		// infinite recursion
+//		$this->setDocumentRoot(Request::getInstance()->getDocumentRoot());
+		$this->setDocumentRoot(Request::getDocumentRootByRequest());
 	}
 
 	/**
@@ -87,7 +108,7 @@ class URL
 		$this->components = @parse_url($url);
 		//pre_print_r($this->components);
 		if (!$this->components) {
-			//  parse_url(/pizzavanti-gmbh/id:3/10.09.2012@10:30/488583b0e1f3d90d48906281f8e49253.html)
+			// parse_url(/pizzavanti-gmbh/id:3/10.09.2012@10:30/488583b0e1f3d90d48906281f8e49253.html)
 			// [function.parse-url]: Unable to parse URL
 			$request = Request::getExistingInstance();
 			if ($request) {
@@ -113,7 +134,8 @@ class URL
 		//debug($url, $request ? 'Request::getExistingInstance' : '');
 		if (isset($this->components['path'])) {
 			$this->path = new Path($this->components['path']);
-			$this->components['path'] = $this->path;
+			// keep the original intact, just in case
+//			$this->components['path'] = $this->path;
 			//pre_print_r([__METHOD__, $this->components, get_class($this->path)]);
 		} else {
 			$this->path = new Path('/');
@@ -238,6 +260,8 @@ class URL
 	public function reset()
 	{
 		$this->components['path'] = $this->documentRoot;
+		$this->components['query'] = '';
+		$this->clearParams();
 	}
 
 	/**
@@ -344,10 +368,11 @@ class URL
 			$url = $this->buildURL();
 		} else {
 			$url = '';
-			if (ifsetor($this->components['path'])
-				&& $this->components['path'] != '/') {
-				$url = $this->components['path'];
-			}
+//			if (ifsetor($this->components['path'])
+//				&& $this->components['path'] != '/') {
+//				$url .= $this->components['path'];
+//			}
+			$url .= $this->path . '';
 			if (ifsetor($this->components['query'])) {
 				$url .= '?' . $this->components['query'];
 			}
@@ -462,7 +487,7 @@ class URL
 			trimExplode(':', ini_get('open_basedir')),
 			$_SERVER
 		);
-//		exit;
+		//		exit;
 		// some compatibility fixes for Windows paths
 		$from = self::getPathFolders($from);
 		$to = self::getPathFolders($to);
@@ -538,8 +563,8 @@ class URL
 	 */
 	public static function getPathFolders($from)
 	{
-//		ob_start();
-//		debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		//		ob_start();
+		//		debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 		if (!ini_get('open_basedir')) {
 			$from = is_dir($from) ? rtrim($from, '\/') . '/' : $from;
 		}
@@ -688,7 +713,8 @@ class URL
 			$outPath = '/' . $outPath;
 		}
 		// compare last multi-byte character against '/'
-		if ($outPath != '/' && (mb_strlen($path) - 1) == mb_strrpos($path, '/', 'UTF-8')) {
+		if ($outPath != '/' && (mb_strlen($path) - 1) == mb_strrpos($path, '/', 'UTF-8')
+		) {
 			$outPath .= '/';
 		}
 		return $outPath;
@@ -828,7 +854,11 @@ class URL
 				$parts['host'] = rawurlencode($parts['host']);
 			}
 			if (!empty($parts['path'])) {
-				$parts['path'] = preg_replace('!%2F!ui', '/', rawurlencode($parts['path']));
+				$parts['path'] = preg_replace(
+					'!%2F!ui',
+					'/',
+					rawurlencode($parts['path'])
+				);
 			}
 			if (isset($parts['query'])) {
 				$parts['query'] = rawurlencode($parts['query']);
@@ -852,10 +882,11 @@ class URL
 				$url .= '@';
 			}
 			if (preg_match('!^[\da-f]*:[\da-f.:]+$!ui', $parts['host'])) {
-				$url .= '[' . $parts['host'] . ']'; // IPv6
-			} else {
-				$url .= $parts['host'];             // IPv4 or name
-			}
+				$url .= '[' . $parts['host'] . ']';
+			} // IPv6
+			else {
+				$url .= $parts['host'];
+			}             // IPv4 or name
 			if (isset($parts['port'])) {
 				$url .= ':' . $parts['port'];
 			}
@@ -927,9 +958,14 @@ class URL
 		return $this;
 	}
 
+	public function getScheme()
+	{
+		return ifsetor($this->components['scheme']);
+	}
+
 	public function getHost()
 	{
-		return $this->components['host'];
+		return ifsetor($this->components['host']);
 	}
 
 	public function setHost($host)
@@ -939,17 +975,17 @@ class URL
 
 	public function getPort()
 	{
-		return $this->components['port'];
+		return ifsetor($this->components['port']);
 	}
 
 	public function getUser()
 	{
-		return $this->components['user'];
+		return ifsetor($this->components['user']);
 	}
 
 	public function getPass()
 	{
-		return $this->components['pass'];
+		return ifsetor($this->components['pass']);
 	}
 
 	public function getHash()
@@ -973,9 +1009,17 @@ class URL
 			$newController = implode('/', $newController);
 		}
 		$path = $this->getPath();
-		$diff = str_replace($this->documentRoot, '', $path);
-		//debug($path, $this->documentRoot, $diff);
-		$path = str_replace($diff, $newController, $path);
+		$diff = '';
+		if ($this->documentRoot != '/') {
+			$diff = str_replace($this->documentRoot, '', $path);
+		}
+		debug([
+			'original' => $path . '',
+			'docroot' => $this->documentRoot,
+			'diff' => $diff,
+			'replace-by' => $newController,
+		]);
+		$path = str_replace($diff, '/' . $newController, $path);
 		$this->setPath($path);
 		return $this;
 	}
@@ -989,7 +1033,7 @@ class URL
 	{
 		$al = AutoLoad::getInstance();
 		$path = $this->getPath();
-//		debug($path.'', $path->isAbsolute(), $al->getAppRoot().'');
+		//		debug($path.'', $path->isAbsolute(), $al->getAppRoot().'');
 		if ($path->isAbsolute() && $path->exists()) {
 			$this->setPath($path->relativeFromAppRoot());
 		} else {
@@ -998,5 +1042,4 @@ class URL
 		}
 		return $this;
 	}
-
 }

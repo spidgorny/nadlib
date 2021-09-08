@@ -28,7 +28,8 @@ function startTask(url, target) {
     };
     source.onerror = function (event) {
         var txt;
-        switch (event.target.readyState) {
+        var es = event.target;
+        switch (es.readyState) {
             case EventSource.CONNECTING:
                 txt = 'Reconnecting...';
                 break;

@@ -1,16 +1,17 @@
 <?php
 
-require_once __DIR__.'/URL.php';
+require_once __DIR__ . '/URL.php';
 
+use nadlib\HTTP\Session;
 use spidgorny\nadlib\HTTP\URL;
 
-class Request {
-
+class Request
+{
 	/**
 	 * Assoc array of URL parameters
 	 * @var array
 	 */
-	protected $data = array();
+	protected $data = [];
 
 	/**
 	 * @var URL
@@ -24,6 +25,14 @@ class Request {
 	protected static $instance;
 
 	protected $proxy;
+
+	public static function getInstance($cons = null)
+	{
+		if (!static::$instance) {
+			static::$instance = new static($cons);
+		}
+		return static::$instance;
+	}
 
 	public function __construct(array $array = null)
 	{
@@ -49,13 +58,6 @@ class Request {
 			}
 		}
 		return $request;
-	}
-
-	public static function getInstance($cons = null)
-	{
-		return static::$instance = static::$instance
-			? static::$instance
-			: new static($cons);
 	}
 
 	public static function getExistingInstance()
@@ -146,8 +148,8 @@ class Request {
 	 * Checks that trimmed value isset in the supplied array
 	 * @param $name
 	 * @param array $options
-	 * @throws Exception
 	 * @return string
+	 * @throws Exception
 	 */
 	public function getOneOf($name, array $options)
 	{
@@ -229,8 +231,8 @@ class Request {
 	 * Converts string date compatible with strtotime() into timestamp (integer)
 	 *
 	 * @param string $name
-	 * @throws Exception
 	 * @return int
+	 * @throws Exception
 	 */
 	public function getTimestampFromString($name)
 	{
@@ -248,7 +250,7 @@ class Request {
 	 */
 	public function getArray($name)
 	{
-		return isset($this->data[$name]) ? (array)($this->data[$name]) : array();
+		return isset($this->data[$name]) ? (array)($this->data[$name]) : [];
 	}
 
 	public function getTrimArray($name)
@@ -408,7 +410,7 @@ class Request {
 				$controller = $resolver->getController($returnDefault);
 			}
 		}   // cli
-		nodebug(array(
+		nodebug([
 			'result' => $controller,
 			'c' => $this->getTrim('c'),
 			//'levels' => $this->getURLLevels(),
@@ -416,15 +418,15 @@ class Request {
 			'default' => class_exists('Config')
 				? Config::getInstance()->defaultController
 				: null,
-			'data' => $this->data));
+			'data' => $this->data]);
 		return $controller;
 	}
 
 	/**
 	 * Will require modifications when realurl is in place
 	 *
+	 * @return SimpleController|Controller
 	 * @throws Exception
-	 * @return object
 	 */
 	public function getController()
 	{
@@ -463,7 +465,7 @@ class Request {
 		$return = null;
 		$url = $this->getReferer();
 		if ($url) {
-			$url->setParams(array());   // get rid of any action
+			$url->setParams([]);   // get rid of any action
 			$rr = $url->getRequest();
 			$return = $rr->getControllerString();
 		}
@@ -484,12 +486,15 @@ class Request {
 		return $ok ? $referer : null;
 	}
 
-	public function redirect($controller, $exit = true)
+	public function redirect($controller, $exit = true, array $params = [])
 	{
 		if (class_exists('Index')
 			&& Index::getInstance()
 			&& method_exists(Index::getInstance(), '__destruct')) {
 			Index::getInstance()->__destruct();
+		}
+		if ($params) {
+			$controller .= '?' . http_build_query($params);
 		}
 		if ($this->canRedirect($controller)) {
 			if (!headers_sent()) {
@@ -514,6 +519,7 @@ class Request {
 			session_write_close();
 			exit();
 		}
+		return $controller;
 	}
 
 	public function canRedirect($to)
@@ -596,19 +602,17 @@ class Request {
 
 	public static function getLocationDebug()
 	{
-		$c = null;
 		$docRoot = self::getDocRoot();
 		ksort($_SERVER);
-		pre_print_r(array(
-			'c' => get_class($c),
+		pre_print_r([
 			'docRoot' => $docRoot . '',
 			'PHP_SELF' => $_SERVER['PHP_SELF'],
 			'cwd' => getcwd(),
 			'url' => self::getLocation() . '',
 			'server' => array_filter($_SERVER, function ($el) {
-				return strpos($el, '/') !== false;
+				return is_string($el) && strpos($el, '/') !== false;
 			}),
-		));
+		]);
 	}
 
 	public static function getHost($isUTF8 = false)
@@ -623,7 +627,11 @@ class Request {
 				: (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : null);
 		}
 		if (function_exists('idn_to_utf8') && $isUTF8) {
-			$try = idn_to_utf8($host);
+			if (phpversion() >= 7.3) {
+				$try = idn_to_utf8($host, 0, defined('INTL_IDNA_VARIANT_UTS46') ? INTL_IDNA_VARIANT_UTS46 : 1);
+			} else {
+				$try = idn_to_utf8($host);
+			}
 			//debug($host, $try);
 			if ($try) {
 				$host = $try;
@@ -667,12 +675,14 @@ class Request {
 	 */
 	public function isAjax()
 	{
-		$headers = function_exists('apache_request_headers') ? apache_request_headers() : array();
+		$headers = function_exists('apache_request_headers') ? apache_request_headers() : [];
 		if (!$headers) {
-			$headers = array(
+			$headers = [
 				'X-Requested-With' => ifsetor($_SERVER['HTTP_X_REQUESTED_WITH'])
-			);
+			];
 		}
+		$headers = array_change_key_case($headers, CASE_LOWER);
+
 		$isXHR = false;
 		if (isset($headers['X-Requested-With'])) {
 			$isXHR = strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest');
@@ -682,7 +692,10 @@ class Request {
 
 	public function getHeader($name)
 	{
-		$headers = function_exists('apache_request_headers') ? apache_request_headers() : array();
+		$headers = function_exists('apache_request_headers')
+			? apache_request_headers() : [];
+//		llog($headers);
+
 		return ifsetor($headers[$name]);
 	}
 
@@ -898,14 +911,14 @@ class Request {
 				array_shift($levels);
 			}
 		} else {
-			$levels = array();
+			$levels = [];
 		}
-		nodebug(array(
+		nodebug([
 			'cwd' => getcwd(),
 			//'url' => $url.'',
 			'path' => $path . '',
 			//'getURL()' => $path->getURL() . '',
-			'levels' => $levels));
+			'levels' => $levels]);
 		return $levels;
 	}
 
@@ -1056,10 +1069,10 @@ class Request {
 	 * @param array $noopt List of parameters without values
 	 * @return array
 	 */
-	public function parseParameters($noopt = array())
+	public function parseParameters($noopt = [])
 	{
-		$result = array();
-		$params = isset($_SERVER['argv']) ? $_SERVER['argv'] : array();
+		$result = [];
+		$params = isset($_SERVER['argv']) ? $_SERVER['argv'] : [];
 		// could use getopt() here (since PHP 5.3.0), but it doesn't work reliably
 		reset($params);
 		foreach ($params as $tmp => $p) {
@@ -1088,7 +1101,7 @@ class Request {
 		return $result;
 	}
 
-	public function importCLIparams($noopt = array())
+	public function importCLIparams($noopt = [])
 	{
 		$this->data += $this->parseParameters($noopt);
 		return $this;
@@ -1124,7 +1137,7 @@ class Request {
 
 	public function clear()
 	{
-		$this->data = array();
+		$this->data = [];
 	}
 
 	/**
@@ -1163,7 +1176,7 @@ class Request {
 
 	public static function printDocumentRootDebug()
 	{
-		pre_print_r(array(
+		pre_print_r([
 			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
 			'SCRIPT_FILENAME' => $_SERVER['SCRIPT_FILENAME'],
 			'PHP_SELF' => $_SERVER['PHP_SELF'],
@@ -1173,7 +1186,7 @@ class Request {
 			'getDocumentRootByScript' => self::getDocumentRootByScript(),
 			'getDocumentRootByIsDir' => self::getDocumentRootByIsDir(),
 			'getDocumentRoot' => self::getDocumentRoot() . '',
-		));
+		]);
 	}
 
 	/**
@@ -1332,20 +1345,21 @@ class Request {
 	{
 		if (isset($HTTP_RAW_POST_DATA)) {
 			return $HTTP_RAW_POST_DATA;
-		} else {
-			return file_get_contents("php://input");
 		}
+
+		return file_get_contents("php://input");
 	}
 
-	public function forceDownload($contentType, $filename)
+	/// disposition = inline
+	public function forceDownload($contentType, $filename, $disposition = 'attachment')
 	{
 		header('Content-Type: ' . $contentType);
-		header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
+		header("Content-Disposition: ".$disposition."; filename=\"" . $filename . "\"");
 	}
 
 	public static function isHTTPS()
 	{
-		return self::getRequestType() == 'https';
+		return self::getRequestType() === 'https';
 	}
 
 	public function getNamelessID()
@@ -1367,10 +1381,10 @@ class Request {
 	public function getClientIP()
 	{
 		$ip = ifsetor($_SERVER['REMOTE_ADDR']);
-		if (!$ip || in_array($ip, array(
+		if (!$ip || in_array($ip, [
 				'127.0.0.1',
 				'::1'
-			))) {
+			])) {
 			$ip = $this->fetch('http://ipecho.net/plain');
 		}
 		return $ip;
@@ -1432,6 +1446,7 @@ class Request {
 		if ($ref) {
 			$this->redirect($ref);
 		}
+		return true;
 	}
 
 	public function setProxy($proxy)
@@ -1529,4 +1544,20 @@ class Request {
 		}
 		return $action;
 	}
+
+	public function getRawPost()
+	{
+		if (defined('STDIN')) {
+			$post = stream_get_contents(STDIN);
+		} else {
+			$post = file_get_contents('php://input');
+		}
+		return $post;
+	}
+
+	public function getJsonPost()
+	{
+		return json_decode($this->getRawPost());
+	}
+
 }
