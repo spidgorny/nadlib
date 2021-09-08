@@ -5,9 +5,9 @@ class SQLOrder extends SQLWherePart
 
 	protected $db;
 
-	protected $parts = array();
+	protected $parts = [];
 
-	public function __construct($order = array())
+	public function __construct($order = [])
 	{
 		if (is_array($order)) {
 			$this->parts = $order;

@@ -1,6 +1,7 @@
 <?php
 
 use Psr\Log\LoggerInterface;
+use spidgorny\nadlib\HTTP\URL;
 
 require_once __DIR__ . '/CachedGetInstance.php';
 
@@ -15,7 +16,7 @@ abstract class OODBase
 	use CachedGetInstance;
 
 	/**
-	 * @var DBInterface|SQLBuilder
+	 * @var DBLayerBase|DBInterface|SQLBuilder|DBLayerPDO
 	 * public to allow unset($o->db); before debugging
 	 */
 	protected $db;
@@ -72,7 +73,7 @@ abstract class OODBase
 	public $parentField = 'pid';
 
 	/**
-	 * @var findInDB() will call init
+	 * @var bool findInDB() will call init
 	 */
 	public $forceInit;
 
@@ -142,15 +143,16 @@ abstract class OODBase
 			$where = $id->getAsArray();
 			$this->findInDB($where);
 		} elseif (is_scalar($id)) {
+//			debug('set id', $id);
 			$this->id = $id;
 			if (is_array($this->idField)) {
 				// TODO
 				throw new InvalidArgumentException(__METHOD__);
+			} else {
+				// will do $this->init()
+				$this->findByID($this->id);
 			}
-
-			// will do $this->init()
-			$this->findByID($this->id);
-			llog($this->data);
+//			debug('data set', $this->data);
 			if (!$this->data) {
 				$this->id = null;
 			}
@@ -200,7 +202,12 @@ abstract class OODBase
 			$this->id = $this->data[$idField];
 //			assert($this->id);
 		} else {
-			debug(typ($row) . '', $this->idField, $idField, $this->data);
+			debug([
+				'class' => static::class,
+				'typ' => typ($row) . '',
+				'idField' => $this->idField,
+				'id' => $idField,
+				'data' => $this->data]);
 			throw new InvalidArgumentException(get_class($this) . '::' . __METHOD__);
 		}
 	}
@@ -226,8 +233,9 @@ abstract class OODBase
 		//$data['ctime'] = new SQLNow();
 		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
-		$res = $this->db->perform($query);
-		$this->lastQuery = $this->db->lastQuery;    // save before commit
+		// for DBPlacebo to return the same data back
+		$res = $this->db->runInsertQuery($this->table, $data);
+		$this->lastQuery = $this->db->getLastQuery();    // save before commit
 
 		// this needs to be checked first,
 		// because SQLite will give some kind of ID
@@ -246,7 +254,15 @@ abstract class OODBase
 			$this->init($id ? $id : $this->id);
 		} else {
 			//debug($this->lastQuery, $this->db->lastQuery);
-			throw new DatabaseException('OODBase for ' . $this->table . ' no insert id after insert');
+			$errorMessage = 'OODBase for ' . $this->table . ' no insert id after insert. ';
+			$errorCode = null;
+			if ($this->db instanceof DBLayerPDO) {
+				$errorMessage .= $this->db->getConnection()->errorInfo();
+				$errorCode = $this->db->getConnection()->errorCode();
+			}
+			$e = new DatabaseException($errorMessage, $errorCode);
+			$e->setQuery($query);
+			throw $e;
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $this;
@@ -309,7 +325,12 @@ abstract class OODBase
 		} else {
 			//$this->db->rollback();
 			debug_pre_print_backtrace();
-			throw new Exception(__('Updating [' . $this->table . '] is not possible as there is no ID defined. idField: ' . $this->idField));
+			$msg = __(
+				'Updating [$1] is not possible as there is no ID defined. idField: $2',
+				$this->table,
+				$this->idField
+			);
+			throw new Exception($msg);
 		}
 		return $res;
 	}
@@ -318,6 +339,7 @@ abstract class OODBase
 	 * @param array|NULL $where
 	 * @return null
 	 * @throws MustBeStringException
+	 * @throws DatabaseException
 	 */
 	public function delete(array $where = null)
 	{
@@ -366,7 +388,7 @@ abstract class OODBase
 		$this->lastSelectQuery = $this->db->lastQuery;
 		$this->log(__METHOD__, $this->lastSelectQuery . '');
 //		debug($rows, $this->lastSelectQuery);
-		if (is_array($rows)) {
+		if (is_array($rows) && $rows) {
 			$data = $rows;
 			$this->initByRow($data);
 		} else {
@@ -379,9 +401,14 @@ abstract class OODBase
 		return $data;
 	}
 
+	/**
+	 * @param $id
+	 * @return array
+	 * @throws Exception
+	 */
 	public function findByID($id)
 	{
-		$this->findInDB([
+		return $this->findInDB([
 			$this->idField => $id
 		]);
 	}
@@ -394,7 +421,7 @@ abstract class OODBase
 	 * @return mixed
 	 * @throws Exception
 	 */
-	public static function findInstance(array $where, $static = NULL)
+	public static function findInstance(array $where, $static = null)
 	{
 		if (!$static) {
 			if (function_exists('get_called_class')) {
@@ -521,7 +548,7 @@ abstract class OODBase
 	 * @param bool $skipEmpty
 	 * @return slTable
 	 */
-	public function renderAssoc(array $assoc = NULL, $recursive = false, $skipEmpty = true)
+	public function renderAssoc(array $assoc = null, $recursive = false, $skipEmpty = true)
 	{
 		$assoc = $assoc ? $assoc : $this->data;
 		//debug($this->thes);
@@ -585,6 +612,7 @@ abstract class OODBase
 				$size = filesize($file);
 				if ($size < 1024 * 4) {
 					$content = file_get_contents($file);
+					/** @noinspection UnserializeExploitsInspection */
 					$graph = unserialize($content); // faster?
 				} else {
 					$graph = self::getInstanceByID($id);
@@ -690,6 +718,10 @@ abstract class OODBase
 	 */
 	public function findInDBsetInstance(array $where, $orderByLimit = '')
 	{
+//		llog(__METHOD__, $this->where);
+//		llog(__METHOD__, $this->where.'');
+//		llog(__METHOD__, $where);
+//		llog(__METHOD__, $where.'');
 		$data = $this->db->fetchOneSelectQuery($this->table,
 			$this->where + $where, $orderByLimit);
 		if (is_array($data)) {
@@ -701,13 +733,13 @@ abstract class OODBase
 			nodebug(__METHOD__, $className, $id,
 				sizeof(self::$instances[$className]),
 				isset(self::$instances[$className][$id]));
-			$this->init($data, true);
+			$this->init($data);
 		}
 		return $data;
 	}
 
 	/**
-	 * @return OODBase|LazyPrefs
+	 * @return OODBase
 	 * @throws Exception
 	 */
 	public function getParent()
@@ -723,7 +755,8 @@ abstract class OODBase
 
 	/**
 	 * Override if collection name is different
-	 * @return Collection
+	 * @param array $where
+	 * @return DatabaseResultIteratorAssoc
 	 */
 	public function getChildren(array $where = [])
 	{
@@ -850,7 +883,7 @@ abstract class OODBase
 
 	public function getID()
 	{
-		return $this->id;
+		return (int)$this->id;
 	}
 
 	public function getBool($value)

@@ -2,7 +2,7 @@
 
 class BaseFactory {
 
-	static $instances = array();
+	static $instances = [];
 
 //	function __invoke() {
 //		throw new InvalidArgumentException('Please implement '.get_class($this).'->__invoke()');
