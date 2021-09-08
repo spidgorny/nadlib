@@ -7,16 +7,14 @@
 class ExcelReader
 {
 	protected $excel;
-	protected $isCache = TRUE;
+	protected $isCache = true;
 	protected $filename = 'cache/';
 	protected $xml;
 	public $ll;
 
-	function __construct($excelFile, $usePersistance = false)
+	public function __construct($excelFile, $usePersistance = false)
 	{
-		$this->excel = $excelFile{0} == '/'
-			? $excelFile
-			: $excelFile;
+		$this->excel = $excelFile;
 		$this->filename .= basename($this->excel) . '.serial';
 
 		// read from excel - SimpleXML can't be serialized
@@ -32,9 +30,9 @@ class ExcelReader
 		$this->ll = $this->getSheet(0);
 	}
 
-	function readPersistant()
+	public function readPersistant()
 	{
-		$data = NULL;
+		$data = null;
 		if (file_exists($this->filename)) {
 			if (filemtime($this->filename) > filemtime($this->excel) && $this->isCache) {
 				$data = file_get_contents($this->filename);
@@ -72,7 +70,7 @@ class ExcelReader
 
 	function getSheets()
 	{
-		$list = array();
+		$list = [];
 		foreach ($this->xml->Worksheet as $sheet) {
 			$attr = $sheet->attributes('ss', true);
 			$list[] = trim($attr['Name']);
@@ -83,7 +81,7 @@ class ExcelReader
 
 	function getSheet($sheet = 0)
 	{
-		$data = array();
+		$data = [];
 		$s = $this->xml->Worksheet[$sheet]->Table;
 		if ($this->xml->Worksheet[$sheet]) {
 			$key = 0;

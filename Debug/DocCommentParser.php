@@ -4,7 +4,10 @@
  * Class DocCommentParser
  * Shamelessly stolen from TYPO3.Flow - don't tell anybody
  */
-class DocCommentParser {
+class DocCommentParser
+{
+
+	public $text;
 
 	/**
 	 * The description as found in the doc comment
@@ -15,9 +18,9 @@ class DocCommentParser {
 	 * An array of tag names and their values (multiple values are possible)
 	 * @var array
 	 */
-	protected $tags = array();
+	protected $tags = [];
 
-	function __construct($text = NULL)
+	function __construct($text = null)
 	{
 		$this->text = $text;
 		if ($this->text) {
@@ -33,18 +36,18 @@ class DocCommentParser {
 	 * @param string $docComment A doc comment as returned by the reflection getDocComment() method
 	 * @return DocCommentParser
 	 */
-	public function parseDocComment($docComment = NULL)
+	public function parseDocComment($docComment = null)
 	{
 		$docComment = $docComment ?: $this->text;
 		$this->description = '';
-		$this->tags = array();
+		$this->tags = [];
 		$lines = explode(chr(10), $docComment);
 		foreach ($lines as $line) {
 			$line = trim($line);
 			if ($line === '*/') {
 				break;
 			}
-			if (strlen($line) > 0 && strpos($line, '* @') !== FALSE) {
+			if (strlen($line) > 0 && strpos($line, '* @') !== false) {
 				$this->parseTag(substr($line, strpos($line, '@')));
 			} elseif (count($this->tags) === 0) {
 				$this->description .= preg_replace('/\s*\\/?[\\\\*]*\s?(.*)$/', '$1', $line) . chr(10);
@@ -63,7 +66,7 @@ class DocCommentParser {
 	 */
 	protected function parseTag($line)
 	{
-		$tagAndValue = array();
+		$tagAndValue = [];
 		if (preg_match('/@[A-Za-z0-9\\\\]+\\\\([A-Za-z0-9]+)(?:\\((.*)\\))?$/', $line, $tagAndValue) === 0) {
 			$tagAndValue = preg_split('/\s/', $line, 2);
 		} else {
@@ -73,7 +76,7 @@ class DocCommentParser {
 		if (count($tagAndValue) > 1) {
 			$this->tags[$tag][] = trim($tagAndValue[1], ' "');
 		} else {
-			$this->tags[$tag] = array();
+			$this->tags[$tag] = [];
 		}
 		//debug($this->tags);
 	}

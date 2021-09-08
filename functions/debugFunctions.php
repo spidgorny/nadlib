@@ -6,12 +6,12 @@
 if (!function_exists('debug')) {
 
 	/**
-	 * @param $a,... mixed|string|int
+	 * @param mixed,...$a
 	 */
-	function debug($a)
+	function debug(...$a)
 	{
-		$params = func_num_args() == 1 ? $a : func_get_args();
-		if (class_exists('Debug')) {
+		$params = func_num_args() === 1 ? $a : func_get_args();
+		if (class_exists(Debug::class)) {
 			$debug = Debug::getInstance();
 			$debug->debug($params);
 		} elseif (DEVELOPMENT) {
@@ -30,7 +30,7 @@ if (!function_exists('debug')) {
 
 if (!function_exists('debugList')) {
 
-	function debugList(array $a, $name = NULL)
+	function debugList(array $a, $name = null)
 	{
 		$debug = Debug::getInstance();
 		$debug->name = $name;
@@ -38,6 +38,11 @@ if (!function_exists('debugList')) {
 			$b = $b . '';
 		}
 		debug($a);
+	}
+
+	function debugTable(array $a)
+	{
+		debug(new slTable($a));
 	}
 
 	function ddie()
@@ -63,12 +68,17 @@ if (!function_exists('debugList')) {
 
 	/**
 	 * @param ...$a
+	 * @param mixed $b
+	 * @param mixed $c
+	 * @param mixed $d
+	 * @param mixed $e
+	 * @param mixed $f
 	 */
 	function nodebug($a, $b = null, $c = null, $d = null, $e = null, $f = null)
 	{
 	}
 
-	function getDebug()
+	function getDebug(...$args)
 	{
 		$params = func_get_args();
 		$debug = Debug::getInstance();
@@ -78,7 +88,7 @@ if (!function_exists('debugList')) {
 			$levels = ifsetor($params[2]);
 			$params[1] = $levels;
 		}
-		$content .= call_user_func_array(array($dh, 'view_array'), $params);
+		$content .= call_user_func_array([$dh, 'view_array'], $params);
 		return $content;
 	}
 
@@ -93,6 +103,7 @@ if (!function_exists('debugList')) {
 			echo '</pre>';
 		} else {
 			print_r(func_num_args() == 1 ? $a : func_get_args());
+			echo PHP_EOL;
 		}
 	}
 
@@ -112,9 +123,9 @@ if (!function_exists('debugList')) {
 
 	function debug_once()
 	{
-		static $used = NULL;
+		static $used = null;
 		if (is_null($used)) {
-			$used = array();
+			$used = [];
 		}
 		$trace = debug_backtrace();
 		array_shift($trace); // debug_once itself
@@ -137,7 +148,7 @@ if (!function_exists('debugList')) {
 			$vals = $a;
 			$keys = array_keys($a);
 		}
-		$assoc = array();
+		$assoc = [];
 		foreach ($keys as $key) {
 			$sxe = $vals[$key];
 			if ($sxe instanceof SimpleXMLElement) {
@@ -181,12 +192,12 @@ if (!function_exists('debugList')) {
 
 	/**
 	 * http://php.net/manual/en/function.error-reporting.php#65884
-	 * @param $value
+	 * @param int $value
 	 * @return string
 	 */
 	function error2string($value)
 	{
-		$level_names = array(
+		$level_names = [
 			E_ERROR => 'E_ERROR',
 			E_WARNING => 'E_WARNING',
 			E_PARSE => 'E_PARSE',
@@ -197,11 +208,11 @@ if (!function_exists('debugList')) {
 			E_COMPILE_WARNING => 'E_COMPILE_WARNING',
 			E_USER_ERROR => 'E_USER_ERROR',
 			E_USER_WARNING => 'E_USER_WARNING',
-			E_USER_NOTICE => 'E_USER_NOTICE');
+			E_USER_NOTICE => 'E_USER_NOTICE'];
 		if (defined('E_STRICT')) {
 			$level_names[E_STRICT] = 'E_STRICT';
 		}
-		$levels = array();
+		$levels = [];
 		if (($value & E_ALL) == E_ALL) {
 			$levels[] = 'E_ALL';
 			$value &= ~E_ALL;
@@ -216,27 +227,32 @@ if (!function_exists('debugList')) {
 
 	/**
 	 * similar to gettype() but return more information depending on data type in HTML
-	 * @param $something
+	 * @param mixed $something
 	 * @param bool $withHash
-	 *
-	 * @return htmlString
+	 * @param null $isCLI
+	 * @return HTMLTag
 	 */
-	function typ($something, $withHash = true)
+	function typ($something, $withHash = true, $isCLI = null)
 	{
+		if ($isCLI === null) {
+			$isCLI = Request::isCLI();
+		}
 		$type = gettype($something);
-		if ($type == 'object') {
+		if ($type === 'object') {
 			if ($withHash) {
 				$hash = md5(spl_object_hash($something));
 				$hash = substr($hash, 0, 6);
 				require_once __DIR__ . '/../HTTP/Request.php';
 				if (!Request::isCLI()) {
-					require_once __DIR__ . '/../HTML/Color.php';
+					require_once __DIR__ . '/../Value/Color.php';
 					$color = new Color('#' . $hash);
 					$complement = $color->getComplement();
-					$hash = new HTMLTag('span', array(
-						'class' => 'tag',
-						'style' => 'background: ' . $color . '; color: ' . $complement,
-					), $hash);
+					if (!$isCLI) {
+						$hash = new HTMLTag('span', [
+							'class' => 'tag',
+							'style' => 'background: ' . $color . '; color: ' . $complement,
+						], $hash);
+					}
 				}
 				$typeName = get_class($something) . '#' . $hash;
 			} else {
@@ -264,17 +280,20 @@ if (!function_exists('debugList')) {
 			$typeName .= '[' . sizeof($something) . ']';
 		}
 
-		return new HTMLTag('span', ['class' => $class], $typeName, true);
+		if (!Request::isCLI()) {
+			return new HTMLTag('span', ['class' => $class], $typeName, true);
+		}
+		return new htmlString($typeName);
 	}
 
 	/**
-	 * @param $something array|mixed
+	 * @param array|mixed $something
 	 * @return array|htmlString
 	 */
 	function gettypes($something)
 	{
 		if (is_array($something)) {
-			$types = array();
+			$types = [];
 			foreach ($something as $key => $element) {
 				$types[$key] = strip_tags(typ($element));
 			}

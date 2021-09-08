@@ -90,7 +90,7 @@ class Ticker {
 	static function enableTick($ticker = 1000, $func = null)
 	{
 		$tp = self::getInstance();
-		$ok = register_tick_function($func ?: array($tp, 'tick'));
+		$ok = register_tick_function($func ?: [$tp, 'tick']);
 		if ($ok) {
 			$tp->tickTime = $ticker;
 			//$tp->tick();
@@ -123,8 +123,8 @@ class Ticker {
 	function tick()
 	{
 		$bt = debug_backtrace();
-		$list = array();
-		$prow = array();
+		$list = [];
+		$prow = [];
 		foreach ($bt as $row) {
 			$list[] = basename(ifsetor($prow['file'])) .
 				((isset($row['object'])
@@ -207,7 +207,7 @@ class Ticker {
 	{
 		echo __METHOD__, BR;
 		$tp = self::getInstance();
-		unregister_tick_function(array($tp, 'tick'));
+		unregister_tick_function([$tp, 'tick']);
 	}
 
 	function __destruct()

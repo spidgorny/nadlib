@@ -6,14 +6,14 @@ class ListFilesIn extends ArrayObject
 	function __construct($folder)
 	{
 		//parent::__construct();
-		$menu = array();
+		$menu = [];
 		if (file_exists($folder)) {
 			$iterator = new RecursiveDirectoryIterator($folder, FilesystemIterator::SKIP_DOTS);
 			//$iterator = new RecursiveIteratorIterator($iterator);
 			foreach ($iterator as $file) {
 				/** @var $file SplFileInfo */
 				$filename = $file->getFilename();
-				if ($filename{0} != '.') {
+				if ($filename[0] !== '.') {
 					$pathname = $file->getPathname();
 					//$key = first(trimExplode('.', $filename, 2));	// why?
 					$key = $filename;
