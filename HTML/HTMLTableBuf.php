@@ -1,10 +1,10 @@
 <?php
 
 /**
- * @property  table
- * @property  thead
- * @property  tbody
- * @property  tfoot
+ * @property string table
+ * @property array thead
+ * @property array tbody
+ * @property array tfoot
  */
 class HTMLTableBuf extends MergedContent
 {
@@ -13,16 +13,16 @@ class HTMLTableBuf extends MergedContent
 
 	public function __construct()
 	{
-		parent::__construct(array(
+		parent::__construct([
 			'table' => '',
 			'thead' => '',
 			'tbody' => '',
-		));
+		]);
 	}
 
-	public function table($more = "")
+	public function table(array $more = [])
 	{
-		$this['table'] = "<table $more>\n";
+		$this['table'] = "<table " . HTMLTag::renderAttr($more) . ">\n";
 	}
 
 	public function tablee()
@@ -40,9 +40,9 @@ class HTMLTableBuf extends MergedContent
 		$this->addSub('thead', "</tr>\n");
 	}
 
-	public function tr($more = "")
+	public function tr(array $more = [])
 	{
-		$this->addSub('tbody', "<tr" . rtrim(' ' . $more) . ">\n");
+		$this->addSub('tbody', "<tr " . HTMLTag::renderAttr($more) . ">\n");
 	}
 
 	public function tre()
@@ -50,9 +50,9 @@ class HTMLTableBuf extends MergedContent
 		$this->addSub('tbody', "</tr>\n");
 	}
 
-	public function ftr($more = "")
+	public function ftr(array $more = [])
 	{
-		$this->addSub('tfoot', "<tr " . $more . ">\n");
+		$this->addSub('tfoot', "<tr " . HTMLTag::renderAttr($more) . ">\n");
 	}
 
 	public function ftre()
@@ -60,9 +60,9 @@ class HTMLTableBuf extends MergedContent
 		$this->addSub('tfoot', "</tr>\n");
 	}
 
-	public function th($more = '')
+	public function th(array $more = [])
 	{
-		$this->addSub('thead', "<th" . rtrim(' ' . $more) . ">\n");
+		$this->addSub('thead', "<th " . HTMLTag::renderAttr($more) . ">\n");
 	}
 
 	public function the()
@@ -70,9 +70,9 @@ class HTMLTableBuf extends MergedContent
 		$this->addSub('thead', "</th>\n");
 	}
 
-	public function td($more = "")
+	public function td(array $more = [])
 	{
-		$this->addSub($this->curPart, "<td" . rtrim(' ' . $more) . ">");
+		$this->addSub($this->curPart, "<td " . HTMLTag::renderAttr($more) . ">");
 	}
 
 	public function tde()
@@ -95,9 +95,9 @@ class HTMLTableBuf extends MergedContent
 		$this->addSub('tfoot', $text);
 	}
 
-	public function cell($a, array $more = array())
+	public function cell($a, array $more = [])
 	{
-		$this->td(HTMLTag::renderAttr($more));
+		$this->td($more);
 		$this->text($a);
 		$this->tde();
 	}
@@ -107,7 +107,7 @@ class HTMLTableBuf extends MergedContent
 	 * @param array $thMore - more on each column TH
 	 * @param array $trMore - more on the whole row
 	 */
-	public function thes(array $aCaption, $thMore = array(), $trMore = [])
+	public function thes(array $aCaption, $thMore = [], $trMore = [])
 	{
 		$this->htr($trMore);
 		foreach ($aCaption as $i => $caption) {

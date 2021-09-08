@@ -2,7 +2,7 @@
 
 use spidgorny\nadlib\HTTP\URL;
 
-class PageSize extends Controller
+class PageSize extends AppController
 {
 
 	/**

@@ -9,9 +9,19 @@ class PageSize extends AppController
 	 * Public to allow apps to adjust the amount
 	 * @var array
 	 */
-	public $options = array(
-		10, 15, 20, 30, 40, 50, 60, 100, 200, 500, 1000,
-	);
+	public $options = [
+		10 => 10,
+		15 => 15,
+		20 => 20,
+		30 => 30,
+		40 => 40,
+		50 => 50,
+		60 => 60,
+		100 => 100,
+		200 => 200,
+		500 => 500,
+		1000 => 1000,
+	];
 
 	protected $selected;
 
@@ -31,13 +41,18 @@ class PageSize extends AppController
 	public function __construct($selected = null)
 	{
 		parent::__construct();
+		// priority on Request
 		$this->selected = $this->request->is_set('pageSize')
 			? $this->request->getInt('pageSize') : null;
 
+		// otherwise $selected from the settings
 		if (!$this->selected) {
 			$this->selected = $selected;
+			$this->options[$this->selected] = $selected;
 			$this->log[] = 'Constructor: '.$this->selected;
 		}
+
+		// in the worst case - default
 		if (!$this->selected) {
 			$this->selected = self::$default;
 			$this->log[] = 'Default: '.$this->selected;
@@ -47,12 +62,12 @@ class PageSize extends AppController
 		$this->url = new URL();    // some default to avoid fatal error
 	}
 
-	function setURL(URL $url)
+	public function setURL(URL $url)
 	{
 		$this->url = $url;
 	}
 
-	function update()
+	public function update()
 	{
 		$this->selected = $this->get();
 	}
@@ -60,18 +75,19 @@ class PageSize extends AppController
 	public function set($value)
 	{
 		$this->selected = $value;
+		$this->options[$this->selected] = $value;
 	}
 
 	/**
 	 * Returns the $this->selected value making sure it's not too big
 	 * @return integer
 	 */
-	function get()
+	public function get()
 	{
 		return min($this->selected, max($this->options));
 	}
 
-	function getAllowed()
+	public function getAllowed()
 	{
 		if (in_array($this->selected, $this->options)) {
 			return $this->selected;
@@ -80,7 +96,7 @@ class PageSize extends AppController
 		}
 	}
 
-	function render()
+	public function render()
 	{
 		$content = '';
 		foreach ($this->options as $o) {
@@ -94,7 +110,7 @@ class PageSize extends AppController
 		return $content;
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		return $this->render() . '';
 	}
