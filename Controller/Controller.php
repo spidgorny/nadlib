@@ -398,7 +398,7 @@ abstract class Controller extends SimpleController
 		return '<script src="' . $file . '" type="text/javascript"></script>';
 	}
 
-	public function log($action, $data = null)
+	public function log($action, ...$data)
 	{
 		$this->log[] = new LogEntry($action, $data);
 	}

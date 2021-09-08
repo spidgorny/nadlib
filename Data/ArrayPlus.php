@@ -30,11 +30,6 @@
 
 class ArrayPlus extends ArrayObject implements Countable
 {
-	public function __construct(array $array = array())
-	{
-		parent::__construct($array);
-		$this->setData($array);
-	}
 
 	/**
 	 * Static initializers can be chained in PHP

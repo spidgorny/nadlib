@@ -156,7 +156,7 @@ class Menu /*extends Controller*/
 			$this->setBasePathFromClass();
 		}
 
-		0 && debug(array(
+		0 && debug([
 			'class_exists(Config)' => class_exists('Config'),
 //			'Config::getInstance()->config[Controller]' =>
 // 				(class_exists('Config') && isset($config->config['Controller']))
@@ -177,7 +177,7 @@ class Menu /*extends Controller*/
 			'rootPath' => $this->basePath->getPath()->getLevels(),
 			'getControllerString' => $this->request->getControllerString(),
 			'level' => $this->level,
-		];
+		]);
 	}
 
 	/**
