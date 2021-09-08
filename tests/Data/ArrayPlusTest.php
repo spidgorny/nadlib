@@ -9,40 +9,40 @@ class ArrayPlusTest extends IteratorArrayAccessTest {
 
 	public function setUp()
 	{
-		$this->ai = new ArrayPlus(array(
+		$this->ai = new ArrayPlus([
 			0 => 'a',
 			1 => 'b',
 			'slawa' => 'test',
-		));
+		]);
 	}
 
 	public function test_typoscript()
 	{
-		$a = array(
+		$a = [
 			'a' => 'b',
-			'c' => array(
+			'c' => [
 				'd' => 'e',
-				'f' => array(
+				'f' => [
 					'g' => 'h',
-				),
-			),
-		);
+				],
+			],
+		];
 		$b = ArrayPlus::create($a)->typoscript();
 		//debug($b);
-		$this->assertEquals(array(
+		$this->assertEquals([
 			'a' => 'b',
 			'c.d' => 'e',
 			'c.f.g' => 'h',
-		), $b);
+		], $b);
 	}
 
 	public function test_unset()
 	{
 		unset($this->ai[1]);
-		$this->assertEquals(array(
+		$this->assertEquals([
 			0 => 'a',
 			'slawa' => 'test'
-		), $this->ai->getData());
+		], $this->ai->getData());
 	}
 
 	public function test_addColumn()
@@ -100,6 +100,13 @@ class ArrayPlusTest extends IteratorArrayAccessTest {
 		$a = ArrayPlus::create(['asd', 'split' => 'a', 'after']);
 		$a->insertBefore('split', 'someshit');
 		$this->assertEquals(['asd', 'someshit', 'split' => 'a', 'after'], $a->getData());
+	}
+
+	public function test_without()
+	{
+		$a = ArrayPlus::create(['asd' => 1, 'qwe' => 2]);
+		$b = $a->without(['asd']);
+		$this->assertEquals(['qwe' => 2], $b->getArrayCopy());
 	}
 
 }

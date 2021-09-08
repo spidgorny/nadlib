@@ -1,6 +1,6 @@
 <?php
 
-class NadlibTest extends PHPUnit_Framework_TestCase
+class NadlibTest extends PHPUnit\Framework\TestCase
 {
 
 	function test_requireAll()
@@ -11,11 +11,11 @@ class NadlibTest extends PHPUnit_Framework_TestCase
 		);
 
 		//return;
-		$skip = array(
+		$skip = [
 			'MemcacheMemory',
 			'DBInterface',
 			'SQLQuery',
-		);
+		];
 		require_once 'AppController4Test.php';
 //		class_alias('AppController4Test', 'AppController');
 

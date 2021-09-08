@@ -1,10 +1,11 @@
 <?php
 
-class MockIndex {
+class MockIndexDCI
+{
 
 	function error($message)
 	{
-		error_log($message);
+		error_log(__METHOD__ . ': ' . $message);
 	}
 
 	function renderException(Exception $e)

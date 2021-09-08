@@ -10,11 +10,11 @@ class IteratorArrayAccessTest extends ArrayIteratorPlusTest
 
 	public function setUp()
 	{
-		$this->ai = new ArrayIterator(array(
+		$this->ai = new ArrayIterator([
 			0 => 'a',
 			1 => 'b',
 			'slawa' => 'test',
-		));
+		]);
 	}
 
 }

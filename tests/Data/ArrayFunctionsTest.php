@@ -10,7 +10,7 @@ if (!defined('DEVELOPMENT')) {
  * Date: 23.11.2016
  * Time: 11:45
  */
-class ArrayFunctionsTest extends PHPUnit_Framework_TestCase {
+class ArrayFunctionsTest extends PHPUnit\Framework\TestCase {
 
 	function test_unique_multidim_array_thru() {
 		$fixture = [
