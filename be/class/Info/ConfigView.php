@@ -1,6 +1,7 @@
 <?php
 
-class ConfigView extends AppControllerBE {
+class ConfigView extends AppControllerBE
+{
 
 	protected $prefix = __CLASS__;
 
@@ -12,13 +13,15 @@ class ConfigView extends AppControllerBE {
 
 	var $file;
 
-	function __construct() {
+	function __construct()
+	{
 		parent::__construct();
-		$this->file = dirname(__FILE__).'/../../../class/config.yaml';
+		$this->file = dirname(__FILE__) . '/../../../class/config.yaml';
 		$this->file = str_replace('\\', '/', $this->file);
 	}
 
-	function render() {
+	function render()
+	{
 		$content = '';
 		if (file_exists($this->file)) {
 			$this->performAction();
@@ -44,12 +47,13 @@ class ConfigView extends AppControllerBE {
 		return $content;
 	}
 
-	function renderFormArray(HTMLFormTable $f, $class, array $data) {
+	function renderFormArray(HTMLFormTable $f, $class, array $data)
+	{
 		$f->fieldset($class);
 		$desc = [];
 		foreach ($data as $key => $val) {
 			if (is_scalar($val)) {
-				$desc[$class.'['.$key.']'] = [
+				$desc[$class . '[' . $key . ']'] = [
 					'label' => $key,
 					'type' => $this->typeMap[gettype($val)],
 					'value' => $val,
@@ -63,14 +67,16 @@ class ConfigView extends AppControllerBE {
 				);*/
 				//foreach ($val as $key => $props) {
 				debug($val);
-					$this->renderFormArray($f, $class.'['.$key.']', $val);
+				$this->renderFormArray($f, $class . '[' . $key . ']', $val);
 				//}
 			}
 		}
-		$f->showForm($desc);
+		$f->desc = $desc;
+		$f->showForm();
 	}
 
-	function saveAction() {
+	public function saveAction()
+	{
 		$data = $this->request->getArray($this->prefix);
 		foreach ($data as $class => &$props) {
 			foreach ($props as $key => &$val) {

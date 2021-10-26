@@ -9,7 +9,7 @@ class SessionUser extends PlainSessionUser
 	public function __construct($id = null)
 	{
 		parent::__construct($id);
-		if (get_class($this) == 'LoginUser') {
+		if (get_class($this) === 'LoginUser') {
 			$this->autologin(); // the main difference of SessionUser from PlainSessionUser
 		}
 	}
@@ -20,7 +20,8 @@ class SessionUser extends PlainSessionUser
 	public function autologin()
 	{
 		$class = get_called_class();
-		if (ifsetor($_SESSION[$class]) && ($login = $_SESSION[$class]['login'])) {
+		$login = $_SESSION[$class]['login'];
+		if (ifsetor($_SESSION[$class]) && $login) {
 			$inSession = $this->checkPassword($_SESSION[$class]['password']);
 			if ($inSession) {
 				//$this->findInDB(array('email' => $login));
@@ -55,7 +56,7 @@ class SessionUser extends PlainSessionUser
 			$dataObj->password = $password;
 
 			$config = Config::getInstance();
-			$body = new View(__DIR__.'/emailNewAutoAccount.phtml', $dataObj);
+			$body = new View(__DIR__ . '/emailNewAutoAccount.phtml', $dataObj);
 			mail($email, 'Account created', $body, "From: " . $config->mailFrom);
 
 			$this->saveLogin($email, md5($password));

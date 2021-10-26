@@ -6,6 +6,8 @@
  * @method  fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
  * @method  fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
  * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+ * @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+ * @method  runDeleteQuery($table, array $where)
  */
 class DBLayer extends DBLayerBase implements DBInterface
 {
@@ -13,7 +15,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	/**
 	 * @var resource
 	 */
-	public $connection = null;
+    public $connection = NULL;
 
 	public $LAST_PERFORM_RESULT;
 
@@ -553,22 +555,30 @@ class DBLayer extends DBLayerBase implements DBInterface
 	{
 		if ($value === null) {
 			return "NULL";
-		} elseif ($value === false) {
-			return "'f'";
-		} elseif ($value === true) {
-			return "'t'";
-		} else if (is_int($value)) {	// is_numeric - bad: operator does not exist: character varying = integer
-			return $value;
-		} elseif (is_bool($value)) {
-			return $value ? "'t'" : "'f'";
-		} else if ($value instanceof SQLParam) {
-			return $value;
-		} elseif (is_scalar($value)) {
-			return "'" . $this->escape($value) . "'";
-		} else {
-			debug($key, $value);
-			throw new MustBeStringException('Must be string.');
 		}
+
+		if ($value === false) {
+			return "'f'";
+		}
+
+		if ($value === true) {
+			return "'t'";
+		}
+
+		if (is_int($value)) {	// is_numeric - bad: operator does not exist: character varying = integer
+			return $value;
+		}
+
+		if (is_bool($value)) {
+			return $value ? "'t'" : "'f'";
+		}
+
+		if (is_scalar($value)) {
+			return "'" . $this->escape($value) . "'";
+		}
+
+		debug($key, $value);
+		throw new MustBeStringException('Must be string.');
 	}
 
 	/**
@@ -980,7 +990,7 @@ WHERE ccu.table_name='" . $table . "'");
 
 	public function isTransaction()
 	{
-		return pg_transaction_status($this->connection) == PGSQL_TRANSACTION_INTRANS;
+		return pg_transaction_status($this->connection) === PGSQL_TRANSACTION_INTRANS;
 	}
 
 	/**

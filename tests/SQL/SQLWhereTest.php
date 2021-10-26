@@ -59,9 +59,4 @@ class SQLWhereTest extends PHPUnit\Framework\TestCase
 		return $sql;
 	}
 
-	public function setExpectedException($exception)
-	{
-		$this->expectException($exception);
-	}
-
 }

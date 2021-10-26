@@ -6,7 +6,7 @@ class AutoLoadFolders
 	/**
 	 * @var array
 	 */
-	var $folders = [];
+	public $folders = [];
 
 	/**
 	 * If set $this->log will collect output here
@@ -28,7 +28,7 @@ class AutoLoadFolders
 	 */
 	protected $saveFolders = true;
 
-	function __construct(AutoLoad $al)
+	public function __construct(AutoLoad $al)
 	{
 		$this->al = $al;
 		require_once __DIR__ . '/../Debug/Debug.php';
@@ -39,7 +39,7 @@ class AutoLoadFolders
 			$this->al->stat['folders'] = 'fromSession';
 		} else {
 			$this->al->stat['folders'] = 'fromConfig';
-			$this->folders[NULL] = $this->getFolders();
+			$this->folders[null] = $this->getFolders();
 		}
 		$this->folders = unique_multidim_array($this->folders);
 		if (0) {
@@ -49,7 +49,7 @@ class AutoLoadFolders
 		}
 	}
 
-	function getFoldersFromSession()
+	public function getFoldersFromSession()
 	{
 		$folders = [];
 		if (!Request::isCLI()) {
@@ -82,7 +82,7 @@ class AutoLoadFolders
 		return $folders;
 	}
 
-	function getFolders()
+	public function getFolders()
 	{
 		TaylorProfiler::start(__METHOD__);
 		require_once __DIR__ . '/../HTTP/Request.php';
@@ -189,7 +189,7 @@ class AutoLoadFolders
 		}
 	}
 
-	function getFoldersFromConfigBase()
+	public function getFoldersFromConfigBase()
 	{
 		TaylorProfiler::start(__METHOD__);
 		require_once __DIR__ . '/ConfigBase.php';
@@ -210,7 +210,7 @@ class AutoLoadFolders
 		return $folders;
 	}
 
-	function addFolder($path, $namespace = NULL)
+	public function addFolder($path, $namespace = null)
 	{
 		TaylorProfiler::start(__METHOD__);
 		if (!Path::isItAbsolute($path)) {
@@ -235,15 +235,15 @@ class AutoLoadFolders
 	 * @param string $namespace
 	 * @return string
 	 */
-	function findInFolders($className, $namespace)
+	public function findInFolders($className, $namespace)
 	{
-		TaylorProfiler::start(__METHOD__);
+		TaylorProfiler::start(__METHOD__ . ' - ' . $className);
 		//pre_var_dump($className, $namespace);
 		//$appRoot = class_exists('Config') ? $this->config->appRoot : '';
 		//foreach ($this->folders as $namespace => $map) {
 		$map = ifsetor(
 			$this->folders[$namespace],
-			$this->folders[NULL]
+			$this->folders[null]
 		);
 		assert(sizeof($map));
 //		pre_print_r(
@@ -277,14 +277,14 @@ class AutoLoadFolders
 					//$file = $file;
 				}
 			} else {
-				$file2 = NULL;
+				$file2 = null;
 			}
 
 			// Index != index.php on Windows
-			if ($className == 'Index') {
+			if ($className === 'Index') {
 //				pre_print_r([$className, $file, basename($file)]);
 				if (basename(realpath($file)) != ($className . '.php')) {
-					$file = NULL;
+					$file = null;
 				}
 			}
 
@@ -304,10 +304,10 @@ class AutoLoadFolders
 			$this->log(__METHOD__ . ': Attempt to find ' . $namespace . '\\' . $className . ' failed');
 		}
 		TaylorProfiler::stop(__METHOD__);
-		return NULL;
+		return null;
 	}
 
-	function log($debugLine)
+	public function log($debugLine)
 	{
 		if ($this->collectDebug !== null) {
 			$this->collectDebug[] = $debugLine;

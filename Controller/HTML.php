@@ -147,7 +147,7 @@ class HTML
 	public function pre($text, array $attr = [])
 	{
 		$more = HTMLTag::renderAttr($attr);
-		return '<pre '.$more.'>' . $this->e($this->s($text)) . '</pre>';
+		return '<pre ' . $more . '>' . $this->e($this->s($text)) . '</pre>';
 	}
 
 	public function strong($text)
@@ -183,6 +183,11 @@ class HTML
 	public function st($a)
 	{
 		return strip_tags($a);
+	}
+
+	public function bold($text)
+	{
+		return '<b>' . $this->e($text) . '</b>';
 	}
 
 }

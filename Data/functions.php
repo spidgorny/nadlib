@@ -7,3 +7,4 @@ if (!function_exists('ae_arr')) {
 		return $arr[rand(0, sizeof($arr) - 1)];
 	}
 }
+

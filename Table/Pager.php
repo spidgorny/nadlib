@@ -17,13 +17,7 @@ class Pager
 	 * @var int
 	 * @use setItemsPerPage
 	 */
-	var $itemsPerPage = 20;
-
-	/**
-	 * Offset in SQL
-	 * @var int
-	 */
-	var $startingRecord = 0;
+	protected $itemsPerPage = 20;
 
 	/**
 	 * Current Page (0+)

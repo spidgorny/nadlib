@@ -93,7 +93,7 @@ class SQLSearch extends SQLWherePart
 				//$query .= ' AS score_'.$i;
 			} else {
 				$tableID = $this->table . '.' . $this->idField;
-				if ($word[0] === '!') {
+				if ($word{0} == '!') {
 					$word = substr($word, 1);
 					$where[] = $tableID .
 						' NOT IN ( ' . $this->getSearchSubquery($word, $tableID) . ') ';
@@ -127,9 +127,9 @@ class SQLSearch extends SQLWherePart
 		return $query;
 	}
 
-	public function getSearchWhere($word, $prefix = '')
+	function getSearchWhere($word, $prefix = '')
 	{
-		if ($word[0] === '!') {
+		if ($word{0} == '!') {
 			$like = 'NOT ' . $this->likeOperator;
 			$or = "\n\t\tAND";
 		} else {

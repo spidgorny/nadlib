@@ -46,14 +46,13 @@ abstract class SimpleController
 
 	public function __construct()
 	{
-		if (ifsetor($_REQUEST['d']) == 'log') {
+		if (ifsetor($_REQUEST['d']) === 'log') {
 			echo get_class($this) . '::' . __METHOD__ . BR;
 		}
 		$this->index = class_exists('Index', false)
 			? Index::getInstance(false) : null;
 		$this->request = Request::getInstance();
-		$this->title = $this->title ? $this->title
-			: last(trimExplode('\\', get_class($this)));
+		$this->title = $this->title ?: last(trimExplode('\\', get_class($this)));
 		//debug_pre_print_backtrace();
 		$this->html = new HTML();
 		self::$instance[get_class($this)] = $this;
@@ -63,9 +62,9 @@ abstract class SimpleController
 	{
 		if (method_exists($this->html, $method)) {
 			return call_user_func_array($this->html->$method, $arguments);
-		} else {
-			throw new RuntimeException('Method '.$method.' not found in '.get_class($this));
 		}
+
+		throw new RuntimeException('Method '.$method.' not found in '.get_class($this));
 	}
 
 	/**
@@ -181,7 +180,7 @@ abstract class SimpleController
 	 */
 	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
 	{
-		$h = $h ? $h : $this->encloseTag;
+		$h = $h ?: $this->encloseTag;
 		$content = $this->s($content);
 		if ($caption) {
 			$content = [
@@ -250,6 +249,7 @@ abstract class SimpleController
 
 	public function log($action, ...$data)
 	{
+		llog($action, ...$data);
 		if (is_array($data) && count($data) === 1) {
 			$data = $data[0];
 		}

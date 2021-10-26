@@ -10,7 +10,7 @@ class AppRootDetector
 	 */
 	protected $appRoot;
 
-	public $debug = false;
+	var $debug = false;
 
 	public $nadlibRoot = 'vendor/spidgorny/nadlib/';
 
@@ -21,7 +21,7 @@ class AppRootDetector
 	 *
 	 * Since it's not 100% that it exists we just take the REQUEST_URL
 	 */
-	public function __construct()
+	function __construct()
 	{
 		$this->log(Request::isPHPUnit(), Request::isCLI());
 		if (Request::isPHPUnit()) {
@@ -37,7 +37,7 @@ class AppRootDetector
 		$appRoot = realpath($appRoot);
 		$this->log('$this->appRoot', $appRoot, $this->nadlibRoot);
 		//$this->appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $this->appRoot);
-		while ($appRoot && ($appRoot !== '/' && $appRoot !== '\\')
+		while ($appRoot && ($appRoot != '/' && $appRoot != '\\')
 			&& !($appRoot[1] === ':' && strlen($appRoot) === 3)    // u:\
 		) {
 			$config1 = $appRoot . DIRECTORY_SEPARATOR . 'index.php';
@@ -50,7 +50,7 @@ class AppRootDetector
 			$appRoot = dirname($appRoot);
 		}
 
-		if (!$appRoot || $appRoot === '/') {  // nothing is found by previous method
+		if (!$appRoot || $appRoot == '/') {  // nothing is found by previous method
 			$this->log(__METHOD__, ' Alternative way of app root detection');
 			$appRoot = new Path(realpath(dirname(URL::getScriptWithPath())));
 			$this->log($appRoot, URL::getScriptWithPath());

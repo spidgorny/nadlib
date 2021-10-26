@@ -73,8 +73,8 @@ abstract class UserBase extends OODBase implements UserModelInterface
 	 * Will NOT md5 password inside as Client is UserBased.
 	 *
 	 * @param array $data
-	 * @throws Exception
 	 * @return void
+	 * @throws Exception
 	 */
 	public function insertUniqEmail(array $data)
 	{
@@ -109,8 +109,8 @@ abstract class UserBase extends OODBase implements UserModelInterface
 	/**
 	 * These preferences are supposed to be stored in DB
 	 * But UserBase is NOT doing it.
-	 * @param $key
-	 * @param $val
+	 * @param string $key
+	 * @param mixed $val
 	 */
 	public function setPref($key, $val)
 	{

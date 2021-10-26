@@ -20,9 +20,12 @@ class Linker
 	 */
 	public $request;
 
-	public function __construct(Request $request)
+	public $controller;
+
+	public function __construct(Request $request, $controller)
 	{
 		$this->request = $request;
+		$this->controller = $controller;
 	}
 
 	/**
@@ -145,7 +148,7 @@ class Linker
 	 * @param string $page
 	 * @return HTMLTag
 	 */
-	public function makeRelLink($text, array $params, $page = '?')
+	public function makeRelLink($text, array $params, $page = null)
 	{
 		return new HTMLTag('a', [
 			'href' => $this->makeRelURL($params, $page)
@@ -202,11 +205,11 @@ class Linker
 	public function linkToAction($action = '', array $params = [], $controller = null)
 	{
 		if (!$controller) {
-			$controller = get_class($this);
+			$controller = get_class($this->controller);
 		}
 		$params = [
-				'c' => $controller,
-			] + $params;
+			'c' => $controller,
+		] + $params;
 		if ($action) {
 			$params += [
 				'action' => $action,
@@ -215,18 +218,20 @@ class Linker
 		return $this->makeURL($params, $controller);
 	}
 
-	public function linkPage($className)
+	public function linkPage($className, array $params = [])
 	{
+		/** @var AppController $obj */
 		$obj = new $className();
 		$title = $obj->title;
 		$html = new HTML();
-		return $html->a($className, $title);
+		$href = $className::href($params);
+		return $html->a($href, $title);
 	}
 
 	public function makeActionURL($action = '', array $params = [], $path = '')
 	{
 		$urlParams = [
-				'c' => $path ?: get_class($this),
+				'c' => $path ?: get_class($this->controller),
 				'action' => $action,
 			] + $params;
 		$urlParams = array_filter($urlParams);

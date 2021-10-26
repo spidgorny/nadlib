@@ -8,9 +8,9 @@ if (!function_exists('debug')) {
 	/**
 	 * @param mixed,...$a
 	 */
-	function debug(...$a)
+	function debug($a)
 	{
-		$params = func_num_args() === 1 ? $a : func_get_args();
+		$params = func_num_args() == 1 ? $a : func_get_args();
 		if (class_exists(Debug::class)) {
 			$debug = Debug::getInstance();
 			$debug->debug($params);
@@ -78,13 +78,13 @@ if (!function_exists('debugList')) {
 	{
 	}
 
-	function getDebug(...$args)
+	function getDebug()
 	{
 		$params = func_get_args();
 		$debug = Debug::getInstance();
 		$dh = new DebugHTML($debug);
 		$content = $dh->printStyles();
-		if (ifsetor($params[1]) == DebugHTML::LEVELS) {
+		if (ifsetor($params[1]) === DebugHTML::LEVELS) {
 			$levels = ifsetor($params[2]);
 			$params[1] = $levels;
 		}
@@ -94,15 +94,16 @@ if (!function_exists('debugList')) {
 
 	/**
 	 * @param ..$a
+	 * @noinspection ForgottenDebugOutputInspection
 	 */
 	function pre_print_r($a)
 	{
-		if (php_sapi_name() !== 'cli') {
+		if (PHP_SAPI !== 'cli') {
 			echo '<pre class="pre_print_r" style="white-space: pre-wrap;">';
-			print_r(func_num_args() == 1 ? $a : func_get_args());
+			print_r(func_num_args() === 1 ? $a : func_get_args());
 			echo '</pre>';
 		} else {
-			print_r(func_num_args() == 1 ? $a : func_get_args());
+			print_r(func_num_args() === 1 ? $a : func_get_args());
 			echo PHP_EOL;
 		}
 	}
@@ -111,13 +112,14 @@ if (!function_exists('debugList')) {
 	{
 		return '<pre class="pre_print_r" style="white-space: pre-wrap;">' .
 			print_r($a, true) .
-			'</pre>';
+		'</pre>';
 	}
 
+	/** @noinspection ForgottenDebugOutputInspection */
 	function pre_var_dump($a)
 	{
 		echo '<pre class="pre_var_dump" style="white-space: pre-wrap; font-size: 8pt;">';
-		var_dump(func_num_args() == 1 ? $a : func_get_args());
+		var_dump(func_num_args() === 1 ? $a : func_get_args());
 		echo '</pre>';
 	}
 
@@ -273,17 +275,17 @@ if (!function_exists('debugList')) {
 		];
 		$class = ifsetor($bulma[$type]) . ' tag';
 
-		if ($type == 'string') {
+		if ($type === 'string') {
 			$typeName .= '[' . strlen($something) . ']';
 		}
-		if ($type == 'array') {
+		if ($type === 'array') {
 			$typeName .= '[' . sizeof($something) . ']';
 		}
 
 		if (!Request::isCLI()) {
 			return new HTMLTag('span', ['class' => $class], $typeName, true);
 		}
-		return new htmlString($typeName);
+		return $typeName;
 	}
 
 	/**

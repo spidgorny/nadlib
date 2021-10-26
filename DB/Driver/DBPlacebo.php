@@ -10,6 +10,7 @@
  * @method  getConnection()
  * @method  getViews()
  * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+ * @method  runDeleteQuery($table, array $where)
  */
 class DBPlacebo extends DBLayerBase implements DBInterface
 {
@@ -84,7 +85,7 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 
 	public function quoteKey($key)
 	{
-		return '"'.$key.'"';
+		return '"' . $key . '"';
 	}
 
 	public function escape($string)
@@ -121,7 +122,7 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 
 	public function getScheme()
 	{
-		return get_class($this).'://';
+		return get_class($this) . '://';
 	}
 
 	public function getTablesEx()
@@ -191,4 +192,8 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 		return $asd;
 	}
 
+	public function getVersion()
+	{
+		// TODO: Implement getVersion() method.
+	}
 }

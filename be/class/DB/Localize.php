@@ -31,22 +31,22 @@ class Localize extends AppControllerBE
 
 	public $table = 'interface';
 
-	var $languages = [
+	public $languages = [
 		'en', 'de', 'ru',
 	];
 
 	/**
 	 * @var URL
 	 */
-	var $url;
+	public $url;
 
 	/**
 	 * Cached
 	 * @var array
 	 */
-	var $allKeys = [];
+	public $allKeys = [];
 
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 
@@ -68,7 +68,7 @@ class Localize extends AppControllerBE
 		$this->url = new URL('?c=' . get_class($this));
 	}
 
-	function render()
+	public function render()
 	{
 		$content[] = $this->performAction();
 		/*$content .= '<div style="float: right;">'.$this->makeLink('Import missing.txt', array(
@@ -86,15 +86,15 @@ class Localize extends AppControllerBE
 		return $content;
 	}
 
-	function renderList()
+	public function renderList()
 	{
 		$keys = $this->getAllKeys();
 		$table = $this->getTranslationTable($keys);
 
 		$pager = new Pager();
-		$pager->setNumberOfRecords(sizeof($table));
+		$pager->setNumberOfRecords(count($table));
 		$pager->detectCurrentPage();
-		$table = array_slice($table, $pager->startingRecord, $pager->itemsPerPage, true);
+		$table = array_slice($table, $pager->getStartingRecord(), $pager->getPageSize(), true);
 		$content[] = $pager->renderPageSelectors($this->url);
 
 		$s = new slTable($table, 'id="localize" width="100%" class="table _table-striped"', [
@@ -303,8 +303,8 @@ class Localize extends AppControllerBE
 			'type' => 'submit',
 			'value' => __('Add new translation'),
 		];
-		$f = new HTMLFormTable();
-		$f->showForm($desc);
+		$f = new HTMLFormTable($desc);
+		$f->showForm();
 		$content[] = $f;
 
 		return $content;

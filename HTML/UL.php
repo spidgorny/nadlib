@@ -32,7 +32,7 @@ class UL implements ToStringable
 	public $linkWrap = '';
 
 	/**
-	 * @var callback to link generation function(index, name)
+	 * @var Closure callback to link generation function(index, name)
 	 */
 	public $linkFunc;
 
@@ -80,7 +80,7 @@ class UL implements ToStringable
 				}
 				$li = $wrap->wrap($li);
 			} else {
-				$link = NULL;
+				$link = null;
 			}
 
 			$line = Wrap::make($this->wrap)->wrap($li);

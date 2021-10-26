@@ -110,9 +110,11 @@ class Path
 			//debug($this->aPath, $plus->aPath);
 		}
 		foreach ($plus->aPath as $name) {
-			if ($name == '.') {
+			if ($name === '.') {
 				continue;
-			} elseif ($name == '..') {
+			}
+
+			if ($name === '..') {
 				array_pop($this->aPath);
 			} else {
 				$this->aPath[] = $name;
@@ -125,7 +127,7 @@ class Path
 	}
 
 	/**
-	 * @param $plus
+	 * @param string $plus
 	 * @return $this
 	 */
 	public function appendString($plus)
@@ -136,7 +138,7 @@ class Path
 	}
 
 	/**
-	 * @param $plus
+	 * @param string $plus
 	 * @return $this
 	 */
 	public function prependString($plus)

@@ -1,6 +1,7 @@
 <?php
 
-class ArrayPlusTest extends IteratorArrayAccessTest {
+class ArrayPlusTest extends IteratorArrayAccessTest
+{
 
 	/**
 	 * @var ArrayPlus $ai
@@ -107,6 +108,54 @@ class ArrayPlusTest extends IteratorArrayAccessTest {
 		$a = ArrayPlus::create(['asd' => 1, 'qwe' => 2]);
 		$b = $a->without(['asd']);
 		$this->assertEquals(['qwe' => 2], $b->getArrayCopy());
+	}
+
+	public function test_any()
+	{
+		$fixture01 = ArrayPlus::create([0, 1]);
+		$this->assertTrue($fixture01->any(function ($x) {
+			return $x;
+		}));
+		$fixture00 = ArrayPlus::create([0, 0]);
+		$this->assertFalse($fixture00->any(function ($x) {
+			return $x;
+		}));
+		$fixture11 = ArrayPlus::create([1, 1]);
+		$this->assertTrue($fixture11->any(function ($x) {
+			return $x;
+		}));
+	}
+
+	public function test_all()
+	{
+		$fixture01 = ArrayPlus::create([0, 1]);
+		$this->assertFalse($fixture01->all(function ($x) {
+			return $x;
+		}));
+		$fixture00 = ArrayPlus::create([0, 0]);
+		$this->assertFalse($fixture00->all(function ($x) {
+			return $x;
+		}));
+		$fixture11 = ArrayPlus::create([1, 1]);
+		$this->assertTrue($fixture11->all(function ($x) {
+			return $x;
+		}));
+	}
+
+	public function test_none()
+	{
+		$fixture01 = ArrayPlus::create([0, 1]);
+		$this->assertFalse($fixture01->none(function ($x) {
+			return $x;
+		}));
+		$fixture00 = ArrayPlus::create([0, 0]);
+		$this->assertTrue($fixture00->none(function ($x) {
+			return $x;
+		}));
+		$fixture11 = ArrayPlus::create([1, 1]);
+		$this->assertFalse($fixture11->none(function ($x) {
+			return $x;
+		}));
 	}
 
 }

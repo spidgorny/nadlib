@@ -167,7 +167,8 @@ class SQLBuilder
 	{
 		$set = [];
 		foreach ($where as $key => $val) {
-			if (!strlen($key) || (strlen($key) && $key[strlen($key) - 1] !== '.')) {
+			$endsWithDot = is_string($key) && $key[strlen($key) - 1] !== '.';
+			if (!is_string($key) || $endsWithDot) {
 				$equal = new SQLWhereEqual($key, $val);
 				$equal->injectDB($this->db);
 				$set[] = $equal->__toString();

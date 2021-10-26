@@ -16,6 +16,7 @@ use spidgorny\nadlib\HTTP\URL;
  * @method  performWithParams($query, $params)
  * @method  getConnection()
  * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+ * @method  runDeleteQuery($table, array $where)
  */
 class MySQL extends DBLayerBase implements DBInterface
 {
@@ -644,5 +645,10 @@ class MySQL extends DBLayerBase implements DBInterface
 	public function getReserved()
 	{
 		return $this->reserved;
+	}
+
+	public function getVersion()
+	{
+		return null;
 	}
 }

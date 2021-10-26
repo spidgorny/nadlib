@@ -28,7 +28,7 @@ class Bytes
 	function __construct($bytes)
 	{
 		$iBytes = (string)(float)$bytes;
-		$sBytes = (string)$bytes;
+		$sBytes = $bytes;
 		//echo $bytes, TAB, $iBytes, TAB, $sBytes, BR, $sBytes === $iBytes, BR;
 		if ($sBytes === $iBytes) {
 			$this->value = $bytes;
@@ -88,7 +88,7 @@ class Bytes
 	{
 		return $this->value;
 	}
-	
+
 	public function getKB()
 	{
 		$val = $this->value / 1024;

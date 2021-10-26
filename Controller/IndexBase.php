@@ -30,7 +30,7 @@ class IndexBase /*extends Controller*/
 	public $content;
 
 	/**
-	 * @var AppController
+	 * @var AppController|UserlessController
 	 */
 	public $controller;
 
@@ -178,7 +178,7 @@ class IndexBase /*extends Controller*/
 	/**
 	 * @param bool $createNew - must be false
 	 * @param ConfigInterface|null $config
-	 * @return Index|IndexBE
+	 * @return Index
 	 * @throws Exception
 	 */
 	public static function getInstance($createNew = false, ConfigInterface $config = null)
@@ -200,7 +200,7 @@ class IndexBase /*extends Controller*/
 	 * TODO: Remove the boolean parameter from getInstance()
 	 * TODO: And force to use makeInstance() in case it was true
 	 * @param Config|null $config
-	 * @return Index|IndexBE
+	 * @return Index
 	 * @throws Exception
 	 */
 	public static function makeInstance(Config $config = null)
@@ -326,13 +326,17 @@ class IndexBase /*extends Controller*/
 	public function renderController()
 	{
 		TaylorProfiler::start(__METHOD__);
+		$content = '';
 		$notOptions = array_filter(
 			array_slice(
 				ifsetor($_SERVER['argv'], []),
 				1
 			),
-			function ($el) {
-				return $el[0] != '-';    // --options
+			static function ($el) {
+				if (is_numeric($el)) {
+					return false;
+				}
+				return $el[0] !== '-';    // --options
 			}
 		);
 //		debug($notOptions); exit;
@@ -343,29 +347,29 @@ class IndexBase /*extends Controller*/
 			//$params = array_slice($_SERVER['argv'], 3);
 			//debug($this->request->getAll());
 			$marshal = new MarshalParams($this->controller);
-			$render = $marshal->call($method);
-			//$render = $this->controller->$method();
-		} else {
-			$render = $this->renderException(
+			$content = $marshal->call($method);
+			//$content = $this->controller->$method();
+		} elseif (!is_numeric($method)) {    // this is a parameter
+			$content = $this->renderException(
 				new InvalidArgumentException('Method ' . $method . ' is not callable on ' . get_class($this->controller))
 			);
 		}
-		$render = $this->s($render);
+		$content = $this->s($content);
 		$this->sidebar = $this->showSidebar();
 		if ($this->controller->layout instanceof Wrap
 			&& !$this->request->isAjax()) {
 			/** @var $this ->controller->layout Wrap */
-			$render = $this->controller->layout->wrap($render);
-			$render = str_replace('###SIDEBAR###', $this->showSidebar(), $render);
+			$content = $this->controller->layout->wrap($content);
+			$content = str_replace('###SIDEBAR###', $this->showSidebar(), $content);
 		}
 		TaylorProfiler::stop(__METHOD__);
-		return $render;
+		return $content;
 	}
 
 	public function renderTemplateIfNotAjax($content)
 	{
 		$contentOut = '';
-		if (!$this->request->isAjax() && !$this->request->isCLI()) {
+		if (!$this->request->isAjax() && !Request::isCLI()) {
 			// display Exception
 			$view = $this->renderTemplate($content);
 			//echo gettype2($view), BR;
@@ -393,7 +397,7 @@ class IndexBase /*extends Controller*/
 
 		$v = new View($this->template, $this);
 		$v->content = $contentOut;
-		$v->title = strip_tags(ifsetor($this->controller->title));
+		$v->title = $this->controller ? strip_tags(ifsetor($this->controller->title)) : null;
 		$v->sidebar = $this->sidebar;
 		$v->baseHref = $this->request->getLocation();
 		//$lf = new LoginForm('inlineForm');	// too specific - in subclass
@@ -415,43 +419,11 @@ class IndexBase /*extends Controller*/
 	 */
 	public function renderException(Exception $e, $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error')
 	{
-		if ($this->request->isCLI()) {
-			echo get_class($e),
-			' #', $e->getCode(),
-			': ', $e->getMessage(), BR;
-			echo $e->getTraceAsString(), BR;
-			return '';
-		}
-
-		http_response_code($e->getCode());
 		if ($this->controller) {
 			$this->controller->title = get_class($this->controller);
 		}
-
-		$message = $e->getMessage();
-		$message = ($message instanceof htmlString ||
-			$message[0] == '<')
-			? $message . ''
-			: htmlspecialchars($message);
-		$content = '<div class="' . $wrapClass . '">
-				' . get_class($e) .
-			($e->getCode() ? ' (' . $e->getCode() . ')' : '') . BR .
-			nl2br($message);
-		if (DEVELOPMENT || 0) {
-			$content .= BR . '<hr />' . '<div style="text-align: left">' .
-				nl2br($e->getTraceAsString()) . '</div>';
-			//$content .= getDebug($e);
-		}
-		$content .= '</div>';
-		if ($e instanceof LoginException) {
-			// catch this exception in your app Index class, it can't know what to do with all different apps
-			//$lf = new LoginForm();
-			//$content .= $lf;
-		} elseif ($e instanceof Exception404) {
-			$e->sendHeader();
-		}
-
-		return $content;
+		$re = new RenderException($e);
+		return $re->render($wrapClass);
 	}
 
 	public function __destruct()
@@ -682,8 +654,12 @@ class IndexBase /*extends Controller*/
 		TaylorProfiler::start(__METHOD__);
 		$content = '';
 		if (method_exists($this->controller, 'sidebar')) {
-			$content = $this->controller->sidebar();
-			$content = $this->s($content);
+			try {
+				$content = $this->controller->sidebar();
+				$content = $this->s($content);
+			} catch (Exception $e) {
+				// no sidebar
+			}
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $content;
@@ -706,7 +682,7 @@ class IndexBase /*extends Controller*/
 		foreach ($this->footer as $key => $script) {
 			$script = strip_tags($script, '<script>');
 			$script = HTMLTag::parse($script);
-			if ($script && $script->tag == 'script') {
+			if ($script && $script->tag === 'script') {
 				$url = $script->getAttr('src');
 				if ($url) {
 					// not needed because we bundle all JS

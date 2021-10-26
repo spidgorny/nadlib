@@ -185,7 +185,8 @@ class AjaxLogin extends AppController
 		if (!$desc) {
 			$desc = $this->getLoginDesc();
 		}
-		$f->showForm($desc);
+		$f->desc = $desc;
+		$f->showForm();
 		$f->hidden('action', 'login');
 		$f->text('<div style="float: right">
 			<a href="?action=forgotPassword" rel="forgotPassword">' . __('Forgot Password') . '</a>
@@ -327,7 +328,7 @@ class AjaxLogin extends AppController
 		return $content;
 	}
 
-	function profileAction(array $desc = NULL)
+	public function profileAction(array $desc = null)
 	{
 		$f = new HTMLFormTable();
 		$f->formMore['onsubmit'] = "jQuery(this).ajaxSubmit({
@@ -343,7 +344,8 @@ class AjaxLogin extends AppController
 		} // otherwise it comes from validate and contains the form input already
 		//debug($desc);
 		$f->prefix('profile');
-		$f->showForm($desc);
+		$f->desc = $desc;
+		$f->showForm();
 		$f->prefix('');
 		$f->hidden('action', 'saveProfile');
 		$f->submit(__('Save'));
@@ -351,7 +353,7 @@ class AjaxLogin extends AppController
 		return $content;
 	}
 
-	function getProfileDesc()
+	public function getProfileDesc()
 	{
 		$desc = [];
 		$desc['username']['label'] = __('E-mail');
@@ -361,7 +363,7 @@ class AjaxLogin extends AppController
 		return $desc;
 	}
 
-	function saveProfileAction()
+	public function saveProfileAction()
 	{
 		$content = [];
 		$data = $this->request->getArray('profile');
@@ -380,7 +382,7 @@ class AjaxLogin extends AppController
 		return $content;
 	}
 
-	function passwordAction(array $desc = NULL)
+	public function passwordAction(array $desc = null)
 	{
 		$f = new HTMLFormTable();
 		$f->formMore['onsubmit'] = "jQuery(this).ajaxSubmit({
@@ -393,14 +395,15 @@ class AjaxLogin extends AppController
 			$desc = $this->getPasswordDesc();
 		} // otherwise it comes from validate and contains the form input already
 		//debug($desc);
-		$f->showForm($desc);
+		$f->desc = $desc;
+		$f->showForm();
 		$f->hidden('action', 'savePassword');
 		$f->submit(__('Change'));
 		$content = $f;
 		return $content;
 	}
 
-	function getPasswordDesc()
+	public function getPasswordDesc()
 	{
 		$desc = [];
 		$desc['password']['label'] = __('Password');
@@ -408,7 +411,7 @@ class AjaxLogin extends AppController
 		return $desc;
 	}
 
-	function savePasswordAction()
+	public function savePasswordAction()
 	{
 		$content = [];
 		$password = $this->request->getTrim('password');
@@ -506,7 +509,8 @@ class AjaxLogin extends AppController
 		} // otherwise it comes from validate and contains the form input already
 		//debug($desc);
 		$f->prefix('profile');
-		$f->showForm($desc);
+		$f->desc = $desc;
+		$f->showForm();
 		$f->prefix('');
 		$f->hidden('action', 'saveRegister');
 		$f->submit(__('Register'), [

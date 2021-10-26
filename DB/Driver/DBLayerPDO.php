@@ -65,14 +65,8 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	 * @param string $db
 	 * @param int $port
 	 */
-	function connect($user, $password, $scheme, $driver, $host, $db, $port = 3306) {
-		//$dsn = $scheme.':DRIVER={'.$driver.'};DATABASE='.$db.';SYSTEM='.$host.';dbname='.$db.';HOSTNAME='.$host.';PORT='.$port.';PROTOCOL=TCPIP;';
-		if ($scheme == 'sqlite') {
-			$this->database = basename($db);
-		} else {
-			$this->database = $db;
-		}
-
+	public function connect($user, $password, $scheme, $driver, $host, $db, $port = 3306)
+	{
 		$builder = DSNBuilder::make($scheme, $host, $user, $password, $db, $port);
 		if ($driver) {
 			$builder->setDriver($driver);
@@ -191,7 +185,8 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		try {
 			$this->lastResult = $this->connection->prepare($query, $driver_options);
 		} catch (PDOException $e) {
-			debug($query, $params, $e->getMessage());
+//			debug($query, $params, $e->getMessage());
+			$e = new DatabaseException($e->getMessage(), $query, $e);
 			throw $e;
 		}
 		$this->queryTime += $profiler->elapsed();
@@ -204,7 +199,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 			try {
 				$ok = $this->lastResult->execute($params);
 			} catch (PDOException $e) {
-				debug($query . '', $params, $e->getMessage());
+				//debug($query . '', $params, $e->getMessage());
 				throw $e;
 			}
 			$this->queryTime += $profiler->elapsed();

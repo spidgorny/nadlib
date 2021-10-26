@@ -441,4 +441,8 @@ AND name = '?')", [$table]);
 		return ['message' => mssql_get_last_message()];
 	}
 
+	public function getVersion()
+	{
+		return null;
+	}
 }

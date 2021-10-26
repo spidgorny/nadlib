@@ -16,6 +16,7 @@ use SQLBuilder;
  * @method  getInsertQuery($table, array $data)
  * @method  getDeleteQuery($table, array $where = [], $what = '')
  * @method  getUpdateQuery($table, array $set, array $where)
+ * @method  runDeleteQuery($table, array $where)
  */
 class SessionDatabase implements \DBInterface
 {
@@ -289,4 +290,13 @@ class SessionDatabase implements \DBInterface
 		return get_class($this);
 	}
 
+	public function getVersion()
+	{
+		// TODO: Implement getVersion() method.
+	}
+
+	public function __call($name, $arguments)
+	{
+		// TODO: Implement @method  runDeleteQuery($table, array $where)
+	}
 }

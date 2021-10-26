@@ -95,17 +95,17 @@ class RandomStringGenerator
 		return ($min + $rnd);
 	}
 
-	function generateSplit4($length)
+	public function generateSplit4($length)
 	{
 		$continuous = $this->generate($length);
 		$parts = chunk_split($continuous, 4, '-');
-		if ($parts[strlen($parts) - 1] == '-') {
+		if ($parts[strlen($parts) - 1] === '-') {
 			$parts = substr($parts, 0, strlen($parts) - 1);
 		}
 		return $parts;
 	}
 
-	static function likeYouTube()
+	public static function likeYouTube(): string
 	{
 		$gen = new self();
 		return $gen->generate(10);

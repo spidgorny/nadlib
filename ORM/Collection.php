@@ -286,9 +286,9 @@ class Collection implements IteratorAggregate, ToStringable
 	 */
 	public function getData($preProcess = true)
 	{
-		$this->log(get_class($this) . '::' . __FUNCTION__ . '(preProcess='.$preProcess.')');
-		$this->log(__METHOD__, 'collection Where'. json_encode($this->where));
-		$this->log(__METHOD__, 'query: '.$this->query . '');
+		$this->log(get_class($this) . '::' . __FUNCTION__ . '(preProcess=' . $preProcess . ')');
+		$this->log(__METHOD__, 'collection Where' . json_encode($this->where));
+		$this->log(__METHOD__, 'query: ' . $this->query . '');
 		$this->log(__METHOD__, [
 			'data' => $this->data
 				? count($this->data)
@@ -361,7 +361,7 @@ class Collection implements IteratorAggregate, ToStringable
 		$this->log(get_class($this) . '::' . __FUNCTION__, ['original', $this->count]);
 //		$this->log('this->query', $this->query.'');
 //		$this->log('getQueryWithLimit', $this->getQueryWithLimit().'');
-		$queryIsTheSame = ($this->query.'') === ($this->getQueryWithLimit().'');
+		$queryIsTheSame = ($this->query . '') === ($this->getQueryWithLimit() . '');
 		if ($this->count !== null && $queryIsTheSame) {
 			return $this->count;
 		}
@@ -448,7 +448,7 @@ class Collection implements IteratorAggregate, ToStringable
 	 */
 	public function setData($data)
 	{
-		$this->log(get_class($this) . '::' . __FUNCTION__ . '(' . sizeof($data) . ')');
+		$this->log(get_class($this) . '::' . __FUNCTION__ . '(' . count($data) . ')');
 		$this->log(__METHOD__, ['from' => Debug::getCaller(2)]);
 		//debug_pre_print_backtrace();
 		//$this->log(__METHOD__, get_call_stack());

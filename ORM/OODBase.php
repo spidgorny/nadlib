@@ -147,7 +147,7 @@ abstract class OODBase
 			$this->id = $id;
 			if (is_array($this->idField)) {
 				// TODO
-				throw new InvalidArgumentException(__METHOD__);
+				throw new InvalidArgumentException(__METHOD__ . '->idField is an array. Init failed.');
 			} else {
 				// will do $this->init()
 				$this->findByID($this->id);
@@ -223,8 +223,8 @@ abstract class OODBase
 	 * Returns $this
 	 *
 	 * @param array $data
-	 * @throws Exception
 	 * @return OODBase
+	 * @throws Exception
 	 */
 	public function insert(array $data)
 	{
@@ -272,8 +272,8 @@ abstract class OODBase
 	 * Updates current record ($this->id)
 	 *
 	 * @param array $data
-	 * @throws Exception
 	 * @return resource result from the runUpdateQuery
+	 * @throws Exception
 	 */
 	public function update(array $data)
 	{
@@ -372,7 +372,6 @@ abstract class OODBase
 	public function findInDB(array $where, $orderByLimit = '', $selectPlus = null)
 	{
 		$taylorKey = Debug::getBackLog(15, 0, BR, false);
-		TaylorProfiler::start($taylorKey);
 		if (!$this->db) {
 			//debug($this->db, $this->db->fetchAssoc('SELECT database()'));
 			//debug($this);
@@ -498,12 +497,12 @@ abstract class OODBase
 	 * @return string whether the record already existed
 	 * @throws Exception
 	 */
-	public function insertUpdate(array $fields,
-								 array $where = [],
-								 array $insert = [],
-								 array $update = []
-	)
-	{
+	public function insertUpdate(
+		array $fields,
+		array $where = [],
+		array $insert = [],
+		array $update = []
+	) {
 		TaylorProfiler::start(__METHOD__);
 		//echo get_class($this), '::', __FUNCTION__, ' begin', BR;
 		$this->db->transaction();
@@ -550,7 +549,7 @@ abstract class OODBase
 	 */
 	public function renderAssoc(array $assoc = null, $recursive = false, $skipEmpty = true)
 	{
-		$assoc = $assoc ? $assoc : $this->data;
+		$assoc = $assoc ?: $this->data;
 		//debug($this->thes);
 		if ($this->thes) {
 			$assoc = [];
@@ -587,11 +586,12 @@ abstract class OODBase
 	 * @param null $title
 	 * @return ShowAssoc
 	 */
-	public function showAssoc(array $thes = [
-		'id' => 'ID',
-		'name' => 'Name'
-	], $title = null)
-	{
+	public function showAssoc(
+		array $thes = [
+			'id' => 'ID',
+			'name' => 'Name'
+		], $title = null
+	) {
 		$ss = new ShowAssoc($this->data);
 		$ss->setThes($thes);
 		$ss->setTitle($title ?: get_class($this));
@@ -649,7 +649,7 @@ abstract class OODBase
 	 * @return int|null
 	 * @throws Exception
 	 */
-	public static function createRecord(array $insert, $class = NULL)
+	public static function createRecord(array $insert, $class = null)
 	{
 		TaylorProfiler::start(__METHOD__);
 		//$insert = $this->db->getDefaultInsertFields() + $insert; // no overwriting?
@@ -891,16 +891,22 @@ abstract class OODBase
 		//debug($value, $this->lastSelectQuery);
 		if (is_bool($value)) {
 			return $value;
-		} elseif (is_integer($value)) {
-			return $value !== 0;
-		} elseif (is_numeric($value)) {
-			return intval($value) !== 0;
-		} elseif (is_string($value)) {
-			return $value && $value[0] === 't';
-		} else {
-//			throw new InvalidArgumentException(__METHOD__.' ['.$value.']');
-			return false;
 		}
+
+		if (is_integer($value)) {
+			return $value !== 0;
+		}
+
+		if (is_numeric($value)) {
+			return intval($value) !== 0;
+		}
+
+		if (is_string($value)) {
+			return $value && $value[0] === 't';
+		}
+
+//		throw new InvalidArgumentException(__METHOD__.' ['.$value.']');
+		return false;
 	}
 
 	public function setDB(DBInterface $db)
@@ -913,4 +919,46 @@ abstract class OODBase
 		return $this->db;
 	}
 
+	public function hash()
+	{
+		return spl_object_hash($this);
+	}
+
+	public function oid()
+	{
+		return get_class($this) . '-' . $this->getID() . '-' . substr(md5($this->hash()), 0, 8);
+	}
+
+	public function dehydrate()
+	{
+		return [
+			'class' => get_class($this),
+			'id' => $this->id,
+			'data' => $this->data,
+		];
+	}
+
+	/**
+	 * @param array|string $data
+	 * @return OODBase
+	 */
+	public static function hydrate($data)
+	{
+		if (is_string($data)) {
+			/** @noinspection UnserializeExploitsInspection */
+			$data = unserialize($data);
+		}
+		$el = (object)$data;
+		$class = $el->class;
+		$obj = new $class();
+		foreach ($el as $key => $val) {
+			if (is_array($val) && isset($val['class'])) {
+				$val = self::hydrate($val);
+			}
+			/** @noinspection PhpVariableVariableInspection */
+			$obj->$key = $val;
+		}
+		unset($obj->class);    // special case, see above
+		return $obj;
+	}
 }

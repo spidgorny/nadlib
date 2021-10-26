@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+ * @method  runDeleteQuery($table, array $where)
+ */
 class DBLayerJSONTable extends DBLayerBase implements DBInterface
 {
 
@@ -117,4 +121,14 @@ class DBLayerJSONTable extends DBLayerBase implements DBInterface
 		return ['class' => get_class($this)];
 	}
 
+	public function getVersion()
+	{
+		// TODO: Implement getVersion() method.
+	}
+
+	public function __call($name, $arguments)
+	{
+		// TODO: Implement @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+		// TODO: Implement @method  runDeleteQuery($table, array $where)
+	}
 }

@@ -79,4 +79,6 @@ interface DBInterface
 
 	public function getDatabaseName();
 
+	public function getVersion();
+
 }

@@ -37,8 +37,8 @@ trait CachedGetInstance
 				: NULL,
 		));*/
 		if (is_scalar($id)) {
-			$inst = isset(self::$instances[$static][$id])
-				? self::$instances[$static][$id]
+			$inst = isset(static::$instances[$static][$id])
+				? static::$instances[$static][$id]
 				: null;
 			if (!$inst) {
 				//debug('new ', get_called_class(), $id, array_keys(self::$instances));
@@ -46,7 +46,7 @@ trait CachedGetInstance
 				// don't put anything else here
 				$inst = new $static();
 				// BEFORE init() to avoid loop
-				self::storeInstance($inst, $id);
+				static::storeInstance($inst, $id);
 				// separate call to avoid infinite loop in ORS
 				$inst->init($id);
 			}
@@ -55,19 +55,17 @@ trait CachedGetInstance
 			$inst = new $static();    // only to find ->idField
 			$intID = $id[$inst->idField];
 			//debug($static, $intID, $id);
-			$inst = isset(self::$instances[$static][$intID])
-				? self::$instances[$static][$intID]
-				: $inst;
+			$inst = static::$instances[$static][$intID] ?? $inst;
 			if (!$inst->id) {
 				$inst->init($id);    // array
-				self::storeInstance($inst, $intID);    // int id
+				static::storeInstance($inst, $intID);    // int id
 			}
 		} elseif ($id) {
 			//debug($static, $id);
 			/** @var OODBase $inst */
 			$inst = new $static();
 			$inst->init($id);
-			self::storeInstance($inst, $inst->id);
+			static::storeInstance($inst, $inst->id);
 		} elseif (is_null($id)) {
 			$inst = new $static();
 		} else {
@@ -107,9 +105,11 @@ trait CachedGetInstance
 	{
 		try {
 			$obj = self::getInstance($id);
+//			llog(get_called_class(), $id, 'getInstance', spl_object_hash($obj));
 		} catch (InvalidArgumentException $e) {
 			$class = get_called_class();
 			$obj = new $class();
+//			llog(get_called_class(), $id, 'new', spl_object_hash($obj));
 		}
 		return $obj;
 	}
@@ -145,7 +145,7 @@ trait CachedGetInstance
 			});
 		}
 		$stats = $stats->getData();
-		$s = new slTable($stats, ['class' => "table"], [
+		$s = new slTable($stats, 'class="table"', [
 			'class' => 'Class',
 			'count' => 'Count',
 			'bar' => [

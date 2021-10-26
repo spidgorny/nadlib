@@ -8,9 +8,26 @@ class Color
 	 */
 	public $r, $g, $b;
 
+	public static function fromRGBArray(array $rgb)
+	{
+		return new Color($rgb);
+	}
+
+	public static function fromRGB($r, $g, $b)
+	{
+		return new Color([$r, $g, $b]);
+	}
+
+	public static function fromHEX($rgb)
+	{
+		assert($rgb[0] === '#');
+		assert(strlen($rgb) === 7);
+		return new Color($rgb);
+	}
+
 	public function __construct($init)
 	{
-		if ($init[0] == '#') {
+		if ($init[0] === '#') {
 			$colourstr = str_replace('#', '', $init);
 			$rhex = substr($colourstr, 0, 2);
 			$ghex = substr($colourstr, 2, 2);
@@ -32,8 +49,8 @@ class Color
 
 	/**
 	 * http://stackoverflow.com/questions/5199783/help-needed-with-php-function-brightness-making-rgb-colors-darker-brighter
-	 * @param $colourstr
-	 * @param $steps
+	 * @param string $colourstr
+	 * @param int $steps
 	 * @return string
 	 */
 	public function alter_brightness($colourstr, $steps)
@@ -79,9 +96,9 @@ class Color
 		return $this->getCSS([$this->r, $this->g, $this->b]);
 	}
 
-	public function getCSS($rgb)
+	public function getCSS($rgb = null)
 	{
-		$rgb = array_values($rgb);
+		$rgb = array_values($rgb ?: [$this->r, $this->g, $this->b]);
 		return '#' .
 			str_pad(dechex($rgb[0]), 2, '0', STR_PAD_LEFT) .
 			str_pad(dechex($rgb[1]), 2, '0', STR_PAD_LEFT) .
@@ -90,9 +107,9 @@ class Color
 
 	/**
 	 * http://stackoverflow.com/questions/1773698/rgb-to-hsv-in-php
-	 * @param $R
-	 * @param $G
-	 * @param $B
+	 * @param int $R
+	 * @param int $G
+	 * @param int $B
 	 * @return array
 	 */
 	public function RGB_TO_HSV($R, $G, $B)  // RGB Values:Number 0-255
@@ -191,9 +208,9 @@ class Color
 
 	/**
 	 * http://ariya.blogspot.de/2008/07/converting-between-hsl-and-hsv.html
-	 * @param $h
-	 * @param $s
-	 * @param $v
+	 * @param int $h
+	 * @param int $s
+	 * @param int $v
 	 * @return array
 	 */
 	public function hsv_to_hsl($h, $s, $v)
@@ -229,6 +246,26 @@ class Color
 	{
 		$c = $this->alter_color(180, 0, 0);
 		return $c;
+	}
+
+	/**
+	 * https://sighack.com/post/averaging-rgb-colors-the-right-way
+	 * https://youtu.be/LKnqECcg6Gw
+	 * @param array $colors
+	 */
+	public static function average(array $colors)
+	{
+		$sumSquared = [0, 0, 0];    // rgb
+		foreach ($colors as $color) {
+			$sumSquared[0] += $color[0] * $color[0];
+			$sumSquared[1] += $color[1] * $color[1];
+			$sumSquared[2] += $color[2] * $color[2];
+		}
+		$amount = sizeof($colors);
+		return [
+			intval(sqrt($sumSquared[0] / $amount)),
+			intval(sqrt($sumSquared[1] / $amount)),
+			intval(sqrt($sumSquared[2] / $amount))];
 	}
 
 }

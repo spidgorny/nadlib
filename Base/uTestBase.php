@@ -53,7 +53,7 @@ class uTestBase extends AppControllerBE
 		}
 		$content .= '</table>';
 		//$content .= getDebug($this->stat);
-		$content = $this->encloseIn(new htmlString('&mu;Test'), $content, true);
+		$content = $this->encloseIn(new htmlString('&mu;Test'), $content);
 		if ($GLOBALS['profiler']) $content .= $GLOBALS['profiler']->printTimers(1);
 		return $content;
 	}

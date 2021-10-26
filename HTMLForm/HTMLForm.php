@@ -330,24 +330,20 @@ class HTMLForm implements ToStringable
 	}
 
 	/**
-	 * @param string|string[] $name
-	 * @param array $aOptions
-	 * @param string|int $default
+	 * @param $name
+	 * @param $aOptions
+	 * @param $default
 	 * @param bool $autoSubmit
-	 * @param array|string $more
+	 * @param array $more
 	 * @param bool $multiple
 	 * @param array $desc
 	 *
 	 * @see renderSelectionOptions
 	 */
 	public function selection(
-		$name,
-		array $aOptions,
-		$default,
-		$autoSubmit = false,
-		array $more = [],
-		$multiple = false,
-		array $desc = []
+		$name, array $aOptions = null, $default,
+		$autoSubmit = false, array $more = [],
+		$multiple = false, array $desc = []
 	) {
 		$sel = new HTMLFormSelection($name, $aOptions, $default);
 		$sel->autoSubmit = $autoSubmit;
@@ -388,9 +384,7 @@ class HTMLForm implements ToStringable
 			$extraClass .= ' is-invalid';
 		}
 
-		$this->input(
-			$name,
-			$value,
+		$this->input($name, $value,
 			(isset($desc['id']) ? ['id' => $desc['id']] : []) +
 			ifsetor($desc['more'], []),
 			'date',
@@ -488,7 +482,7 @@ class HTMLForm implements ToStringable
 	/**
 	 * Changelog: second $more parameter was removed, please use $params instead
 	 *
-	 * @param string $value
+	 * @param string|null $value
 	 * @param array $params
 	 *
 	 * @return HTMLForm
@@ -570,7 +564,6 @@ class HTMLForm implements ToStringable
 	public function getContent()
 	{
 		$c = $this->getFormTag() . $this->stdout . $this->getFormEnd();
-
 		return $c;
 	}
 
@@ -882,7 +875,7 @@ document.observe("dom:loaded", () => {
 
 	public function popupLink($self, $table, $titleColumn, $selected, $pid, $leaves, $id1, $id2, $functionName, $selectRoot)
 	{
-		$this->stdout .= Str::ahref('<img src="skin/default/img/browsefolder.png">',
+		$this->stdout .= str::ahref('<img src="skin/default/img/browsefolder.png">',
 			'bijouTreeSelect.php?self=' . $self . '&table=' . $table . '&titleColumn=' . $titleColumn .
 			'&pid=' . $pid . '&leaves=' . $leaves . '&selected=' . $selected . '&callback=' . $functionName .
 			'&selectRoot=' . $selectRoot, false, 'bijouTreeTarget');

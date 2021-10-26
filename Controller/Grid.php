@@ -16,7 +16,7 @@ abstract class Grid extends AppController
 	public $model;
 
 	/**
-	 * @var \nadlib\Controller\Filter
+	 * @var Filter
 	 */
 	public $filter;
 
@@ -29,7 +29,7 @@ abstract class Grid extends AppController
 	/**
 	 * @var array ['sortBy'], ['sortOrder']
 	 */
-	public $sort;
+	public $sort = [];
 
 	/**
 	 * @var PageSize
@@ -56,7 +56,7 @@ abstract class Grid extends AppController
 	public function initPageSize()
 	{
 		$sizeFromPreferences = $this->user->getSetting(get_class($this) . '.pageSize');
-		$this->log(__METHOD__, 'sizeFromPreferences', $sizeFromPreferences);
+//		$this->log(__METHOD__, 'sizeFromPreferences', $sizeFromPreferences);
 		$this->pageSize = $this->pageSize
 			?: new PageSize($sizeFromPreferences);
 		$this->user->setSetting(get_class($this) . '.pageSize', $this->pageSize->get());
@@ -113,9 +113,9 @@ abstract class Grid extends AppController
 	public function setFilter($cn = __CLASS__)
 	{
 		$this->filter = new Filter();
-		$action = $this->request->getTrim('action');
-		$this->log(__METHOD__, 'isSubmit', $this->request->isSubmit());
-		$this->log(__METHOD__, 'GET filter=', $this->request->getArray('filter'));
+//		$action = $this->request->getTrim('action');
+//		$this->log(__METHOD__, 'isSubmit', $this->request->isSubmit());
+//		$this->log(__METHOD__, 'GET filter=', $this->request->getArray('filter'));
 		if ($this->request->isSubmit() || $this->request->getArray('filter')) {
 			$this->filter->setRequest($this->request->getArray('filter'));
 		}
@@ -123,7 +123,7 @@ abstract class Grid extends AppController
 			$prefFilter = $this->user->getPref('Filter.' . $cn);
 //				debug($prefFilter);
 			if ($prefFilter) {
-				$this->log(__METHOD__, 'setPreferences', $prefFilter);
+//				$this->log(__METHOD__, 'setPreferences', $prefFilter);
 				$this->filter->setPreferences($prefFilter);
 			}
 		}
@@ -151,19 +151,19 @@ abstract class Grid extends AppController
 		if (!$cn) {
 			$cn = get_class($this);
 		}
-		$this->log(__METHOD__, $cn);
+//		$this->log(__METHOD__, $cn);
 		// why do we inject collection
 		// before we have detected the filter (=where)?
 		if (!$this->collection) {
 			//$this->injectCollection();
 		}
-		$cn = $cn ? $cn : get_class($this->collection);
+		$cn = $cn ?: get_class($this->collection);
 		//debug($cn);
 		assert($cn > '');
 
 		if ($this->filter) {
 			if (method_exists($this->user, 'setPref')) {
-				$this->log(__METHOD__, 'setPref', $this->filter->getArrayCopy());
+//				$this->log(__METHOD__, 'setPref', $this->filter->getArrayCopy());
 				$this->user->setPref('Filter.' . $cn, $this->filter->getArrayCopy());
 			}
 		}
@@ -181,10 +181,7 @@ abstract class Grid extends AppController
 		$sortRequest = $this->request->getArray('slTable');
 		if (method_exists($this->user, 'getPref')) {
 			$this->sort = $sortRequest
-				? $sortRequest
-				: ($this->user->getPref('Sort.' . $cn)
-					? $this->user->getPref('Sort.' . $cn)
-					: $this->sort
+				?: ($this->user->getPref('Sort.' . $cn) ?: $this->sort
 				);
 		}
 	}
@@ -243,7 +240,7 @@ abstract class Grid extends AppController
 			$f->method('GET');
 			$f->defaultBR = true;
 			$this->filter = $f->fill($this->request->getAll());
-			$f->showForm($this->filter);
+			$f->showForm();
 			$f->submit('Filter', ['class' => 'btn btn-primary']);
 			$content[] = $f->getContent();
 		}
@@ -271,45 +268,45 @@ abstract class Grid extends AppController
 	 */
 	public function setColumns($cn, $allowEdit)
 	{
-		$this->log(__METHOD__, $cn);
+//		$this->log(__METHOD__, $cn);
 		// request
 		if ($this->request->is_set('columns') && $allowEdit) {
 			$urlColumns = $this->request->getArray('columns');
 			$this->columns = new VisibleColumns($urlColumns);
 			$this->user->setPref('Columns.' . $cn, $this->columns->getData());
-			$this->log(__METHOD__, 'Columns set from URL');
+//			$this->log(__METHOD__, 'Columns set from URL');
 		} elseif (!$this->columns && method_exists($this->user, 'getPref')) {
 			$prefs = $this->user->getPref('Columns.' . $cn);
 			if ($prefs) {
 				$this->columns = new VisibleColumns($prefs);
-				$this->log(__METHOD__, 'Columns set from getPref');
+//				$this->log(__METHOD__, 'Columns set from getPref');
 			}
 		}
 
 		if (!$this->columns) {
 			// default
 			$gridColumns = array_keys($this->getGridColumns());
-			$this->log(__METHOD__, ['getGridColumns' => $gridColumns]);
+//			$this->log(__METHOD__, ['getGridColumns' => $gridColumns]);
 			if ($gridColumns) {
 				$this->columns = new VisibleColumns($gridColumns);
-				$this->log(__METHOD__, 'Columns set from getGridColumns');
+//				$this->log(__METHOD__, 'Columns set from getGridColumns');
 			}
 		}
 
 		if (!$this->columns && ifsetor($this->model->thes)) {
 			$this->columns = array_keys($this->model->thes);
-			$this->log(__METHOD__, 'Columns set from model');
+//			$this->log(__METHOD__, 'Columns set from model');
 		}
 
 		if (!$this->columns && $this->collection && $this->collection->thes) {
 			$keysOfThes = array_keys($this->collection->thes);
 			$this->columns = new VisibleColumns($keysOfThes);
-			$this->log(__METHOD__, 'Columns set from collection ' . typ($this->collection) . ': ' . json_encode($this->columns));
+//			$this->log(__METHOD__, 'Columns set from collection ' . typ($this->collection) . ': ' . json_encode($this->columns));
 		} elseif (!$this->columns) {
 			$this->columns = new VisibleColumns();
 		}
 
-		$this->log(__METHOD__, $this->columns->getData());
+//		$this->log(__METHOD__, $this->columns->getData());
 	}
 
 	/**
@@ -319,7 +316,7 @@ abstract class Grid extends AppController
 	public function getGridColumns()
 	{
 		if ($this->collection) {
-			$this->log(__METHOD__, 'Collection exists');
+//			$this->log(__METHOD__, 'Collection exists');
 			return ArrayPlus::create($this->collection->thes)
 				->makeTable('name')
 				->column('name')
@@ -327,7 +324,7 @@ abstract class Grid extends AppController
 				->getData();
 		}
 
-		$this->log(__METHOD__, 'No collection');
+//		$this->log(__METHOD__, 'No collection');
 		return [];
 	}
 

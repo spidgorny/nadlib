@@ -3,6 +3,8 @@
 /**
  * Class BijouDBConnector
  * Attaches to $GLOBALS['TYPO3_DB'] withing TYPO3 and acts as a proxy
+ * @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+ * @method  runDeleteQuery($table, array $where)
  */
 class BijouDBConnector extends DBLayerBase implements DBInterface
 {
@@ -36,11 +38,6 @@ class BijouDBConnector extends DBLayerBase implements DBInterface
 		return $res;
 	}
 
-	/**
-	 * @see SQLBuilder
-	 * @param $res
-	 * @return mixed
-	 */
 	/*	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = 'uid', $noDeleted = FALSE) {
 			//$query = $this->getSelectQuery($table, $where, $order);
 			$res = $this->runSelectQuery($table, $where, $order, '', FALSE, !$noDeleted);
@@ -55,9 +52,9 @@ class BijouDBConnector extends DBLayerBase implements DBInterface
 	*/
 
 	/**
-	 * @see SQLBuilder
 	 * @param resource $res
 	 * @return mixed
+	 * @see SQLBuilder
 	 */
 	public function fetchAssoc($res)
 	{
@@ -287,4 +284,14 @@ class BijouDBConnector extends DBLayerBase implements DBInterface
 		return [];
 	}
 
+	public function getVersion()
+	{
+		// TODO: Implement getVersion() method.
+	}
+
+	public function __call($name, $arguments)
+	{
+		// TODO: Implement @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+		// TODO: Implement @method  runDeleteQuery($table, array $where)
+	}
 }

@@ -3,7 +3,7 @@
 class ListFilesIn extends ArrayObject
 {
 
-	function __construct($folder)
+	public function __construct($folder)
 	{
 		//parent::__construct();
 		$menu = [];

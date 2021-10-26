@@ -36,6 +36,11 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return new HTMLTag('div', $param, $content);
 	}
 
+	public static function span($content, array $param = [])
+	{
+		return new HTMLTag('span', $param, $content);
+	}
+
 	public function __toString()
 	{
 		try {
@@ -93,7 +98,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 
 	/**
 	 * jQuery style
-	 * @param $name
+	 * @param string $name
 	 * @param null|string|mixed $value
 	 * @return mixed
 	 */
@@ -186,7 +191,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 			if ($child instanceof DOMElement) {
 				$attributes = [];
 				foreach ($child->attributes as $attribute_name => $attribute_node) {
-					/** @var  DOMNode $attribute_node */
+					/** @var DOMNode $attribute_node */
 					echo $attribute_name, ': ', typ($attribute_node), BR;
 					$attributes[$attribute_name] = $attribute_node->nodeValue;
 				}
@@ -194,7 +199,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 				//$hasChildNodes = $child->hasChildNodes();	// incl Text
 				$hasChildNodes = 0;
 				foreach ($child->childNodes as $node) {
-					if (!($node instanceof \DomText)) {
+					if (!($node instanceof DOMText)) {
 						$hasChildNodes++;
 					}
 				}
@@ -218,7 +223,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 
 	/**
 	 * https://gist.github.com/rodneyrehm/3070128
-	 * @param string $text
+	 * @param string|array $text
 	 * @return array
 	 */
 	public static function parseAttributes($text)

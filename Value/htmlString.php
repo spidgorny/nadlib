@@ -24,8 +24,8 @@ class htmlString implements ToStringable
 
 	/**
 	 * htmlspecialchars which knows about htmlString()
-	 * @param $string
-	 * @return string
+	 * @param string $string
+	 * @return string|htmlString
 	 */
 	public static function hsc($string)
 	{

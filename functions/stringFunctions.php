@@ -38,7 +38,7 @@ if (!function_exists('str_startsWith')) {
 			if (is_array($haystack)) {
 				debug_pre_print_backtrace();
 			}
-			return FALSE !== strpos($haystack, $needle);
+			return false !== strpos($haystack, $needle);
 		}
 	}
 
@@ -47,7 +47,7 @@ if (!function_exists('str_startsWith')) {
 		if (is_array($haystack)) {
 			debug_pre_print_backtrace();
 		}
-		return FALSE !== stripos($haystack, $needle);
+		return false !== stripos($haystack, $needle);
 	}
 
 	if (!function_exists('contains')) {
@@ -134,15 +134,23 @@ if (!function_exists('str_startsWith')) {
 		return $string;
 	}
 
+	/**
+	 * @param string $path
+	 * @param string $plus
+	 * @param null $plus2
+	 * @return string
+	 */
 	function path_plus($path, $plus, $plus2 = null)
 	{
 		$freq = array_count_values(str_split($path));
 		$separator = ifsetor($freq['/']) >= ifsetor($freq['\\']) ? '/' : '\\';
+//		llog($separator);
 
 		$isAbs = isset($path[0]) &&
-			($path[0] == '/' || $path[0] == '\\' || $path[1] == ':');
+			($path[0] === '/' || $path[0] === '\\' || $path[1] === ':');
 
-		$parts = trimExplode('/', $path.'');
+		$path = str_replace('\\', '/', $path);	// for trim
+		$parts = trimExplode('/', $path);
 		$parts = array_merge($parts, trimExplode('/', $plus));
 
 		$root = '';
@@ -235,13 +243,13 @@ if (!function_exists('str_startsWith')) {
 		$out = '';
 		$chars = preg_split('//u', $string, null, PREG_SPLIT_NO_EMPTY);
 		foreach ($chars as $i => $ch) {
-			if ($ch == ' ') {
-				if ($out[-1] != '_') {
+			if ($ch === ' ') {
+				if ($out[-1] !== '_') {
 					$out .= '_';
 				}
-			} elseif (strtoupper($ch) == $ch) {
+			} elseif (strtoupper($ch) === $ch) {
 				if ($i) {
-					if (strlen($out) && $out[strlen($out)-1] != '_') {
+					if (strlen($out) && $out[strlen($out)-1] !== '_') {
 						$out .= '_';
 					}
 				}

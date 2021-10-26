@@ -47,6 +47,7 @@ class FilterController extends Controller
 		$f->setAllOptional();
 		$f->method('POST');
 		$f->defaultBR = true;
+//		llog($this->linker->linkVars);
 		$f->formHideArray($this->linker->linkVars);
 		$f->prefix('filter');
 		$f->showForm();
@@ -60,15 +61,17 @@ class FilterController extends Controller
 	 * Why manually? I don't know, it could change.
 	 *
 	 * @param array $fields
-	 * @throws Exception
 	 * @return array
+	 * @throws Exception
 	 */
 	public function getFilterDesc(array $fields = null)
 	{
 //		if (is_callable($this->injectFilterDesc)) {
 //			return call_user_func($this->injectFilterDesc);
 //		}
-		$fields = ifsetor($fields, ifsetor($this->model->thes));
+		$fields = ifsetor($fields,
+			$this->model ? ifsetor($this->model->thes) : null
+		);
 		$fields = is_array($fields) ? $fields : $this->fields;
 
 		//debug($this->filter);
@@ -94,7 +97,7 @@ class FilterController extends Controller
 	{
 		$autoClass = ucfirst(str_replace('id_', '', $key)) . 'Collection';
 		if (class_exists($autoClass) &&
-			in_array('HTMLFormCollection', class_implements($autoClass))
+			in_array(HTMLFormCollection::class, class_implements($autoClass), true)
 		) {
 			$k['type'] = new $autoClass();
 			$options = null;
@@ -142,8 +145,8 @@ class FilterController extends Controller
 		if ($this->model instanceof OODBase) {
 			$res = $this->db->getTableOptions(
 				$this->model->table
-				? $this->model->table
-				: $this->collection->table,
+					? $this->model->table
+					: $this->collection->table,
 				$key, [], 'ORDER BY ' . $key, $key);    // NOT 'id' (DISTINCT!)
 
 			if ($count) {

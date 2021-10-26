@@ -4,10 +4,12 @@
  * Class dbLayerSQLite
  * @mixin SQLBuilder
  * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+ * @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+ * @method  runDeleteQuery($table, array $where)
  */
 class DBLayerSQLite extends DBLayerBase implements DBInterface
-{
 
+{
 	/**
 	 * @var string
 	 */
@@ -47,6 +49,7 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 		if (class_exists('SQLite3')) {
 			$this->connection = new SQLite3($this->file);
 			$this->connection->exec('PRAGMA journal_mode = wal;');
+			$this->connection->enableExceptions(true);
 		} else {
 			throw new Exception('SQLite3 extension is not enabled');
 		}
@@ -61,7 +64,8 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	public function perform($query, array $params = [])
 	{
 		if (!$this->connection) {
-			debug_pre_print_backtrace();
+//			debug_pre_print_backtrace();
+			$this->connect();
 		}
 		$this->lastQuery = $query;
 		$profiler = new Profiler();
@@ -143,7 +147,9 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	public function free($res)
 	{
 		// The SQLite3Result object has not been correctly initialised
-		@$res->finalize();
+		if ($res instanceof SQLite3Result) {
+			@$res->finalize();
+		}
 	}
 
 	public function quoteKey($key)
@@ -274,4 +280,13 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 		return ['class' => get_class($this)];
 	}
 
+	public function getConnection()
+	{
+		return $this->connection;
+	}
+
+	public function getVersion()
+	{
+		// TODO: Implement getVersion() method.
+	}
 }

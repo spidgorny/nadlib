@@ -12,7 +12,7 @@ class TYPO3User extends UserBase
 {
 
 	/**
-	 * @var array
+	 * @var mixed
 	 */
 	public $t3user;
 
@@ -82,4 +82,8 @@ class TYPO3User extends UserBase
 		return null;
 	}
 
+	public function getSetting($key)
+	{
+		// TODO: Implement getSetting() method.
+	}
 }

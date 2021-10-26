@@ -1,15 +1,16 @@
 <?php
 
-class InitNADLIB {
+class InitNADLIB
+{
 
 	var $useCookies = true;
 
 	/**
 	 * @var AutoLoad
 	 */
-	var $al;
+	public $al;
 
-	var $startTime;
+	public $startTime;
 
 	var $endTime;
 
@@ -23,7 +24,7 @@ class InitNADLIB {
 	 */
 	public $development;
 
-	function __construct()
+	public function __construct()
 	{
 		$this->startTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
 		require_once dirname(__FILE__) . '/AutoLoad.php';
@@ -42,7 +43,7 @@ class InitNADLIB {
 		$this->al = AutoLoad::getInstance();
 		$this->al->useCookies = $this->useCookies;
 		$this->development = Request::isWindows()
-			|| ifsetor($_COOKIE['debug'])
+			|| ifsetor($_COOKIE['debug']) === ifsetor($_SERVER['HTTP_HOST'])
 			|| ini_get('debug')
 			|| getenv('NADLIB');
 	}
@@ -56,7 +57,7 @@ class InitNADLIB {
 	public function init()
 	{
 		// maybe InitNADLIB was loaded by composer autoload
-		require_once __DIR__.'/../init.php';
+		require_once __DIR__ . '/../init.php';
 		//print_r($_SERVER);
 		$this->setDefaults();
 		$this->setErrorReporting();
@@ -92,7 +93,7 @@ class InitNADLIB {
 		$this->endTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
 	}
 
-	function initWhoops()
+	public function initWhoops()
 	{
 		$run = new Whoops\Run;
 		$handler = new Whoops\Handler\PrettyPageHandler;
@@ -135,6 +136,7 @@ class InitNADLIB {
 				pre_print_r('Output has started', $file, $line);
 			}
 			@header('X-nadlib: DEVELOPMENT');
+			@header('X-PHP-version: ' . PHP_VERSION);
 			error_reporting(-1);
 			//ini_set('display_errors', FALSE);
 			//trigger_error(str_repeat('*', 20));	// log file separator
@@ -163,7 +165,7 @@ border-radius: 5px;">');
 		} else {
 			@header('X-nadlib: PRODUCTION');
 			error_reporting(0);
-			ini_set('display_errors', FALSE);
+			ini_set('display_errors', false);
 		}
 	}
 

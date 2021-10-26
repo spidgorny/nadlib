@@ -44,7 +44,8 @@ class Request
 		$this->url = new URL(
 			isset($_SERVER['SCRIPT_URL'])
 				? $_SERVER['SCRIPT_URL']
-				: (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null)
+				: (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null),
+			$this->data
 		);
 	}
 
@@ -399,22 +400,21 @@ class Request
 	{
 		if ($this->isCLI()) {
 			$resolver = new CLIResolver();
+			return $resolver->getController();
+		}
+
+		$c = $this->getTrim('c');
+		if ($c) {
+			$resolver = new CResolver($c);
 			$controller = $resolver->getController();
 		} else {
-			$c = $this->getTrim('c');
-			if ($c) {
-				$resolver = new CResolver($c);
-				$controller = $resolver->getController();
-			} else {
-				$resolver = new PathResolver();
-				$controller = $resolver->getController($returnDefault);
-			}
+			$resolver = new PathResolver();
+			$controller = $resolver->getController($returnDefault);
 		}   // cli
 		nodebug([
 			'result' => $controller,
 			'c' => $this->getTrim('c'),
 			//'levels' => $this->getURLLevels(),
-			'last' => isset($last) ? $last : null,
 			'default' => class_exists('Config')
 				? Config::getInstance()->defaultController
 				: null,
@@ -515,7 +515,8 @@ class Request
 		} else {
 			$this->redirectJS($controller, DEVELOPMENT ? 10000 : 0);
 		}
-		if ($exit && !$this->isPHPUnit()) {
+		if ($exit && !self::isPHPUnit()) {
+			// to preserve the session
 			session_write_close();
 			exit();
 		}
@@ -534,9 +535,10 @@ class Request
 		}
 	}
 
-	public function redirectJS($controller, $delay = 0, $message =
-	'Redirecting to %1')
-	{
+	public function redirectJS(
+		$controller, $delay = 0, $message =
+	'Redirecting to %1'
+	) {
 		echo __($message, '<a href="' . $controller . '">' . $controller . '</a>') . '
 			<script>
 				setTimeout(function () {
@@ -555,9 +557,9 @@ class Request
 		if (!headers_sent()) {
 			header('X-Redirect: ' . $link);    // to be handled by AJAX callback
 			exit();
-		} else {
-			$this->redirectJS($link);
 		}
+
+		$this->redirectJS($link);
 	}
 
 	/**
@@ -568,6 +570,7 @@ class Request
 	public static function getLocation($isUTF8 = false)
 	{
 		$docRoot = self::getDocRoot();
+//		llog($docRoot.'');
 		$host = self::getHost($isUTF8);
 		$url = Request::getRequestType() . '://' . $host . $docRoot;
 		$url = new URL($url);
@@ -684,8 +687,8 @@ class Request
 		$headers = array_change_key_case($headers, CASE_LOWER);
 
 		$isXHR = false;
-		if (isset($headers['X-Requested-With'])) {
-			$isXHR = strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest');
+		if (isset($headers['x-requested-with'])) {
+			$isXHR = $headers['x-requested-with'] === 'XMLHttpRequest';
 		}
 		return $this->getBool('ajax') || $isXHR;
 	}
@@ -798,7 +801,7 @@ class Request
 	public function getURLLevel($level)
 	{
 		$path = $this->getURLLevels();
-		return isset($path[$level]) ? $path[$level] : null;
+		return $path[$level] ?? null;
 	}
 
 	public function getPathAfterDocRoot()
@@ -860,6 +863,33 @@ class Request
 		return $path;
 	}
 
+	public function baseHrefFromServer()
+	{
+		$al = AutoLoad::getInstance();
+		$appRoot = $al->getAppRoot()->normalize()->realPath();
+		$path = new Path($_SERVER['SCRIPT_FILENAME']);
+		$path->trimIf($path->basename());
+//		llog('remove', $appRoot.'', 'from', $path.'');
+		$path->remove($appRoot);
+		$path->normalize();
+//		llog($path);
+//		debug($appRoot.'', $_SERVER['SCRIPT_FILENAME'], $path.'');
+		return $path;
+	}
+
+	public function baseHref()
+	{
+		$path = new Path($_SERVER['SCRIPT_FILENAME']);
+		$url = new URL($_SERVER['REQUEST_URI']);
+		$urlPath = $url->getPath();
+		$intersect = array_intersect($path->aPath, $urlPath->aPath);
+		llog($path . '', $urlPath . '', $intersect);
+		if (count($intersect)) {
+			return '/' . implode('/', $intersect) . '/xxx';
+		}
+		return '/';
+	}
+
 	public function getPathAfterAppRootByPath()
 	{
 		$al = AutoLoad::getInstance();
@@ -907,7 +937,7 @@ class Request
 		//debug($path);
 		if (strlen($path) > 1) {    // "/"
 			$levels = trimExplode('/', $path);
-			if ($levels && $levels[0] == 'index.php') {
+			if ($levels && $levels[0] === 'index.php') {
 				array_shift($levels);
 			}
 		} else {
@@ -957,7 +987,7 @@ class Request
 			//debug($modules);
 			$mod_rewrite = in_array('mod_rewrite', $modules);
 		} else {
-			$mod_rewrite = getenv('HTTP_MOD_REWRITE') == 'On' ? true : false;
+			$mod_rewrite = getenv('HTTP_MOD_REWRITE') === 'On' ? true : false;
 		}
 		return $mod_rewrite;
 	}
@@ -1089,7 +1119,7 @@ class Request
 				}
 				// check if next parameter is a descriptor or a value
 				$nextparm = current($params);
-				if (!in_array($pname, $noopt) && $value === true && $nextparm !== false && $nextparm[0] != '-') {
+				if (!in_array($pname, $noopt) && $value === true && $nextparm !== false && $nextparm[0] !== '-') {
 					$value = next($params);
 				}
 				$result[$pname] = $value;
@@ -1345,21 +1375,20 @@ class Request
 	{
 		if (isset($HTTP_RAW_POST_DATA)) {
 			return $HTTP_RAW_POST_DATA;
+		} else {
+			return file_get_contents("php://input");
 		}
-
-		return file_get_contents("php://input");
 	}
 
-	/// disposition = inline
-	public function forceDownload($contentType, $filename, $disposition = 'attachment')
+	public function forceDownload($contentType, $filename)
 	{
 		header('Content-Type: ' . $contentType);
-		header("Content-Disposition: ".$disposition."; filename=\"" . $filename . "\"");
+		header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
 	}
 
 	public static function isHTTPS()
 	{
-		return self::getRequestType() === 'https';
+		return self::getRequestType() == 'https';
 	}
 
 	public function getNamelessID()

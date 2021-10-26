@@ -32,8 +32,8 @@ use spidgorny\nadlib\HTTP\URL;
  * @method pre($content)
  *
  * @method makeLink($text, array $params, $page = '', array $more = [], $isHTML = false)
- * @method makeURL(array $params = [], $prefix = '?')
- * @method makeRelURL()
+ * @method makeURL(array $params = [], $prefix = null)
+ * @method makeRelURL(array $params = [], $page = null)
  * @method makeRelLink($text, array $params, $page = '?')
  * @method getActionButton($name, $action, $formAction = null, array $hidden = [], $submitClass = '', array $submitParams = [])
  */
@@ -41,12 +41,6 @@ abstract class Controller extends SimpleController
 {
 
 	use HTMLHelper;
-
-	/**
-	 * @var Request
-	 * @public for injecting something in PHPUnit
-	 */
-	public $request;
 
 	/**
 	 * @var boolean
@@ -118,7 +112,7 @@ abstract class Controller extends SimpleController
 			$this->config->mergeConfig($this);
 		}
 
-		$this->linker = new Linker($this->request);
+		$this->linker = new Linker($this->request, $this);
 		$this->linker->useRouter = $this->request->apacheModuleRewrite();
 
 		if (!$this->linker->useRouter) {
@@ -130,11 +124,13 @@ abstract class Controller extends SimpleController
 	{
 		if (method_exists($this->linker, $method)) {
 			return call_user_func_array([$this->linker, $method], $arguments);
-		} elseif (method_exists($this->html, $method)) {
-			return call_user_func_array([$this->html, $method], $arguments);
-		} else {
-			throw new RuntimeException('Method '.$method.' not found in '.get_class($this));
 		}
+
+		if (method_exists($this->html, $method)) {
+			return call_user_func_array([$this->html, $method], $arguments);
+		}
+
+		throw new RuntimeException('Method ' . $method . ' not found in ' . get_class($this));
 	}
 
 	/**
@@ -159,33 +155,6 @@ abstract class Controller extends SimpleController
 		return '<fieldset><legend>' . $title . '</legend>' . $content . '</fieldset>';
 	}
 
-	/**
-	 * Wraps the content in a div/section with a header.
-	 * The header is linkable.
-	 * @param $content
-	 * @param string $caption
-	 * @param null $h
-	 * @param array $more
-	 * @return array|string
-	 */
-	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
-	{
-		$h = $h ? $h : $this->encloseTag;
-		$content = $this->s($content);
-		if ($caption) {
-			$content = array(
-				'caption' => $this->getCaption($caption, $h),
-				$content
-			);
-		}
-		$more['class'] = ifsetor($more['class'], 'padding clearfix');
-		$more['class'] .= ' ' . get_class($this);
-		//debug_pre_print_backtrace();
-		//$more['style'] = "position: relative;";	// project specific
-		$content = new HTMLTag('section', $more, $content, true);
-		return $content;
-	}
-
 	public function encloseInToggle($content, $title, $height = 'auto', $isOpen = null, $tag = 'h3')
 	{
 		if ($content) {
@@ -208,44 +177,6 @@ abstract class Controller extends SimpleController
 					style="max-height: ' . $height . '; overflow: auto;
 					' . ($isOpen ? '' : 'display: none;') . '">' . $content . '</div>
 			</div>';
-		}
-		return $content;
-	}
-
-	public function performAction($action = null)
-	{
-		$content = '';
-		if ($this->request->isCLI()) {
-			//debug($_SERVER['argv']);
-			$reqAction = ifsetor($_SERVER['argv'][2]);    // it was 1
-		} else {
-			$reqAction = $this->request->getTrim('action');
-		}
-//		debug($reqAction);
-		$method = $action
-			?: (!empty($reqAction) ? $reqAction : 'index');
-		if ($method) {
-			$method .= 'Action';        // ZendFramework style
-//			debug($method, method_exists($this, $method));
-
-			if ($proxy = $this->request->getTrim('proxy')) {
-				$proxy = new $proxy($this);
-			} else {
-				$proxy = $this;
-			}
-
-			if (method_exists($proxy, $method)) {
-				if ($this->request->isCLI()) {
-					$assoc = array_slice(ifsetor($_SERVER['argv'], []), 3);
-					$content = call_user_func_array(array($proxy, $method), $assoc);
-				} else {
-					$caller = new MarshalParams($proxy);
-					$content = $caller->call($method);
-				}
-			} else {
-				// other classes except main controller may result in multiple messages
-//				Index::getInstance()->message('Action "'.$method.'" does not exist in class "'.get_class($this).'".');
-			}
 		}
 		return $content;
 	}
@@ -292,6 +223,7 @@ abstract class Controller extends SimpleController
 		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
+			$html = $this->s($html);
 			$content .= '<div class="flex-box flex-equal">' . $html . '</div>';
 		}
 		$content = '<div class="display-box equal">' . $content . '</div>';
@@ -331,6 +263,23 @@ abstract class Controller extends SimpleController
 				$el = new HTMLTag('div', [
 					'class' => 'column',
 				], $el, true);
+			}
+		}
+		$content .= implode("\n", $elements);
+		$content .= '</div>';
+		return $content;
+	}
+
+	public function encloseInRow(array $elements = [], array $attrs = [])
+	{
+		$this->index->addCSS(AutoLoad::getInstance()->nadlibFromDocRoot . 'CSS/columnContainer.less');
+		$content = '<div class="columnContainer">';
+		foreach ($elements as $i => &$el) {
+			if (!$el instanceof HTMLTag) {
+				$el = $this->s($el);
+				$el = new HTMLTag('div', [
+						'class' => 'column',
+					] + ifsetor($attrs[$i]), $el, true);
 			}
 		}
 		$content .= implode("\n", $elements);
@@ -391,31 +340,16 @@ abstract class Controller extends SimpleController
 		$this->request->set('ajax', 1);
 	}
 
-	public function script($file)
-	{
-		$mtime = filemtime($file);
-		$file .= '?' . $mtime;
-		return '<script src="' . $file . '" type="text/javascript"></script>';
-	}
-
-	public function log($action, ...$data)
-	{
-		$this->log[] = new LogEntry($action, $data);
-	}
-
 	public static function link($text = null, array $params = [])
 	{
-		/** @var Controller $self */
-		$self = get_called_class();
-		return new HTMLTag('a', array(
-			'href' => $self::href($params)
-		), $text ?: $self);
+		return new HTMLTag('a', [
+			'href' => static::href($params)
+		], $text ?: static::class);
 	}
 
 	public static function href(array $params = [])
 	{
-		$self = get_called_class();
-		$url = $self;
+		$url = '' . static::class;
 		if ($params) {
 			$url .= '?' . http_build_query($params);
 		}
@@ -431,10 +365,10 @@ abstract class Controller extends SimpleController
 	public function getCaption($caption, $hTag = 'h3')
 	{
 //		$al = AutoLoad::getInstance();
-		$slug =  URL::friendlyURL($caption);
+		$slug = URL::friendlyURL($caption);
 		$content = '
 			<' . $hTag . ' id="' . $slug . '">' .
-			 $caption .
+			$caption .
 			'</' . $hTag . '>';
 		return $content;
 	}
@@ -461,13 +395,6 @@ abstract class Controller extends SimpleController
 		return $content;
 	}
 
-	public function linkPage($className)
-	{
-		$obj = new $className();
-		$title = $obj->title;
-		return $this->a($className, $title);
-	}
-
 	public function makeNewOf($className, $id)
 	{
 		return new $className($id);
@@ -490,21 +417,6 @@ abstract class Controller extends SimpleController
 	public function self()
 	{
 		return substr(strrchr(get_class($this), '\\'), 1);
-	}
-
-	public function st($a)
-	{
-		return strip_tags($a);
-	}
-
-	public function makeActionURL($action = '', array $params = [], $path = '')
-	{
-		$urlParams = [
-				'c' => get_class($this),
-				'action' => $action,
-			] + $params;
-		$urlParams = array_filter($urlParams);
-		return $this->makeURL($urlParams, $path);
 	}
 
 }

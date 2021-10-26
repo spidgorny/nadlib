@@ -78,7 +78,9 @@ class HTMLFormSlicer
 			//$part = $this->sliceFromTill($this->desc, $slice['from'], $slice['till']);
 			$part = $slice['desc'];
 			$f->fieldset($slice['name'], $slice['fieldsetParams']);
-			$f->showForm($part);
+			$f2 = new HTMLFormTable($part);
+			$f2->showForm();
+			throw new Exception('TODO: test this');
 		}
 		//debug($slice);
 	}

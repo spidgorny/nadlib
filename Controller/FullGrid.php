@@ -45,27 +45,30 @@ abstract class FullGrid extends Grid
 
 	/**
 	 * Will create collection object
-	 * @param string $collection
+	 * @param string $collectionName
 	 * @throws LoginException
 	 * @throws ReflectionException
 	 */
-	public function postInit($collection = null)
+	public function postInit($collectionName = null)
 	{
-		if (!$this->collection) {
-			$this->collection = $this->makeCollection($collection);
+		if (!$this->collection || !($this->collection instanceof Collection)) {
+			$this->collection = $this->makeCollection($collectionName);
 			// after construct because we need to modify join
 			$this->collection->where = array_merge(
 				$this->collection->where,
 				$this->getFilterWhere()
 			);
 
-			$this->log(__METHOD__, 'collection Where', $this->collection->where);
+//			$this->log(__METHOD__, 'collection Where', $this->collection->where);
 
 			$this->collection->postInit();
 			$this->collection->pager = new Pager($this->pageSize ? $this->pageSize->get() : null);
+			$this->collection->pager->setNumberOfRecords($this->collection->getCount());
+			$this->collection->pager->detectCurrentPage();
 		}
 		// after collection is made, to run getGridColumns
 		$allowEdit = $this->request->getControllerString() === get_class($this);
+//		llog(get_class($this->collection));
 		$this->setColumns(get_class($this), $allowEdit);
 	}
 
@@ -93,15 +96,14 @@ abstract class FullGrid extends Grid
 	public function getOrderBy()
 	{
 		$ret = '';
-		$sortBy = $this->sort['sortBy'];
+		$sortBy = ifsetor($this->sort['sortBy']);
 		if ($this->model &&
 			$this->model->thes &&
 			is_array($this->model->thes[$sortBy]) &&
 			ifsetor($this->model->thes[$sortBy]['source'])) {
 			$sortBy = $this->model->thes[$sortBy]['source'];
 		}
-		if ($this->collection &&
-			$this->collection->thes) {
+		if ($this->collection && $this->collection instanceof Collection && $this->collection->thes) {
 			$desc = ifsetor($this->collection->thes[$sortBy]);
 			//debug(array_keys($this->collection->thes), $desc);
 			if (is_array($desc) &&
@@ -178,7 +180,7 @@ abstract class FullGrid extends Grid
 			$fields = $fields ?: $this->collection->thes;
 			$this->filterController->setFields($fields);
 		}
-		$this->filterController->linkVars['c'] = get_class($this);
+		$this->filterController->linker->linkVars['c'] = get_class($this);
 		return $this->filterController->render();
 	}
 
@@ -212,11 +214,11 @@ abstract class FullGrid extends Grid
 				'value' => get_class($this->collection),
 			]
 		];
-		$f = new HTMLFormTable();
+		$f = new HTMLFormTable($desc);
 		$f->method('GET');
 		$f->defaultBR = true;
 		$f->formHideArray($this->linker->linkVars);
-		$f->showForm($desc);
+		$f->showForm();
 		$f->submit(__('Set Visible Columns'));
 		return $f;
 	}
