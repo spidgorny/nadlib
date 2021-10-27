@@ -28,7 +28,7 @@ class AppRootDetector {
 		//debug('$this->appRoot', $appRoot, $this->nadlibRoot);
 		//$this->appRoot = str_replace('/'.$this->nadlibRoot.'be', '', $this->appRoot);
 		while ($appRoot && ($appRoot != '/' && $appRoot != '\\')
-			&& !($appRoot{1} == ':' && strlen($appRoot) == 3)	// u:\
+			&& !($appRoot[1] == ':' && strlen($appRoot) == 3)	// u:\
 		) {
 			$config1 = $appRoot . DIRECTORY_SEPARATOR . 'index.php';
 			$exists1 = file_exists($config1);
