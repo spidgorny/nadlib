@@ -326,7 +326,7 @@ class HTMLForm implements ToStringable
 
 	/**
 	 * @param string|string[] $name
-	 * @param array $aOptions
+	 * @param array|null $aOptions
 	 * @param string|int $default
 	 * @param bool $autoSubmit
 	 * @param array|string $more
@@ -337,7 +337,7 @@ class HTMLForm implements ToStringable
 	 */
 	public function selection(
 		$name,
-		array $aOptions,
+		$aOptions,
 		$default,
 		$autoSubmit = false,
 		array $more = [],
