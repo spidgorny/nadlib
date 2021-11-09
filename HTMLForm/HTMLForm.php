@@ -223,16 +223,11 @@ class HTMLForm implements ToStringable
 
 	public function password($name, $value = "", array $desc = [])
 	{
-		//$value = htmlspecialchars($value, ENT_QUOTES);
-		//$this->stdout .= "<input type=\"password\" ".$this->getName($name)." value=\"$value\">\n";
 		$this->stdout .= $this->getInput("password", $name, $value, $desc, ifsetor($desc['class']));
 	}
 
 	public function hidden($name, $value, array $more = [])
 	{
-//		debug(__METHOD__, $name, $value);
-		//$value = htmlspecialchars($value, ENT_QUOTES);
-		//$this->stdout .= "<input type=hidden ".$this->getName($name). " value=\"$value\" ".$more.">";
 		$content = $this->getInput("hidden", $name, $value, $more);
 		$this->stdout .= $content;
 		return $content;
