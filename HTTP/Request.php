@@ -684,8 +684,8 @@ class Request
 		$headers = array_change_key_case($headers, CASE_LOWER);
 
 		$isXHR = false;
-		if (isset($headers['X-Requested-With'])) {
-			$isXHR = strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest');
+		if (isset($headers['x-requested-with'])) {
+			$isXHR = strtolower($headers['x-requested-with']) === strtolower('XMLHttpRequest');
 		}
 		return $this->getBool('ajax') || $isXHR;
 	}
