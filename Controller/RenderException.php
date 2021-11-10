@@ -25,6 +25,19 @@ class RenderException
 		}
 
 		http_response_code($e->getCode());
+		header('X-Exception', get_class($this->e));
+		header('X-Message', $this->e->getMessage());
+
+		$accept = $_SERVER['HTTP_ACCEPT'];
+		header('X-Accept', $accept);
+		if ($accept === 'application/json') {
+			Request::getInstance()->set('ajax', true);
+			return new JSONResponse([
+				'status' => 'error',
+				'class' => get_class($this->e),
+				'message' => $this->e->getMessage(),
+			], $e->getCode());
+		}
 
 		$message = $e->getMessage();
 		$message = ($message instanceof htmlString ||
