@@ -8,9 +8,13 @@ class RenderException
 	 */
 	protected $e;
 
-	public function __construct(Exception $e)
+	// HTTP error code
+	protected $code;
+
+	public function __construct(Exception $e, $code = 500)
 	{
 		$this->e = $e;
+		$this->code = $code;
 	}
 
 	public function render($wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error')
@@ -24,18 +28,19 @@ class RenderException
 			return '';
 		}
 
-		http_response_code($e->getCode());
-		header('X-Exception', get_class($this->e));
-		header('X-Message', $this->e->getMessage());
+		http_response_code($this->code ?: $e->getCode());
+		header('X-Exception:' . get_class($this->e));
+		header('X-Message:' . $this->e->getMessage());
 
 		$accept = $_SERVER['HTTP_ACCEPT'];
-		header('X-Accept', $accept);
+		header('X-Accept:' . $accept);
 		if ($accept === 'application/json') {
 			Request::getInstance()->set('ajax', true);
 			return new JSONResponse([
 				'status' => 'error',
 				'class' => get_class($this->e),
 				'message' => $this->e->getMessage(),
+				'trace' => trimExplode(PHP_EOL, $this->e->getTraceAsString()),
 			], $e->getCode());
 		}
 

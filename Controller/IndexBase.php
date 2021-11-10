@@ -104,6 +104,8 @@ class IndexBase /*extends Controller*/
 	 */
 	protected $request;
 
+	public $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error';
+
 	public function __construct(ConfigInterface $config)
 	{
 		TaylorProfiler::start(__METHOD__);
@@ -417,13 +419,13 @@ class IndexBase /*extends Controller*/
 	 * @param string $wrapClass
 	 * @return string
 	 */
-	public function renderException(Exception $e, $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error')
+	public function renderException(Exception $e)
 	{
 		if ($this->controller) {
 			$this->controller->title = get_class($this->controller);
 		}
 		$re = new RenderException($e);
-		return $re->render($wrapClass);
+		return $re->render($this->wrapClass);
 	}
 
 	public function __destruct()

@@ -697,6 +697,9 @@ class Request
 	{
 		$headers = function_exists('apache_request_headers')
 			? apache_request_headers() : [];
+		array_map(static function ($x) {
+			llog('header?', $x);
+		}, array_keys($_SERVER));
 //		llog($headers);
 
 		return ifsetor($headers[$name]);
