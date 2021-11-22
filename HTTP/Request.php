@@ -534,9 +534,10 @@ class Request
 		}
 	}
 
-	public function redirectJS($controller, $delay = 0, $message =
-	'Redirecting to %1')
-	{
+	public function redirectJS(
+		$controller, $delay = 0, $message =
+	'Redirecting to %1'
+	) {
 		echo __($message, '<a href="' . $controller . '">' . $controller . '</a>') . '
 			<script>
 				setTimeout(function () {
@@ -687,7 +688,7 @@ class Request
 		if (isset($headers['x-requested-with'])) {
 			$isXHR = strtolower($headers['x-requested-with']) === strtolower('XMLHttpRequest');
 		}
-		return $this->getBool('ajax') || $isXHR;
+		return $isXHR || $this->getBool('ajax');
 	}
 
 	public function getHeader($name)
@@ -1315,6 +1316,11 @@ class Request
 		}
 	}
 
+	public function header($name, $value)
+	{
+		header($name . ': ' . $value);
+	}
+
 	/**
 	 * getNameless(1) doesn't provide validation.
 	 * Use importNameless() to associate parameters 1, 2, 3, with their names
@@ -1354,7 +1360,7 @@ class Request
 	public function forceDownload($contentType, $filename, $disposition = 'attachment')
 	{
 		header('Content-Type: ' . $contentType);
-		header("Content-Disposition: ".$disposition."; filename=\"" . $filename . "\"");
+		header("Content-Disposition: " . $disposition . "; filename=\"" . $filename . "\"");
 	}
 
 	public static function isHTTPS()

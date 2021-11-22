@@ -264,9 +264,7 @@ class IndexBase /*extends Controller*/
 	 */
 	public function makeController($class)
 	{
-		// v1
-//			$this->controller = new $class();
-		// v3
+//		llog($class);
 		if (method_exists($this->config, 'getDI')) {
 			$di = $this->config->getDI();
 			$this->controller = $di->get($class);
