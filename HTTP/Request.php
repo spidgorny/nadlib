@@ -127,6 +127,16 @@ class Request
 		return $value;
 	}
 
+	public function trim($name)
+	{
+		return $this->getTrim($name);
+	}
+
+	public function getTrimLower($name)
+	{
+		return strtolower($this->trim($name));
+	}
+
 	/**
 	 * Will strip tags
 	 * @param $name
