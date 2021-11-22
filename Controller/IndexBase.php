@@ -551,55 +551,6 @@ class IndexBase /*extends Controller*/
 		return $this;
 	}
 
-	public function addJQueryUI()
-	{
-		$this->addJQuery();
-		if (ifsetor($this->footer['jqueryui.js'])) {
-			return $this;
-		}
-		$al = AutoLoad::getInstance();
-		$jQueryPath = clone $al->componentsPath;
-		//debug($jQueryPath);
-		//$jQueryPath->appendString('jquery-ui/ui/minified/jquery-ui.min.js');
-		$jQueryPath->appendString('jquery-ui/jquery-ui.min.js');
-		$jQueryPath->setAsFile();
-		$appRoot = $al->getAppRoot();
-		nodebug([
-			'jQueryPath' => $jQueryPath,
-			'jQueryPath->exists()' => $jQueryPath->exists(),
-			'appRoot' => $appRoot,
-			'componentsPath' => $al->componentsPath,
-			'fe(jQueryPath)' => file_exists($jQueryPath->getUncapped()),
-			'fe(appRoot)' => file_exists($appRoot . $jQueryPath->getUncapped()),
-			'fe(nadlibFromDocRoot)' => file_exists($al->nadlibFromDocRoot . $jQueryPath),
-			'fe(componentsPath)' => file_exists($al->componentsPath . $jQueryPath),
-			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
-			'documentRoot' => $al->documentRoot,
-			'componentsPath.jQueryPath' => $al->componentsPath . $jQueryPath,
-		]);
-		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
-			if ($jQueryPath->exists()) {
-				$this->addJS($jQueryPath->relativeFromAppRoot()->getUncapped());
-				return $this;
-			} else {
-				$jQueryPath = clone $al->componentsPath;
-				$jQueryPath->appendString('jquery-ui/jquery-ui.js');
-				$jQueryPath->setAsFile();
-				if ($jQueryPath->exists()) {
-					$this->addJS($jQueryPath->relativeFromAppRoot()->getUncapped());
-					return $this;
-				}
-			}
-		}
-
-		// commented out because this should be project specific
-		//$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
-		$this->footer['jqueryui.js'] = '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
-		<script>window.jQueryUI || document.write(\'<script src="' . $jQueryPath . '"><\/script>\')</script>';
-		$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/ui-lightness/jquery-ui.css');
-		return $this;
-	}
-
 	/**
 	 * @param string $source
 	 * @param bool $defer
