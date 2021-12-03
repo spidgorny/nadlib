@@ -733,7 +733,7 @@ class Collection implements IteratorAggregate, ToStringable
 
 	public function getLazyIterator()
 	{
-		$query = $this->getQuery();
+		$query = $this->getCollectionQuery()->getQuery();
 		//debug($query);
 
 		$lazy = new DatabaseResultIteratorAssoc($this->db, $this->idField);

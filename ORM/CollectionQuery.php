@@ -25,7 +25,16 @@ class CollectionQuery
 
 	public $log = [];
 
-	public function __construct(DBInterface $db, $table, $join, array $where, $orderBy, $select, Pager $pager = null)
+	/**
+	 * @param DBInterface $db
+	 * @param $table
+	 * @param $join
+	 * @param $where SQLWhere|array
+	 * @param $orderBy
+	 * @param $select
+	 * @param Pager|null $pager
+	 */
+	public function __construct(DBInterface $db, $table, $join, $where, $orderBy, $select, Pager $pager = null)
 	{
 		$this->db = $db;
 		$this->table = $table;
