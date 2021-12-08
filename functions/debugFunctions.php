@@ -50,6 +50,9 @@ if (!function_exists('debugList')) {
 		debug(func_get_args());
 		die(__FUNCTION__ . '#' . __LINE__);
 	}
+}
+
+if (!function_exists('d')) {
 
 	function d($a)
 	{
@@ -112,7 +115,7 @@ if (!function_exists('debugList')) {
 	{
 		return '<pre class="pre_print_r" style="white-space: pre-wrap;">' .
 			print_r($a, true) .
-		'</pre>';
+			'</pre>';
 	}
 
 	/** @noinspection ForgottenDebugOutputInspection */
