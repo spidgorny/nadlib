@@ -198,13 +198,13 @@ class FlexiTable extends OODBase
 					$info['uncompress'] = 'Uncompressed';
 				}
 				$this->data[$field] = $uncompressed;
-				$info['first'] = $this->data[$field]{0};
-				if ($this->data[$field]{0} == '<') {
+				$info['first'] = $this->data[$field][0];
+				if ($this->data[$field][0] == '<') {
 					//$uncompressed = html_entity_decode($uncompressed, ENT_QUOTES, "utf-8");
 					$this->$field = @simplexml_load_string($uncompressed);
 					unset($this->data[$field]);
 					$info['unxml'] = 'true';
-				} elseif ($this->data[$field]{0} == '{') {
+				} elseif ($this->data[$field][0] == '{') {
 					$this->$field = json_decode($uncompressed, false);    // make it look like SimpleXML
 					unset($this->data[$field]);
 					$info['unjson'] = 'true';
