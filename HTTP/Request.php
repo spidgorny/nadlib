@@ -1206,7 +1206,7 @@ class Request
 	public static function getDocumentRootByRequest()
 	{
 		$script = $_SERVER['SCRIPT_FILENAME'];
-		$request = dirname(ifsetor($_SERVER['REQUEST_URI']));
+		$request = dirname(ifsetor($_SERVER['REQUEST_URI'], ''));
 		//		exit();
 		if ($request && $request != '/' && strpos($script, $request) !== false) {
 			$docRootRaw = $_SERVER['DOCUMENT_ROOT'];

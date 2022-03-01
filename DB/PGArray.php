@@ -270,9 +270,10 @@ class PGArray extends AsIs
 
 	/**
 	 * @param array $data
+	 * @param string $type	"::integer[]"
 	 * @return AsIs
 	 */
-	public function setPGArray(array $data)
+	public function setPGArray(array $data, $type = '')
 	{
 		foreach ($data as &$el) {
 			if (is_array($el)) {
@@ -293,7 +294,7 @@ class PGArray extends AsIs
 			}
 		}
 		//$result = '{'.implode(',', $data).'}';
-		$result = new AsIs('ARRAY[' . implode(',', $data) . ']');
+		$result = new AsIs('ARRAY[' . implode(',', $data) . ']' . $type);
 		//debug($result.'', $this->standard_conforming_strings, $el, $data);
 		return $result;
 	}

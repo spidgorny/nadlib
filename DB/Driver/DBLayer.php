@@ -80,7 +80,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 		$this->host = $host;
 		if ($dbName) {
 			$this->connect($dbName, $user, $pass, $host);
-			//debug(pg_version()); exit();
+//			debug(pg_version()); exit();
 
 			if ($this->getVersion() >= 8.4) {
 				$query = "select * from pg_get_keywords() WHERE catcode IN ('R', 'T')";
@@ -96,7 +96,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 
 	public function getVersion()
 	{
-		$version = pg_version();
+		$version = pg_version($this->connection);
 		return $version['server'];
 	}
 
@@ -139,9 +139,9 @@ class DBLayer extends DBLayerBase implements DBInterface
 		if (!$this->connection) {
 			throw new Exception("No PostgreSQL connection to $host. ".json_encode(error_get_last()));
 			//printbr('Error: '.pg_errormessage());	// Warning: pg_errormessage(): No PostgreSQL link opened yet
-		} else {
-			$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
 		}
+
+		$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
 		//print(pg_client_encoding($this->connection));
 		return true;
 	}
@@ -183,8 +183,8 @@ class DBLayer extends DBLayerBase implements DBInterface
 
 //		$this->reportIfLastQueryFailed();
 		$this->lastQuery = $query;
-		if (!is_resource($this->connection)) {
-			debug('no connection', $this->connection, $query . '');
+		if (!$this->connection) {
+//			debug('no connection', $this->connection, $query . '');
 			throw new DatabaseException('No connection');
 		}
 

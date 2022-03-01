@@ -25,7 +25,7 @@ class QueryLog {
 			'sumtime' => ifsetor($old['sumtime']) + $diffTime,
 			'times' => ifsetor($old['times'])+1,
 			'results' => $results,
-			'ok' => (string)$ok,
+			'ok' => $ok ? 'ok' : 'false',
 		];
 //		debug($key, $this->queryLog);
 	}

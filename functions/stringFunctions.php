@@ -10,6 +10,9 @@ if (!function_exists('str_startsWith')) {
 	 */
 	function str_startsWith($haystack, $needle)
 	{
+		if (!$haystack) {
+			return false;
+		}
 		if (!is_array($needle)) {
 			$needle = [$needle];
 		}
@@ -94,7 +97,9 @@ if (!function_exists('str_startsWith')) {
 		$parts = array_map('trim', $parts);
 		$parts = array_filter($parts);
 		$parts = array_values($parts);
-		$parts = array_pad($parts, $max, null);
+		if ($max) {
+			$parts = array_pad($parts, $max, null);
+		}
 		return $parts;
 	}
 

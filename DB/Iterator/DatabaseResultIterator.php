@@ -141,7 +141,7 @@ class DatabaseResultIterator implements Iterator, Countable
 	public function retrieveRow()
 	{
 		$this->log(__METHOD__);
-		$row = $this->db->fetchRow($this->dbResultResource);
+		$row = $this->db->fetchAssoc($this->dbResultResource);
 //		debug(__METHOD__, $row);
 		return $row;
 	}
