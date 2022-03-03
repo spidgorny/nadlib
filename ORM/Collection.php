@@ -363,7 +363,7 @@ class Collection implements IteratorAggregate, ToStringable
 //		$this->log('getQueryWithLimit', $this->getQueryWithLimit().'');
 		$queryIsTheSame = ($this->query . '') === ($this->getQueryWithLimit() . '');
 		if ($this->count !== null && $queryIsTheSame) {
-			return $this->count;
+			return intval($this->count);
 		}
 		$this->query = $this->getQueryWithLimit();     // will init pager
 		if ($this->pager && $this->pager->numberOfRecords) {
@@ -374,7 +374,7 @@ class Collection implements IteratorAggregate, ToStringable
 			$this->count = $counter->getCount();
 		}
 		$this->log(get_class($this) . '::' . __FUNCTION__, ['exit', $this->count]);
-		return $this->count;
+		return intval($this->count);
 	}
 
 	/**
