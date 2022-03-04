@@ -64,7 +64,7 @@ abstract class SimpleController
 			return call_user_func_array($this->html->$method, $arguments);
 		}
 
-		throw new RuntimeException('Method '.$method.' not found in '.get_class($this));
+		throw new RuntimeException('Method ' . $method . ' not found in ' . get_class($this));
 	}
 
 	/**
@@ -203,6 +203,12 @@ abstract class SimpleController
 			'</' . $hTag . '>';
 	}
 
+	/**
+	 * Will call indexAction() method if no $action provided
+	 * @param $action
+	 * @return false|mixed|string
+	 * @throws ReflectionException
+	 */
 	public function performAction($action = null)
 	{
 		$content = '';

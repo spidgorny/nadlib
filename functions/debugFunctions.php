@@ -112,7 +112,7 @@ if (!function_exists('debugList')) {
 	{
 		return '<pre class="pre_print_r" style="white-space: pre-wrap;">' .
 			print_r($a, true) .
-		'</pre>';
+			'</pre>';
 	}
 
 	/** @noinspection ForgottenDebugOutputInspection */
@@ -164,6 +164,20 @@ if (!function_exists('debugList')) {
 		debug($assoc);
 	}
 
+	function debug_get_backtrace()
+	{
+		ob_start();
+		if (phpversion() >= '5.3.6') {
+			debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		} else {
+			debug_print_backtrace();
+		}
+		$content = ob_get_clean();
+		$content = str_replace(dirname(getcwd()), '', $content);
+		$content = str_replace('C:\\Users\\' . getenv('USERNAME') . '\\AppData\\Roaming\\Composer\\vendor\\phpunit\\phpunit\\src\\', '', $content);
+		return $content;
+	}
+
 	function debug_pre_print_backtrace()
 	{
 		if (DEVELOPMENT) {
@@ -176,16 +190,7 @@ if (!function_exists('debugList')) {
 				padding: 0.5em;
 				">';
 			}
-			ob_start();
-			if (phpversion() >= '5.3.6') {
-				debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-			} else {
-				debug_print_backtrace();
-			}
-			$content = ob_get_clean();
-			$content = str_replace(dirname(getcwd()), '', $content);
-			$content = str_replace('C:\\Users\\' . getenv('USERNAME') . '\\AppData\\Roaming\\Composer\\vendor\\phpunit\\phpunit\\src\\', '', $content);
-			echo $content;
+			echo debug_get_backtrace();
 			if (!Request::isCLI()) {
 				print '</pre>';
 			}

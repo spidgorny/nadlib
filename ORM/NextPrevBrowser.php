@@ -35,8 +35,8 @@ class NextPrevBrowser
 	 * elements on the page still have prev and next elements. But it's SLOW!
 	 *
 	 * @param OODBase $model
-	 * @throws Exception
 	 * @return string
+	 * @throws Exception
 	 */
 	public function getNextPrevBrowser(OODBase $model)
 	{
@@ -73,11 +73,11 @@ class NextPrevBrowser
 			: ($this->data ? $this->data : [])  // NOT NULL
 		;
 
-		llog($model->id,
-			str_replace($model->id, '*' . $model->id . '*', implode(', ', array_keys((array)$prevData))),
-			str_replace($model->id, '*' . $model->id . '*', implode(', ', array_keys((array)$this->data))),
-			str_replace($model->id, '*' . $model->id . '*', implode(', ', array_keys((array)$nextData)))
-		);
+//		llog($model->id,
+//			str_replace($model->id, '*' . $model->id . '*', implode(', ', array_keys((array)$prevData))),
+//			str_replace($model->id, '*' . $model->id . '*', implode(', ', array_keys((array)$this->data))),
+//			str_replace($model->id, '*' . $model->id . '*', implode(', ', array_keys((array)$nextData)))
+//		);
 		$data = $prevData + $central + $nextData; // not array_merge which will reindex
 		$ap = ArrayPlus::create($data);
 		//debug($data);
