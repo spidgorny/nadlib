@@ -80,7 +80,7 @@ if (!function_exists('str_startsWith')) {
 		if (is_object($str)) {
 			$is_string = method_exists($str, '__toString');
 		} else {
-			$is_string = is_string($str);
+			$is_string = is_string($str) || is_int($str);
 		}
 		if (!$is_string) {
 			debug('trimExplode', 'must be string', new htmlString(typ($str)));
@@ -149,13 +149,13 @@ if (!function_exists('str_startsWith')) {
 		$isAbs = isset($path[0]) &&
 			($path[0] === '/' || $path[0] === '\\' || $path[1] === ':');
 
-		$path = str_replace('\\', '/', $path);	// for trim
+		$path = str_replace('\\', '/', $path);  // for trim
+		invariant($path);
 		$parts = trimExplode('/', $path);
 		$parts = array_merge($parts, trimExplode('/', $plus));
 
 		$root = '';
-//		if (!Request::isWindows()) {
-		if ($separator == '/') {	// not windows separator
+		if ($separator === '/') {  // not windows separator
 			$root = ($isAbs ? $separator : '');
 		}
 		$string = $root . implode($separator, $parts);
@@ -249,7 +249,7 @@ if (!function_exists('str_startsWith')) {
 				}
 			} elseif (strtoupper($ch) === $ch) {
 				if ($i) {
-					if (strlen($out) && $out[strlen($out)-1] !== '_') {
+					if (strlen($out) && $out[strlen($out) - 1] !== '_') {
 						$out .= '_';
 					}
 				}
