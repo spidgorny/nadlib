@@ -134,18 +134,24 @@ if (!function_exists('str_startsWith')) {
 		return $string;
 	}
 
+	function get_path_separator($path)
+	{
+		$freq = array_count_values(str_split($path));
+		$separator = ifsetor($freq['/']) >= ifsetor($freq['\\']) ? '/' : '\\';
+//		llog($separator);
+		return $separator;
+	}
+
 	/**
 	 * @param string $path
 	 * @param string $plus
 	 * @param null $plus2
 	 * @return string
+	 * @throws Exception
 	 */
 	function path_plus($path, $plus, $plus2 = null)
 	{
-		$freq = array_count_values(str_split($path));
-		$separator = ifsetor($freq['/']) >= ifsetor($freq['\\']) ? '/' : '\\';
-//		llog($separator);
-
+		$separator = get_path_separator($path);
 		$isAbs = isset($path[0]) &&
 			($path[0] === '/' || $path[0] === '\\' || $path[1] === ':');
 
