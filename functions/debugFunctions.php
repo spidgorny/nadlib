@@ -312,3 +312,38 @@ if (!function_exists('debugList')) {
 	}
 
 }
+
+function invariant($value, $message = null)
+{
+	if (!$value) {
+		throw new Exception($message ?: 'Invariant failure in ' . Debug::getCaller());
+	}
+}
+
+function llog(...$vars)
+{
+	$caller = Debug::getCaller();
+	$jsonOptions = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
+
+	if (defined('JSON_UNESCAPED_LINE_TERMINATORS')) {
+		$jsonOptions |= JSON_UNESCAPED_LINE_TERMINATORS;
+	}
+
+	$vars = array_map(static function ($el) {
+		if (is_object($el) && !($el instanceof stdClass)) {
+			return typ($el);
+		}
+		return $el;
+	}, $vars);
+
+	if (count($vars) === 1) {
+		$output = json_encode(['type' => gettype(first($vars)), 'value' => first($vars)], $jsonOptions);
+	} else {
+		$output = json_encode($vars, $jsonOptions);
+	}
+	if (strlen($output) > 80) {
+		$output = json_encode(count($vars) === 1 ? first($vars) : $vars, $jsonOptions | JSON_PRETTY_PRINT);
+	}
+	/** @noinspection ForgottenDebugOutputInspection */
+	error_log($caller . TAB . $output);
+}
