@@ -3,43 +3,43 @@
 class UL
 {
 
-	var $items = [];
+	public $items = [];
 
-	var $before = '<ul>';
+	public $before = '<ul>';
 
-	var $after = '</ul>';
+	public $after = '</ul>';
 
-	var $wrap = '<li###ACTIVE###>|</li>';
+	public $wrap = '<li###ACTIVE###>|</li>';
 
 	/**
 	 * Should be equal to an $this->items key which is selected
 	 * @var string
 	 */
-	var $activeClass = '';
+	public $activeClass = '';
 
 	/**
 	 * Piece of HTML to mark active items
 	 * @var string
 	 */
-	var $active = ' class="active"';
+	public $active = ' class="active"';
 
-	var $links = [];
+	public $links = [];
 
 	/**
 	 * <a href="###LINK###">|</a>
 	 * @var string
 	 */
-	var $linkWrap = '';
+	public $linkWrap = '';
 
 	/**
 	 * @var callback to link generation function(index, name)
 	 */
 	public $linkFunc;
 
-	function __construct(array $items = [])
+	public function __construct(array $items = [])
 	{
 		$this->items = $items;
-		$this->activeClass = first($this->items);
+		$this->activeClass = first(array_keys($this->items));
 	}
 
 	public function add($value, $key = NULL)
@@ -51,12 +51,12 @@ class UL
 		}
 	}
 
-	function makeClickable($urlPrefix = '')
+	public function makeClickable($urlPrefix = '')
 	{
 		$this->linkWrap = '<a href="' . $urlPrefix . '###LINK###">|</a>';
 	}
 
-	function render()
+	public function render()
 	{
 		$out = [];
 		foreach ($this->items as $class => $li) {
@@ -79,6 +79,7 @@ class UL
 			$line = str_replace('###LINK###', $link, $line);
 			$line = str_replace('###CLASS###', $class, $line);
 			$line = str_replace('###TEXT###', $li, $line);
+			llog($class, $this->activeClass, $this->active);
 			$line = str_replace('###ACTIVE###', $class == $this->activeClass ? $this->active : '', $line);
 			$out[] = $line;
 		}
@@ -86,7 +87,7 @@ class UL
 		return $content;
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		return $this->render();
 	}
@@ -114,7 +115,7 @@ class UL
 		return $ul;
 	}
 
-	function cli()
+	public function cli()
 	{
 		foreach ($this->items as $class => $li) {
 			echo '* ', strip_tags($li);

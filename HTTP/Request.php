@@ -780,8 +780,8 @@ class Request
 		// one level only fix for BugLog
 		$cwd = trimExplode('/', getcwd());
 		// stage
-		llog($path->aPath, $cwd);
-		llog($path->aPath[0], end($cwd));
+//		llog($path->aPath, $cwd);
+//		llog($path->aPath[0], end($cwd));
 		if ($path->aPath[0] === end($cwd)) {
 			unset($path->aPath[0]);
 			$path->implode();
@@ -797,12 +797,13 @@ class Request
 		} else {
 			$levels = [];
 		}
-		llog([
-			'cwd' => getcwd(),
-			//'url' => $url.'',
-			'path' => $path . '',
-			'getURL()' => $path->getURL() . '',
-			'levels' => $levels]);
+//		llog([
+//			'cwd' => getcwd(),
+//			'url' => $url.'',
+//			'path' => $path . '',
+//			'getURL()' => $path->getURL() . '',
+//			'levels' => $levels
+//		]);
 		return $levels;
 	}
 
