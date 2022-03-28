@@ -171,7 +171,7 @@ class View extends stdClass {
 		$lines2 = array();
 		$lines = trimExplode("\n", '' . $text);
 		foreach ($lines as $line) {
-			if ($line{0} == '*' || $line{0} == '-') {
+			if ($line[0] == '*' || $line[0] == '-') {
 				if (!$inUL) {
 					$lines2[] = "<ul>";
 					$inUL = TRUE;
@@ -180,7 +180,7 @@ class View extends stdClass {
 			$lines2[] = $inUL
 				? '<li>' . substr($line, 2) . '</li>'
 				: $line;
-			if ($line{0} != '*' && $line{0} != '-') {
+			if ($line[0] != '*' && $line[0] != '-') {
 				if ($inUL) {
 					$lines2[] = "</ul>";
 					$inUL = FALSE;
