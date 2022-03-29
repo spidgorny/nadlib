@@ -95,9 +95,10 @@ abstract class Controller extends SimpleController
 	 */
 	public $linker;
 
-	public function __construct()
+	public function __construct(Config $config = null)
 	{
 		parent::__construct();
+		$this->config = $config;
 		if (!$this->config) {
 			if ($this->index) {
 				$this->config = $this->index->getConfig();
