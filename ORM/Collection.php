@@ -209,7 +209,9 @@ class Collection implements IteratorAggregate {
 		//$this->pager = new Pager();
 		if (class_exists('Index', false)) {
 			$index = Index::getInstance();
-			$this->controller = &$index->controller;
+			if ($index) {
+				$this->controller = &$index->controller;
+			}
 		}
 		//debug(get_class($this->controller));
 	}

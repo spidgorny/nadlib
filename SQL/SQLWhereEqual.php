@@ -80,7 +80,7 @@ class SQLWhereEqual extends SQLWherePart {
 			$set[] = "$key IS NULL";
 		} elseif ($val === 'NOTNULL') {
 			$set[] = "$key IS NOT NULL";
-		} elseif (in_array($key{strlen($key)-1}, array('>', '<'))
+		} elseif (in_array($key[strlen($key)-1], array('>', '<'))
 			|| in_array(substr($key, -2), array('!=', '<=', '>=', '<>'))) {
 			list($key, $sign) = explode(' ', $key); // need to quote separately
 			$key = $this->db->quoteKey($key);

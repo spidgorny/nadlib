@@ -180,14 +180,14 @@ FROM {$from}
 					$level--;
 				}
 				$res .= "<br>" . str_repeat("&nbsp;", $level * 4) . ") ";
-			} elseif ($tok && ($tok{0} == "'" || $tok{strlen($tok) - 1} == "'" || $tok == "'")) {
+			} elseif ($tok && ($tok[0] == "'" || $tok[strlen($tok) - 1] == "'" || $tok == "'")) {
 				$res .= " ";
-				if ($tok{0} == "'" && !$open) {
+				if ($tok[0] == "'" && !$open) {
 					$res .= '<font color="green">';
 					$open = TRUE;
 				}
 				$res .= $tok;
-				if ($tok{strlen($tok) - 1} == "'" && $open) {
+				if ($tok[strlen($tok) - 1] == "'" && $open) {
 					$res .= '</font>';
 					$open = FALSE;
 				}
