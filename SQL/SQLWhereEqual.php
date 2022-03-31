@@ -4,7 +4,8 @@
  * Base class in order to check instanceof SQLWherePart
  */
 
-class SQLWhereEqual extends SQLWherePart {
+class SQLWhereEqual extends SQLWherePart
+{
 
 	/**
 	 * $this->field is inherited
@@ -12,29 +13,32 @@ class SQLWhereEqual extends SQLWherePart {
 	 */
 	protected $val;
 
-	function __construct($field, $val) {
+	function __construct($field, $val)
+	{
 		parent::__construct();
 		$this->field = $field;
 		$this->val = $val;
 	}
 
-	function __toString() {
-		if (is_numeric($this->val)) {	// leading 0 leads to problems
+	function __toString()
+	{
+		if (is_numeric($this->val)) {  // leading 0 leads to problems
 			$field = $this->db->quoteKey($this->field);
 			//$sql = "({$field} = ".$this->val."
 			//OR {$field} = '".$this->val."')";
-			$sql = "{$field} = '".$this->val."'";
+			$sql = "{$field} = '" . $this->val . "'";
 		} elseif (is_null($this->val)) {
 			$sql = $this->field . ' IS NULL';
 		} elseif (is_numeric($this->field)) {
-			$sql = $this->val.'';
+			$sql = $this->val . '';
 		} else {
 			$sql = $this->getWhereItem($this->field, $this->val);
 		}
 		return $sql;
 	}
 
-	function getWhereItem($key, $val) {
+	function getWhereItem($key, $val)
+	{
 		$set = array();
 		$key = $this->db->quoteKey(trim($key));
 //		debug($key);
@@ -46,7 +50,8 @@ class SQLWhereEqual extends SQLWherePart {
 			if (is_numeric($key)) {
 				$set[] = $val;
 			} else {
-				$set[] = /*$key . ' ' .*/ $val;	// inject field
+				$set[] = /*$key . ' ' .*/
+					$val;  // inject field
 			}
 		} elseif ($val instanceof AsIs) {
 			$val->injectDB($this->db);
@@ -65,32 +70,32 @@ class SQLWhereEqual extends SQLWherePart {
 			$set[] = $val->asXML();
 			//} else if (is_object($val)) {	// what's that for? SQLWherePart has been taken care of
 			//	$set[] = $val.'';
-		} elseif (isset($where[$key.'.']) && ifsetor($where[$key.'.']['asis'])) {
+		} elseif (isset($where[$key . '.']) && ifsetor($where[$key . '.']['asis'])) {
 			if (strpos($val, '###FIELD###') !== FALSE) {
 				$val = str_replace('###FIELD###', $key, $val);
 				$set[] = $val;
 			} else {
-				$set[] = '('.$key . ' ' . $val.')';	// for GloRe compatibility - may contain OR
+				$set[] = '(' . $key . ' ' . $val . ')';  // for GloRe compatibility - may contain OR
 			}
 		} elseif ($val === NULL) {
 			$set[] = "$key IS NULL";
 		} elseif ($val === 'NOTNULL') {
 			$set[] = "$key IS NOT NULL";
-		} elseif (in_array($key{strlen($key)-1}, array('>', '<'))
-			|| in_array(substr($key, -2), array('!=', '<=', '>=', '<>'))) {
+		} elseif (in_array($key[strlen($key) - 1], ['>', '<'])
+			|| in_array(substr($key, -2), ['!=', '<=', '>=', '<>'])) {
 			list($key, $sign) = explode(' ', $key); // need to quote separately
 			$key = $this->db->quoteKey($key);
 			$set[] = "$key $sign '$val'";
 		} elseif (is_bool($val)) {
 			$set[] = ($val ? "" : "NOT ") . $key;
-		} elseif (is_numeric($key)) {		// KEY!!!
+		} elseif (is_numeric($key)) {    // KEY!!!
 			$set[] = $val;
-		} elseif (is_array($val) && ifsetor($where[$key.'.']['makeIN'])) {
-			$set[] = $key." IN ('".implode("', '", $val)."')";
-		} elseif (is_array($val) && ifsetor($where[$key.'.']['makeOR'])) {
+		} elseif (is_array($val) && ifsetor($where[$key . '.']['makeIN'])) {
+			$set[] = $key . " IN ('" . implode("', '", $val) . "')";
+		} elseif (is_array($val) && ifsetor($where[$key . '.']['makeOR'])) {
 			foreach ($val as &$row) {
 				if (is_null($row)) {
-					$row = $key .' IS NULL';
+					$row = $key . ' IS NULL';
 				} else {
 					$row = $key . " = '" . $row . "'";
 				}
@@ -111,11 +116,13 @@ class SQLWhereEqual extends SQLWherePart {
 		return first($set);
 	}
 
-	function debug() {
+	function debug()
+	{
 		return $this->__toString();
 	}
 
-	function injectField($field) {
+	function injectField($field)
+	{
 //		debug(__METHOD__, $field);
 		parent::injectField($field);
 	}

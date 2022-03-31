@@ -6,7 +6,8 @@
  * Do not confuse it with HTMLFormType and it's descendants.
  * @property $elementID string
  */
-class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
+class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
+{
 
 	/**
 	 * All different desc parameters for the form element.
@@ -32,7 +33,8 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 	 */
 	protected $content;
 
-	function __construct(array $desc, $fieldName = NULL) {
+	function __construct(array $desc, $fieldName = NULL)
+	{
 		$this->data = $desc;
 		if ($fieldName) {
 			$this->setField($fieldName);
@@ -40,7 +42,8 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 		$this->form = new HTMLForm();
 	}
 
-	public function offsetExists($offset) {
+	public function offsetExists($offset)
+	{
 		return isset($this->data[$offset]);
 	}
 
@@ -50,7 +53,8 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 	 * @param mixed $offset
 	 * @return mixed
 	 */
-	public function &offsetGet($offset) {
+	public function &offsetGet($offset)
+	{
 		return $this->data[$offset];
 //		if (isset($this->data[$offset])) {
 //			$result =& $this->data[$offset];
@@ -61,50 +65,64 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 //		return $result;
 	}
 
-	public function offsetSet($offset, $value) {
+	public function offsetSet($offset, $value)
+	{
 		$this->data[$offset] = $value;
 	}
 
-	public function offsetUnset($offset) {
+	public function offsetUnset($offset)
+	{
 		unset($this->data[$offset]);
 	}
 
-	public function __get($name) {
+	public function __get($name)
+	{
 		return $this->data[$name];
 	}
 
-	public function getArray() {
+	public function getArray()
+	{
 		return $this->data;
 	}
 
-	public function getTypeString() {
+	public function getTypeString()
+	{
 		$type = ifsetor($this->data['type']);
+		if (!$type) {
+			return null;
+		}
 		return is_string($type) ? $type : get_class($type);
 	}
 
-	public function isObligatory() {
+	public function isObligatory()
+	{
 		$type = $this->getTypeString();
 		return !ifsetor($this->data['optional']) &&
-		!in_array($type, array('check', 'checkbox', 'submit'));
+			!in_array($type, array('check', 'checkbox', 'submit'));
 	}
 
-	public function isOptional() {
+	public function isOptional()
+	{
 		return !$this->isObligatory();
 	}
 
-	public function setField($fieldName) {
+	public function setField($fieldName)
+	{
 		$this->fieldName = $fieldName;
 	}
 
-	public function setForm(HTMLForm $form) {
+	public function setForm(HTMLForm $form)
+	{
 		$this->form = $form;
 	}
 
-	public function setValue($value) {
+	public function setValue($value)
+	{
 		$this->data['value'] = $value;
 	}
 
-	function render() {
+	function render()
+	{
 		$fieldName = $this->fieldName;
 		$desc = $this;
 		$fieldValue = $this['value'];
@@ -153,11 +171,12 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 		return $this->content;
 	}
 
-	function getID($from) {
+	function getID($from)
+	{
 		if (is_array($from)) {
-			$elementID = 'id-'.implode('-', $from);
+			$elementID = 'id-' . implode('-', $from);
 		} else {
-			$elementID = 'id-'.$from;
+			$elementID = 'id-' . $from;
 		}
 		if (!$elementID) {
 			$elementID = uniqid('id-');
@@ -165,7 +184,8 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 		return $elementID;
 	}
 
-	function getContent() {
+	function getContent()
+	{
 		return $this->content;
 	}
 
@@ -174,7 +194,8 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 	 * @param $fieldValue
 	 * @param $fieldName
 	 */
-	private function switchTypeRaw($type, $fieldValue, $fieldName) {
+	private function switchTypeRaw($type, $fieldValue, $fieldName)
+	{
 		$desc = $this;
 		switch ($type) {
 			case "text":
@@ -183,13 +204,13 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 				break;
 			case "textarea":
 				$this->form->textarea($fieldName, $fieldValue,
-						(is_array(ifsetor($desc['more']))
-								? HTMLForm::getAttrHTML($desc['more'])
-								: $desc['more']
-						) .
-						($desc['id'] ? ' id="' . $desc['id'] . '"' : '') .
-						(ifsetor($desc['disabled']) ? ' disabled="1"' : '') .
-						(ifsetor($desc['class']) ? ' class="' . htmlspecialchars($desc['class'], ENT_QUOTES) . '"' : '')
+					(is_array(ifsetor($desc['more']))
+						? HTMLForm::getAttrHTML($desc['more'])
+						: $desc['more']
+					) .
+					($desc['id'] ? ' id="' . $desc['id'] . '"' : '') .
+					(ifsetor($desc['disabled']) ? ' disabled="1"' : '') .
+					(ifsetor($desc['class']) ? ' class="' . htmlspecialchars($desc['class'], ENT_QUOTES) . '"' : '')
 				);
 				break;
 			case "date":
@@ -208,11 +229,11 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 			case "select":
 			case "selection":
 				$this->form->selection($fieldName, NULL,
-						ifsetor($fieldValue, ifsetor($desc['default'])),
-						isset($desc['autosubmit']) ? $desc['autosubmit'] : NULL,
-						array(),    // more
-						isset($desc['multiple']) ? $desc['multiple'] : NULL,
-						$desc->getArray());
+					ifsetor($fieldValue, ifsetor($desc['default'])),
+					isset($desc['autosubmit']) ? $desc['autosubmit'] : NULL,
+					array(),    // more
+					isset($desc['multiple']) ? $desc['multiple'] : NULL,
+					$desc->getArray());
 				break;
 			case "file":
 				$this->form->file($fieldName, $desc->getArray());
@@ -227,13 +248,13 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 				}
 				$elementID = $this['elementID'];
 				$more = is_array(ifsetor($desc['more']))
-						? $desc['more'] + array('id' => $elementID)
-						: $desc['more'] . ' id="' . $elementID . '"';
+					? $desc['more'] + array('id' => $elementID)
+					: $desc['more'] . ' id="' . $elementID . '"';
 				if (ifsetor($desc['postgresql'])) {
 					$fieldValue = $fieldValue == 't';
 				}
 				$this->form->check($fieldName, ifsetor($desc['post-value'], 1), $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', FALSE,*/
-						$more);
+					$more);
 				break;
 			case "time":
 				$this->form->time($fieldName, $fieldValue, $desc['unlimited']);
@@ -260,8 +281,8 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 				//debug($desc);
 				$more = (is_array(ifsetor($desc->data['more']))
 						? $desc->data['more'] : array()) + [
-					'id' => $desc->data['id']
-				];
+						'id' => $desc->data['id']
+					];
 				$this->form->submit($desc['value'], $more);
 				break;
 			case 'ajaxTreeInputOld':
@@ -290,12 +311,12 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 				break;
 			case 'recaptcha':
 				$this->form->recaptcha($desc + array(
-					'name' => $this->form->getName($fieldName, '', TRUE)));
+						'name' => $this->form->getName($fieldName, '', TRUE)));
 				break;
 			case 'recaptchaAjax':
 				$this->form->recaptchaAjax(
-						$desc->getArray() + array(
-								'name' => $this->form->getName($fieldName, '', TRUE)));
+					$desc->getArray() + array(
+						'name' => $this->form->getName($fieldName, '', TRUE)));
 				break;
 			case 'datatable':
 				$this->form->datatable($fieldName, $fieldValue, $desc, FALSE, $doDiv = TRUE, 'htmlftable');
@@ -356,20 +377,20 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 				//$this->text(htmlspecialchars($desc['more']));
 //				debug($desc);
 				$this->form->input($fieldName, $fieldValue,
-						(is_array(ifsetor($desc['more']))
-								? HTMLForm::getAttrHTML($desc['more'])
-								: '') .
-						(($desc['more'] && !is_array($desc['more']))
-								? $desc['more']
-								: '') .
-						($desc['id'] ? ' id="' . $desc['id'] . '"' : '') .
-						(isset($desc['size']) ? ' size="' . $desc['size'] . '"' : '') .
-						//					($desc['cursor'] ? " id='$elementID'" : "") .
-						(isset($desc['readonly']) ? ' readonly="readonly"' : '') .
-						(isset($desc['disabled']) ? ' disabled="1"' : '') .
-						($desc->isObligatory() ? ' required="1"' : '') .
-						(ifsetor($desc['autofocus']) ? ' autofocus' : '')
-						, $type == 'input' ? 'text' : $type,
+					(is_array(ifsetor($desc['more']))
+						? HTMLForm::getAttrHTML($desc['more'])
+						: '') .
+					(($desc['more'] && !is_array($desc['more']))
+						? $desc['more']
+						: '') .
+					($desc['id'] ? ' id="' . $desc['id'] . '"' : '') .
+					(isset($desc['size']) ? ' size="' . $desc['size'] . '"' : '') .
+					//					($desc['cursor'] ? " id='$elementID'" : "") .
+					(isset($desc['readonly']) ? ' readonly="readonly"' : '') .
+					(isset($desc['disabled']) ? ' disabled="1"' : '') .
+					($desc->isObligatory() ? ' required="1"' : '') .
+					(ifsetor($desc['autofocus']) ? ' autofocus' : '')
+					, $type == 'input' ? 'text' : $type,
 					ifsetor($desc['class'],
 						is_array(ifsetor($desc['more']))
 							? ifsetor($desc['more']['class'])
@@ -381,11 +402,13 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface {
 		}
 	}
 
-	function isCheckbox() {
+	function isCheckbox()
+	{
 		return $this->getTypeString() == 'checkbox';
 	}
 
-	function setOptional($is = true) {
+	function setOptional($is = true)
+	{
 		$this->data['optional'] = $is;
 	}
 

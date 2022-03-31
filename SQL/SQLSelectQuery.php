@@ -1,6 +1,7 @@
 <?php
 
-class SQLSelectQuery extends SQLWherePart {
+class SQLSelectQuery extends SQLWherePart
+{
 
 	/**
 	 * @var dbLayerBase|dbLayer|MySQL|dbLayerPDO
@@ -48,56 +49,67 @@ class SQLSelectQuery extends SQLWherePart {
 	 */
 	protected $limit;
 
-	function __construct($select = NULL, $from = NULL, $where = NULL, $join = NULL, $group = NULL, $having = NULL, $order = NULL, $limit = NULL) {
-		if ($select) 	$this->setSelect($select);
-		if ($from) 		$this->setFrom($from);
-		if ($where) 	$this->setWhere($where);
-		if ($join) 		$this->setJoin($join);
-			else 		$this->join = new SQLJoin();
-		if ($group) 	$this->setGroup($group);
-		if ($having) 	$this->setHaving($having);
-		if ($order) 	$this->setOrder($order);
-		if ($limit) 	$this->setLimit($limit);
+	function __construct($select = NULL, $from = NULL, $where = NULL, $join = NULL, $group = NULL, $having = NULL, $order = NULL, $limit = NULL)
+	{
+		if ($select) $this->setSelect($select);
+		if ($from) $this->setFrom($from);
+		if ($where) $this->setWhere($where);
+		if ($join) $this->setJoin($join);
+		else    $this->join = new SQLJoin();
+		if ($group) $this->setGroup($group);
+		if ($having) $this->setHaving($having);
+		if ($order) $this->setOrder($order);
+		if ($limit) $this->setLimit($limit);
 	}
 
-	function injectDB(DBInterface $db) {
+	function injectDB(DBInterface $db)
+	{
 		//debug(__METHOD__, gettype2($db));
 		$this->db = $db;
 	}
 
-	function setSelect(SQLSelect $select) {
+	function setSelect(SQLSelect $select)
+	{
 		$this->select = $select;
 	}
 
-	function setFrom(SQLFrom $from) {
+	function setFrom(SQLFrom $from)
+	{
 		$this->from = $from;
 	}
 
-	function setWhere(SQLWhere $where) {
+	function setWhere(SQLWhere $where)
+	{
 		$this->where = $where;
 	}
 
-	function setJoin(SQLJoin $join) {
+	function setJoin(SQLJoin $join)
+	{
 		$this->join = $join;
 	}
 
-	function setGroup(SQLGroup $group) {
+	function setGroup(SQLGroup $group)
+	{
 		$this->group = $group;
 	}
 
-	function setHaving(SQLHaving $having) {
+	function setHaving(SQLHaving $having)
+	{
 		$this->having = $having;
 	}
 
-	function setOrder(SQLOrder $order) {
+	function setOrder(SQLOrder $order)
+	{
 		$this->order = $order;
 	}
 
-	function setLimit(SQLLimit $limit) {
+	function setLimit(SQLLimit $limit)
+	{
 		$this->limit = $limit;
 	}
 
-	public function getDistance($lat, $lon, $latitude = 'latitude', $longitude = 'longitude') {
+	public function getDistance($lat, $lon, $latitude = 'latitude', $longitude = 'longitude')
+	{
 		if ($this->db->isSQLite()) {
 			$this->db->getConnection()->sqliteCreateFunction('sqrt', function ($a) {
 				return sqrt($a);
@@ -109,7 +121,8 @@ class SQLSelectQuery extends SQLWherePart {
 		}
 	}
 
-	function getQuery() {
+	function getQuery()
+	{
 		$from = ($this->from);
 		$query = trim("SELECT
 {$this->select}
@@ -126,7 +139,8 @@ FROM {$from}
 		return $query;
 	}
 
-	function __toString() {
+	function __toString()
+	{
 		try {
 			return $this->getQuery();
 		} catch (Exception $e) {
@@ -136,7 +150,8 @@ FROM {$from}
 		}
 	}
 
-	static function sqlSH($sql) {
+	static function sqlSH($sql)
+	{
 		$res = '';
 		$words = array('SELECT', 'FROM', 'WHERE', 'GROUP', 'BY', 'ORDER', 'HAVING', 'AND', 'OR', 'LIMIT', 'OFFSET', 'LEFT', 'OUTER', 'INNER', 'RIGHT', 'JOIN', 'CASE', 'WHEN', 'THEN', 'ELSE', 'END', 'AS', 'DISTINCT', 'ON', 'NATURAL');
 		$breakAfter = array('SELECT', 'BY', 'OUTER', 'ON', 'DISTINCT', 'AS', 'WHEN', 'NATURAL');
@@ -149,20 +164,20 @@ FROM {$from}
 			$tok = trim($tok);
 			if ($tok == "(") {
 				$level++;
-				$res .= " (" . "<br>" . str_repeat("&nbsp;", $level*4);
+				$res .= " (" . "<br>" . str_repeat("&nbsp;", $level * 4);
 			} else if ($tok == ")") {
 				if ($level > 0) {
 					$level--;
 				}
-				$res .= "<br>" . str_repeat("&nbsp;", $level*4) . ") ";
-			} elseif ($tok && ($tok{0} == "'" || $tok{strlen($tok)-1} == "'" || $tok == "'")) {
+				$res .= "<br>" . str_repeat("&nbsp;", $level * 4) . ") ";
+			} elseif ($tok && ($tok[0] == "'" || $tok[strlen($tok) - 1] == "'" || $tok == "'")) {
 				$res .= " ";
-				if ($tok{0} == "'" && !$open) {
+				if ($tok[0] == "'" && !$open) {
 					$res .= '<font color="green">';
 					$open = TRUE;
 				}
 				$res .= $tok;
-				if ($tok{strlen($tok)-1} == "'" && $open) {
+				if ($tok[strlen($tok) - 1] == "'" && $open) {
 					$res .= '</font>';
 					$open = FALSE;
 				}
@@ -172,8 +187,8 @@ FROM {$from}
 				$br = strlen($res) ? '<br>' : '';
 				$strange = $tok == 'SELECT' ? '' : ' ';
 				$res .= (!in_array($tok, $breakAfter)
-						? ' ' . $br . str_repeat("&nbsp;", $level*4)
-						: $strange);
+					? ' ' . $br . str_repeat("&nbsp;", $level * 4)
+					: $strange);
 				$res .= '<font color="blue">' . strtoupper($tok) . '</font>';
 			} else {
 				$res .= " " . $tok;
@@ -187,7 +202,8 @@ FROM {$from}
 		return new htmlString($res);
 	}
 
-	function getParameters() {
+	function getParameters()
+	{
 		if ($this->where) {
 			$params = $this->where->getParameters();
 		} else {
@@ -204,23 +220,27 @@ FROM {$from}
 	/**
 	 * A way to perform a query with parameter without making a SQL
 	 */
-	function perform() {
+	function perform()
+	{
 		$sQuery = $this->getQuery();
 		$aParams = $this->getParameters();
 //		debug(['where' => $this->where, 'sql' => $sQuery, 'params' => $aParams]);
 		return $this->db->perform($sQuery, $aParams);
 	}
 
-	function fetchAssoc() {
+	function fetchAssoc()
+	{
 		return $this->db->fetchAssoc($this->perform());
 	}
 
-	function fetchAll() {
+	function fetchAll()
+	{
 		return $this->db->fetchAll($this->perform());
 	}
 
-	public function unsetOrder() {
+	public function unsetOrder()
+	{
 		$this->order = NULL;
 	}
-	
+
 }

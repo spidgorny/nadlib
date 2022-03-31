@@ -332,7 +332,8 @@ class slTableValue {
 						$out = $val->getContent().'';   // to avoid calling getName()
 					} elseif (is_object($val)) {
 						if (ifsetor($k['call'])) {
-							$out = $val->$k['call']();
+							$method = $k['call'];
+							$out = is_callable($method) ? $method() : null;
 						} elseif (method_exists($val, 'getName')) {
 							$out = $val->getName();
 						} elseif (method_exists($val, '__toString')) {
