@@ -1285,6 +1285,11 @@ class ArrayPlus extends ArrayObject implements Countable
 		return $this;
 	}
 
+	public function clone()
+	{
+		return new static($this->getData());
+	}
+
 	public function sort($callback)
 	{
 		$data = $this->getArrayCopy();
