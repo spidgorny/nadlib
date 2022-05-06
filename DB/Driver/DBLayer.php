@@ -970,9 +970,9 @@ WHERE ccu.table_name='" . $table . "'");
 //			debug($rows, $table, $columns, $where);
 //			exit;
 			if ($rows) {
-				$this->runUpdateQuery($table, $columns, $where);
+				return $this->runUpdateQuery($table, $columns, $where);
 			} else {
-				$this->runInsertQuery($table, $columns);
+				return $this->runInsertQuery($table, $columns);
 			}
 			//return $this->commit();
 		}
