@@ -18,6 +18,7 @@
  * @method getDeleteQuery($table, array $where = [], $what = '');
  * @method getUpdateQuery($table, array $set, array $where);
  * @method runInsertQuery($table, array $data);
+ * @method runInsertUpdateQuery($table, array $fields, array $where, array $insert = []);
  * @method runDeleteQuery($table, array $where);
  */
 interface DBInterface
