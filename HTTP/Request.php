@@ -383,10 +383,10 @@ class Request
 	 * @param $value
 	 * @return string
 	 */
-	public function getCoalesce($a, $value)
+	public function getCoalesce($a, $value = null)
 	{
 		$a = $this->getTrim($a);
-		return $a ? $a : $value;
+		return $a ?: $value;
 	}
 
 	/**

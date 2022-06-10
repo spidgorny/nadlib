@@ -304,4 +304,11 @@ if (!function_exists('debugList')) {
 		//return json_encode($types, JSON_PRETTY_PRINT);
 	}
 
+	function invariant($test, string $format_str, ...$args)
+	{
+		if (!$test) {
+			throw new Exception($format_str ?? 'Invariant failed', ...$args);
+		}
+	}
+
 }
