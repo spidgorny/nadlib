@@ -6,7 +6,7 @@ trait JsonController
 	public function afterConstruct()
 	{
 		$this->request->set('ajax', true);
-		$this->user = new NoUser();	// prevent API to hijack user session
+		$this->user = new APIUser();  // prevent API to hijack user session
 		$this->config->setUser($this->user);
 	}
 
@@ -30,7 +30,8 @@ trait JsonController
 		$authorization = $this->request->getHeader('Authorization');
 //		llog($authorization);
 		//debug($headers, $authorization);
-		if (!$authorization || !in_array($authorization, $registeredApps, false)) {
+		invariant($authorization, 'No Authorization Header');
+		if (!in_array($authorization, $registeredApps, false)) {
 			throw new LoginException('Authorization failed.', 401);
 		}
 	}
@@ -73,16 +74,16 @@ trait JsonController
 		llog($message);
 		http_response_code($httpCode);
 		return $this->json([
-			'status' => 'error',
-			'error_type' => get_class($e),
-			'message' => $e->getMessage(),
-			'file' => $e->getFile(),
-			'line' => $e->getLine(),
-			'stack_trace' => DEVELOPMENT ? trimExplode("\n", $e->getTraceAsString()) : null,
-			'request' => $this->request->getAll(),
-			'headers' => getallheaders(),
+				'status' => 'error',
+				'error_type' => get_class($e),
+				'message' => $e->getMessage(),
+				'file' => $e->getFile(),
+				'line' => $e->getLine(),
+				'stack_trace' => DEVELOPMENT ? trimExplode("\n", $e->getTraceAsString()) : null,
+				'request' => $this->request->getAll(),
+				'headers' => getallheaders(),
 				'timestamp' => date('Y-m-d H:i:s'),
-		] + $extraData);
+			] + $extraData);
 	}
 
 	public function json($key)
