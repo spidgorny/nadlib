@@ -454,10 +454,10 @@ class IndexBase /*extends Controller*/
 
 	public function __destruct()
 	{
-		if (is_object($this->user) && method_exists($this->user, '__destruct')) {
+//		if (is_object($this->user) && method_exists($this->user, '__destruct')) {
 			// called automatically(!)
 			//$this->user->__destruct();
-		}
+//		}
 	}
 
 	/**

@@ -24,7 +24,8 @@ trait JsonController
 	 */
 	public function validateAuthorization(array $registeredApps)
 	{
-		if ($this->isDevServer()) {
+
+		if (self::$public) {
 			return;
 		}
 		$authorization = $this->request->getHeader('Authorization');
@@ -83,6 +84,7 @@ trait JsonController
 				'request' => $this->request->getAll(),
 				'headers' => getallheaders(),
 				'timestamp' => date('Y-m-d H:i:s'),
+				'back_trace' => debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)
 			] + $extraData);
 	}
 
