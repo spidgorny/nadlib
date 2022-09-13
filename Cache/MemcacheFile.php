@@ -28,9 +28,6 @@ class MemcacheFile implements MemcacheInterface
 	 */
 	public function __construct($folder = null, $expire = 0)
 	{
-		if (MemcacheArray::$debug) {
-			echo __METHOD__ . '(' . $key . ')' . BR;
-		}
 		$this->folder = $folder ?: self::$defaultFolder;
 		if (!Path::isItAbsolute($this->folder)) {
 			// if relative, add current app
@@ -59,9 +56,6 @@ class MemcacheFile implements MemcacheInterface
 			$this->folder = cap($finalCachePath);    // important as we concat
 		}
 
-		if ($key) {
-			$this->key = $key;
-		}
 		if ($expire) {
 			$this->expire = $expire;
 		}
