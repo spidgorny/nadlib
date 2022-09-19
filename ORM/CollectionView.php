@@ -87,18 +87,17 @@ class CollectionView
 	{
 		TaylorProfiler::start(__METHOD__ . " ({$this->collection->table})");
 		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '()');
-//		$count = $this->collection->getCount();
-		$count = $this->collection->getData()->count();
+		$count = $this->collection->getCount();
 		if ($count) {
 			$this->prepareRender();
 			//debug($this->tableMore);
 			$s = $this->getDataTable();
 			if ($this->collection->pager) {
 				$pages = $this->collection->pager->renderPageSelectors();
-				$content = [$pages .
+				$content[] = [$pages .
 					'<div class="collection"
 					 id="' . get_class($this->collection) . '">',
-					$s,	// not HTML, may need to process later
+					$s,  // not HTML, may need to process later
 					'</div>',
 					$pages];
 			} else {

@@ -417,13 +417,14 @@ class Collection implements IteratorAggregate, ToStringable
 	}
 
 	/**
-	 * @return string - returns the slTable if not using Pager
+	 * @return string[] - returns the slTable if not using Pager
 	 * @throws Exception
 	 */
 	public function render()
 	{
 		$view = $this->getView();
-		return $view->renderTable();
+		$content[] = $view->renderTable();
+		return $content;
 	}
 
 	public function getProcessedData()
