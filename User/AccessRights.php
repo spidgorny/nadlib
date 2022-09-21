@@ -12,21 +12,32 @@ class AccessRights implements AccessRightsInterface
 
 	public $groupID;
 
-	protected $arCache = array();
+	/**
+	 * @var array
+	 * @public for dehydration
+	 */
+	public $arCache = [];
 
 	/**
 	 * @var DBInterface
 	 */
 	protected $db;
 
-	protected $query;
+	public $query;
 
-	public function __construct($idGroup)
+	/**
+	 * AccessRights constructor.
+	 * @param null|int $idGroup - can be null for dehydration
+	 * @throws Exception
+	 */
+	public function __construct($idGroup = null)
 	{
 		TaylorProfiler::start($profiler = Debug::getBackLog(7, 0, BR, false));
 		$this->db = Config::getInstance()->getDB();
 		$this->groupID = $idGroup;
-		$this->reload();
+		if ($this->groupID) {
+			$this->reload();
+		}
 		TaylorProfiler::stop($profiler);
 	}
 
@@ -37,20 +48,23 @@ class AccessRights implements AccessRightsInterface
 
 	public function init($idGroup)
 	{
-		$res = $this->db->runSelectQuery($this->accessTable . ' /**/
+		$res = $this->db->runSelectQuery(
+			$this->accessTable . ' /**/
 			LEFT OUTER JOIN ' . $this->groupAccessTable . ' ON (
 				' . $this->accessTable . '.id = ' . $this->groupAccessTable . '.' . $this->id_useraccess . '
 				AND ' . $this->id_usergroup . ' = ' . $idGroup . ')',
-			array(), 'ORDER BY ' . $this->accessTable . '.name',
-			$this->accessTable . '.*, ' . $this->groupAccessTable . '.id as affirmative');
+			[],
+			'ORDER BY ' . $this->accessTable . '.name',
+			$this->accessTable . '.*, ' . $this->groupAccessTable . '.id as affirmative'
+		);
 		$data = $this->db->fetchAll($res);
 		$this->query = $this->db->lastQuery;
-//		debug($this->query);
+		//		debug($this->query);
 		//debug($data);
 		$data = new ArrayPlus($data);
 		$data = $data->column_assoc('name', 'affirmative')->getData();
 		foreach ($data as &$affirmative) {
-			$affirmative = $affirmative ? TRUE : FALSE;
+			$affirmative = $affirmative ? true : false;
 		}
 		$this->arCache = $data;
 		//debug($this->arCache);
@@ -61,7 +75,9 @@ class AccessRights implements AccessRightsInterface
 		//debug($what, $this->arCache);
 		if (isset($this->arCache[$what])) {
 			return $this->arCache[$what];
-		} else {
+		}
+
+		if (DEVELOPMENT) {
 			throw new AccessDeniedException('Checking non-existing access-right: ' . $what);
 		}
 	}
@@ -114,4 +130,13 @@ class AccessRights implements AccessRightsInterface
 		$this->arCache[$name] = $value;
 	}
 
+	public function dehydrate()
+	{
+		return [
+			'class' => get_class($this),
+			'groupID' => $this->groupID,
+			'arCache' => $this->arCache,
+			'query' => null,
+		];
+	}
 }

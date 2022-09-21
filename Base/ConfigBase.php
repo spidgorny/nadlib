@@ -1,5 +1,6 @@
 <?php
 
+require_once __DIR__.'/ConfigInterface.php';
 /**
  * Class ConfigBase - a Config, Singleton, Factory, Repository, DependencyInjectionContainer and Locator in one class.
  * Extend with a name Class and add any configuration parameters and factory calls.
@@ -37,7 +38,7 @@ class ConfigBase implements ConfigInterface
 	 */
 	public $documentRoot;
 
-	public static $includeFolders = array(
+	public static $includeFolders = [
 		'.',
 		'Base',
 		'Cache',
@@ -65,7 +66,7 @@ class ConfigBase implements ConfigInterface
 		'be/class/Info',
 		'be/class/Test',
 		'Queue',
-	);
+	];
 
 	/**
 	 * Enables FlexiTable check if the all the necessary tables/columns exist.
@@ -82,7 +83,7 @@ class ConfigBase implements ConfigInterface
 	public $config;
 
 	/**
-	 * @var User|LoginUser|UserModelInterface
+	 * @var UserModelInterface
 	 */
 	protected $user;
 
@@ -104,10 +105,10 @@ class ConfigBase implements ConfigInterface
 //		debug($this->documentRoot);
 
 		$appRoot = AutoLoad::getInstance()->getAppRoot();
-		0 && pre_print_r(array(
+		0 && pre_print_r([
 			'Config->documentRoot' => $this->documentRoot,
 			'Config->appRoot' => $appRoot,
-		));
+		]);
 		//debug_pre_print_backtrace();
 
 		//print_r(array(getcwd(), 'class/config.json', file_exists('class/config.json')));
@@ -203,11 +204,11 @@ class ConfigBase implements ConfigInterface
 
 	/**
 	 * TODO: enable FirePHP
-	 * @param $class
-	 * @param $message
+	 * @param string $class
+	 * @param mixed $message
 	 * @throws Exception
 	 */
-	function log($class, $message)
+	public function log($class, $message)
 	{
 		if (DEVELOPMENT) {
 			throw new Exception($class . ' ' . $message);
@@ -215,9 +216,9 @@ class ConfigBase implements ConfigInterface
 	}
 
 	/**
-	 * @param $obj object
+	 * @param object $obj
 	 */
-	function mergeConfig($obj)
+	public function mergeConfig($obj)
 	{
 		$class = get_class($obj);
 		if (isset($this->config[$class]) && is_array($this->config[$class])) {
@@ -231,10 +232,10 @@ class ConfigBase implements ConfigInterface
 	}
 
 	/**
-	 * @return LoginUser|User|UserModelInterface
+	 * @return UserModelInterface
 	 * @throws LoginException
 	 */
-	function getUser()
+	public function getUser()
 	{
 		if (is_object($this->user)) {
 			return $this->user;
@@ -245,15 +246,15 @@ class ConfigBase implements ConfigInterface
 
 	/**
 	 * Convenience function example how to use Login
-	 * @return LoginUser|User
+	 * @return UserModelInterface
 	 * @throws DatabaseException
 	 */
-	function _getLoginUser()
+	public function _getLoginUser()
 	{
 		if (!$this->user) {
 			$db = $this->getDB();
 //			debug(get_class($db));
-			$this->user = new LoginUser($db);
+			$this->user = new BEUser($db);
 			try {
 				$this->user->try2login();
 			} catch (Exception $e) {
@@ -263,7 +264,7 @@ class ConfigBase implements ConfigInterface
 		return $this->user;
 	}
 
-	function getLL()
+	public function getLL()
 	{
 		if (!$this->ll) {
 			$this->ll = new LocalLangDummy();
@@ -271,9 +272,18 @@ class ConfigBase implements ConfigInterface
 		return $this->ll;
 	}
 
-	function getRequest()
+	public function getRequest()
 	{
 		return Request::getInstance();
 	}
 
+	public function getDBpassword()
+	{
+		return $this->db_password;
+	}
+
+	public function setUser(UserModelInterface $user)
+	{
+		$this->user = $user;
+	}
 }

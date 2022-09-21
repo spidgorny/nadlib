@@ -6,7 +6,7 @@
  * Date: 2017-03-22
  * Time: 17:04
  */
-class HTMLFormTest extends PHPUnit_Framework_TestCase
+class HTMLFormTest extends PHPUnit\Framework\TestCase
 {
 
 	public function __construct($name = null, array $data = [], $dataName = '')

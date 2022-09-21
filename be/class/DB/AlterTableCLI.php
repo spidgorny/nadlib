@@ -1,33 +1,34 @@
 <?php
 
-class AlterTableCLI extends AlterTable {
+class AlterTableCLI extends AlterTable
+{
 
-	function __construct() {
+	public function __construct()
+	{
 		if (!Request::isCLI()) {
-			die(__CLASS__.' can only be called by admin');
+			die(__CLASS__ . ' can only be called by admin');
 		}
 
-		//Request::getInstance()->set('id', 1);	// Slawa
-		//$fake = new FakeLogin();
-		//$fake->loginAction();
-		$user = new User(1);
-		$user->saveLogin();
+		$this->user = new CLIUser();
 
-		$this->config->setUser($user);
+		$this->config = Config::getInstance();
+		$this->config->setUser($this->user);
 
 		parent::__construct();
 	}
 
-	function render() {
+	public function render()
+	{
 		echo 'DB Class: ', typ($this->db), BR;
-		echo 'DB Scheme: ', $this->db->getScheme(), BR;
+		echo 'DB Schema: ', $this->db->getScheme(), BR;
 		$action = $this->request->getTrim('action');
 		$action = $action ?: ifsetor($_SERVER['argv'][2]);
 		echo 'Action: ', $action, BR;
-		return $this->performAction();
+		return $this->performAction();	// save, list, try
 	}
 
-	function saveAction() {
+	public function saveAction()
+	{
 		echo 'File: ', $this->jsonFile, BR;
 		echo 'Size: ', filesize($this->jsonFile), BR;
 		$this->saveStructAction();
@@ -35,13 +36,16 @@ class AlterTableCLI extends AlterTable {
 		echo 'Size: ', filesize($this->jsonFile), BR;
 	}
 
-	function listAction() {
+	public function listAction()
+	{
 		/** @var UL $ul */
 		$ul = $this->listFiles()[0];
 		$ul->cli();
 	}
 
-	function tryAction($filename) {
+	public function tryAction()
+	{
+		$filename = $this->jsonFile;
 		//$filename = str_replace('sql\\', '', $filename);
 		echo 'File: ', $filename, BR;
 		$this->jsonFile = $filename;
@@ -62,18 +66,18 @@ class AlterTableCLI extends AlterTable {
 			echo 'Handler: ', get_class($this->handler), BR;
 			$local = $this->getDBStruct();
 			foreach ($struct as $table => $desc) {
-				echo BR, '*** Table: ' . $table . ' ***'.BR;
+				echo BR, '*** Table: ' . $table . ' ***' . BR;
 				if (isset($local[$table])) {
 					$indexCompare = $this->compareTables($table, $desc['columns'], $local[$table]['columns']);
 				} else {
 					$createQuery = $this->handler->getCreateQuery($table, $desc['columns']);
-					$indexCompare = [array(
-									 'action' => new HTMLTag('td', array(
-									 'colspan' => 10,
-									 'class' => 'sql',
-									 ), $this->click($table, $createQuery)
-									 ),
-									 )];
+					$indexCompare = [[
+						'action' => new HTMLTag('td', [
+							'colspan' => 10,
+							'class' => 'sql',
+						], $this->click($table, $createQuery)
+						),
+					]];
 				}
 				$this->filterChanges($table, $indexCompare);
 			}
@@ -83,13 +87,14 @@ class AlterTableCLI extends AlterTable {
 		}
 	}
 
-	private function filterChanges($table, array $indexCompare) {
+	private function filterChanges($table, array $indexCompare)
+	{
 		$content = [];
 		foreach ($indexCompare as $row) {
 			if (ifsetor($row['same']) != 'same') {
 				$sql = $row['action']->content->content;
 				echo $sql, str_endsWith($sql, ';') ? '' : ';';
-				if (ifsetor($row['fromDB']).'') {
+				if (ifsetor($row['fromDB']) . '') {
 					echo ' /* ', $row['fromDB'], ' */';
 				}
 				echo BR;

@@ -1,5 +1,6 @@
 <?php
 
-class MustBeStringException extends Exception {
+class MustBeStringException extends Exception
+{
 
 }

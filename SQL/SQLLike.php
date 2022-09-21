@@ -1,6 +1,7 @@
 <?php
 
-class SQLLike extends SQLWherePart {
+class SQLLike extends SQLWherePart
+{
 
 	/**
 	 * @var string value
@@ -22,13 +23,19 @@ class SQLLike extends SQLWherePart {
 	 */
 	public $wrap = '|';
 
-	function __construct($string, $caseInsensitive = true) {
+	public function __construct($string, $caseInsensitive = true)
+	{
 		parent::__construct();
-        $this->caseInsensitive = $caseInsensitive;
+		$this->caseInsensitive = $caseInsensitive;
 		$this->string = $string;
 	}
 
-	function __toString() {
+	public function __toString()
+	{
+		if (!$this->db) {
+			throw new InvalidArgumentException(__METHOD__.' has to DB');
+		}
+
 		$like = $this->caseInsensitive ? $this->ilike : $this->like;
 		$w = explode('|', $this->wrap);
 		$escape = $this->db->getPlaceholder($this->field);
@@ -52,11 +59,13 @@ class SQLLike extends SQLWherePart {
 		return $sql;
 	}
 
-	static function make($string, $caseInsensitive = false) {
+	public static function make($string, $caseInsensitive = false)
+	{
 		return new static($string, $caseInsensitive);
 	}
 
-	function getParameter() {
+	public function getParameter()
+	{
 		return $this->string;
 	}
 

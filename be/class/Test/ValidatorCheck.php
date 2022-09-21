@@ -3,57 +3,57 @@
 class ValidatorCheck extends AppControllerBE {
 
 	function render() {
-		$f = new HTMLFormTable(array(
-			'obligatory' => array(
+		$f = new HTMLFormTable([
+			'obligatory' => [
 				'label' => 'Obligatory',
 				'validate' => 'obligatory',
-			),
-			'mustBset' => array(
+			],
+			'mustBset' => [
 				'label' => 'Must be set',
 				'optional' => true,
 				'validate' => 'mustBset',
-			),
-			'email' => array(
+			],
+			'email' => [
 				'label' => 'Email',
 				'optional' => true,
 				'validate' => 'email',
-			),
-			'password' => array(
+			],
+			'password' => [
 				'label' => 'Password',
 				'optional' => true,
 				'validate' => 'password',
-			),
-			'min' => array(
+			],
+			'min' => [
 				'label' => 'Min 10',
 				'optional' => true,
 				'min' => '10',
-			),
-			'max' => array(
+			],
+			'max' => [
 				'label' => 'Max 10',
 				'optional' => true,
 				'max' => '10',
-			),
-			'minlen' => array(
+			],
+			'minlen' => [
 				'label' => 'Minlen 10',
 				'optional' => true,
 				'minlen' => '10',
-			),
-			'maxlen' => array(
+			],
+			'maxlen' => [
 				'label' => 'Maxlen 10',
 				'optional' => true,
 				'maxlen' => '10',
-			),
-			'int' => array(
+			],
+			'int' => [
 				'label' => 'Int',
 				'optional' => true,
 				'validate' => 'int',
-			),
-			'date' => array(
+			],
+			'date' => [
 				'label' => 'Date',
 				'optional' => true,
 				'validate' => 'date',
-			),
-		));
+			],
+		]);
 		$f->fill($_REQUEST);
 		unset($f->desc['mustBset']['value']);
 		$f->validate();

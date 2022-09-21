@@ -5,7 +5,7 @@
  */
 class FlotPie extends AppController {
 
-	protected $colors = array(
+	protected $colors = [
 		'#edc240',
 		'#afd8f8',
 		'#cb4b4b',
@@ -15,7 +15,7 @@ class FlotPie extends AppController {
 		"#9440ed",
 		"#40ed94",
 		'#4da74d',
-	);
+	];
 
 	/**
 	 * Raw data single table
@@ -50,8 +50,8 @@ class FlotPie extends AppController {
 
 		$content = '<div id="'.$divID.'" style="width: 950px; height:600px; border: none 0px silver;"></div>';
 
-		$charts = array();
-		$dKeys = array();
+		$charts = [];
+		$dKeys = [];
 		foreach ($this->data as $key => $val) {
 			$jsKey = 'd_'.Controller::friendlyURL($key);
 			$jsKey = str_replace('-', '_', $jsKey);

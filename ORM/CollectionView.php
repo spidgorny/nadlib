@@ -10,7 +10,7 @@ class CollectionView
 	 */
 	protected $collection;
 
-	var $noDataMessage = 'No data';
+	public $noDataMessage = 'No data';
 
 	/**
 	 * Indication to slTable
@@ -18,10 +18,10 @@ class CollectionView
 	 */
 	public $useSorting = true;
 
-	public $tableMore = array(
-		'class' => "nospacing table table-striped",
-		'width' => "100%",
-	);
+	public $tableMore = [
+		'class' => 'nospacing table table-striped',
+		'width' => '100%',
+	];
 
 	public $wrapTag = 'div';
 
@@ -40,18 +40,18 @@ class CollectionView
 		if ($this->wrapTag) {
 			list($tagClass, $id) = trimExplode('#', $this->wrapTag, 2);
 			list($tag, $class) = trimExplode('.', $tagClass, 2);
-			$content = array(
-				'<' . $tag . ' class="' . get_class($this->collection) . ' ' . $class . '" id="'.$id.'">',
+			$content = [
+				'<' . $tag . ' class="' . get_class($this->collection) . ' ' . $class . '" id="' . $id . '">',
 				$content,
 				'</' . $tag . '>'
-			);
+			];
 		}
 		return $content;
 	}
 
 	public function renderMembers()
 	{
-		$content = array();
+		$content = [];
 		//debug(sizeof($this->members));
 		if ($this->collection->objectify()) {
 			/**
@@ -74,7 +74,7 @@ class CollectionView
 		}
 		if ($this->collection->pager) {
 			$pages = $this->collection->pager->renderPageSelectors();
-			$content = array($pages, $content, $pages);
+			$content = [$pages, $content, $pages];
 		}
 		return $content;
 	}
@@ -87,22 +87,21 @@ class CollectionView
 	{
 		TaylorProfiler::start(__METHOD__ . " ({$this->collection->table})");
 		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '()');
-//		$count = $this->collection->getCount();
-		$count = $this->collection->getData()->count();
+		$count = $this->collection->getCount();
 		if ($count) {
 			$this->prepareRender();
 			//debug($this->tableMore);
 			$s = $this->getDataTable();
 			if ($this->collection->pager) {
 				$pages = $this->collection->pager->renderPageSelectors();
-				$content = $pages .
+				$content[] = [$pages .
 					'<div class="collection"
-					 id="'.get_class($this->collection).'">'.
-					$s->getContent(get_class($this)) .
-					'</div>'.
-					$pages;
+					 id="' . get_class($this->collection) . '">',
+					$s,  // not HTML, may need to process later
+					'</div>',
+					$pages];
 			} else {
-				$content = $s;
+				$content[] = $s;
 			}
 			$content = $this->wrap($content);
 		} else {
@@ -146,10 +145,11 @@ class CollectionView
 			if ($sort) {
 				$s->setSortBy(ifsetor($sort['sortBy']), ifsetor($sort['sortOrder']));    // UGLY
 				//debug(Index::getInstance()->controller);
-				$s->sortLinkPrefix = new URL(NULL,
+				$s->sortLinkPrefix = new URL(
+					null,
 					ifsetor($controller->linkVars)
 						? $controller->linkVars
-						: array());
+						: []);
 			}
 		}
 		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '() done');

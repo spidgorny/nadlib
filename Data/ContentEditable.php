@@ -73,8 +73,9 @@ class ContentEditable {
 
 	/**
 	 * Make sure $saveURL ends with "=" so that $this->file is correctly appended to it
-	 * @param $saveURL
+	 * @param string $saveURL
 	 * @return string
+	 * @throws Exception
 	 */
 	function render($saveURL) {
 		$content = '<div class="editable" data-save-url="'.$saveURL.urlencode($this->file).'">'.

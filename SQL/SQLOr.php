@@ -5,21 +5,22 @@
  * This may not be used as an alternative to 'makeOR'. Use SQLIn instead.
  */
 
-class SQLOr extends SQLWherePart {
+class SQLOr extends SQLWherePart
+{
 
-	protected $or = array();
+	protected $or = [];
 
 	/**
-	 * @var dbLayerPG|DBLayer
+	 * @var DBInterface
 	 */
 	protected $db;
 
 	protected $join = ' OR ';
 
-	function __construct(array $ors) {
-		//parent::__construct();
+	public function __construct(array $ors)
+	{
+		parent::__construct();
 		$this->or = $ors;
-		$this->db = Config::getInstance()->getDB();
 	}
 
 	/**
@@ -28,18 +29,29 @@ class SQLOr extends SQLWherePart {
 	 * @return string
 	 * @throws MustBeStringException
 	 */
-	function __toString() {
-		$ors = array();
-		//debug(get_class($this->db));
-		if (false && $this->db instanceof dbLayerPG) {
+	public function __toString()
+	{
+		$ors = [];
+//		llog(typ($this->db)->cli());
+		if (!$this->db) {
+			ob_start();
+			debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+			$bt = ob_get_clean();
+			llog($bt);
+			$e = new RuntimeException('SQLOr does not have $db set');
+			trigger_error($e, E_USER_ERROR);
+//			throw $e;	// unable to throw, return without quoteWhere()
+		} elseif (false && $this->db instanceof DBLayerPG) {
 			$ors[] = $this->bijouStyle();
 		} elseif (false && $this->db instanceof DBLayer) {
-			$ors[]  = $this->dciStyle();
-		} else {						// MySQL
+			$ors[] = $this->dciStyle();
+		} else {                        // MySQL
 			$ors = $this->db->quoteWhere($this->or);
+//			llog($this->or, $ors);
 		}
+
 		if ($ors) {
-			$res = '('.implode($this->join, $ors).')';
+			$res = '(' . implode($this->join, $ors) . ')';
 		} else {
 			$res = '/* EMPTY OR */';
 		}
@@ -47,29 +59,33 @@ class SQLOr extends SQLWherePart {
 		return $res;
 	}
 
-	function bijouStyle() {
+	public function bijouStyle()
+	{
 		// bijou
-		$ors = array();
+		$ors = [];
 		foreach ($this->or as $key => $or) {
-			if (is_main($key)) {
-				$ors[] = $this->db->getWherePart(array(
+			if ($this->is_main($key)) {
+				$ors[] = $this->db->getWherePart([
 					$key => $or,
-					$key.'.' => $this->or[$key.'.'],
-				), false);
+					$key . '.' => $this->or[$key . '.'],
+				], false);
 			}
 		}
 		return first($ors);
 	}
 
-	function dciStyle() {
-		$ors = array();
+	public function dciStyle()
+	{
+		$ors = [];
 		// DCI, ORS
 		// where is it used? in ORS for sure, but make sure you don't call new SQLOr(array('a', 'b', 'c'))
 		// http://ors.nintendo.de/NotifyVersion
-		if (is_int($this->field)) {                 // added is_int condition to solve problem with software mngmt & request (hw/sw request)  .. deklesoe 20130514
+		if (is_int($this->field)) {
+			// added is_int condition to solve problem
+			// with software mngmt & request (hw/sw request)  .. deklesoe 20130514
 			foreach ($this->or as $field => $or) {
 				$tmp = $this->db->quoteWhere(
-					array(trim($field) => $or)
+					[trim($field) => $or]
 				//array($this->field => $or)    //  commented and replaced with line above due to problem
 				//  with query creation for software management .. deklesoe 20130514
 				//$or
@@ -78,8 +94,8 @@ class SQLOr extends SQLWherePart {
 			}
 		} elseif (!is_int($this->field)) {
 			foreach ($this->or as $field => $or) {
-				$tmp = $this->qb->quoteWhere(
-					array(trim($this->field) => $or)
+				$tmp = $this->db->quoteWhere(
+					[trim($this->field) => $or]
 				//$or
 				);
 				$ors[] = implode('', $tmp);
@@ -88,6 +104,7 @@ class SQLOr extends SQLWherePart {
 			foreach ($this->or as $field => $p) {
 				if ($p instanceof SQLWherePart) {
 					$p->injectField($field);
+					$p->injectDB($this->db);
 				}
 			}
 			$ors = $this->db->quoteWhere($this->or);
@@ -95,12 +112,14 @@ class SQLOr extends SQLWherePart {
 		return first($ors);
 	}
 
-	function debug() {
-		return array($this->field => $this->or);
+	public function debug()
+	{
+		return [$this->field => $this->or];
 	}
 
-	function getParameter() {
-		$params = array();
+	public function getParameter()
+	{
+		$params = [];
 		/**
 		 * @var string $field
 		 * @var SQLLike $sub
@@ -114,6 +133,11 @@ class SQLOr extends SQLWherePart {
 			}
 		}
 		return $params;
+	}
+
+	private function is_main($key)
+	{
+		return $key[0] != '.';
 	}
 
 }

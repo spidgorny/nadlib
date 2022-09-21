@@ -5,20 +5,27 @@
  * Then you can instantiate an object of your class and provide some
  * JSON data, it will extract and convert JSON data to POPO
  */
-class POPOBase {
+class POPOBase
+{
 
 	/**
 	 * @var \ReflectionClass
 	 */
 	protected $reflector;
 
-	public $missingProperties = [];
+	public $_missingProperties = [];
 
 	public function __construct($set)
 	{
 		$this->reflector = new ReflectionClass($this);
-		foreach (get_object_vars($set) as $key => $val) {
-			$this->$key = $this->transform($key, $val);
+		if (is_object($set)) {
+			foreach (get_object_vars($set) as $key => $val) {
+				$this->$key = $this->transform($key, $val);
+			}
+		} elseif (is_array($set)) {
+			foreach ($set as $key => $val) {
+				$this->$key = $this->transform($key, $val);
+			}
 		}
 	}
 
@@ -27,10 +34,14 @@ class POPOBase {
 		try {
 			$prop = $this->reflector->getProperty($name);
 			if ($prop) {
-				$docText = $prop->getDocComment();
-				$doc = new DocCommentParser($docText);
-				$type = $doc->getFirstTagValue('var');
-				//debug($docText, $type);
+				$type = $prop->getType();
+				if (!$type) {
+					$docText = $prop->getDocComment();
+					$doc = new DocCommentParser($docText);
+					$type = $doc->getFirstTagValue('var');
+//					llog($docText, $type, $value);
+				}
+//				llog($name, $type.'', $value);
 				switch ($type) {
 					case 'int':
 						$value = intval($value);
@@ -51,7 +62,19 @@ class POPOBase {
 						$value = floatval($value);
 						break;
 					case 'DateTime':
-						$value = new DateTime($value);
+					case '\DateTime':
+						if (is_object($value)) {
+							$value = new DateTime($value->date);
+						} elseif ($value) {
+							$value = new DateTime($value);
+						}
+						break;
+					case 'DateTimeImmutable':
+						if (is_object($value)) {
+							$value = new DateTimeImmutable($value->date);
+						} elseif ($value) {
+							$value = new DateTimeImmutable($value);
+						}
 						break;
 					default:
 						// inner subclasses
@@ -61,9 +84,19 @@ class POPOBase {
 				}
 			}
 		} catch (ReflectionException $e) {
-			$this->missingProperties[$name] = TAB . 'public $'.$name.';';
+			$this->_missingProperties[$name] = TAB . 'public $' . $name . ';';
 		}
 		return $value;
+	}
+
+	/**
+	 * Only public properties will be included
+	 * @return false|string
+	 * @throws JsonException
+	 */
+	public function toJson()
+	{
+		return json_encode($this, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
 	}
 
 }

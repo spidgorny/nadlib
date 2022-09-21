@@ -17,13 +17,13 @@ class AsIs extends SQLWherePart
 
 	protected $value;
 
-	function __construct($value)
+	public function __construct($value)
 	{
 		parent::__construct($value);
 		$this->value = $value;
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		$content = '';
 		if ($this->field) {
@@ -33,12 +33,12 @@ class AsIs extends SQLWherePart
 		return $content;
 	}
 
-	function getValue()
+	public function getValue()
 	{
 		return $this->value;
 	}
 
-	function setValue($value)
+	public function setValue($value)
 	{
 		$this->value = $value;
 	}

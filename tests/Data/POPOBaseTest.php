@@ -35,7 +35,7 @@ class POPOBaseTest extends PHPUnit\Framework\TestCase
 		];
 		$json = (object)$struct;
 
-		$p = new JustIDandName($json);
+		$p = new JustIdAndName($json);
 		$this->assertNotEmpty($p->id);
 		$this->assertTrue(is_int($p->id));
 		$this->assertTrue(is_string($p->name));

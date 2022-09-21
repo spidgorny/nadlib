@@ -1,8 +1,11 @@
 <?php
 
-interface SessionInterface {
+namespace nadlib\HTTP;
 
-	function get($key);
+interface SessionInterface
+{
+
+	function get($key, $default = null);
 
 	function save($key, $val);
 
