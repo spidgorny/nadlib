@@ -8,7 +8,7 @@ use Psr\Log\LoggerInterface;
  *
  */
 /*abstract*/ // commented because of createForTable()
-class Collection implements IteratorAggregate, ToStringable
+class Collection implements IteratorAggregate, \ToStringable
 {
 
 	/**

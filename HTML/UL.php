@@ -1,6 +1,6 @@
 <?php
 
-class UL implements ToStringable
+class UL implements \ToStringable
 {
 
 	public $items = [];

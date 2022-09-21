@@ -4,7 +4,7 @@
  * General HTML Tag representation.
  */
 
-class HTMLTag implements ArrayAccess, ToStringable
+class HTMLTag implements ArrayAccess, \ToStringable
 {
 	public $tag;
 	public $attr = [];
