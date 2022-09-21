@@ -38,24 +38,24 @@ class ProgressBar {
 	 * If supplied then use $pb->setIndex($i) to calculate percentage automatically
 	 * @var int
 	 */
-	var $count = 0;
+	public $count = 0;
 
 	/**
 	 * Force getCss() to NOT load from Index if Index exists
 	 * @var bool
 	 */
-	var $useIndexCss = true;
+	public $useIndexCss = true;
 
-	var $cssFile = 'ProgressBarSimple.less';
+	public $cssFile = 'ProgressBarSimple.css';
 
 	/**
 	 * @ param #2 $color = '#43b6df'
-	 * @param int $percentDone
+	 * @param float $percentDone
 	 * @param int $count
 	 */
-	function __construct($percentDone = 0, $count = 0)
+	public function __construct($percentDone = 0.0, $count = 0)
 	{
-		$this->setID('pb-' . uniqid());
+		$this->setID('pb-' . uniqid('pb', true));
 		$this->pbarid = 'progress-bar';
 		$this->tbarid = 'transparent-bar';
 		$this->textid = 'pb_text';
@@ -76,7 +76,7 @@ class ProgressBar {
 		$this->textid = 'pb_text-' . $pbid;
 	}
 
-	function render()
+	public function render()
 	{
 		if (!$this->cli) {
 			ini_set('output_buffering', 0); // php_value output_buffering 0
@@ -162,23 +162,28 @@ class ProgressBar {
 		}
 	}
 
-	function setIndex($i, $always = false, $text = '', $after = '')
+	function setIndex($i, $always = false, $text = '', $after = '', $everyStep = 1000)
 	{
 		static $last;
-		if ($this->count) {
-			$percent = $this->getProgress($i);
-			$every = ceil($this->count / 1000); // 100% * 10 for each 0.1
-			if ($every < 1 || !($i % $every) || $always || (($last + $every) > $i)) {
-				$this->setProgressBarProgress($percent, $text, $after);
-				$last = $i;
-			}
-		} else {
+		if (!$this->count) {
 			throw new InvalidArgumentException(__CLASS__ . '->count is not set');
 		}
+		$percent = $this->getProgress($i);
+		$every = ceil($this->count / $everyStep); // 100% * 10 for each 0.1
+//		echo $percent, TAB, $every, TAB, $last + $every, TAB, $i, TAB, $i % $every, PHP_EOL;
+		if ($every < 1 || !($i % $every) || $always || ($i > ($last + $every))) {
+			$this->setProgressBarProgress($percent, $text, $after);
+			$last = $i;
+			return true;
+		}
+		return false;
 	}
 
-	public function getProgress($i)
+	public function getProgress($i = null)
 	{
+		if (!$i) {
+			$i = $this->count;
+		}
 		$percent = $i / $this->count * 100;
 		return $percent;
 	}
@@ -298,11 +303,11 @@ class ProgressBar {
 	 */
 	function getTerminalSizeOnWindows()
 	{
-		$output = array();
-		$size = array('width' => 0, 'height' => 0);
+		$output = [];
+		$size = ['width' => 0, 'height' => 0];
 		exec('mode', $output);
 		foreach ($output as $line) {
-			$matches = array();
+			$matches = [];
 			$w = preg_match('/^\s*columns\:?\s*(\d+)\s*$/i', $line, $matches);
 			if ($w) {
 				$size['width'] = intval($matches[1]);
@@ -322,8 +327,8 @@ class ProgressBar {
 	function getTerminalSizeOnLinux()
 	{
 		$size = array_combine(
-			array('width', 'height'),
-			array(exec('tput cols'), exec('tput lines'))
+			['width', 'height'],
+			[exec('tput cols'), exec('tput lines')]
 		);
 		return $size;
 	}
@@ -347,10 +352,10 @@ class ProgressBar {
 			}
 		}
 		//echo 'event: status', "\n\n";
-		echo 'data: ' . json_encode(array(
+		echo 'data: ' . json_encode([
 				'current' => $index,
 				'total' => $this->count,
-			)), "\n\n";
+			]), "\n\n";
 		if (ob_get_status()) {
 			ob_end_flush();
 		}
@@ -359,7 +364,7 @@ class ProgressBar {
 
 	function done($content)
 	{
-		echo 'data: ', json_encode(array('complete' => $content)), "\n\n";
+		echo 'data: ', json_encode(['complete' => $content]), "\n\n";
 	}
 
 	/**

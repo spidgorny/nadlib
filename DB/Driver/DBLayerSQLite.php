@@ -3,10 +3,13 @@
 /**
  * Class dbLayerSQLite
  * @mixin SQLBuilder
+ * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+ * @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+ * @method  runDeleteQuery($table, array $where)
  */
 class DBLayerSQLite extends DBLayerBase implements DBInterface
-{
 
+{
 	/**
 	 * @var string
 	 */
@@ -31,37 +34,38 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	 * MUST BE UPPERCASE
 	 * @var array
 	 */
-	var $reserved = array(
+	var $reserved = [
 		'FROM',
-	);
+	];
 
-	function __construct($file)
+	public function __construct($file = null)
 	{
 		$this->file = $file;
 		$this->database = basename($this->file);
-		$this->connect();
 	}
 
-	function connect()
+	public function connect()
 	{
 		if (class_exists('SQLite3')) {
 			$this->connection = new SQLite3($this->file);
 			$this->connection->exec('PRAGMA journal_mode = wal;');
+			$this->connection->enableExceptions(true);
 		} else {
 			throw new Exception('SQLite3 extension is not enabled');
 		}
 	}
 
 	/**
-	 * @param $query
+	 * @param string $query
 	 * @param array $params
 	 * @return null|SQLite3Result|SQLiteResult
 	 * @throws DatabaseException
 	 */
-	function perform($query, array $params = [])
+	public function perform($query, array $params = [])
 	{
 		if (!$this->connection) {
-			debug_pre_print_backtrace();
+//			debug_pre_print_backtrace();
+			$this->connect();
 		}
 		$this->lastQuery = $query;
 		$profiler = new Profiler();
@@ -76,11 +80,11 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param $res SQLiteResult
+	 * @param SQLiteResult $res
 	 * @return int
 	 * @throws Exception
 	 */
-	function numRows($res = NULL)
+	public function numRows($res = NULL)
 	{
 		$numRows = 0;
 		if ($res instanceof SQLite3Result) {
@@ -99,18 +103,18 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 		return $numRows;
 	}
 
-	function affectedRows($res = NULL)
+	public function affectedRows($res = null)
 	{
 		$this->lastResult->numRows();
 	}
 
-	function getTables()
+	public function getTables()
 	{
 		$tables = $this->getTablesEx();
 		return array_keys($tables);
 	}
 
-	function getTablesEx()
+	public function getTablesEx()
 	{
 		$this->perform("SELECT *
 		FROM sqlite_master
@@ -122,46 +126,51 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param $table
+	 * @param string $table
 	 * @return array
 	 * @throws Exception
 	 */
-	function getIndexesFrom($table)
+	public function getIndexesFrom($table)
 	{
 		$this->perform("SELECT * FROM sqlite_master WHERE type = 'index'");
 		return $this->fetchAll($this->lastResult);
 	}
 
-	function lastInsertID($res = NULL, $table = NULL)
+	public function lastInsertID($res = NULL, $table = NULL)
 	{
 		return $this->connection->lastInsertRowid();
 	}
 
 	/**
-	 * @param $res SQLite3Result
+	 * @param SQLite3Result $res
 	 */
-	function free($res)
+	public function free($res)
 	{
 		// The SQLite3Result object has not been correctly initialised
-		@$res->finalize();
+		if ($res instanceof SQLite3Result) {
+			@$res->finalize();
+		}
 	}
 
-	function quoteKey($key)
+	public function quoteKey($key)
 	{
+		if ($key instanceof AsIs) {
+			return $key.'';
+		}
 		return '`' . $key . '`';
 	}
 
-	function escapeBool($value)
+	public function escapeBool($value)
 	{
 		return intval(!!$value);
 	}
 
 	/**
-	 * @param $table
+	 * @param string $table
 	 * @return array
 	 * @throws Exception
 	 */
-	function getTableColumnsEx($table)
+	public function getTableColumnsEx($table)
 	{
 		$res = $this->perform('PRAGMA table_info(' . $this->quoteKey($table) . ')');
 		$tableInfo = $this->fetchAll($res, 'name');
@@ -180,7 +189,7 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	 * @return array
 	 * @throws Exception
 	 */
-	function fetchAll($res_or_query, $index_by_key = NULL)
+	public function fetchAll($res_or_query, $index_by_key = NULL)
 	{
 		if (is_string($res_or_query)) {
 			$res = $this->perform($res_or_query);
@@ -217,7 +226,7 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	 * @return mixed
 	 * @throws Exception
 	 */
-	function fetchAssoc($res)
+	public function fetchAssoc($res)
 	{
 		if (is_string($res)) {
 			$res = $this->perform($res);
@@ -241,22 +250,22 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 		return $row;
 	}
 
-	function escape($str)
+	public function escape($str)
 	{
 		return SQLite3::escapeString($str);
 	}
 
-	function transaction()
+	public function transaction()
 	{
 		return $this->perform('BEGIN');
 	}
 
-	function commit()
+	public function commit()
 	{
 		return $this->perform('COMMIT');
 	}
 
-	function rollback()
+	public function rollback()
 	{
 		return $this->perform('ROLLBACK');
 	}
@@ -266,4 +275,18 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 		return 'sqlite';
 	}
 
+	public function getInfo()
+	{
+		return ['class' => get_class($this)];
+	}
+
+	public function getConnection()
+	{
+		return $this->connection;
+	}
+
+	public function getVersion()
+	{
+		// TODO: Implement getVersion() method.
+	}
 }

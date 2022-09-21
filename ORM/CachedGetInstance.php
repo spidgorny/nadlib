@@ -6,10 +6,10 @@ trait CachedGetInstance
 	/**
 	 * array[get_called_class()][$id]
 	 */
-	public static $instances = array();
+	public static $instances = [];
 
 	/**
-	 * @param $id
+	 * @param int $id
 	 * @return self|$this|static
 	 * @throws Exception
 	 */
@@ -37,8 +37,8 @@ trait CachedGetInstance
 				: NULL,
 		));*/
 		if (is_scalar($id)) {
-			$inst = isset(self::$instances[$static][$id])
-				? self::$instances[$static][$id]
+			$inst = isset(static::$instances[$static][$id])
+				? static::$instances[$static][$id]
 				: null;
 			if (!$inst) {
 				//debug('new ', get_called_class(), $id, array_keys(self::$instances));
@@ -46,28 +46,26 @@ trait CachedGetInstance
 				// don't put anything else here
 				$inst = new $static();
 				// BEFORE init() to avoid loop
-				self::storeInstance($inst, $id);
+				static::storeInstance($inst, $id);
 				// separate call to avoid infinite loop in ORS
 				$inst->init($id);
 			}
 		} elseif (is_array($id)) {
 			/** @var OODBase $inst */
-			$inst = new $static();	// only to find ->idField
+			$inst = new $static();    // only to find ->idField
 			$intID = $id[$inst->idField];
 			//debug($static, $intID, $id);
-			$inst = isset(self::$instances[$static][$intID])
-				? self::$instances[$static][$intID]
-				: $inst;
+			$inst = static::$instances[$static][$intID] ?? $inst;
 			if (!$inst->id) {
 				$inst->init($id);    // array
-				self::storeInstance($inst, $intID);    // int id
+				static::storeInstance($inst, $intID);    // int id
 			}
 		} elseif ($id) {
 			//debug($static, $id);
 			/** @var OODBase $inst */
 			$inst = new $static();
 			$inst->init($id);
-			self::storeInstance($inst, $inst->id);
+			static::storeInstance($inst, $inst->id);
 		} elseif (is_null($id)) {
 			$inst = new $static();
 		} else {
@@ -88,13 +86,13 @@ trait CachedGetInstance
 
 	public static function clearInstances()
 	{
-		self::$instances[get_called_class()] = array();
+		self::$instances[get_called_class()] = [];
 		gc_collect_cycles();
 	}
 
 	public static function clearAllInstances()
 	{
-		self::$instances = array();
+		self::$instances = [];
 		gc_collect_cycles();
 	}
 
@@ -107,16 +105,18 @@ trait CachedGetInstance
 	{
 		try {
 			$obj = self::getInstance($id);
+//			llog(get_called_class(), $id, 'getInstance', spl_object_hash($obj));
 		} catch (InvalidArgumentException $e) {
 			$class = get_called_class();
 			$obj = new $class();
+//			llog(get_called_class(), $id, 'new', spl_object_hash($obj));
 		}
 		return $obj;
 	}
 
 	public static function getCacheStats()
 	{
-		$stats = array();
+		$stats = [];
 		foreach (self::$instances as $class => $list) {
 			if (!is_array($list)) {
 				debug($list);
@@ -145,13 +145,13 @@ trait CachedGetInstance
 			});
 		}
 		$stats = $stats->getData();
-		$s = new slTable($stats, 'class="table"', array(
+		$s = new slTable($stats, 'class="table"', [
 			'class' => 'Class',
 			'count' => 'Count',
-			'bar' => array(
+			'bar' => [
 				'no_hsc' => true,
-			),
-		));
+			],
+		]);
 		$content[] = $s->getContent();
 		return $content;
 	}
@@ -164,7 +164,7 @@ trait CachedGetInstance
 	 * @return mixed
 	 * @throws Exception
 	 */
-	static function findInstance(array $where, $static = NULL)
+	public static function findInstance(array $where, $static = null)
 	{
 		if (!$static) {
 			if (function_exists('get_called_class')) {
@@ -189,40 +189,50 @@ trait CachedGetInstance
 	 * @return self|static
 	 * @throws Exception
 	 */
-	static function getInstanceByName($name, $field = null)
+	public static function getInstanceByName($name, $field = null)
 	{
-		$self = get_called_class();
+		$self = static::class;
 		//debug(__METHOD__, $self, $name, count(self::$instances[$self]));
 
-		$c = null;
 		// first search instances
+		$c = static::findInstanceByName($name, $field);
+		if ($c) {
+			return $c;
+		}
+
+		$c = new $self();
+		/** @var $c OODBase */
+		$field = $field ?: $c->titleColumn;
+		if (is_string($field)) {
+			$c->findInDBsetInstance([
+//					 new SQLWhereEqual(new AsIs('trim(' . $field . ')'), $name),	// __toString error
+				new SQLWhereEqual('trim(' . $field . ')', $name),
+			]);
+		} elseif ($field instanceof AsIs) {
+			$c->findInDBsetInstance([
+				$field
+			]);
+		} else {
+			throw new RuntimeException(__METHOD__);
+		}
+		return $c;
+	}
+
+	public static function findInstanceByName($name, $field = null)
+	{
+		$self = static::class;
 		if (ifsetor(self::$instances[$self], [])) {
 			foreach (self::$instances[$self] as $inst) {
 				if ($inst instanceof OODBase) {
-					$field = $field ? $field : $inst->titleColumn;
-					if (ifsetor($inst->data[$field]) == $name) {
-						$c = $inst;
-						break;
+					$field = $field ?: $inst->titleColumn;
+//					llog(__METHOD__, $inst->data[$field], $name);
+					if (ifsetor($inst->data[$field]) === $name) {
+						return $inst;
 					}
 				}
 			}
 		}
-
-		if (!$c) {
-			$c = new $self();
-			/** @var $c OODBase */
-			$field = $field ? $field : $c->titleColumn;
-			if (is_string($field)) {
-				$c->findInDBsetInstance(array(
-					'trim(' . $field . ')' => $name,
-				));
-			} elseif ($field instanceof AsIs) {
-				$c->findInDBsetInstance([
-					$field
-				]);
-			}
-		}
-		return $c;
+		return null;
 	}
 
 }

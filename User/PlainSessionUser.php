@@ -1,10 +1,13 @@
 <?php
 
+use nadlib\HTTP\Session;
+
 /**
  * Class PlainSessionUser
  * extends User in order to have a dependency on the application
  */
-class PlainSessionUser extends User {
+class PlainSessionUser extends User
+{
 
 	/**
 	 * @var PlainSessionUser
@@ -14,18 +17,20 @@ class PlainSessionUser extends User {
 	/**
 	 * @var Session
 	 */
-	var $session;
+	protected $session;
 
 	/**
 	 * @param int $id
-	 * @param null $session
+	 * @param Session $session
+	 * @throws Exception
 	 */
-	function __construct($id = NULL, $session = null) {
+	public function __construct($id = null, $session = null)
+	{
 		if (!Request::isCLI()) {
 			//debug('session_start');
 			@session_start();
 		} else {
-			$_SESSION = array();
+			$_SESSION = [];
 		}
 		$this->session = $session ?: new Session(get_class($this));
 		parent::__construct($id);
@@ -35,32 +40,38 @@ class PlainSessionUser extends User {
 	 * @param $name
 	 * @return mixed
 	 */
-	function getPref($name) {
+	public function getPref($name, $default = null)
+	{
 		return $this->session->get($name);
 	}
 
-	function setPref($name, $value) {
+	public function setPref($name, $value)
+	{
 		$this->session->save($name, $value);
 	}
 
-	function getAllPrefs() {
+	public function getAllPrefs()
+	{
 		return $this->session->getAll();
 	}
 
-	function isAuth() {
+	public function isAuth()
+	{
 		if (phpversion() >= 5.4) {
-			return session_status() == PHP_SESSION_ACTIVE;	// PHP 5.4
+			return session_status() == PHP_SESSION_ACTIVE;    // PHP 5.4
 		} else {
 			return true;
 		}
 	}
 
-	function __toString() {
+	public function __toString()
+	{
 		$default = parent::__toString();
-		return ifsetor($default, session_id()).'';
+		return ifsetor($default, session_id()) . '';
 	}
 
-	function try2login() {
+	public function try2login($login, $email = null)
+	{
 		// session_start
 	}
 

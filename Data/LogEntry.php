@@ -1,20 +1,23 @@
 <?php
 
-class LogEntry {
+class LogEntry
+{
 
-	var $time;
+	public $time;
 
-	var $action;
+	public $action;
 
-	var $data;
+	public $data;
 
-	static $log2file;
+	public static $log2file;
 
-	static function initLogging() {
+	public static function initLogging()
+	{
 		self::$log2file = DEVELOPMENT;
 	}
 
-	function __construct($action, $data) {
+	public function __construct($action, $data)
+	{
 		$this->time = microtime(true);
 		$this->action = $action;
 		$this->data = $data;
@@ -23,44 +26,57 @@ class LogEntry {
 			$r = Request::getInstance();
 			//$ip = $r->getClientIP();	// this is very expensive
 			$ip = $r->getBrowserIP();
-			error_log($ip.' '.$action . ' ' . $sData);
+			error_log($ip . ' ' . $action . ' ' . $sData);
 		}
 	}
 
-	function __toString() {
-		$floating = substr($this->time - floor($this->time), 2);	// cut 0 from 0.1
+	public function __toString()
+	{
+		$floating = substr($this->time - floor($this->time), 2);    // cut 0 from 0.1
 		$floating = substr($floating, 0, 4);
 		$sData = $this->shorten($this->data);
-		return implode("\t", array(
-			date('H:i:s', $this->time).'.'.$floating,
-			$this->action,
-			$this->data ? $sData : NULL
-		)).BR;
-	}
-
-	static function getLogFrom(array $log) {
-		return array(
-			'<div class="debug" style="font-family: monospace">',
-			$log,
-			'</div>',
-		);
+		$paddedAction = $this->action;
+		if (strlen($paddedAction) < 20) {
+			$paddedAction = str_pad($paddedAction, 20, ' ', STR_PAD_RIGHT);
+		}
+		return implode("\t", [
+			date('H:i:s', $this->time) . '.' . $floating,
+			$paddedAction,
+			$this->data ? $sData : null
+		]);
 	}
 
 	/**
-	 * @param $data
+	 * Render function for multiple log entries
+	 * @param array $log
+	 * @return array
+	 */
+	public static function getLogFrom(array $log): array
+	{
+		return [
+			'<pre class="debug" style="font-family: monospace; white-space: pre-wrap;">',
+			implode(PHP_EOL, $log),
+			'</pre>',
+		];
+	}
+
+	/**
+	 * @param mixed $data
 	 * @return bool|float|int|string
 	 */
-	public function shorten($data) {
-		if (is_scalar($data)) {
+	public function shorten($data)
+	{
+		if (is_string($data) || is_int($data)) {
 			$sData = $data;
 		} else {
-			$sData = json_encode($data);
+			$jsonOptions = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
+			$sData = json_encode($data, $jsonOptions);
 		}
 
 		if (contains($sData, '<')) {
-			$sData = htmlspecialchars($sData);	// no tags
+			$sData = htmlspecialchars($sData);    // no tags
 		} elseif (contains($sData, "\n")) {
-			$sData = '<pre>'.substr($sData, 0, 1000).'</pre>';
+			$sData = '<pre>' . substr($sData, 0, 1000) . '</pre>';
 		} else {
 			$sData = substr($sData, 0, 1000);
 		}

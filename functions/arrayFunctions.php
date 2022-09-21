@@ -47,7 +47,7 @@ if (!function_exists('first')) {
 	 */
 	function array_combine_stringkey(array $a, array $b)
 	{
-		$ret = array();
+		$ret = [];
 		reset($b);
 		foreach ($a as $key) {
 			$ret[$key] = current($b);
@@ -58,7 +58,7 @@ if (!function_exists('first')) {
 
 	/**
 	 * http://stackoverflow.com/questions/173400/php-arrays-a-good-way-to-check-if-an-array-is-associative-or-sequential
-	 * @param $arr
+	 * @param array $arr
 	 * @return bool
 	 */
 	function is_assoc($arr)
@@ -74,14 +74,14 @@ if (!function_exists('first')) {
 	 */
 	function unique_multidim_array(array $matriz)
 	{
-		$aux_ini = array();
+		$aux_ini = [];
 		foreach ($matriz as $n => $source) {
 			$aux_ini[$n] = serialize($source);
 		}
 
 		$mat = array_unique($aux_ini);
 
-		$entrega = array();
+		$entrega = [];
 		foreach ($mat as $n => $serial) {
 			$entrega[$n] = unserialize($serial);
 
@@ -124,17 +124,21 @@ if (!function_exists('first')) {
 			return array_filter($source, function ($el, $key) use ($remove) {
 				if (is_array($remove)) {
 					return !in_array($key, $remove);
-				} else {
-					return $key != $remove;
 				}
+
+				return $key != $remove;
 			}, ARRAY_FILTER_USE_BOTH);
-		} else {
-			return array_diff_key($source,
-				array_flip((array)$remove));
 		}
+
+		return array_diff_key($source, array_flip((array)$remove));
 	}
 
-	function array_map_keys($callback, $array)
+	/**
+	 * @param $callback - return both keys and values
+	 * @param array $array
+	 * @return array|false
+	 */
+	function array_map_keys($callback, array $array)
 	{
 		$keys = array_keys($array);
 		$temp = array_map($callback, $keys, $array);    // return ['key', 'value']
@@ -144,4 +148,73 @@ if (!function_exists('first')) {
 		return $result;
 	}
 
+	function array_widths(array $arr)
+	{
+		$widths = [];
+		foreach ($arr as $key => $row) {
+			$widths[$key] = sizeof($row);
+		}
+		return $widths;
+	}
+
+	function recursive_array_diff($a1, $a2)
+	{
+		$r = array();
+		foreach ($a1 as $k => $v) {
+			if (array_key_exists($k, $a2)) {
+				if (is_array($v)) {
+					$rad = recursive_array_diff($v, $a2[$k]);
+					if (count($rad)) {
+						$r[$k] = $rad;
+					}
+				} else {
+					if ($v != $a2[$k]) {
+						$r[$k] = $v;
+					}
+				}
+			} else {
+				$r[$k] = $v;
+			}
+		}
+		return $r;
+	}
+
+}
+
+/**
+ * https://stackoverflow.com/questions/4790453/php-recursive-array-to-object
+ * Convert an array into a stdClass()
+ *
+ * @param   array   $array  The array we want to convert
+ *
+ * @return  object
+ */
+function arrayToObject($array)
+{
+	// First we convert the array to a json string
+	$json = json_encode($array);
+
+	// The we convert the json string to a stdClass()
+	$object = json_decode($json);
+
+	return $object;
+}
+
+
+/**
+ * Convert a object to an array
+ *
+ * @param   object  $object The object we want to convert
+ *
+ * @return  array
+ */
+function objectToArray($object)
+{
+	// First we convert the object into a json string
+	$json = json_encode($object);
+
+	// Then we convert the json string to an array
+	$array = json_decode($json, true);
+
+	return $array;
 }

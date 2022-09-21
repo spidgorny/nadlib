@@ -1,14 +1,18 @@
 <?php
 
-class HTMLFormSlicer {
+class HTMLFormSlicer
+{
 	public $slices;
 
-	public function __construct(array $slices) {
+	public function __construct(array $slices)
+	{
 		$this->slices = $slices;
 	}
 
-	static function sliceFromTill(array $desc, $from, $till) {
-		$desc2 = array();
+	public static function sliceFromTill(array $desc, $from, $till)
+	{
+		$copy = false;
+		$desc2 = [];
 		foreach ($desc as $key => $val) {
 			if ($key == $from) {
 				$copy = true;
@@ -23,7 +27,8 @@ class HTMLFormSlicer {
 		return $desc2;
 	}
 
-	function distributeDescIntoSlices(array $desc) {
+	public function distributeDescIntoSlices(array $desc)
+	{
 		foreach ($this->slices as &$slice) {
 			$part = $this->sliceFromTill($desc, $slice['from'], $slice['till']);
 			$slice['desc'] = $part;
@@ -35,7 +40,8 @@ class HTMLFormSlicer {
 	 *
 	 * @param array $values
 	 */
-	function fillValues(array $values) {
+	public function fillValues(array $values)
+	{
 		foreach ($this->slices as &$slice) {
 			$f = new HTMLFormTable($slice['desc']);
 			$slice['desc'] = $f->fill($values);
@@ -47,13 +53,14 @@ class HTMLFormSlicer {
 	 *
 	 * @return bool
 	 */
-	function validate() {
+	public function validate()
+	{
 		$result = true;
 		foreach ($this->slices as &$slice) {
 			//debug($slice['name'] . ' ('.$slice['from'].'-'.$slice['till'].': '.sizeof($slice['desc']).')');
 			$f2 = new HTMLFormTable($slice['desc']);
 			$v = new HTMLFormValidate($f2);
-			$result = $v->validate() && $result;	// recursive inside // this order to force execution
+			$result = $v->validate() && $result;    // recursive inside // this order to force execution
 			$slice['desc'] = $v->getDesc();
 		}
 		//debug($this->slices);
@@ -65,17 +72,21 @@ class HTMLFormSlicer {
 	 *
 	 * @param HTMLFormTable $f
 	 */
-	function showSlices(HTMLFormTable $f) {
+	public function showSlices(HTMLFormTable $f)
+	{
 		foreach ($this->slices as $slice) {
 			//$part = $this->sliceFromTill($this->desc, $slice['from'], $slice['till']);
 			$part = $slice['desc'];
 			$f->fieldset($slice['name'], $slice['fieldsetParams']);
-			$f->showForm($part);
+			$f2 = new HTMLFormTable($part);
+			$f2->showForm();
+			throw new Exception('TODO: test this');
 		}
 		//debug($slice);
 	}
 
-	function getErrorItems() {
+	public function getErrorItems()
+	{
 		$content = '';
 		foreach ($this->slices as $slice) {
 			$content .= $this->getErrorItemsFromDesc($slice['desc']);
@@ -83,12 +94,13 @@ class HTMLFormSlicer {
 		return $content;
 	}
 
-	protected function getErrorItemsFromDesc(array $descList) {
+	protected function getErrorItemsFromDesc(array $descList)
+	{
 		$content = '';
 		foreach ($descList as $key => $desc) {
 			if ($desc['error']) {
 				//$content .= '<li>'.($desc['label'] ? $desc['label'] : $key) . ': '. $desc['error'].'</li>';
-				$content .= '<li>'. $desc['error'].'</li>';
+				$content .= '<li>' . $desc['error'] . '</li>';
 			}
 			if ($desc['dependant']) {
 				$content .= $this->getErrorItemsFromDesc($desc['dependant']);

@@ -5,12 +5,12 @@ use nadlib\Controller\Filter;
 class FilterController extends Controller
 {
 
-	var $fields = [];
+	public $fields = [];
 
 	/**
 	 * @var Filter
 	 */
-	var $filter;
+	public $filter;
 
 	/**
 	 * @var OODBase - used to retrieve options for a specific db field
@@ -28,27 +28,30 @@ class FilterController extends Controller
 	 */
 	public $desc;
 
-	function setFields(array $fields)
+	public $collection = null;
+
+	public function setFields(array $fields)
 	{
 		$this->fields = $fields;
 		$this->desc = $this->getFilterDesc($this->fields);
 	}
 
-	function setFilter(Filter $filter)
+	public function setFilter(Filter $filter)
 	{
 		$this->filter = $filter;
 	}
 
-	function render()
+	public function render()
 	{
 		$f = new HTMLFormTable($this->desc);
 		$f->setAllOptional();
 		$f->method('POST');
 		$f->defaultBR = true;
-		$f->formHideArray($this->linkVars);
+//		llog($this->linker->linkVars);
+		$f->formHideArray($this->linker->linkVars);
 		$f->prefix('filter');
 		$f->showForm();
-		$f->prefix(NULL);
+		$f->prefix(null);
 		$f->submit(__('Filter'));
 		return $f;
 	}
@@ -58,19 +61,21 @@ class FilterController extends Controller
 	 * Why manually? I don't know, it could change.
 	 *
 	 * @param array $fields
-	 * @throws Exception
 	 * @return array
+	 * @throws Exception
 	 */
-	function getFilterDesc(array $fields = NULL)
+	public function getFilterDesc(array $fields = null)
 	{
 //		if (is_callable($this->injectFilterDesc)) {
 //			return call_user_func($this->injectFilterDesc);
 //		}
-		$fields = ifsetor($fields, ifsetor($this->model->thes));
+		$fields = ifsetor($fields,
+			$this->model ? ifsetor($this->model->thes) : null
+		);
 		$fields = is_array($fields) ? $fields : $this->fields;
 
 		//debug($this->filter);
-		$desc = array();
+		$desc = [];
 		foreach ($fields as $key => $k) {
 			if (!is_array($k)) {
 				$k = ['name' => $k];
@@ -84,27 +89,27 @@ class FilterController extends Controller
 	}
 
 	/**
-	 * @param $k
-	 * @param $key
+	 * @param array $k
+	 * @param string $key
 	 * @return array
 	 */
 	public function getFieldFilter(array $k, $key)
 	{
 		$autoClass = ucfirst(str_replace('id_', '', $key)) . 'Collection';
 		if (class_exists($autoClass) &&
-			in_array('HTMLFormCollection', class_implements($autoClass))
+			in_array(HTMLFormCollection::class, class_implements($autoClass), true)
 		) {
 			$k['type'] = new $autoClass();
-			$options = NULL;
+			$options = null;
 		} elseif (ifsetor($k['tf'])) {    // boolean
 			$k['type'] = 'select';
-			$stv = new slTableValue('', array());
-			$options = array(
+			$stv = new slTableValue('', []);
+			$options = [
 				't' => $stv->SLTABLE_IMG_CHECK,
 				'f' => $stv->SLTABLE_IMG_CROSS,
-			);
+			];
 			//debug($key, $this->filter[$key]);
-		} elseif (ifsetor($k['type']) == 'select') {
+		} elseif (ifsetor($k['type']) === 'select') {
 			if (!isset($k['options'])) {    // NOT ifsetor as we want to accept empty
 				$options = $this->getTableFieldOptions(ifsetor($k['dbField'], $key), false);
 				// convert to string for === operation
@@ -115,14 +120,14 @@ class FilterController extends Controller
 				$options = $k['options'];
 			}
 			//debug($options);
-		} elseif (ifsetor($k['type']) == 'like') {
+		} elseif (ifsetor($k['type']) === 'like') {
 			// this is handled in getFilterWhere
-			$options = NULL;
+			$options = null;
 		} else {
 			$k['type'] = $k['type'] ?: 'input';
-			$options = NULL;
+			$options = null;
 		}
-		$k = array(
+		$k = [
 				'label' => $k['name'],
 				'type' => $k['type'] ?: 'text',
 				'options' => $options,
@@ -130,18 +135,19 @@ class FilterController extends Controller
 				'value' => isset($this->filter[$key]) ? $this->filter[$key] : ifsetor($k['value']),
 				'more' => ['class' => "text input-medium"],
 				'===' => true,
-			) + $k;
+			] + $k;
 //		debug(without($k, 'options'));
 		return $k;
 	}
 
-	function getTableFieldOptions($key, $count = false)
+	public function getTableFieldOptions($key, $count = false)
 	{
 		if ($this->model instanceof OODBase) {
-			$res = $this->db->getTableOptions($this->model->table
-				? $this->model->table
-				: $this->collection->table,
-				$key, array(), 'ORDER BY ' . $key, $key);    // NOT 'id' (DISTINCT!)
+			$res = $this->db->getTableOptions(
+				$this->model->table
+					? $this->model->table
+					: $this->collection->table,
+				$key, [], 'ORDER BY ' . $key, $key);    // NOT 'id' (DISTINCT!)
 
 			if ($count) {
 				foreach ($res as &$val) {
@@ -164,9 +170,9 @@ class FilterController extends Controller
 	 * Converts $this->filter data from URL into SQL where parameters
 	 * @return array
 	 */
-	function getFilterWhere()
+	public function getFilterWhere()
 	{
-		$where = array();
+		$where = [];
 
 		$filterList = $this->filter->getIterator();
 //		debug(gettype2($this->injectFilterDesc), count($desc),
@@ -183,7 +189,7 @@ class FilterController extends Controller
 		return $where;
 	}
 
-	function getFilterWherePair($key, $val, $type)
+	public function getFilterWherePair($key, $val, $type)
 	{
 		$where = [];
 		switch ($type) {

@@ -6,15 +6,17 @@ class NamespaceResolver implements ResolverInterface
 	/**
 	 * @var Request
 	 */
-	var $request;
+	public $request;
 
-	function __construct(array $tryNS = [])
+	public $ns;
+
+	public function __construct(array $tryNS = [])
 	{
 		$this->request = Request::getInstance();
 		$this->ns = $tryNS;
 	}
 
-	function getController($returnDefault = true)
+	public function getController($returnDefault = true)
 	{
 		$levels = $this->request->getURLLevels();
 		if ($levels) {
@@ -37,7 +39,7 @@ class NamespaceResolver implements ResolverInterface
 		return $controller;
 	}
 
-	function getDefault($returnDefault)
+	public function getDefault($returnDefault)
 	{
 		if ($returnDefault && class_exists('Config')) {
 			// not good as we never get 404
@@ -48,7 +50,7 @@ class NamespaceResolver implements ResolverInterface
 		return $controller;
 	}
 
-	function tryNamespaces($class)
+	public function tryNamespaces($class)
 	{
 		$last = null;
 		foreach ($this->ns as $prefix) {

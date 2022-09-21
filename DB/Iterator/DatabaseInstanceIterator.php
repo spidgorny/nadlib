@@ -1,27 +1,29 @@
 <?php
 
-class DatabaseInstanceIterator extends DatabaseResultIteratorAssoc {
+class DatabaseInstanceIterator extends DatabaseResultIteratorAssoc
+{
 
-	var $className;
+	public $className;
 
-	function __construct(DBLayerBase $db, $className) {
+	public function __construct(DBInterface $db, $className)
+	{
 		parent::__construct($db);
 		$this->className = $className;
 	}
 
-	function retrieveRow() {
-		$row = parent::retrieveRow();
+	public function retrieveRow()
+	{
+		$row = parent::retrieveRow();	// assoc
 		if ($row) {
 			//debug($row, $this->className);
 			if (method_exists($this->className, 'getInstance')) {
-				$obj = call_user_func(
-					array($this->className, 'getInstance'), $row);
+				$obj = call_user_func([$this->className, 'getInstance'], $row);
 			} else {
 				$obj = new $this->className($row);
 			}
 			return $obj;
 		}
-		return FALSE;	// @see isValid()
+		return false;    // @see isValid()
 	}
 
 }

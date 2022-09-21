@@ -3,63 +3,88 @@
 /**
  * UserBase not User because it's not dependent on the main app login system
  */
-class BEUser extends UserBase {
+class BEUser extends UserBase
+{
 
 	/**
 	 * Loaded from config.json
 	 * @var array
 	 */
-	public $acl = array(
+	public $acl = [];
 
-	);
-
-	function __construct($id = NULL) {
+	public function __construct($id = null)
+	{
 		parent::__construct($id);
 		if (class_exists('Config')) {
 			Config::getInstance()->mergeConfig($this);
 		}
 	}
 
-	function try2login() {
+	public function try2login($user, $password = null)
+	{
 		//debug('session_start');
 		if (session_status() != PHP_SESSION_ACTIVE && !Request::isCLI() && !headers_sent()) {
 			session_start();
 		}
 	}
 
-	function can($something) {
+	public function can($something)
+	{
 		return $this->acl[$something];
 	}
 
-	function saveLogin() {
+	public function saveLogin()
+	{
 		$_SESSION[__CLASS__]['login'] = $this->id;
 	}
 
-	function isAuth() {
+	public function isAuth()
+	{
 		return isset($_SESSION[__CLASS__]['login']) && ($_SESSION[__CLASS__]['login'] == $this->id);
 	}
 
-	function logout() {
+	public function logout()
+	{
 		unset($_SESSION[__CLASS__]['login']);
 	}
 
-	function __destruct() {
+	public function __destruct()
+	{
 		// do nothing
 	}
 
-	function isAdmin()
+	public function isAdmin()
 	{
 		return true;
 	}
 
-	function getLogin()
+	public function getLogin()
 	{
 		return 'Nadlib Admin';
 	}
 
-	function getAvatarURL()
+	public function getAvatarURL()
 	{
-		return NULL;
+		return null;
 	}
 
+	public function prefs()
+	{
+		// TODO: Implement prefs() method.
+	}
+
+	public function getAllSettings()
+	{
+		// TODO: Implement getAllSettings() method.
+	}
+
+	public function getGroup()
+	{
+		return null;
+	}
+
+	public function getSetting($key)
+	{
+		// TODO: Implement getSetting() method.
+	}
 }

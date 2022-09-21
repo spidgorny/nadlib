@@ -1,31 +1,36 @@
 <?php
 
-class HTMLImage extends HTMLTag {
+class HTMLImage extends HTMLTag
+{
 
 	/**
 	 * @var string
 	 */
 	var $filename;
 
-	function __construct($filename, array $attr = []) {
+	public function __construct($filename, array $attr = [])
+	{
 		parent::__construct('img', $attr);
 		$this->filename = $filename;
 	}
 
-	function getTag() {
+	public function getTag()
+	{
 		return $this->render();
 	}
 
-	function render() {
+	public function render()
+	{
 		$this->setAttr('src', $this->getImageLink());
 		//debug($this->attr);
 		return parent::render();
 	}
 
-	function getImageLink() {
+	public function getImageLink()
+	{
 		if ($this->isLocalFile()) {
 			if ($this->filename[0] == '/') {
-				$documentRoot = Autoload::getInstance()->getAppRoot();
+				$documentRoot = AutoLoad::getInstance()->getAppRoot();
 				$documentRoot = str_replace('\\', '/', $documentRoot);
 				$realpath = realpath($this->filename);
 				$realpath = str_replace('\\', '/', $realpath);
@@ -40,15 +45,18 @@ class HTMLImage extends HTMLTag {
 		return $fileLink;
 	}
 
-	function isLocalFile() {
+	public function isLocalFile()
+	{
 		return !contains($this->filename, '://');
 	}
 
-	function getBaseName() {
+	public function getBaseName()
+	{
 		return basename($this->filename);
 	}
 
-	function getExif() {
+	public function getExif()
+	{
 		$exif = NULL;
 		if (file_exists($this->filename)
 			&& str_endsWith($this->filename, '.jpeg')
@@ -59,7 +67,8 @@ class HTMLImage extends HTMLTag {
 		return $exif;
 	}
 
-	function getLatLon() {
+	public function getLatLon()
+	{
 		$lat = $lon = NULL;
 		$exif = $this->getExif();
 		if ($exif && $exif["GPSLatitude"]) {
@@ -69,7 +78,8 @@ class HTMLImage extends HTMLTag {
 		return [$lat, $lon];
 	}
 
-	function getGps($exifCoord, $hemi) {
+	public function getGps($exifCoord, $hemi)
+	{
 		$degrees = count($exifCoord) > 0 ? $this->gps2Num($exifCoord[0]) : 0;
 		$minutes = count($exifCoord) > 1 ? $this->gps2Num($exifCoord[1]) : 0;
 		$seconds = count($exifCoord) > 2 ? $this->gps2Num($exifCoord[2]) : 0;
@@ -79,7 +89,8 @@ class HTMLImage extends HTMLTag {
 		return $flip * ($degrees + $minutes / 60 + $seconds / 3600);
 	}
 
-	function gps2Num($coordPart) {
+	public function gps2Num($coordPart)
+	{
 		$parts = explode('/', $coordPart);
 
 		if (count($parts) <= 0)
@@ -91,22 +102,26 @@ class HTMLImage extends HTMLTag {
 		return floatval($parts[0]) / floatval($parts[1]);
 	}
 
-	function hasLatLon() {
+	public function hasLatLon()
+	{
 		list($lat, $lon) = $this->getLatLon();
 		return $lat || $lon;
 	}
 
-	function getMiniMap() {
+	public function getMiniMap()
+	{
 		return '<div class="MiniMap">
 			<img src="" />
 		</div>';
 	}
 
-	function exists() {
+	public function exists()
+	{
 		return file_exists($this->filename);
 	}
 
-	public function getBaseNameWithCorrectExtension() {
+	public function getBaseNameWithCorrectExtension()
+	{
 		$basename = $this->getBaseName();
 		$mimeExt = $this->getMimeExt();
 		if ($mimeExt) {
@@ -118,7 +133,8 @@ class HTMLImage extends HTMLTag {
 		return $correct;
 	}
 
-	function getMimeExt() {
+	public function getMimeExt()
+	{
 		$newExt = NULL;
 		$u = new Uploader();
 		$mime = $u->get_mime_type($this->filename);
@@ -135,7 +151,8 @@ class HTMLImage extends HTMLTag {
 		return $newExt;
 	}
 
-	function resize($width, $height = NULL) {
+	public function resize($width, $height = NULL)
+	{
 		if (!$height) {
 			$height = $width;
 		}

@@ -3,7 +3,7 @@
 class CLILogger
 {
 
-	public function log($method, $data)
+	public function log($method, $data = null)
 	{
 		if (is_array($data)) {
 			$output = print_r($data, true);

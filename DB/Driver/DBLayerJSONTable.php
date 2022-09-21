@@ -1,6 +1,11 @@
 <?php
 
-class DBLayerJSONTable extends DBLayerBase implements DBInterface {
+/**
+ * @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+ * @method  runDeleteQuery($table, array $where)
+ */
+class DBLayerJSONTable extends DBLayerBase implements DBInterface
+{
 
 	var $filename;
 
@@ -8,7 +13,7 @@ class DBLayerJSONTable extends DBLayerBase implements DBInterface {
 
 	var $where = [];
 
-	function __construct($filename)
+	public function __construct($filename)
 	{
 		$this->filename = $filename;
 		if (is_file($this->filename)) {
@@ -19,7 +24,7 @@ class DBLayerJSONTable extends DBLayerBase implements DBInterface {
 		}
 	}
 
-	function __destruct()
+	public function __destruct()
 	{
 		file_put_contents($this->filename,
 			json_encode($this->data, JSON_PRETTY_PRINT));
@@ -27,13 +32,13 @@ class DBLayerJSONTable extends DBLayerBase implements DBInterface {
 
 	public function __toString()
 	{
-		$query = 'SELECT * FROM '.basename($this->filename).' WHERE '.
+		$query = 'SELECT * FROM ' . basename($this->filename) . ' WHERE ' .
 			json_encode($this->where);
 		//echo $query, BR;
 		return $query;
 	}
 
-	function fetchAll($res_or_query, $index_by_key = NULL)
+	public function fetchAll($res_or_query, $index_by_key = NULL)
 	{
 		//return $this->data;
 		$data = [];
@@ -49,7 +54,7 @@ class DBLayerJSONTable extends DBLayerBase implements DBInterface {
 		return $data;
 	}
 
-	function fetchAssoc($res)
+	public function fetchAssoc($res)
 	{
 		$row = null;
 		if ($this->where) {
@@ -61,7 +66,7 @@ class DBLayerJSONTable extends DBLayerBase implements DBInterface {
 				// only if false (next() is called in fetchAll())
 				next($this->data);
 			}
-			$row = null;	// last row was not returned
+			$row = null;    // last row was not returned
 		} else {
 			$row = current($this->data);
 		}
@@ -69,17 +74,17 @@ class DBLayerJSONTable extends DBLayerBase implements DBInterface {
 		return $row;
 	}
 
-	function numRows($res = NULL)
+	public function numRows($res = NULL)
 	{
 		return sizeof($this->data);
 	}
 
-	function runInsertQuery($table, array $data)
+	public function runInsertQuery($table, array $data)
 	{
 		$this->data[] = $data;
 	}
 
-	function runUpdateQuery($table, array $data, array $where)
+	public function runUpdateQuery($table, array $data, array $where)
 	{
 		foreach ($this->data as &$row) {
 			if ($this->matchWhere($row, $where)) {
@@ -88,7 +93,7 @@ class DBLayerJSONTable extends DBLayerBase implements DBInterface {
 		}
 	}
 
-	static function matchWhere(array $row, array $where)
+	public static function matchWhere(array $row, array $where)
 	{
 		foreach ($where as $key => $val) {
 			$matchOne = (string)$row[$key] == (string)$val;
@@ -100,15 +105,30 @@ class DBLayerJSONTable extends DBLayerBase implements DBInterface {
 		return true;
 	}
 
-	function runSelectQuery($table, array $where = [], $order = '', $addSelect = null)
+	public function runSelectQuery($table, array $where = [], $order = '', $addSelect = null)
 	{
 		$this->where = $where;
 		return $this;
 	}
 
-	function perform($query = null, array $params = [])
+	public function perform($query = null, array $params = [])
 	{
 		return $this;
 	}
 
+	public function getInfo()
+	{
+		return ['class' => get_class($this)];
+	}
+
+	public function getVersion()
+	{
+		// TODO: Implement getVersion() method.
+	}
+
+	public function __call($name, $arguments)
+	{
+		// TODO: Implement @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+		// TODO: Implement @method  runDeleteQuery($table, array $where)
+	}
 }

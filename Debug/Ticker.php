@@ -87,10 +87,10 @@ class Ticker {
 		return self::$instance ?: self::$instance = new static();
 	}
 
-	static function enableTick($ticker = 1000, $func = null)
+	public static function enableTick($ticker = 1000, $func = null)
 	{
 		$tp = self::getInstance();
-		$ok = register_tick_function($func ?: array($tp, 'tick'));
+		$ok = register_tick_function($func ?: [$tp, 'tick']);
 		if ($ok) {
 			$tp->tickTime = $ticker;
 			//$tp->tick();
@@ -105,13 +105,13 @@ class Ticker {
 	 * This is not working reliably yet. Stops output forever
 	 * @deprecated
 	 */
-	function stopOutput()
+	public function stopOutput()
 	{
 		ob_start([$this, 'ob_end']);
 		$this->noOutput = true;
 	}
 
-	function ob_end($output)
+	public function ob_end($output)
 	{
 		// don't print
 		return 'Collected output length: ' . strlen($output) . BR;
@@ -123,8 +123,8 @@ class Ticker {
 	function tick()
 	{
 		$bt = debug_backtrace();
-		$list = array();
-		$prow = array();
+		$list = [];
+		$prow = [];
 		foreach ($bt as $row) {
 			$list[] = basename(ifsetor($prow['file'])) .
 				((isset($row['object'])
@@ -207,7 +207,7 @@ class Ticker {
 	{
 		echo __METHOD__, BR;
 		$tp = self::getInstance();
-		unregister_tick_function(array($tp, 'tick'));
+		unregister_tick_function([$tp, 'tick']);
 	}
 
 	function __destruct()

@@ -1,6 +1,6 @@
 <?php
 
-class DateTest extends PHPUnit_Framework_TestCase {
+class DateTest extends PHPUnit\Framework\TestCase {
 
 	function test_Date() {
 		$d = new Date(1306879200);

@@ -7,18 +7,18 @@ class AppControllerBE extends AppController
 	 * -forceDL in CLI will re-download and extract data
 	 * @var bool
 	 */
-	var $forceCronjobDL = false;
+	public $forceCronjobDL = false;
 
 	/**
 	 * - force in CLI will force process data even if they were processed recently
 	 * @var bool
 	 */
-	var $forceCronjob = false;
+	public $forceCronjob = false;
 
 	/**
 	 * @var string
 	 */
-	var $nadlibFromDocRoot;
+	public $nadlibFromDocRoot;
 
 	/**
 	 * Protect from unauthorized access
@@ -26,9 +26,9 @@ class AppControllerBE extends AppController
 	 */
 	static $public = false;    // must be false at all times!
 
-	var $layout = '<div class="col-md-9">|</div>';
+	public $layout = '<div class="col-md-9">|</div>';
 
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 		if (!static::$public) {
@@ -55,7 +55,7 @@ class AppControllerBE extends AppController
 		$this->layout = new Wrap($this->layout);
 	}
 
-	function log($class, $message = NULL)
+	public function log($class, ...$message)
 	{
 		//echo $class, ' ', print_r($message, true), BR;
 		Debug::getInstance()->consoleLog([
@@ -64,9 +64,9 @@ class AppControllerBE extends AppController
 		]);
 	}
 
-	public function getURL(array $params = array(), $prefix = '?')
+	public function makeURL(array $params = [], $prefix = '?')
 	{
-		$url = parent::getURL($params, $this->nadlibFromDocRoot . 'be/?');
+		$url = parent::makeURL($params, $this->nadlibFromDocRoot . 'be/?');
 		return $url;
 	}
 

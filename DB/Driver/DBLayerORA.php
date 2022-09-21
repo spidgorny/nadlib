@@ -4,7 +4,8 @@
  * Class dbLayerORA is completely deprecated.
  * There's not even a documentation on the php.net.
  */
-class DBLayerORA extends DBLayer implements DBInterface {
+class DBLayerORA extends DBLayer implements DBInterface
+{
 	var $connection = NULL;
 	var $COUNTQUERIES = 0;
 	var $LAST_PERFORM_RESULT;
@@ -12,25 +13,30 @@ class DBLayerORA extends DBLayer implements DBInterface {
 	var $debug = FALSE;
 	var $debugOnce = FALSE;
 
-	function __construct($tns, $pass) {
+	function __construct($tns, $pass)
+	{
 		$this->connect($tns, '', $pass);
 	}
 
-	function connect($tns, $user, $pass, $host = 'localhost') {
+	function connect($tns = null, $user = null, $pass = null, $host = 'localhost')
+	{
 		$this->connection = ora_logon($tns, $pass);
 		ora_commiton($this->connection);
 		return $this->connection;
 	}
 
-	function getConnection() {
+	function getConnection()
+	{
 		return $this->connection;
 	}
 
-	function disconnect() {
+	function disconnect()
+	{
 		ora_logoff($this->connection);
 	}
 
-	function performORA($query, $canprint = TRUE) {
+	function performORA($query, $canprint = TRUE)
+	{
 		$this->COUNTQUERIES++;
 		if ($this->debugOnce || $this->debug) {
 			//debug($query);
@@ -39,9 +45,9 @@ class DBLayerORA extends DBLayer implements DBInterface {
 		list($time1['usec'], $time1['sec']) = explode(" ", microtime());
 		$time1['float'] = (float)$time1['usec'] + (float)$time1['sec'];
 
-		$cursor = NULL;
+		$cursor = null;
 		$this->LAST_PERFORM_RESULT = ora_open($this->connection);
-		ora_parse($cursor, $query, TRUE) or	$canprint ? my_print_backtrace($query) : '';
+		ora_parse($cursor, $query, true) or $canprint ? debug($query) : '';
 		ora_exec($this->LAST_PERFORM_RESULT);
 
 		list($time2['usec'], $time2['sec']) = explode(" ", microtime());
@@ -49,8 +55,8 @@ class DBLayerORA extends DBLayer implements DBInterface {
 
 		$numRows = $this->numRows($this->LAST_PERFORM_RESULT);
 		if ($this->debugOnce || $this->debug) {
-			debug(array($query, $numRows));
-			$this->debugOnce = FALSE;
+			debug([$query, $numRows]);
+			$this->debugOnce = false;
 		}
 		$elapsed = number_format($time2['float'] - $time1['float'], 3);
 		$debug = debug_backtrace();
@@ -63,7 +69,7 @@ class DBLayerORA extends DBLayer implements DBInterface {
 		}
 		if ($this->LOG[$query]) {
 			$a = $this->LOG[$query];
-			$this->LOG[$query] = array(
+			$this->LOG[$query] = [
 				'timestamp' => '',
 				'file' => $debug[1]['file'],
 				'function' => $debug[1]['function'],
@@ -74,9 +80,9 @@ class DBLayerORA extends DBLayer implements DBInterface {
 				'elapsed' => $a['elapsed'],
 				'count' => 1 + $a['count'],
 				'total' => $elapsed + $a['total'],
-			);
+			];
 		} else {
-			$this->LOG[$query] = array(
+			$this->LOG[$query] = [
 				'timestamp' => date('H:i:s'),
 				'file' => $debug[1]['file'],
 				'function' => $debug[1]['function'],
@@ -87,30 +93,35 @@ class DBLayerORA extends DBLayer implements DBInterface {
 				'elapsed' => $elapsed,
 				'count' => 1,
 				'total' => $elapsed,
-			);
+			];
 		}
 		return $this->LAST_PERFORM_RESULT;
 	}
 
-	function done($result) {
+	function done($result)
+	{
 		ora_close($result);
 	}
 
-	function transaction($serializable = false) {
+	function transaction($serializable = false)
+	{
 		// everything is a transaction in oracle
 		ora_commitoff($this->connection);
 	}
 
-	function commit() {
+	function commit()
+	{
 		ora_commit($this->connection);
 		ora_commiton($this->connection);
 	}
 
-	function rollback() {
+	function rollback()
+	{
 		ora_rollback($this->connection);
 	}
 
-	function quoteSQL($value) {
+	public function quoteSQL($value, $key = null)
+	{
 		if ($value == "CURRENT_TIMESTAMP") {
 			return $value;
 		} else if ($value === NULL) {
@@ -122,21 +133,23 @@ class DBLayerORA extends DBLayer implements DBInterface {
 		} else if (is_numeric($value)) {
 			return $value;
 		} else {
-			return "'".pg_escape_string($value)."'";
+			return "'" . pg_escape_string($value) . "'";
 		}
 	}
 
-	function fetchAll($result, $key = NULL) {
-		$ret = array();
+	function fetchAll($result, $key = NULL)
+	{
+		$ret = [];
 		while (($row = $this->fetchAssoc($result)) !== FALSE) {
 			$ret[] = $row;
 		}
 		return $ret;
 	}
 
-	function fetchAssoc($result) {
+	function fetchAssoc($result)
+	{
 		$array = [];
-		$res = ora_fetch_into($result, $array, ORA_FETCHINTO_NULLS|ORA_FETCHINTO_ASSOC);
+		$res = ora_fetch_into($result, $array, ORA_FETCHINTO_NULLS | ORA_FETCHINTO_ASSOC);
 		if ($res) {
 			return $array;
 		} else {
@@ -144,7 +157,8 @@ class DBLayerORA extends DBLayer implements DBInterface {
 		}
 	}
 
-	function numRows($result = NULL) {
+	function numRows($result = NULL)
+	{
 		return ora_numrows($result);
 	}
 
