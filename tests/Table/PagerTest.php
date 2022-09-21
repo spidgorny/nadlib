@@ -4,6 +4,11 @@
 class PagerTest extends NadlibTestCase
 {
 
+	public function setUp()
+	{
+		self::markTestSkipped('PG dependent');
+	}
+
 	public function testDetectCurrentPage()
 	{
 		$_REQUEST['Pager.'] = ['page' => 2];
@@ -28,7 +33,7 @@ class PagerTest extends NadlibTestCase
 		];
 		foreach ($fixture as $records => $maxPage) {
 			$this->log('> ', $records, ' => ', $maxPage);
-			$this->log(TAB, $records/10, ' => ', ceil($records/10));
+			$this->log(TAB, $records / 10, ' => ', ceil($records / 10));
 			$p = new Pager();
 			$p->setItemsPerPage(10);
 			$p->setNumberOfRecords($records);

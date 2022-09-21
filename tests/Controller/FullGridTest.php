@@ -9,6 +9,7 @@ class FullGridTest extends \PHPUnit\Framework\TestCase
 
 	public function setUp()
 	{
+		self::markTestSkipped('PG dependent');
 		$config = \Config::getInstance();
 		$config->setDB(new \DBPlacebo());
 	}
