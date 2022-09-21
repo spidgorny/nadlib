@@ -2,7 +2,7 @@
 
 use spidgorny\nadlib\HTTP\URL;
 
-class PageSize extends AppController
+class PageSize
 {
 
 	/**
@@ -25,12 +25,15 @@ class PageSize extends AppController
 	 */
 	static public $default = 20;
 
+	public $log = [];
+
 	/**
 	 * @param null $selected - default for this instance
 	 */
 	public function __construct($selected = null)
 	{
-		parent::__construct();
+//		parent::__construct();
+		$this->request = Request::getInstance();
 		$this->selected = $this->request->is_set('pageSize')
 			? $this->request->getInt('pageSize') : null;
 
