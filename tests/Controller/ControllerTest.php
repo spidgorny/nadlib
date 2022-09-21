@@ -23,6 +23,7 @@ class ControllerTest extends \PHPUnit\Framework\TestCase
 
 	public function setUp()
 	{
+		self::markTestSkipped('PG dependent');
 		$this->request = new MockRequest();
 	}
 
@@ -83,7 +84,6 @@ class ControllerTest extends \PHPUnit\Framework\TestCase
 
 	public function test_makeLinkCSimple()
 	{
-		self::markTestSkipped('PG dependent');
 		$c = new \AppController4Test();
 		$c->linker->useRouter = false;
 		$c->request = $this->request;
