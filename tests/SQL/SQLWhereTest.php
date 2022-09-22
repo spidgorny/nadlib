@@ -15,6 +15,7 @@ class SQLWhereTest extends PHPUnit\Framework\TestCase
 	public function setUp()
 	{
 		parent::setUp();
+		self::markTestSkipped('PG dependent');
 		$this->db = Config::getInstance()->getDB();
 	}
 

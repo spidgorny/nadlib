@@ -13,7 +13,7 @@ class ACLCheckerTest extends \PHPUnit\Framework\TestCase
 
 	public function test_compareACL()
 	{
-		$this->markTestIncomplete(
+		$this->markTestSkipped(
 			'AppController was not found.'
 		);
 		$controller = new \TestController();
@@ -27,7 +27,7 @@ class ACLCheckerTest extends \PHPUnit\Framework\TestCase
 
 	public function test_compareACLUser()
 	{
-		$this->markTestIncomplete(
+		$this->markTestSkipped(
 			'AppController was not found.'
 		);
 		$controller = new \TestController();
