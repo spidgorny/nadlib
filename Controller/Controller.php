@@ -133,7 +133,7 @@ abstract class Controller extends SimpleController
 		} elseif (method_exists($this->html, $method)) {
 			return call_user_func_array([$this->html, $method], $arguments);
 		} else {
-			throw new RuntimeException('Method '.$method.' not found in '.get_class($this));
+			throw new RuntimeException('Method ' . $method . ' not found in ' . get_class($this));
 		}
 	}
 
@@ -431,10 +431,10 @@ abstract class Controller extends SimpleController
 	public function getCaption($caption, $hTag = 'h3')
 	{
 //		$al = AutoLoad::getInstance();
-		$slug =  URL::friendlyURL($caption);
+		$slug = URL::friendlyURL($caption);
 		$content = '
 			<' . $hTag . ' id="' . $slug . '">' .
-			 $caption .
+			$caption .
 			'</' . $hTag . '>';
 		return $content;
 	}

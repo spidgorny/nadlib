@@ -52,6 +52,9 @@ trait JsonController
 		$url = new URL($requestURI);
 		$levels = $url->getPath()->getLevels();
 
+		if ($levels[0] === 'stage') {
+			$levels = array_slice($levels, 1);
+		}
 		if ($levels[0] === 'API') {
 			$levels = array_slice($levels, 1);
 		}
