@@ -64,10 +64,19 @@ trait JsonController
 		//llog(get_class($this));
 		$last = null;
 		$arguments = [];
+		$thisParents = new ReflectionClass($this);
+		$thisParents = [
+			get_class($this),
+			$thisParents->getParentClass()->getName(),
+			'SoftwareImage',
+			'SoftwareImg'
+		];
+		llog('$thisParents', $thisParents);
 		foreach (array_reverse($levels) as $i => $el) {
-			$isThisController = $el === get_class($this);
+			$isThisController = in_array($el, $thisParents);
+			llog('$isThisController', $isThisController, $el, get_class($this));
 			if ($isThisController) {
-				$last = ifsetor($levels[$i]);
+				$last = $el;
 				$arguments = array_slice($levels, $i + 1);    // rest are args
 				break;
 			}
@@ -77,6 +86,7 @@ trait JsonController
 		}
 		$request = trim($last, '/\\ ');
 		$request = explode('.', $request)[0];
+		llog(['request' => $request]);
 		return [$request, $arguments];
 	}
 
