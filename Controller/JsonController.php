@@ -37,7 +37,7 @@ trait JsonController
 		}
 	}
 
-	public function __invoke()
+	public function __invoke($arg1 = null)
 	{
 		list($request, $arguments) = $this->getActionAndArguments();
 		return call_user_func_array([$this, $request], $arguments);
@@ -55,9 +55,10 @@ trait JsonController
 		$last = null;
 		$arguments = [];
 		foreach ($levels as $i => $el) {
-			if ($el === get_class($this)) {
-				$last = ifsetor($levels[$i + 1]);
-				$arguments = array_slice($levels, $i + 2);    // rest are args
+			$isThisController = $el === get_class($this);
+			if ($isThisController) {
+				$last = ifsetor($levels[$i]);
+				$arguments = array_slice($levels, $i + 1);    // rest are args
 				break;
 			}
 		}
@@ -65,6 +66,7 @@ trait JsonController
 			$last = last($levels);
 		}
 		$request = trim($last, '/\\ ');
+		$request = explode('.', $request)[0];
 		return [$request, $arguments];
 	}
 
