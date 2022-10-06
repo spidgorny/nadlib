@@ -1,5 +1,7 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 trait JsonController
 {
 
@@ -47,7 +49,7 @@ trait JsonController
 	{
 		//        debug($_SERVER);
 		$requestURI = ifsetor($_SERVER['REQUEST_URI']);
-		$url = new \spidgorny\nadlib\HTTP\URL($requestURI);
+		$url = new URL($requestURI);
 		$levels = $url->getPath()->getLevels();
 
 		if ($levels[0] === 'API') {
