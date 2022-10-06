@@ -173,10 +173,10 @@ abstract class Controller extends SimpleController
 		$h = $h ? $h : $this->encloseTag;
 		$content = $this->s($content);
 		if ($caption) {
-			$content = array(
+			$content = [
 				'caption' => $this->getCaption($caption, $h),
 				$content
-			);
+			];
 		}
 		$more['class'] = ifsetor($more['class'], 'padding clearfix');
 		$more['class'] .= ' ' . get_class($this);

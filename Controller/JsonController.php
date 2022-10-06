@@ -47,7 +47,7 @@ trait JsonController
 
 	public function getActionAndArguments()
 	{
-		//        debug($_SERVER);
+		// debug($_SERVER);
 		$requestURI = ifsetor($_SERVER['REQUEST_URI']);
 		$url = new URL($requestURI);
 		$levels = $url->getPath()->getLevels();
