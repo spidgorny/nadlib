@@ -50,6 +50,9 @@ trait JsonController
 		$url = new \spidgorny\nadlib\HTTP\URL($requestURI);
 		$levels = $url->getPath()->getLevels();
 
+		if ($levels[0] === 'API') {
+			$levels = array_slice($levels, 1);
+		}
 		// next after /API/
 		//llog(get_class($this));
 		$last = null;

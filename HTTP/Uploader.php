@@ -118,7 +118,7 @@ post_max_size: ' . $post_max_size . '">' .
 				</td></tr>
 
 		        <tr><td><nobr>Temp folder:</nobr></td>
-		        <td>' . $tmpDir . '</td></tr>
+		        <td title="'.$tmpDir.'">' . basename($tmpDir) . '</td></tr>
 		    </table>
 		</div>
 		';
