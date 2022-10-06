@@ -66,7 +66,6 @@ trait JsonController
 			if ($isThisController) {
 				$last = ifsetor($levels[$i]);
 				$arguments = array_slice($levels, $i + 1);    // rest are args
-				break;
 			}
 		}
 		if (!$last) {
