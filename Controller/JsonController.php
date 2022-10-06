@@ -61,7 +61,7 @@ trait JsonController
 		//llog(get_class($this));
 		$last = null;
 		$arguments = [];
-		foreach ($levels as $i => $el) {
+		foreach (array_reverse($levels) as $i => $el) {
 			$isThisController = $el === get_class($this);
 			if ($isThisController) {
 				$last = ifsetor($levels[$i]);
