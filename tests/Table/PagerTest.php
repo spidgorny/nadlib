@@ -6,6 +6,7 @@ class PagerTest extends NadlibTestCase
 
 	public function testDetectCurrentPage()
 	{
+		self::markTestSkipped('Requres DB');
 		$_REQUEST['Pager.'] = ['page' => 2];
 		$p = new Pager();
 		$p->setNumberOfRecords(100);
@@ -15,6 +16,7 @@ class PagerTest extends NadlibTestCase
 
 	public function test_getMaxPage()
 	{
+		self::markTestSkipped('Requres DB');
 		$fixture = [
 			0 => 0,
 			1 => 0,
