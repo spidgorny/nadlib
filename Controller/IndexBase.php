@@ -220,6 +220,7 @@ class IndexBase /*extends Controller*/
 	public function initController()
 	{
 		// already created
+		// already created
 		if ($this->controller instanceof Controller) {
 			return;
 		}
@@ -233,6 +234,7 @@ class IndexBase /*extends Controller*/
 		}
 		$this->loadController($slug);
 		$this->bodyClasses[] = is_object($this->controller) ? get_class($this->controller) : '';
+		TaylorProfiler::stop(__METHOD__);
 	}
 
 	/**
@@ -271,13 +273,17 @@ class IndexBase /*extends Controller*/
 		// v3
 		if (method_exists($this->config, 'getDI')) {
 			$di = $this->config->getDI();
-			$this->controller = $di->get($class);
+			// v1
+//			$this->controller = new $class();
+			// v3
+			if (method_exists($this->config, 'getDI')) {
+				$di = $this->config->getDI();
+				$this->controller = $di->get($class);
 		} else {
 			// v2
 			$ms = new MarshalParams($this->config);
 			$this->controller = $ms->make($class);
 		}
-
 		// debug($class, get_class($this->controller));
 		if (method_exists($this->controller, 'postInit')) {
 			$this->controller->postInit();
@@ -421,6 +427,14 @@ class IndexBase /*extends Controller*/
 	 */
 	public function renderException(Exception $e)
 	{
+		if ($this->request->isCLI()) {
+			echo get_class($e),
+			' #', $e->getCode(),
+			': ', $e->getMessage(), BR;
+			echo $e->getTraceAsString(), BR;
+			$content = '';
+		} else {
+			http_response_code($e->getCode());
 		if ($this->controller) {
 			$this->controller->title = get_class($this->controller);
 		}

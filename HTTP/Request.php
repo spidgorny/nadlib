@@ -608,6 +608,7 @@ class Request
 		$docRoot = self::getDocRoot();
 		ksort($_SERVER);
 		pre_print_r([
+			'c' => get_class($c),
 			'docRoot' => $docRoot . '',
 			'PHP_SELF' => $_SERVER['PHP_SELF'],
 			'cwd' => getcwd(),
@@ -880,6 +881,20 @@ class Request
 		return $path;
 	}
 
+	public function baseHrefFromServer()
+	{
+		$al = AutoLoad::getInstance();
+		$appRoot = $al->getAppRoot()->normalize()->realPath();
+		$path = new Path($_SERVER['SCRIPT_FILENAME']);
+		$path->trimIf($path->basename());
+//		llog('remove', $appRoot.'', 'from', $path.'');
+		$path->remove($appRoot);
+		$path->normalize();
+//		llog($path);
+//		debug($appRoot.'', $_SERVER['SCRIPT_FILENAME'], $path.'');
+		return $path;
+	}
+
 	public function baseHref()
 	{
 		$path = new Path($_SERVER['SCRIPT_FILENAME']);
@@ -946,7 +961,7 @@ class Request
 		} else {
 			$levels = [];
 		}
-		nodebug([
+		llog([
 			'cwd' => getcwd(),
 			//'url' => $url.'',
 			'path' => $path . '',

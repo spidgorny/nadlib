@@ -167,7 +167,7 @@ class Menu /*extends Controller*/
 			'current' => $this->current,
 			'basePath' => $this->basePath . '',
 			'cwd' => getcwd(),
-			'docRoot' => Request::getDocumentRoot() . '',
+			'docRoot' => $this->request->getDocumentRoot() . '',
 			'getPathAfterDocRoot' => $this->request->getPathAfterDocRoot() . '',
 			'useRouter()' => $this->useRouter(),
 			'rootPath' => $this->basePath->getPath()->getLevels(),
@@ -307,6 +307,10 @@ class Menu /*extends Controller*/
 		}
 //		llog('itemsOnLevel', $this->level, count($itemsOnLevel));
 		$content .= $this->renderLevel($itemsOnLevel, $rootPath, $this->level);
+		} else {
+			$items = $this->items instanceof ArrayPlus ? $this->items->getData() : $this->items;
+			$content .= $this->renderLevel($items, array(), 0);
+		}
 		return $content;
 	}
 

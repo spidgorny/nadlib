@@ -4,7 +4,7 @@
  * Use $content instanceof htmlString ? $content : htmlspecialchars($content);
  * Update: use htmlString:hsc($content)
  */
-class htmlString implements \ToStringable
+class htmlString implements ToStringable
 {
 
 	protected $value = '';

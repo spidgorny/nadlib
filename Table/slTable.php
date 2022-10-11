@@ -7,7 +7,7 @@ use spidgorny\nadlib\HTTP\URL;
  * Has powerful configuration options.
  * @see slTableValue for a single table cell renderer.
  */
-class slTable implements \ToStringable
+class slTable implements ToStringable
 {
 
 	/**

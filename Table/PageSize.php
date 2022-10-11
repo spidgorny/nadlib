@@ -2,7 +2,7 @@
 
 use spidgorny\nadlib\HTTP\URL;
 
-class PageSize
+class PageSize extends Controller
 {
 
 	/**
@@ -42,8 +42,7 @@ class PageSize
 	 */
 	public function __construct($selected = null)
 	{
-//		parent::__construct();
-		$this->request = Request::getInstance();
+		parent::__construct();
 		// priority on Request
 		$this->selected = $this->request->is_set('pageSize')
 			? $this->request->getInt('pageSize') : null;

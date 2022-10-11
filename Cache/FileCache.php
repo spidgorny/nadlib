@@ -10,11 +10,14 @@ class FileCache
 	protected $folder = 'cache/';
 	protected $age = 86400; //60*60*24;
 
-	function __construct($age = NULL)
+	function __construct($age = NULL, $folder = 'cache/')
 	{
 		if ($age) {
 			$this->age = $age;
 		}
+		$this->folder = $folder;
+		$this->folder = realpath($this->folder);
+		$this->folder = cap($this->folder);
 		if (!is_writable($this->folder)) {
 			throw new Exception('Folder ' . $this->folder . ' is not writable');
 		}
@@ -53,10 +56,11 @@ class FileCache
 		}
 	}
 
-	function get($key, $default)
+	function get($key, $default = null)
 	{
 		if ($this->hasKey($key)) {
 			$string = file_get_contents($this->map($key));
+			/** @noinspection UnserializeExploitsInspection */
 			$try = @unserialize($string);
 			if ($try !== false) {
 				$string = $try;

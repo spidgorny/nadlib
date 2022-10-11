@@ -52,9 +52,9 @@ class BijouDBConnector extends DBLayerBase implements DBInterface
 	*/
 
 	/**
+	 * @see SQLBuilder
 	 * @param resource $res
 	 * @return mixed
-	 * @see SQLBuilder
 	 */
 	public function fetchAssoc($res)
 	{

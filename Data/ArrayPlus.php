@@ -1329,9 +1329,37 @@ class ArrayPlus extends ArrayObject implements Countable
 		}
 		return true;
 	}
+	public function sort($callback)
+	{
+		$data = $this->getArrayCopy();
+		usort($data, $callback);
+		$this->setData($data);
+		return $this;
+	}
+
+	public function any(Closure $check)
+	{
+		foreach ($this->getData() as $el) {
+			$ok = $check($el);
+			if ($ok) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public function toArray()
 	{
 		return $this->getData();
+}
+
+function AP($a = [])
+{
+	if ($a instanceof ArrayPlus) {
+		return $a;
+	} elseif (is_array($a)) {
+		return ArrayPlus::create($a);
+	} else {
+		throw new InvalidArgumentException(__METHOD__ . ' accepts array');
 	}
 }

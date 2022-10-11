@@ -281,7 +281,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 				$this->form->text($desc['code']);
 				break;
 
-			case 'tree':
+				case 'tree':
 				$this->form->tree($fieldName, $desc['tree'], $fieldValue);
 				break;
 

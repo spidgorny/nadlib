@@ -50,6 +50,9 @@ if (!function_exists('debugList')) {
 		debug(func_get_args());
 		die(__FUNCTION__ . '#' . __LINE__);
 	}
+}
+
+if (!function_exists('d')) {
 
 	function d($a)
 	{

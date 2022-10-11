@@ -34,7 +34,7 @@ class POPOBase
 		try {
 			$prop = $this->reflector->getProperty($name);
 			if ($prop) {
-				$type = $prop->getType();
+				$type = $prop->getType() ? $prop->getType()->getName() : null;
 				if (!$type) {
 					$docText = $prop->getDocComment();
 					$doc = new DocCommentParser($docText);
@@ -43,26 +43,22 @@ class POPOBase
 				}
 //				llog($name, $type.'', $value);
 				switch ($type) {
-					case 'int':
-						$value = intval($value);
-						break;
 					case 'integer':
-						$value = intval($value);
+					case 'int':
+						$value = (int)$value;
 						break;
 					case 'string':
 						$value = (string)($value);
 						break;
-					case 'bool':
-						$value = boolval($value);
-						break;
 					case 'boolean':
-						$value = boolval($value);
+					case 'bool':
+						$value = (bool)$value;
 						break;
 					case 'float':
-						$value = floatval($value);
+						$value = (float)$value;
 						break;
 					case 'DateTime':
-					case '\DateTime':
+					case \DateTime::class:
 						if (is_object($value)) {
 							$value = new DateTime($value->date);
 						} elseif ($value) {
