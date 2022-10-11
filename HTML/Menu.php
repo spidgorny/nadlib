@@ -304,9 +304,8 @@ class Menu /*extends Controller*/
 				'rootPath' => $rootPath,
 				'itemsOnLevel' => $itemsOnLevel,
 			]);
-		}
 //		llog('itemsOnLevel', $this->level, count($itemsOnLevel));
-		$content .= $this->renderLevel($itemsOnLevel, $rootPath, $this->level);
+			$content .= $this->renderLevel($itemsOnLevel, $rootPath, $this->level);
 		} else {
 			$items = $this->items instanceof ArrayPlus ? $this->items->getData() : $this->items;
 			$content .= $this->renderLevel($items, array(), 0);

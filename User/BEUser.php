@@ -83,16 +83,6 @@ class BEUser extends UserBase
 		return null;
 	}
 
-	public function getAllSettings()
-	{
-		// TODO: Implement getAllSettings() method.
-	}
-
-	public function getGroup()
-	{
-		return null;
-	}
-
 	public function getSetting($key)
 	{
 		// TODO: Implement getSetting() method.

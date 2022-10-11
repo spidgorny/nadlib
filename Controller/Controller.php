@@ -110,6 +110,7 @@ abstract class Controller extends SimpleController
 //			$this->db = $this->config->getDB();
 //			$this->user = $this->config->getUser();
 			$this->config->mergeConfig($this);
+		}
 
 		$this->linker = new Linker($this->request, $this);
 		$this->linker->useRouter = $this->request->apacheModuleRewrite();

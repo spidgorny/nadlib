@@ -279,10 +279,11 @@ class IndexBase /*extends Controller*/
 			if (method_exists($this->config, 'getDI')) {
 				$di = $this->config->getDI();
 				$this->controller = $di->get($class);
-		} else {
-			// v2
-			$ms = new MarshalParams($this->config);
-			$this->controller = $ms->make($class);
+			} else {
+				// v2
+				$ms = new MarshalParams($this->config);
+				$this->controller = $ms->make($class);
+			}
 		}
 		// debug($class, get_class($this->controller));
 		if (method_exists($this->controller, 'postInit')) {
@@ -433,8 +434,8 @@ class IndexBase /*extends Controller*/
 			': ', $e->getMessage(), BR;
 			echo $e->getTraceAsString(), BR;
 			$content = '';
-		} else {
-			http_response_code($e->getCode());
+		}
+		http_response_code($e->getCode());
 		if ($this->controller) {
 			$this->controller->title = get_class($this->controller);
 		}

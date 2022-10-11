@@ -5,9 +5,6 @@ class File
 
 	public bool $isDir;
 
-	public $isDir;
-
-	protected $name;
 	/**
 	 * @var string this is a relative path (can be absolute as well)
 	 */
@@ -106,8 +103,6 @@ class File
 		$absolute = path_plus($this->relativeTo, $this->name);
 //		llog(__METHOD__, $this->relativeTo, $this->name, $absolute);
 		return $absolute;
-		}
-		return $this->name;
 	}
 
 	public function md5()

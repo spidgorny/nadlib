@@ -38,7 +38,7 @@
 	},
 	"scripts": {
 		"lint": "vendor/bin/parallel-lint .",
-		"lint:w": "vendor\\bin\\parallel-lint .",
+		"lint:w": "vendor\\bin\\parallel-lint . --exclude vendor/phpunit --exclude vendor/sebastian --exclude vendor/symfony/polyfill-mbstring --exclude vendor/symfony/service-contracts",
 		"stan": "vendor/bin/phpstan analyze -l 1 -c phpstan.neon --memory-limit 1G .",
 		"stan:w": "vendor\\bin\\phpstan analyze -l 1 -c phpstan.neon --memory-limit 1G ."
 	},

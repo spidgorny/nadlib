@@ -51,13 +51,13 @@ class PageSize extends Controller
 		if (!$this->selected) {
 			$this->selected = $selected;
 			$this->options[$this->selected] = $selected;
-			$this->log[] = 'Constructor: '.$this->selected;
+			$this->log[] = 'Constructor: ' . $this->selected;
 		}
 
 		// in the worst case - default
 		if (!$this->selected) {
 			$this->selected = self::$default;
-			$this->log[] = 'Default: '.$this->selected;
+			$this->log[] = 'Default: ' . $this->selected;
 		}
 
 		$this->options = array_combine($this->options, $this->options);
