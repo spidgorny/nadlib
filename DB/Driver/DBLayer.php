@@ -15,7 +15,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 	/**
 	 * @var resource
 	 */
-    public $connection = NULL;
+	public $connection = NULL;
 
 	public $LAST_PERFORM_RESULT;
 
@@ -139,7 +139,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 //		debug($string);
 		$this->connection = pg_connect($string);
 		if (!$this->connection) {
-			throw new Exception("No PostgreSQL connection to $host. ".json_encode(error_get_last()));
+			throw new Exception("No PostgreSQL connection to $host. " . json_encode(error_get_last()));
 			//printbr('Error: '.pg_errormessage());	// Warning: pg_errormessage(): No PostgreSQL link opened yet
 		} else {
 			$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
@@ -200,7 +200,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 			if ($params) {
 				$ok = pg_prepare($this->connection, '', $query);
 				if (!is_resource($ok)) {
-					throw new DatabaseException($query.' can not be prepared');
+					throw new DatabaseException($query . ' can not be prepared');
 				}
 				$this->LAST_PERFORM_RESULT = pg_execute($this->connection, '', $params);
 			} else {
@@ -565,7 +565,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 			return "'t'";
 		}
 
-		if (is_int($value)) {	// is_numeric - bad: operator does not exist: character varying = integer
+		if (is_int($value)) {  // is_numeric - bad: operator does not exist: character varying = integer
 			return $value;
 		}
 
@@ -730,7 +730,7 @@ from
 	pg_catalog.pg_attribute a
 	inner join pg_catalog.pg_class c on a.attrelid = c.oid
 where
-        c.relname = '.$this->quoteSQL($table).'
+        c.relname = ' . $this->quoteSQL($table) . '
 	and a.attnum > 0
 	and a.attisdropped is false
 	and pg_catalog.pg_table_is_visible(c.oid)
@@ -1013,7 +1013,7 @@ WHERE ccu.table_name='" . $table . "'");
 
 	public function getDSN()
 	{
-		return 'pgsql://'.$this->user.'@'.$this->host.'/'.$this->database;
+		return 'pgsql://' . $this->user . '@' . $this->host . '/' . $this->database;
 	}
 
 }
