@@ -139,7 +139,7 @@ class CollectionQuery
 //		$this->log(__METHOD__, Debug::getBackLog(25, 0, null, false));
 
 		$this->query = $this->getQueryWithLimit();
-		$this->log(__METHOD__, $this->query . '');
+		$this->log(__METHOD__, str_replace("\n", " ", str_replace("\t", " ", $this->query . '')));
 
 		// in most cases we don't need to rasterize the query to SQL
 		$most_cases = true;
@@ -162,6 +162,7 @@ class CollectionQuery
 
 	protected function log($action, ...$something)
 	{
+		llog($action, $something);
 		$logEntry = new LogEntry($action, $something);
 		$this->log[] = $logEntry;
 //		llog($logEntry);

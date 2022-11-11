@@ -261,6 +261,7 @@ class Collection implements IteratorAggregate, ToStringable
 
 	public function log($action, $data = [])
 	{
+//		llog($action, $data);
 		if ($this->logger) {
 			if (!is_array($data)) {
 				$data = ['data' => $data];
