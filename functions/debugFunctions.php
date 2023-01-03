@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../static.php';
+
 /**
  * May already be defined in TYPO3
  */
