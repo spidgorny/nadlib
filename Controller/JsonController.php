@@ -26,7 +26,7 @@ trait JsonController
 	 */
 	public function validateAuthorization(array $registeredApps)
 	{
-
+		llog('self::$public', self::$public);
 		if (self::$public) {
 			return;
 		}
