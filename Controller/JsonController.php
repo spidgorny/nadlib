@@ -26,7 +26,7 @@ trait JsonController
 	 */
 	public function validateAuthorization(array $registeredApps)
 	{
-		llog('self::$public', self::$public);
+//		llog('self::$public', self::$public);
 		if (self::$public) {
 			return;
 		}
@@ -58,7 +58,7 @@ trait JsonController
 		if ($levels[0] === 'API') {
 			$levels = array_slice($levels, 1);
 		}
-		llog('API Levels', $levels);
+//		llog('API Levels', $levels);
 
 		// next after /API/
 		//llog(get_class($this));
@@ -71,10 +71,10 @@ trait JsonController
 			'SoftwareImage',
 			'SoftwareImg'
 		];
-		llog('$thisParents', $thisParents);
+//		llog('$thisParents', $thisParents);
 		foreach (array_reverse($levels) as $i => $el) {
 			$isThisController = in_array($el, $thisParents);
-			llog('$isThisController', $isThisController, $el, get_class($this));
+//			llog('$isThisController', $isThisController, $el, get_class($this));
 			if ($isThisController) {
 				$last = $el;
 				$arguments = array_slice($levels, $i + 1);    // rest are args
@@ -86,7 +86,7 @@ trait JsonController
 		}
 		$request = trim($last, '/\\ ');
 		$request = explode('.', $request)[0];
-		llog(['request' => $request]);
+//		llog(['request' => $request]);
 		return [$request, $arguments];
 	}
 
