@@ -27,9 +27,9 @@ trait JsonController
 	public function validateAuthorization(array $registeredApps)
 	{
 //		llog('self::$public', self::$public);
-		if (self::$public) {
-			return;
-		}
+//		if (self::$public) {
+//			return;
+//		}
 		$authorization = $this->request->getHeader('Authorization');
 //		llog($authorization);
 		//debug($headers, $authorization);
