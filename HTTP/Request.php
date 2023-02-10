@@ -896,7 +896,17 @@ class Request
 			? apache_request_headers() : [];
 //		llog('getHeader', $headers);
 
-		return ifsetor($headers[$name]);
+		$found = ifsetor($headers[$name]);
+		if ($found) {
+			return $found;
+		}
+
+		foreach ($headers as $header => $value) {
+			if (strtolower($header) === strtolower($name)) {
+				return $value;
+			}
+		}
+		return null;
 	}
 
 	public function getJson($name, $array = true)

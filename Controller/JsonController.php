@@ -33,7 +33,7 @@ trait JsonController
 
 		$headers = function_exists('apache_request_headers')
 			? apache_request_headers() : [];
-		llog('apache_headers in JsonController', $headers);
+		llog('apache_headers in JsonController for', get_class($this), $headers);
 
 		$authorization = $this->request->getHeader('Authorization');
 //		llog($authorization);
