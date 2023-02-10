@@ -30,6 +30,11 @@ trait JsonController
 //		if (self::$public) {
 //			return;
 //		}
+
+		$headers = function_exists('apache_request_headers')
+			? apache_request_headers() : [];
+		llog('apache_headers', $headers);
+
 		$authorization = $this->request->getHeader('Authorization');
 //		llog($authorization);
 		//debug($headers, $authorization);
