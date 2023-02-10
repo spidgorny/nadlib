@@ -33,7 +33,7 @@ trait JsonController
 
 		$headers = function_exists('apache_request_headers')
 			? apache_request_headers() : [];
-		llog('apache_headers', $headers);
+		llog('apache_headers in JsonController', $headers);
 
 		$authorization = $this->request->getHeader('Authorization');
 //		llog($authorization);
@@ -95,11 +95,10 @@ trait JsonController
 		return [$request, $arguments];
 	}
 
-
 	public function jsonError(Exception $e, $httpCode = 500, array $extraData = [])
 	{
 		$message = '[' . get_class($e) . ']' . PHP_EOL . $e->getMessage() . PHP_EOL . $e->getFile() . '#' . $e->getLine();
-		llog($message);
+		llog(get_class($this), $message);
 		http_response_code($httpCode);
 		return $this->json([
 				'status' => 'error',
