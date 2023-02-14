@@ -1,7 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../static.php';
-
+require_once __DIR__.DIRECTORY_SEPARATOR.'../static.php';
 /**
  * May already be defined in TYPO3
  */

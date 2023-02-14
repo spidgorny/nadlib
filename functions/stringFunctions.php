@@ -10,6 +10,9 @@ if (!function_exists('str_startsWith')) {
 	 */
 	function str_startsWith($haystack, $needle)
 	{
+		if (!$haystack) {
+			return false;
+		}
 		if (!is_array($needle)) {
 			$needle = [$needle];
 		}
@@ -75,7 +78,7 @@ if (!function_exists('str_startsWith')) {
 	 * @param int $max
 	 * @return array
 	 */
-	function trimExplode($sep, $str, $max = null)
+	function trimExplode($sep, $str, $max = 0)
 	{
 		if (is_object($str)) {
 			$is_string = method_exists($str, '__toString');

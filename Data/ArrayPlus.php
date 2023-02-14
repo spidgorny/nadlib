@@ -48,7 +48,7 @@ class ArrayPlus extends ArrayObject implements Countable
 		$this->setData($array);
 	}
 
-	public function count()
+	public function count(): int
 	{
 		return parent::count();
 	}
@@ -203,7 +203,8 @@ class ArrayPlus extends ArrayObject implements Countable
 		return $this;
 	}
 
-	public function append($value, $key = null)
+	#[\ReturnTypeWillChange]
+	public function append(mixed $value, $key = null)
 	{
 		if (!is_null($key)) {
 			$this[$key] = $value;
@@ -245,7 +246,7 @@ class ArrayPlus extends ArrayObject implements Countable
 		return $content;
 	}
 
-	public function ksort()
+	public function ksort(int $flags = SORT_REGULAR): bool
 	{
 		ksort($this->getArrayCopy());
 		return $this;
@@ -1191,7 +1192,7 @@ class ArrayPlus extends ArrayObject implements Countable
 		$this->map($fn);
 	}
 
-	public function __debugInfo()
+	public function __debugInfo(): array
 	{
 		return [
 			'count' => $this->count(),
