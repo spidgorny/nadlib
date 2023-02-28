@@ -5,6 +5,8 @@ use spidgorny\nadlib\HTTP\URL;
 trait JsonController
 {
 
+	public static $publicAPI = false;
+
 	public function afterConstruct()
 	{
 		$this->request->set('ajax', true);
@@ -26,10 +28,11 @@ trait JsonController
 	 */
 	public function validateAuthorization(array $registeredApps)
 	{
-//		llog('self::$public', self::$public);
-//		if (self::$public) {
-//			return;
-//		}
+		list($actionClass) = $this->getActionAndArguments();
+		$obj = new $actionClass();
+		if ($obj::$publicAPI) {
+			return;
+		}
 
 		$headers = function_exists('apache_request_headers')
 			? apache_request_headers() : [];
