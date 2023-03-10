@@ -331,13 +331,16 @@ function llog(...$vars)
 
 	$vars = array_map(static function ($el) {
 		if (is_object($el) && !($el instanceof stdClass)) {
-			return typ($el);
+			return trim(strip_tags(typ($el)));
 		}
 		return $el;
 	}, $vars);
 
 	if (count($vars) === 1) {
-		$output = json_encode(['type' => gettype(first($vars)), 'value' => first($vars)], $jsonOptions);
+		$output = json_encode([
+			'type' => gettype(first($vars)),
+			'value' => first($vars)
+		], $jsonOptions);
 	} else {
 		$output = json_encode($vars, $jsonOptions);
 	}
