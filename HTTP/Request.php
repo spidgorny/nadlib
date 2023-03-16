@@ -69,11 +69,15 @@ class Request
 	public static function isPHPUnit()
 	{
 		//debug($_SERVER); exit();
+		$phpunit = defined('PHPUnit');
 		$phar = !!ifsetor($_SERVER['IDE_PHPUNIT_PHPUNIT_PHAR']);
 		$loader = !!ifsetor($_SERVER['IDE_PHPUNIT_CUSTOM_LOADER']);
 		$phpStorm = basename($_SERVER['PHP_SELF']) == 'ide-phpunit.php';
-		return $phar || $loader || $phpStorm;
+		$phpStorm2 = basename($_SERVER['PHP_SELF']) == 'phpunit';
+		return $phar || $loader || $phpStorm || $phpStorm2 || $phpunit;
 	}
+
+	//
 
 	public static function isJenkins()
 	{
@@ -608,7 +612,7 @@ class Request
 		$docRoot = self::getDocRoot();
 		ksort($_SERVER);
 		pre_print_r([
-			'c' => get_class($c),
+		//	'c' => get_class($c),
 			'docRoot' => $docRoot . '',
 			'PHP_SELF' => $_SERVER['PHP_SELF'],
 			'cwd' => getcwd(),
