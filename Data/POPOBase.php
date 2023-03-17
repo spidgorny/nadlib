@@ -95,4 +95,14 @@ class POPOBase
 		return json_encode($this, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
 	}
 
+	public function __sleep()
+	{
+		$varNames = get_object_vars($this);
+		$varNames = array_merge($varNames, $varNames);
+		unset($varNames['reflector']);
+		$varNames = array_keys($varNames);
+//		llog($varNames);
+		return $varNames;
+	}
+
 }
