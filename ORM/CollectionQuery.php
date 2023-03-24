@@ -120,7 +120,13 @@ class CollectionQuery
 					&& $this->db->isMySQL())
 			);
 		if ($isMySQL) {
-			$cq = new CollectionQueryMySQL($this->db, $this->table, $this->join, $this->where, $this->orderBy, $this->select, $this->pager);
+			$cq = new CollectionQueryMySQL($this->db,
+				$this->table,
+				$this->join,
+				$this->where,
+				$this->orderBy,
+				$this->select,
+				$this->pager);
 			$data = $cq->retrieveDataFromMySQL();
 		} else {
 			$data = $this->retrieveDataFromDB();
@@ -139,7 +145,7 @@ class CollectionQuery
 //		$this->log(__METHOD__, Debug::getBackLog(25, 0, null, false));
 
 		$this->query = $this->getQueryWithLimit();
-		$this->log(__METHOD__, $this->query . '');
+//		$this->log(__METHOD__, str_replace("\n", " ", str_replace("\t", " ", $this->query . '')));
 
 		// in most cases we don't need to rasterize the query to SQL
 		$most_cases = true;
@@ -162,6 +168,7 @@ class CollectionQuery
 
 	protected function log($action, ...$something)
 	{
+		llog($action, $something);
 		$logEntry = new LogEntry($action, $something);
 		$this->log[] = $logEntry;
 //		llog($logEntry);
