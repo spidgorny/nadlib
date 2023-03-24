@@ -336,7 +336,7 @@ function llog(...$vars)
 
 	$vars = array_map(static function ($el) {
 		if (is_object($el) && !($el instanceof stdClass)) {
-			return typ($el);
+			return strip_tags(typ($el));
 		}
 		return $el;
 	}, $vars);

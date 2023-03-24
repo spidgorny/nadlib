@@ -2,6 +2,12 @@
 
 // this file is used to help phpstan understand some undefined constants
 
-define('BR', "<br />\n");
-define('TAB', "\t");
-define('DEVELOPMENT', true);
+if (!defined('BR')) {
+	define('BR', "<br />\n");
+}
+if (!defined('TAB')) {
+	define('TAB', "\t");
+}
+if (!defined('DEVELOPMENT')) {
+	define('DEVELOPMENT', true);
+}
