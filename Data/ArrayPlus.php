@@ -158,8 +158,8 @@ class ArrayPlus extends ArrayObject implements Countable
 	 * Modifies itself
 	 * @param string $key
 	 * @param bool $allowMerge
-	 * @throws Exception
 	 * @return ArrayPlus
+	 * @throws Exception
 	 */
 	public function IDalize($key = 'id', $allowMerge = false)
 	{
@@ -184,7 +184,7 @@ class ArrayPlus extends ArrayObject implements Countable
 
 	/**
 	 * [
-	 * 	['a' => 'b'],
+	 *  ['a' => 'b'],
 	 *  ['a' => 'c']
 	 * ] ---> [
 	 *  ['a' => ['b', 'c']]
@@ -1272,9 +1272,9 @@ class ArrayPlus extends ArrayObject implements Countable
 				throw new Exception('position ' . $position . ' not found');
 			}
 			$array = array_merge(
-				array_slice($this->getArrayCopy(), 0, $pos+1),
+				array_slice($this->getArrayCopy(), 0, $pos + 1),
 				$insert,
-				array_slice($this->getArrayCopy(), $pos+1)
+				array_slice($this->getArrayCopy(), $pos + 1)
 			);
 			$this->setData($array);
 		}
@@ -1333,5 +1333,16 @@ class ArrayPlus extends ArrayObject implements Countable
 	public function toArray()
 	{
 		return $this->getData();
+	}
+}
+
+function AP($a = [])
+{
+	if ($a instanceof ArrayPlus) {
+		return $a;
+	} elseif (is_array($a)) {
+		return ArrayPlus::create($a);
+	} else {
+		throw new InvalidArgumentException(__METHOD__ . ' accepts array');
 	}
 }

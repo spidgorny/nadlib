@@ -424,8 +424,7 @@ class Collection implements IteratorAggregate, ToStringable
 	public function render()
 	{
 		$view = $this->getView();
-		$content[] = $view->renderTable();
-		return $content;
+		return $view->renderTable();
 	}
 
 	public function getProcessedData()

@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../static.php';
+
 /**
  * May already be defined in TYPO3
  */
@@ -50,6 +52,9 @@ if (!function_exists('debugList')) {
 		debug(func_get_args());
 		die(__FUNCTION__ . '#' . __LINE__);
 	}
+}
+
+if (!function_exists('d')) {
 
 	function d($a)
 	{

@@ -39,7 +39,7 @@ class DatabaseResultIterator implements Iterator, Countable
 	 * Amount. Must be NULL for the first time.
 	 * @var int
 	 */
-	public $rows = null;
+	protected $rows = null;
 
 	/**
 	 * Will return the value of the current row corresponding to $this->defaultKey
@@ -71,7 +71,8 @@ class DatabaseResultIterator implements Iterator, Countable
 	public function setResult($res)
 	{
 		$this->dbResultResource = $res;
-		$this->rows = $this->count();
+		// performance increase
+//		$this->rows = $this->count();
 	}
 
 	public function perform($query)
@@ -106,7 +107,7 @@ class DatabaseResultIterator implements Iterator, Countable
 	public function rewind()
 	{
 		$this->log(__METHOD__);
-		if ($this->rows) {
+		if ($this->count()) {
 			$this->key = 0;
 			$this->db->dataSeek($this->dbResultResource, 0);
 			$this->next();

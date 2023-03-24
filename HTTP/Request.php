@@ -118,11 +118,15 @@ class Request
 	public static function isPHPUnit()
 	{
 		//debug($_SERVER); exit();
+		$phpunit = defined('PHPUnit');
 		$phar = !!ifsetor($_SERVER['IDE_PHPUNIT_PHPUNIT_PHAR']);
 		$loader = !!ifsetor($_SERVER['IDE_PHPUNIT_CUSTOM_LOADER']);
 		$phpStorm = basename($_SERVER['PHP_SELF']) == 'ide-phpunit.php';
-		return $phar || $loader || $phpStorm;
+		$phpStorm2 = basename($_SERVER['PHP_SELF']) == 'phpunit';
+		return $phar || $loader || $phpStorm || $phpStorm2 || $phpunit;
 	}
+
+	//
 
 	public static function printDocumentRootDebug()
 	{
@@ -726,6 +730,22 @@ class Request
 		return $docRoot;
 	}
 
+	public static function getLocationDebug()
+	{
+		$docRoot = self::getDocRoot();
+		ksort($_SERVER);
+		pre_print_r([
+			//	'c' => get_class($c),
+			'docRoot' => $docRoot . '',
+			'PHP_SELF' => $_SERVER['PHP_SELF'],
+			'cwd' => getcwd(),
+			'url' => self::getLocation() . '',
+			'server' => array_filter($_SERVER, function ($el) {
+				return is_string($el) && strpos($el, '/') !== false;
+			}),
+		]);
+	}
+
 	/**
 	 * Works well with RewriteRule
 	 */
@@ -1056,6 +1076,47 @@ class Request
 	public function setBasename($path)
 	{
 		$this->url->setBasename($path);
+	}
+
+	/**
+	 * Should work from app root
+	 * When working from doc root it includes folders leading
+	 * to the app root, which breaks numbers when deployed to
+	 * a different server with a longer/shorter path.
+	 * @return array
+	 */
+	public function getURLLevels()
+	{
+		$path = $this->getPathAfterAppRootByPath();
+		//		debug($path);
+		//$path = $path->getURL();
+		//debug($path);
+		if (strlen($path) > 1) {    // "/"
+			$levels = trimExplode('/', $path);
+			if ($levels && $levels[0] === 'index.php') {
+				array_shift($levels);
+			}
+		} else {
+			$levels = [];
+		}
+		llog([
+			'cwd' => getcwd(),
+			//'url' => $url.'',
+			'path' => $path . '',
+			//'getURL()' => $path->getURL() . '',
+			'levels' => $levels]);
+		return $levels;
+	}
+
+	/**
+	 * Overwriting - no
+	 * @param array $plus
+	 * @return Request
+	 */
+	public function append(array $plus)
+	{
+		$this->data += $plus;
+		return $this;
 	}
 
 	/**

@@ -23,6 +23,7 @@ class ControllerTest extends \PHPUnit\Framework\TestCase
 
 	public function setUp()
 	{
+		self::markTestSkipped('PG dependent');
 		$this->request = new MockRequest();
 	}
 

@@ -183,6 +183,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 //		llog(str_replace("\n", " ",			str_replace("\t", " ", $query)));
 		$prof = new Profiler();
 
+		$this->reportIfLastQueryFailed();
 //		$this->reportIfLastQueryFailed();
 		$this->lastQuery = $query;
 		if (!is_resource($this->connection)) {

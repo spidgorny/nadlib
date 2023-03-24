@@ -12,7 +12,7 @@ class TYPO3User extends UserBase
 {
 
 	/**
-	 * @var mixed
+	 * @var array
 	 */
 	public $t3user;
 

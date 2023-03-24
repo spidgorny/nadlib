@@ -167,7 +167,7 @@ class Menu /*extends Controller*/
 			'current' => $this->current,
 			'basePath' => $this->basePath . '',
 			'cwd' => getcwd(),
-			'docRoot' => Request::getDocumentRoot() . '',
+			'docRoot' => $this->request->getDocumentRoot() . '',
 			'getPathAfterDocRoot' => $this->request->getPathAfterDocRoot() . '',
 			'useRouter()' => $this->useRouter(),
 			'rootPath' => $this->basePath->getPath()->getLevels(),
@@ -304,9 +304,12 @@ class Menu /*extends Controller*/
 				'rootPath' => $rootPath,
 				'itemsOnLevel' => $itemsOnLevel,
 			]);
-		}
 //		llog('itemsOnLevel', $this->level, count($itemsOnLevel));
-		$content .= $this->renderLevel($itemsOnLevel, $rootPath, $this->level);
+			$content .= $this->renderLevel($itemsOnLevel, $rootPath, $this->level);
+		} else {
+			$items = $this->items instanceof ArrayPlus ? $this->items->getData() : $this->items;
+			$content .= $this->renderLevel($items, array(), 0);
+		}
 		return $content;
 	}
 
@@ -442,7 +445,7 @@ class Menu /*extends Controller*/
 	{
 		$ret = false;
 		$combined = null;
-		if ($class[0] === '?') {    // hack begins
+		if (ifsetor($class) && $class[0] === '?') {    // hack begins
 			$parts = trimExplode('/', $_SERVER['REQUEST_URI']);
 			//debug($parts, $class);
 			if (end($parts) === $class) {
@@ -467,7 +470,7 @@ class Menu /*extends Controller*/
 		//if ($this->level === 0) {
 		nodebug([
 			'class' => $class,
-			'class[0]' => $class[0],
+			'class[0]' => ifsetor($class) ? $class[0] : null,
 			'subMenu' => $subMenu,
 			'combined' => $combined,
 			'current' => $this->current,
@@ -510,7 +513,7 @@ class Menu /*extends Controller*/
 				$link->replaceController($path);
 			}
 		} else {
-			if ($class[0] === '#') {
+			if (ifsetor($class) && $class[0] === '#') {
 				$link = $this->basePath->setFragment($class);
 			} else {
 				$link = $this->basePath->setParam($this->controllerVarName, $class);
