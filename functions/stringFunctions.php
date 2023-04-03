@@ -149,24 +149,24 @@ if (!function_exists('str_startsWith')) {
 	 * @return string
 	 * @throws Exception
 	 */
-		function path_plus($path, $plus, $plus2 = null)
+	function path_plus($path, $plus, $plus2 = null)
 	{
-        llog('path_plus', $path, $plus);
+//		llog('path_plus', $path, $plus);
 		$freq = array_count_values(str_split($path));
 		$separator = ifsetor($freq['/']) >= ifsetor($freq['\\']) ? '/' : '\\';
 //		llog($separator);
 
-        $char0 = isset($path[0]) ? $path[0] : null;
-        $char1 = isset($path[1]) ? $path[1] : null;
-        $isAbs = $char0 === '/' || $char0 === '\\' || $char1 === ':';
+		$char0 = isset($path[0]) ? $path[0] : null;
+		$char1 = isset($path[1]) ? $path[1] : null;
+		$isAbs = $char0 === '/' || $char0 === '\\' || $char1 === ':';
 
-		$path = str_replace('\\', '/', $path);	// for trim
+		$path = str_replace('\\', '/', $path);  // for trim
 		$parts = trimExplode('/', $path);
 		$parts = array_merge($parts, trimExplode('/', $plus));
 
 		$root = '';
 //		if (!Request::isWindows()) {
-		if ($separator == '/') {	// not windows separator
+		if ($separator == '/') {  // not windows separator
 			$root = ($isAbs ? $separator : '');
 		}
 		$string = $root . implode($separator, $parts);

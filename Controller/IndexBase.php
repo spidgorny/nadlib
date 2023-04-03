@@ -6,62 +6,33 @@ class IndexBase /*extends Controller*/
 {    // infinite loop
 
 	/**
-	 * @var MySQL
+	 * @var Index|IndexBE
 	 */
-	protected $db;
-
+	protected static $instance;
 	/**
 	 * @see Config for a public property
 	 * @var LocalLangDummy
 	 */
 	public $ll;
-
-	/**
-	 * @var User|LoginUser
-	 * @public for template.phtml
-	 */
-	protected $user;
-
 	/**
 	 * For any error messages during initialization.
 	 *
 	 * @var \nadlib\HTML\Messages
 	 */
 	public $content;
-
 	/**
 	 * @var AppController|UserlessController
 	 */
 	public $controller;
-
-	/**
-	 * @var Index|IndexBE
-	 */
-	protected static $instance;
-
 	public $header = [];
-
 	public $footer = [];
-
 	public $loadJSfromGoogle = true;
-
 	public $template = 'template.phtml';
-
 	public $sidebar = '';
-
 	public $appName = 'Project name';
-
 	public $description = '';
-
 	public $keywords = '';
-
 	public $bodyClasses = [];
-
-	/**
-	 * @var Config
-	 */
-	protected $config;
-
 	var $csp = [
 		"default-src" => [
 			"'self'",
@@ -98,13 +69,24 @@ class IndexBase /*extends Controller*/
 			"'unsafe-eval'",
 		],
 	];
-
+	public $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error';
+	/**
+	 * @var MySQL
+	 */
+	protected $db;
+	/**
+	 * @var User|LoginUser
+	 * @public for template.phtml
+	 */
+	protected $user;
+	/**
+	 * @var Config
+	 */
+	protected $config;
 	/**
 	 * @var Request
 	 */
 	protected $request;
-
-	public $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error';
 
 	public function __construct(ConfigInterface $config)
 	{
@@ -132,6 +114,180 @@ class IndexBase /*extends Controller*/
 //			'layout' => null,
 //		];
 		TaylorProfiler::stop(__METHOD__);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function setSecurityHeaders()
+	{
+		if (!headers_sent()) {
+			header('X-Frame-Options: SAMEORIGIN');
+			header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+			foreach ($this->csp as $key => &$val) {
+				$val = $key . ' ' . implode(' ', $val);
+			}
+			header('Content-Security-Policy: ' . implode('; ', $this->csp));
+			header('X-Content-Security-Policy: ' . implode('; ', $this->csp));
+		}
+	}
+
+	/**
+	 * TODO: Remove the boolean parameter from getInstance()
+	 * TODO: And force to use makeInstance() in case it was true
+	 * @param Config|null $config
+	 * @return Index
+	 * @throws Exception
+	 */
+	public static function makeInstance(Config $config = null)
+	{
+		return static::getInstance(true, $config);
+	}
+
+	/**
+	 * @param bool $createNew - must be false
+	 * @param ConfigInterface|null $config
+	 * @return Index
+	 * @throws Exception
+	 */
+	public static function getInstance($createNew = false, ConfigInterface $config = null)
+	{
+		TaylorProfiler::start(__METHOD__);
+		$instance = self::$instance
+			? self::$instance
+			: null;
+		if (!$instance && $createNew) {
+			$static = get_called_class();
+			$instance = new $static($config);
+			self::$instance = $instance;
+		}
+		TaylorProfiler::stop(__METHOD__);
+		return $instance;
+	}
+
+	/**
+	 * @return AppController
+	 * @throws Exception
+	 */
+	public function getController()
+	{
+		if (!$this->controller) {
+			$this->initController();
+		}
+		//debug(get_class($this->controller));
+		return $this->controller;
+	}
+
+	/**
+	 * Called by index.php explicitly,
+	 * therefore processes exceptions.
+	 *
+	 * That's not true anymore, called in render().
+	 * @throws Exception
+	 */
+	public function initController()
+	{
+		// already created
+		// already created
+		if ($this->controller instanceof Controller) {
+			return;
+		}
+		$slug = $this->request->getControllerString();
+//		llog($slug);
+		if (!$slug) {
+			throw new Exception404($slug);
+		}
+		if ($_REQUEST['d']) {
+			$this->log(__METHOD__, $slug);
+		}
+		$this->loadController($slug);
+		$this->bodyClasses[] = is_object($this->controller) ? get_class($this->controller) : '';
+		TaylorProfiler::stop(__METHOD__);
+	}
+
+	/**
+	 * Move it to the MRBS
+	 * @param string $action
+	 * @param mixed $data
+	 */
+	public function log($action, $data)
+	{
+		//debug($action, $bookingID);
+		/*$this->db->runInsertQuery('log', array(
+			'who' => $this->user->id,
+			'action' => $action,
+			'booking' => $bookingID,
+		));*/
+	}
+
+	/**
+	 * Usually autoload is taking care of the loading, but sometimes you want to check the path.
+	 * Will call postInit() of the controller if available.
+	 * @param string $class
+	 * @throws Exception
+	 */
+	protected function loadController($class)
+	{
+		$slugParts = explode('/', $class);
+		$class = end($slugParts);    // again, because __autoload needs the full path
+//		debug(__METHOD__, $slugParts, $class, class_exists($class));
+		if (class_exists($class)) {
+			$this->controller = $this->makeController($class);
+			return $this->controller;
+		}//debug($_SESSION['autoloadCache']);
+		$exception = 'Class ' . $class . ' not found. Dev hint: try clearing autoload cache?';
+		unset($_SESSION['AutoLoad']);
+		throw new Exception404($exception);
+	}
+
+	/**
+	 * @param string $class
+	 * @return AppController
+	 * @throws ReflectionException
+	 */
+	public function makeController($class)
+	{
+		if (method_exists($this->config, 'getDI')) {
+			$di = $this->config->getDI();
+			$this->controller = $di->get($class);
+		} else {
+			// v2
+			$ms = new MarshalParams($this->config);
+			$this->controller = $ms->make($class);
+		}
+//			$this->controller = new $class();
+		// debug($class, get_class($this->controller));
+		if (method_exists($this->controller, 'postInit')) {
+			$this->controller->postInit();
+		}
+		return $this->controller;
+	}
+
+	public function render()
+	{
+		TaylorProfiler::start(__METHOD__);
+		$content = '';
+		try {
+			// only use session if not run from command line
+			$this->initSession();
+
+			$this->initController();
+			if ($this->controller instanceof Controller) {
+				$content .= $this->renderController();
+			} else {
+				// display Exception
+				$content .= $this->content->getContent();
+				$this->content->clear();
+				//$content .= $this->renderException(new Exception('Controller not found'));
+			}
+		} catch (Exception $e) {    // handles ALL exceptions
+			$content = $this->renderException($e);
+		}
+
+		$content = $this->renderTemplateIfNotAjax($content);
+		TaylorProfiler::stop(__METHOD__);
+		$content .= $this->renderProfiler();
+		return $content;
 	}
 
 	/**
@@ -177,161 +333,6 @@ class IndexBase /*extends Controller*/
 //		debug($_SERVER['HTTP_USER_AGENT'], $_SERVER['REMOTE_ADDR']);
 	}
 
-	/**
-	 * @param bool $createNew - must be false
-	 * @param ConfigInterface|null $config
-	 * @return Index
-	 * @throws Exception
-	 */
-	public static function getInstance($createNew = false, ConfigInterface $config = null)
-	{
-		TaylorProfiler::start(__METHOD__);
-		$instance = self::$instance
-			? self::$instance
-			: null;
-		if (!$instance && $createNew) {
-			$static = get_called_class();
-			$instance = new $static($config);
-			self::$instance = $instance;
-		}
-		TaylorProfiler::stop(__METHOD__);
-		return $instance;
-	}
-
-	/**
-	 * TODO: Remove the boolean parameter from getInstance()
-	 * TODO: And force to use makeInstance() in case it was true
-	 * @param Config|null $config
-	 * @return Index
-	 * @throws Exception
-	 */
-	public static function makeInstance(Config $config = null)
-	{
-		return static::getInstance(true, $config);
-	}
-
-	/**
-	 * Called by index.php explicitly,
-	 * therefore processes exceptions.
-	 *
-	 * That's not true anymore, called in render().
-	 * @throws Exception
-	 */
-	public function initController()
-	{
-		// already created
-		// already created
-		if ($this->controller instanceof Controller) {
-			return;
-		}
-		$slug = $this->request->getControllerString();
-//		llog($slug);
-		if (!$slug) {
-			throw new Exception404($slug);
-		}
-		if ($_REQUEST['d']) {
-			$this->log(__METHOD__, $slug);
-		}
-		$this->loadController($slug);
-		$this->bodyClasses[] = is_object($this->controller) ? get_class($this->controller) : '';
-		TaylorProfiler::stop(__METHOD__);
-	}
-
-	/**
-	 * Usually autoload is taking care of the loading, but sometimes you want to check the path.
-	 * Will call postInit() of the controller if available.
-	 * @param string $class
-	 * @throws Exception
-	 */
-	protected function loadController($class)
-	{
-		TaylorProfiler::start(__METHOD__);
-		$slugParts = explode('/', $class);
-		$class = end($slugParts);    // again, because __autoload needs the full path
-//		debug(__METHOD__, $slugParts, $class, class_exists($class));
-		if (class_exists($class)) {
-			$this->controller = $this->makeController($class);
-		} else {
-			//debug($_SESSION['autoloadCache']);
-			$exception = 'Class ' . $class . ' not found. Dev hint: try clearing autoload cache?';
-			unset($_SESSION['AutoLoad']);
-			TaylorProfiler::stop(__METHOD__);
-			throw new Exception404($exception);
-		}
-		TaylorProfiler::stop(__METHOD__);
-	}
-
-	/**
-	 * @param string $class
-	 * @return AppController
-	 * @throws ReflectionException
-	 */
-	public function makeController($class)
-	{
-		// v1
-//			$this->controller = new $class();
-		// v3
-		if (method_exists($this->config, 'getDI')) {
-			$di = $this->config->getDI();
-			// v1
-//			$this->controller = new $class();
-			// v3
-			if (method_exists($this->config, 'getDI')) {
-				$di = $this->config->getDI();
-				$this->controller = $di->get($class);
-			} else {
-				// v2
-				$ms = new MarshalParams($this->config);
-				$this->controller = $ms->make($class);
-			}
-		}
-		// debug($class, get_class($this->controller));
-		if (method_exists($this->controller, 'postInit')) {
-			$this->controller->postInit();
-		}
-		return $this->controller;
-	}
-
-	/**
-	 * @return AppController
-	 * @throws Exception
-	 */
-	public function getController()
-	{
-		if (!$this->controller) {
-			$this->initController();
-		}
-		//debug(get_class($this->controller));
-		return $this->controller;
-	}
-
-	public function render()
-	{
-		TaylorProfiler::start(__METHOD__);
-		$content = '';
-		try {
-			// only use session if not run from command line
-			$this->initSession();
-
-			$this->initController();
-			if ($this->controller instanceof Controller) {
-				$content .= $this->renderController();
-			} else {
-				// display Exception
-				$content .= $this->content->getContent();
-				$this->content->clear();
-				//$content .= $this->renderException(new Exception('Controller not found'));
-			}
-		} catch (Exception $e) {    // handles ALL exceptions
-			$content = $this->renderException($e);
-		}
-
-		$content = $this->renderTemplateIfNotAjax($content);
-		TaylorProfiler::stop(__METHOD__);
-		$content .= $this->renderProfiler();
-		return $content;
-	}
-
 	public function renderController()
 	{
 		TaylorProfiler::start(__METHOD__);
@@ -370,6 +371,50 @@ class IndexBase /*extends Controller*/
 			/** @var $this ->controller->layout Wrap */
 			$content = $this->controller->layout->wrap($content);
 			$content = str_replace('###SIDEBAR###', $this->showSidebar(), $content);
+		}
+		TaylorProfiler::stop(__METHOD__);
+		return $content;
+	}
+
+	/**
+	 * Does not catch LoginException - show your login form in Index
+	 * @param Exception $e
+	 * @param string $wrapClass
+	 * @return string
+	 */
+	public function renderException(Exception $e)
+	{
+		if ($this->request->isCLI()) {
+			echo get_class($e),
+			' #', $e->getCode(),
+			': ', $e->getMessage(), BR;
+			echo $e->getTraceAsString(), BR;
+			$content = '';
+		}
+		http_response_code($e->getCode());
+		if ($this->controller) {
+			$this->controller->title = get_class($this->controller);
+		}
+		$re = new RenderException($e);
+		return $re->render($this->wrapClass);
+	}
+
+	public function s($content)
+	{
+		return MergedContent::mergeStringArrayRecursive($content);
+	}
+
+	public function showSidebar()
+	{
+		TaylorProfiler::start(__METHOD__);
+		$content = '';
+		if (method_exists($this->controller, 'sidebar')) {
+			try {
+				$content = $this->controller->sidebar();
+				$content = $this->s($content);
+			} catch (Exception $e) {
+				// no sidebar
+			}
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $content;
@@ -415,32 +460,11 @@ class IndexBase /*extends Controller*/
 		return $v;
 	}
 
-	public function s($content)
+	public function renderProfiler()
 	{
-		return MergedContent::mergeStringArrayRecursive($content);
-	}
-
-	/**
-	 * Does not catch LoginException - show your login form in Index
-	 * @param Exception $e
-	 * @param string $wrapClass
-	 * @return string
-	 */
-	public function renderException(Exception $e)
-	{
-		if ($this->request->isCLI()) {
-			echo get_class($e),
-			' #', $e->getCode(),
-			': ', $e->getMessage(), BR;
-			echo $e->getTraceAsString(), BR;
-			$content = '';
-		}
-		http_response_code($e->getCode());
-		if ($this->controller) {
-			$this->controller->title = get_class($this->controller);
-		}
-		$re = new RenderException($e);
-		return $re->render($this->wrapClass);
+		$pp = new PageProfiler();
+		$content = $pp->render();
+		return $content;
 	}
 
 	public function __destruct()
@@ -449,21 +473,6 @@ class IndexBase /*extends Controller*/
 			// called automatically(!)
 			//$this->user->__destruct();
 		}
-	}
-
-	/**
-	 * Move it to the MRBS
-	 * @param string $action
-	 * @param mixed $data
-	 */
-	public function log($action, $data)
-	{
-		//debug($action, $bookingID);
-		/*$this->db->runInsertQuery('log', array(
-			'who' => $this->user->id,
-			'action' => $action,
-			'booking' => $bookingID,
-		));*/
 	}
 
 	public function message($text)
@@ -484,6 +493,55 @@ class IndexBase /*extends Controller*/
 	public function info($text)
 	{
 		return $this->content->info($text);
+	}
+
+	public function addJQueryUI()
+	{
+		$this->addJQuery();
+		if (ifsetor($this->footer['jqueryui.js'])) {
+			return $this;
+		}
+		$al = AutoLoad::getInstance();
+		$jQueryPath = clone $al->componentsPath;
+		//debug($jQueryPath);
+		//$jQueryPath->appendString('jquery-ui/ui/minified/jquery-ui.min.js');
+		$jQueryPath->appendString('jquery-ui/jquery-ui.min.js');
+		$jQueryPath->setAsFile();
+		$appRoot = $al->getAppRoot();
+		nodebug([
+			'jQueryPath' => $jQueryPath,
+			'jQueryPath->exists()' => $jQueryPath->exists(),
+			'appRoot' => $appRoot,
+			'componentsPath' => $al->componentsPath,
+			'fe(jQueryPath)' => file_exists($jQueryPath->getUncapped()),
+			'fe(appRoot)' => file_exists($appRoot . $jQueryPath->getUncapped()),
+			'fe(nadlibFromDocRoot)' => file_exists($al->nadlibFromDocRoot . $jQueryPath),
+			'fe(componentsPath)' => file_exists($al->componentsPath . $jQueryPath),
+			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
+			'documentRoot' => $al->documentRoot,
+			'componentsPath.jQueryPath' => $al->componentsPath . $jQueryPath,
+		]);
+		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
+			if ($jQueryPath->exists()) {
+				$this->addJS($jQueryPath->relativeFromAppRoot()->getUncapped());
+				return $this;
+			} else {
+				$jQueryPath = clone $al->componentsPath;
+				$jQueryPath->appendString('jquery-ui/jquery-ui.js');
+				$jQueryPath->setAsFile();
+				if ($jQueryPath->exists()) {
+					$this->addJS($jQueryPath->relativeFromAppRoot()->getUncapped());
+					return $this;
+				}
+			}
+		}
+
+		// commented out because this should be project specific
+		//$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
+		$this->footer['jqueryui.js'] = '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+		<script>window.jQueryUI || document.write(\'<script src="' . $jQueryPath . '"><\/script>\')</script>';
+		$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/ui-lightness/jquery-ui.css');
+		return $this;
 	}
 
 	/**
@@ -537,55 +595,6 @@ class IndexBase /*extends Controller*/
 			}
 			$this->addJS($jQueryPath, $defer);
 		}
-		return $this;
-	}
-
-	public function addJQueryUI()
-	{
-		$this->addJQuery();
-		if (ifsetor($this->footer['jqueryui.js'])) {
-			return $this;
-		}
-		$al = AutoLoad::getInstance();
-		$jQueryPath = clone $al->componentsPath;
-		//debug($jQueryPath);
-		//$jQueryPath->appendString('jquery-ui/ui/minified/jquery-ui.min.js');
-		$jQueryPath->appendString('jquery-ui/jquery-ui.min.js');
-		$jQueryPath->setAsFile();
-		$appRoot = $al->getAppRoot();
-		nodebug([
-			'jQueryPath' => $jQueryPath,
-			'jQueryPath->exists()' => $jQueryPath->exists(),
-			'appRoot' => $appRoot,
-			'componentsPath' => $al->componentsPath,
-			'fe(jQueryPath)' => file_exists($jQueryPath->getUncapped()),
-			'fe(appRoot)' => file_exists($appRoot . $jQueryPath->getUncapped()),
-			'fe(nadlibFromDocRoot)' => file_exists($al->nadlibFromDocRoot . $jQueryPath),
-			'fe(componentsPath)' => file_exists($al->componentsPath . $jQueryPath),
-			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
-			'documentRoot' => $al->documentRoot,
-			'componentsPath.jQueryPath' => $al->componentsPath . $jQueryPath,
-		]);
-		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
-			if ($jQueryPath->exists()) {
-				$this->addJS($jQueryPath->relativeFromAppRoot()->getUncapped());
-				return $this;
-			} else {
-				$jQueryPath = clone $al->componentsPath;
-				$jQueryPath->appendString('jquery-ui/jquery-ui.js');
-				$jQueryPath->setAsFile();
-				if ($jQueryPath->exists()) {
-					$this->addJS($jQueryPath->relativeFromAppRoot()->getUncapped());
-					return $this;
-				}
-			}
-		}
-
-		// commented out because this should be project specific
-		//$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
-		$this->footer['jqueryui.js'] = '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
-		<script>window.jQueryUI || document.write(\'<script src="' . $jQueryPath . '"><\/script>\')</script>';
-		$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/ui-lightness/jquery-ui.css');
 		return $this;
 	}
 
@@ -666,29 +675,6 @@ class IndexBase /*extends Controller*/
 		return $source;
 	}
 
-	public function showSidebar()
-	{
-		TaylorProfiler::start(__METHOD__);
-		$content = '';
-		if (method_exists($this->controller, 'sidebar')) {
-			try {
-				$content = $this->controller->sidebar();
-				$content = $this->s($content);
-			} catch (Exception $e) {
-				// no sidebar
-			}
-		}
-		TaylorProfiler::stop(__METHOD__);
-		return $content;
-	}
-
-	public function renderProfiler()
-	{
-		$pp = new PageProfiler();
-		$content = $pp->render();
-		return $content;
-	}
-
 	public function implodeCSS()
 	{
 		$content = [];
@@ -730,23 +716,8 @@ class IndexBase /*extends Controller*/
 		$this->bodyClasses[$name] = $name;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function setSecurityHeaders()
-	{
-		if (!headers_sent()) {
-			header('X-Frame-Options: SAMEORIGIN');
-			header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
-			foreach ($this->csp as $key => &$val) {
-				$val = $key . ' ' . implode(' ', $val);
-			}
-			header('Content-Security-Policy: ' . implode('; ', $this->csp));
-			header('X-Content-Security-Policy: ' . implode('; ', $this->csp));
-		}
-	}
-
 	/// to avoid Config::getInstance() if Index has a valid config
+
 	public function getConfig()
 	{
 		return $this->config;
