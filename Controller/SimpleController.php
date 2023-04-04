@@ -13,28 +13,24 @@ abstract class SimpleController
 {
 
 	/**
+	 * Instance per class
+	 * @var Controller[]
+	 */
+	protected static $instance = [];
+	/**
 	 * @var Index|\nadlib\IndexInterface
 	 */
 	public $index;
-
 	/**
 	 * @var Request
 	 * @public for injecting something in PHPUnit
 	 */
 	public $request;
-
 	/**
 	 * Will be taken as a <title> of the HTML table
 	 * @var string
 	 */
 	public $title;
-
-	/**
-	 * Instance per class
-	 * @var Controller[]
-	 */
-	protected static $instance = [];
-
 	public $encloseTag = 'h2';
 
 	public $log = [];
@@ -56,6 +52,26 @@ abstract class SimpleController
 		//debug_pre_print_backtrace();
 		$this->html = new HTML();
 		self::$instance[get_class($this)] = $this;
+	}
+
+	public static function getInstance()
+	{
+		$static = get_called_class();
+		//if ($static == 'Controller') throw new Exception('Unable to create Controller instance');
+		$isset = isset(self::$instance[$static]);
+		//debug(array_keys(self::$instance), $static, $isset);
+		if ($isset) {
+			$result = self::$instance[$static];
+		} else {
+			$index = Index::getInstance();
+			if ($index->controller instanceof $static) {
+				$result = $index->getController();
+			} else {
+				$result = new $static;
+			}
+		}
+		//debug($isset, get_class($index), get_class($result));
+		return $result;
 	}
 
 	public function __call($method, array $arguments)
@@ -87,26 +103,6 @@ abstract class SimpleController
 		})->get();
 	}
 
-	public static function getInstance()
-	{
-		$static = get_called_class();
-		//if ($static == 'Controller') throw new Exception('Unable to create Controller instance');
-		$isset = isset(self::$instance[$static]);
-		//debug(array_keys(self::$instance), $static, $isset);
-		if ($isset) {
-			$result = self::$instance[$static];
-		} else {
-			$index = Index::getInstance();
-			if ($index->controller instanceof $static) {
-				$result = $index->getController();
-			} else {
-				$result = new $static;
-			}
-		}
-		//debug($isset, get_class($index), get_class($result));
-		return $result;
-	}
-
 	/*function redirect($url) {
 		if (DEVELOPMENT) {
 			return '<script>
@@ -118,12 +114,6 @@ abstract class SimpleController
 			return '<script> document.location.replace("'.str_replace('"', '&quot;', $url).'"); </script>';
 		}
 	}*/
-
-	public function render()
-	{
-		$content[] = $this->performAction();
-		return $content;
-	}
 
 	/**
 	 * This function prevents performAction() from doing nothing
@@ -163,44 +153,10 @@ abstract class SimpleController
 			: $content;
 	}
 
-	public function __toString()
+	public function render()
 	{
-		return $this->s($this->render());
-	}
-
-	/**
-	 * Wraps the content in a div/section with a header.
-	 * The header is linkable.
-	 * @param string|array|\ToStringable $content
-	 * @param string $caption
-	 * @param string $h
-	 * @param array $more
-	 * @return \ToStringable
-	 * @throws Exception
-	 */
-	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
-	{
-		$h = $h ?: $this->encloseTag;
-		$content = $this->s($content);
-		if ($caption) {
-			$content = [
-				'caption' => $this->getCaption($caption, $h),
-				$content
-			];
-		}
-		$more['class'] = ifsetor($more['class'], 'padding clearfix');
-		$more['class'] .= ' ' . get_class($this);
-		//debug_pre_print_backtrace();
-		//$more['style'] = "position: relative;";	// project specific
-		$content = new HTMLTag('section', $more, $content, true);
+		$content[] = $this->performAction();
 		return $content;
-	}
-
-	public function getCaption($caption, $hTag)
-	{
-		return '<' . $hTag . '>' .
-			$caption .
-			'</' . $hTag . '>';
 	}
 
 	/**
@@ -248,15 +204,55 @@ abstract class SimpleController
 		return $content;
 	}
 
+	public function __toString()
+	{
+		return $this->s($this->render());
+	}
+
 	public function s($something)
 	{
 		return MergedContent::mergeStringArrayRecursive($something);
 	}
 
+	/**
+	 * Wraps the content in a div/section with a header.
+	 * The header is linkable.
+	 * @param string|array|\ToStringable $content
+	 * @param string $caption
+	 * @param string $h
+	 * @param array $more
+	 * @return \ToStringable
+	 * @throws Exception
+	 */
+	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
+	{
+		$h = $h ?: $this->encloseTag;
+		$content = $this->s($content);
+		if ($caption) {
+			$content = [
+				'caption' => $this->getCaption($caption, $h),
+				$content
+			];
+		}
+		$more['class'] = ifsetor($more['class'], 'padding clearfix');
+		$more['class'] .= ' ' . get_class($this);
+		//debug_pre_print_backtrace();
+		//$more['style'] = "position: relative;";	// project specific
+		$content = new HTMLTag('section', $more, $content, true);
+		return $content;
+	}
+
+	public function getCaption($caption, $hTag)
+	{
+		return '<' . $hTag . '>' .
+			$caption .
+			'</' . $hTag . '>';
+	}
+
 	public function log($action, ...$data)
 	{
 		llog($action, ...$data);
-		if (is_array($data) && count($data) === 1) {
+		if (count($data) === 1) {
 			$data = $data[0];
 		}
 		$this->log[] = new LogEntry($action, $data);
