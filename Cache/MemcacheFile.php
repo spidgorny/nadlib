@@ -39,7 +39,7 @@ class MemcacheFile implements MemcacheInterface
 
 		$finalCachePath = realpath($sub . $this->folder);
 		if (!file_exists($finalCachePath) && !is_dir($finalCachePath)) {
-			debug([
+			llog([
 				'unable to access cache folder',
 				'env(storage)' => getenv('storage'),
 				'cwd' => getcwd(),
@@ -59,51 +59,6 @@ class MemcacheFile implements MemcacheInterface
 		if ($expire) {
 			$this->expire = $expire;
 		}
-	}
-
-	public function map($key)
-	{
-		$key = str_replace('(', '-', $key);
-		$key = str_replace(')', '-', $key);
-		$key = str_replace('::', '-', $key);
-		$key = str_replace(',', '-', $key);
-		if (strpos($key, ' ') !== false || strpos($key, '/') !== false) {
-			$key = md5($key);
-		}
-		$file = $this->folder . $key . '.cache'; // str_replace('(', '-', str_replace(')', '-', $key))
-		return $file;
-	}
-
-	/**
-	 * @param string $key - can be provided in the constructor, but repeated here for BWC
-	 * @param mixed $val
-	 * @throws Exception
-	 */
-	public function set($key, $val)
-	{
-		TaylorProfiler::start(__METHOD__);
-		$file = $this->map($key);
-		if (is_writable($this->folder)) {
-			file_put_contents($file, serialize($val));
-			@chmod($file, 0777);    // needed for cronjob accessing cache files
-		} else {
-			TaylorProfiler::stop(__METHOD__);
-			throw new Exception($file . ' write access denied.');
-		}
-		TaylorProfiler::stop(__METHOD__);
-	}
-
-	public function isValid($key = NULL, $expire = 0)
-	{
-		$key = $key ?: $this->key;
-		$expire = $expire ?: $this->expire;
-		$file = $this->map($key);
-		$mtime = @filemtime($file);
-		$bigger = ($mtime > (time() - $expire));
-		if ($this->key == 'OvertimeChart::getStatsCached') {
-//			debug($this->key, $file, $mtime, $expire, $bigger);
-		}
-		return /*!$expire ||*/ $bigger;
 	}
 
 	/**
@@ -132,9 +87,54 @@ class MemcacheFile implements MemcacheInterface
 		return $val;
 	}
 
+	public function map($key)
+	{
+		$key = str_replace('(', '-', $key);
+		$key = str_replace(')', '-', $key);
+		$key = str_replace('::', '-', $key);
+		$key = str_replace(',', '-', $key);
+		if (strpos($key, ' ') !== false || strpos($key, '/') !== false) {
+			$key = md5($key);
+		}
+		$file = $this->folder . $key . '.cache'; // str_replace('(', '-', str_replace(')', '-', $key))
+		return $file;
+	}
+
+	public function isValid($key = NULL, $expire = 0)
+	{
+		$key = $key ?: $this->key;
+		$expire = $expire ?: $this->expire;
+		$file = $this->map($key);
+		$mtime = @filemtime($file);
+		$bigger = ($mtime > (time() - $expire));
+		if ($this->key == 'OvertimeChart::getStatsCached') {
+//			debug($this->key, $file, $mtime, $expire, $bigger);
+		}
+		return /*!$expire ||*/ $bigger;
+	}
+
 	public function setValue($value)
 	{
 		$this->set($this->key, $value);
+	}
+
+	/**
+	 * @param string $key - can be provided in the constructor, but repeated here for BWC
+	 * @param mixed $val
+	 * @throws Exception
+	 */
+	public function set($key, $val)
+	{
+		TaylorProfiler::start(__METHOD__);
+		$file = $this->map($key);
+		if (is_writable($this->folder)) {
+			file_put_contents($file, serialize($val));
+			@chmod($file, 0777);    // needed for cronjob accessing cache files
+		} else {
+			TaylorProfiler::stop(__METHOD__);
+			throw new Exception($file . ' write access denied.');
+		}
+		TaylorProfiler::stop(__METHOD__);
 	}
 
 	public function clearCache($key = null)
