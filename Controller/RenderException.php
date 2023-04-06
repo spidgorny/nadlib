@@ -30,7 +30,10 @@ class RenderException
 
 		http_response_code($this->code ?: $e->getCode());
 		header('X-Exception:' . get_class($this->e));
-		header('X-Message:' . str_replace("\n", " ", $this->e->getMessage()));
+		$message = $this->e->getMessage();
+		$message = str_replace("\n", " ", $message);
+		$message = str_replace("\r", " ", $message);
+		header('X-Message:' . $message);
 
 		$accept = $_SERVER['HTTP_ACCEPT'];
 		header('X-Accept:' . $accept);
