@@ -350,8 +350,12 @@ function llog(...$vars)
 		$output = json_encode($vars, $jsonOptions);
 	}
 	if (strlen($output) > 80) {
-		$output = json_encode(count($vars) === 1 ? first($vars) : $vars, $jsonOptions | JSON_PRETTY_PRINT);
+		$output = json_encode(count($vars) === 1
+			? [
+				'type' => gettype(first($vars)),
+				'value' => first($vars)
+			] : $vars, $jsonOptions | JSON_PRETTY_PRINT);
 	}
-	/** @noinspection ForgottenDebugOutputInspection */
-	error_log($caller . TAB . $output);
+
+	error_log($caller . ' ' . $output);
 }
