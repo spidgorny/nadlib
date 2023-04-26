@@ -11,5 +11,6 @@ if (!function_exists('__')) {
 }
 
 /** Should not be called $i because Index::getInstance() will return $GLOBALS['i'] */
+require_once __DIR__ . '/Controller/NadlibIndex.php';
 $i2 = new NadlibIndex();
 echo $i2->render();
