@@ -17,34 +17,28 @@ use spidgorny\nadlib\HTTP\URL;
 class Localize extends AppControllerBE
 {
 
-	/**
-	 * @var LocalLangDB
-	 */
-	protected $from;
-
-	/**
-	 * @var LocalLangDB
-	 */
-	protected $en, $de, $ru;
-
 	public $title = 'Localize';
-
 	public $table = 'interface';
-
 	public $languages = [
 		'en', 'de', 'ru',
 	];
-
 	/**
 	 * @var URL
 	 */
 	public $url;
-
 	/**
 	 * Cached
 	 * @var array
 	 */
 	public $allKeys = [];
+	/**
+	 * @var LocalLangDB
+	 */
+	protected $from;
+	/**
+	 * @var LocalLangDB
+	 */
+	protected $en, $de, $ru;
 
 	public function __construct()
 	{
@@ -70,7 +64,7 @@ class Localize extends AppControllerBE
 
 	public function render()
 	{
-		$content[] = $this->performAction();
+		$content[] = $this->performAction($this->detectAction());
 		/*$content .= '<div style="float: right;">'.$this->makeLink('Import missing.txt', array(
 			'c' => 'ImportMissing',
 		)).'</div>';*/

@@ -155,14 +155,7 @@ abstract class SimpleController
 
 	public function render()
 	{
-		if (Request::isCLI()) {
-			//debug($_SERVER['argv']);
-			$reqAction = ifsetor($_SERVER['argv'][2]);    // it was 1
-		} else {
-			$reqAction = $this->request->getTrim('action');
-		}
-		//		debug($reqAction);
-		$content[] = $this->performAction($reqAction);
+		$content[] = $this->performAction($this->detectAction());
 		return $content;
 	}
 
@@ -202,6 +195,18 @@ abstract class SimpleController
 			}
 		}
 		return $content;
+	}
+
+	public function detectAction()
+	{
+		if (Request::isCLI()) {
+			//debug($_SERVER['argv']);
+			$reqAction = ifsetor($_SERVER['argv'][2]);    // it was 1
+		} else {
+			$reqAction = $this->request->getTrim('action');
+		}
+		//		debug($reqAction);
+		return $reqAction;
 	}
 
 	public function __toString()

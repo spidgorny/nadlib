@@ -17,7 +17,7 @@ class AlterCharset extends AppControllerBE
 	function render()
 	{
 		$this->index->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . '/js/keepScrollPosition.js');
-		$content = $this->performAction();
+		$content = $this->performAction($this->detectAction());
 		if (!is_object($this->db)) {
 			debug($this->db);
 			return 'No db object';
@@ -40,13 +40,6 @@ class AlterCharset extends AppControllerBE
 			$content .= '<br />';
 		}
 		return $content;
-	}
-
-	function alterTableCharsetAction()
-	{
-		$table = $this->request->getTrim('table');
-		$query = "ALTER TABLE " . $table . " DEFAULT COLLATE = '" . $this->desired . "'";
-		$this->db->perform($query);
 	}
 
 	function renderTableColumns($table)
@@ -112,6 +105,13 @@ class AlterCharset extends AppControllerBE
 		//var_export($s->thes);
 		$content = $s;
 		return $content;
+	}
+
+	function alterTableCharsetAction()
+	{
+		$table = $this->request->getTrim('table');
+		$query = "ALTER TABLE " . $table . " DEFAULT COLLATE = '" . $this->desired . "'";
+		$this->db->perform($query);
 	}
 
 	/**

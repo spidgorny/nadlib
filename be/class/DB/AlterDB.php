@@ -85,6 +85,17 @@ class AlterDB extends AppControllerBE
 		//debug(substr($query, 0, 1000));
 	}
 
+	public function getQueryFrom($file)
+	{
+		$query = file_get_contents($file);
+		$query = str_replace('`', '', $query);
+		$query = preg_replace('/^--.*$/m', '', $query);
+		$query = preg_replace('/^SET.*$/m', '', $query);
+		$query = preg_replace('/^DROP.*$/m', '', $query);
+		$query = preg_replace('/CONSTRAINT.*$/m', '', $query);
+		return $query;
+	}
+
 	public function render()
 	{
 		$content = '';
@@ -112,7 +123,7 @@ class AlterDB extends AppControllerBE
 			$this->update_statements = $this->installerSQL->getUpdateSuggestions($diff);
 			//debug($diff, $this->update_statements);
 
-			$this->performAction();    // only after $this->update_statements are set
+			$this->performAction($this->detectAction());    // only after $this->update_statements are set
 
 			$content .= $this->showDifferences($diff);
 			//$content .= getDebug($diff);
@@ -146,17 +157,6 @@ class AlterDB extends AppControllerBE
 		}
 		$content = '<ul><li>' . implode('</li><li>', $menu) . '</li></ul>';
 		return $content;
-	}
-
-	public function getQueryFrom($file)
-	{
-		$query = file_get_contents($file);
-		$query = str_replace('`', '', $query);
-		$query = preg_replace('/^--.*$/m', '', $query);
-		$query = preg_replace('/^SET.*$/m', '', $query);
-		$query = preg_replace('/^DROP.*$/m', '', $query);
-		$query = preg_replace('/CONSTRAINT.*$/m', '', $query);
-		return $query;
 	}
 
 	public function initInstallerSQL()
@@ -282,6 +282,40 @@ class AlterDB extends AppControllerBE
 		return $content;
 	}
 
+	public function findStringWith(array $options, array $with)
+	{
+		foreach ($options as $el) {
+			$false = false;
+			foreach ($with as $search) {
+				if (strpos($el, $search) === false) {
+					$false = true;
+					continue;
+				}
+			}
+			if (!$false) {
+				return $el;
+			}
+		}
+	}
+
+	public function showTable(array $list, $table)
+	{
+		if ($list) {
+			$s = new slTable($list, 'class="table"', [
+				'field' => 'field',
+				'file' => 'file',
+				'current' => 'current',
+				'sql' => 'sql',
+				'do' => [
+					'name' => 'do',
+					'no_hsc' => true,
+				],
+			]);
+			$content = $this->encloseInAA($s, $table, 'h2');
+		}
+		return $content;
+	}
+
 	public function showExtras(array $diff)
 	{
 		$content = '';
@@ -310,40 +344,6 @@ class AlterDB extends AppControllerBE
 		//debug($update_statements, Debug::LEVELS, 1);
 		//debug($update_statements['create_table']);
 		return $content;
-	}
-
-	public function showTable(array $list, $table)
-	{
-		if ($list) {
-			$s = new slTable($list, 'class="table"', [
-				'field' => 'field',
-				'file' => 'file',
-				'current' => 'current',
-				'sql' => 'sql',
-				'do' => [
-					'name' => 'do',
-					'no_hsc' => true,
-				],
-			]);
-			$content = $this->encloseInAA($s, $table, 'h2');
-		}
-		return $content;
-	}
-
-	public function findStringWith(array $options, array $with)
-	{
-		foreach ($options as $el) {
-			$false = false;
-			foreach ($with as $search) {
-				if (strpos($el, $search) === false) {
-					$false = true;
-					continue;
-				}
-			}
-			if (!$false) {
-				return $el;
-			}
-		}
 	}
 
 	public function doAction()

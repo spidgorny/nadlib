@@ -3,7 +3,7 @@
 class Cookies extends AppControllerBE {
 
 	function render() {
-		$this->performAction();
+		$this->performAction($this->detectAction());
 		$content = '';
 		foreach ($_COOKIE as $key => $val) {
 			$content .= '<h4>'.$key.' <a href="?c=Cookies&action=del&del='.$key.'">&times;</a></h3>'.getDebug($val);

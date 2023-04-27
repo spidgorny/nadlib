@@ -3,25 +3,12 @@
 class TestQueue extends AppController {
 
 	public function render() {
-		$content = $this->performAction();
-		return $content;
+		return $this->performAction($this->detectAction());
 	}
 
 	public function processDeleteUserAction() {
 		return $this->processTask('DeleteUser');
 	}
-
-	public function processNotifyUserAction() {
-		return $this->processTask('NotifyUser');
-	}
-
-	public function createAction() {
-		$taskData = '{"array":[1,2,3],"boolean":true,"null":null,"number":123,"object":{"a":"b","c":"d","e":"f"},"string":"Hello World"}';
-
-		$msgQ = new MessageQueue('DeleteUser');
-		$msgQ->createTask($taskData);
-	}
-
 
 	private function processTask($type) {
 		$content 	= '';
@@ -38,5 +25,16 @@ class TestQueue extends AppController {
 			}
 		}
 		return $content;
+	}
+
+	public function processNotifyUserAction() {
+		return $this->processTask('NotifyUser');
+	}
+
+	public function createAction() {
+		$taskData = '{"array":[1,2,3],"boolean":true,"null":null,"number":123,"object":{"a":"b","c":"d","e":"f"},"string":"Hello World"}';
+
+		$msgQ = new MessageQueue('DeleteUser');
+		$msgQ->createTask($taskData);
 	}
 }

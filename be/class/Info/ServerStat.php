@@ -21,20 +21,6 @@ class ServerStat extends AppControllerBE
 		$this->config = Config::getInstance();
 	}
 
-	function render()
-	{
-		$this->index->addJS('be/js/main.js');
-		$content = $this->performAction();
-		if (!$content) {
-			$content = '<div
-				id="div_SystemInfo"
-				class="row updateHere"
-				src="?c=ServerStat&ajax=1&action=updateHere">' . $this->renderEverything() . '</div>';
-
-		}
-		return $content;
-	}
-
 	/**
 	 * AJAX
 	 * @return string
@@ -97,6 +83,12 @@ class ServerStat extends AppControllerBE
 		return $s;
 	}
 
+	function getBarURL($percent)
+	{
+		$content = AutoLoad::getInstance()->nadlibFromDocRoot . 'bar.php?rating=' . round($percent) . '&!border=0&height=25';
+		return $content;
+	}
+
 	function getPerformanceInfo()
 	{
 		$this->LOG = is_array($this->LOG) ? $this->LOG : [];
@@ -134,6 +126,19 @@ class ServerStat extends AppControllerBE
 		}
 		//debug($conf);
 		return $conf;
+	}
+
+	function getBarWith($value)
+	{
+		return new HTMLTag('td', [
+			'style' => 'width: 100px; background: no-repeat url(' . $this->getBarURL($value) . ');',
+		], $value . ' %');
+	}
+
+	function getBar($percent)
+	{
+		$content = '<img src="' . $this->getBarURL($percent) . '" />';
+		return $content;
 	}
 
 	function getServerInfo()
@@ -208,56 +213,32 @@ class ServerStat extends AppControllerBE
 		return $s;
 	}
 
-	function getQueryLog()
+	function getCpuUsage($_statPath = '/proc/stat')
 	{
-		$s = new slTable('dumpQueries', 'width="100%"');
-		$s->thes([
-			'query'    => ['name' => 'Query', 'no_hsc' => true, 'colspan' => 7, 'new_tr' => true],
-			'function' => '<a href="javascript: void(0);" onclick="toggleRows(\'dumpQueries\');">Func.</a>',
-			'line'     => '(l)',
-			//'results' => 'Rows',
-			'elapsed'  => ['name' => '1st', 'decimals' => 3],
-			'count'    => '#',
-			'total'    => ['name' => $this->totalTime, 'decimals' => 3],
-			'percent'  => '100%',
-		]);
-		$s->data = ifsetor($this->LOG, ifsetor($this->config->getDB()->getQueryLog()));
-		$s->isOddEven = true;
-		$s->more = 'class="nospacing"';
-		return $s;
-	}
+		TaylorProfiler::start(__METHOD__);
+		$percentages = [
+			'idle' => null,
+		];
+		if (@file_exists($_statPath)) {
+			$time1 = $this->getStat($_statPath) or die("getCpuUsage(): couldn't access STAT path or STAT file invalid\n");
+			sleep(1);
+			$time2 = $this->getStat($_statPath) or die("getCpuUsage(): couldn't access STAT path or STAT file invalid\n");
+			//debug($time1, $time2);
 
-	function format_uptime($seconds)
-	{
-		$secs = intval($seconds % 60);
-		$mins = intval($seconds / 60 % 60);
-		$hours = intval($seconds / 3600 % 24);
-		$days = intval($seconds / 86400);
+			$delta = [];
 
-		$uptimeString = $days . "D ";
-		$uptimeString .= str_pad($hours, 2, '0', STR_PAD_LEFT) . ":";
-		$uptimeString .= str_pad($mins, 2, '0', STR_PAD_LEFT) . ":";
-		$uptimeString .= str_pad($secs, 2, '0', STR_PAD_LEFT);
-		return $uptimeString;
-	}
+			foreach ($time1 as $k => $v) {
+				$delta[$k] = $time2[$k] - $v;
+			}
 
-	function getBarURL($percent)
-	{
-		$content = AutoLoad::getInstance()->nadlibFromDocRoot . 'bar.php?rating=' . round($percent) . '&!border=0&height=25';
-		return $content;
-	}
+			$deltaTotal = array_sum($delta);
 
-	function getBar($percent)
-	{
-		$content = '<img src="' . $this->getBarURL($percent) . '" />';
-		return $content;
-	}
-
-	function getBarWith($value)
-	{
-		return new HTMLTag('td', [
-			'style' => 'width: 100px; background: no-repeat url(' . $this->getBarURL($value) . ');',
-		], $value . ' %');
+			foreach ($delta as $k => $v) {
+				$percentages[$k] = $v / $deltaTotal * 100;
+			}
+		}
+		TaylorProfiler::stop(__METHOD__);
+		return $percentages;
 	}
 
 	protected function getStat($_statPath = '/proc/stat')
@@ -304,32 +285,37 @@ class ServerStat extends AppControllerBE
 		return $res;
 	}
 
-	function getCpuUsage($_statPath = '/proc/stat')
+	function format_uptime($seconds)
 	{
-		TaylorProfiler::start(__METHOD__);
-		$percentages = [
-			'idle' => null,
-		];
-		if (@file_exists($_statPath)) {
-			$time1 = $this->getStat($_statPath) or die("getCpuUsage(): couldn't access STAT path or STAT file invalid\n");
-			sleep(1);
-			$time2 = $this->getStat($_statPath) or die("getCpuUsage(): couldn't access STAT path or STAT file invalid\n");
-			//debug($time1, $time2);
+		$secs = intval($seconds % 60);
+		$mins = intval($seconds / 60 % 60);
+		$hours = intval($seconds / 3600 % 24);
+		$days = intval($seconds / 86400);
 
-			$delta = [];
+		$uptimeString = $days . "D ";
+		$uptimeString .= str_pad($hours, 2, '0', STR_PAD_LEFT) . ":";
+		$uptimeString .= str_pad($mins, 2, '0', STR_PAD_LEFT) . ":";
+		$uptimeString .= str_pad($secs, 2, '0', STR_PAD_LEFT);
+		return $uptimeString;
+	}
 
-			foreach ($time1 as $k => $v) {
-				$delta[$k] = $time2[$k] - $v;
-			}
-
-			$deltaTotal = array_sum($delta);
-
-			foreach ($delta as $k => $v) {
-				$percentages[$k] = $v / $deltaTotal * 100;
-			}
-		}
-		TaylorProfiler::stop(__METHOD__);
-		return $percentages;
+	function getQueryLog()
+	{
+		$s = new slTable('dumpQueries', 'width="100%"');
+		$s->thes([
+			'query'    => ['name' => 'Query', 'no_hsc' => true, 'colspan' => 7, 'new_tr' => true],
+			'function' => '<a href="javascript: void(0);" onclick="toggleRows(\'dumpQueries\');">Func.</a>',
+			'line'     => '(l)',
+			//'results' => 'Rows',
+			'elapsed'  => ['name' => '1st', 'decimals' => 3],
+			'count'    => '#',
+			'total'    => ['name' => $this->totalTime, 'decimals' => 3],
+			'percent'  => '100%',
+		]);
+		$s->data = ifsetor($this->LOG, ifsetor($this->config->getDB()->getQueryLog()));
+		$s->isOddEven = true;
+		$s->more = 'class="nospacing"';
+		return $s;
 	}
 
 	function sortLog($a, $b)
@@ -356,6 +342,20 @@ class ServerStat extends AppControllerBE
 	function __toString()
 	{
 		return $this->render();
+	}
+
+	function render()
+	{
+		$this->index->addJS('be/js/main.js');
+		$content = $this->performAction($this->detectAction());
+		if (!$content) {
+			$content = '<div
+				id="div_SystemInfo"
+				class="row updateHere"
+				src="?c=ServerStat&ajax=1&action=updateHere">' . $this->renderEverything() . '</div>';
+
+		}
+		return $content;
 	}
 
 }

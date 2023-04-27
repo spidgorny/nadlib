@@ -3,15 +3,13 @@
 class ConfigView extends AppControllerBE
 {
 
+	var $file;
 	protected $prefix = __CLASS__;
-
 	protected $typeMap = [
 		'string' => 'input',
 		'boolean' => 'checkbox',
 		'integer' => 'input',
 	];
-
-	var $file;
 
 	function __construct()
 	{
@@ -24,7 +22,7 @@ class ConfigView extends AppControllerBE
 	{
 		$content = '';
 		if (file_exists($this->file)) {
-			$this->performAction();
+			$this->performAction($this->detectAction());
 			$data = Spyc::YAMLLoad($this->file);
 			//$content = getDebug($data);
 
