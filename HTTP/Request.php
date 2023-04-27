@@ -872,7 +872,10 @@ class Request
 		if (isset($headers['x-requested-with'])) {
 			$isXHR = $headers['x-requested-with'] === 'XMLHttpRequest';
 		}
-		return $this->getBool('ajax') || $isXHR;
+
+		$acceptJson = str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
+
+		return $this->getBool('ajax') || $isXHR || $acceptJson;
 	}
 
 	public function getBool($name)
