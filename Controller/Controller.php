@@ -226,7 +226,7 @@ abstract class Controller extends SimpleController
 		$content = '';
 		foreach ($elements as $html) {
 			$html = $this->s($html);
-			$content .= '<div class="flex-box">' . $html . '</div>';
+			$content .= '<div class="flex-box flex-equal">' . $html . '</div>';
 		}
 		return '<div class="display-box">' . $content . '</div>';
 	}
