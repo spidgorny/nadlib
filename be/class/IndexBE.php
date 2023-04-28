@@ -28,9 +28,9 @@ class IndexBE extends IndexBase {
 			require_once 'ConfigBE.php';
 			$this->config = ConfigBE::getInstance();
 		}
-		parent::__construct();
+		parent::__construct($this->config);
 
-		$this->config->defaultController = 'HomeBE';
+		$this->config->defaultController = HomeBE::class;
 		$this->config->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $this->config->documentRoot);
 		$this->config->documentRoot = str_replace('/nadlib/be', '', $this->config->documentRoot);
 		//$config->documentRoot = $this->config->documentRoot ?: '/';	// must end without slash
@@ -63,7 +63,7 @@ class IndexBE extends IndexBase {
 
 		$this->user = new BEUser();
 		$this->user->id = 'nadlib';
-		$this->user->try2login();
+		$this->user->try2login('admin');
 
 		$this->ll = new LocalLangDummy();
 		//debug($this->ll);
@@ -87,6 +87,48 @@ class IndexBE extends IndexBase {
 		$docRoot->trimIf('be');
 		//debug($this->request->getDocumentRoot(), $docRoot, $this->nadlibFromDocRoot, $nadlibPath);
 		$this->menu->basePath->setPath($docRoot);
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function getMenu() {
+		$menu = [
+			'HomeBE'         => 'Home',
+			'ServerStat'     => new Recursive('Info', [
+				SysInfo::class  => 'Sys Info',
+				'ServerStat'    => 'Server Stat',
+				'ServerData'    => 'Server Data',
+				'SessionView'   => 'Session',
+				'Cookies'       => 'Cookies',
+				'ConfigView'    => 'config.yaml',
+				'PHPInfo'       => 'phpinfo()',
+				'About'         => 'About',
+				'Documentation' => 'Documentation',
+				'IniCheck'      => 'php.ini Check',
+				'TimeTrack'     => 'Time Track',
+				'Issues'        => 'Issues',
+			]),
+			'UnitTestReport' => new Recursive('Test', [
+				'UnitTestReport' => 'Unit Test Report',
+				'ValidatorCheck' => 'Validator Check',
+				'TestQueue'      => 'Test Queue',
+			]),
+			'ExplainQuery'   => new Recursive('DB', [
+				'AlterDB'      => 'Alter DB',
+				'AlterCharset' => 'Alter Charset',
+				'AlterTable'   => 'Alter Table',
+				'AlterIndex'   => 'Alter Indexes',
+				'OptimizeDB'   => 'Optimize DB',
+				'ExplainQuery' => 'Explain Query',
+				'Localize'     => 'Localize',
+			]),
+			'ClearCache'     => new Recursive('FE', [
+				'ClearCache'   => 'Clear Cache',
+				'JumpFrontend' => '<- Frontend',
+			]),
+		];
+		return $menu;
 	}
 
 	function loadBEmenu(array $menu) {
@@ -167,48 +209,6 @@ class IndexBE extends IndexBase {
 		//debug($m);
 		return '<div class="_well" style="padding: 0;">'.$m.'</div>'.
 			parent::showSidebar();
-	}
-
-	/**
-	 * @return array
-	 */
-	public static function getMenu() {
-		$menu = [
-			'HomeBE'         => 'Home',
-			'ServerStat'     => new Recursive('Info', [
-				SysInfo::class  => 'Sys Info',
-				'ServerStat'    => 'Server Stat',
-				'ServerData'    => 'Server Data',
-				'SessionView'   => 'Session',
-				'Cookies'       => 'Cookies',
-				'ConfigView'    => 'config.yaml',
-				'PHPInfo'       => 'phpinfo()',
-				'About'         => 'About',
-				'Documentation' => 'Documentation',
-				'IniCheck'      => 'php.ini Check',
-				'TimeTrack'     => 'Time Track',
-				'Issues'        => 'Issues',
-			]),
-			'UnitTestReport' => new Recursive('Test', [
-				'UnitTestReport' => 'Unit Test Report',
-				'ValidatorCheck' => 'Validator Check',
-				'TestQueue'      => 'Test Queue',
-			]),
-			'ExplainQuery'   => new Recursive('DB', [
-				'AlterDB'      => 'Alter DB',
-				'AlterCharset' => 'Alter Charset',
-				'AlterTable'   => 'Alter Table',
-				'AlterIndex'   => 'Alter Indexes',
-				'OptimizeDB'   => 'Optimize DB',
-				'ExplainQuery' => 'Explain Query',
-				'Localize'     => 'Localize',
-			]),
-			'ClearCache'     => new Recursive('FE', [
-				'ClearCache'   => 'Clear Cache',
-				'JumpFrontend' => '<- Frontend',
-			]),
-		];
-		return $menu;
 	}
 
 }
