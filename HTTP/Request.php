@@ -976,7 +976,7 @@ class Request
 		}
 		//debug(getcwd(), $al->documentRoot.'');
 		//			debug('cwd', $cwd);
-		$docRoot = $docRoot ?? clone $al->documentRoot;
+		$docRoot = $docRoot ? new Path($docRoot) : clone $al->documentRoot;
 		//			debug('documentRoot', $docRoot);
 		$docRoot->append($this->url->getPath());
 		$docRoot->normalizeHomePage();
