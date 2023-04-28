@@ -4,15 +4,13 @@ class NadlibIndex
 {
 
 	/**
-	 * @var Request
-	 */
-	protected $request;
-
-	/**
 	 * @var NadlibIndex
 	 */
 	static public $instance;
-
+	/**
+	 * @var Request
+	 */
+	protected $request;
 	/**
 	 * @var DIContainer
 	 */
@@ -36,7 +34,7 @@ class NadlibIndex
 
 		$this->dic = new DIContainer();
 		$this->dic->index = function ($c) {
-			require_once 'be/class/IndexBE.php';
+			require_once __DIR__ . '/../be/class/IndexBE.php';
 			$indexBE = IndexBE::getInstance(true);
 			return $indexBE;
 		};
@@ -51,7 +49,7 @@ class NadlibIndex
 		};
 
 		if (!class_exists('Config')) {
-			require_once 'be/class/ConfigBE.php';
+			require_once __DIR__ . '/../be/class/ConfigBE.php';
 //			class_alias('ConfigBE', 'Config');
 		}
 		if (!class_exists('AppController', false)) {
@@ -106,14 +104,14 @@ class NadlibIndex
 		return $content;
 	}
 
-	function initAction()
-	{
-		return 'initAction';
-	}
-
 	function s($content)
 	{
 		return MergedContent::mergeStringArrayRecursive($content);
+	}
+
+	function initAction()
+	{
+		return 'initAction';
 	}
 
 }
