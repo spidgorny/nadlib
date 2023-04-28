@@ -958,31 +958,14 @@ class Request
 		}
 	}
 
-	public function getPathAfterDocRoot()
+	public function getPathAfterDocRoot($docRoot = null)
 	{
 		$al = AutoLoad::getInstance();
 
-		if (!$this->isWindows()) {    // linux
-			//debug(getcwd(), $al->documentRoot.'');
-			//			debug('cwd', $cwd);
-			$url = clone $al->documentRoot;
-			//			debug('documentRoot', $url);
-			$url->append($this->url->getPath());
-			$url->normalizeHomePage();
-
-			$cwd = new Path(getcwd());
-			$cwd->normalizeHomePage();
-
-			$path = new Path($url);
-			$path->remove($cwd);
-			$path->normalize();
-
-			//			debug($url.'', $cwd.'', $path.'');
-		} else {    // windows
-			$cwd = null;
-			$url = new Path('');
-			$url->append($this->url->getPath());
-			$path = new Path($url);
+		if ($this->isWindows()) {
+			$docRoot = new Path('');
+			$docRoot->append($this->url->getPath());
+			$path = new Path($docRoot);
 
 			//			debug($al->documentRoot);
 			if (false) {    // doesn't work in ORS
@@ -990,8 +973,21 @@ class Request
 			} elseif ($al->documentRoot instanceof Path) {        // works in ORS
 				$path->remove(clone $al->documentRoot);
 			}
-			//			debug($url.'', $path.'', $al->documentRoot.'');
 		}
+		//debug(getcwd(), $al->documentRoot.'');
+		//			debug('cwd', $cwd);
+		$docRoot = $docRoot ?? clone $al->documentRoot;
+		//			debug('documentRoot', $docRoot);
+		$docRoot->append($this->url->getPath());
+		$docRoot->normalizeHomePage();
+
+		$cwd = new Path(getcwd());
+		$cwd->normalizeHomePage();
+
+		$path = new Path($docRoot);
+		$path->remove($cwd);
+		$path->normalize();
+
 		return $path;
 	}
 
