@@ -341,17 +341,17 @@ function llog(...$vars)
 		return $el;
 	}, $vars);
 
+	$type = null;
 	if (count($vars) === 1) {
-		$output = json_encode([
-			'type' => gettype(first($vars)),
-			'value' => first($vars)
-		], $jsonOptions);
+		$type = gettype(first($vars));
+		$output = json_encode(first($vars), $jsonOptions);
 	} else {
+		$type = 'multi';
 		$output = json_encode($vars, $jsonOptions);
 	}
 	if (strlen($output) > 80) {
 		$output = json_encode(count($vars) === 1 ? first($vars) : $vars, $jsonOptions | JSON_PRETTY_PRINT);
 	}
 	/** @noinspection ForgottenDebugOutputInspection */
-	error_log($caller . TAB . $output);
+	error_log("{$caller} [{$type}] {$output}");
 }
