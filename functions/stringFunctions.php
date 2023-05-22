@@ -272,4 +272,9 @@ if (!function_exists('str_startsWith')) {
 		return $out;
 	}
 
+	function strip_namespace($className)
+	{
+			return last(trimExplode('\\', $className));
+	}
+
 }
