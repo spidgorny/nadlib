@@ -2,7 +2,7 @@
 
 use spidgorny\nadlib\HTTP\URL;
 
-class View extends stdClass
+class View extends stdClass implements ToStringable
 {
 
 	//use HTMLHelper;
@@ -119,8 +119,7 @@ class View extends stdClass
 			ob_end_clean();
 		}
 
-		$content = $this->s($content);
-		return $content;
+		return $this->s($content);
 	}
 
 	public function render(array $variables = [])

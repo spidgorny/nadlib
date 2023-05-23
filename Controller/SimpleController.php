@@ -243,8 +243,7 @@ abstract class SimpleController
 		$more['class'] .= ' ' . get_class($this);
 		//debug_pre_print_backtrace();
 		//$more['style'] = "position: relative;";	// project specific
-		$content = new HTMLTag('section', $more, $content, true);
-		return $content;
+		return new HTMLTag('section', $more, $content, true);
 	}
 
 	public function getCaption($caption, $hTag)
