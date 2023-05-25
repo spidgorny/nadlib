@@ -123,8 +123,7 @@ abstract class SimpleController
 	public function indexAction()
 	{
 		$content = $this->renderTemplate();
-		$content = $this->html->div($content, str_replace('\\', '-', get_class($this)));
-		return $content;
+		return $this->html->div($content, str_replace('\\', '-', get_class($this)));
 	}
 
 	public function renderTemplate()
