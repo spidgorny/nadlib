@@ -95,6 +95,7 @@ class DBLayerMS extends DBLayerBase implements DBInterface
 		$profiler = new Profiler();
 		$res = mssql_query($query, $this->connection);
 		$msg = mssql_get_last_message();
+		$msg2 = null;
 		if ((!$res || $msg) && !in_array($msg, $this->ignoreMessages)) {
 			if ($this->debug) {
 				$msg2 = mssql_fetch_assoc(

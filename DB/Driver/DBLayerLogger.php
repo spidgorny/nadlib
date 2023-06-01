@@ -126,6 +126,7 @@ class DBLayerLogger extends DBLayerBase implements DBInterface
 	public function getScheme()
 	{
 		$this->log(__METHOD__);
+		return null;
 	}
 
 	public function getTablesEx()
