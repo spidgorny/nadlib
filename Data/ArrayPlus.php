@@ -373,7 +373,7 @@ class ArrayPlus extends ArrayObject implements Countable
 	 */
 	public function getPrevNext($key)
 	{
-		$row = $this->findInData(['id' => $key]);
+		$row = $this->where('id', $key);
 		$row2 = $this[$key];    // works, but how to get next?
 		# http://stackoverflow.com/questions/4792673/php-get-previous-array-element-knowing-current-array-key
 		# http://www.php.net/manual/en/arrayiterator.seek.php

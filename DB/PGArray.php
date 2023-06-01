@@ -43,8 +43,8 @@ class PGArray extends AsIs
 	public function __sleep()
 	{
 		$props = get_object_vars($this);
-		$props = array_keys($props);
 		unset($props['db']);
+		$props = array_keys($props);
 		return $props;
 	}
 

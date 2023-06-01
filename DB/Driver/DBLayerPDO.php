@@ -33,12 +33,18 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	 */
 	protected $dataSeek = null;
 
+	protected $host, $user, $password, $db;
+
 	public function __construct($db = null, $host = null,
 								$user = null, $password = null,
 								$scheme = 'mysql', $driver = null,
 								$port = 3306)
 	{
 		if ($user) {
+			$this->host = $host;
+			$this->user = $user;
+			$this->password = $password;
+			$this->db = $db;
 			$this->connect($user, $password,
 				$scheme, $driver,
 				$host, $db, $port);
@@ -353,7 +359,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		];
 		$scheme = $this->getScheme();
 		if (isset($driverMap[$scheme])) {
-			return new $driverMap[$scheme];
+			return new $driverMap[$scheme]($this->host, $this->user, $this->password, $this->db);
 		} else {
 			throw new InvalidArgumentException(__METHOD__ . ' not implemented for [' . $scheme . ']');
 		}
