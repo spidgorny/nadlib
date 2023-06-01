@@ -54,9 +54,9 @@ if (!function_exists('debugList')) {
 
 if (!function_exists('d')) {
 
-	function d($a)
+	function d(...$a)
 	{
-		$params = func_num_args() == 1 ? $a : func_get_args();
+		$params = func_num_args() == 1 ? $a[0] : $a;
 		if (DEVELOPMENT) {
 			ob_start();
 			var_dump($params);

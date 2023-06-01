@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8d4356d74ab4eef8cf708156531dd59b",
+    "content-hash": "1a06148f247dd1b3f62b1a546bf4f67f",
     "packages": [
         {
             "name": "greenlion/php-sql-parser",
@@ -804,7 +804,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/spidgorny/advanced-html-dom",
-                "reference": "2.0"
+                "reference": "v2.0"
             },
             "type": "library"
         },

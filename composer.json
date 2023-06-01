@@ -103,7 +103,7 @@
 				"source": {
 					"url": "https://github.com/spidgorny/advanced-html-dom",
 					"type": "git",
-					"reference": "2.0"
+					"reference": "v2.0"
 				}
 			}
 		}

@@ -2,7 +2,6 @@
 
 namespace nadlib;
 
-
 use AsIs;
 use DBInterface;
 
@@ -28,7 +27,7 @@ class Proxy extends \OODBase
 	function __construct($row = null)
 	{
 		parent::__construct($row);
-		$this->db = Config::getInstance()->getDB();
+		$this->db = \Config::getInstance()->getDB();
 		if ($this->data) {
 			$this->ratio = $this->data['ok'] / max(1, $this->data['fail']);
 		}
