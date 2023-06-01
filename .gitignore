@@ -12,7 +12,6 @@ be/cache/
 .hg_archival.txt
 *.orig
 components/
-composer.lock
 docs/
 tests/reports/
 debugCookie/
