@@ -1,13 +1,13 @@
 {
 	"name": "spidgorny/nadlib",
-	"minimum-stability": "stable",
+	"minimum-stability": "dev",
 	"require": {
 		"php": ">=7 || >= 8",
 		"greenlion/php-sql-parser": "^4.6",
 		"michelf/php-markdown": "^2.0",
 		"guzzlehttp/guzzle": "^7.7",
 		"league/flysystem": "^2.5",
-		"spidgorny/advanced-html-dom": "dev-master"
+		"spidgorny/advanced-html-dom": "2.*"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^6",
@@ -96,8 +96,16 @@
 			}
 		},
 		{
-			"type": "vcs",
-			"url": "https://github.com/spidgorny/advanced-html-dom"
+			"type": "package",
+			"package": {
+				"version": "2.0",
+				"name": "spidgorny/advanced-html-dom",
+				"source": {
+					"url": "https://github.com/spidgorny/advanced-html-dom",
+					"type": "git",
+					"reference": "2.0"
+				}
+			}
 		}
 	]
 }
