@@ -462,7 +462,7 @@ class Menu /*extends Controller*/
 			}
 		} elseif (contains($class, '/')) {
 			$classWithoutSlash = trimExplode('/', $class);
-			$classWithoutSlash = $classWithoutSlash[0];
+			$classWithoutSlash = $classWithoutSlash[0] ?? '';
 			$ret = $this->current == $classWithoutSlash;
 		} else {
 			$ret = $this->current == $class;
@@ -519,15 +519,15 @@ class Menu /*extends Controller*/
 				$link = $this->basePath->setParam($this->controllerVarName, $class);
 			}
 		}
-		0 && debug([
-			'class' => $class,
-			'root' => $root,
-			'path' => $path,
-			'useRecursiveURL' => $this->useRecursiveURL,
-			'useControllerSlug' => $this->useControllerSlug,
-			'basePath' => $this->basePath . '',
-			'link' => $link . ''
-		]);
+//		llog([
+//			'class' => $class,
+//			'root' => $root,
+//			'path' => $path,
+//			'useRecursiveURL' => $this->useRecursiveURL,
+//			'useControllerSlug' => $this->useControllerSlug,
+//			'basePath' => $this->basePath . '',
+//			'link' => $link . ''
+//		]);
 		return $link;
 	}
 
