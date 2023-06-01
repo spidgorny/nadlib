@@ -389,7 +389,7 @@ class ArrayPlus extends ArrayObject implements Countable
 			$iterator->previous();
 			$prev = $iterator->current();
 		}
-		debug($key, $row, $row2, $row3['id'], $next['id'], $prev['id']); //, $rc->data);//, $rc);
+//		debug($key, $row, $row2, $row3['id'], $next['id'], $prev['id']); //, $rc->data);//, $rc);
 	}
 
 	/**
@@ -451,12 +451,12 @@ class ArrayPlus extends ArrayObject implements Countable
 
 	public function findAlternativeFromMenu($current)
 	{
-		foreach ($this->items as $key => $rec) {
+		foreach ($this->getData() as $key => $rec) {
 			/** @var $rec Recursive */
 			//$found = $rec->findPath($this->current);
 			if ($rec instanceof Recursive) {
 				$children = $rec->getChildren();
-				$found = isset($children[current]) ? $children[$current] : null;
+				$found = isset($children[$current]) ? $children[$current] : null;
 				//debug($children, $found, $key, $this->current);
 				return $found;
 			}
@@ -768,6 +768,7 @@ class ArrayPlus extends ArrayObject implements Countable
 	public function debug()
 	{
 		return [
+			'class' => get_class($this),
 			'count' => $this->count(),
 		];
 	}
@@ -775,7 +776,7 @@ class ArrayPlus extends ArrayObject implements Countable
 	/**
 	 * @param string $oldKey
 	 * @param string $newKey
-	 * @return array
+	 * @return ArrayPlus
 	 * @throws Exception
 	 */
 	public function replace_key($oldKey, $newKey)
@@ -786,6 +787,7 @@ class ArrayPlus extends ArrayObject implements Countable
 		}
 		$keys[$index] = $newKey;
 		$this->exchangeArray(array_combine($keys, array_values((array)$this)));
+		return $this;
 	}
 
 	/**

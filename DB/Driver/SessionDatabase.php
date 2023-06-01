@@ -277,7 +277,7 @@ class SessionDatabase implements \DBInterface
 	/** @return string */
 	public function getDSN()
 	{
-		// TODO: Implement getDSN() method.
+		return 'TBD getDSN';
 	}
 
 	public function getInfo()
