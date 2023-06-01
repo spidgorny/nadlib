@@ -105,6 +105,7 @@ trait CachedGetInstance
 			$obj = self::getInstance($id);
 //			llog(get_called_class(), $id, 'getInstance', spl_object_hash($obj));
 		} catch (InvalidArgumentException $e) {
+			/** @var mixed $class */
 			$class = get_called_class();
 			$obj = new $class();
 //			llog(get_called_class(), $id, 'new', spl_object_hash($obj));

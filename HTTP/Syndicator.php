@@ -468,9 +468,9 @@ class Syndicator
 	function css($selector)
 	{
 //		CssSelector::enableHtmlExtension();
-		$xpath = CssSelector::toXPath($selector);
+//		$xpath = CssSelector::toXPath($selector);
 		//debug($xpath);
-		return $this->getElements($xpath);
+//		return $this->getElements($xpath);
 	}
 
 	/**
