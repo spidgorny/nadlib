@@ -10,9 +10,9 @@ class DebugHTML
 	/**
 	 * @var Debug
 	 */
-	var $helper;
+	public $helper;
 
-	var $htmlPrologSent = false;
+	protected $htmlPrologSent = false;
 
 	static $defaultLevels = 4;
 
@@ -43,7 +43,7 @@ class DebugHTML
 				<html>
 				<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 				' . $content;
-				$this->htmlProlorSent = true;
+				$this->htmlPrologSent = true;
 			}
 		}
 		return $content;

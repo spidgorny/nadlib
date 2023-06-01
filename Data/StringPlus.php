@@ -241,7 +241,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	public function compareToIgnoreCase($string, $characters = null)
 	{
 		if ($characters === null) {
-			return strncasecmp($this->_string, (string)$string);
+			return strcasecmp($this->_string, (string)$string);
 		}
 		return strncasecmp($this->_string, (string)$string, (int)$characters);
 	}
@@ -303,6 +303,11 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	{
 		$substr = new self($substr);
 		return ($this->lastIndexOf($substr) === $this->length() - $substr->length());
+	}
+
+	public function length()
+	{
+		return count($this->_string);
 	}
 
 	/**
@@ -492,7 +497,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	public function lastIndexOf($substr, $offset = 0)
 	{
 		if (function_exists('mb_strrpos')) {
-			$pos = mb_strrpos($this->_string, (string)$substr, (int)$offset, $this->getEncoding());
+			$pos = mb_strrpos($this->_string, (string)$substr, (int)$offset);
 		} else if ($this->getEncoding() === 'UTF-8' && function_exists('utf8_strrpos')) {
 			$pos = utf8_strrpos($this->_string, (string)$substr, ($offset === 0 ? null : $offset));
 		} else if (function_exists('iconv_strrpos')) {
@@ -1339,7 +1344,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	public static function random($length, $charset = self::ALNUM)
 	{
 		$length = (int)$length;
-		$count = (int)self::getLength($charset);
+		$count = count($charset);
 		$str = '';
 		while ($length--) {
 			$str .= $charset[mt_rand(0, $count - 1)];
@@ -1373,20 +1378,4 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 		return String::make($json);
 	}
 
-}
-
-if (!class_exists('LogicException')) {
-	class LogicException extends Exception
-	{
-	}
-}
-if (!class_exists('BadFunctionCallException')) {
-	class BadFunctionCallException extends LogicException
-	{
-	}
-}
-if (!class_exists('BadMethodCallException')) {
-	class BadMethodCallException extends BadFunctionCallException
-	{
-	}
 }
