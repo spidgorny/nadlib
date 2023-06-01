@@ -425,7 +425,7 @@ class TaylorProfiler
 	public function getMaxMemory()
 	{
 		$ret = null;
-		$amem = array2::array_column($this->trace, 'memory');
+		$amem = ArrayPlus::create($this->trace)->column('memory');
 		if (sizeof($amem)) {
 			$ret = max($amem);
 		}

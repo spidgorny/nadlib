@@ -47,7 +47,6 @@ class Debug
 			echo '<pre>';
 			var_dump([
 				'canCLI' => DebugCLI::canCLI(),
-				'canFirebug' => DebugFirebug::canFirebug(),
 				'canDebugster' => $this->canDebugster(),
 				'canBulma' => DebugBulma::canBulma(),
 				'canHTML' => $this->canHTML(),
@@ -61,19 +60,16 @@ class Debug
 	{
 		return DebugCLI::canCLI()
 			? DebugCLI::class
-			: (DebugFirebug::canFirebug()
-				? DebugFirebug::class
-				: ($this->canDebugster()
-					? 'Debugster'
-					: (DEVELOPMENT
-						? (DebugBulma::canBulma()
-							? DebugBulma::class
-							: ($this->canHTML()
-								? 'HTML'
-								: '')
-						)
-						: null
+			: ($this->canDebugster()
+				? 'Debugster'
+				: (DEVELOPMENT
+					? (DebugBulma::canBulma()
+						? DebugBulma::class
+						: ($this->canHTML()
+							? 'HTML'
+							: '')
 					)
+					: null
 				)
 			);
 	}

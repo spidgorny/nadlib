@@ -1,5 +1,7 @@
 <?php
 
+use Michelf\Markdown;
+
 class ContentEditable {
 
 	/**

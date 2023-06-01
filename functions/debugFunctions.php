@@ -69,15 +69,7 @@ if (!function_exists('d')) {
 		}
 	}
 
-	/**
-	 * @param ...$a
-	 * @param mixed $b
-	 * @param mixed $c
-	 * @param mixed $d
-	 * @param mixed $e
-	 * @param mixed $f
-	 */
-	function nodebug($a, $b = null, $c = null, $d = null, $e = null, $f = null)
+	function nodebug(...$ignored)
 	{
 	}
 

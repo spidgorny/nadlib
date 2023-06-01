@@ -501,7 +501,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 		} else if ($this->getEncoding() === 'UTF-8' && function_exists('utf8_strrpos')) {
 			$pos = utf8_strrpos($this->_string, (string)$substr, ($offset === 0 ? null : $offset));
 		} else if (function_exists('iconv_strrpos')) {
-			$pos = iconv_strrpos($this->_string, (string)$substr, (int)$offset, $this->getEncoding());
+			$pos = iconv_strrpos($this->_string, (string)$substr, (int)$offset);
 		} else {
 			$pos = strrpos($this->_string, (string)$substr, (int)$offset);
 		}
@@ -584,7 +584,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 */
 	public function offsetSet($offset, $value)
 	{
-		throw BadMethodCallException();
+		throw new BadMethodCallException();
 	}
 
 	/**
@@ -595,7 +595,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 */
 	public function offsetUnset($offset)
 	{
-		throw BadMethodCallException();
+		throw new BadMethodCallException();
 	}
 
 	/**
@@ -1364,6 +1364,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 */
 	public static function mb_chr($int)
 	{
+		$json = '';
 		if ($int <= 127) {
 			$json = chr($int);
 		} else {
@@ -1375,7 +1376,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 				return html_entity_decode("&#{$int};", ENT_QUOTES, 'UTF-8');
 			}
 		}
-		return String::make($json);
+		return StringPlus::make($json);
 	}
 
 }

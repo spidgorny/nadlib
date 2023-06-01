@@ -59,8 +59,8 @@ class HTMLFormTimeRange extends HTMLFormType
 		if (strlen($value) == 11) {
 			$parts = explode('-', $value);
 			if (sizeof($parts) == 2) {
-				$s = new IndTime($parts[0]);
-				$e = new IndTime($parts[1]);
+				$s = new Time($parts[0]);
+				$e = new Time($parts[1]);
 			} else {
 				throw new Exception('Unable to parse time range: ' . $value);
 			}

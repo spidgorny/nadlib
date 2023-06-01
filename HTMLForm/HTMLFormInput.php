@@ -1,23 +1,20 @@
 <?php
 
 /**
- * @property mixed prefix
- * @property string label
- * @property string value
- * @property string type
- * @property string placeholder
  */
-class HTMLFormInput extends HTMLFormField
+class HTMLFormInput extends HTMLFormType
 {
 
-//	public $name;
-//	public $placeholder;
-//	public $value;
-//	public $type = 'text';
+	public $prefix;
+	public $label;
+	public $name;
+	public $placeholder;
+	public $value;
+	public $type = 'text';
 
 	public function __construct($name, array $attr = ['type' => 'text'])
 	{
-		parent::__construct($attr + ['type' => 'text'], $name);
+//		parent::__construct($attr + ['type' => 'text'], $name);
 //		$this->name = $name;
 //		$this->assign($attr);
 		$this->setValue($this->value);

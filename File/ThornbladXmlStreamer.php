@@ -59,7 +59,7 @@ abstract class ThornbladXmlStreamer
 	 * @param string $xmlString Complete XML tree of the node as a string
 	 * @param string $elementName Name of the node for easy access
 	 * @param int $nodeIndex Zero-based index that increments for every node
-	 * @return void If false is returned, the streaming will stop
+	 * @return boolean|void If false is returned, the streaming will stop
 	 */
 	abstract public function processNode($xmlString, $elementName, $nodeIndex);
 
@@ -225,7 +225,7 @@ abstract class ThornbladXmlStreamer
 						$this->chunk = substr($this->chunk, strpos($this->chunk, $endTag) + strlen($endTag));
 						$this->readFromChunkPos = 0;
 
-						if (isset($continueParsing) && $continueParsing === false) {
+						if (!$continueParsing) {
 							break(2);
 						}
 					} else {

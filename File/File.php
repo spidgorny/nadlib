@@ -5,6 +5,8 @@ class File
 
 	public bool $isDir;
 
+	public string $dir;
+
 	/**
 	 * @var string this is a relative path (can be absolute as well)
 	 */

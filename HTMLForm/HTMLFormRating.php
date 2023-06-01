@@ -7,9 +7,9 @@ class HTMLFormRating extends HTMLFormType implements HTMLFormFieldInterface {
 	 * @return mixed
 	 */
 	function render() {
-		$ar = new StarRating(0);
-		$content[] = $ar->renderStars();
-		return $content;
+//		$ar = new StarRating(0);
+//		$content[] = $ar->renderStars();
+//		return $content;
 	}
 
 }

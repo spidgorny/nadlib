@@ -29,7 +29,7 @@ class TagCloud extends Controller
 		return $row;
 	}
 
-	public function renderHTML()
+	public function renderHTML($url =  null)
 	{
 		$content = '';
 		$cloud = new WordCloud();

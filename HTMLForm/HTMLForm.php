@@ -446,6 +446,7 @@ class HTMLForm implements ToStringable
 		if (class_exists('Index')) {
 			$index = Index::getInstance();
 			$index->footer['init_cal_' . $id] = $script;
+			return null;
 		} else {
 			return $script;
 		}
@@ -649,7 +650,7 @@ class HTMLForm implements ToStringable
 	 * @param array $value
 	 * @param array $desc
 	 */
-	public function keyset($name, $value = [], array $desc)
+	public function keyset($name, $value = [], array $desc = [])
 	{
 		if ($value) {
 			if (!is_array($value)) {
@@ -875,10 +876,11 @@ document.observe("dom:loaded", () => {
 
 	public function popupLink($self, $table, $titleColumn, $selected, $pid, $leaves, $id1, $id2, $functionName, $selectRoot)
 	{
-		$this->stdout .= str::ahref('<img src="skin/default/img/browsefolder.png">',
-			'bijouTreeSelect.php?self=' . $self . '&table=' . $table . '&titleColumn=' . $titleColumn .
+		$href = 'bijouTreeSelect.php?self=' . $self . '&table=' . $table . '&titleColumn=' . $titleColumn .
 			'&pid=' . $pid . '&leaves=' . $leaves . '&selected=' . $selected . '&callback=' . $functionName .
-			'&selectRoot=' . $selectRoot, false, 'bijouTreeTarget');
+			'&selectRoot=' . $selectRoot;
+		$this->stdout .= HTMLTag::a($href, '<img src="skin/default/img/browsefolder.png"/>',
+			false, 'bijouTreeTarget');
 		$this->stdout .= '<script>
 			function ' . $functionName . '(val1, val2) {
 				//alert(val1+" "+val2);
@@ -914,11 +916,11 @@ document.observe("dom:loaded", () => {
 	public function formColorSelector($name, $default)
 	{
 		$colors = explode(",", "#FFFFFF,#CCCCCC,#999999,#990099,#993300,#009900,#000099,#FF0000,#999900,#00FF00,#0000FF,#FF00FF,#FF9933,#FFFF00,#00FFFF");
-		println("<select name=$name id=$name style='width: auto'>");
+		print("<select name=$name id=$name style='width: auto'>");
 		foreach ($colors as $color) {
-			println("<option style='background-color: $color' value='$color' " . ($color == $default ? "selected" : "") . ">Color</option>");
+			print("<option style='background-color: $color' value='$color' " . ($color == $default ? "selected" : "") . ">Color</option>");
 		}
-		println("</select>");
+		print("</select>");
 	}
 
 	public function recaptcha(array $desc = [])
