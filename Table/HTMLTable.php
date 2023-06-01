@@ -65,7 +65,7 @@ class HTMLTable
 			if ($cell instanceof HTMLTag) {
 			} elseif ($cell instanceof htmlString) {
 			} else {
-				$cell = htmlspecialchars($cell);
+				$cell = htmlspecialchars($cell ?? '');
 			}
 			$content[] = '<td>' . $cell . '</td>';
 		}

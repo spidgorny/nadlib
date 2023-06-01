@@ -9,7 +9,7 @@ class UL implements ToStringable
 
 	public $after = '</ul>';
 
-	public $wrap = '<li###ACTIVE###>|</li>';
+	public $wrap = '<li ###ACTIVE###>|</li>';
 
 	/**
 	 * Should be equal to an $this->items key which is selected

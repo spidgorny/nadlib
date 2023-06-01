@@ -11,6 +11,7 @@ class HTMLFormInput extends HTMLFormType
 	public $placeholder;
 	public $value;
 	public $type = 'text';
+	public $attr = [];
 
 	public function __construct($name, array $attr = ['type' => 'text'])
 	{
@@ -18,6 +19,8 @@ class HTMLFormInput extends HTMLFormType
 //		$this->name = $name;
 //		$this->assign($attr);
 		$this->setValue($this->value);
+		$this->name = $name;
+		$this->attr = $attr;
 	}
 
 	/**
@@ -41,7 +44,7 @@ class HTMLFormInput extends HTMLFormType
 	{
 		$input = new HTMLTag('input', [
 			'type' => $this->type,
-			'name' => $this->form->getName($this->fieldName, '', true),
+			'name' => $this->form->getName($this->name, '', true),
 			'placeholder' => $this->placeholder,
 			'value' => $this->value,
 		]);
