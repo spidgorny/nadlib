@@ -177,8 +177,8 @@ border-radius: 5px;">');
 			if (class_exists('Config', false) && !Request::isCLI()) {
 				//print_r(Config::getInstance()->config['Config']);
 				// set_time_limit() has been disabled for security reasons
-				$timeLimit = Config::getInstance()->timeLimit;
-				@set_time_limit($timeLimit ?? 5);    // small enough to notice if the site is having perf. problems
+				$timeLimit = Config::getInstance()->timeLimit ?? 5;
+				@set_time_limit($timeLimit);    // small enough to notice if the site is having perf. problems
 			}
 			$_REQUEST['d'] = $_REQUEST['d'] ?? null;
 			if (!Request::isCLI() && !headers_sent()) {

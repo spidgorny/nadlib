@@ -16,6 +16,6 @@ if (is_file(__DIR__ . '/../vendor/autoload.php')) {
 
 require_once __DIR__.'/AppController4Test.php';
 
-function __($a) { return $a; }
+function __($a, ...$replacements) { return $a; }
 
 echo basename(__DIR__).'/'.basename(__FILE__), ' done', BR;

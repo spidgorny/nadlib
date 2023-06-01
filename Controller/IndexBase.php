@@ -731,7 +731,7 @@ class IndexBase /*extends Controller*/
 	}
 
 	/**
-	 * @return string
+	 * @return void
 	 */
 	public function setSecurityHeaders()
 	{

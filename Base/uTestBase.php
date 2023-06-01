@@ -20,7 +20,7 @@ class uTestBase extends AppControllerBE
 
 	public function render()
 	{
-		$this->index->bodyClasses[] = 'fullScreen';
+//		$this->index->bodyClasses[] = 'fullScreen';
 		$content = '<style>
 	body, td {
 		/*font-size: 9pt;*/
@@ -54,7 +54,9 @@ class uTestBase extends AppControllerBE
 		$content .= '</table>';
 		//$content .= getDebug($this->stat);
 		$content = $this->encloseIn(new htmlString('&mu;Test'), $content);
-		if ($GLOBALS['profiler']) $content .= $GLOBALS['profiler']->printTimers(1);
+		if ($GLOBALS['profiler']) {
+			$content .= $GLOBALS['profiler']->printTimers(1);
+		}
 		return $content;
 	}
 

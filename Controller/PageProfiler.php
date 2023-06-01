@@ -109,11 +109,16 @@ class PageProfiler
 	protected function getHeader()
 	{
 		$content = '';
+		$index = null;
 		if (class_exists('Index')) {
 			$index = Index::getInstance();
 		}
 		$content .= $this->html->h4('Header');
-		$header = json_encode($index->header, JSON_PRETTY_PRINT);
+
+		$header = '';
+		if ($index) {
+			$header = json_encode($index->header, JSON_PRETTY_PRINT);
+		}
 		$header = str_replace('\/', '/', $header);
 		$header = str_replace('\"', '"', $header);
 		$content .= $this->html->pre($header);

@@ -84,8 +84,10 @@ class UL implements ToStringable
 			}
 
 			$line = Wrap::make($this->wrap)->wrap($li);
-			$line = str_replace('%23%23%23LINK%23%23%23', $link, $line);
-			$line = str_replace('###LINK###', $link, $line);
+			if ($link) {
+				$line = str_replace('%23%23%23LINK%23%23%23', $link, $line);
+				$line = str_replace('###LINK###', $link, $line);
+			}
 			$line = str_replace('###CLASS###', $class, $line);
 			$line = str_replace('###TEXT###', $li, $line);
 			$line = str_replace('###ACTIVE###', $class == $this->activeClass ? $this->active : '', $line);

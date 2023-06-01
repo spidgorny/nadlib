@@ -46,7 +46,7 @@ class MiniIndex extends AppController
 		$self = get_called_class();
 		if (!self::$instance) {
 			if ($createAllowed) {
-				self::$instance = new $self(true);
+				self::$instance = new $self();
 				/** @var self::$instance MiniIndex */
 				self::$instance->init();
 			}
@@ -132,6 +132,7 @@ class MiniIndex extends AppController
 
 	function showSidebar()
 	{
+		$content = '';
 		if (method_exists($this->controller, 'sidebar')) {
 			$content = $this->controller->sidebar();
 		}

@@ -108,7 +108,7 @@ class MarshalParams
 				$value = call_user_func([$container, $typeGenerator]);
 			} else {
 				// build the dependency
-				$value = self::makeInstanceWithInjection($typeClass, $container);
+				$value = self::makeInstanceWithInjection($typeClass);
 			}
 		} elseif (is_array($container)) {
 			$injector = ifsetor($container[$typeClass]);

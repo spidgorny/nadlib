@@ -112,7 +112,7 @@ abstract class Controller extends SimpleController
 			$this->config->mergeConfig($this);
 		}
 
-		$this->linker = new Linker($this->request, $this);
+		$this->linker = new Linker($this->request);
 		$this->linker->useRouter = $this->request->apacheModuleRewrite();
 
 		if (!$this->linker->useRouter) {

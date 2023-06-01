@@ -100,9 +100,9 @@ class Color
 	{
 		$rgb = array_values($rgb ?: [$this->r, $this->g, $this->b]);
 		return '#' .
-			str_pad(dechex($rgb[0]), 2, '0', STR_PAD_LEFT) .
-			str_pad(dechex($rgb[1]), 2, '0', STR_PAD_LEFT) .
-			str_pad(dechex($rgb[2]), 2, '0', STR_PAD_LEFT);
+			str_pad(dechex((int)$rgb[0]), 2, '0', STR_PAD_LEFT) .
+			str_pad(dechex((int)$rgb[1]), 2, '0', STR_PAD_LEFT) .
+			str_pad(dechex((int)$rgb[2]), 2, '0', STR_PAD_LEFT);
 	}
 
 	/**

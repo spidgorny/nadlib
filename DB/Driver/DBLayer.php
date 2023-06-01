@@ -28,8 +28,6 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 */
 	public $qb = null;
 
-	public $AFFECTED_ROWS = null;
-
 	/**
 	 * @var MemcacheArray
 	 */
@@ -290,8 +288,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 		if (is_array($meta)) {
 			return array_keys($meta);
 		} else {
-			error("Table not found: <strong>$table</strong>");
-			exit();
+			throw new Exception("Table not found: <strong>$table</strong>");
 		}
 	}
 
@@ -316,22 +313,11 @@ class DBLayer extends DBLayerBase implements DBInterface
 			if (is_array($meta)) {
 				$cache[$table] = array_keys($meta);
 			} else {
-				error("Table not found: <strong>$table</strong>");
-				exit();
+				throw new Exception("Table not found: <strong>$table</strong>");
 			}
 		}
 		$return = $cache[$table];
 		TaylorProfiler::stop(__METHOD__);
-		// used to only attach columns in bug list
-		$pageAttachCustom = ['BugLog', 'Filter'];
-		if (in_array($_REQUEST['pageType'], $pageAttachCustom)) {
-			$cO = CustomCatList::getInstance($_SESSION['sesProject']);
-			if (is_array($cO->customColumns)) {
-				foreach ($cO->customColumns as $cname) {
-					$return[] = $cname;
-				}
-			}
-		}
 		return $return;
 	}
 
@@ -345,8 +331,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 			}
 			return $return;
 		} else {
-			error("Table not found: <strong>$table</strong>");
-			exit();
+			throw new Exception("Table not found: <strong>$table</strong>");
 		}
 	}
 
@@ -696,7 +681,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 			$id = $this->lastval();
 		} else {
 			$oid = pg_last_oid($res);
-			$id = $this->sqlFind('id', $table, "oid = '" . $oid . "'");
+			$id = $this->fetchOneSelectQuery($table, ["oid" => $oid])['id'];
 		}
 		return $id;
 	}
@@ -959,7 +944,6 @@ WHERE ccu.table_name='" . $table . "'");
 	 * @param string $table Table name
 	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
 	 * @param array $primaryKeys ['id', 'id_profile']
-	 * @return string
 	 * @throws DatabaseException
 	 * @throws MustBeStringException
 	 */

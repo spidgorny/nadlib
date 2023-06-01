@@ -9,9 +9,8 @@ if (!function_exists('debug')) {
 	/**
 	 * @param mixed,...$a
 	 */
-	function debug($a)
+	function debug(...$params)
 	{
-		$params = func_num_args() == 1 ? $a : func_get_args();
 		if (class_exists(Debug::class)) {
 			$debug = Debug::getInstance();
 			$debug->debug($params);
@@ -82,9 +81,8 @@ if (!function_exists('d')) {
 	{
 	}
 
-	function getDebug()
+	function getDebug(...$params)
 	{
-		$params = func_get_args();
 		$debug = Debug::getInstance();
 		$dh = new DebugHTML($debug);
 		$content = $dh->printStyles();
@@ -100,14 +98,14 @@ if (!function_exists('d')) {
 	 * @param ..$a
 	 * @noinspection ForgottenDebugOutputInspection
 	 */
-	function pre_print_r($a)
+	function pre_print_r(...$a)
 	{
 		if (PHP_SAPI !== 'cli') {
 			echo '<pre class="pre_print_r" style="white-space: pre-wrap;">';
-			print_r(func_num_args() === 1 ? $a : func_get_args());
+			print_r(func_num_args() === 1 ? $a[0] : $a);
 			echo '</pre>';
 		} else {
-			print_r(func_num_args() === 1 ? $a : func_get_args());
+			print_r(func_num_args() === 1 ? $a[0] : $a);
 			echo PHP_EOL;
 		}
 	}

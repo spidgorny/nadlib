@@ -458,7 +458,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	 * @param int $limit
 	 * @return array
 	 */
-	public function fetchPartitionMySQL($res, $start, $limit)
+	public function fetchPartition($res, $start, $limit)
 	{
 		$data = [];
 		for ($i = 0; $i < $start + $limit; $i++) {

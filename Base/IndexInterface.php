@@ -5,7 +5,6 @@ namespace nadlib;
 /**
  * Interface IndexInterface
  * @package nadlib
- * @mixin
  */
 interface IndexInterface
 {

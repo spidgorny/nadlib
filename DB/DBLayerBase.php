@@ -25,6 +25,8 @@ abstract class DBLayerBase implements DBInterface
 	 */
 	public $qb;
 
+	public $AFFECTED_ROWS = null;
+
 	/**
 	 * List of reserved words for each DB
 	 * which can't be used as field names and must be quoted
@@ -118,9 +120,6 @@ abstract class DBLayerBase implements DBInterface
 
 	public function fetchPartition($res, $start, $limit)
 	{
-		if ($this->getScheme() == 'mysql') {
-			return $this->fetchPartitionMySQL($res, $start, $limit);
-		}
 		$max = $start + $limit;
 		$max = min($max, $this->numRows($res));
 		$data = [];

@@ -23,7 +23,7 @@ class MemcacheFile implements MemcacheInterface
 	 * If you define $key and $expire in the constructor
 	 * you don't need to define it in each method below.
 	 * Otherwise, please specify.
-	 * @param string $key
+	 * @param string $folder
 	 * @param int $expire
 	 */
 	public function __construct($folder = null, $expire = 0)

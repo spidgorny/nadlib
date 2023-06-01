@@ -13,7 +13,7 @@ abstract class SimpleController
 {
 
 	/**
-	 * @var Index|\nadlib\IndexInterface
+	 * @var \nadlib\IndexInterface
 	 */
 	public $index;
 
@@ -100,7 +100,7 @@ abstract class SimpleController
 			if ($index->controller instanceof $static) {
 				$result = $index->getController();
 			} else {
-				$result = new $static;
+				$result = new $static();
 			}
 		}
 		//debug($isset, get_class($index), get_class($result));

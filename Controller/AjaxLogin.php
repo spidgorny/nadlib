@@ -434,7 +434,8 @@ class AjaxLogin extends AppController
 
 	function navbarLoginForm()
 	{
-		return '<a href="' . LoginService::class . '" class="btn btn-primary navbar-btn">Login</a>';
+//		return '<a href="' . LoginService::class . '" class="btn btn-primary navbar-btn">Login</a>';
+		return 'OVERRIDE TO SHOW LOGIN BUTTON';
 	}
 
 	function logoutForm()

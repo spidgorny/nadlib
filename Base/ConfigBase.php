@@ -96,6 +96,7 @@ class ConfigBase implements ConfigInterface
 
 	public $isCron = false;
 
+	/** @phpstan-consistent-constructor */
 	protected function __construct()
 	{
 		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') {
@@ -256,7 +257,7 @@ class ConfigBase implements ConfigInterface
 //			debug(get_class($db));
 			$this->user = new BEUser($db);
 			try {
-				$this->user->try2login();
+				$this->user->try2login(null, null);
 			} catch (Exception $e) {
 				// failed to login - no problem
 			}
