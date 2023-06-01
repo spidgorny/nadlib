@@ -181,6 +181,7 @@ FROM {$this->from}
 			echo '<strong>', $e->getMessage(), '</strong>', BR;
 			//echo '<strong>', $e->getPrevious()->getMessage(), '</strong>', BR;
 			pre_print_r($e->getTraceAsString());
+			return null;
 		}
 	}
 

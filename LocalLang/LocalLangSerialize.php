@@ -1,8 +1,9 @@
 <?php
 
-class LocalLangSerialize extends LocalLang {
+class LocalLangSerialize extends LocalLang
+{
 
-	function __construct($forceLang = NULL, $filename)
+	function __construct($forceLang = NULL, $filename = null)
 	{
 		parent::__construct($forceLang);
 		$data = file_get_contents($filename);

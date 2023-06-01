@@ -6,7 +6,7 @@ use nadlib\HTTP\Session;
  * Class PlainSessionUser
  * extends User in order to have a dependency on the application
  */
-class PlainSessionUser extends User
+class PlainSessionUser extends UserBase implements UserModelInterface
 {
 
 	/**
@@ -73,6 +73,46 @@ class PlainSessionUser extends User
 	public function try2login($login, $email = null)
 	{
 		// session_start
+	}
+
+	public function getSetting($key)
+	{
+		return null;
+	}
+
+	public function prefs()
+	{
+		return [];
+	}
+
+	public function isAdmin()
+	{
+		return false;
+	}
+
+	public function getLogin()
+	{
+		return null;
+	}
+
+	public function getGroup()
+	{
+		return null;
+	}
+
+	public function getAvatarURL()
+	{
+		return null;
+	}
+
+	public function getAllSettings()
+	{
+		return null;
+	}
+
+	public function can($acl)
+	{
+		return false;
 	}
 
 }

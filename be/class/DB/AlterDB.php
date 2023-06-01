@@ -314,6 +314,7 @@ class AlterDB extends AppControllerBE
 
 	public function showTable(array $list, $table)
 	{
+		$content = [];
 		if ($list) {
 			$s = new slTable($list, 'class="table"', [
 				'field' => 'field',

@@ -413,21 +413,6 @@ class Syndicator
 		return $first;
 	}
 
-	/**
-	 * No XPATH
-	 *
-	 * @param string $xml
-	 * @return SimpleXMLElement
-	 */
-	function getSXML($xml)
-	{
-		$xml_parser = new sxml();
-		$xml_parser->parse($xml);
-		$xml = $xml_parser->datas;
-		//debug($xml_parser);
-		return $xml;
-	}
-
 	function getDOM($xml)
 	{
 		$dom = domxml_xmltree($xml);
@@ -482,7 +467,7 @@ class Syndicator
 
 	function css($selector)
 	{
-		CssSelector::enableHtmlExtension();
+//		CssSelector::enableHtmlExtension();
 		$xpath = CssSelector::toXPath($selector);
 		//debug($xpath);
 		return $this->getElements($xpath);

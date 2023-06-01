@@ -429,7 +429,7 @@ abstract class OODBase
 				throw new Exception('__METHOD__ requires object specifier until PHP 5.3.');
 			}
 		}
-		/** @var static $obj */
+		// @phpstan-ignore-next-line
 		$obj = new $static();
 		$obj->findInDB($where);
 		if ($obj->id) {

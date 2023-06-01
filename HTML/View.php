@@ -1,6 +1,7 @@
 <?php
 
 use spidgorny\nadlib\HTTP\URL;
+use Bavix\AdvancedHtmlDom\AdvancedHtmlDom;
 
 class View extends stdClass
 {

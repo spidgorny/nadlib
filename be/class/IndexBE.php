@@ -28,9 +28,9 @@ class IndexBE extends IndexBase {
 			require_once 'ConfigBE.php';
 			$this->config = ConfigBE::getInstance();
 		}
-		parent::__construct();
+		parent::__construct($this->config);
 
-		$this->config->defaultController = 'HomeBE';
+		$this->config->defaultController = HomeBE::class;
 		$this->config->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $this->config->documentRoot);
 		$this->config->documentRoot = str_replace('/nadlib/be', '', $this->config->documentRoot);
 		//$config->documentRoot = $this->config->documentRoot ?: '/';	// must end without slash

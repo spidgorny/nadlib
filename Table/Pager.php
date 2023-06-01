@@ -5,6 +5,8 @@ use spidgorny\nadlib\HTTP\URL;
 class Pager
 {
 
+	public $id;
+
 	/**
 	 * Total amount of rows in database (with WHERE)
 	 * Originally null to detect if setNumberOfRecords was called
@@ -97,6 +99,7 @@ class Pager
 	{
 //		debug_pre_print_backtrace();
 		$this->log[] = __METHOD__;
+		$this->id = uniqid();
 		if ($itemsPerPage instanceof PageSize) {
 			$this->pageSize = $itemsPerPage;
 		} else {

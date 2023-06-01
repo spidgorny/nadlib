@@ -10,6 +10,9 @@ class HTMLTableBuf extends MergedContent
 {
 
 	public $curPart = 'tbody';
+	public $thead;
+	public $tbody;
+	public $tfoot;
 
 	public function __construct()
 	{
@@ -112,7 +115,7 @@ class HTMLTableBuf extends MergedContent
 		$this->htr($trMore);
 		foreach ($aCaption as $i => $caption) {
 			if ($caption instanceof HTMLTag) {
-				$this->thead[] .= $caption;
+				$this->thead[] = $caption;
 			} else {
 				if (is_string($thMore[$i])) {
 					debug($i, $thMore[$i]);
@@ -121,7 +124,7 @@ class HTMLTableBuf extends MergedContent
 				if (is_array($more)) {
 					$more = HTMLTag::renderAttr($more);
 				}
-				$this->thead[] .= '<th' . rtrim(' ' . $more) . '>' . $caption . '</th>' . "\n";
+				$this->thead[] = '<th' . rtrim(' ' . $more) . '>' . $caption . '</th>' . "\n";
 			}
 		}
 		$this->htre();

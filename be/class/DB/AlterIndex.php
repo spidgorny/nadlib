@@ -56,7 +56,7 @@ class AlterIndex extends AppControllerBE
 	public function listFiles()
 	{
 		$li = [];
-		$files = new ListFilesIn(Autoload::getInstance()->getAppRoot() . '/sql/');
+		$files = new ListFilesIn(AutoLoad::getInstance()->getAppRoot() . '/sql/');
 		foreach ($files as $file) {
 			/** @var $file File|Recursive */
 			if ($file instanceof File) {

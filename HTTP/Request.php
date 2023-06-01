@@ -608,7 +608,6 @@ class Request
 		$docRoot = self::getDocRoot();
 		ksort($_SERVER);
 		pre_print_r([
-			'c' => get_class($c),
 			'docRoot' => $docRoot . '',
 			'PHP_SELF' => $_SERVER['PHP_SELF'],
 			'cwd' => getcwd(),
@@ -1377,11 +1376,7 @@ class Request
 
 	public function getPOST()
 	{
-		if (isset($HTTP_RAW_POST_DATA)) {
-			return $HTTP_RAW_POST_DATA;
-		} else {
-			return file_get_contents("php://input");
-		}
+		return file_get_contents("php://input");
 	}
 
 	public function forceDownload($contentType, $filename)
@@ -1392,7 +1387,7 @@ class Request
 
 	public static function isHTTPS()
 	{
-		return self::getRequestType() == 'https';
+		return self::getRequestType() === 'https';
 	}
 
 	public function getNamelessID()

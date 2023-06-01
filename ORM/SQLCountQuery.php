@@ -8,6 +8,8 @@ class SQLCountQuery
 	 */
 	public $cq;
 
+	protected $db;
+
 	public function __construct(CollectionQuery $cq)
 	{
 		$this->cq = $cq;

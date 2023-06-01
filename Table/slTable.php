@@ -218,8 +218,8 @@ class slTable implements ToStringable
 			$type = ifsetor($type['type']);
 		}
 		if ($type == 'date') {
-			$aa = strtotime2($aa);
-			$bb = strtotime2($bb);
+			$aa = strtotime($aa);
+			$bb = strtotime($bb);
 		} elseif ($type == 'int') {
 			$aa = intval(strip_tags($aa));
 			$bb = intval(strip_tags($bb));
@@ -733,10 +733,6 @@ class slTable implements ToStringable
 	protected function getColumnTotalTime($data, $col)
 	{
 		$total = 0;
-		foreach ($data as $row) {
-			$total += TT::getMinutesFromString($row[$col]); // converting to minutes
-		}
-		$total = TT::getTimeFromDB($total); // converting to string
 		return $total;
 	}
 
@@ -853,7 +849,7 @@ class slTable implements ToStringable
 		$this->generateThes();
 		foreach ($this->thes as $key => $name) {
 			$this->thes[$key] = ['name' => $name];
-			$col = array2::array_column($this->data, $key);
+			$col = ArrayPlus::create($this->data)->column($key);
 			$numeric = true;
 			foreach ($col as $val) {
 				if (!is_numeric($val)) {

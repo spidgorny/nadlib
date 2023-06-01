@@ -26,6 +26,7 @@ trait CachedGetInstance
 	 */
 	public static function getInstanceByID($id)
 	{
+		/** @var mixed $static */
 		$static = get_called_class();
 		/*nodebug(array(
 			__METHOD__,
@@ -42,7 +43,6 @@ trait CachedGetInstance
 				: null;
 			if (!$inst) {
 				//debug('new ', get_called_class(), $id, array_keys(self::$instances));
-				/** @var OODBase $inst */
 				// don't put anything else here
 				$inst = new $static();
 				// BEFORE init() to avoid loop
@@ -51,7 +51,6 @@ trait CachedGetInstance
 				$inst->init($id);
 			}
 		} elseif (is_array($id)) {
-			/** @var OODBase $inst */
 			$inst = new $static();    // only to find ->idField
 			$intID = $id[$inst->idField];
 			//debug($static, $intID, $id);
@@ -62,7 +61,6 @@ trait CachedGetInstance
 			}
 		} elseif ($id) {
 			//debug($static, $id);
-			/** @var OODBase $inst */
 			$inst = new $static();
 			$inst->init($id);
 			static::storeInstance($inst, $inst->id);
@@ -201,7 +199,6 @@ trait CachedGetInstance
 		}
 
 		$c = new $self();
-		/** @var $c OODBase */
 		$field = $field ?: $c->titleColumn;
 		if (is_string($field)) {
 			$c->findInDBsetInstance([

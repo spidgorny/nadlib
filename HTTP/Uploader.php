@@ -349,7 +349,6 @@ post_max_size: ' . $post_max_size . '">' .
 	 */
 	public function handleBlueImpUpload($callback, array $params)
 	{
-		require 'vendor/blueimp/jquery-file-upload/server/php/UploadHandler.php';
 		$uh = new UploadHandler($params, false);
 		//$uh->post(true); exit();
 		ob_start();
