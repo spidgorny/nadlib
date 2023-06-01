@@ -1,10 +1,12 @@
 <?php
 
-class Proton {
+class Proton
+{
 
 	var $base = 'http://photon.komoot.de/api/?q=';
 
-	function get($q) {
+	function get($q)
+	{
 		$gz = new GuzzleHttp\Client();
 		$response = $gz->get($this->base . urlencode($q));
 		$json = $response->getBody()->getContents();
@@ -12,7 +14,8 @@ class Proton {
 		return $features;
 	}
 
-	function getCities($q) {
+	function getCities($q)
+	{
 		$set = [];
 		$results = $this->get($q);
 		foreach ($results->features as $place) {
@@ -27,7 +30,8 @@ class Proton {
 		return $set;
 	}
 
-	public function getFirst($location) {
+	public function getFirst($location)
+	{
 		$results = $this->get($location);
 		return $results->features ? first($results->features) : NULL;
 	}

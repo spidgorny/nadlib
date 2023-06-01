@@ -4,7 +4,8 @@
 	"require": {
 		"php": ">=7 || >= 8",
 		"greenlion/php-sql-parser": "^4.6",
-		"michelf/php-markdown": "^2.0"
+		"michelf/php-markdown": "^2.0",
+		"guzzlehttp/guzzle": "^7.7"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^6",
@@ -22,10 +23,7 @@
 		"stan:w": "vendor\\bin\\phpstan analyze -l 1 -c phpstan.neon --memory-limit 1G ."
 	},
 	"suggest": {
-		"flot/flot": "dev-master",
 		"michelf/php-markdown": "~1.4",
-		"components/bootstrap": "dev-master",
-		"components/modernizr": "dev-master",
 		"mustangostang/spyc": "dev-master",
 		"greenlion/php-sql-parser": "*",
 		"htmlawed/htmlawed": "dev-master",
@@ -70,10 +68,6 @@
 			"init.php"
 		]
 	},
-	"autoload-dev": {
-		"files": [
-		]
-	},
 	"repositories": [
 		{
 			"type": "package",
@@ -82,62 +76,6 @@
 				"version": "master",
 				"source": {
 					"url": "https://github.com/gnat/nc-cms",
-					"type": "git",
-					"reference": "master"
-				}
-			}
-		},
-		{
-			"type": "package",
-			"package": {
-				"name": "twitter/bootstrap",
-				"version": "master",
-				"source": {
-					"url": "https://github.com/twitter/bootstrap",
-					"type": "git",
-					"reference": "master"
-				},
-				"dist": {
-					"url": "https://github.com/twitter/bootstrap/zipball/master",
-					"type": "zip"
-				}
-			}
-		},
-		{
-			"type": "package",
-			"package": {
-				"version": "dev-master",
-				"name": "thomas-mcdonald/bootstrap-sass",
-				"source": {
-					"url": "https://github.com/thomas-mcdonald/bootstrap-sass.git",
-					"type": "git",
-					"reference": "master"
-				},
-				"dist": {
-					"url": "https://github.com/thomas-mcdonald/bootstrap-sass/zipball/master",
-					"type": "zip"
-				}
-			}
-		},
-		{
-			"type": "package",
-			"package": {
-				"version": "dev-master",
-				"name": "flot/flot",
-				"source": {
-					"url": "https://github.com/flot/flot",
-					"type": "git",
-					"reference": "master"
-				}
-			}
-		},
-		{
-			"type": "package",
-			"package": {
-				"version": "dev-master",
-				"name": "mustangostang/spyc",
-				"source": {
-					"url": "https://github.com/mustangostang/spyc",
 					"type": "git",
 					"reference": "master"
 				}
