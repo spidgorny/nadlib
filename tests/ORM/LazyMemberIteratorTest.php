@@ -18,7 +18,7 @@ class LazyMemberIteratorTest extends PHPUnit\Framework\TestCase
 	 */
 	protected $sut;
 
-	public function setUp()
+	public function setUp(): void
 	{
 		$set = [];
 		for ($i = 0; $i < 10; $i++) {

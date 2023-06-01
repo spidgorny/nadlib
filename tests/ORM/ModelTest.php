@@ -12,21 +12,21 @@ class ModelTest extends PHPUnit\Framework\TestCase
 
 	public function _test_getFormFromModel()
 	{
-		$cm = new CareerModel(new DBPlacebo());
-		$form = $cm->getFormFromModel();
-//		var_export($form);
-		$this->assertEquals([
-			'name' => [
-				'label' => 'Career name',
-				'type' => 'text',
-				'optional' => false,
-			],
-			'note' => [
-				'label' => 'Note',
-				'type' => 'textarea',
-				'optional' => true,
-			],
-		], $form);
+//		$cm = new CareerModel(new DBPlacebo());
+//		$form = $cm->getFormFromModel();
+////		var_export($form);
+//		$this->assertEquals([
+//			'name' => [
+//				'label' => 'Career name',
+//				'type' => 'text',
+//				'optional' => false,
+//			],
+//			'note' => [
+//				'label' => 'Note',
+//				'type' => 'textarea',
+//				'optional' => true,
+//			],
+//		], $form);
 	}
 
 	public function test_isset_empty_array()
@@ -38,26 +38,26 @@ class ModelTest extends PHPUnit\Framework\TestCase
 
 	public function _test_getFormFromModel2()
 	{
-		$cm = new ApplicationModel(new DBPlacebo());
-		$form = $cm->getFormFromModel();
-//		var_export($form);
-		$this->assertEquals([
-			'name' => [
-				'label' => 'Job Title',
-				'type' => 'text',
-				'optional' => false,
-			],
-			'note' => [
-				'label' => 'Notes',
-				'type' => 'textarea',
-				'optional' => true,
-			],
-			'url' => [
-				'label' => 'URL',
-				'type' => 'url',
-				'optional' => true,
-			]
-		], $form);
+//		$cm = new ApplicationModel(new DBPlacebo());
+//		$form = $cm->getFormFromModel();
+////		var_export($form);
+//		$this->assertEquals([
+//			'name' => [
+//				'label' => 'Job Title',
+//				'type' => 'text',
+//				'optional' => false,
+//			],
+//			'note' => [
+//				'label' => 'Notes',
+//				'type' => 'textarea',
+//				'optional' => true,
+//			],
+//			'url' => [
+//				'label' => 'URL',
+//				'type' => 'url',
+//				'optional' => true,
+//			]
+//		], $form);
 	}
 
 }

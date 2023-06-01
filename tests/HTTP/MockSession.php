@@ -6,7 +6,8 @@
  * session_start(): Cannot send session cookie - headers already sent
  * Therefore we hack session with files.
  */
-class MockSession implements SessionInterface {
+class MockSession implements SessionInterface
+{
 
 	var $file;
 

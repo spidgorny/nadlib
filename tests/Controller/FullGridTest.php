@@ -7,7 +7,7 @@ use FullGrid;
 class FullGridTest extends \PHPUnit\Framework\TestCase
 {
 
-	public function setUp()
+	public function setUp(): void
 	{
 		self::markTestSkipped('PG dependent');
 		$config = \Config::getInstance();

@@ -71,11 +71,10 @@ if (!function_exists('get_overriden_methods')) {
 				new ReflectionMethod($rClass->getParentClass()->getName(),
 					$rMethod->getName());
 				// check whether method is explicitly defined in this class
-				if ($rMethod->getDeclaringClass()->getName()
-					== $rClass->getName()
+				if ($rMethod->getDeclaringClass()->getName() == $rClass->getName()
 				) {
 					// if so, then it is overriden, so add to array
-					$array[] .= $rMethod->getName();
+					$array[] = $rMethod->getName();
 				}
 			} catch (Exception $e) { /* was not in parent class! */
 			}

@@ -111,7 +111,7 @@ class UploaderTest extends PHPUnit\Framework\TestCase
 			$this->markTestSkipped('Fill fail when run from Jenkins anyway');
 		}
 		$u = new Uploader();
-		$fly = new League\Flysystem\Filesystem(new League\Flysystem\Adapter\NullAdapter());
+		$fly = new League\Flysystem\Filesystem(new League\Flysystem\InMemory\InMemoryFilesystemAdapter());
 		$_FILES['test'] = [
 			'name' => 'desktop.png',
 			'type' => 'application/octet-stream',

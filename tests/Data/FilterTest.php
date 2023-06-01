@@ -42,10 +42,7 @@ class FilterTest extends PHPUnit\Framework\TestCase
 		], $this->f->getArrayCopy());
 	}
 
-	/**
-	 * @return Filter
-	 */
-	public function setup()
+	public function setup(): void
 	{
 		$f = new Filter();
 		$f->setDefault([

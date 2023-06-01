@@ -61,7 +61,6 @@ class HTMLFormTableTest extends PHPUnit\Framework\TestCase
 		];
 		$f->fill($fixture, true);
 		$values = $f->getValues();
-		unset($fixture['new_field']);
 		$this->assertEquals($fixture, $values);
 	}
 

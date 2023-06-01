@@ -140,6 +140,7 @@ class ServerStat extends AppControllerBE
 	{
 		$conf = [];
 		$total = @disk_total_space('/');
+		$diskpercent = 0;
 		if ($total) {
 			$diskpercent = ($total - @disk_free_space('/')) / $total * 100;
 		}
@@ -283,10 +284,13 @@ class ServerStat extends AppControllerBE
 		$meminfo = "/proc/meminfo";
 		if (@file_exists($meminfo)) {
 			$mem = file_get_contents($meminfo);
+			$totalp = 0;
 			if (preg_match('/MemTotal\:\s+(\d+) kB/', $mem, $matches)) {
 				$totalp = $matches[1];
 			}
 			unset($matches);
+
+			$freep = 0;
 			if (preg_match('/MemFree\:\s+(\d+) kB/', $mem, $matches)) {
 				$freep = $matches[1];
 			}
