@@ -67,7 +67,7 @@ class RunDispatcher extends AppController {
 		return $cmd;
 	}
 
-	function getTaskCommandLine() {
+	function getTaskCommandLine($task) {
 		$cmd = 'php index.php '.get_class($task->obj).' '.$task->method;
 		$params = $task->getParams();
 		if ($params) {

@@ -84,7 +84,7 @@ class SQLBuilder
 			return $value->__toString();
 		} elseif ($value instanceof SQLOr) {
 			return $value->__toString();
-		} elseif ($value instanceof IndTime) {
+		} elseif ($value instanceof Time) {
 			return $this->quoteSQL($value->getMySQL(), $key);
 		} elseif ($value instanceof SQLDate) {
 			$content = "'" . $this->db->escape($value->__toString()) . "'";

@@ -456,6 +456,7 @@ class Localize extends AppControllerBE
 
 	public function editOneAction()
 	{
+		$content = [];
 		$key = $this->request->getTrimRequired('key');
 		foreach ($this->languages as $lang) {
 			$content[] = '<h2>' . $lang . '</h2>';

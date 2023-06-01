@@ -79,8 +79,8 @@ class AlterDB extends AppControllerBE
 	KEY parent (pid)
 );";*/
 		$query = $this->getQueryFrom('some file.sql');
-		$SQLparser = new t3lib_sqlparser();
-		$parsedQuery = $SQLparser->parseSQL($query);
+//		$SQLparser = new t3lib_sqlparser();
+//		$parsedQuery = $SQLparser->parseSQL($query);
 		//debug($parsedQuery);
 		//debug(substr($query, 0, 1000));
 	}
@@ -165,13 +165,13 @@ class AlterDB extends AppControllerBE
 		$config = Config::getInstance();
 
 		//$GLOBALS['TYPO3_DB'] = $t3db = new t3lib_DB();
-		$GLOBALS['TYPO3_DB'] = $t3db = new TYPO3\CMS\Core\Database\DatabaseConnection();
-		$t3db->connectDB($config->db_server, $config->db_user, $config->getDBpassword(), $config->db_database);
+//		$GLOBALS['TYPO3_DB'] = $t3db = new TYPO3\CMS\Core\Database\DatabaseConnection();
+//		$t3db->connectDB($config->db_server, $config->db_user, $config->getDBpassword(), $config->db_database);
 		//debug($t3db);
-		define('TYPO3_db', $config->db_database);
+//		define('TYPO3_db', $config->db_database);
 
 		//$this->installerSQL = new t3lib_install_Sql();
-		$this->installerSQL = new TYPO3\CMS\Install\Sql\SchemaMigrator();
+//		$this->installerSQL = new TYPO3\CMS\Install\Sql\SchemaMigrator();
 		TaylorProfiler::stop(__METHOD__);
 	}
 
