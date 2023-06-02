@@ -14,7 +14,7 @@ if (!function_exists('str_startsWith')) {
 			$needle = [$needle];
 		}
 		foreach ($needle as $need) {
-			if (strpos($haystack, $need) === 0) {
+			if (strpos($haystack ?? '', $need) === 0) {
 				return true;
 			}
 		}
@@ -94,7 +94,9 @@ if (!function_exists('str_startsWith')) {
 		$parts = array_map('trim', $parts);
 		$parts = array_filter($parts);
 		$parts = array_values($parts);
-		$parts = array_pad($parts, $max, null);
+		if ($max) {
+			$parts = array_pad($parts, $max, null);
+		}
 		return $parts;
 	}
 
