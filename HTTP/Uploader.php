@@ -293,9 +293,8 @@ post_max_size: ' . $post_max_size . '">' .
 			$uf['mime'] = $mime;
 			//debug($mime, $this->allowedMime);
 			return in_array($mime, $this->allowedMime);
-		} else {
-			return true;
 		}
+		return true;
 	}
 
 	/**
