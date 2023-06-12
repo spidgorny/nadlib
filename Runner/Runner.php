@@ -1,6 +1,7 @@
 <?php
 
-class Runner {
+class Runner
+{
 
 	/**
 	 * @var DBInterface
@@ -12,11 +13,13 @@ class Runner {
 	 */
 	var $currentTask;
 
-	function __construct() {
+	function __construct()
+	{
 		$this->db = Config::getInstance()->getDB();
 	}
 
-	function run() {
+	function run()
+	{
 		echo 'Ready...', BR;
 		while (true) {
 			/** @var RunnerTask $command */
@@ -24,13 +27,14 @@ class Runner {
 			if ($command) {
 				$command();
 			} else {
-				echo 'Nothing to do for '.TaylorProfiler::getElapsedTimeString().' :-(', BR;
+				echo 'Nothing to do for ' . TaylorProfiler::getElapsedTimeString() . ' :-(', BR;
 			}
 			sleep(1);
 		}
 	}
 
-	function getNextCommand() {
+	function getNextCommand()
+	{
 		$task = RunnerTask::getNext();
 		if ($task) {
 			$task->reserve();
@@ -38,14 +42,15 @@ class Runner {
 			if ($task->isValid()) {
 				return $task;
 			} else {
-				$e = new BadMethodCallException('Method '.$task->getName().' is not found.');
+				$e = new BadMethodCallException('Method ' . $task->getName() . ' is not found.');
 				$task->failed($e);
 			}
 		}
 		return NULL;
 	}
 
-	public function getPendingTasks() {
+	public function getPendingTasks()
+	{
 		$rows = $this->db->fetchAllSelectQuery('runner', [
 			'status' => new SQLOr([
 				'status' => new SQLNotIn(['done', 'failed', 'killed']),
@@ -56,7 +61,8 @@ class Runner {
 		return $rows;
 	}
 
-	public function getTaskQueue() {
+	public function getTaskQueue()
+	{
 		$rows = $this->db->fetchAllSelectQuery('runner', [
 			'status' => new SQLOr([
 				'status' => '',
