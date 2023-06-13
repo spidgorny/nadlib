@@ -10,7 +10,7 @@ if (!function_exists('debug')) {
 	/**
 	 * @param mixed,...$a
 	 */
-	function debug($a)
+	function debug(...$a)
 	{
 		$params = func_num_args() == 1 ? $a : func_get_args();
 		if (class_exists(Debug::class)) {
@@ -73,17 +73,12 @@ if (!function_exists('d')) {
 
 	/**
 	 * @param ...$a
-	 * @param mixed $b
-	 * @param mixed $c
-	 * @param mixed $d
-	 * @param mixed $e
-	 * @param mixed $f
 	 */
-	function nodebug($a, $b = null, $c = null, $d = null, $e = null, $f = null)
+	function nodebug(...$a)
 	{
 	}
 
-	function getDebug()
+	function getDebug(...$a)
 	{
 		$params = func_get_args();
 		$debug = Debug::getInstance();
@@ -101,7 +96,7 @@ if (!function_exists('d')) {
 	 * @param ..$a
 	 * @noinspection ForgottenDebugOutputInspection
 	 */
-	function pre_print_r($a)
+	function pre_print_r(...$a)
 	{
 		if (PHP_SAPI !== 'cli') {
 			echo '<pre class="pre_print_r" style="white-space: pre-wrap;">';
@@ -113,7 +108,7 @@ if (!function_exists('d')) {
 		}
 	}
 
-	function get_print_r($a)
+	function get_print_r(...$a)
 	{
 		return '<pre class="pre_print_r" style="white-space: pre-wrap;">' .
 			print_r($a, true) .
@@ -121,14 +116,14 @@ if (!function_exists('d')) {
 	}
 
 	/** @noinspection ForgottenDebugOutputInspection */
-	function pre_var_dump($a)
+	function pre_var_dump(...$a)
 	{
 		echo '<pre class="pre_var_dump" style="white-space: pre-wrap; font-size: 8pt;">';
 		var_dump(func_num_args() === 1 ? $a : func_get_args());
 		echo '</pre>';
 	}
 
-	function debug_once()
+	function debug_once(...$a)
 	{
 		static $used = null;
 		if (is_null($used)) {
@@ -146,7 +141,7 @@ if (!function_exists('d')) {
 		}
 	}
 
-	function debug_size($a)
+	function debug_size(...$a)
 	{
 		if (is_object($a)) {
 			$vals = get_object_vars($a);
