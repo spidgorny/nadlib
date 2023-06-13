@@ -171,6 +171,8 @@ if (!function_exists('str_startsWith')) {
 			if ($separator == '/') {  // not windows separator
 				$root = ($isAbs ? $separator : '');
 			}
+		} elseif ($isAbs) {
+			$root = $char1 === ':' ? ''/*$char0 . $char1*/ : '/';
 		}
 		$string = $root . implode($separator, $parts);
 
