@@ -7,7 +7,7 @@
 		"michelf/php-markdown": "^2.0",
 		"guzzlehttp/guzzle": "^7.7",
 		"league/flysystem": "^2.5",
-		"spidgorny/advanced-html-dom": "2.*",
+		"spidgorny/advanced-html-dom": "dev-master",
 		"mustangostang/spyc": "dev-master",
 		"htmlawed/htmlawed": "dev-master",
 		"leafo/lessphp": "0.4.0",
