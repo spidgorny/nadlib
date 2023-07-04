@@ -95,12 +95,12 @@
 		{
 			"type": "package",
 			"package": {
-				"version": "2.0",
+				"version": "master",
 				"name": "spidgorny/advanced-html-dom",
 				"source": {
 					"url": "https://github.com/spidgorny/advanced-html-dom",
 					"type": "git",
-					"reference": "v2.0"
+					"reference": "dev-master"
 				}
 			}
 		}
