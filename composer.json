@@ -12,7 +12,7 @@
 		"leafo/lessphp": "0.4.0",
 		"danielstjules/stringy": ">=1.5.1",
 		"phpauth/phpauth": "dev-master",
-		"gnat/nc-cms": "*",
+		"gnat/nc-cms": "dev-master",
 		"spidgorny/advanced-html-dom": "dev-master",
 		"squizlabs/php_codesniffer": "^3.0@dev"
 	},
