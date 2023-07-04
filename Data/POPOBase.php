@@ -74,7 +74,7 @@ class POPOBase
 						break;
 					default:
 						// inner subclasses
-						if (class_exists($type)) {
+						if ($type && class_exists($type)) {
 							$value = new $type($value);
 						}
 				}
