@@ -7,14 +7,13 @@
 		"michelf/php-markdown": "^2.0",
 		"guzzlehttp/guzzle": "^7.7",
 		"league/flysystem": "^2.5",
-		"spidgorny/advanced-html-dom": "dev-master",
 		"mustangostang/spyc": "dev-master",
 		"htmlawed/htmlawed": "dev-master",
 		"leafo/lessphp": "0.4.0",
 		"danielstjules/stringy": ">=1.5.1",
 		"phpauth/phpauth": "dev-master",
 		"gnat/nc-cms": "*",
-		"hrmatching/advanced_html_dom": "dev-master",
+		"spidgorny/advanced-html-dom": "dev-master",
 		"squizlabs/php_codesniffer": "^3.0@dev"
 	},
 	"require-dev": {
@@ -26,19 +25,14 @@
 		"league/flysystem-memory": "^2.0"
 	},
 	"scripts": {
+		"upgrade": "composer upgrade -W",
 		"lint": "parallel-lint . --exclude vendor",
 		"phpstan": "phpstan analyze -l 1 --memory-limit 1G .",
 		"test": "phpunit tests",
 		"lint:l": "vendor/bin/parallel-lint .",
-		"lint:w": "vendor\\bin\\parallel-lint .",
 		"stan": "vendor/bin/phpstan analyze -l 1 -c phpstan.neon --memory-limit 1G .",
-		"stan:w": "vendor\\bin\\phpstan analyze -l 1 -c phpstan.neon --memory-limit 1G ."
-	},
-	"scripts": {
-		"lint": "vendor/bin/parallel-lint .",
-		"lint:w": "vendor\\bin\\parallel-lint . --exclude vendor/phpunit --exclude vendor/sebastian --exclude vendor/symfony/polyfill-mbstring --exclude vendor/symfony/service-contracts",
-		"stan": "vendor/bin/phpstan analyze -l 1 -c phpstan.neon --memory-limit 1G .",
-		"stan:w": "vendor\\bin\\phpstan analyze -l 1 -c phpstan.neon --memory-limit 1G ."
+		"stan:w": "vendor\\bin\\phpstan analyze -l 1 -c phpstan.neon --memory-limit 1G .",
+		"lint:w": "vendor\\bin\\parallel-lint . --exclude vendor/phpunit --exclude vendor/sebastian --exclude vendor/symfony/polyfill-mbstring --exclude vendor/symfony/service-contracts"
 	},
 	"autoload": {
 		"classmap": [
@@ -92,16 +86,8 @@
 			}
 		},
 		{
-			"type": "package",
-			"package": {
-				"version": "master",
-				"name": "spidgorny/advanced-html-dom",
-				"source": {
-					"url": "https://github.com/spidgorny/advanced-html-dom",
-					"type": "git",
-					"reference": "dev-master"
-				}
-			}
+			"type": "vcs",
+			"url": "https://github.com/spidgorny/advanced-html-dom"
 		}
 	]
 }
