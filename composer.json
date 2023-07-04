@@ -14,7 +14,6 @@
 		"danielstjules/stringy": ">=1.5.1",
 		"phpauth/phpauth": "dev-master",
 		"gnat/nc-cms": "*",
-		"robloach/component-installer": "^0.2.3",
 		"hrmatching/advanced_html_dom": "dev-master",
 		"squizlabs/php_codesniffer": "^3.0@dev"
 	},
