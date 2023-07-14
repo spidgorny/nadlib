@@ -47,12 +47,6 @@ trait JsonController
 		}
 	}
 
-	public function __invoke($arg1 = null)
-	{
-		list($request, $arguments) = $this->getActionAndArguments();
-		return call_user_func_array([$this, $request], $arguments);
-	}
-
 	public function getActionAndArguments()
 	{
 		// debug($_SERVER);
@@ -77,15 +71,19 @@ trait JsonController
 			get_class($this),
 			$thisParents->getParentClass()->getName(),
 			'SoftwareImage',
-			'SoftwareImg'
+			'SoftwareImg',
+			AddVersion::class,
+			AddJob::class,
+			ArchiveComplete::class,
 		];
 //		llog('$thisParents', $thisParents);
 		foreach (array_reverse($levels) as $i => $el) {
 			$isThisController = in_array($el, $thisParents);
-//			llog('$isThisController', $isThisController, $el, get_class($this));
+			llog(get_class($this), $el, 'isThisController:', $isThisController);
 			if ($isThisController) {
 				$last = $el;
-				$arguments = array_slice($levels, $i + 1);    // rest are args
+				$arguments = array_slice($levels, count($levels) - $i);    // rest are args
+				llog('arguments', $arguments);
 				break;
 			}
 		}
@@ -94,8 +92,14 @@ trait JsonController
 		}
 		$request = trim($last, '/\\ ');
 		$request = explode('.', $request)[0];
-//		llog(['request' => $request]);
+		llog(['request' => $request, 'arguments' => $arguments]);
 		return [$request, $arguments];
+	}
+
+	public function __invoke($arg1 = null)
+	{
+		list($request, $arguments) = $this->getActionAndArguments();
+		return call_user_func_array([$this, $request], $arguments);
 	}
 
 	public function jsonError(Exception $e, $httpCode = 500, array $extraData = [])
