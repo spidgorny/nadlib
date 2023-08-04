@@ -180,6 +180,7 @@ abstract class SimpleController
 				$proxy = $this;
 			}
 
+			// other classes except main controller may result in multiple messages
 			if (method_exists($proxy, $method)) {
 				if (Request::isCLI()) {
 					$assoc = array_slice(ifsetor($_SERVER['argv'], []), 3);
@@ -188,9 +189,6 @@ abstract class SimpleController
 					$caller = new MarshalParams($proxy);
 					$content = $caller->call($method);
 				}
-			} else {
-				// other classes except main controller may result in multiple messages
-//				Index::getInstance()->message('Action "'.$method.'" does not exist in class "'.get_class($this).'".');
 			}
 		}
 		return $content;
