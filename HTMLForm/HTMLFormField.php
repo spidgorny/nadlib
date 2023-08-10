@@ -329,7 +329,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 				break;
 			case 'checkarray':
 				if (!is_array($fieldValue)) {
-					throw new Exception('checkarray value is not array for ' . $fieldName);
+					throw new Exception('checkarray value is not array for ' . json_encode($fieldName));
 				}
 				$this->form->checkarray($fieldName, $desc['set'], $fieldValue, $desc->getArray());
 				break;

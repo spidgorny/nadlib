@@ -195,6 +195,7 @@ class HTMLFormTable extends HTMLForm
 	 * @param array $prefix
 	 * @param bool $mainForm
 	 * @param string $append
+	 * @todo remove $formData parameter as the class should be initialized with desc
 	 * @return $this
 	 */
 	function showForm(array $formData = NULL, $prefix = array(), $mainForm = TRUE, $append = '')
@@ -577,7 +578,7 @@ class HTMLFormTable extends HTMLForm
 	function fill(array $assoc, $forceInsert = false)
 	{
 		$this->desc = $this->fillValues($this->desc, $assoc, $forceInsert);
-		return $this->debug;
+		return $this->desc;
 	}
 
 	/**
