@@ -132,7 +132,7 @@ class dbLayerORA extends dbLayer
 		} else if (is_numeric($value)) {
 			return $value;
 		} else {
-			return "'" . pg_escape_string($value) . "'";
+			return "'" . $this->db->escape($value) . "'";
 		}
 	}
 

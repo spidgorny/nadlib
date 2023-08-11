@@ -178,7 +178,7 @@ class dbLayerOCI extends dbLayer
 		} else if ($value == '') {
 			return "NULL";
 		} else {
-			return "'" . pg_escape_string($value) . "'";
+			return "'" . $this->db->escape($value) . "'";
 		}
 	}
 

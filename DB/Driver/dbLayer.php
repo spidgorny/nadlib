@@ -643,7 +643,7 @@ order by a.attnum';
 
 	function escape($str)
 	{
-		return pg_escape_string($str);
+		return pg_escape_string($this->connection, $str);
 	}
 
 	function __call($method, array $params)
@@ -659,7 +659,7 @@ order by a.attnum';
 	{
 		if (ctype_alpha($key)) {
 			if (function_exists('pg_escape_identifier')) {
-				$key = pg_escape_identifier($key);
+				$key = pg_escape_identifier($this->connection, $key);
 			} else {
 				$key = '"' . $key . '"';
 			}

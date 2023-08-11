@@ -251,7 +251,7 @@ class PGArray extends AsIs
 			if (is_array($el)) {
 				$el = $this->setPGArray($el);
 			} else {
-				$el = pg_escape_string($el);
+				$el = $this->db->escape($el);
 //				$el = addslashes($el);
 
 				if ($this->standard_conforming_strings) {

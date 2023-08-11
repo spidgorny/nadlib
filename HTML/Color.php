@@ -82,6 +82,9 @@ class Color
 	function getCSS($rgb)
 	{
 		$rgb = array_values($rgb);
+		$rgb= array_map(static function ($x) {
+			return intval($x);
+		});
 		return '#' .
 			str_pad(dechex($rgb[0]), 2, '0', STR_PAD_LEFT) .
 			str_pad(dechex($rgb[1]), 2, '0', STR_PAD_LEFT) .
