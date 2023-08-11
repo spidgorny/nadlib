@@ -145,8 +145,7 @@ class AlterDB extends AppControllerBE
 				])
 			], $name);
 		}
-		$content = '<ul><li>' . implode('</li><li>', $menu) . '</li></ul>';
-		return $content;
+		return '<ul><li>' . implode('</li><li>', $menu) . '</li></ul>';
 	}
 
 	function getQueryFrom($file)
@@ -156,8 +155,7 @@ class AlterDB extends AppControllerBE
 		$query = preg_replace('/^--.*$/m', '', $query);
 		$query = preg_replace('/^SET.*$/m', '', $query);
 		$query = preg_replace('/^DROP.*$/m', '', $query);
-		$query = preg_replace('/CONSTRAINT.*$/m', '', $query);
-		return $query;
+		return preg_replace('/CONSTRAINT.*$/m', '', $query);
 	}
 
 	function initInstallerSQL()
@@ -167,7 +165,7 @@ class AlterDB extends AppControllerBE
 
 		//$GLOBALS['TYPO3_DB'] = $t3db = new t3lib_DB();
 		$GLOBALS['TYPO3_DB'] = $t3db = new TYPO3\CMS\Core\Database\DatabaseConnection();
-		$t3db->connectDB($config->db_server, $config->db_user, $config->db_password, $config->db_database);
+		$t3db->connectDB($config->db_server, $config->db_user, getenv('db_password'), $config->db_database);
 		//debug($t3db);
 		define('TYPO3_db', $config->db_database);
 

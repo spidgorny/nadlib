@@ -203,7 +203,7 @@ class ServerStat extends AppControllerBE
 			'total' => ['name' => $this->totalTime, 'decimals' => 3],
 			'percent' => '100%',
 		]);
-		$s->data = ifsetor($this->LOG, ifsetor($this->config->db->queryLog));
+		$s->data = ifsetor($this->LOG, $this->config->db->getQueryLog());
 		$s->isOddEven = TRUE;
 		$s->more = 'class="nospacing"';
 		return $s;
@@ -225,14 +225,12 @@ class ServerStat extends AppControllerBE
 
 	function getBarURL($percent)
 	{
-		$content = AutoLoad::getInstance()->nadlibFromDocRoot . 'bar.php?rating=' . round($percent) . '&!border=0&height=25';
-		return $content;
+		return AutoLoad::getInstance()->nadlibFromDocRoot . 'bar.php?rating=' . round($percent) . '&!border=0&height=25';
 	}
 
 	function getBar($percent)
 	{
-		$content = '<img src="' . $this->getBarURL($percent) . '" />';
-		return $content;
+		return '<img src="' . $this->getBarURL($percent) . '" />';
 	}
 
 	function getBarWith($value)
