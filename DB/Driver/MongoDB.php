@@ -38,7 +38,7 @@ class MongoDB
 			die("Mongo support required. Install mongo pecl extension with 'pecl install mongo; echo \"extension=mongo.so\" >> php.ini'");
 		}
 		try {
-			$this->mongo = new \Mongo($server[0], array(
+			$this->mongo = new Mongo($server[0], array(
 				'connect' => true
 			));
 		} catch (MongoConnectionException $ex) {
@@ -50,7 +50,7 @@ class MongoDB
 
 	/**
 	 * @param $colName
-	 * @return \MongoCollection
+	 * @return MongoCollection
 	 */
 	function getCollection($colName)
 	{

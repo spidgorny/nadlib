@@ -1,5 +1,7 @@
 <?php
 
+use TYPO3\CMS\Core\Database\DatabaseConnection;
+
 /**
  * Class BijouDBConnector
  * Attaches to $GLOBALS['TYPO3_DB'] withing TYPO3 and acts as a proxy
@@ -8,14 +10,14 @@ class BijouDBConnector extends dbLayerBase implements DBInterface
 {
 
 	/**
-	 * @var t3lib_DB|\TYPO3\CMS\Core\Database\DatabaseConnection
+	 * @var t3lib_DB|DatabaseConnection
 	 */
 	protected $t3db;
 
 	public $lastError;
 
 	/**
-	 * @param t3lib_DB|\TYPO3\CMS\Core\Database\DatabaseConnection $t3lib_DB
+	 * @param t3lib_DB|DatabaseConnection $t3lib_DB
 	 */
 	function __construct(t3lib_DB $t3lib_DB = NULL)
 	{

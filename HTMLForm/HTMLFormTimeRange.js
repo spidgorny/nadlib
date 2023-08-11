@@ -13,10 +13,10 @@ function showSliders() {
 			slide: function (event, ui) {
 				var start = ui.values[0];
 				start = new Date(start * 60 * 1000);
-				start = new String(start.getUTCHours()).zf() + ':' + new String(start.getUTCMinutes()).zf();
+				start = String(start.getUTCHours()).zf() + ':' + String(start.getUTCMinutes()).zf();
 				var end = ui.values[1];
 				end = new Date(end * 60 * 1000);
-				end = new String(end.getUTCHours()).zf() + ':' + new String(end.getUTCMinutes()).zf();
+				end = String(end.getUTCHours()).zf() + ':' + String(end.getUTCMinutes()).zf();
 				var $input = $("#" + $(this).attr('field'));
 				$input.val(start + '-' + end);
 			}

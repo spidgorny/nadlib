@@ -4262,7 +4262,7 @@ class calendarComponent
 	 * @since 2.4.16 - 2008-10-25
 	 * @author Kjell-Inge Gustafsson <ical@kigkonsult.se>
 	 */
-	function _chkdatecfg($theDate, & $parno, & $params)
+	function _chkdatecfg($theDate, &$parno, &$params)
 	{
 		if (isset($params['TZID']))
 			$parno = 6;
@@ -4831,23 +4831,23 @@ class calendarComponent
 			foreach ($therule['value'] as $rulelabel => $rulevalue) {
 				switch ($rulelabel) {
 					case 'FREQ':
-						{
-							$content1 .= "FREQ=$rulevalue";
-							break;
-						}
+					{
+						$content1 .= "FREQ=$rulevalue";
+						break;
+					}
 					case 'UNTIL':
-						{
-							$content2 .= ";UNTIL=";
-							$content2 .= $this->_format_date_time($rulevalue);
-							break;
-						}
+					{
+						$content2 .= ";UNTIL=";
+						$content2 .= $this->_format_date_time($rulevalue);
+						break;
+					}
 					case 'COUNT':
 					case 'INTERVAL':
 					case 'WKST':
-						{
-							$content2 .= ";$rulelabel=$rulevalue";
-							break;
-						}
+					{
+						$content2 .= ";$rulelabel=$rulevalue";
+						break;
+					}
 					case 'BYSECOND':
 					case 'BYMINUTE':
 					case 'BYHOUR':
@@ -4856,51 +4856,51 @@ class calendarComponent
 					case 'BYWEEKNO':
 					case 'BYMONTH':
 					case 'BYSETPOS':
-						{
-							$content2 .= ";$rulelabel=";
-							if (is_array($rulevalue)) {
-								foreach ($rulevalue as $vix => $valuePart) {
-									$content2 .= ($vix) ? ',' : null;
-									$content2 .= $valuePart;
-								}
-							} else
-								$content2 .= $rulevalue;
-							break;
-						}
-					case 'BYDAY':
-						{
-							$content2 .= ";$rulelabel=";
-							$bydaycnt = 0;
+					{
+						$content2 .= ";$rulelabel=";
+						if (is_array($rulevalue)) {
 							foreach ($rulevalue as $vix => $valuePart) {
-								$content21 = $content22 = null;
-								if (is_array($valuePart)) {
-									$content2 .= ($bydaycnt) ? ',' : null;
-									foreach ($valuePart as $vix2 => $valuePart2) {
-										if ('DAY' != strtoupper($vix2))
-											$content21 .= $valuePart2;
-										else
-											$content22 .= $valuePart2;
-									}
-									$content2 .= $content21 . $content22;
-									$bydaycnt++;
-								} else {
-									$content2 .= ($bydaycnt) ? ',' : null;
-									if ('DAY' != strtoupper($vix))
-										$content21 .= $valuePart;
-									else {
-										$content22 .= $valuePart;
-										$bydaycnt++;
-									}
-									$content2 .= $content21 . $content22;
-								}
+								$content2 .= ($vix) ? ',' : null;
+								$content2 .= $valuePart;
 							}
-							break;
+						} else
+							$content2 .= $rulevalue;
+						break;
+					}
+					case 'BYDAY':
+					{
+						$content2 .= ";$rulelabel=";
+						$bydaycnt = 0;
+						foreach ($rulevalue as $vix => $valuePart) {
+							$content21 = $content22 = null;
+							if (is_array($valuePart)) {
+								$content2 .= ($bydaycnt) ? ',' : null;
+								foreach ($valuePart as $vix2 => $valuePart2) {
+									if ('DAY' != strtoupper($vix2))
+										$content21 .= $valuePart2;
+									else
+										$content22 .= $valuePart2;
+								}
+								$content2 .= $content21 . $content22;
+								$bydaycnt++;
+							} else {
+								$content2 .= ($bydaycnt) ? ',' : null;
+								if ('DAY' != strtoupper($vix))
+									$content21 .= $valuePart;
+								else {
+									$content22 .= $valuePart;
+									$bydaycnt++;
+								}
+								$content2 .= $content21 . $content22;
+							}
 						}
+						break;
+					}
 					default:
-						{
-							$content2 .= ";$rulelabel=$rulevalue";
-							break;
-						}
+					{
+						$content2 .= ";$rulelabel=$rulevalue";
+						break;
+					}
 				}
 			}
 			$output .= $this->_createElement($recurlabel, $attributes, $content1 . $content2);
@@ -5038,7 +5038,7 @@ class calendarComponent
 	 * @since 2.4.16 - 2008-10-18
 	 * @todo BYHOUR, BYMINUTE, BYSECOND, ev. BYSETPOS due to ambiguity, WEEKLY at year end/start
 	 */
-	function _recur2date(& $result, $recur, $wdate, $startdate, $enddate = FALSE)
+	function _recur2date(&$result, $recur, $wdate, $startdate, $enddate = FALSE)
 	{
 		foreach ($wdate as $k => $v) if (ctype_digit($v)) $wdate[$k] = (int)$v;
 		$wdatets = $this->_date2timestamp($wdate);
@@ -5580,7 +5580,7 @@ class calendarComponent
 	 * @author Kjell-Inge Gustafsson <ical@kigkonsult.se>
 	 * @since 2.5.1 - 2008-11-06
 	 */
-	function _setMval(& $valArr, $value, $params = FALSE, $defaults = FALSE, $index = FALSE)
+	function _setMval(&$valArr, $value, $params = FALSE, $defaults = FALSE, $index = FALSE)
 	{
 		if (!is_array($valArr)) $valArr = array();
 		if ($index)
@@ -6139,7 +6139,7 @@ class calendarComponent
 	 * @since 2.4.5 - 2008-11-07
 	 * @author Kjell-Inge Gustafsson <ical@kigkonsult.se>
 	 */
-	function deletePropertyM(& $multiprop, $propix = 0)
+	function deletePropertyM(&$multiprop, $propix = 0)
 	{
 		if (!isset($multiprop[$propix])) return FALSE;
 		unset($multiprop[$propix]);
@@ -6680,29 +6680,13 @@ class calendarComponent
 						$rulelabel = strtoupper($value3[0]);
 						switch ($rulelabel) {
 							case 'BYDAY':
-								{
-									$value4 = explode(',', $value3[1]);
-									if (1 < count($value4)) {
-										foreach ($value4 as $v5ix => $value5) {
-											$value6 = array();
-											$dayno = $dayname = null;
-											$value5 = trim((string)$value5);
-											if ((ctype_alpha(substr($value5, -1))) &&
-												(ctype_alpha(substr($value5, -2, 1)))) {
-												$dayname = substr($value5, -2, 2);
-												if (2 < strlen($value5))
-													$dayno = substr($value5, 0, (strlen($value5) - 2));
-											}
-											if ($dayno)
-												$value6[] = $dayno;
-											if ($dayname)
-												$value6['DAY'] = $dayname;
-											$value4[$v5ix] = $value6;
-										}
-									} else {
-										$value4 = array();
+							{
+								$value4 = explode(',', $value3[1]);
+								if (1 < count($value4)) {
+									foreach ($value4 as $v5ix => $value5) {
+										$value6 = array();
 										$dayno = $dayname = null;
-										$value5 = trim((string)$value3[1]);
+										$value5 = trim((string)$value5);
 										if ((ctype_alpha(substr($value5, -1))) &&
 											(ctype_alpha(substr($value5, -2, 1)))) {
 											$dayname = substr($value5, -2, 2);
@@ -6710,21 +6694,37 @@ class calendarComponent
 												$dayno = substr($value5, 0, (strlen($value5) - 2));
 										}
 										if ($dayno)
-											$value4[] = $dayno;
+											$value6[] = $dayno;
 										if ($dayname)
-											$value4['DAY'] = $dayname;
+											$value6['DAY'] = $dayname;
+										$value4[$v5ix] = $value6;
 									}
-									$recur[$rulelabel] = $value4;
-									break;
+								} else {
+									$value4 = array();
+									$dayno = $dayname = null;
+									$value5 = trim((string)$value3[1]);
+									if ((ctype_alpha(substr($value5, -1))) &&
+										(ctype_alpha(substr($value5, -2, 1)))) {
+										$dayname = substr($value5, -2, 2);
+										if (2 < strlen($value5))
+											$dayno = substr($value5, 0, (strlen($value5) - 2));
+									}
+									if ($dayno)
+										$value4[] = $dayno;
+									if ($dayname)
+										$value4['DAY'] = $dayname;
 								}
+								$recur[$rulelabel] = $value4;
+								break;
+							}
 							default:
-								{
-									$value4 = explode(',', $value3[1]);
-									if (1 < count($value4))
-										$value3[1] = $value4;
-									$recur[$rulelabel] = $value3[1];
-									break;
-								}
+							{
+								$value4 = explode(',', $value3[1]);
+								if (1 < count($value4))
+									$value3[1] = $value4;
+								$recur[$rulelabel] = $value3[1];
+								break;
+							}
 						} // end - switch $rulelabel
 					} // end - foreach( $values.. .
 					$this->setProperty($propname, $recur, $propattr);

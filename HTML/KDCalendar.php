@@ -38,13 +38,13 @@ class KDCalendar
 	 * @param null $weekNrLink <a href="bla">|</a>
 	 */
 	function __construct($year, $month, $days = array(),
-						 $day_name_length = 3,
-						 $month_href = NULL,
-						 $first_day = 0,
-						 $pn = array(),
-						 $callback = NULL,
-						 $titleLinkMore = '',
-						 $weekNrLink = NULL)
+											 $day_name_length = 3,
+											 $month_href = NULL,
+											 $first_day = 0,
+											 $pn = array(),
+											 $callback = NULL,
+											 $titleLinkMore = '',
+											 $weekNrLink = NULL)
 	{
 		$this->year = $year;
 		$this->month = $month;
@@ -109,8 +109,8 @@ class KDCalendar
 		$calendar .= '<td class="weeknumber">' . $weekNr . '</td>';
 		if ($weekday > 0) $calendar .= '<td colspan="' . $weekday . '" class="empty">&nbsp;</td>'; #initial 'empty' days
 		for ($day = 1,
-			 $days_in_month = gmdate('t', $first_of_month);
-			 $day <= $days_in_month; $day++, $weekday++) {
+				 $days_in_month = gmdate('t', $first_of_month);
+				 $day <= $days_in_month; $day++, $weekday++) {
 			if ($weekday == 7) {
 				$weekday = 0; #start a new week
 				$today = strtotime('+' . ($day - 1) . ' days', $first_of_month);

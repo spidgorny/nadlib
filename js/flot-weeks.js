@@ -55,4 +55,4 @@ function ticksWeeks(axis) {
 		tickDate = tickDate.nextWeek();
 	}
 	return ticks;
-};
+}

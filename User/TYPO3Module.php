@@ -1,5 +1,7 @@
 <?php
 
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+
 /**
  * Documentation for users
  * TYPO3User -> User (app) -> UserBase -> OODBase
@@ -14,7 +16,7 @@ class TYPO3Module extends UserBase
 	protected $module;
 
 	/**
-	 * @var \TYPO3\CMS\Core\Authentication\BackendUserAuthentication
+	 * @var BackendUserAuthentication
 	 */
 	public $t3user;
 

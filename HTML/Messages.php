@@ -2,7 +2,9 @@
 
 namespace nadlib\HTML;
 
-class Messages extends \MergedContent
+use MergedContent;
+
+class Messages extends MergedContent
 {
 
 	function message($text)

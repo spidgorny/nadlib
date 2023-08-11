@@ -1,6 +1,10 @@
 <?php
 namespace TYPO3\CMS\Install\Sql;
 
+use RuntimeException;
+use TYPO3\CMS\Core\Database\SqlParser;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -93,7 +97,7 @@ class SchemaMigrator
 	 */
 	public function getFieldDefinitions_fileContent($fileContent)
 	{
-		$lines = \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(LF, $fileContent, 1);
+		$lines = GeneralUtility::trimExplode(LF, $fileContent, 1);
 		$table = '';
 		$total = array();
 		foreach ($lines as $value) {
@@ -102,7 +106,7 @@ class SchemaMigrator
 				continue;
 			}
 			if (!strlen($table)) {
-				$parts = \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(' ', $value, TRUE);
+				$parts = GeneralUtility::trimExplode(' ', $value, TRUE);
 				if (strtoupper($parts[0]) === 'CREATE' && strtoupper($parts[1]) === 'TABLE') {
 					$table = str_replace('`', '', $parts[2]);
 					// tablenames are always lowercase on windows!
@@ -191,8 +195,8 @@ class SchemaMigrator
 	{
 		$mSize = (double)$this->multiplySize;
 		if ($mSize > 1) {
-			/** @var $sqlParser \TYPO3\CMS\Core\Database\SqlParser */
-			$sqlParser = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Database\\SqlParser');
+			/** @var $sqlParser SqlParser */
+			$sqlParser = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Database\\SqlParser');
 			foreach ($total as $table => $cfg) {
 				if (is_array($cfg['fields'])) {
 					foreach ($cfg['fields'] as $fN => $fType) {
@@ -220,7 +224,7 @@ class SchemaMigrator
 											$match = array();
 											preg_match('/^([^(]*)\\(([^)]+)\\)(.*)/', $kType, $match);
 											$keys = array();
-											foreach (\TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(',', $match[2]) as $kfN) {
+											foreach (GeneralUtility::trimExplode(',', $match[2]) as $kfN) {
 												if ($fN == $kfN) {
 													$kfN .= '(' . $newSize . ')';
 												}
@@ -237,7 +241,7 @@ class SchemaMigrator
 						}
 						$total[$table]['fields'][$fN] = $sqlParser->compileFieldCfg($fInfo);
 						if ($sqlParser->parse_error) {
-							throw new \RuntimeException('TYPO3 Fatal Error: ' . $sqlParser->parse_error, 1270853961);
+							throw new RuntimeException('TYPO3 Fatal Error: ' . $sqlParser->parse_error, 1270853961);
 						}
 					}
 				}
@@ -352,7 +356,7 @@ class SchemaMigrator
 		$diffArr = array();
 		if (is_array($FDsrc)) {
 			foreach ($FDsrc as $table => $info) {
-				if (!strlen($onlyTableList) || \TYPO3\CMS\Core\Utility\GeneralUtility::inList($onlyTableList, $table)) {
+				if (!strlen($onlyTableList) || GeneralUtility::inList($onlyTableList, $table)) {
 					if (!isset($FDcomp[$table])) {
 						// If the table was not in the FDcomp-array, the result array is loaded with that table.
 						$extraArr[$table] = $info;

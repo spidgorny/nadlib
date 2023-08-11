@@ -1,6 +1,21 @@
 <?php
 namespace TYPO3\CMS\Core\Utility;
 
+use Exception;
+use idna_convert;
+use InvalidArgumentException;
+use ReflectionClass;
+use ReflectionFunction;
+use ReflectionMethod;
+use RemoveXSS;
+use RuntimeException;
+use TYPO3\CMS\Core\Core\ClassLoader;
+use TYPO3\CMS\Core\Localization\LocalizationFactory;
+use TYPO3\CMS\Core\Locking\Locker;
+use TYPO3\CMS\Core\Mail\MailMessage;
+use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Frontend\Page\PageRepository;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -54,7 +69,7 @@ class GeneralUtility
 	 * Singleton instances returned by makeInstance, using the class names as
 	 * array keys
 	 *
-	 * @var array<\TYPO3\CMS\Core\SingletonInterface>
+	 * @var array<SingletonInterface>
 	 */
 	static protected $singletonInstances = array();
 
@@ -211,7 +226,7 @@ class GeneralUtility
 	static public function removeXSS($string)
 	{
 		require_once PATH_typo3 . 'contrib/RemoveXSS/RemoveXSS.php';
-		$string = \RemoveXSS::process($string);
+		$string = RemoveXSS::process($string);
 		return $string;
 	}
 
@@ -251,7 +266,7 @@ class GeneralUtility
 				// Rename could fail, if a simultaneous thread is currently working on the same thing
 				if (@rename($theFile, $temporaryName)) {
 					$cmd = self::imageMagickCommand('convert', '"' . $temporaryName . '" "' . $theFile . '"', $gfxConf['im_path_lzw']);
-					\TYPO3\CMS\Core\Utility\CommandUtility::exec($cmd);
+					CommandUtility::exec($cmd);
 					unlink($temporaryName);
 				}
 				$returnCode = 'IM';
@@ -285,7 +300,7 @@ class GeneralUtility
 			// IM
 			$newFile = substr($theFile, 0, -4) . '.gif';
 			$cmd = self::imageMagickCommand('convert', '"' . $theFile . '" "' . $newFile . '"', $GLOBALS['TYPO3_CONF_VARS']['GFX']['im_path_lzw']);
-			\TYPO3\CMS\Core\Utility\CommandUtility::exec($cmd);
+			CommandUtility::exec($cmd);
 			$theFile = $newFile;
 			if (@is_file($newFile)) {
 				self::fixPermissions($newFile);
@@ -311,7 +326,7 @@ class GeneralUtility
 			} else {
 				$newFile = PATH_site . 'typo3temp/readPG_' . md5(($theFile . '|' . filemtime($theFile))) . ($output_png ? '.png' : '.gif');
 				$cmd = self::imageMagickCommand('convert', '"' . $theFile . '" "' . $newFile . '"', $GLOBALS['TYPO3_CONF_VARS']['GFX']['im_path']);
-				\TYPO3\CMS\Core\Utility\CommandUtility::exec($cmd);
+				CommandUtility::exec($cmd);
 				if (@is_file($newFile)) {
 					self::fixPermissions($newFile);
 					return $newFile;
@@ -760,7 +775,7 @@ class GeneralUtility
 	static public function compat_version($verNumberStr)
 	{
 		$currVersionStr = $GLOBALS['TYPO3_CONF_VARS']['SYS']['compat_version'] ? $GLOBALS['TYPO3_CONF_VARS']['SYS']['compat_version'] : TYPO3_branch;
-		if (\TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger($currVersionStr) < \TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger($verNumberStr)) {
+		if (VersionNumberUtility::convertVersionNumberToInteger($currVersionStr) < VersionNumberUtility::convertVersionNumberToInteger($verNumberStr)) {
 			return FALSE;
 		} else {
 			return TRUE;
@@ -833,10 +848,10 @@ class GeneralUtility
 	static public function uniqueList($in_list, $secondParameter = NULL)
 	{
 		if (is_array($in_list)) {
-			throw new \InvalidArgumentException('TYPO3 Fatal Error: TYPO3\\CMS\\Core\\Utility\\GeneralUtility::uniqueList() does NOT support array arguments anymore! Only string comma lists!', 1270853885);
+			throw new InvalidArgumentException('TYPO3 Fatal Error: TYPO3\\CMS\\Core\\Utility\\GeneralUtility::uniqueList() does NOT support array arguments anymore! Only string comma lists!', 1270853885);
 		}
 		if (isset($secondParameter)) {
-			throw new \InvalidArgumentException('TYPO3 Fatal Error: TYPO3\\CMS\\Core\\Utility\\GeneralUtility::uniqueList() does NOT support more than a single argument value anymore. You have specified more than one!', 1270853886);
+			throw new InvalidArgumentException('TYPO3 Fatal Error: TYPO3\\CMS\\Core\\Utility\\GeneralUtility::uniqueList() does NOT support more than a single argument value anymore. You have specified more than one!', 1270853886);
 		}
 		return implode(',', array_unique(self::trimExplode(',', $in_list, 1)));
 	}
@@ -904,9 +919,9 @@ class GeneralUtility
 	static public function modifyHTMLColor($color, $R, $G, $B)
 	{
 		// This takes a hex-color (# included!) and adds $R, $G and $B to the HTML-color (format: #xxxxxx) and returns the new color
-		$nR = \TYPO3\CMS\Core\Utility\MathUtility::forceIntegerInRange(hexdec(substr($color, 1, 2)) + $R, 0, 255);
-		$nG = \TYPO3\CMS\Core\Utility\MathUtility::forceIntegerInRange(hexdec(substr($color, 3, 2)) + $G, 0, 255);
-		$nB = \TYPO3\CMS\Core\Utility\MathUtility::forceIntegerInRange(hexdec(substr($color, 5, 2)) + $B, 0, 255);
+		$nR = MathUtility::forceIntegerInRange(hexdec(substr($color, 1, 2)) + $R, 0, 255);
+		$nG = MathUtility::forceIntegerInRange(hexdec(substr($color, 3, 2)) + $G, 0, 255);
+		$nB = MathUtility::forceIntegerInRange(hexdec(substr($color, 5, 2)) + $B, 0, 255);
 		return '#' . substr(('0' . dechex($nR)), -2) . substr(('0' . dechex($nG)), -2) . substr(('0' . dechex($nB)), -2);
 	}
 
@@ -1087,7 +1102,7 @@ class GeneralUtility
 			return FALSE;
 		}
 		require_once PATH_typo3 . 'contrib/idna/idna_convert.class.php';
-		$IDN = new \idna_convert(array('idn_version' => 2008));
+		$IDN = new idna_convert(array('idn_version' => 2008));
 		return filter_var($IDN->encode($email), FILTER_VALIDATE_EMAIL) !== FALSE;
 	}
 
@@ -1347,7 +1362,7 @@ class GeneralUtility
 	static public function isValidUrl($url)
 	{
 		require_once PATH_typo3 . 'contrib/idna/idna_convert.class.php';
-		$IDN = new \idna_convert(array('idn_version' => 2008));
+		$IDN = new idna_convert(array('idn_version' => 2008));
 		return filter_var($IDN->encode($url), FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED) !== FALSE;
 	}
 
@@ -2062,7 +2077,7 @@ class GeneralUtility
 			if (isset($options['grandParentTagMap'][$stackData['grandParentTagName'] . '/' . $stackData['parentTagName']])) {
 				$attr .= ' index="' . htmlspecialchars($tagName) . '"';
 				$tagName = (string)$options['grandParentTagMap'][($stackData['grandParentTagName'] . '/' . $stackData['parentTagName'])];
-			} elseif (isset($options['parentTagMap'][$stackData['parentTagName'] . ':_IS_NUM']) && \TYPO3\CMS\Core\Utility\MathUtility::canBeInterpretedAsInteger($tagName)) {
+			} elseif (isset($options['parentTagMap'][$stackData['parentTagName'] . ':_IS_NUM']) && MathUtility::canBeInterpretedAsInteger($tagName)) {
 				// Use tag based on parent tag name + if current tag is numeric
 				$attr .= ' index="' . htmlspecialchars($tagName) . '"';
 				$tagName = (string)$options['parentTagMap'][($stackData['parentTagName'] . ':_IS_NUM')];
@@ -2163,11 +2178,11 @@ class GeneralUtility
 			$array = $firstLevelCache[$identifier];
 		} else {
 			// Look up in second level cache
-			$cacheContent = \TYPO3\CMS\Frontend\Page\PageRepository::getHash($identifier, 0);
+			$cacheContent = PageRepository::getHash($identifier, 0);
 			$array = unserialize($cacheContent);
 			if ($array === FALSE) {
 				$array = self::xml2arrayProcess($string, $NSprefix, $reportDocTag);
-				\TYPO3\CMS\Frontend\Page\PageRepository::storeHash($identifier, serialize($array), 'ident_xml2array');
+				PageRepository::storeHash($identifier, serialize($array), 'ident_xml2array');
 			}
 			// Store content in first level cache
 			$firstLevelCache[$identifier] = $array;
@@ -2354,7 +2369,7 @@ class GeneralUtility
 				try {
 					$parameters = array('script' => $script);
 					$script = static::callUserFunction($hookMethod, $parameters, $fakeThis);
-				} catch (\Exception $e) {
+				} catch (Exception $e) {
 					$errorMessage = 'Error minifying java script: ' . $e->getMessage();
 					$error .= $errorMessage;
 					static::devLog($errorMessage, 'TYPO3\\CMS\\Core\\Utility\\GeneralUtility', 2, array(
@@ -2713,16 +2728,16 @@ Connection: close
 	 * @param string $directory Target directory to create. Must a have trailing slash
 	 * @param string $deepDirectory Directory to create. This second parameter
 	 * @return void
-	 * @throws \InvalidArgumentException If $directory or $deepDirectory are not strings
-	 * @throws \RuntimeException If directory could not be created
+	 * @throws InvalidArgumentException If $directory or $deepDirectory are not strings
+	 * @throws RuntimeException If directory could not be created
 	 */
 	static public function mkdir_deep($directory, $deepDirectory = '')
 	{
 		if (!is_string($directory)) {
-			throw new \InvalidArgumentException('The specified directory is of type "' . gettype($directory) . '" but a string is expected.', 1303662955);
+			throw new InvalidArgumentException('The specified directory is of type "' . gettype($directory) . '" but a string is expected.', 1303662955);
 		}
 		if (!is_string($deepDirectory)) {
-			throw new \InvalidArgumentException('The specified directory is of type "' . gettype($deepDirectory) . '" but a string is expected.', 1303662956);
+			throw new InvalidArgumentException('The specified directory is of type "' . gettype($deepDirectory) . '" but a string is expected.', 1303662956);
 		}
 		$fullPath = $directory . $deepDirectory;
 		if (!is_dir($fullPath) && strlen($fullPath) > 0) {
@@ -2741,8 +2756,8 @@ Connection: close
 	 * @static
 	 * @param string $fullDirectoryPath
 	 * @return string Path to the the first created directory in the hierarchy
-	 * @throws \RuntimeException If directory could not be created
-	 * @see \TYPO3\CMS\Core\Utility\GeneralUtility::mkdir_deep
+	 * @throws RuntimeException If directory could not be created
+	 * @see GeneralUtility::mkdir_deep
 	 */
 	static protected function createDirectoryPath($fullDirectoryPath)
 	{
@@ -2757,7 +2772,7 @@ Connection: close
 			} while (!is_dir($currentPath) && $separatorPosition !== FALSE);
 			$result = @mkdir($fullDirectoryPath, $permissionMask, TRUE);
 			if (!$result) {
-				throw new \RuntimeException('Could not create directory "' . $fullDirectoryPath . '"!', 1170251400);
+				throw new RuntimeException('Could not create directory "' . $fullDirectoryPath . '"!', 1170251400);
 			}
 		}
 		return $firstCreatedPath;
@@ -3614,8 +3629,8 @@ Connection: close
 		if (substr($filename, 0, 4) == 'EXT:') {
 			list($extKey, $local) = explode('/', substr($filename, 4), 2);
 			$filename = '';
-			if (strcmp($extKey, '') && \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded($extKey) && strcmp($local, '')) {
-				$filename = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath($extKey) . $local;
+			if (strcmp($extKey, '') && ExtensionManagementUtility::isLoaded($extKey) && strcmp($local, '')) {
+				$filename = ExtensionManagementUtility::extPath($extKey) . $local;
 			}
 		} elseif (!self::isAbsPath($filename)) {
 			// relative. Prepended with $relPathPrefix
@@ -3882,7 +3897,7 @@ Connection: close
 	 */
 	static public function readLLfile($fileRef, $langKey, $charset = '', $errorMode = 0)
 	{
-		/** @var $languageFactory \TYPO3\CMS\Core\Localization\LocalizationFactory */
+		/** @var $languageFactory LocalizationFactory */
 		$languageFactory = self::makeInstance('TYPO3\\CMS\\Core\\Localization\\LocalizationFactory');
 		return $languageFactory->getParsedData($fileRef, $langKey, $charset, $errorMode);
 	}
@@ -4098,7 +4113,7 @@ Connection: close
 				} else {
 					$errorMsg = 'No method name \'' . $parts[1] . '\' in class ' . $parts[0];
 					if ($errorMode == 2) {
-						throw new \InvalidArgumentException($errorMsg, 1294585865);
+						throw new InvalidArgumentException($errorMsg, 1294585865);
 					} elseif (!$errorMode) {
 						debug($errorMsg, 'TYPO3\\CMS\\Core\\Utility\\GeneralUtility::callUserFunction');
 					}
@@ -4106,7 +4121,7 @@ Connection: close
 			} else {
 				$errorMsg = 'No class named ' . $parts[0];
 				if ($errorMode == 2) {
-					throw new \InvalidArgumentException($errorMsg, 1294585866);
+					throw new InvalidArgumentException($errorMsg, 1294585866);
 				} elseif (!$errorMode) {
 					debug($errorMsg, 'TYPO3\\CMS\\Core\\Utility\\GeneralUtility::callUserFunction');
 				}
@@ -4118,7 +4133,7 @@ Connection: close
 			} else {
 				$errorMsg = 'No function named: ' . $funcRef;
 				if ($errorMode == 2) {
-					throw new \InvalidArgumentException($errorMsg, 1294585867);
+					throw new InvalidArgumentException($errorMsg, 1294585867);
 				} elseif (!$errorMode) {
 					debug($errorMsg, 'TYPO3\\CMS\\Core\\Utility\\GeneralUtility::callUserFunction');
 				}
@@ -4212,12 +4227,12 @@ Connection: close
 	 *
 	 * @param string $className name of the class to instantiate, must not be empty
 	 * @return object the created instance
-	 * @throws \InvalidArgumentException if classname is an empty string
+	 * @throws InvalidArgumentException if classname is an empty string
 	 */
 	static public function makeInstance($className)
 	{
 		if (!is_string($className) || empty($className)) {
-			throw new \InvalidArgumentException('$className must be a non empty string.', 1288965219);
+			throw new InvalidArgumentException('$className must be a non empty string.', 1288965219);
 		}
 		$finalClassName = self::getClassName($className);
 		// Return singleton instance if it is already registered
@@ -4235,19 +4250,19 @@ Connection: close
 		if (func_num_args() > 1) {
 			$constructorArguments = func_get_args();
 			array_shift($constructorArguments);
-			$reflectedClass = new \ReflectionClass($finalClassName);
+			$reflectedClass = new ReflectionClass($finalClassName);
 			$instance = $reflectedClass->newInstanceArgs($constructorArguments);
 		} else {
 			$fullyQualifiedClassName = '\\' . $finalClassName;
 			$instance = new $fullyQualifiedClassName();
 		}
 		// Create alias if not present
-		$alias = \TYPO3\CMS\Core\Core\ClassLoader::getAliasForClassName($finalClassName);
+		$alias = ClassLoader::getAliasForClassName($finalClassName);
 		if ($finalClassName !== $alias && !class_exists($alias, FALSE)) {
 			class_alias($finalClassName, $alias);
 		}
 		// Register new singleton instance
-		if ($instance instanceof \TYPO3\CMS\Core\SingletonInterface) {
+		if ($instance instanceof SingletonInterface) {
 			self::$singletonInstances[$finalClassName] = $instance;
 		}
 		return $instance;
@@ -4267,7 +4282,7 @@ Connection: close
 				$className = static::getImplementationForClass($className);
 			}
 		}
-		return \TYPO3\CMS\Core\Core\ClassLoader::getClassNameForAlias($className);
+		return ClassLoader::getClassNameForAlias($className);
 	}
 
 	/**
@@ -4312,12 +4327,12 @@ Connection: close
 	 * and resetSingletonInstances() in setUp() and tearDown() of the test class.
 	 *
 	 * @param string $className
-	 * @param \TYPO3\CMS\Core\SingletonInterface $instance
+	 * @param SingletonInterface $instance
 	 * @return void
 	 * @see makeInstance
 	 * @internal
 	 */
-	static public function setSingletonInstance($className, \TYPO3\CMS\Core\SingletonInterface $instance)
+	static public function setSingletonInstance($className, SingletonInterface $instance)
 	{
 		self::checkInstanceClassName($className, $instance);
 		self::$singletonInstances[$className] = $instance;
@@ -4374,14 +4389,14 @@ Connection: close
 	 * @param string $className
 	 * @param object $instance
 	 * @return void
-	 * @throws \InvalidArgumentException if class extends \TYPO3\CMS\Core\SingletonInterface
+	 * @throws InvalidArgumentException if class extends \TYPO3\CMS\Core\SingletonInterface
 	 * @see makeInstance
 	 */
 	static public function addInstance($className, $instance)
 	{
 		self::checkInstanceClassName($className, $instance);
-		if ($instance instanceof \TYPO3\CMS\Core\SingletonInterface) {
-			throw new \InvalidArgumentException('$instance must not be an instance of TYPO3\\CMS\\Core\\SingletonInterface. ' . 'For setting singletons, please use setSingletonInstance.', 1288969325);
+		if ($instance instanceof SingletonInterface) {
+			throw new InvalidArgumentException('$instance must not be an instance of TYPO3\\CMS\\Core\\SingletonInterface. ' . 'For setting singletons, please use setSingletonInstance.', 1288969325);
 		}
 		if (!isset(self::$nonSingletonInstances[$className])) {
 			self::$nonSingletonInstances[$className] = array();
@@ -4396,15 +4411,15 @@ Connection: close
 	 * @param string $className a class name
 	 * @param object $instance an object
 	 * @return void
-	 * @throws \InvalidArgumentException if $className is empty or if $instance is no instance of $className
+	 * @throws InvalidArgumentException if $className is empty or if $instance is no instance of $className
 	 */
 	static protected function checkInstanceClassName($className, $instance)
 	{
 		if ($className === '') {
-			throw new \InvalidArgumentException('$className must not be empty.', 1288967479);
+			throw new InvalidArgumentException('$className must not be empty.', 1288967479);
 		}
 		if (!$instance instanceof $className) {
-			throw new \InvalidArgumentException('$instance must be an instance of ' . $className . ', but actually is an instance of ' . get_class($instance) . '.', 1288967686);
+			throw new InvalidArgumentException('$instance must be an instance of ' . $className . ', but actually is an instance of ' . get_class($instance) . '.', 1288967686);
 		}
 	}
 
@@ -4445,7 +4460,7 @@ Connection: close
 			'requestedServiceSubType' => $serviceSubType,
 			'requestedExcludeServiceKeys' => $excludeServiceKeys
 		);
-		while ($info = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::findService($serviceType, $serviceSubType, $excludeServiceKeys)) {
+		while ($info = ExtensionManagementUtility::findService($serviceType, $serviceSubType, $excludeServiceKeys)) {
 			// provide information about requested service to service object
 			$info = array_merge($info, $requestInfo);
 			// Check persistent object and if found, call directly and exit.
@@ -4474,7 +4489,7 @@ Connection: close
 				if (is_object($obj)) {
 					if (!@is_callable(array($obj, 'init'))) {
 						// use silent logging??? I don't think so.
-						die('Broken service:' . \TYPO3\CMS\Core\Utility\DebugUtility::viewArray($info));
+						die('Broken service:' . DebugUtility::viewArray($info));
 					}
 					$obj->info = $info;
 					// service available?
@@ -4490,7 +4505,7 @@ Connection: close
 				}
 			}
 			// deactivate the service
-			\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::deactivateService($info['serviceType'], $info['serviceKey']);
+			ExtensionManagementUtility::deactivateService($info['serviceType'], $info['serviceKey']);
 		}
 		return $error;
 	}
@@ -4591,7 +4606,7 @@ Connection: close
 		// So we stick to LF in all cases.
 		// Make sure no empty lines are there.
 		$headers = trim(implode(LF, self::trimExplode(LF, $headers, TRUE)));
-		return \TYPO3\CMS\Core\Utility\MailUtility::mail($email, $subject, $message, $headers);
+		return MailUtility::mail($email, $subject, $message, $headers);
 	}
 
 	/**
@@ -4818,7 +4833,7 @@ Connection: close
 				openlog($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['systemLogHost'], LOG_ODELAY, $facility);
 			}
 		}
-		$GLOBALS['TYPO3_CONF_VARS']['SYS']['systemLogLevel'] = \TYPO3\CMS\Core\Utility\MathUtility::forceIntegerInRange($GLOBALS['TYPO3_CONF_VARS']['SYS']['systemLogLevel'], 0, 4);
+		$GLOBALS['TYPO3_CONF_VARS']['SYS']['systemLogLevel'] = MathUtility::forceIntegerInRange($GLOBALS['TYPO3_CONF_VARS']['SYS']['systemLogLevel'], 0, 4);
 		$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['systemLogInit'] = TRUE;
 	}
 
@@ -4835,7 +4850,7 @@ Connection: close
 	 */
 	static public function sysLog($msg, $extKey, $severity = 0)
 	{
-		$severity = \TYPO3\CMS\Core\Utility\MathUtility::forceIntegerInRange($severity, 0, 4);
+		$severity = MathUtility::forceIntegerInRange($severity, 0, 4);
 		// Is message worth logging?
 		if (intval($GLOBALS['TYPO3_CONF_VARS']['SYS']['systemLogLevel']) > $severity) {
 			return;
@@ -4869,7 +4884,7 @@ Connection: close
 			// Write message to a file
 			if ($type == 'file') {
 				$lockObject = self::makeInstance('TYPO3\\CMS\\Core\\Locking\\Locker', $destination, $GLOBALS['TYPO3_CONF_VARS']['SYS']['lockingMode']);
-				/** @var \TYPO3\CMS\Core\Locking\Locker $lockObject */
+				/** @var Locker $lockObject */
 				$lockObject->setEnableLogging(FALSE);
 				$lockObject->acquire();
 				$file = fopen($destination, 'a');
@@ -4882,9 +4897,9 @@ Connection: close
 			} elseif ($type == 'mail') {
 				list($to, $from) = explode('/', $destination);
 				if (!self::validEmail($from)) {
-					$from = \TYPO3\CMS\Core\Utility\MailUtility::getSystemFrom();
+					$from = MailUtility::getSystemFrom();
 				}
-				/** @var $mail \TYPO3\CMS\Core\Mail\MailMessage */
+				/** @var $mail MailMessage */
 				$mail = self::makeInstance('TYPO3\\CMS\\Core\\Mail\\MailMessage');
 				$mail->setTo($to)->setFrom($from)->setSubject('Warning - error in TYPO3 installation')->setBody('Host: ' . $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['systemLogHost'] . LF . 'Extension: ' . $extKey . LF . 'Severity: ' . $severity . LF . LF . $msg);
 				$mail->send();
@@ -4947,7 +4962,7 @@ Connection: close
 			// Write a longer message to the deprecation log
 			$destination = self::getDeprecationLogFileName();
 			$lockObject = self::makeInstance('TYPO3\\CMS\\Core\\Locking\\Locker', $destination, $GLOBALS['TYPO3_CONF_VARS']['SYS']['lockingMode']);
-			/** @var \TYPO3\CMS\Core\Locking\Locker $lockObject */
+			/** @var Locker $lockObject */
 			$lockObject->setEnableLogging(FALSE);
 			$lockObject->acquire();
 			$file = @fopen($destination, 'a');
@@ -4964,7 +4979,7 @@ Connection: close
 		}
 		// Do not use console in login screen
 		if (stripos($log, 'console') !== FALSE && isset($GLOBALS['BE_USER']->user['uid'])) {
-			\TYPO3\CMS\Core\Utility\DebugUtility::debug($msg, $date, 'Deprecation Log');
+			DebugUtility::debug($msg, $date, 'Deprecation Log');
 		}
 	}
 
@@ -4998,9 +5013,9 @@ Connection: close
 
 		$trail = debug_backtrace();
 		if ($trail[1]['type']) {
-			$function = new \ReflectionMethod($trail[1]['class'], $trail[1]['function']);
+			$function = new ReflectionMethod($trail[1]['class'], $trail[1]['function']);
 		} else {
-			$function = new \ReflectionFunction($trail[1]['function']);
+			$function = new ReflectionFunction($trail[1]['function']);
 		}
 		$msg = '';
 		if (preg_match('/@deprecated\\s+(.*)/', $function->getDocComment(), $match)) {
@@ -5008,7 +5023,7 @@ Connection: close
 		}
 		// Write a longer message to the deprecation log: <function> <annotion> - <trace> (<source>)
 		$logMsg = $trail[1]['class'] . $trail[1]['type'] . $trail[1]['function'];
-		$logMsg .= '() - ' . $msg . ' - ' . \TYPO3\CMS\Core\Utility\DebugUtility::debugTrail();
+		$logMsg .= '() - ' . $msg . ' - ' . DebugUtility::debugTrail();
 		$logMsg .= ' (' . substr($function->getFileName(), strlen(PATH_site)) . '#' . $function->getStartLine() . ')';
 		self::deprecationLog($logMsg);
 	}
@@ -5047,7 +5062,7 @@ Connection: close
 	 */
 	static public function imageMagickCommand($command, $parameters, $path = '')
 	{
-		return \TYPO3\CMS\Core\Utility\CommandUtility::imageMagickCommand($command, $parameters, $path);
+		return CommandUtility::imageMagickCommand($command, $parameters, $path);
 	}
 
 	/**

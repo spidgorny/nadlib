@@ -89,7 +89,7 @@ class Duration extends Time
 	 * Parses the human string like '24h 10m'
 	 * No spaces allowed between the number and value
 	 * @param string $string
-	 * @return \Duration
+	 * @return Duration
 	 */
 	static function fromHuman($string)
 	{

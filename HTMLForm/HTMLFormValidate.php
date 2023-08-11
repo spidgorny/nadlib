@@ -192,7 +192,7 @@ class HTMLFormValidate
 				$isValid = false;
 			} else if
 			(!preg_match('/^(\\\\.|[A-Za-z0-9!#%&`_=\\/$\'*+?^{}|~.-])+$/',
-				str_replace("\\\\", "", $local))) {
+					str_replace("\\\\", "", $local))) {
 				// character not valid in local part unless
 				// local part is quoted
 				if (!preg_match('/^"(\\\\"|[^"])+"$/',

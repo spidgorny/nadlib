@@ -1,5 +1,8 @@
 <?php
 
+use TYPO3\CMS\Core\Database\DatabaseConnection;
+use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
+
 class TCAConverter
 {
 
@@ -16,11 +19,11 @@ class TCAConverter
 	public $skipFields = array('hidden');
 
 	/**
-	 * @var \TYPO3\CMS\Core\Database\DatabaseConnection
+	 * @var DatabaseConnection
 	 */
 	protected $t3db;
 
-	function __construct(\TYPO3\CMS\Frontend\Plugin\AbstractPlugin $pi1)
+	function __construct(AbstractPlugin $pi1)
 	{
 		$this->pi1 = $pi1;
 		$this->t3db = $GLOBALS['TYPO3_DB'];
@@ -136,7 +139,7 @@ class TCAConverter
 	static function fetchAll($res)
 	{
 		$rows = array();
-		/** @var \TYPO3\CMS\Core\Database\DatabaseConnection $db */
+		/** @var DatabaseConnection $db */
 		$db = $GLOBALS['TYPO3_DB'];
 		while (($row = $db->sql_fetch_assoc($res)) !== FALSE) {
 			$rows[$row['uid']] = $row;

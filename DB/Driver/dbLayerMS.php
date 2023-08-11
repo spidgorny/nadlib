@@ -1,5 +1,7 @@
 <?php
 
+use PHPSQLParser\builders\OrderByBuilder;
+
 class dbLayerMS extends dbLayerBase implements DBInterface
 {
 
@@ -345,7 +347,7 @@ AND name = '?')", array($table));
 	function addLimitOldVersion($query, $howMany, $startingFrom)
 	{
 		$query = new SQLQuery($query . '');
-		$builder = new \PHPSQLParser\builders\OrderByBuilder();
+		$builder = new OrderByBuilder();
 		$orderBy = $builder->build($query->parsed['ORDER']);
 		unset($query->parsed['ORDER']);
 

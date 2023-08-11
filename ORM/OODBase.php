@@ -427,9 +427,9 @@ abstract class OODBase
 	 * @return string whether the record already existed
 	 */
 	function insertUpdate(array $fields,
-						  array $where = [],
-						  array $insert = [],
-						  array $update = []
+												array $where = [],
+												array $insert = [],
+												array $update = []
 	)
 	{
 		TaylorProfiler::start(__METHOD__);
@@ -515,7 +515,7 @@ abstract class OODBase
 	function showAssoc(array $thes = [
 		'id' => 'ID',
 		'name' => 'Name'
-	], $title = NULL)
+	],                       $title = NULL)
 	{
 		$ss = new ShowAssoc($this->data);
 		$ss->setThes($thes);

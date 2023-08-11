@@ -509,7 +509,7 @@ class URL
 		$address = explode('/', $address);
 		$keys = array_keys($address, '..');
 
-		foreach ($keys AS $keypos => $key) {
+		foreach ($keys as $keypos => $key) {
 			array_splice($address, $key - ($keypos * 2 + 1), 2);
 		}
 

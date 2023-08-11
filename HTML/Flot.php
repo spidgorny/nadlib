@@ -351,7 +351,7 @@ defer(function () {
 		$.plot($("#' . $divID . '"), [
 			' . implode(", ", $dKeys) . ',
 			' . implode(", ", $cKeys) . '
-		], ' . $config . ');
+		], ' . $config . ')
 	});
 });
 </script>';

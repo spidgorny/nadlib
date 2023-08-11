@@ -305,8 +305,8 @@ class HTMLForm
 	 * @see renderSelectionOptions
 	 */
 	function selection($name, array $aOptions = NULL, $default,
-					   $autoSubmit = FALSE, $more = array(),
-					   $multiple = false, array $desc = array())
+										 $autoSubmit = FALSE, $more = array(),
+										 $multiple = false, array $desc = array())
 	{
 		$sel = new HTMLFormSelection($name, $aOptions, $default);
 		$sel->autoSubmit = $autoSubmit;
@@ -639,9 +639,9 @@ class HTMLForm
 /*      selection	: Calendar.dateToInt(new Date(\'' . date('Y-m-d', $fieldValue) . '\')),
         date        : Calendar.dateToInt(new Date(\'' . date('Y-m-d', $fieldValue) . '\')),
 */      selection   : Calendar.dateToInt(new Date(' . (1000 * $fieldValue) . ')),
-        date        : Calendar.dateToInt(new Date(' . (1000 * $fieldValue) . ')),
+        Calendar.dateToInt(new Date(' . (1000 * $fieldValue) . ')),
         onSelect   	: function() { this.hide() }
-    });
+    })
 </script>';
 		return $content;
 	}

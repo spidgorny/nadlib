@@ -100,7 +100,7 @@ class MathUtility
 	 *
 	 * @param string $string Input string, eg "123 + 456 / 789 - 4
 	 * @return integer Calculated value. Or error string.
-	 * @see \TYPO3\CMS\Core\Utility\MathUtility::calculateWithParentheses()
+	 * @see MathUtility::calculateWithParentheses
 	 */
 	static public function calculateWithPriorityToAdditionAndSubtraction($string)
 	{

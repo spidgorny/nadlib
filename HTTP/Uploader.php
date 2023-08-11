@@ -1,5 +1,7 @@
 <?php
 
+use Mimey\MimeTypes;
+
 /**
  * Class Uploader
  * General validating uploader with error handling
@@ -243,11 +245,11 @@ post_max_size: ' . $post_max_size . '">' .
 	function get_mime_type($filename)
 	{
 		if (class_exists('Mimey\\MimeTypes')) {
-			$mimes = new \Mimey\MimeTypes;
+			$mimes = new MimeTypes;
 			$ext = pathinfo($filename, PATHINFO_EXTENSION);
 			$mime = $mimes->getMimeType($ext);
 			$this->mimeMethod = 'mimey';
-		} elseif (class_exists('finfo')) {		// Bug! CSS => text/plain
+		} elseif (class_exists('finfo')) {    // Bug! CSS => text/plain
 			$fi = new finfo();
 			$mime = $fi->file($filename, FILEINFO_MIME_TYPE);
 			$this->mimeMethod = 'finfo';
@@ -443,7 +445,7 @@ post_max_size: ' . $post_max_size . '">' .
 		// helper method for GetPostedFiles
 		if (!is_array($PaArray1) or !is_array($PaArray2))
 			return $PaArray2;
-		foreach ($PaArray2 AS $SKey2 => $SValue2)
+		foreach ($PaArray2 as $SKey2 => $SValue2)
 			$PaArray1[$SKey2] = self::GPF_ArrayMergeRecursive(@$PaArray1[$SKey2], $SValue2);
 		return $PaArray1;
 	}

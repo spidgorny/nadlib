@@ -76,22 +76,22 @@ $(function ($) {
     $.plot($("#' . $divID . '"), [
     	' . implode(", ", $dKeys) . '
     ], {
-    	series: {
-     		pie: {
-           		show: true,
+    	{
+     		{
+           		true,
            		radius: 1,
 				label: {
-					show: true,
+					true,
 					radius: 3/4,
 					formatter: labelFormatter,
 					background: {
-						opacity: 0.5
+						0.5
 					}
 				}
         	}
         },
     	colors: ' . json_encode($this->colors) . '
-    });
+    })
 });
 </script>';
 		return $content;

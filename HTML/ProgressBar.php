@@ -306,7 +306,7 @@ class ProgressBar
 					$size['height'] = intval($matches[1]);
 				}
 			}
-			if ($size['width'] AND $size['height']) {
+			if ($size['width'] and $size['height']) {
 				break;
 			}
 		}

@@ -245,7 +245,7 @@ class dbLayer extends dbLayerBase implements DBInterface
 		if (in_array($_REQUEST['pageType'], $pageAttachCustom)) {
 			$cO = CustomCatList::getInstance($_SESSION['sesProject']);
 			if (is_array($cO->customColumns)) {
-				foreach ($cO->customColumns AS $cname) {
+				foreach ($cO->customColumns as $cname) {
 					$return[] = $cname;
 				}
 			}
@@ -763,7 +763,7 @@ order by a.attnum';
 		for ($f = 0; $f < pg_num_fields($res); $f++) {
 			$newField = pg_fieldname($res, $f);
 			$fields[$newField] = pg_field_type($res, $f);
-		};
+		}
 		return $fields;
 	}
 

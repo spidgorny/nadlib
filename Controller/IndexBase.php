@@ -1,5 +1,7 @@
 <?php
 
+use nadlib\HTML\Messages;
+
 class IndexBase /*extends Controller*/
 {    // infinite loop
 
@@ -23,7 +25,7 @@ class IndexBase /*extends Controller*/
 	/**
 	 * For any error messages during initialization.
 	 *
-	 * @var string|array|\nadlib\HTML\Messages
+	 * @var string|array|Messages
 	 */
 	public $content;
 

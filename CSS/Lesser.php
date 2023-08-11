@@ -70,7 +70,7 @@ class Lesser extends AppController
 
 			if (!headers_sent()) {
 				header("Date: " . gmdate("D, d M Y H:i:s", time()) . " GMT");
-				header("Last-Modified: " . gmdate("D, d M Y H:i:s", time()) . " GMT");;
+				header("Last-Modified: " . gmdate("D, d M Y H:i:s", time()) . " GMT");
 				header("Expires: " . gmdate("D, d M Y H:i:s", time() + 60 * 60 * 24) . " GMT");
 				header('Pragma: cache');
 				header_remove('Cache-control');

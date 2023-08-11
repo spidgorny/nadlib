@@ -1,6 +1,14 @@
 <?php
 namespace TYPO3\CMS\Core\Database;
 
+use InvalidArgumentException;
+use mysqli;
+use mysqli_result;
+use RuntimeException;
+use TYPO3\CMS\Core\Utility\DebugUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use UnexpectedValueException;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -143,7 +151,7 @@ class DatabaseConnection
 	protected $isConnected = FALSE;
 
 	/**
-	 * @var \mysqli $link Default database link object
+	 * @var mysqli $link Default database link object
 	 */
 	protected $link = NULL;
 
@@ -183,7 +191,7 @@ class DatabaseConnection
 	 * @param string $table Table name
 	 * @param array $fields_values Field values as key=>value pairs. Values will be escaped internally. Typically you would fill an array like "$insertFields" with 'fieldname'=>'value' and pass it to this function as argument.
 	 * @param boolean $no_quote_fields See fullQuoteArray()
-	 * @return boolean|\mysqli_result|object MySQLi result object / DBAL object
+	 * @return boolean|mysqli_result|object MySQLi result object / DBAL object
 	 */
 	public function exec_INSERTquery($table, $fields_values, $no_quote_fields = FALSE)
 	{
@@ -208,7 +216,7 @@ class DatabaseConnection
 	 * @param array $fields Field names
 	 * @param array $rows Table rows. Each row should be an array with field values mapping to $fields
 	 * @param boolean $no_quote_fields See fullQuoteArray()
-	 * @return boolean|\mysqli_result|object MySQLi result object / DBAL object
+	 * @return boolean|mysqli_result|object MySQLi result object / DBAL object
 	 */
 	public function exec_INSERTmultipleRows($table, array $fields, array $rows, $no_quote_fields = FALSE)
 	{
@@ -234,7 +242,7 @@ class DatabaseConnection
 	 * @param string $where WHERE clause, eg. "uid=1". NOTICE: You must escape values in this argument with $this->fullQuoteStr() yourself!
 	 * @param array $fields_values Field values as key=>value pairs. Values will be escaped internally. Typically you would fill an array like "$updateFields" with 'fieldname'=>'value' and pass it to this function as argument.
 	 * @param boolean $no_quote_fields See fullQuoteArray()
-	 * @return boolean|\mysqli_result|object MySQLi result object / DBAL object
+	 * @return boolean|mysqli_result|object MySQLi result object / DBAL object
 	 */
 	public function exec_UPDATEquery($table, $where, $fields_values, $no_quote_fields = FALSE)
 	{
@@ -257,7 +265,7 @@ class DatabaseConnection
 	 *
 	 * @param string $table Database tablename
 	 * @param string $where WHERE clause, eg. "uid=1". NOTICE: You must escape values in this argument with $this->fullQuoteStr() yourself!
-	 * @return boolean|\mysqli_result|object MySQLi result object / DBAL object
+	 * @return boolean|mysqli_result|object MySQLi result object / DBAL object
 	 */
 	public function exec_DELETEquery($table, $where)
 	{
@@ -285,7 +293,7 @@ class DatabaseConnection
 	 * @param string $groupBy Optional GROUP BY field(s), if none, supply blank string.
 	 * @param string $orderBy Optional ORDER BY field(s), if none, supply blank string.
 	 * @param string $limit Optional LIMIT value ([begin,]max), if none, supply blank string.
-	 * @return boolean|\mysqli_result|object MySQLi result object / DBAL object
+	 * @return boolean|mysqli_result|object MySQLi result object / DBAL object
 	 */
 	public function exec_SELECTquery($select_fields, $from_table, $where_clause, $groupBy = '', $orderBy = '', $limit = '')
 	{
@@ -321,7 +329,7 @@ class DatabaseConnection
 	 * @param string $groupBy Optional GROUP BY field(s), if none, supply blank string.
 	 * @param string $orderBy Optional ORDER BY field(s), if none, supply blank string.
 	 * @param string $limit Optional LIMIT value ([begin,]max), if none, supply blank string.
-	 * @return boolean|\mysqli_result|object MySQLi result object / DBAL object
+	 * @return boolean|mysqli_result|object MySQLi result object / DBAL object
 	 * @see exec_SELECTquery()
 	 */
 	public function exec_SELECT_mm_query($select, $local_table, $mm_table, $foreign_table, $whereClause = '', $groupBy = '', $orderBy = '', $limit = '')
@@ -343,7 +351,7 @@ class DatabaseConnection
 	 * Executes a select based on input query parts array
 	 *
 	 * @param array $queryParts Query parts array
-	 * @return boolean|\mysqli_result|object MySQLi result object / DBAL object
+	 * @return boolean|mysqli_result|object MySQLi result object / DBAL object
 	 * @see exec_SELECTquery()
 	 */
 	public function exec_SELECT_queryArray($queryParts)
@@ -537,7 +545,7 @@ class DatabaseConnection
 	 * @param array $fields_values See exec_UPDATEquery()
 	 * @param boolean $no_quote_fields
 	 * @return string Full SQL query for UPDATE
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 */
 	public function UPDATEquery($table, $where, $fields_values, $no_quote_fields = FALSE)
 	{
@@ -563,7 +571,7 @@ class DatabaseConnection
 			}
 			return $query;
 		} else {
-			throw new \InvalidArgumentException('TYPO3 Fatal Error: "Where" clause argument for UPDATE query was not a string in $this->UPDATEquery() !', 1270853880);
+			throw new InvalidArgumentException('TYPO3 Fatal Error: "Where" clause argument for UPDATE query was not a string in $this->UPDATEquery() !', 1270853880);
 		}
 	}
 
@@ -573,7 +581,7 @@ class DatabaseConnection
 	 * @param string $table See exec_DELETEquery()
 	 * @param string $where See exec_DELETEquery()
 	 * @return string Full SQL query for DELETE
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 */
 	public function DELETEquery($table, $where)
 	{
@@ -589,7 +597,7 @@ class DatabaseConnection
 			}
 			return $query;
 		} else {
-			throw new \InvalidArgumentException('TYPO3 Fatal Error: "Where" clause argument for DELETE query was not a string in $this->DELETEquery() !', 1270853881);
+			throw new InvalidArgumentException('TYPO3 Fatal Error: "Where" clause argument for DELETE query was not a string in $this->DELETEquery() !', 1270853881);
 		}
 	}
 
@@ -682,13 +690,13 @@ class DatabaseConnection
 	 * @param string $value Value to find in list
 	 * @param string $table Table in which we are searching (for DBAL detection of quoteStr() method)
 	 * @return string WHERE clause for a query
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 */
 	public function listQuery($field, $value, $table)
 	{
 		$value = (string)$value;
 		if (strpos(',', $value) !== FALSE) {
-			throw new \InvalidArgumentException('$value must not contain a comma (,) in $this->listQuery() !', 1294585862);
+			throw new InvalidArgumentException('$value must not contain a comma (,) in $this->listQuery() !', 1294585862);
 		}
 		$pattern = $this->quoteStr($value, $table);
 		$where = 'FIND_IN_SET(\'' . $pattern . '\',' . $field . ')';
@@ -740,16 +748,16 @@ class DatabaseConnection
 	 * @param string $orderBy See exec_SELECTquery()
 	 * @param string $limit See exec_SELECTquery()
 	 * @param array $input_parameters An array of values with as many elements as there are bound parameters in the SQL statement being executed. All values are treated as \TYPO3\CMS\Core\Database\PreparedStatement::PARAM_AUTOTYPE.
-	 * @return \TYPO3\CMS\Core\Database\PreparedStatement Prepared statement
+	 * @return PreparedStatement Prepared statement
 	 */
 	public function prepare_SELECTquery($select_fields, $from_table, $where_clause, $groupBy = '', $orderBy = '', $limit = '', array $input_parameters = array())
 	{
 		$query = $this->SELECTquery($select_fields, $from_table, $where_clause, $groupBy, $orderBy, $limit);
-		/** @var $preparedStatement \TYPO3\CMS\Core\Database\PreparedStatement */
-		$preparedStatement = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Database\\PreparedStatement', $query, $from_table, array());
+		/** @var $preparedStatement PreparedStatement */
+		$preparedStatement = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Database\\PreparedStatement', $query, $from_table, array());
 		// Bind values to parameters
 		foreach ($input_parameters as $key => $value) {
-			$preparedStatement->bindValue($key, $value, \TYPO3\CMS\Core\Database\PreparedStatement::PARAM_AUTOTYPE);
+			$preparedStatement->bindValue($key, $value, PreparedStatement::PARAM_AUTOTYPE);
 		}
 		// Return prepared statement
 		return $preparedStatement;
@@ -760,7 +768,7 @@ class DatabaseConnection
 	 *
 	 * @param array $queryParts Query parts array
 	 * @param array $input_parameters An array of values with as many elements as there are bound parameters in the SQL statement being executed. All values are treated as \TYPO3\CMS\Core\Database\PreparedStatement::PARAM_AUTOTYPE.
-	 * @return \TYPO3\CMS\Core\Database\PreparedStatement Prepared statement
+	 * @return PreparedStatement Prepared statement
 	 */
 	public function prepare_SELECTqueryArray(array $queryParts, array $input_parameters = array())
 	{
@@ -773,7 +781,7 @@ class DatabaseConnection
 	 *
 	 * @param string $query The query to execute
 	 * @param array $queryComponents The components of the query to execute
-	 * @return boolean|\mysqli_result|object MySQLi result object / DBAL object
+	 * @return boolean|mysqli_result|object MySQLi result object / DBAL object
 	 */
 	public function exec_PREPAREDquery($query, array $queryComponents)
 	{
@@ -900,7 +908,7 @@ class DatabaseConnection
 	 */
 	public function cleanIntList($list)
 	{
-		return implode(',', \TYPO3\CMS\Core\Utility\GeneralUtility::intExplode(',', $list));
+		return implode(',', GeneralUtility::intExplode(',', $list));
 	}
 
 	/**
@@ -1006,7 +1014,7 @@ class DatabaseConnection
 	 * using exec_SELECTquery() and similar methods instead.
 	 *
 	 * @param string $query Query to execute
-	 * @return boolean|\mysqli_result|object MySQLi result object / DBAL object
+	 * @return boolean|mysqli_result|object MySQLi result object / DBAL object
 	 */
 	public function sql_query($query)
 	{
@@ -1043,7 +1051,7 @@ class DatabaseConnection
 	/**
 	 * Returns the number of selected rows.
 	 *
-	 * @param boolean|\mysqli_result|object $res MySQLi result object / DBAL object
+	 * @param boolean|mysqli_result|object $res MySQLi result object / DBAL object
 	 * @return integer Number of resulting rows
 	 */
 	public function sql_num_rows($res)
@@ -1059,7 +1067,7 @@ class DatabaseConnection
 	 * Returns an associative array that corresponds to the fetched row, or FALSE if there are no more rows.
 	 * MySQLi fetch_assoc() wrapper function
 	 *
-	 * @param boolean|\mysqli_result|object $res MySQLi result object / DBAL object
+	 * @param boolean|mysqli_result|object $res MySQLi result object / DBAL object
 	 * @return array|boolean Associative array of result row.
 	 */
 	public function sql_fetch_assoc($res)
@@ -1081,7 +1089,7 @@ class DatabaseConnection
 	 * The array contains the values in numerical indices.
 	 * MySQLi fetch_row() wrapper function
 	 *
-	 * @param boolean|\mysqli_result|object $res MySQLi result object / DBAL object
+	 * @param boolean|mysqli_result|object $res MySQLi result object / DBAL object
 	 * @return array|boolean Array with result rows.
 	 */
 	public function sql_fetch_row($res)
@@ -1102,7 +1110,7 @@ class DatabaseConnection
 	 * Free result memory
 	 * free_result() wrapper function
 	 *
-	 * @param boolean|\mysqli_result|object $res MySQLi result object / DBAL object
+	 * @param boolean|mysqli_result|object $res MySQLi result object / DBAL object
 	 * @return boolean Returns TRUE on success or FALSE on failure.
 	 */
 	public function sql_free_result($res)
@@ -1137,7 +1145,7 @@ class DatabaseConnection
 	/**
 	 * Move internal result pointer
 	 *
-	 * @param boolean|\mysqli_result|object $res MySQLi result object / DBAL object
+	 * @param boolean|mysqli_result|object $res MySQLi result object / DBAL object
 	 * @param integer $seek Seek result number.
 	 * @return boolean Returns TRUE on success or FALSE on failure.
 	 */
@@ -1154,7 +1162,7 @@ class DatabaseConnection
 	 * Get the type of the specified field in a result
 	 * mysql_field_type() wrapper function
 	 *
-	 * @param boolean|\mysqli_result|object $res MySQLi result object / DBAL object
+	 * @param boolean|mysqli_result|object $res MySQLi result object / DBAL object
 	 * @param integer $pointer Field index.
 	 * @return string Returns the name of the specified field index, or FALSE on error
 	 */
@@ -1200,7 +1208,7 @@ class DatabaseConnection
 	 * @param string $username Deprecated since 6.1, will be removed in two versions. Username to connect with.
 	 * @param string $password Deprecated since 6.1, will be removed in two versions. Password to connect with.
 	 * @return boolean|void
-	 * @throws \RuntimeException
+	 * @throws RuntimeException
 	 */
 	public function sql_pconnect($host = NULL, $username = NULL, $password = NULL)
 	{
@@ -1209,7 +1217,7 @@ class DatabaseConnection
 		}
 
 		if (!extension_loaded('mysqli')) {
-			throw new \RuntimeException(
+			throw new RuntimeException(
 				'Database Error: PHP mysqli extension not loaded. This is a must have for TYPO3 CMS!',
 				1271492607
 			);
@@ -1238,10 +1246,10 @@ class DatabaseConnection
 			$this->isConnected = TRUE;
 			foreach ($this->initializeCommandsAfterConnect as $command) {
 				if ($this->link->query($command) === FALSE) {
-					\TYPO3\CMS\Core\Utility\GeneralUtility::sysLog(
+					GeneralUtility::sysLog(
 						'Could not initialize DB connection with query "' . $command . '": ' . $this->sql_error(),
 						'Core',
-						\TYPO3\CMS\Core\Utility\GeneralUtility::SYSLOG_SEVERITY_ERROR
+						GeneralUtility::SYSLOG_SEVERITY_ERROR
 					);
 				}
 			}
@@ -1250,10 +1258,10 @@ class DatabaseConnection
 			// @TODO: This should raise an exception. Would be useful especially to work during installation.
 			$error_msg = $this->link->connect_error;
 			$this->link = NULL;
-			\TYPO3\CMS\Core\Utility\GeneralUtility::sysLog(
+			GeneralUtility::sysLog(
 				'Could not connect to MySQL server ' . $host . ' with user ' . $username . ': ' . $error_msg,
 				'Core',
-				\TYPO3\CMS\Core\Utility\GeneralUtility::SYSLOG_SEVERITY_FATAL
+				GeneralUtility::SYSLOG_SEVERITY_FATAL
 			);
 		}
 		return $this->link;
@@ -1270,13 +1278,13 @@ class DatabaseConnection
 		if ($resource) {
 			$result = $this->sql_fetch_row($resource);
 			if (isset($result[0]) && $result[0] && strpos($result[0], 'NO_BACKSLASH_ESCAPES') !== FALSE) {
-				$modes = array_diff(\TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(',', $result[0]), array('NO_BACKSLASH_ESCAPES'));
+				$modes = array_diff(GeneralUtility::trimExplode(',', $result[0]), array('NO_BACKSLASH_ESCAPES'));
 				$query = 'SET sql_mode=\'' . $this->link->real_escape_string(implode(',', $modes)) . '\';';
 				$this->sql_query($query);
-				\TYPO3\CMS\Core\Utility\GeneralUtility::sysLog(
+				GeneralUtility::sysLog(
 					'NO_BACKSLASH_ESCAPES could not be removed from SQL mode: ' . $this->sql_error(),
 					'Core',
-					\TYPO3\CMS\Core\Utility\GeneralUtility::SYSLOG_SEVERITY_ERROR
+					GeneralUtility::SYSLOG_SEVERITY_ERROR
 				);
 			}
 		}
@@ -1295,7 +1303,7 @@ class DatabaseConnection
 		}
 
 		if ($TYPO3_db) {
-			\TYPO3\CMS\Core\Utility\GeneralUtility::deprecationLog(
+			GeneralUtility::deprecationLog(
 				'DatabaseConnection->sql_select_db() should be called without arguments.' .
 				' Use the setDatabaseName() before. Will be removed two versions after 6.1.'
 			);
@@ -1305,10 +1313,10 @@ class DatabaseConnection
 
 		$ret = $this->link->select_db($TYPO3_db);
 		if (!$ret) {
-			\TYPO3\CMS\Core\Utility\GeneralUtility::sysLog(
+			GeneralUtility::sysLog(
 				'Could not select MySQL database ' . $TYPO3_db . ': ' . $this->sql_error(),
 				'Core',
-				\TYPO3\CMS\Core\Utility\GeneralUtility::SYSLOG_SEVERITY_FATAL
+				GeneralUtility::SYSLOG_SEVERITY_FATAL
 			);
 		}
 		return $ret;
@@ -1445,7 +1453,7 @@ class DatabaseConnection
 	 * mysqli() wrapper function, used by the Install Tool and EM for all queries regarding management of the database!
 	 *
 	 * @param string $query Query to execute
-	 * @return boolean|\mysqli_result|object MySQLi result object / DBAL object
+	 * @return boolean|mysqli_result|object MySQLi result object / DBAL object
 	 */
 	public function admin_query($query)
 	{
@@ -1562,8 +1570,8 @@ class DatabaseConnection
 	 * @param string $password Deprecated since 6.1, will be removed in two versions. Password to connect with
 	 * @param string $db Deprecated since 6.1, will be removed in two versions. Database name to connect to
 	 * @return void
-	 * @throws \UnexpectedValueException
-	 * @throws \RuntimeException
+	 * @throws UnexpectedValueException
+	 * @throws RuntimeException
 	 * @internal param string $user Username to connect with.
 	 */
 	public function connectDB($host = NULL, $username = NULL, $password = NULL, $db = NULL)
@@ -1574,7 +1582,7 @@ class DatabaseConnection
 		}
 
 		if (!$this->databaseName && !$db) {
-			throw new \RuntimeException(
+			throw new RuntimeException(
 				'TYPO3 Fatal Error: No database selected!',
 				1270853882
 			);
@@ -1586,13 +1594,13 @@ class DatabaseConnection
 
 		if ($this->sql_pconnect()) {
 			if (!$this->sql_select_db()) {
-				throw new \RuntimeException(
+				throw new RuntimeException(
 					'TYPO3 Fatal Error: Cannot connect to the current database, "' . $this->databaseName . '"!',
 					1270853883
 				);
 			}
 		} else {
-			throw new \RuntimeException(
+			throw new RuntimeException(
 				'TYPO3 Fatal Error: The current username, password or host was not accepted when the connection to the database was attempted to be established!',
 				1270853884
 			);
@@ -1603,20 +1611,20 @@ class DatabaseConnection
 		$this->postProcessHookObjects = array();
 		if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_db.php']['queryProcessors'])) {
 			foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_db.php']['queryProcessors'] as $classRef) {
-				$hookObject = \TYPO3\CMS\Core\Utility\GeneralUtility::getUserObj($classRef);
+				$hookObject = GeneralUtility::getUserObj($classRef);
 				if (!(
-					$hookObject instanceof \TYPO3\CMS\Core\Database\PreProcessQueryHookInterface
-					|| $hookObject instanceof \TYPO3\CMS\Core\Database\PostProcessQueryHookInterface
+					$hookObject instanceof PreProcessQueryHookInterface
+					|| $hookObject instanceof PostProcessQueryHookInterface
 				)) {
-					throw new \UnexpectedValueException(
+					throw new UnexpectedValueException(
 						'$hookObject must either implement interface TYPO3\\CMS\\Core\\Database\\PreProcessQueryHookInterface or interface TYPO3\\CMS\\Core\\Database\\PostProcessQueryHookInterface',
 						1299158548
 					);
 				}
-				if ($hookObject instanceof \TYPO3\CMS\Core\Database\PreProcessQueryHookInterface) {
+				if ($hookObject instanceof PreProcessQueryHookInterface) {
 					$this->preProcessHookObjects[] = $hookObject;
 				}
-				if ($hookObject instanceof \TYPO3\CMS\Core\Database\PostProcessQueryHookInterface) {
+				if ($hookObject instanceof PostProcessQueryHookInterface) {
 					$this->postProcessHookObjects[] = $hookObject;
 				}
 			}
@@ -1649,7 +1657,7 @@ class DatabaseConnection
 	/**
 	 * Returns current database handle
 	 *
-	 * @return \mysqli|NULL
+	 * @return mysqli|NULL
 	 */
 	public function getDatabaseHandle()
 	{
@@ -1659,7 +1667,7 @@ class DatabaseConnection
 	/**
 	 * Set current database handle, usually \mysqli
 	 *
-	 * @param \mysqli $handle
+	 * @param mysqli $handle
 	 */
 	public function setDatabaseHandle($handle)
 	{
@@ -1676,7 +1684,7 @@ class DatabaseConnection
 	 */
 	protected function handleDeprecatedConnectArguments($host = NULL, $username = NULL, $password = NULL, $db = NULL)
 	{
-		\TYPO3\CMS\Core\Utility\GeneralUtility::deprecationLog(
+		GeneralUtility::deprecationLog(
 			'DatabaseConnection->sql_pconnect() and DatabaseConnection->connectDB() should be ' .
 			'called without arguments. Use the setters instead.'
 		);
@@ -1717,12 +1725,12 @@ class DatabaseConnection
 	{
 		$error = $this->sql_error();
 		if ($error || (int)$this->debugOutput === 2) {
-			\TYPO3\CMS\Core\Utility\DebugUtility::debug(
+			DebugUtility::debug(
 				array(
 					'caller' => 'TYPO3\\CMS\\Core\\Database\\DatabaseConnection::' . $func,
 					'ERROR' => $error,
 					'lastBuiltQuery' => $query ? $query : $this->debug_lastBuiltQuery,
-					'debug_backtrace' => \TYPO3\CMS\Core\Utility\DebugUtility::debugTrail()
+					'debug_backtrace' => DebugUtility::debugTrail()
 				),
 				$func,
 				is_object($GLOBALS['error']) && @is_callable(array($GLOBALS['error'], 'debug'))
@@ -1735,7 +1743,7 @@ class DatabaseConnection
 	/**
 	 * Checks if record set is valid and writes debugging information into devLog if not.
 	 *
-	 * @param boolean|\mysqli_result|object MySQLi result object / DBAL object
+	 * @param boolean|mysqli_result|object MySQLi result object / DBAL object
 	 * @return boolean TRUE if the  record set is valid, FALSE otherwise
 	 * @todo Define visibility
 	 */
@@ -1755,10 +1763,10 @@ class DatabaseConnection
 			}
 		}
 		$msg .= ': function TYPO3\\CMS\\Core\\Database\\DatabaseConnection->' . $trace[0]['function'] . ' called from file ' . substr($trace[0]['file'], (strlen(PATH_site) + 2)) . ' in line ' . $trace[0]['line'];
-		\TYPO3\CMS\Core\Utility\GeneralUtility::sysLog(
+		GeneralUtility::sysLog(
 			$msg . '. Use a devLog extension to get more details.',
 			'Core/t3lib_db',
-			\TYPO3\CMS\Core\Utility\GeneralUtility::SYSLOG_SEVERITY_ERROR
+			GeneralUtility::SYSLOG_SEVERITY_ERROR
 		);
 		// Send to devLog if enabled
 		if (TYPO3_DLOG) {
@@ -1769,7 +1777,7 @@ class DatabaseConnection
 			if ($this->debug_lastBuiltQuery) {
 				$debugLogData = array('SQL Query' => $this->debug_lastBuiltQuery) + $debugLogData;
 			}
-			\TYPO3\CMS\Core\Utility\GeneralUtility::devLog($msg . '.', 'Core/t3lib_db', 3, $debugLogData);
+			GeneralUtility::devLog($msg . '.', 'Core/t3lib_db', 3, $debugLogData);
 		}
 		return FALSE;
 	}
@@ -1788,8 +1796,8 @@ class DatabaseConnection
 	 */
 	protected function explain($query, $from_table, $row_count)
 	{
-		$debugAllowedForIp = \TYPO3\CMS\Core\Utility\GeneralUtility::cmpIP(
-			\TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('REMOTE_ADDR'),
+		$debugAllowedForIp = GeneralUtility::cmpIP(
+			GeneralUtility::getIndpEnv('REMOTE_ADDR'),
 			$GLOBALS['TYPO3_CONF_VARS']['SYS']['devIPmask']
 		);
 		if (
@@ -1805,7 +1813,7 @@ class DatabaseConnection
 			return FALSE;
 		}
 		$error = $this->sql_error();
-		$trail = \TYPO3\CMS\Core\Utility\DebugUtility::debugTrail();
+		$trail = DebugUtility::debugTrail();
 		$explain_tables = array();
 		$explain_output = array();
 		$res = $this->sql_query('EXPLAIN ' . $query, $this->link);
@@ -1820,7 +1828,7 @@ class DatabaseConnection
 		// Notice: Rows are skipped if there is only one result, or if no conditions are set
 		if (
 			$explain_output[0]['rows'] > 1
-			|| \TYPO3\CMS\Core\Utility\GeneralUtility::inList('ALL', $explain_output[0]['type'])
+			|| GeneralUtility::inList('ALL', $explain_output[0]['type'])
 		) {
 			// Only enable output if it's really useful
 			$debug = TRUE;
@@ -1857,7 +1865,7 @@ class DatabaseConnection
 					$data['indices'] = $indices_output;
 				}
 				if ($explainMode == 1) {
-					\TYPO3\CMS\Core\Utility\DebugUtility::debug($data, 'Tables: ' . $from_table, 'DB SQL EXPLAIN');
+					DebugUtility::debug($data, 'Tables: ' . $from_table, 'DB SQL EXPLAIN');
 				} elseif ($explainMode == 2) {
 					$GLOBALS['TT']->setTSselectQuery($data);
 				}

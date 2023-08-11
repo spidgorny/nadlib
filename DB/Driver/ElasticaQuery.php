@@ -1,5 +1,12 @@
 <?php
 
+use Elastica\Filter\BoolAnd;
+use Elastica\Query;
+use Elastica\Query\AbstractQuery;
+use Elastica\Query\MatchAll;
+use Elastica\Query\QueryString;
+use Elastica\Query\Term;
+
 class ElasticaQuery
 {
 
@@ -48,16 +55,16 @@ class ElasticaQuery
 		$this->client = $di->client;
 		$this->indexName = $di->indexName;
 
-		$this->queryString = new \Elastica\Query\MatchAll();
+		$this->queryString = new MatchAll();
 
-		$this->elasticaFilterAnd = new \Elastica\Filter\BoolAnd();
+		$this->elasticaFilterAnd = new BoolAnd();
 
 		$this->filteredQuery = new Elastica\Query\Filtered(
 			$this->queryString,
 			$this->elasticaFilterAnd
 		);
 
-		$this->elasticaQuery = new \Elastica\Query();
+		$this->elasticaQuery = new Query();
 	}
 
 	function setOrderBy($orderBy)
@@ -81,7 +88,7 @@ class ElasticaQuery
 		foreach ($where as $field => $condition) {
 			$elasticaCondition = $this->switchCondition($field, $condition);
 			if ($elasticaCondition) {
-				if ($elasticaCondition instanceof \Elastica\Query\AbstractQuery) {
+				if ($elasticaCondition instanceof AbstractQuery) {
 					$elasticaQueryString = $elasticaCondition;
 				} else {
 					$this->elasticaFilterAnd->addFilter($elasticaCondition);
@@ -120,7 +127,7 @@ class ElasticaQuery
 	/**
 	 * @param string $field
 	 * @param mixed $condition
-	 * @return \Elastica\Query\AbstractQuery
+	 * @return AbstractQuery
 	 */
 	function switchCondition($field, $condition)
 	{
@@ -152,7 +159,7 @@ class ElasticaQuery
 				));
 				break;
 			case 'SQLLike':
-				$res = new \Elastica\Query\QueryString();
+				$res = new QueryString();
 				$res->setDefaultOperator('AND');
 				$res->setQuery($condition->string);
 				break;
@@ -178,7 +185,7 @@ class ElasticaQuery
 	{
 		//$elasticaTerm  = new \Elastica\Filter\Term();
 		//$elasticaTerm->setTerm('_id', $id);
-		$elasticaQuery = new \Elastica\Query\Term();
+		$elasticaQuery = new Term();
 		$elasticaQuery->setTerm('_id', $id);
 		$search = new Elastica\Search($this->client);
 		$search->addIndex($this->indexName);

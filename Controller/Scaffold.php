@@ -279,10 +279,10 @@ abstract class Scaffold extends AppController
 						$content[] = $this->updateRecord($this->data);
 						break;
 					default:
-						{
-							debug(__METHOD__);
-							throw new Exception(__METHOD__);
-						}
+					{
+						debug(__METHOD__);
+						throw new Exception(__METHOD__);
+					}
 				}
 			} catch (DatabaseException $e) {
 				$content[] = '<p class="error ui-state-error">We were unable to perform the operation because "' . $e->getMessage() . '". Please check your form fields and retry. Please let us know if it still doesn\'t work using the <a href="?c=Contact">contact form</a>.';

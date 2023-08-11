@@ -1,6 +1,8 @@
 <?php
 
-class SQLQuery extends \PHPSQLParser\PHPSQLParser
+use PHPSQLParser\PHPSQLParser;
+
+class SQLQuery extends PHPSQLParser
 {
 
 	public $parsed;

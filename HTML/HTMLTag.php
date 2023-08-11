@@ -7,12 +7,12 @@
 class HTMLTag implements ArrayAccess
 {
 	public $tag;
-	public $attr = array();
+	public $attr = [];
 	public $content;
 	public $isHTML = FALSE;
 	public $closingTag = true;
 
-	function __construct($tag, array $attr = array(), $content = '', $isHTML = FALSE)
+	function __construct($tag, array $attr = [], $content = '', $isHTML = FALSE)
 	{
 		$this->tag = $tag;
 		$this->attr = $attr;
@@ -58,7 +58,7 @@ class HTMLTag implements ArrayAccess
 
 	static function renderAttr(array $attr)
 	{
-		$set = array();
+		$set = [];
 		foreach ($attr as $key => $val) {
 			if (is_array($val) && $key == 'style') {
 				$style = ArrayPlus::create($val);
@@ -145,7 +145,7 @@ class HTMLTag implements ArrayAccess
 
 	static function parseDOM($html)
 	{
-		$content = array();
+		$content = [];
 		if (is_string($html)) {
 			$doc = new DOMDocument();
 			$doc->loadHTML($html);
@@ -160,7 +160,7 @@ class HTMLTag implements ArrayAccess
 		foreach ($doc->childNodes as $child) {
 			//echo gettype2($child), BR;
 			if ($child instanceof DOMElement) {
-				$attributes = array();
+				$attributes = [];
 				foreach ($child->attributes as $attribute_name => $attribute_node) {
 					/** @var  DOMNode $attribute_node */
 					echo $attribute_name, ': ', gettype2($attribute_node), BR;
@@ -170,7 +170,7 @@ class HTMLTag implements ArrayAccess
 				//$hasChildNodes = $child->hasChildNodes();	// incl Text
 				$hasChildNodes = 0;
 				foreach ($child->childNodes as $node) {
-					if (!($node instanceof \DomText)) {
+					if (!($node instanceof DomText)) {
 						$hasChildNodes++;
 					}
 				}
@@ -202,7 +202,7 @@ class HTMLTag implements ArrayAccess
 		if (is_array($text)) {
 			return $text;
 		}
-		$attributes = array();
+		$attributes = [];
 		$pattern = '#(?(DEFINE)
 (?<name>[a-zA-Z][a-zA-Z0-9-:]*)
 (?<value_double>"[^"]+")

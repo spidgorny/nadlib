@@ -1,5 +1,7 @@
 <?php
 
+use Michelf\Markdown;
+
 class View extends stdClass
 {
 
@@ -420,7 +422,7 @@ class View extends stdClass
 
 	static function markdown($text)
 	{
-		$my_html = \Michelf\Markdown::defaultTransform($text);
+		$my_html = Markdown::defaultTransform($text);
 		return $my_html;
 	}
 

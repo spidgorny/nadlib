@@ -518,7 +518,7 @@ class Pager
 	}
 
 	/**
-	 * @return User|\LoginUser
+	 * @return User|LoginUser
 	 */
 	public function getUser()
 	{

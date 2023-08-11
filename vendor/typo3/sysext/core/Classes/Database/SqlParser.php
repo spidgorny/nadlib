@@ -2,6 +2,8 @@
 
 namespace TYPO3\CMS\Core\Database;
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -514,7 +516,7 @@ class SqlParser
 			if ($result['action'] = $this->nextPart($parseString, '^(CHANGE|DROP[[:space:]]+KEY|DROP[[:space:]]+PRIMARY[[:space:]]+KEY|ADD[[:space:]]+KEY|ADD[[:space:]]+PRIMARY[[:space:]]+KEY|ADD[[:space:]]+UNIQUE|DROP|ADD|RENAME|DEFAULT[[:space:]]+CHARACTER[[:space:]]+SET|ENGINE)([[:space:]]+|\\(|=)')) {
 				$actionKey = strtoupper(str_replace(array(' ', TAB, CR, LF), '', $result['action']));
 				// Getting field:
-				if (\TYPO3\CMS\Core\Utility\GeneralUtility::inList('ADDPRIMARYKEY,DROPPRIMARYKEY,ENGINE', $actionKey) || ($fieldKey = $this->nextPart($parseString, '^([[:alnum:]_]+)[[:space:]]+'))) {
+				if (GeneralUtility::inList('ADDPRIMARYKEY,DROPPRIMARYKEY,ENGINE', $actionKey) || ($fieldKey = $this->nextPart($parseString, '^([[:alnum:]_]+)[[:space:]]+'))) {
 					switch ($actionKey) {
 						case 'ADD':
 							$result['FIELD'] = $fieldKey;
@@ -1167,7 +1169,7 @@ class SqlParser
 							$this->nextPart($parseString, '([)])');
 							$stack[$level][$pnt[$level]]['value'] = $values;
 						} else {
-							if (\TYPO3\CMS\Core\Utility\GeneralUtility::inList('IN,NOT IN', $stack[$level][$pnt[$level]]['comparator']) && preg_match('/^[(][[:space:]]*SELECT[[:space:]]+/', $parseString)) {
+							if (GeneralUtility::inList('IN,NOT IN', $stack[$level][$pnt[$level]]['comparator']) && preg_match('/^[(][[:space:]]*SELECT[[:space:]]+/', $parseString)) {
 								$this->nextPart($parseString, '^([(])');
 								$stack[$level][$pnt[$level]]['subquery'] = $this->parseSELECT($parseString, $parameterReferences);
 								// Seek to new position in parseString after parsing of the subquery
@@ -1177,7 +1179,7 @@ class SqlParser
 									return 'No ) parenthesis at end of subquery';
 								}
 							} else {
-								if (\TYPO3\CMS\Core\Utility\GeneralUtility::inList('BETWEEN,NOT BETWEEN', $stack[$level][$pnt[$level]]['comparator'])) {
+								if (GeneralUtility::inList('BETWEEN,NOT BETWEEN', $stack[$level][$pnt[$level]]['comparator'])) {
 									$stack[$level][$pnt[$level]]['values'] = array();
 									$stack[$level][$pnt[$level]]['values'][0] = $this->getValue($parseString);
 									if (!$this->nextPart($parseString, '^(AND)')) {
@@ -1363,7 +1365,7 @@ class SqlParser
 	protected function getValue(&$parseString, $comparator = '', $mode = '')
 	{
 		$value = '';
-		if (\TYPO3\CMS\Core\Utility\GeneralUtility::inList('NOTIN,IN,_LIST', strtoupper(str_replace(array(' ', LF, CR, TAB), '', $comparator)))) {
+		if (GeneralUtility::inList('NOTIN,IN,_LIST', strtoupper(str_replace(array(' ', LF, CR, TAB), '', $comparator)))) {
 			// List of values:
 			if ($this->nextPart($parseString, '^([(])')) {
 				$listValues = array();
@@ -1917,7 +1919,7 @@ class SqlParser
 					if ($v['comparator']) {
 						$output .= ' ' . $v['comparator'];
 						// Detecting value type; list or plain:
-						if (\TYPO3\CMS\Core\Utility\GeneralUtility::inList('NOTIN,IN', strtoupper(str_replace(array(' ', TAB, CR, LF), '', $v['comparator'])))) {
+						if (GeneralUtility::inList('NOTIN,IN', strtoupper(str_replace(array(' ', TAB, CR, LF), '', $v['comparator'])))) {
 							if (isset($v['subquery'])) {
 								$output .= ' (' . $this->compileSELECT($v['subquery']) . ')';
 							} else {
@@ -1928,7 +1930,7 @@ class SqlParser
 								$output .= ' (' . trim(implode(',', $valueBuffer)) . ')';
 							}
 						} else {
-							if (\TYPO3\CMS\Core\Utility\GeneralUtility::inList('BETWEEN,NOT BETWEEN', $v['comparator'])) {
+							if (GeneralUtility::inList('BETWEEN,NOT BETWEEN', $v['comparator'])) {
 								$lbound = $v['values'][0];
 								$ubound = $v['values'][1];
 								$output .= ' ' . $lbound[1] . $this->compileAddslashes($lbound[0]) . $lbound[1];

@@ -159,7 +159,7 @@ class HTMLFormSelection extends HTMLFormType
 				ifsetor($desc['prefix'])
 			//$desc['noDeleted']
 			);
-			llog($desc['from'], $db->getLastQuery().'', sizeof($options));
+			llog($desc['from'], $db->getLastQuery() . '', sizeof($options));
 		} else {
 			$options = array();
 		}

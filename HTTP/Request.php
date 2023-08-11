@@ -522,7 +522,7 @@ class Request
 			<script>
 				setTimeout(function () {
 					document.location = "' . $controller . '";
-				}, ' . $delay . ');
+				}, ' . $delay . ')
 			</script>';
 	}
 

@@ -42,7 +42,7 @@ class Color
 		$g = max(0, min(255, $this->g + $steps));
 		$b = max(0, min(255, $this->b + $steps));
 
-		return $this->getCSS(array($r, $g, $b));
+		return $this->getCSS([$r, $g, $b]);
 	}
 
 	/**
@@ -63,28 +63,28 @@ class Color
 		$hsv2 = $this->hsl_to_hsv($hsl2[0], $hsl2[1], $hsl2[2]);
 
 		$rgb = $this->HSVtoRGB($hsv2);
-		nodebug(array(
-			'rgb' => array($this->r, $this->g, $this->b),
+		nodebug([
+			'rgb' => [$this->r, $this->g, $this->b],
 			'hsv' => $hsv,
 			'hsl' => $hsl,
 			'hsl2' => $hsl2,
 			'hsv2' => $hsv2,
-			'rgb2' => $rgb));
+			'rgb2' => $rgb]);
 
 		return $this->getCSS($rgb);
 	}
 
 	function __toString()
 	{
-		return $this->getCSS(array($this->r, $this->g, $this->b));
+		return $this->getCSS([$this->r, $this->g, $this->b]);
 	}
 
 	function getCSS($rgb)
 	{
 		$rgb = array_values($rgb);
-		$rgb= array_map(static function ($x) {
+		$rgb = array_map(static function ($x) {
 			return intval($x);
-		});
+		}, $rgb);
 		return '#' .
 			str_pad(dechex($rgb[0]), 2, '0', STR_PAD_LEFT) .
 			str_pad(dechex($rgb[1]), 2, '0', STR_PAD_LEFT) .
@@ -100,7 +100,7 @@ class Color
 	 */
 	function RGB_TO_HSV($R, $G, $B)  // RGB Values:Number 0-255
 	{                                 // HSV Results:Number 0-1
-		$HSL = array();
+		$HSL = [];
 
 		$var_R = ($R / 255);
 		$var_G = ($G / 255);
@@ -159,28 +159,28 @@ class Color
 		//4
 		switch ($I) {
 			case 0:
-				list($R, $G, $B) = array($V, $K, $M);
+				list($R, $G, $B) = [$V, $K, $M];
 				break;
 			case 1:
-				list($R, $G, $B) = array($N, $V, $M);
+				list($R, $G, $B) = [$N, $V, $M];
 				break;
 			case 2:
-				list($R, $G, $B) = array($M, $V, $K);
+				list($R, $G, $B) = [$M, $V, $K];
 				break;
 			case 3:
-				list($R, $G, $B) = array($M, $N, $V);
+				list($R, $G, $B) = [$M, $N, $V];
 				break;
 			case 4:
-				list($R, $G, $B) = array($K, $M, $V);
+				list($R, $G, $B) = [$K, $M, $V];
 				break;
 			case 5:
 			case 6: //for when $H=1 is given
-				list($R, $G, $B) = array($V, $M, $N);
+				list($R, $G, $B) = [$V, $M, $N];
 				break;
 			default:
 				die(__METHOD__ . '#' . __LINE__ . ' ' . $I . ' ' . $H);
 		}
-		return array($R * 255, $G * 255, $B * 255);
+		return [$R * 255, $G * 255, $B * 255];
 	}
 
 	/**
@@ -197,7 +197,7 @@ class Color
 		$ss = $s * $v;
 		$ss /= ($ll <= 1) ? ($ll) : 2 - ($ll);
 		$ll /= 2;
-		return array($hh, $ss, $ll);
+		return [$hh, $ss, $ll];
 	}
 
 	function hsl_to_hsv($hh, $ss, $ll)
@@ -207,15 +207,15 @@ class Color
 		$ss *= ($ll <= 1) ? $ll : 2 - $ll;
 		$v = ($ll + $ss) / 2;
 		$s = (2 * $ss) / ($ll + $ss);
-		return array($h, $s, $v);
+		return [$h, $s, $v];
 	}
 
 	public function getComplement255()
 	{
-		$c = new self(array(
+		$c = new self([
 			255 - $this->r,
 			255 - $this->g,
-			255 - $this->b));
+			255 - $this->b]);
 		return $c;
 	}
 

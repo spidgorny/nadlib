@@ -52,9 +52,9 @@ class HTMLFormDatePopup2
 					//date:			Calendar.dateToInt(new Date(' . $this->value . '*1000)),
 					date:			' . ($this->value ? date('Ymd', $this->value) : date('Ymd')) . ',
 					selection:		Calendar.dateToInt(new Date(' . intval($this->value) . '*1000)),
-					align:			"Bc/Bc/Bc/Bc/Bc"' .
+					"Bc/Bc/Bc/Bc/Bc"' .
 			$this->desc['plusConfig'] . '
-			    });
+			    })
 			</script>';
 		return $content;
 	}

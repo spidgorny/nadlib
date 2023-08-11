@@ -977,7 +977,7 @@ class ArrayPlus extends ArrayObject implements Countable
 					if (is_object($v)) {
 //					var_dump($v);
 					}
-					if ($v instanceof \FilterBetween) {
+					if ($v instanceof FilterBetween) {
 						$ok = $v->apply($row->$k);
 					} elseif (is_array($v)) {
 						$ok = in_array($row->$k, $v);
@@ -1016,4 +1016,3 @@ function AP($a = array())
 		throw new InvalidArgumentException(__METHOD__ . ' accepts array');
 	}
 }
-

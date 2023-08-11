@@ -592,7 +592,7 @@ class SQLBuilder
 		$res = $this->perform($query);
 		$data = $this->fetchAll($res, 'id_field');
 		$keys = array_keys($data);
-		$values = array_map(function($arr) {
+		$values = array_map(function ($arr) {
 			return $arr["title"];
 		}, $data);
 		//d($keys, $values);

@@ -214,7 +214,7 @@ class Syndicator
 	 */
 	function detect_cyr_charset($str)
 	{
-		$charsets = Array(
+		$charsets = array(
 			'koi8-r' => 0,
 			'Windows-1251' => 0,
 			'CP866' => 0,
