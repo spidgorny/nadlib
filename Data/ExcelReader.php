@@ -72,7 +72,7 @@ class ExcelReader
 
 	function getSheets()
 	{
-		$list = array();
+		$list = [];
 		foreach ($this->xml->Worksheet as $sheet) {
 			$attr = $sheet->attributes('ss', true);
 			$list[] = trim($attr['Name']);
@@ -83,7 +83,7 @@ class ExcelReader
 
 	function getSheet($sheet = 0)
 	{
-		$data = array();
+		$data = [];
 		$s = $this->xml->Worksheet[$sheet]->Table;
 		if ($this->xml->Worksheet[$sheet]) {
 			$key = 0;

@@ -17,7 +17,7 @@ class LocalLangDB extends LocalLang
 	 * Source data from DB. Used in Localize.
 	 * @var array
 	 */
-	protected $rows = array();
+	protected $rows = [];
 
 	function __construct($forceLang = NULL)
 	{
@@ -59,7 +59,7 @@ class LocalLangDB extends LocalLang
 	 */
 	function saveMissingMessage($code)
 	{
-		nodebug(array(
+		nodebug([
 			'object' => spl_object_hash($this),
 			'method' => __METHOD__,
 			'DEVELOPMENT' => DEVELOPMENT,
@@ -67,17 +67,17 @@ class LocalLangDB extends LocalLang
 			'$this->saveMissingMessages' => $this->saveMissingMessages,
 			'$this->db' => !!$this->db,
 			'$this->ll[code]' => ifsetor($this->ll[$code]),
-		));
+		]);
 		if (DEVELOPMENT && $code && $this->saveMissingMessages && $this->db) {
 			try {
-				$where = array(
+				$where = [
 					'code' => $code,
 					'lang' => $this->defaultLang,        // is maybe wrong to save to the defaultLang?
-				);
-				$insert = array(
+				];
+				$insert = [
 					'text' => $code,                    // not empty, because that's how it will be translated
 					'page' => Request::getInstance()->getURL(),
-				);
+				];
 				$cols = $this->db->getTableColumns($this->table);
 				$user = Config::getInstance()->getUser();
 				if (ifsetor($cols['cuser'])) {
@@ -92,7 +92,7 @@ class LocalLangDB extends LocalLang
 				$this->codeID[$code] = $this->db->lastInsertID($res);
 				//debug($this->db->lastQuery);
 			} catch (Exception $e) {
-				Index::getInstance()->log(__METHOD__, array('error' => $e->getMessage()));
+				Index::getInstance()->log(__METHOD__, ['error' => $e->getMessage()]);
 			}
 		}
 	}
@@ -109,9 +109,9 @@ class LocalLangDB extends LocalLang
 		if ($user->isAdmin()) {
 			$llm = new LocalLangModel($data['lang'], $data['code']);
 			if ($llm->id) {
-				$llm->update(array(
+				$llm->update([
 					'text' => $data['text'],
-				));
+				]);
 			} else {
 				$llm->insert($data);
 			}
@@ -128,7 +128,7 @@ class LocalLangDB extends LocalLang
 			// wrong query
 			/*$rows = $this->db->fetchSelectQuery($this->table.
 				" AS a RIGHT OUTER JOIN ".$this->table." AS en
-				ON ((a.code = en.code OR a.code IS NULL) AND en.lang = 'en')", array(
+				ON ((a.code = en.code OR a.code IS NULL) AND en.lang = 'en')", [
 				'a.lang' => new SQLAnd(array(
 					'a.lang' => new SQLWhereEqual('a.lang', $lang),
 					'a.lang ' => new SQLWhereEqual('a.lang', NULL),
@@ -136,16 +136,16 @@ class LocalLangDB extends LocalLang
 				),
 				'a.lang' => $lang,
 				'en.lang' => 'en',
-			), 'ORDER BY id',
+			], 'ORDER BY id',
 				'coalesce(a.id, en.id) AS id,
 				coalesce(a.code, en.code) AS code,
 				coalesce(a.lang, en.lang) AS lang,
 				coalesce(a.text, en.text) AS text,
 				a.page');
 			debug($this->db->lastQuery, sizeof($rows), first($rows));*/
-			$rows = $this->db->fetchSelectQuery($this->table, array(
+			$rows = $this->db->fetchSelectQuery($this->table, [
 				'lang' => $lang,
-			), 'ORDER BY id');
+			], 'ORDER BY id');
 			$rows = ArrayPlus::create($rows)->IDalize('id')->getData();
 		} else {
 			debug($this->db->lastQuery);
@@ -184,12 +184,12 @@ class LocalLangDB extends LocalLang
 		$langs = array_combine($this->possibleLangs, $this->possibleLangs);
 		foreach ($langs as &$lang) {
 			$rows = $this->readDB($lang);
-			$lang = array(
+			$lang = [
 				'img' => new htmlString('<img src="img/' . $lang . '.gif" width="20" height="12" />'),
 				'lang' => $lang,
 				'rows' => sizeof($rows),
 				'percent' => number_format(sizeof($rows) / $countEN * 100, 0) . '%',
-			);
+			];
 		}
 		return $langs;
 	}

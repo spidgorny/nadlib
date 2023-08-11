@@ -3,12 +3,12 @@
 class HTMLFormMonthYear extends HTMLFormType
 {
 
-	var $months = array(
+	var $months = [
 		NULL => 'месяц', 1 =>
 			'Jan', 'Feb', 'Mar',
 		'Apr', 'May', 'Jun',
 		'Jul', 'Aug', 'Sep',
-		'Oct', 'Nov', 'Dec');
+		'Oct', 'Nov', 'Dec'];
 
 	var $selMonth;
 
@@ -28,8 +28,8 @@ class HTMLFormMonthYear extends HTMLFormType
 		if (!$this->form) {
 			debug_pre_print_backtrace();
 		}
-		$fieldStringM = $this->form->getNameField(array_merge($this->field, array('month')), '', true);
-		$fieldStringY = $this->form->getNameField(array_merge($this->field, array('year')), '', true);
+		$fieldStringM = $this->form->getNameField(array_merge($this->field, ['month']), '', true);
+		$fieldStringY = $this->form->getNameField(array_merge($this->field, ['year']), '', true);
 		$content[] = '<table class="' . __CLASS__ . '"><tr><td>';
 		$content[] = '<select name="' . $fieldStringM . '" class="form-control">';
 		$content[] = $this->showMonthOptions();
@@ -59,11 +59,11 @@ class HTMLFormMonthYear extends HTMLFormType
 
 	function showMonthOptions()
 	{
-		$content = array();
+		$content = [];
 		foreach ($this->months as $m => $mon) {
-			$content[] = new HTMLTag('option', array(
+			$content[] = new HTMLTag('option', [
 					'value' => $m,
-				) + ($this->selMonth == $m ? array('selected' => true) : array()),
+				] + ($this->selMonth == $m ? ['selected' => true] : []),
 				$mon);
 		}
 		return $content;

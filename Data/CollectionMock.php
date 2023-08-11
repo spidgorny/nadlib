@@ -10,7 +10,7 @@ class CollectionMock
 
 	var $members;
 
-	function __construct($pid = NULL, /*array/SQLWhere*/ $where = array(), $order = '')
+	function __construct($pid = NULL, /*array/SQLWhere*/ $where = [], $order = '')
 	{
 
 	}

@@ -14,7 +14,7 @@ class HTMLFormDatePicker extends HTMLFormType implements HTMLFormTypeInterface
 	 */
 	public $jsFormat = 'yy-mm-dd';
 
-	public $jsParams = array();
+	public $jsParams = [];
 
 	public $inputType = 'date';
 
@@ -47,9 +47,9 @@ class HTMLFormDatePicker extends HTMLFormType implements HTMLFormTypeInterface
 		} else {
 			$val = '';
 		}
-		$this->form->input($this->field, $val, array(
+		$this->form->input($this->field, $val, [
 				'format' => $this->jsFormat
-			) + $this->jsParams,
+			] + $this->jsParams,
 			$this->inputType, ifsetor($this->desc['class']) . ' datepicker');
 
 		$this->content = $this->form->stdout;

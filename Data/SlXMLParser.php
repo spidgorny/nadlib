@@ -25,14 +25,14 @@ class SlXMLParser
 		//debug($assoc, 'first parse');
 		$key = current(array_keys($assoc));
 		$first = current($assoc);
-		$assoc = array($key => current($this->simplify($first)));
+		$assoc = [$key => current($this->simplify($first))];
 		//debug($assoc);
 		return $assoc;
 	}
 
 	function xml_parse_into_assoc($vals, &$i)
 	{
-		$ret = array();
+		$ret = [];
 		while ($i++ < sizeof($vals)) {
 			$tag = $vals[$i];
 			//println($tag['type']);
@@ -46,7 +46,7 @@ class SlXMLParser
 					$tag['value'] = isset($tag['value']) ? trim($tag['value']) : '';
 					if ($tag['value'] == "") unset($tag['value']);
 					$attr = isset($tag['attributes']) ? $tag['attributes'] : '';
-					if (!is_array($attr)) $attr = array();
+					if (!is_array($attr)) $attr = [];
 					unset($tag['attributes']);
 					$ret[] = array_merge($tag, $attr);
 					break;
@@ -60,13 +60,15 @@ class SlXMLParser
 					$tag['value'] = trim($tag['value']);
 					if ($tag['value'] == "") unset($tag['value']);
 					$attr = $tag['attributes'];
-					if (!$attr) $attr = array();
+					if (!$attr) {
+						$attr = [];
+					}
 					unset($tag['attributes']);
 					$ret[] = array_merge($tag, $attr);
 					break;
 				case "close":
 					if ($i == sizeof($vals) - 1) {
-						return array($tag['tag'] => $ret);
+						return [$tag['tag'] => $ret];
 					} else {
 						return $ret;
 					}
@@ -83,7 +85,7 @@ class SlXMLParser
 	 */
 	function simplify($arr)
 	{
-		$res = array();
+		$res = [];
 		if (is_array($arr)) {
 			if (isset($arr['tag'])) {
 				$res[$arr['tag']] = $arr['value'];
@@ -99,7 +101,7 @@ class SlXMLParser
 						if ($res[$arr['tag']] /*!isset($res[$arr['tag']]['value']) && strlen($res[$arr['tag']]) > 0*/) {
 							$temp = $res[$arr['tag']];
 							if (!is_array($res[$arr['tag']])) {
-								$res[$arr['tag']] = array();
+								$res[$arr['tag']] = [];
 							}
 							$res[$arr['tag']]['value'] = $temp;
 						}
@@ -113,7 +115,7 @@ class SlXMLParser
 								//debug(array('original' => $temp, 'plus' => $plus, 'result' => $res[$arr['tag']]));
 							}
 						} else {
-							$res[$arr['tag']] = $plus ? $plus : array();
+							$res[$arr['tag']] = $plus ? $plus : [];
 						}
 					}
 				} else if ($i != 'tag' && $i != 'value') { // not numbers are attributes
@@ -142,10 +144,10 @@ class SlXMLParser
 					$c[$i][] = $v;
 				} else {
 					//$c[$i] = $this->array_merge_with_multi(array($c[$i]), $v);
-					$c[$i] = array(
+					$c[$i] = [
 						$c[$i],
 						$v,
-					);
+					];
 				}
 			} else {
 				$c[$i] = $v;
@@ -163,7 +165,7 @@ class SlXMLParser
 	function simplifySimple(array $arr)
 	{
 		//debug($arr);
-		$res = array();
+		$res = [];
 		if (is_array($arr)) foreach ($arr as $numeric => $pair) {
 			//debug($pair, $numeric);
 			if (is_numeric($numeric)) {
@@ -186,7 +188,7 @@ class SlXMLParser
 	function simplifyTree(array $arr)
 	{
 		//debug($arr);
-		$res = array();
+		$res = [];
 		if (is_array($arr)) foreach ($arr as $numeric => $pair) {
 			//debug($pair, $numeric);
 			if (is_numeric($numeric)) {

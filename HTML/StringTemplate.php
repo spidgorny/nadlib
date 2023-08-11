@@ -57,9 +57,9 @@ class StringTemplate
 
 	function __call($func, array $args)
 	{
-		$method = array($this->caller, $func);
+		$method = [$this->caller, $func];
 		if (!is_callable($method) || !method_exists($this->caller, $func)) {
-			$method = array('Controller', $func);
+			$method = ['Controller', $func];
 		}
 		return call_user_func_array($method, $args);
 	}

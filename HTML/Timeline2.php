@@ -30,7 +30,7 @@ class Timeline2 /*extends AppController */
 
 	var $textColor = 'rgb(100,100,100)';
 
-	var $rangeContent = array();
+	var $rangeContent = [];
 
 	var $height_10;
 	var $height_20;
@@ -248,7 +248,7 @@ class Timeline2 /*extends AppController */
 
 	function renderTimeRange(Time $from, Time $till,
 																$style = 'fill: #0088CC; stroke-width:0; stroke:rgb(0,0,0)',
-																$more = array())
+																$more = [])
 	{
 		$x = $this->date2xTime($from);
 		$width = $this->date2xTime($till) - $x;

@@ -17,7 +17,7 @@ class TableField
 
 	var $comment;
 
-	var $extra = array();
+	var $extra = [];
 
 	static function init(array $row)
 	{

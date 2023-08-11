@@ -32,7 +32,7 @@ class ShowAssoc
 		if ($this->title) {
 			$content[] = '<h3>' . ($this->title) . ':</h3>';
 		}
-		$assoc = array();
+		$assoc = [];
 		foreach ($this->thes as $key => $name) {
 			$val = $this->data[$key];
 			if (is_array($name)) {

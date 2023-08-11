@@ -97,7 +97,7 @@ class vcalendar
 		$this->method = null;
 		$this->_makeUnique_id();
 		$this->prodid = null;
-		$this->xprop = array();
+		$this->xprop = [];
 		/**
 		 *   language = <Text identifying a language, as defined in [RFC 1766]>
 		 */
@@ -110,8 +110,8 @@ class vcalendar
 		$this->filename = null;
 		$this->url = null;
 		$this->setConfig('delimiter', DIRECTORY_SEPARATOR);
-		$this->xcaldecl = array();
-		$this->components = array();
+		$this->xcaldecl = [];
+		$this->components = [];
 	}
 	/*********************************************************************************/
 	/**
@@ -325,7 +325,7 @@ class vcalendar
 				$output .= $toolbox->_createElement($label);
 				continue;
 			}
-			$attributes = $toolbox->_createParams($xpropPart['params'], array('LANGUAGE'));
+			$attributes = $toolbox->_createParams($xpropPart['params'], ['LANGUAGE']);
 			if (is_array($xpropPart['value'])) {
 				foreach ($xpropPart['value'] as $pix => $theXpart)
 					$xpropPart['value'][$pix] = $toolbox->_strrep($theXpart);
@@ -351,10 +351,10 @@ class vcalendar
 	{
 		if (empty($value)) if ($this->getConfig('allowEmpty')) $value = null; else return FALSE;
 		if (empty($label)) return FALSE;
-		$xprop = array('value' => $value);
+		$xprop = ['value' => $value];
 		$toolbox = new calendarComponent();
 		$xprop['params'] = $toolbox->_setParams($params);
-		if (!is_array($this->xprop)) $this->xprop = array();
+		if (!is_array($this->xprop)) $this->xprop = [];
 		$this->xprop[strtoupper($label)] = $xprop;
 		return TRUE;
 	}
@@ -389,7 +389,7 @@ class vcalendar
 				}
 				break;
 			default:
-				$reduced = array();
+				$reduced = [];
 				if ($propName != 'X-PROP') {
 					if (!isset($this->xprop[$propName])) return FALSE;
 					foreach ($this->xprop as $k => $a) {
@@ -447,15 +447,15 @@ class vcalendar
 			default:
 				if ($propName != 'X-PROP') {
 					if (!isset($this->xprop[$propName])) return FALSE;
-					return ($inclParam) ? array($propName, $this->xprop[$propName])
-						: array($propName, $this->xprop[$propName]['value']);
+					return ($inclParam) ? [$propName, $this->xprop[$propName]]
+						: [$propName, $this->xprop[$propName]['value']];
 				} else {
 					if (empty($this->xprop)) return FALSE;
 					$xpropno = 0;
 					foreach ($this->xprop as $xpropkey => $xpropvalue) {
 						if ($propix == $xpropno)
-							return ($inclParam) ? array($xpropkey, $this->xprop[$xpropkey])
-								: array($xpropkey, $this->xprop[$xpropkey]['value']);
+							return ($inclParam) ? [$xpropkey, $this->xprop[$xpropkey]]
+								: [$xpropkey, $this->xprop[$xpropkey]['value']];
 						else
 							$xpropno++;
 					}
@@ -513,7 +513,7 @@ class vcalendar
 				break;
 			case 'COMPSINFO':
 				unset($this->compix);
-				$info = array();
+				$info = [];
 				foreach ($this->components as $cix => $component) {
 					if (empty($component)) continue;
 					unset($component->propix);
@@ -538,9 +538,9 @@ class vcalendar
 				return $this->getConfig('directory') . $this->getConfig('delimiter') . $this->getConfig('filename');
 				break;
 			case 'FILEINFO':
-				return array($this->getConfig('directory')
+				return [$this->getConfig('directory')
 				, $this->getConfig('filename')
-				, $this->getConfig('filesize'));
+				, $this->getConfig('filesize')];
 				break;
 			case 'FILENAME':
 				if (empty($this->filename)) {
@@ -599,7 +599,7 @@ class vcalendar
 		switch (strtoupper($config)) {
 			case 'ALLOWEMPTY':
 				$this->allowEmpty = $value;
-				$subcfg = array('ALLOWEMPTY' => $value);
+				$subcfg = ['ALLOWEMPTY' => $value];
 				$res = TRUE;
 				break;
 			case 'DELIMITER':
@@ -654,26 +654,26 @@ class vcalendar
 					$this->attributeDelimiter = ';';
 					$this->valueInit = ':';
 				}
-				$subcfg = array('FORMAT' => $value);
+				$subcfg = ['FORMAT' => $value];
 				$res = TRUE;
 				break;
 			case 'LANGUAGE':
 				// set language for calendar component as defined in [RFC 1766]
 				$value = trim($value);
 				$this->language = $value;
-				$subcfg = array('LANGUAGE' => $value);
+				$subcfg = ['LANGUAGE' => $value];
 				$res = TRUE;
 				break;
 			case 'NL':
 			case 'NEWLINECHAR':
 				$this->nl = $value;
-				$subcfg = array('NL' => $value);
+				$subcfg = ['NL' => $value];
 				$res = TRUE;
 				break;
 			case 'UNIQUE_ID':
 				$value = trim($value);
 				$this->unique_id = $value;
-				$subcfg = array('UNIQUE_ID' => $value);
+				$subcfg = ['UNIQUE_ID' => $value];
 				$res = TRUE;
 				break;
 			case 'URL':
@@ -848,7 +848,7 @@ class vcalendar
 		if (!$endD) $endD = $startD;
 		$endDate = mktime(23, 59, 59, $endM, $endD, $endY);
 		/* check component types */
-		$validTypes = array('vevent', 'vtodo', 'vjournal', 'vfreebusy');
+		$validTypes = ['vevent', 'vtodo', 'vjournal', 'vfreebusy'];
 		if (is_array($cType)) {
 			foreach ($cType as $cix => $theType) {
 				$cType[$cix] = $theType = strtolower($theType);
@@ -859,15 +859,15 @@ class vcalendar
 		} elseif (!empty($cType)) {
 			$cType = strtolower($cType);
 			if (!in_array($cType, $validTypes))
-				$cType = array('vevent');
+				$cType = ['vevent'];
 			else
-				$cType = array($cType);
+				$cType = [$cType];
 		} else
 			$cType = $validTypes;
 		if (0 >= count($cType))
 			$cType = $validTypes;
 		/* iterate components */
-		$result = array();
+		$result = [];
 		foreach ($this->components as $cix => $component) {
 			if (empty($component)) continue;
 			unset($component->propix, $start);
@@ -913,18 +913,18 @@ class vcalendar
 				// if( !empty($end))  echo 'selectComp 4 start='.implode('-',$start).' end='.implode('-',$end)."<br />\n"; // test ###
 			}
 			if (empty($end)) { // assume one day duration if missing end date
-				$end = array('year' => $start['year'], 'month' => $start['month'], 'day' => $start['day'], 'hour' => 23, 'min' => 59, 'sec' => 59);
+				$end = ['year' => $start['year'], 'month' => $start['month'], 'day' => $start['day'], 'hour' => 23, 'min' => 59, 'sec' => 59];
 				// if( isset($end))  echo 'selectComp 5 start='.implode('-',$start).' end='.implode('-',$end)."<br />\n"; // test ###
 			}
 			$endWdate = $component->_date2timestamp($end);
 			if ($endWdate < $startWdate) { // MUST be after start date!!
-				$end = array('year' => $start['year'], 'month' => $start['month'], 'day' => $start['day'], 'hour' => 23, 'min' => 59, 'sec' => 59);
+				$end = ['year' => $start['year'], 'month' => $start['month'], 'day' => $start['day'], 'hour' => 23, 'min' => 59, 'sec' => 59];
 				$endWdate = $component->_date2timestamp($end);
 			}
 			$rdurWsecs = $endWdate - $startWdate; // compute component duration in seconds
 			$rdur = $component->_date2duration($start, $end); // compute component duration, array
 			/* make a list of optional exclude dates for component occurence from exrule and exdate */
-			$exdatelist = array();
+			$exdatelist = [];
 			$workstart = $component->_timestamp2date(($startDate - $rdurWsecs), 6);
 			$workend = $component->_timestamp2date(($endDate + $rdurWsecs), 6);
 			while (FALSE !== ($exrule = $component->getProperty('exrule')))    // check exrule
@@ -939,7 +939,7 @@ class vcalendar
 			/* if 'any' components, check repeating components, removing all excluding dates */
 			if (TRUE === $any) {
 				/* make a list of optional repeating dates for component occurence, rrule, rdate */
-				$recurlist = array();
+				$recurlist = [];
 				while (FALSE !== ($rrule = $component->getProperty('rrule')))    // check rrule
 					$component->_recur2date($recurlist, $rrule, $start, $workstart, $workend);
 				foreach ($recurlist as $recurkey => $recurvalue) // key=match date as timestamp
@@ -1088,7 +1088,7 @@ class vcalendar
 		$component->setConfig('nl', $this->getConfig('nl'));
 		$component->setConfig('unique_id', $this->getConfig('unique_id'));
 		$component->setConfig('format', $this->getConfig('format'));
-		if (!in_array($component->objName, array('valarm', 'vtimezone'))) {
+		if (!in_array($component->objName, ['valarm', 'vtimezone'])) {
 			unset($component->propix);
 			/* make sure dtstamp and uid is set */
 			$dummy1 = $component->getProperty('dtstamp');
@@ -1143,8 +1143,8 @@ class vcalendar
 	function sort()
 	{
 		if (is_array($this->components)) {
-			$this->_sortkeys = array('year', 'month', 'day', 'hour', 'min', 'sec');
-			usort($this->components, array($this, '_cmpfcn'));
+			$this->_sortkeys = ['year', 'month', 'day', 'hour', 'min', 'sec'];
+			usort($this->components, [$this, '_cmpfcn']);
 		}
 	}
 
@@ -1355,8 +1355,8 @@ class vcalendar
 		if (is_array($this->unparsed) && (0 < count($this->unparsed))) {
 			/* concatenate property values spread over several lines */
 			$lastix = -1;
-			$propnames = array('calscale', 'method', 'prodid', 'version', 'x-');
-			$proprows = array();
+			$propnames = ['calscale', 'method', 'prodid', 'version', 'x-'];
+			$proprows = [];
 			foreach ($this->unparsed as $line) {
 				$newProp = FALSE;
 				foreach ($propnames as $propname) {
@@ -1386,17 +1386,17 @@ class vcalendar
 				/* get propname */
 				$cix = $propname = null;
 				for ($cix = 0; $cix < strlen($line); $cix++) {
-					if (in_array($line{$cix}, array(':', ';')))
+					if (in_array($line{$cix}, [':', ';']))
 						break;
 					else
 						$propname .= $line{$cix};
 				}
 				/* ignore version/prodid properties */
-				if (in_array(strtoupper($propname), array('VERSION', 'PRODID')))
+				if (in_array(strtoupper($propname), ['VERSION', 'PRODID']))
 					continue;
 				$line = substr($line, $cix);
 				/* separate attributes from value */
-				$attr = array();
+				$attr = [];
 				$attrix = -1;
 				$strlen = strlen($line);
 				for ($cix = 0; $cix < $strlen; $cix++) {
@@ -1425,7 +1425,7 @@ class vcalendar
 				}
 
 				/* make attributes in array format */
-				$propattr = array();
+				$propattr = [];
 				foreach ($attr as $attribute) {
 					$attrsplit = explode('=', $attribute, 2);
 					if (1 < count($attrsplit))
@@ -1516,7 +1516,7 @@ class vcalendar
 		}
 		if ((0 < count($this->xcaldecl)) && ('xcal' == $this->format)) { // xCal only
 			$calendarInit1 .= $this->nl . '[' . $this->nl;
-			$old_xcaldecl = array();
+			$old_xcaldecl = [];
 			foreach ($this->xcaldecl as $declix => $declPart) {
 				if ((0 < count($old_xcaldecl)) &&
 					(in_array($declPart['uri'], $old_xcaldecl['uri'])) &&
@@ -1716,15 +1716,15 @@ class calendarComponent
 	{
 		$this->objName = (isset($this->timezonetype)) ?
 			strtolower($this->timezonetype) : get_class($this);
-		$this->uid = array();
-		$this->dtstamp = array();
+		$this->uid = [];
+		$this->dtstamp = [];
 
 		$this->language = null;
 		$this->nl = null;
 		$this->unique_id = null;
 		$this->format = null;
 		$this->allowEmpty = TRUE;
-		$this->xcaldecl = array();
+		$this->xcaldecl = [];
 
 		$this->_createFormat();
 		$this->_makeDtstamp();
@@ -1761,7 +1761,7 @@ class calendarComponent
 	function setAction($value, $params = FALSE)
 	{
 		if (empty($value)) if ($this->getConfig('allowEmpty')) $value = null; else return FALSE;
-		$this->action = array('value' => $value, 'params' => $this->_setParams($params));
+		$this->action = ['value' => $value, 'params' => $this->_setParams($params)];
 		return TRUE;
 	}
 	/*********************************************************************************/
@@ -1894,9 +1894,9 @@ class calendarComponent
 		if (empty($value)) if ($this->getConfig('allowEmpty')) $value = null; else return FALSE;
 		$value = str_replace('MAILTO:', '', $value);
 		$value = str_replace('mailto:', '', $value);
-		$params2 = array();
+		$params2 = [];
 		if (is_array($params)) {
-			$optarrays = array();
+			$optarrays = [];
 			foreach ($params as $optparamlabel => $optparamvalue) {
 				$optparamlabel = strtoupper($optparamlabel);
 				switch ($optparamlabel) {
@@ -1969,7 +1969,7 @@ class calendarComponent
 					$output .= $this->_createElement('CATEGORIES');
 				continue;
 			}
-			$attributes = $this->_createParams($category['params'], array('LANGUAGE'));
+			$attributes = $this->_createParams($category['params'], ['LANGUAGE']);
 			if (is_array($category['value'])) {
 				foreach ($category['value'] as $cix => $categoryPart)
 					$category['value'][$cix] = $this->_strrep($categoryPart);
@@ -2029,7 +2029,7 @@ class calendarComponent
 	function setClass($value, $params = FALSE)
 	{
 		if (empty($value)) if ($this->getConfig('allowEmpty')) $value = null; else return FALSE;
-		$this->class = array('value' => $value, 'params' => $this->_setParams($params));
+		$this->class = ['value' => $value, 'params' => $this->_setParams($params)];
 		return TRUE;
 	}
 	/*********************************************************************************/
@@ -2052,7 +2052,7 @@ class calendarComponent
 				if ($this->getConfig('allowEmpty')) $output .= $this->_createElement('COMMENT');
 				continue;
 			}
-			$attributes = $this->_createParams($commentPart['params'], array('ALTREP', 'LANGUAGE'));
+			$attributes = $this->_createParams($commentPart['params'], ['ALTREP', 'LANGUAGE']);
 			$content = $this->_strrep($commentPart['value']);
 			$output .= $this->_createElement('COMMENT', $attributes, $content);
 		}
@@ -2121,7 +2121,7 @@ class calendarComponent
 	{
 		if (empty($year)) {
 			if ($this->getConfig('allowEmpty')) {
-				$this->completed = array('value' => null, 'params' => $this->_setParams($params));
+				$this->completed = ['value' => null, 'params' => $this->_setParams($params)];
 				return TRUE;
 			} else
 				return FALSE;
@@ -2146,7 +2146,7 @@ class calendarComponent
 		$output = null;
 		foreach ($this->contact as $contact) {
 			if (!empty($contact['value'])) {
-				$attributes = $this->_createParams($contact['params'], array('ALTREP', 'LANGUAGE'));
+				$attributes = $this->_createParams($contact['params'], ['ALTREP', 'LANGUAGE']);
 				$content = $this->_strrep($contact['value']);
 				$output .= $this->_createElement('CONTACT', $attributes, $content);
 			} elseif ($this->getConfig('allowEmpty')) $output .= $this->_createElement('CONTACT');
@@ -2228,7 +2228,7 @@ class calendarComponent
 		$output = null;
 		foreach ($this->description as $description) {
 			if (!empty($description['value'])) {
-				$attributes = $this->_createParams($description['params'], array('ALTREP', 'LANGUAGE'));
+				$attributes = $this->_createParams($description['params'], ['ALTREP', 'LANGUAGE']);
 				$content = $this->_strrep($description['value']);
 				$output .= $this->_createElement('DESCRIPTION', $attributes, $content);
 			} elseif ($this->getConfig('allowEmpty')) $output .= $this->_createElement('DESCRIPTION');
@@ -2301,7 +2301,7 @@ class calendarComponent
 	{
 		if (empty($year)) {
 			if ($this->getConfig('allowEmpty')) {
-				$this->dtend = array('value' => null, 'params' => $this->_setParams($params));
+				$this->dtend = ['value' => null, 'params' => $this->_setParams($params)];
 				return TRUE;
 			} else
 				return FALSE;
@@ -2343,12 +2343,12 @@ class calendarComponent
 	 */
 	function _makeDtstamp()
 	{
-		$this->dtstamp['value'] = array('year' => date('Y')
+		$this->dtstamp['value'] = ['year' => date('Y')
 		, 'month' => date('m')
 		, 'day' => date('d')
 		, 'hour' => date('H')
 		, 'min' => date('i')
-		, 'sec' => date('s') - date('Z'));
+		, 'sec' => date('s') - date('Z')];
 		$this->dtstamp['params'] = null;
 	}
 
@@ -2397,7 +2397,7 @@ class calendarComponent
 			if ($this->getConfig('allowEmpty'))
 				return $this->_createElement('DTSTART');
 			else return FALSE;
-		if (in_array($this->objName, array('vtimezone', 'standard', 'daylight')))
+		if (in_array($this->objName, ['vtimezone', 'standard', 'daylight']))
 			unset($this->dtstart['value']['tz'], $this->dtstart['params']['TZID']);
 		$formatted = $this->_format_date_time($this->dtstart['value']);
 		$attributes = $this->_createParams($this->dtstart['params']);
@@ -2423,7 +2423,7 @@ class calendarComponent
 	{
 		if (empty($year)) {
 			if ($this->getConfig('allowEmpty')) {
-				$this->dtstart = array('value' => null, 'params' => $this->_setParams($params));
+				$this->dtstart = ['value' => null, 'params' => $this->_setParams($params)];
 				return TRUE;
 			} else
 				return FALSE;
@@ -2477,7 +2477,7 @@ class calendarComponent
 	{
 		if (empty($year)) {
 			if ($this->getConfig('allowEmpty')) {
-				$this->due = array('value' => null, 'params' => $this->_setParams($params));
+				$this->due = ['value' => null, 'params' => $this->_setParams($params)];
 				return TRUE;
 			} else
 				return FALSE;
@@ -2505,7 +2505,7 @@ class calendarComponent
 			!isset($this->duration['value']['min']) &&
 			!isset($this->duration['value']['sec']))
 			if ($this->getConfig('allowEmpty'))
-				return $this->_createElement('DURATION', array(), null);
+				return $this->_createElement('DURATION', [], null);
 			else return FALSE;
 		$attributes = $this->_createParams($this->duration['params']);
 		return $this->_createElement('DURATION', $attributes, $this->_format_duration($this->duration['value']));
@@ -2528,16 +2528,16 @@ class calendarComponent
 	{
 		if (empty($week)) if ($this->getConfig('allowEmpty')) $week = null; else return FALSE;
 		if (is_array($week) && (1 <= count($week)))
-			$this->duration = array('value' => $this->_duration_array($week), 'params' => $this->_setParams($day));
+			$this->duration = ['value' => $this->_duration_array($week), 'params' => $this->_setParams($day)];
 		elseif (is_string($week) && (3 <= strlen(trim($week)))) {
 			$week = trim($week);
-			if (in_array(substr($week, 0, 1), array('+', '-')))
+			if (in_array(substr($week, 0, 1), ['+', '-']))
 				$week = substr($week, 1);
-			$this->duration = array('value' => $this->_duration_string($week), 'params' => $this->_setParams($day));
+			$this->duration = ['value' => $this->_duration_string($week), 'params' => $this->_setParams($day)];
 		} elseif (empty($week) && empty($day) && empty($hour) && empty($min) && empty($sec))
 			return FALSE;
 		else
-			$this->duration = array('value' => $this->_duration_array(array($week, $day, $hour, $min, $sec)), 'params' => $this->_setParams($params));
+			$this->duration = ['value' => $this->_duration_array([$week, $day, $hour, $min, $sec]), 'params' => $this->_setParams($params)];
 		return TRUE;
 	}
 	/*********************************************************************************/
@@ -2604,7 +2604,7 @@ class calendarComponent
 			} else
 				return FALSE;
 		}
-		$input = array('params' => $this->_setParams($params, array('VALUE' => 'DATE-TIME')));
+		$input = ['params' => $this->_setParams($params, ['VALUE' => 'DATE-TIME'])];
 		/* ev. check 1:st date and save ev. timezone **/
 		$this->_chkdatecfg(reset($exdates), $parno, $input['params']);
 		$this->_existRem($input['params'], 'VALUE', 'DATE-TIME'); // remove default parameter
@@ -2745,14 +2745,14 @@ class calendarComponent
 				return FALSE;
 		}
 		$fbType = strtoupper($fbType);
-		if ((!in_array($fbType, array('FREE', 'BUSY', 'BUSY-UNAVAILABLE', 'BUSY-TENTATIVE'))) &&
+		if ((!in_array($fbType, ['FREE', 'BUSY', 'BUSY-UNAVAILABLE', 'BUSY-TENTATIVE'])) &&
 			('X-' != substr($fbType, 0, 2)))
 			$fbType = 'BUSY';
-		$input = array('fbtype' => $fbType);
+		$input = ['fbtype' => $fbType];
 		foreach ($fbValues as $fbPeriod) {   // periods => period
-			$freebusyPeriod = array();
+			$freebusyPeriod = [];
 			foreach ($fbPeriod as $fbMember) { // pairs => singlepart
-				$freebusyPairMember = array();
+				$freebusyPairMember = [];
 				if (is_array($fbMember)) {
 					if ($this->_isArrayDate($fbMember)) { // date-time value
 						$freebusyPairMember = $this->_date_time_array($fbMember, 7);
@@ -2764,7 +2764,7 @@ class calendarComponent
 						$freebusyPairMember = $this->_duration_array($fbMember);
 					}
 				} elseif ((3 <= strlen(trim($fbMember))) &&    // string format duration
-					(in_array($fbMember{0}, array('P', '+', '-')))) {
+					(in_array($fbMember{0}, ['P', '+', '-']))) {
 					if ('P' != $fbMember{0})
 						$fbmember = substr($fbMember, 1);
 					$freebusyPairMember = $this->_duration_string($fbMember);
@@ -2816,12 +2816,12 @@ class calendarComponent
 	function setGeo($latitude, $longitude, $params = FALSE)
 	{
 		if (!empty($latitude) && !empty($longitude)) {
-			if (!is_array($this->geo)) $this->geo = array();
+			if (!is_array($this->geo)) $this->geo = [];
 			$this->geo['value']['latitude'] = $latitude;
 			$this->geo['value']['longitude'] = $longitude;
 			$this->geo['params'] = $this->_setParams($params);
 		} elseif ($this->getConfig('allowEmpty'))
-			$this->geo = array('value' => null, 'params' => $this->_setParams($params));
+			$this->geo = ['value' => null, 'params' => $this->_setParams($params)];
 		else
 			return FALSE;
 		return TRUE;
@@ -2882,7 +2882,7 @@ class calendarComponent
 		if (empty($this->location)) return FALSE;
 		if (empty($this->location['value']))
 			return ($this->getConfig('allowEmpty')) ? $this->_createElement('LOCATION') : FALSE;
-		$attributes = $this->_createParams($this->location['params'], array('ALTREP', 'LANGUAGE'));
+		$attributes = $this->_createParams($this->location['params'], ['ALTREP', 'LANGUAGE']);
 		$content = $this->_strrep($this->location['value']);
 		return $this->_createElement('LOCATION', $attributes, $content);
 	}
@@ -2899,7 +2899,7 @@ class calendarComponent
 	function setLocation($value, $params = FALSE)
 	{
 		if (empty($value)) if ($this->getConfig('allowEmpty')) $value = null; else return FALSE;
-		$this->location = array('value' => $value, 'params' => $this->_setParams($params));
+		$this->location = ['value' => $value, 'params' => $this->_setParams($params)];
 		return TRUE;
 	}
 	/*********************************************************************************/
@@ -2919,7 +2919,7 @@ class calendarComponent
 		if (empty($this->organizer['value']))
 			return ($this->getConfig('allowEmpty')) ? $this->_createElement('ORGANIZER') : FALSE;
 		$attributes = $this->_createParams($this->organizer['params']
-			, array('CN', 'DIR', 'LANGUAGE', 'SENT-BY'));
+			, ['CN', 'DIR', 'LANGUAGE', 'SENT-BY']);
 		$content = 'MAILTO:' . $this->organizer['value'];
 		return $this->_createElement('ORGANIZER', $attributes, $content);
 	}
@@ -2938,7 +2938,7 @@ class calendarComponent
 		if (empty($value)) if ($this->getConfig('allowEmpty')) $value = null; else return FALSE;
 		$value = str_replace('MAILTO:', '', $value);
 		$value = str_replace('mailto:', '', $value);
-		$this->organizer = array('value' => $value, 'params' => $this->_setParams($params));
+		$this->organizer = ['value' => $value, 'params' => $this->_setParams($params)];
 		if (isset($this->organizer['params']['SENT-BY'])) {
 			if ('MAILTO' == strtoupper(substr($this->organizer['params']['SENT-BY'], 0, 6)))
 				$this->organizer['params']['SENT-BY'] = substr($this->organizer['params']['SENT-BY'], 7);
@@ -2977,7 +2977,7 @@ class calendarComponent
 	function setPercentComplete($value, $params = FALSE)
 	{
 		if (empty($value)) if ($this->getConfig('allowEmpty')) $value = null; else return FALSE;
-		$this->percentcomplete = array('value' => $value, 'params' => $this->_setParams($params));
+		$this->percentcomplete = ['value' => $value, 'params' => $this->_setParams($params)];
 		return TRUE;
 	}
 	/*********************************************************************************/
@@ -3012,7 +3012,7 @@ class calendarComponent
 	function setPriority($value, $params = FALSE)
 	{
 		if (empty($value)) if ($this->getConfig('allowEmpty')) $value = null; else return FALSE;
-		$this->priority = array('value' => $value, 'params' => $this->_setParams($params));
+		$this->priority = ['value' => $value, 'params' => $this->_setParams($params)];
 		return TRUE;
 	}
 	/*********************************************************************************/
@@ -3029,7 +3029,7 @@ class calendarComponent
 	function createRdate()
 	{
 		if (empty($this->rdate)) return FALSE;
-		$utctime = (in_array($this->objName, array('vtimezone', 'standard', 'daylight'))) ? TRUE : FALSE;
+		$utctime = (in_array($this->objName, ['vtimezone', 'standard', 'daylight'])) ? TRUE : FALSE;
 		$output = null;
 		if ($utctime)
 			unset($this->rdate['params']['TZID']);
@@ -3131,13 +3131,13 @@ class calendarComponent
 			} else
 				return FALSE;
 		}
-		$input = array('params' => $this->_setParams($params, array('VALUE' => 'DATE-TIME')));
-		if (in_array($this->objName, array('vtimezone', 'standard', 'daylight'))) {
+		$input = ['params' => $this->_setParams($params, ['VALUE' => 'DATE-TIME'])];
+		if (in_array($this->objName, ['vtimezone', 'standard', 'daylight'])) {
 			unset($input['params']['TZID']);
 			$input['params']['VALUE'] = 'DATE-TIME';
 		}
 		/*  check if PERIOD, if not set */
-		if ((!isset($input['params']['VALUE']) || !in_array($input['params']['VALUE'], array('DATE', 'PERIOD'))) &&
+		if ((!isset($input['params']['VALUE']) || !in_array($input['params']['VALUE'], ['DATE', 'PERIOD'])) &&
 			isset($rdates[0]) && is_array($rdates[0]) && (2 == count($rdates[0])) &&
 			isset($rdates[0][0]) && isset($rdates[0][1]) && !isset($rdates[0]['timestamp']) &&
 			((is_array($rdates[0][0]) && (isset($rdates[0][0]['timestamp']) ||
@@ -3150,7 +3150,7 @@ class calendarComponent
 		if (isset($input['params']['VALUE']) && ('PERIOD' == $input['params']['VALUE'])) // PERIOD
 			$date = reset($date);
 		$this->_chkdatecfg($date, $parno, $input['params']);
-		if (in_array($this->objName, array('vtimezone', 'standard', 'daylight')))
+		if (in_array($this->objName, ['vtimezone', 'standard', 'daylight']))
 			unset($input['params']['TZID']);
 		$this->_existRem($input['params'], 'VALUE', 'DATE-TIME'); // remove default
 		foreach ($rdates as $rpix => $theRdate) {
@@ -3168,7 +3168,7 @@ class calendarComponent
 							else                                               // array format duration
 								$inputab = $this->_duration_array($rPeriod);
 						} elseif ((3 <= strlen(trim($rPeriod))) &&          // string format duration
-							(in_array($rPeriod{0}, array('P', '+', '-')))) {
+							(in_array($rPeriod{0}, ['P', '+', '-']))) {
 							if ('P' != $rPeriod{0})
 								$rPeriod = substr($rPeriod, 1);
 							$inputab = $this->_duration_string($rPeriod);
@@ -3247,7 +3247,7 @@ class calendarComponent
 	{
 		if (empty($year)) {
 			if ($this->getConfig('allowEmpty')) {
-				$this->recurrenceid = array('value' => null, 'params' => null);
+				$this->recurrenceid = ['value' => null, 'params' => null];
 				return TRUE;
 			} else
 				return FALSE;
@@ -3335,7 +3335,7 @@ class calendarComponent
 	function setRepeat($value, $params = FALSE)
 	{
 		if (empty($value)) if ($this->getConfig('allowEmpty')) $value = null; else return FALSE;
-		$this->repeat = array('value' => $value, 'params' => $this->_setParams($params));
+		$this->repeat = ['value' => $value, 'params' => $this->_setParams($params)];
 		return TRUE;
 	}
 	/*********************************************************************************/
@@ -3357,7 +3357,7 @@ class calendarComponent
 				if ($this->getConfig('allowEmpty')) $output .= $this->_createElement('REQUEST-STATUS');
 				continue;
 			}
-			$attributes = $this->_createParams($rstat['params'], array('LANGUAGE'));
+			$attributes = $this->_createParams($rstat['params'], ['LANGUAGE']);
 			$content = number_format((float)$rstat['value']['statcode'], 2, '.', '');
 			$content .= ';' . $this->_strrep($rstat['value']['text']);
 			if (isset($rstat['value']['extdata']))
@@ -3382,7 +3382,7 @@ class calendarComponent
 	function setRequestStatus($statcode, $text, $extdata = FALSE, $params = FALSE, $index = FALSE)
 	{
 		if (empty($statcode) || empty($text)) if ($this->getConfig('allowEmpty')) $statcode = $text = null; else return FALSE;
-		$input = array('statcode' => $statcode, 'text' => $text);
+		$input = ['statcode' => $statcode, 'text' => $text];
 		if ($extdata)
 			$input['extdata'] = $extdata;
 		$this->_setMval($this->requeststatus, $input, $params, FALSE, $index);
@@ -3408,7 +3408,7 @@ class calendarComponent
 				if ($this->getConfig('allowEmpty')) $output .= $this->_createElement('RESOURCES');
 				continue;
 			}
-			$attributes = $this->_createParams($resource['params'], array('ALTREP', 'LANGUAGE'));
+			$attributes = $this->_createParams($resource['params'], ['ALTREP', 'LANGUAGE']);
 			if (is_array($resource['value'])) {
 				foreach ($resource['value'] as $rix => $resourcePart)
 					$resource['value'][$rix] = $this->_strrep($resourcePart);
@@ -3500,7 +3500,7 @@ class calendarComponent
 	{
 		if (empty($value))
 			$value = (isset($this->sequence['value']) && (0 < $this->sequence['value'])) ? $this->sequence['value'] + 1 : 1;
-		$this->sequence = array('value' => $value, 'params' => $this->_setParams($params));
+		$this->sequence = ['value' => $value, 'params' => $this->_setParams($params)];
 		return TRUE;
 	}
 	/*********************************************************************************/
@@ -3535,7 +3535,7 @@ class calendarComponent
 	function setStatus($value, $params = FALSE)
 	{
 		if (empty($value)) if ($this->getConfig('allowEmpty')) $value = null; else return FALSE;
-		$this->status = array('value' => $value, 'params' => $this->_setParams($params));
+		$this->status = ['value' => $value, 'params' => $this->_setParams($params)];
 		return TRUE;
 	}
 	/*********************************************************************************/
@@ -3554,7 +3554,7 @@ class calendarComponent
 		if (empty($this->summary)) return FALSE;
 		if (empty($this->summary['value']))
 			return ($this->getConfig('allowEmpty')) ? $this->_createElement('SUMMARY') : FALSE;
-		$attributes = $this->_createParams($this->summary['params'], array('ALTREP', 'LANGUAGE'));
+		$attributes = $this->_createParams($this->summary['params'], ['ALTREP', 'LANGUAGE']);
 		$content = $this->_strrep($this->summary['value']);
 		return $this->_createElement('SUMMARY', $attributes, $content);
 	}
@@ -3571,7 +3571,7 @@ class calendarComponent
 	function setSummary($value, $params = FALSE)
 	{
 		if (empty($value)) if ($this->getConfig('allowEmpty')) $value = null; else return FALSE;
-		$this->summary = array('value' => $value, 'params' => $this->_setParams($params));
+		$this->summary = ['value' => $value, 'params' => $this->_setParams($params)];
 		return TRUE;
 	}
 	/*********************************************************************************/
@@ -3606,7 +3606,7 @@ class calendarComponent
 	function setTransp($value, $params = FALSE)
 	{
 		if (empty($value)) if ($this->getConfig('allowEmpty')) $value = null; else return FALSE;
-		$this->transp = array('value' => $value, 'params' => $this->_setParams($params));
+		$this->transp = ['value' => $value, 'params' => $this->_setParams($params)];
 		return TRUE;
 	}
 	/*********************************************************************************/
@@ -3662,7 +3662,7 @@ class calendarComponent
 	{
 		if (empty($year) && empty($month) && empty($day) && empty($week) && empty($hour) && empty($min) && empty($sec))
 			if ($this->getConfig('allowEmpty')) {
-				$this->trigger = array('value' => null, 'params' => $this->_setParams($params));
+				$this->trigger = ['value' => null, 'params' => $this->_setParams($params)];
 				return TRUE;
 			} else
 				return FALSE;
@@ -3692,7 +3692,7 @@ class calendarComponent
 			$year = $SSYY;
 		} elseif (is_string($year) && (is_array($month) || empty($month))) {  // duration or date in a string
 			$params = $this->_setParams($month);
-			if (in_array($year{0}, array('P', '+', '-'))) { // duration
+			if (in_array($year{0}, ['P', '+', '-'])) { // duration
 				$relatedStart = (isset($params['RELATED']) && ('END' == $params['RELATED'])) ? FALSE : TRUE;
 				$before = ('-' == $year{0}) ? TRUE : FALSE;
 				if ('P' != $year{0})
@@ -3710,24 +3710,24 @@ class calendarComponent
 			$hour = ($hour) ? $hour : 0;
 			$min = ($min) ? $min : 0;
 			$sec = ($sec) ? $sec : 0;
-			$this->trigger = array('params' => $params);
-			$this->trigger['value'] = array('year' => $year
+			$this->trigger = ['params' => $params];
+			$this->trigger['value'] = ['year' => $year
 			, 'month' => $month
 			, 'day' => $day
 			, 'hour' => $hour
 			, 'min' => $min
 			, 'sec' => $sec
-			, 'tz' => 'Z');
+			, 'tz' => 'Z'];
 			return TRUE;
 		} elseif ((empty($year) && empty($month)) &&    // duration
 			(!empty($week) || !empty($day) || !empty($hour) || !empty($min) || !empty($sec))) {
 			unset($params['RELATED']); // set at output creation (END only)
 			unset($params['VALUE']);   // 'DURATION' default
-			$this->trigger = array('params' => $params);
+			$this->trigger = ['params' => $params];
 			$relatedStart = (FALSE !== $relatedStart) ? TRUE : FALSE;
 			$before = (FALSE !== $before) ? TRUE : FALSE;
-			$this->trigger['value'] = array('relatedStart' => $relatedStart
-			, 'before' => $before);
+			$this->trigger['value'] = ['relatedStart' => $relatedStart
+			, 'before' => $before];
 			if (!empty($week)) $this->trigger['value']['week'] = $week;
 			if (!empty($day)) $this->trigger['value']['day'] = $day;
 			if (!empty($hour)) $this->trigger['value']['hour'] = $hour;
@@ -3769,7 +3769,7 @@ class calendarComponent
 	function setTzid($value, $params = FALSE)
 	{
 		if (empty($value)) if ($this->getConfig('allowEmpty')) $value = null; else return FALSE;
-		$this->tzid = array('value' => $value, 'params' => $this->_setParams($params));
+		$this->tzid = ['value' => $value, 'params' => $this->_setParams($params)];
 		return TRUE;
 	}
 	/*********************************************************************************/
@@ -3790,7 +3790,7 @@ class calendarComponent
 		$output = null;
 		foreach ($this->tzname as $theName) {
 			if (!empty($theName['value'])) {
-				$attributes = $this->_createParams($theName['params'], array('LANGUAGE'));
+				$attributes = $this->_createParams($theName['params'], ['LANGUAGE']);
 				$output .= $this->_createElement('TZNAME', $attributes, $this->_strrep($theName['value']));
 			} elseif ($this->getConfig('allowEmpty')) $output .= $this->_createElement('TZNAME');
 		}
@@ -3845,7 +3845,7 @@ class calendarComponent
 	function setTzoffsetfrom($value, $params = FALSE)
 	{
 		if (empty($value)) if ($this->getConfig('allowEmpty')) $value = null; else return FALSE;
-		$this->tzoffsetfrom = array('value' => $value, 'params' => $this->_setParams($params));
+		$this->tzoffsetfrom = ['value' => $value, 'params' => $this->_setParams($params)];
 		return TRUE;
 	}
 	/*********************************************************************************/
@@ -3880,7 +3880,7 @@ class calendarComponent
 	function setTzoffsetto($value, $params = FALSE)
 	{
 		if (empty($value)) if ($this->getConfig('allowEmpty')) $value = null; else return FALSE;
-		$this->tzoffsetto = array('value' => $value, 'params' => $this->_setParams($params));
+		$this->tzoffsetto = ['value' => $value, 'params' => $this->_setParams($params)];
 		return TRUE;
 	}
 	/*********************************************************************************/
@@ -3915,7 +3915,7 @@ class calendarComponent
 	function setTzurl($value, $params = FALSE)
 	{
 		if (empty($value)) if ($this->getConfig('allowEmpty')) $value = null; else return FALSE;
-		$this->tzurl = array('value' => $value, 'params' => $this->_setParams($params));
+		$this->tzurl = ['value' => $value, 'params' => $this->_setParams($params)];
 		return TRUE;
 	}
 	/*********************************************************************************/
@@ -3955,7 +3955,7 @@ class calendarComponent
 		$str = null;
 		for ($p = 0; $p < $length; $p++)
 			$unique .= $base{mt_rand($start, $end)};
-		$this->uid = array('params' => null);
+		$this->uid = ['params' => null];
 		$this->uid['value'] = $date . '-' . $unique . '@' . $this->getConfig('unique_id');
 	}
 
@@ -3971,7 +3971,7 @@ class calendarComponent
 	function setUid($value, $params = FALSE)
 	{
 		if (empty($value)) return FALSE; // no allowEmpty check here !!!!
-		$this->uid = array('value' => $value, 'params' => $this->_setParams($params));
+		$this->uid = ['value' => $value, 'params' => $this->_setParams($params)];
 		return TRUE;
 	}
 	/*********************************************************************************/
@@ -4006,7 +4006,7 @@ class calendarComponent
 	function setUrl($value, $params = FALSE)
 	{
 		if (empty($value)) if ($this->getConfig('allowEmpty')) $value = null; else return FALSE;
-		$this->url = array('value' => $value, 'params' => $this->_setParams($params));
+		$this->url = ['value' => $value, 'params' => $this->_setParams($params)];
 		return TRUE;
 	}
 	/*********************************************************************************/
@@ -4029,7 +4029,7 @@ class calendarComponent
 				if ($this->getConfig('allowEmpty')) $output .= $this->_createElement($label);
 				continue;
 			}
-			$attributes = $this->_createParams($xpropPart['params'], array('LANGUAGE'));
+			$attributes = $this->_createParams($xpropPart['params'], ['LANGUAGE']);
 			if (is_array($xpropPart['value'])) {
 				foreach ($xpropPart['value'] as $pix => $theXpart)
 					$xpropPart['value'][$pix] = $this->_strrep($theXpart);
@@ -4055,10 +4055,10 @@ class calendarComponent
 	{
 		if (empty($label)) return;
 		if (empty($value)) if ($this->getConfig('allowEmpty')) $value = null; else return FALSE;
-		$xprop = array('value' => $value);
+		$xprop = ['value' => $value];
 		$toolbox = new calendarComponent();
 		$xprop['params'] = $toolbox->_setParams($params);
-		if (!is_array($this->xprop)) $this->xprop = array();
+		if (!is_array($this->xprop)) $this->xprop = [];
 		$this->xprop[strtoupper($label)] = $xprop;
 		return TRUE;
 	}
@@ -4142,7 +4142,7 @@ class calendarComponent
 						unset($attrKVarr[0]);
 						$attrValue = implode('=', $attrKVarr);
 					}
-					if (('attach' == $label) && (in_array($attrKey, array('fmttype', 'encoding', 'value')))) {
+					if (('attach' == $label) && (in_array($attrKey, ['fmttype', 'encoding', 'value']))) {
 						$attachInlineBinary = TRUE;
 						if ('fmttype' == $attrKey)
 							$attachfmttype = $attrKey . '=' . $attrValue;
@@ -4164,15 +4164,15 @@ class calendarComponent
 			}
 		}
 		if (((('attach' == $label) && !$attachInlineBinary) ||
-				(in_array($label, array('tzurl', 'url')))) && ('xcal' == $this->format)) {
+				(in_array($label, ['tzurl', 'url']))) && ('xcal' == $this->format)) {
 			$pos = strrpos($content, "/");
 			$docname = ($pos !== false) ? substr($content, (1 - strlen($content) + $pos)) : $content;
-			$this->xcaldecl[] = array('xmldecl' => 'ENTITY'
+			$this->xcaldecl[] = ['xmldecl' => 'ENTITY'
 			, 'uri' => $docname
 			, 'ref' => 'SYSTEM'
 			, 'external' => $content
 			, 'type' => 'NDATA'
-			, 'type2' => 'BINERY');
+			, 'type2' => 'BINERY'];
 			$attributes .= (empty($attributes)) ? ' ' : $this->attributeDelimiter . ' ';
 			$attributes .= 'uri="' . $docname . '"';
 			$content = null;
@@ -4219,7 +4219,7 @@ class calendarComponent
 	 * @since 0.9.22 - 2007-04-10
 	 * @author Kjell-Inge Gustafsson <ical@kigkonsult.se>
 	 */
-	function _createParams($params = array(), $ctrKeys = array())
+	function _createParams($params = [], $ctrKeys = [])
 	{
 		$attrLANG = $attr1 = $attr2 = null;
 		$CNattrKey = (in_array('CN', $ctrKeys)) ? TRUE : FALSE;
@@ -4290,7 +4290,7 @@ class calendarComponent
 				if ('Z' == substr($date, -1))
 					$parno = 7; // UTC DATE-TIME
 				elseif (((8 == strlen($date) && ctype_digit($date)) || (11 >= strlen($date))) &&
-					(!isset($params['VALUE']) || !in_array($params['VALUE'], array('DATE-TIME', 'PERIOD'))))
+					(!isset($params['VALUE']) || !in_array($params['VALUE'], ['DATE-TIME', 'PERIOD'])))
 					$parno = 3; // DATE
 				$date = $this->_date_time_string($date, $parno);
 				if (!empty($date['tz'])) {
@@ -4330,7 +4330,7 @@ class calendarComponent
 		$startWdate = mktime(0, 0, 0, $startdate['month'], $startdate['day'], $startdate['year']);
 		$endWdate = mktime(0, 0, 0, $enddate['month'], $enddate['day'], $enddate['year']);
 		$wduration = $endWdate - $startWdate;
-		$dur = array();
+		$dur = [];
 		$dur['week'] = (int)floor($wduration / (7 * 24 * 60 * 60));
 		$wduration = $wduration % (7 * 24 * 60 * 60);
 		$dur['day'] = (int)floor($wduration / (24 * 60 * 60));
@@ -4379,7 +4379,7 @@ class calendarComponent
 	 */
 	function _date_time_array($datetime, $parno = FALSE)
 	{
-		$output = array();
+		$output = [];
 		foreach ($datetime as $dateKey => $datePart) {
 			switch ($dateKey) {
 				case '0':
@@ -4473,7 +4473,7 @@ class calendarComponent
 				if ((' ' == substr($datetime, $cx, 1)) || ctype_digit(substr($datetime, $cx, 1)))
 					break; // if exists, tz ends here.. . ?
 				elseif (ctype_alpha(substr($datetime, $cx, 1)) ||
-					(in_array(substr($datetime, $cx, 1), array('-', '/'))))
+					(in_array(substr($datetime, $cx, 1), ['-', '/'])))
 					$tx--; // tz length counter
 			}
 			if (0 > $tx) {
@@ -4495,7 +4495,7 @@ class calendarComponent
 		}
 		$datestring = date('Y-m-d H:i:s', strtotime($datetime));
 		$tz = trim($tz);
-		$output = array();
+		$output = [];
 		$output['year'] = substr($datestring, 0, 4);
 		$output['month'] = substr($datestring, 5, 2);
 		$output['day'] = substr($datestring, 8, 2);
@@ -4529,7 +4529,7 @@ class calendarComponent
 	 */
 	function _duration_array($duration)
 	{
-		$output = array();
+		$output = [];
 		if (is_array($duration) &&
 			(1 == count($duration)) &&
 			isset($duration['sec']) &&
@@ -4621,7 +4621,7 @@ class calendarComponent
 			$dtend += ($dur['min'] * 60);
 		if (isset($dur['sec']))
 			$dtend += $dur['sec'];
-		$dtend2 = array();
+		$dtend2 = [];
 		$dtend2['year'] = date('Y', $dtend);
 		$dtend2['month'] = date('m', $dtend);
 		$dtend2['day'] = date('d', $dtend);
@@ -4655,7 +4655,7 @@ class calendarComponent
 		$duration = substr($duration, 1); // skip P
 		$duration = str_replace('t', 'T', $duration);
 		$duration = str_replace('T', '', $duration);
-		$output = array();
+		$output = [];
 		$val = null;
 		for ($ix = 0; $ix < strlen($duration); $ix++) {
 			switch (strtoupper($duration{$ix})) {
@@ -4938,7 +4938,7 @@ class calendarComponent
 	 */
 	function _isArrayDate($input)
 	{
-		if (isset($input['week']) || (!in_array(count($input), array(3, 6, 7))))
+		if (isset($input['week']) || (!in_array(count($input), [3, 6, 7])))
 			return FALSE;
 		if (7 == count($input))
 			return TRUE;
@@ -4986,11 +4986,11 @@ class calendarComponent
 		if ('Z' == substr($input, -1))
 			return TRUE;
 		elseif ((5 <= strlen($input)) &&
-			(in_array(substr($input, -5, 1), array('+', '-'))) &&
+			(in_array(substr($input, -5, 1), ['+', '-'])) &&
 			('0000' < substr($input, -4)) && ('9999' >= substr($input, -4)))
 			return TRUE;
 		elseif ((7 <= strlen($input)) &&
-			(in_array(substr($input, -7, 1), array('+', '-'))) &&
+			(in_array(substr($input, -7, 1), ['+', '-'])) &&
 			('000000' < substr($input, -6)) && ('999999' >= substr($input, -6)))
 			return TRUE;
 		return FALSE;
@@ -5028,7 +5028,7 @@ class calendarComponent
 	 *
 	 * if missing, UNTIL is set 1 year from startdate (emergency break)
 	 *
-	 * @param array $result , array to update, array([timestamp] => timestamp)
+	 * @param array $result , array to update, [[timestamp] => timestamp]
 	 * @param array $recur , pattern for recurrency (only value part, params ignored)
 	 * @param array $wdate , component start date
 	 * @param array $startdate , start date
@@ -5061,7 +5061,7 @@ class calendarComponent
 		}
 		if ($wdatets > $endDatets) {
 			//echo "recur out of date ".implode('-',$this->_date_time_string(date('Y-m-d H:i:s',$wdatets),6))."<br />\n";//test
-			return array(); // nothing to do.. .
+			return []; // nothing to do.. .
 		}
 		if (!isset($recur['FREQ'])) // "MUST be specified.. ."
 			$recur['FREQ'] = 'DAILY'; // ??
@@ -5070,7 +5070,7 @@ class calendarComponent
 			$recur['INTERVAL'] = 1;
 		$countcnt = (!isset($recur['BYSETPOS'])) ? 1 : 0; // DTSTART counts as the first occurrence
 		/* find out how to step up dates and set index for interval count */
-		$step = array();
+		$step = [];
 		if ('YEARLY' == $recur['FREQ'])
 			$step['year'] = 1;
 		elseif ('MONTHLY' == $recur['FREQ'])
@@ -5080,18 +5080,18 @@ class calendarComponent
 		else
 			$step['day'] = 1;
 		if (isset($step['year']) && isset($recur['BYMONTH']))
-			$step = array('month' => 1);
+			$step = ['month' => 1];
 		if (empty($step) && isset($recur['BYWEEKNO'])) // ??
-			$step = array('day' => 7);
+			$step = ['day' => 7];
 		if (isset($recur['BYYEARDAY']) || isset($recur['BYMONTHDAY']) || isset($recur['BYDAY']))
-			$step = array('day' => 1);
-		$intervalarr = array();
+			$step = ['day' => 1];
+		$intervalarr = [];
 		if (1 < $recur['INTERVAL']) {
 			$intervalix = $this->_recurIntervalIx($recur['FREQ'], $wdate, $wkst);
-			$intervalarr = array($intervalix => 0);
+			$intervalarr = [$intervalix => 0];
 		}
 		if (isset($recur['BYSETPOS'])) { // save start date + weekno
-			$bysetposymd1 = $bysetposymd2 = $bysetposw1 = $bysetposw2 = array();
+			$bysetposymd1 = $bysetposymd2 = $bysetposw1 = $bysetposw2 = [];
 			$bysetposWold = (int)date('W', ($wdatets + $wkst));
 			$bysetposYold = $wdate['year'];
 			$bysetposMold = $wdate['month'];
@@ -5100,12 +5100,12 @@ class calendarComponent
 				foreach ($recur['BYSETPOS'] as $bix => $bval)
 					$recur['BYSETPOS'][$bix] = (int)$bval;
 			} else
-				$recur['BYSETPOS'] = array((int)$recur['BYSETPOS']);
+				$recur['BYSETPOS'] = [(int)$recur['BYSETPOS']];
 			$this->_stepdate($enddate, $endDatets, $step); // make sure to count whole last period
 		}
 		$this->_stepdate($wdate, $wdatets, $step);
 		$year_old = null;
-		$daynames = array('SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA');
+		$daynames = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
 		/* MAIN LOOP */
 		// echo "recur start ".implode('-',$wdate)." end ".implode('-',$enddate)."<br />\n";//test
 		while (TRUE) {
@@ -5115,17 +5115,17 @@ class calendarComponent
 				break;
 			if ($year_old != $wdate['year']) {
 				$year_old = $wdate['year'];
-				$daycnts = array();
+				$daycnts = [];
 				$yeardays = $weekno = 0;
-				$yeardaycnt = array();
+				$yeardaycnt = [];
 				for ($m = 1; $m <= 12; $m++) { // count up and update up-counters
-					$daycnts[$m] = array();
-					$weekdaycnt = array();
+					$daycnts[$m] = [];
+					$weekdaycnt = [];
 					foreach ($daynames as $dn)
 						$yeardaycnt[$dn] = $weekdaycnt[$dn] = 0;
 					$mcnt = date('t', mktime(0, 0, 0, $m, 1, $wdate['year']));
 					for ($d = 1; $d <= $mcnt; $d++) {
-						$daycnts[$m][$d] = array();
+						$daycnts[$m][$d] = [];
 						if (isset($recur['BYYEARDAY'])) {
 							$yeardays++;
 							$daycnts[$m][$d]['yearcnt_up'] = $yeardays;
@@ -5144,7 +5144,7 @@ class calendarComponent
 					}
 				}
 				$daycnt = 0;
-				$yeardaycnt = array();
+				$yeardaycnt = [];
 				if (isset($recur['BYWEEKNO']) || ($recur['FREQ'] == 'WEEKLY')) {
 					$weekno = null;
 					for ($d = 31; $d > 25; $d--) { // get last weekno for year
@@ -5157,7 +5157,7 @@ class calendarComponent
 					}
 				}
 				for ($m = 12; $m > 0; $m--) { // count down and update down-counters
-					$weekdaycnt = array();
+					$weekdaycnt = [];
 					foreach ($daynames as $dn)
 						$yeardaycnt[$dn] = $weekdaycnt[$dn] = 0;
 					$monthcnt = 0;
@@ -5191,7 +5191,7 @@ class calendarComponent
 				$currentKey = array_keys($intervalarr);
 				$currentKey = end($currentKey); // get last index
 				if ($currentKey != $intervalix)
-					$intervalarr = array($intervalix => ($intervalarr[$currentKey] + 1));
+					$intervalarr = [$intervalix => ($intervalarr[$currentKey] + 1)];
 				if (($recur['INTERVAL'] != $intervalarr[$intervalix]) &&
 					(0 != $intervalarr[$intervalix])) {
 					/* step up date */
@@ -5275,7 +5275,7 @@ class calendarComponent
 			/* check BYSETPOS */
 			if ($updateOK) {
 				if (isset($recur['BYSETPOS']) &&
-					(in_array($recur['FREQ'], array('YEARLY', 'MONTHLY', 'WEEKLY', 'DAILY')))) {
+					(in_array($recur['FREQ'], ['YEARLY', 'MONTHLY', 'WEEKLY', 'DAILY']))) {
 					if (isset($recur['WEEKLY'])) {
 						if ($bysetposWold == $daycnts[$wdate['month']][$wdate['day']]['weekno_up'])
 							$bysetposw1[] = $wdatets;
@@ -5358,7 +5358,7 @@ class calendarComponent
 							break;
 					}
 					$bysetposarr1 = $bysetposarr2;
-					$bysetposarr2 = array();
+					$bysetposarr2 = [];
 				}
 			}
 		}
@@ -5407,7 +5407,7 @@ class calendarComponent
 	 */
 	function _setRexrule($rexrule)
 	{
-		$input = array();
+		$input = [];
 		if (empty($rexrule))
 			return $input;
 		foreach ($rexrule as $rexrulelabel => $rexrulevalue) {
@@ -5446,10 +5446,10 @@ class calendarComponent
 	function _setDate($year, $month = FALSE, $day = FALSE, $hour = FALSE, $min = FALSE, $sec = FALSE, $tz = FALSE, $params = FALSE, $caller = null)
 	{
 		$input = $parno = null;
-		$localtime = (('dtstart' == $caller) && in_array($this->objName, array('vtimezone', 'standard', 'daylight'))) ? TRUE : FALSE;
+		$localtime = (('dtstart' == $caller) && in_array($this->objName, ['vtimezone', 'standard', 'daylight'])) ? TRUE : FALSE;
 		if ($this->_isArrayDate($year)) {
 			if ($localtime) unset ($month['VALUE'], $month['TZID']);
-			$input['params'] = $this->_setParams($month, array('VALUE' => 'DATE-TIME'));
+			$input['params'] = $this->_setParams($month, ['VALUE' => 'DATE-TIME']);
 			if (isset($input['params']['TZID'])) {
 				$input['params']['VALUE'] = 'DATE-TIME';
 				unset($year['tz']);
@@ -5460,7 +5460,7 @@ class calendarComponent
 			$input['value'] = $this->_date_time_array($year, $parno);
 		} elseif ($this->_isArrayTimestampDate($year)) {
 			if ($localtime) unset ($month['VALUE'], $month['TZID']);
-			$input['params'] = $this->_setParams($month, array('VALUE' => 'DATE-TIME'));
+			$input['params'] = $this->_setParams($month, ['VALUE' => 'DATE-TIME']);
 			if (isset($input['params']['TZID'])) {
 				$input['params']['VALUE'] = 'DATE-TIME';
 				unset($year['tz']);
@@ -5471,7 +5471,7 @@ class calendarComponent
 			$input['value'] = $this->_timestamp2date($year, $parno);
 		} elseif (8 <= strlen(trim($year))) { // ex. 2006-08-03 10:12:18
 			if ($localtime) unset ($month['VALUE'], $month['TZID']);
-			$input['params'] = $this->_setParams($month, array('VALUE' => 'DATE-TIME'));
+			$input['params'] = $this->_setParams($month, ['VALUE' => 'DATE-TIME']);
 			if (isset($input['params']['TZID'])) {
 				$input['params']['VALUE'] = 'DATE-TIME';
 				$parno = 6;
@@ -5482,12 +5482,12 @@ class calendarComponent
 		} else {
 			if (is_array($params)) {
 				if ($localtime) unset ($params['VALUE'], $params['TZID']);
-				$input['params'] = $this->_setParams($params, array('VALUE' => 'DATE-TIME'));
+				$input['params'] = $this->_setParams($params, ['VALUE' => 'DATE-TIME']);
 			} elseif (is_array($tz)) {
-				$input['params'] = $this->_setParams($tz, array('VALUE' => 'DATE-TIME'));
+				$input['params'] = $this->_setParams($tz, ['VALUE' => 'DATE-TIME']);
 				$tz = FALSE;
 			} elseif (is_array($hour)) {
-				$input['params'] = $this->_setParams($hour, array('VALUE' => 'DATE-TIME'));
+				$input['params'] = $this->_setParams($hour, ['VALUE' => 'DATE-TIME']);
 				$hour = $min = $sec = $tz = FALSE;
 			}
 			if (isset($input['params']['TZID'])) {
@@ -5497,7 +5497,7 @@ class calendarComponent
 			$parno = $this->_existRem($input['params'], 'VALUE', 'DATE', 3);
 			$hitval = (!empty($tz)) ? 7 : 6;
 			$parno = $this->_existRem($input['params'], 'VALUE', 'DATE-TIME', $hitval, $parno, $parno);
-			$input['value'] = array('year' => $year, 'month' => $month, 'day' => $day);
+			$input['value'] = ['year' => $year, 'month' => $month, 'day' => $day];
 			if (3 != $parno) {
 				$input['value']['hour'] = ($hour) ? $hour : '0';
 				$input['value']['min'] = ($min) ? $min : '0';
@@ -5540,21 +5540,21 @@ class calendarComponent
 		$input = null;
 		if ($this->_isArrayDate($year)) {
 			$input['value'] = $this->_date_time_array($year, 7);
-			$input['params'] = $this->_setParams($month, array('VALUE' => 'DATE-TIME'));
+			$input['params'] = $this->_setParams($month, ['VALUE' => 'DATE-TIME']);
 		} elseif ($this->_isArrayTimestampDate($year)) {
 			$input['value'] = $this->_timestamp2date($year, 7);
-			$input['params'] = $this->_setParams($month, array('VALUE' => 'DATE-TIME'));
+			$input['params'] = $this->_setParams($month, ['VALUE' => 'DATE-TIME']);
 		} elseif (8 <= strlen(trim($year))) { // ex. 2006-08-03 10:12:18
 			$input['value'] = $this->_date_time_string($year, 7);
-			$input['params'] = $this->_setParams($month, array('VALUE' => 'DATE-TIME'));
+			$input['params'] = $this->_setParams($month, ['VALUE' => 'DATE-TIME']);
 		} else {
-			$input['value'] = array('year' => $year
+			$input['value'] = ['year' => $year
 			, 'month' => $month
 			, 'day' => $day
 			, 'hour' => $hour
 			, 'min' => $min
-			, 'sec' => $sec);
-			$input['params'] = $this->_setParams($params, array('VALUE' => 'DATE-TIME'));
+			, 'sec' => $sec];
+			$input['params'] = $this->_setParams($params, ['VALUE' => 'DATE-TIME']);
 		}
 		$parno = $this->_existRem($input['params'], 'VALUE', 'DATE-TIME', 7); // remove default
 		if (!isset($input['value']['hour']))
@@ -5582,7 +5582,7 @@ class calendarComponent
 	 */
 	function _setMval(&$valArr, $value, $params = FALSE, $defaults = FALSE, $index = FALSE)
 	{
-		if (!is_array($valArr)) $valArr = array();
+		if (!is_array($valArr)) $valArr = [];
 		if ($index)
 			$index = $index - 1;
 		elseif (0 < count($valArr)) {
@@ -5590,7 +5590,7 @@ class calendarComponent
 			$index += 1;
 		} else
 			$index = 0;
-		$valArr[$index] = array('value' => $value, 'params' => $this->_setParams($params, $defaults));
+		$valArr[$index] = ['value' => $value, 'params' => $this->_setParams($params, $defaults)];
 		ksort($valArr);
 	}
 
@@ -5608,8 +5608,8 @@ class calendarComponent
 	function _setParams($params, $defaults = FALSE)
 	{
 		if (!is_array($params))
-			$params = array();
-		$input = array();
+			$params = [];
+		$input = [];
 		foreach ($params as $paramKey => $paramValue) {
 			if (is_array($paramValue)) {
 				foreach ($paramValue as $pkey => $pValue) {
@@ -5637,12 +5637,12 @@ class calendarComponent
 	 *
 	 * @param array $date , date to step
 	 * @param int $timestamp
-	 * @param array $step , default array( 'day' => 1 )
+	 * @param array $step , default [ 'day' => 1 ]
 	 * @return void
 	 * @author Kjell-Inge Gustafsson <ical@kigkonsult.se>
 	 * @since 2.4.16 - 2008-10-18
 	 */
-	function _stepdate(&$date, &$timestamp, $step = array('day' => 1))
+	function _stepdate(&$date, &$timestamp, $step = ['day' => 1])
 	{
 		foreach ($step as $stepix => $stepvalue)
 			$date[$stepix] += $stepvalue;
@@ -5670,9 +5670,9 @@ class calendarComponent
 				$tz = $timestamp['tz'];
 			$timestamp = $timestamp['timestamp'];
 		}
-		$output = array('year' => date('Y', $timestamp)
+		$output = ['year' => date('Y', $timestamp)
 		, 'month' => date('m', $timestamp)
-		, 'day' => date('d', $timestamp));
+		, 'day' => date('d', $timestamp)];
 		if (3 != $parno) {
 			$output['hour'] = date('H', $timestamp);
 			$output['min'] = date('i', $timestamp);
@@ -5725,7 +5725,7 @@ class calendarComponent
 				break;
 			case 'COMPSINFO':
 				unset($this->compix);
-				$info = array();
+				$info = [];
 				if (isset($this->components)) {
 					foreach ($this->components as $cix => $component) {
 						if (empty($component)) continue;
@@ -5752,8 +5752,8 @@ class calendarComponent
 				return $this->nl;
 				break;
 			case 'PROPINFO':
-				$output = array();
-				if (!in_array($this->objName, array('valarm', 'vtimezone', 'standard', 'daylight'))) {
+				$output = [];
+				if (!in_array($this->objName, ['valarm', 'vtimezone', 'standard', 'daylight'])) {
 					if (empty($this->uid['value'])) $this->_makeuid();
 					$output['UID'] = 1;
 				}
@@ -5825,33 +5825,33 @@ class calendarComponent
 		switch (strtoupper($config)) {
 			case 'ALLOWEMPTY':
 				$this->allowEmpty = $value;
-				$subcfg = array('ALLOWEMPTY' => $value);
+				$subcfg = ['ALLOWEMPTY' => $value];
 				$res = TRUE;
 				break;
 			case 'FORMAT':
 				$value = trim($value);
 				$this->format = $value;
 				$this->_createFormat();
-				$subcfg = array('FORMAT' => $value);
+				$subcfg = ['FORMAT' => $value];
 				$res = TRUE;
 				break;
 			case 'LANGUAGE':
 				// set language for calendar component as defined in [RFC 1766]
 				$value = trim($value);
 				$this->language = $value;
-				$subcfg = array('LANGUAGE' => $value);
+				$subcfg = ['LANGUAGE' => $value];
 				$res = TRUE;
 				break;
 			case 'NL':
 			case 'NEWLINECHAR':
 				$this->nl = $value;
-				$subcfg = array('NL' => $value);
+				$subcfg = ['NL' => $value];
 				$res = TRUE;
 				break;
 			case 'UNIQUE_ID':
 				$value = trim($value);
 				$this->unique_id = $value;
-				$subcfg = array('UNIQUE_ID' => $value);
+				$subcfg = ['UNIQUE_ID' => $value];
 				$res = TRUE;
 				break;
 		}
@@ -5882,8 +5882,8 @@ class calendarComponent
 	{
 		if ($this->_notExistProp($propName)) return FALSE;
 		$propName = strtoupper($propName);
-		if (in_array($propName, array('ATTACH', 'ATTENDEE', 'CATEGORIES', 'COMMENT', 'CONTACT', 'DESCRIPTION', 'EXDATE', 'EXRULE',
-			'FREEBUSY', 'RDATE', 'RELATED-TO', 'RESOURCES', 'RRULE', 'REQUEST-STATUS', 'TZNAME', 'X-PROP'))) {
+		if (in_array($propName, ['ATTACH', 'ATTENDEE', 'CATEGORIES', 'COMMENT', 'CONTACT', 'DESCRIPTION', 'EXDATE', 'EXRULE',
+			'FREEBUSY', 'RDATE', 'RELATED-TO', 'RESOURCES', 'RRULE', 'REQUEST-STATUS', 'TZNAME', 'X-PROP'])) {
 			if (!$propix)
 				$propix = (isset($this->propdelix[$propName])) ? $this->propdelix[$propName] + 2 : 1;
 			$this->propdelix[$propName] = --$propix;
@@ -5939,7 +5939,7 @@ class calendarComponent
 				}
 				break;
 			case 'DTSTAMP':
-				if (in_array($this->objName, array('valarm', 'vtimezone', 'standard', 'daylight')))
+				if (in_array($this->objName, ['valarm', 'vtimezone', 'standard', 'daylight']))
 					return FALSE;
 				if (!empty($this->dtstamp)) {
 					$this->dtstamp = '';
@@ -6094,7 +6094,7 @@ class calendarComponent
 				}
 				break;
 			case 'UID':
-				if (in_array($this->objName, array('valarm', 'vtimezone', 'standard', 'daylight')))
+				if (in_array($this->objName, ['valarm', 'vtimezone', 'standard', 'daylight']))
 					return FALSE;
 				if (!empty($this->uid)) {
 					$this->uid = '';
@@ -6164,8 +6164,8 @@ class calendarComponent
 	{
 		if ($this->_notExistProp($propName)) return FALSE;
 		$propName = ($propName) ? strtoupper($propName) : 'X-PROP';
-		if (in_array($propName, array('ATTACH', 'ATTENDEE', 'CATEGORIES', 'COMMENT', 'CONTACT', 'DESCRIPTION', 'EXDATE', 'EXRULE',
-			'FREEBUSY', 'RDATE', 'RELATED-TO', 'RESOURCES', 'RRULE', 'REQUEST-STATUS', 'TZNAME', 'X-PROP'))) {
+		if (in_array($propName, ['ATTACH', 'ATTENDEE', 'CATEGORIES', 'COMMENT', 'CONTACT', 'DESCRIPTION', 'EXDATE', 'EXRULE',
+			'FREEBUSY', 'RDATE', 'RELATED-TO', 'RESOURCES', 'RRULE', 'REQUEST-STATUS', 'TZNAME', 'X-PROP'])) {
 			if (!$propix)
 				$propix = (isset($this->propix[$propName])) ? $this->propix[$propName] + 2 : 1;
 			$this->propix[$propName] = --$propix;
@@ -6211,7 +6211,7 @@ class calendarComponent
 				if (!empty($this->dtend['value'])) return ($inclParam) ? $this->dtend : $this->dtend['value'];
 				break;
 			case 'DTSTAMP':
-				if (in_array($this->objName, array('valarm', 'vtimezone', 'standard', 'daylight')))
+				if (in_array($this->objName, ['valarm', 'vtimezone', 'standard', 'daylight']))
 					return;
 				if (!isset($this->dtstamp['value']))
 					$this->_makeDtstamp();
@@ -6226,7 +6226,7 @@ class calendarComponent
 			case 'DURATION':
 				if (!isset($this->duration['value'])) return FALSE;
 				$value = ($specform) ? $this->duration2date() : $this->duration['value'];
-				return ($inclParam) ? array('value' => $value, 'params' => $this->duration['params']) : $value;
+				return ($inclParam) ? ['value' => $value, 'params' => $this->duration['params']] : $value;
 				break;
 			case 'EXDATE':
 				if (!isset($this->exdate[$propix])) return FALSE;
@@ -6316,7 +6316,7 @@ class calendarComponent
 				if (!empty($this->tzurl['value'])) return ($inclParam) ? $this->tzurl : $this->tzurl['value'];
 				break;
 			case 'UID':
-				if (in_array($this->objName, array('valarm', 'vtimezone', 'standard', 'daylight')))
+				if (in_array($this->objName, ['valarm', 'vtimezone', 'standard', 'daylight']))
 					return FALSE;
 				if (empty($this->uid['value']))
 					$this->_makeuid();
@@ -6328,15 +6328,15 @@ class calendarComponent
 			default:
 				if ($propName != 'X-PROP') {
 					if (!isset($this->xprop[$propName])) return FALSE;
-					return ($inclParam) ? array($propName, $this->xprop[$propName])
-						: array($propName, $this->xprop[$propName]['value']);
+					return ($inclParam) ? [$propName, $this->xprop[$propName]]
+						: [$propName, $this->xprop[$propName]['value']];
 				} else {
 					if (empty($this->xprop)) return FALSE;
 					$xpropno = 0;
 					foreach ($this->xprop as $xpropkey => $xpropvalue) {
 						if ($propix == $xpropno)
-							return ($inclParam) ? array($xpropkey, $this->xprop[$xpropkey])
-								: array($xpropkey, $this->xprop[$xpropkey]['value']);
+							return ($inclParam) ? [$xpropkey, $this->xprop[$xpropkey]]
+								: [$xpropkey, $this->xprop[$xpropkey]['value']];
 						else
 							$xpropno++;
 					}
@@ -6474,7 +6474,7 @@ class calendarComponent
 	function parse($unparsedtext = null)
 	{
 		if ($unparsedtext) {
-			$this->unparsed = array();
+			$this->unparsed = [];
 			if (is_array($unparsedtext)) {
 				$comp = &$this;
 				foreach ($unparsedtext as $line) {
@@ -6489,20 +6489,20 @@ class calendarComponent
 						$comp->unparsed[] = $line;
 				}
 			} else
-				$this->unparsed = array(trim($unparsedtext));
+				$this->unparsed = [trim($unparsedtext)];
 		} elseif (!isset($this->unparsed))
-			$this->unparsed = array();
+			$this->unparsed = [];
 		/* concatenate property values spread over several lines */
 		$lastix = -1;
-		$propnames = array('action', 'attach', 'attendee', 'categories', 'comment', 'completed'
+		$propnames = ['action', 'attach', 'attendee', 'categories', 'comment', 'completed'
 		, 'contact', 'class', 'created', 'description', 'dtend', 'dtstart'
 		, 'dtstamp', 'due', 'duration', 'exdate', 'exrule', 'freebusy', 'geo'
 		, 'last-modified', 'location', 'organizer', 'percent-complete'
 		, 'priority', 'rdate', 'recurrence-id', 'related-to', 'repeat'
 		, 'request-status', 'resources', 'rrule', 'sequence', 'status'
 		, 'summary', 'transp', 'trigger', 'tzid', 'tzname', 'tzoffsetfrom'
-		, 'tzoffsetto', 'tzurl', 'uid', 'url', 'x-');
-		$proprows = array();
+		, 'tzoffsetto', 'tzurl', 'uid', 'url', 'x-'];
+		$proprows = [];
 		foreach ($this->unparsed as $line) {
 			$newProp = FALSE;
 			foreach ($propnames as $propname) {
@@ -6533,7 +6533,7 @@ class calendarComponent
 			/* get propname, (problem with x-properties, otherwise in previous loop) */
 			$cix = $propname = null;
 			for ($cix = 0; $cix < strlen($line); $cix++) {
-				if (in_array($line{$cix}, array(':', ';')))
+				if (in_array($line{$cix}, [':', ';']))
 					break;
 				else {
 					$propname .= $line{$cix};
@@ -6546,7 +6546,7 @@ class calendarComponent
 			/* rest of the line is opt.params and value */
 			$line = substr($line, $cix);
 			/* separate attributes from value */
-			$attr = array();
+			$attr = [];
 			$attrix = -1;
 			$strlen = strlen($line);
 			for ($cix = 0; $cix < $strlen; $cix++) {
@@ -6574,7 +6574,7 @@ class calendarComponent
 					$attr[$attrix] .= $line{$cix};
 			}
 			/* make attributes in array format */
-			$propattr = array();
+			$propattr = [];
 			foreach ($attr as $attribute) {
 				$attrsplit = explode('=', $attribute, 2);
 				if (1 < count($attrsplit))
@@ -6672,7 +6672,7 @@ class calendarComponent
 				case 'EXRULE':
 				case 'RRULE':
 					$values = explode(';', $line);
-					$recur = array();
+					$recur = [];
 					foreach ($values as $value2) {
 						if (empty($value2))
 							continue; // ;-char in ending position ???
@@ -6684,7 +6684,7 @@ class calendarComponent
 								$value4 = explode(',', $value3[1]);
 								if (1 < count($value4)) {
 									foreach ($value4 as $v5ix => $value5) {
-										$value6 = array();
+										$value6 = [];
 										$dayno = $dayname = null;
 										$value5 = trim((string)$value5);
 										if ((ctype_alpha(substr($value5, -1))) &&
@@ -6700,7 +6700,7 @@ class calendarComponent
 										$value4[$v5ix] = $value6;
 									}
 								} else {
-									$value4 = array();
+									$value4 = [];
 									$dayno = $dayname = null;
 									$value5 = trim((string)$value3[1]);
 									if ((ctype_alpha(substr($value5, -1))) &&
@@ -6887,7 +6887,7 @@ class calendarComponent
 		$component->setConfig('nl', $this->getConfig('nl'));
 		$component->setConfig('unique_id', $this->getConfig('unique_id'));
 		$component->setConfig('format', $this->getConfig('format'));
-		if (!in_array($component->objName, array('valarm', 'vtimezone', 'standard', 'daylight'))) {
+		if (!in_array($component->objName, ['valarm', 'vtimezone', 'standard', 'daylight'])) {
 			unset($component->propix);
 			/* make sure dtstamp and uid is set */
 			$dummy = $component->getProperty('dtstamp');
@@ -7014,7 +7014,7 @@ class calendarComponent
 					$pos = strpos($string, "\\", $pos);
 					if (FALSE === $pos)
 						break;
-					if (!in_array($string{($pos + 1)}, array('n', 'N', 'r', ',', ';'))) {
+					if (!in_array($string{($pos + 1)}, ['n', 'N', 'r', ',', ';'])) {
 						$string = substr($string, 0, $pos) . "\\" . substr($string, ($pos + 1));
 						$pos += 1;
 					}
@@ -7143,7 +7143,7 @@ class vevent extends calendarComponent
 		$this->url = '';
 		$this->xprop = '';
 
-		$this->components = array();
+		$this->components = [];
 
 	}
 
@@ -7289,7 +7289,7 @@ class vtodo extends calendarComponent
 		$this->url = '';
 		$this->xprop = '';
 
-		$this->components = array();
+		$this->components = [];
 	}
 
 	/**
@@ -7671,7 +7671,7 @@ class vtimezone extends calendarComponent
 		$this->tzurl = '';
 		$this->xprop = '';
 
-		$this->components = array();
+		$this->components = [];
 	}
 
 	/**

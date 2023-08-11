@@ -35,20 +35,20 @@ class LogEntry
 		$floating = substr($this->time - floor($this->time), 2);    // cut 0 from 0.1
 		$floating = substr($floating, 0, 4);
 		$sData = $this->shorten($this->data);
-		return implode("\t", array(
+		return implode("\t", [
 				date('H:i:s', $this->time) . '.' . $floating,
 				$this->action,
 				$this->data ? $sData : NULL
-			)) . BR;
+			]) . BR;
 	}
 
 	static function getLogFrom(array $log)
 	{
-		return array(
+		return [
 			'<div class="debug" style="font-family: monospace">',
 			$log,
 			'</div>',
-		);
+		];
 	}
 
 	/**

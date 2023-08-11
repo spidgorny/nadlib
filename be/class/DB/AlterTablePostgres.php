@@ -5,7 +5,7 @@ class AlterTablePostgres extends AlterTableHandler implements AlterTableInterfac
 
 	function getCreateQuery($table, array $columns)
 	{
-		$set = array();
+		$set = [];
 		foreach ($columns as $col) {
 			$set[] = $col['name'] . ' ' . $col['type'] . ' ' . ($col['notnull'] ? 'NOT NULL' : 'NULL');
 		}

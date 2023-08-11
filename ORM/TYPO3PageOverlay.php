@@ -56,10 +56,10 @@ class TYPO3PageOverlay extends OODBase
 	{
 		// retrieve once for each colPos
 		if (!$this->content || $this->colPos != $colPos) {
-			$this->content = new TYPO3ContentCollection($this->data['pid'], array(
+			$this->content = new TYPO3ContentCollection($this->data['pid'], [
 				'colPos' => $colPos,
 				'sys_language_uid' => Config::getInstance()->langID,
-			));
+			]);
 			$this->content->objectify();
 			/* @var TYPO3Content */
 			$this->colPos = $colPos;

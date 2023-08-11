@@ -6,7 +6,7 @@ class ListFilesIn extends ArrayObject
 	function __construct($folder)
 	{
 		//parent::__construct();
-		$menu = array();
+		$menu = [];
 		if (file_exists($folder)) {
 			$iterator = new RecursiveDirectoryIterator($folder, FilesystemIterator::SKIP_DOTS);
 			//$iterator = new RecursiveIteratorIterator($iterator);

@@ -16,14 +16,14 @@ class DeferAction extends OODBase
 
 	function put(Time $time, $object, array $constructor, $action, array $params)
 	{
-		$insert = array(
+		$insert = [
 			'queue' => $this->queue,
 			'time' => new SQLDateTime($time),
 			'object' => $object,
 			'constructor' => json_encode($constructor),
 			'action' => $action,
 			'params' => json_encode($params),
-		);
+		];
 		//debug($time, $insert);
 		return $this->insert($insert);
 	}
@@ -40,9 +40,9 @@ class DeferAction extends OODBase
 			include_once(dirname(__FILE__) . '/../../../ext/' . $task['object'] . '/class.' . $task['object'] . '.php');
 			$klass = new ReflectionClass($task['object']);
 			$thing = $klass->newInstanceArgs(json_decode($task['constructor'], true));
-			$content = call_user_func_array(array($thing, $task['action']), json_decode($task['params'], true));
+			$content = call_user_func_array([$thing, $task['action']], json_decode($task['params'], true));
 
-			$this->update(array('done' => true));
+			$this->update(['done' => true]);
 		}
 		$this->db->commit();
 		return $content;
@@ -50,10 +50,10 @@ class DeferAction extends OODBase
 
 	function fetchTasks()
 	{
-		return $this->db->fetchSelectQuery($this->table, array(
+		return $this->db->fetchSelectQuery($this->table, [
 			'time' => new AsIs('< NOW()', true),
 			'done' => false,
-		), 'LIMIT 1');
+		], 'LIMIT 1');
 	}
 
 }

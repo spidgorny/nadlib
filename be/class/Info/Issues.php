@@ -23,20 +23,20 @@ class Issues extends AppControllerBE
 			//$ug->curlParams[CURL_CA_BUNDLE] = 'C:\Users\DEPIDSVY\NetBeansProjects\vdrive\.sys\php\cacert.pem';
 			//$ug->fetch();
 			//debug(getenv('http_proxy'));
-			$ug->context = array(
-				'http' => array(
+			$ug->context = [
+				'http' => [
 					'proxy' => str_replace('http://', 'tcp://', getenv('http_proxy')),
 					'request_fulluri' => true,
-				),
-				'https' => array(
+				],
+				'https' => [
 					'proxy' => str_replace('http://', 'tcp://',
 						getenv('https_proxy') ?: getenv('http_proxy')),
-				),
-				'_ssl' => array(
+				],
+				'_ssl' => [
 					'verify_peer' => false,
 					'allow_self_signed' => true,
-				),
-			);
+				],
+			];
 			$ug->fetchFOpen();
 			$json = $ug->getContent();
 			$content[] = $json;

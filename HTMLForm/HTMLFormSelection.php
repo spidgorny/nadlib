@@ -21,12 +21,12 @@ class HTMLFormSelection extends HTMLFormType
 	/**
 	 * @var array
 	 */
-	var $more = array();
+	var $more = [];
 
 	/**
 	 * @var HTMLFormField
 	 */
-	var $desc = array();
+	var $desc = [];
 
 	function __construct($fieldName, array $options = NULL, $selected = NULL)
 	{
@@ -54,13 +54,13 @@ class HTMLFormSelection extends HTMLFormType
 
 		$more = $this->more;
 		$more += (isset($this->desc['size'])
-			? array('size' => $this->desc['size']) : array());
+			? ['size' => $this->desc['size']] : []);
 		$more += (isset($this->desc['id'])
-			? array('id' => $this->desc['id']) : array());
+			? ['id' => $this->desc['id']] : []);
 
 		//debug($this->desc); exit();
 		$more += $this->desc->isObligatory()
-			? array('required' => true) : array();
+			? ['required' => true] : [];
 		if (isset($this->desc['more'])) {
 			$more += is_array($this->desc['more'])
 				? $this->desc['more']
@@ -87,7 +87,7 @@ class HTMLFormSelection extends HTMLFormType
 	 *      boolean 'useTitle'
 	 * @return string
 	 */
-	function getSelectionOptions(array $aOptions, $default, array $desc = array())
+	function getSelectionOptions(array $aOptions, $default, array $desc = [])
 	{
 		$content = '';
 		//Debug::debug_args($aOptions);
@@ -153,7 +153,7 @@ class HTMLFormSelection extends HTMLFormType
 			$db = Config::getInstance()->getDB();
 			$options = $db->getTableOptions($desc['from'],
 				$desc['title'],
-				isset($desc['where']) ? $desc['where'] : array(),
+				isset($desc['where']) ? $desc['where'] : [],
 				isset($desc['order']) ? $desc['order'] : '',
 				isset($desc['idField']) ? $desc['idField'] : 'id',
 				ifsetor($desc['prefix'])
@@ -161,13 +161,13 @@ class HTMLFormSelection extends HTMLFormType
 			);
 			llog($desc['from'], $db->getLastQuery() . '', sizeof($options));
 		} else {
-			$options = array();
+			$options = [];
 		}
 		if (isset($desc['options'])) {
 			$options += $desc['options'];
 		}
 		if (isset($desc['null'])) {
-			$options = array(NULL => "---") + $options;
+			$options = [NULL => "---"] + $options;
 		}
 		//Debug::debug_args($options, $desc['options']);
 		return $options;

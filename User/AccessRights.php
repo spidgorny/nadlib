@@ -12,7 +12,7 @@ class AccessRights
 
 	public $groupID;
 
-	protected $arCache = array();
+	protected $arCache = [];
 
 	/**
 	 * @var DBInterface
@@ -39,7 +39,7 @@ class AccessRights
 			LEFT OUTER JOIN ' . $this->groupAccessTable . ' ON (
 				' . $this->accessTable . '.id = ' . $this->groupAccessTable . '.' . $this->id_useraccess . '
 				AND ' . $this->id_usergroup . ' = ' . $idGroup . ')',
-			array(), 'ORDER BY ' . $this->accessTable . '.name',
+			[], 'ORDER BY ' . $this->accessTable . '.name',
 			$this->accessTable . '.*, ' . $this->groupAccessTable . '.id as affirmative');
 		$data = $this->db->fetchAll($res);
 		//debug($data);

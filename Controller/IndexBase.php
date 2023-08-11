@@ -39,9 +39,9 @@ class IndexBase /*extends Controller*/
 	 */
 	protected static $instance;
 
-	public $header = array();
+	public $header = [];
 
-	public $footer = array();
+	public $footer = [];
 
 	public $loadJSfromGoogle = true;
 
@@ -55,15 +55,15 @@ class IndexBase /*extends Controller*/
 
 	public $keywords = '';
 
-	public $bodyClasses = array();
+	public $bodyClasses = [];
 
 	/**
 	 * @var Config
 	 */
 	var $config;
 
-	var $csp = array(
-		"default-src" => array(
+	var $csp = [
+		"default-src" => [
 			"'self'",
 			"'unsafe-inline'",
 			'http://maps.google.com/',
@@ -76,8 +76,8 @@ class IndexBase /*extends Controller*/
 			'http://mt1.googleapis.com/',
 			'http://maxcdn.bootstrapcdn.com/',
 			'http://ajax.googleapis.com/',
-		),
-		"img-src" => array(
+		],
+		"img-src" => [
 			"'self'",
 			'http://maps.google.com/',
 			'http://csi.gstatic.com/',
@@ -88,16 +88,16 @@ class IndexBase /*extends Controller*/
 			'http://mt1.googleapis.com/',
 			'http://whc.unesco.org/',
 			'data:',
-		),
-		"connect-src" => array(
+		],
+		"connect-src" => [
 			"'self'",
-		),
+		],
 		"script-src" => [
 			"'self'",
 			"'unsafe-inline'",
 			"'unsafe-eval'",
 		],
-	);
+	];
 
 	public function __construct()
 	{
@@ -376,11 +376,11 @@ class IndexBase /*extends Controller*/
 	function log($action, $data)
 	{
 		//debug($action, $bookingID);
-		/*$this->db->runInsertQuery('log', array(
+		/*$this->db->runInsertQuery('log', [
 			'who' => $this->user->id,
 			'action' => $action,
 			'booking' => $bookingID,
-		));*/
+		]);*/
 	}
 
 	function message($text)
@@ -420,7 +420,7 @@ class IndexBase /*extends Controller*/
 		} else {
 			$jQueryPath = 'jquery/jquery.min.js';
 			$al = AutoLoad::getInstance();
-			nodebug(array(
+			nodebug([
 				'jQueryPath' => $jQueryPath,
 				'appRoot' => $al->appRoot,
 				'componentsPath' => $al->componentsPath,
@@ -431,7 +431,7 @@ class IndexBase /*extends Controller*/
 				'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
 				'documentRoot' => $al->documentRoot,
 				'componentsPath.jQueryPath' => $al->componentsPath . $jQueryPath,
-			));
+			]);
 			if (file_exists($al->componentsPath . $jQueryPath)) {
 				//debug(__LINE__, $al->componentsPath, $al->componentsPath->getURL());
 				$this->addJS($al->componentsPath->getURL() . $jQueryPath, $defer);
@@ -465,7 +465,7 @@ class IndexBase /*extends Controller*/
 		//$jQueryPath->appendString('jquery-ui/ui/minified/jquery-ui.min.js');
 		$jQueryPath->appendString('jquery-ui/jquery-ui.min.js');
 		$jQueryPath->setAsFile();
-		nodebug(array(
+		nodebug([
 			'jQueryPath' => $jQueryPath,
 			'jQueryPath->exists()' => $jQueryPath->exists(),
 			'appRoot' => $al->appRoot,
@@ -477,7 +477,7 @@ class IndexBase /*extends Controller*/
 			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
 			'documentRoot' => $al->documentRoot,
 			'componentsPath.jQueryPath' => $al->componentsPath . $jQueryPath,
-		));
+		]);
 		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
 			if ($jQueryPath->exists()) {
 				$this->addJS($jQueryPath->relativeFromAppRoot()->getUncapped());
@@ -586,7 +586,7 @@ class IndexBase /*extends Controller*/
 		$content = '';
 		if (DEVELOPMENT &&
 			!$this->request->isAjax() &&
-			!in_array(get_class($this->controller), array('Lesser'))) {
+			!in_array(get_class($this->controller), ['Lesser'])) {
 			if (!$this->request->isCLI()) {
 				$ft = new FloatTime(true);
 				$content .= $ft->render();
@@ -610,7 +610,7 @@ class IndexBase /*extends Controller*/
 
 	function implodeCSS()
 	{
-		$content = array();
+		$content = [];
 		foreach ($this->header as $key => $script) {
 			$content[] = '<!--' . $key . '-->' . "\n" . $script;
 		}
@@ -620,7 +620,7 @@ class IndexBase /*extends Controller*/
 	function implodeJS()
 	{
 		if (!DEVELOPMENT && file_exists('vendor/minify/min/index.php')) {
-			$include = array(); // some files can't be found
+			$include = []; // some files can't be found
 			$files = array_keys($this->footer);
 			foreach ($files as $f => &$file) {
 				if (file_exists($file)) {

@@ -10,7 +10,7 @@ class MemcacheMemory extends Memcache
 	 */
 	function getKeys($limit = 10000)
 	{
-		$keysFound = array();
+		$keysFound = [];
 		$slabs = $this->getExtendedStats('slabs');
 		foreach ($slabs as $serverSlabs) {
 			if (is_array('slabs')) foreach ($serverSlabs as $slabId => $slabMeta) {

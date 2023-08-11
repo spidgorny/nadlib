@@ -18,15 +18,15 @@ class CompareAssoc
 
 	function render()
 	{
-		$table = array();
+		$table = [];
 		foreach ($this->keys as $key) {
-			$table[] = array(
+			$table[] = [
 				'key' => $key,
 				'assoc1' => $this->assoc1[$key],
 				'assoc2' => $this->assoc2[$key],
 				'same' => $this->assoc1[$key] == $this->assoc2[$key],
 				'identical' => $this->assoc1[$key] === $this->assoc2[$key],
-			);
+			];
 		}
 		return new slTable($table);
 	}

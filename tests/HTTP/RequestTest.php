@@ -54,7 +54,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 	function test_getOneOf()
 	{
 		$this->r->set('a', 'b');
-		$this->r->getOneOf('a', array('c'));
+		$this->r->getOneOf('a', ['c']);
 	}
 
 	function test_getInt()
@@ -77,20 +77,20 @@ class RequestTest extends PHPUnit_Framework_TestCase
 	function test_getIntIn()
 	{
 		$this->r->set('i', 10);
-		$this->assertEquals(10, $this->r->getIntIn('i', array(
+		$this->assertEquals(10, $this->r->getIntIn('i', [
 			9 => '',
 			10 => '',
 			11 => '',
-		)));
+		]));
 	}
 
 	function test_getIntIn0()
 	{
 		$this->r->set('i', 10);
-		$this->assertNull($this->r->getIntIn('i', array(
+		$this->assertNull($this->r->getIntIn('i', [
 			9 => '',
 			11 => '',
-		)));
+		]));
 	}
 
 }

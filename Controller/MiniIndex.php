@@ -18,8 +18,8 @@ class MiniIndex extends AppController
 	 */
 	protected static $instance;
 
-	public $header = array();
-	public $footer = array();
+	public $header = [];
+	public $footer = [];
 
 	public $layout;
 

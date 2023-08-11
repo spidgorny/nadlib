@@ -16,7 +16,7 @@ class DocCommentParser
 	 * An array of tag names and their values (multiple values are possible)
 	 * @var array
 	 */
-	protected $tags = array();
+	protected $tags = [];
 
 	function __construct($text = NULL)
 	{
@@ -35,7 +35,7 @@ class DocCommentParser
 	{
 		$docComment = $docComment ?: $this->text;
 		$this->description = '';
-		$this->tags = array();
+		$this->tags = [];
 		$lines = explode(chr(10), $docComment);
 		foreach ($lines as $line) {
 			$line = trim($line);
@@ -61,7 +61,7 @@ class DocCommentParser
 	 */
 	protected function parseTag($line)
 	{
-		$tagAndValue = array();
+		$tagAndValue = [];
 		if (preg_match('/@[A-Za-z0-9\\\\]+\\\\([A-Za-z0-9]+)(?:\\((.*)\\))?$/', $line, $tagAndValue) === 0) {
 			$tagAndValue = preg_split('/\s/', $line, 2);
 		} else {
@@ -71,7 +71,7 @@ class DocCommentParser
 		if (count($tagAndValue) > 1) {
 			$this->tags[$tag][] = trim($tagAndValue[1], ' "');
 		} else {
-			$this->tags[$tag] = array();
+			$this->tags[$tag] = [];
 		}
 		//debug($this->tags);
 	}

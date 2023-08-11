@@ -82,7 +82,7 @@ class Excel_XML
 	 * @access private
 	 * @var array
 	 */
-	private $lines = array();
+	private $lines = [];
 
 	/**
 	 * Worksheet title

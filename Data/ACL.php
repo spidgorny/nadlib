@@ -17,23 +17,23 @@ class ACL
 	/**
 	 * @var boolean[]
 	 */
-	var $andConditions = array();
+	var $andConditions = [];
 
 	/**
 	 * @var ReflectionParameter[]
 	 */
-	var $strConditions = array();
+	var $strConditions = [];
 
 	/**
 	 * @var array
 	 */
-	var $callStack = array();
+	var $callStack = [];
 
 	/**
 	 * Corresponding source code
 	 * @var array
 	 */
-	var $source = array();
+	var $source = [];
 
 	function __construct(array $params)
 	{
@@ -80,12 +80,12 @@ class ACL
 
 	function debug()
 	{
-		$table = array();
+		$table = [];
 		foreach ($this->andConditions as $i => $_) {
-			$table[] = array(
+			$table[] = [
 				'source' => $this->source[$i],
 				'value' => $this->andConditions[$i],
-			);
+			];
 		}
 		echo '<div style="background: #EEEEEE; border: solid 1px silver;">',
 		'<div style="background: silver;">', basename($this->callStack['file']),

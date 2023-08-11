@@ -54,7 +54,7 @@ class Syndicator
 	/**
 	 * @var array
 	 */
-	public $log = array();
+	public $log = [];
 
 	/**
 	 * @var callback to check that downloaded file is what is expected
@@ -214,13 +214,13 @@ class Syndicator
 	 */
 	function detect_cyr_charset($str)
 	{
-		$charsets = array(
+		$charsets = [
 			'koi8-r' => 0,
 			'Windows-1251' => 0,
 			'CP866' => 0,
 			'ISO-8859-5' => 0,
 			'MAC' => 0
-		);
+		];
 		for ($i = 0, $length = strlen($str); $i < $length; $i++) {
 			$char = ord($str[$i]);
 			//non-russian characters
@@ -303,7 +303,7 @@ class Syndicator
 		//debug(extension_loaded('tidy'));
 		if ($this->input == 'HTML') {
 			if (extension_loaded('tidy')) {
-				$config = array(
+				$config = [
 					'clean' => true,
 					'indent' => true,
 					'output-xhtml' => true,
@@ -315,17 +315,17 @@ class Syndicator
 					'input-encoding' => 'raw',
 					'output-encoding' => 'raw',
 
-				);
+				];
 				$tidy = new tidy;
 				$tidy->parseString($html, $config);
 				$tidy->cleanRepair();
 				//$out = tidy_get_output($tidy);
 				$out = $tidy->value;
 			} else {
-				$out = htmLawed($html, array(
+				$out = htmLawed($html, [
 					'valid_xhtml' => 1,
 					'tidy' => 1,
-				));
+				]);
 			}
 		} elseif ($this->input == 'XML') {
 			$out = $html;    // hope that XML is valid
@@ -440,7 +440,7 @@ class Syndicator
 	{
 		return preg_replace('/<script[^>]*?>.*?<\/script>/is', '', $text);
 		$text = preg_replace(
-			array(
+			[
 				// Remove invisible content
 				'@<head[^>]*?>.*?</head>@siu',
 				'@<style[^>]*?>.*?</style>@siu',
@@ -459,12 +459,12 @@ class Syndicator
 				'@</?((form)|(button)|(fieldset)|(legend)|(input))@iu',
 				'@</?((label)|(select)|(optgroup)|(option)|(textarea))@iu',
 				'@</?((frameset)|(frame)|(iframe))@iu',
-			),
-			array(
+			],
+			[
 				' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
 				"\n\$0", "\n\$0", "\n\$0", "\n\$0", "\n\$0", "\n\$0",
 				"\n\$0", "\n\$0",
-			),
+			],
 			$text);
 		return /*strip_tags*/ ($text);
 	}

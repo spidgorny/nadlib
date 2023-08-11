@@ -65,7 +65,7 @@ if (!function_exists('debug')) {
 			$levels = ifsetor($params[2]);
 			$params[1] = $levels;
 		}
-		$content .= call_user_func_array(array($dh, 'view_array'), $params);
+		$content .= call_user_func_array([$dh, 'view_array'], $params);
 		return $content;
 	}
 
@@ -101,7 +101,7 @@ if (!function_exists('debug')) {
 	{
 		static $used = NULL;
 		if (is_null($used)) {
-			$used = array();
+			$used = [];
 		}
 		$trace = debug_backtrace();
 		array_shift($trace); // debug_once itself
@@ -124,7 +124,7 @@ if (!function_exists('debug')) {
 			$vals = $a;
 			$keys = array_keys($a);
 		}
-		$assoc = array();
+		$assoc = [];
 		foreach ($keys as $key) {
 			if ($vals[$key] instanceof SimpleXMLElement) {
 				$vals[$key] = $vals[$key]->asXML();
@@ -172,7 +172,7 @@ if (!function_exists('debug')) {
 	 */
 	function error2string($value)
 	{
-		$level_names = array(
+		$level_names = [
 			E_ERROR => 'E_ERROR',
 			E_WARNING => 'E_WARNING',
 			E_PARSE => 'E_PARSE',
@@ -183,11 +183,11 @@ if (!function_exists('debug')) {
 			E_COMPILE_WARNING => 'E_COMPILE_WARNING',
 			E_USER_ERROR => 'E_USER_ERROR',
 			E_USER_WARNING => 'E_USER_WARNING',
-			E_USER_NOTICE => 'E_USER_NOTICE');
+			E_USER_NOTICE => 'E_USER_NOTICE'];
 		if (defined('E_STRICT')) {
 			$level_names[E_STRICT] = 'E_STRICT';
 		}
-		$levels = array();
+		$levels = [];
 		if (($value & E_ALL) == E_ALL) {
 			$levels[] = 'E_ALL';
 			$value &= ~E_ALL;
@@ -217,9 +217,9 @@ if (!function_exists('debug')) {
 					require_once __DIR__ . '/HTML/Color.php';
 					$color = new Color('#' . $hash);
 					$complement = $color->getComplement();
-					$hash = new HTMLTag('span', array(
+					$hash = new HTMLTag('span', [
 						'style' => 'background: ' . $color . '; color: ' . $complement,
-					), $hash);
+					], $hash);
 				}
 				$type = get_class($something) . '#' . $hash;
 			} else {
@@ -242,7 +242,7 @@ if (!function_exists('debug')) {
 	function gettypes($something)
 	{
 		if (is_array($something)) {
-			$types = array();
+			$types = [];
 			foreach ($something as $key => $element) {
 				$types[$key] = strip_tags(gettype2($element));
 			}

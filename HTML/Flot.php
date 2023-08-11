@@ -6,7 +6,7 @@
 class Flot extends AppController
 {
 
-	public $colors = array(
+	public $colors = [
 		'#edc240',
 		'#afd8f8',
 		'#cb4b4b',
@@ -16,7 +16,7 @@ class Flot extends AppController
 		"#9440ed",
 		"#40ed94",
 		'#4da74d',
-	);
+	];
 
 	/**
 	 * Raw data single table
@@ -35,9 +35,9 @@ class Flot extends AppController
 	/**
 	 * @var array - these are line charts, multiple series as well
 	 */
-	public $cumulative = array();
+	public $cumulative = [];
 
-	public $movingAverage = array();
+	public $movingAverage = [];
 
 	public $min = 0;
 
@@ -61,17 +61,17 @@ class Flot extends AppController
 	 */
 	var $flotPath = 'components/flot/flot/';
 
-	var $jsConfig = array(
-		'xaxis' => array(
+	var $jsConfig = [
+		'xaxis' => [
 			'mode' => "time"
-		),
-		'yaxes' => array(
-			array(),
-			array(
+		],
+		'yaxes' => [
+			[],
+			[
 				'position' => "right"
-			)
-		),
-	);
+			]
+		],
+	];
 
 	public $MALength = 20;
 
@@ -113,14 +113,14 @@ class Flot extends AppController
 	{
 		$this->jsConfig['colors'] = $this->colors;
 
-		$this->jsConfig['yaxes'][0] = array(
+		$this->jsConfig['yaxes'][0] = [
 			'min' => $this->min,
 			'max' => $this->max,
-		);
-		$this->jsConfig['yaxes'][1] += array(
+		];
+		$this->jsConfig['yaxes'][1] += [
 			'min' => $this->cMin,
 			'max' => $this->cMax,
-		);
+		];
 	}
 
 	/**
@@ -157,12 +157,12 @@ class Flot extends AppController
 	function appendCumulative(array $data)
 	{
 		//debug($this->cumulative, $data);
-		$cumulative2 = array();
+		$cumulative2 = [];
 		foreach ($this->cumulative as $series) {
 			$cumulative2 = array_merge($cumulative2, $series);
 		}
 		$cumulative = array_values($cumulative2);
-		$dataClass = array();
+		$dataClass = [];
 		foreach ($data as $i => &$row) {
 			$color = $this->colors[$row[$this->keyKey] - 1];
 			$dataClass[$i] = '" style="background: white; color: ' . $color;
@@ -191,7 +191,7 @@ class Flot extends AppController
 	function getMovingAverage(array $charts)
 	{
 		foreach ($charts as $s => &$series) {
-			$res = array();
+			$res = [];
 			foreach ($series as $pair) {
 				$res[$pair[0]] = $pair[1];
 			}
@@ -206,7 +206,7 @@ class Flot extends AppController
 			}
 
 			foreach ($res as $key => &$val) {
-				$val = array($key, $val);
+				$val = [$key, $val];
 			}
 			$series = $res;
 		}
@@ -226,16 +226,16 @@ class Flot extends AppController
 	 */
 	function getChartTable(array $rows)
 	{
-		$chart = array();
+		$chart = [];
 		foreach ($rows as $i => $row) {
 			$key = $this->keyKey ? $row[$this->keyKey] : 'one';
 			$timeMaybe = $row[$this->timeKey];
 			if ($timeMaybe) {
 				$time = is_string($timeMaybe) ? strtotime($timeMaybe) : $timeMaybe;
 				if ($time != -1 && $time > 100) {
-					$chart[$key][$time] = array($time * 1000, $row[$this->amountKey]);
+					$chart[$key][$time] = [$time * 1000, $row[$this->amountKey]];
 				} else {
-					$chart[$key][$time] = array($timeMaybe, $row[$this->amountKey]);
+					$chart[$key][$time] = [$timeMaybe, $row[$this->amountKey]];
 				}
 			} else {
 				unset($rows[$i]);
@@ -270,7 +270,7 @@ class Flot extends AppController
 		return $max;
 	}
 
-	function showChart($divID, array $charts, array $cumulative = array())
+	function showChart($divID, array $charts, array $cumulative = [])
 	{
 		if (!$charts) return '';
 		$this->index->addJQuery();
@@ -289,12 +289,12 @@ class Flot extends AppController
 			height: ' . $this->height . ';
 			border: none 0px silver;"></div>';
 
-		$dKeys = array();
+		$dKeys = [];
 		foreach ($charts as $key => &$rows) {
 			$jsKey = 'd_' . URL::friendlyURL($key);
 			$jsKey = str_replace('-', '_', $jsKey);
 			$dKeys[] = $jsKey;
-			$array = $rows ? array_values($rows) : array();
+			$array = $rows ? array_values($rows) : [];
 			$rows = 'var ' . $jsKey . ' = {
 				label: "' . $key . '",
 				data: ' . json_encode($array) . ',
@@ -307,12 +307,12 @@ class Flot extends AppController
 			};';
 		}
 
-		$cKeys = array();
+		$cKeys = [];
 		foreach ($cumulative as $key => &$rows) {
 			$jsKey = 'c_' . URL::friendlyURL($key);
 			$jsKey = str_replace('-', '_', $jsKey);
 			$cKeys[] = $jsKey;
-			$array = $rows ? array_values($rows) : array();
+			$array = $rows ? array_values($rows) : [];
 			$rows = 'var ' . $jsKey . ' = {
 				data: ' . json_encode($array) . ',
 				lines: {

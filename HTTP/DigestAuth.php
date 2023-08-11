@@ -3,7 +3,7 @@
 class DigestAuth
 {
 	protected $realm;
-	public $userAssoc = array();
+	public $userAssoc = [];
 	public $username;
 
 	function __construct($realm)
@@ -60,15 +60,15 @@ class DigestAuth
 	function http_digest_parse($txt)
 	{
 		// protect against missing data
-		$needed_parts = array(
+		$needed_parts = [
 			'nonce' => 1,
 			'nc' => 1,
 			'cnonce' => 1,
 			'qop' => 1,
 			'username' => 1,
 			'uri' => 1,
-			'response' => 1);
-		$data = array();
+			'response' => 1];
+		$data = [];
 		$keys = implode('|', array_keys($needed_parts));
 
 		preg_match_all('@(' . $keys . ')=(?:([\'"])([^\2]+?)\2|([^\s,]+))@', $txt, $matches, PREG_SET_ORDER);

@@ -10,7 +10,7 @@ class BEUser extends UserBase
 	 * Loaded from config.json
 	 * @var array
 	 */
-	public $acl = array();
+	public $acl = [];
 
 	function __construct($id = NULL)
 	{

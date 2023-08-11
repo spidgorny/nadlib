@@ -344,7 +344,7 @@ class slTable
 
 	function generateThead()
 	{
-		$thes = $this->thes; //array_filter($this->thes, array($this, "noid"));
+		$thes = $this->thes; //array_filter($this->thes, [$this, "noid"]);
 		foreach ($thes as $key => $k) {
 			if (is_array($k) && isset($k['!show']) && $k['!show']) {
 				unset($thes[$key]);

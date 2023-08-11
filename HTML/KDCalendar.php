@@ -37,11 +37,11 @@ class KDCalendar
 	 * @param string $titleLinkMore
 	 * @param null $weekNrLink <a href="bla">|</a>
 	 */
-	function __construct($year, $month, $days = array(),
+	function __construct($year, $month, array $days = [],
 											 $day_name_length = 3,
 											 $month_href = NULL,
 											 $first_day = 0,
-											 $pn = array(),
+											 $pn = [],
 											 $callback = NULL,
 											 $titleLinkMore = '',
 											 $weekNrLink = NULL)
@@ -66,7 +66,7 @@ class KDCalendar
 		# for instance, mktime(0,0,0,12,32,1997) will be the date for Jan 1, 1998
 		# this provides a built in "rounding" feature to generate_calendar()
 
-		$day_names = array(); #generate all the day names according to the current locale
+		$day_names = []; #generate all the day names according to the current locale
 		for ($n = 0, $t = (3 + $this->first_day) * 86400; $n < 7; $n++, $t += 86400) { #January 4, 1970 was a Sunday
 			$day_names[$n] = ucfirst(gmstrftime('%A', $t)); #%A means full textual day name
 		}

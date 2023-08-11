@@ -9,7 +9,7 @@ class Selectable
 	 * Assoc [14 => 'Koopa']
 	 * @var array
 	 */
-	public $options = array();
+	public $options = [];
 
 	/**
 	 * @var int
@@ -76,10 +76,10 @@ class Selectable
 		$nameless = $request->getURLLevel(0);
 		//debug($nameless);
 		if (!$nameless) {
-			if (in_array($request->getControllerString(), array(
+			if (in_array($request->getControllerString(), [
 				'RoomView',
 				'EditRoomDescription',
-			))) {
+			])) {
 				$f->hidden('c', 'RoomView');
 			} else {
 				$f->hidden('c', $request->getControllerString());

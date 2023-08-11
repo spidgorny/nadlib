@@ -32,12 +32,12 @@ class Mailer
 	 * From => From: somebody
 	 * @var array
 	 */
-	var $headers = array();
+	var $headers = [];
 
 	/**
 	 * @var array
 	 */
-	var $params = array();
+	var $params = [];
 
 	function __construct($to, $subject, $bodytext)
 	{
@@ -136,7 +136,7 @@ class Mailer
 
 	function debug()
 	{
-		$assoc = array();
+		$assoc = [];
 		$assoc['to'] = $this->to;
 		$assoc['subject'] = $this->getSubject();
 		$assoc['bodytext'] = $this->getBodyText();
@@ -161,7 +161,7 @@ class Mailer
 	 */
 	public function sendSwiftMailerEmail(
 		array $to, array $cc = null, array $bcc = null,
-		array $attachments = array(), array $additionalSenders = array())
+		array $attachments = [], array $additionalSenders = [])
 	{
 		if (!class_exists('Swift_Mailer')) {
 			throw new Exception('SwiftMailer not installed!');
@@ -236,7 +236,7 @@ class Mailer
 
 		$transport = Swift_SendmailTransport::newInstance();
 		$mailer = Swift_Mailer::newInstance($transport);
-		$failedRecipients = array();
+		$failedRecipients = [];
 
 		$sent = $mailer->send($message, $failedRecipients);
 

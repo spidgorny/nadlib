@@ -2,12 +2,12 @@
 
 class LanguageDetect
 {
-	public $languages = array();
+	public $languages = [];
 
 	function __construct()
 	{
 		if (isset($_COOKIE['lang']) && $_COOKIE['lang']) {
-			$this->languages = array($_COOKIE['lang'] => $_COOKIE['lang']);
+			$this->languages = [$_COOKIE['lang'] => $_COOKIE['lang']];
 		}
 		$this->languages = array_merge($this->languages, $this->getAcceptedLanguages());
 		$this->languages = array_unique($this->languages);
@@ -16,11 +16,11 @@ class LanguageDetect
 
 	function getAcceptedLanguages()
 	{
-		$languagesArr = array();
+		$languagesArr = [];
 		$rawAcceptedLanguagesArr = explode(',', isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : NULL);
 
 		if ($rawAcceptedLanguagesArr) {
-			$acceptedLanguagesArr = array();
+			$acceptedLanguagesArr = [];
 			foreach ($rawAcceptedLanguagesArr as $languageAndQualityStr) {
 				if (strpos($languageAndQualityStr, ';') !== false) {
 					list ($languageCode, $quality) = explode(';', $languageAndQualityStr);

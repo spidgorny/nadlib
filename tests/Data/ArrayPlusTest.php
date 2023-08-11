@@ -10,40 +10,40 @@ class ArrayPlusTest extends IteratorArrayAccessTest
 
 	function setUp()
 	{
-		$this->ai = new ArrayPlus(array(
+		$this->ai = new ArrayPlus([
 			0 => 'a',
 			1 => 'b',
 			'slawa' => 'test',
-		));
+		]);
 	}
 
 	function test_typoscript()
 	{
-		$a = array(
+		$a = [
 			'a' => 'b',
-			'c' => array(
+			'c' => [
 				'd' => 'e',
-				'f' => array(
+				'f' => [
 					'g' => 'h',
-				),
-			),
-		);
+				],
+			],
+		];
 		$b = ArrayPlus::create($a)->typoscript();
 		//debug($b);
-		$this->assertEquals(array(
+		$this->assertEquals([
 			'a' => 'b',
 			'c.d' => 'e',
 			'c.f.g' => 'h',
-		), $b);
+		], $b);
 	}
 
 	function test_unset()
 	{
 		unset($this->ai[1]);
-		$this->assertEquals(array(
+		$this->assertEquals([
 			0 => 'a',
 			'slawa' => 'test'
-		), $this->ai->getData());
+		], $this->ai->getData());
 	}
 
 	function test_addColumn()

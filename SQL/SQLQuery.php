@@ -25,7 +25,7 @@ class SQLQuery extends PHPSQLParser
 	{
 		$psc = new PHPSQLParser\PHPSQLCreator($this->parsed);
 		$query = $psc->created . '';
-		$query = str_replace(array(
+		$query = str_replace([
 			'SELECT',
 			'FROM',
 			'WHERE',
@@ -33,7 +33,7 @@ class SQLQuery extends PHPSQLParser
 			'HAVING',
 			'ORDER',
 			'LIMIT',
-		), array(
+		], [
 			"SELECT",
 			"\nFROM",
 			"\nWHERE",
@@ -41,18 +41,18 @@ class SQLQuery extends PHPSQLParser
 			"\nHAVING",
 			"\nORDER",
 			"\nLIMIT",
-		), $query);
+		], $query);
 		return $query;
 	}
 
 	public function appendCalcRows()
 	{
 		//debug($sql->parsed['SELECT']);
-		array_unshift($this->parsed['SELECT'], array(
+		array_unshift($this->parsed['SELECT'], [
 			'expr_type' => 'reserved',
 			'base_expr' => 'SQL_CALC_FOUND_ROWS',
 			'delim' => ' ',
-		));
+		]);
 		//debug($sql->parsed);
 		if ($this->parsed['ORDER'] && $this->parsed['ORDER'][0]['base_expr'] != 'FIELD') {
 			$this->parsed['ORDER'][0]['expr_type'] = 'colref';

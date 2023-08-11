@@ -25,7 +25,7 @@ class AjaxTreeOld extends HTMLFormType
 		$GLOBALS['HTMLHEADER']['ajaxTreeOpen'] = '<script src="js/ajaxTreeOpen.js"></script>';
 		$GLOBALS['HTMLHEADER']['globalMouse'] = '<script src="js/globalMouse.js"></script>';
 		$GLOBALS['HTMLHEADER']['dragWindows'] = '<script src="js/dragWindows.js"></script>';
-		$this->stdout .= new HTMLTag('a', array(
+		$this->stdout .= new HTMLTag('a', [
 			'href' => '#',
 			'onclick' => 'ajaxTreeOpen(
 				\'' . $desc['selectID'] . '\',
@@ -40,7 +40,7 @@ class AjaxTreeOld extends HTMLFormType
 			);
 			' . $desc['onclickMore'] . '
 			return false;
-		'), '<img
+		'], '<img
 			src="img/tb_folder.gif"
 			title="' . $desc['ButtonTitle'] . '">', true);
 		$style = 'display: none;
@@ -57,7 +57,7 @@ class AjaxTreeOld extends HTMLFormType
 		/** @var Extension $controller */
 		$controller = Index::getInstance()->controller;
 		$this->stdout .= $controller->encloseOld('Tree-Element Selector', '',
-			array(
+			[
 				'outerStyle' => $style,
 				'foldable' => FALSE,
 				'outerID' => $desc['treeDivID'],
@@ -66,7 +66,7 @@ class AjaxTreeOld extends HTMLFormType
 				'absolute' => TRUE,
 				'paddedStyle' => 'height: 640px; overflow: auto;',
 				'titleMore' => 'onmousedown="dragStart(event, \'' . $desc['treeDivID'] . '\')" style="cursor: move;"',
-			));
+			]);
 		return $this->stdout;
 	}
 

@@ -5,7 +5,7 @@
  * Every time one needs to retrieve a record from a sub-table one can choose one of the ways below
  * Scenarios:
  * 1. Stupid. Run SELECT * FROM x WHERE id = <new id>. PHP 3.
- *      $projectRow = $this->db->fetchOneSelectQuery('project', array('id' => x));
+ *      $projectRow = $this->db->fetchOneSelectQuery('project', ['id' => x]);
  * 2. Pre-loading. Too greedy. Run SELECT * FROM x into the indexed array. PHP 4.
  *        $this->projects = $GLOBALS['db']->rqfaid('project');
  * 3. Retrieve with invisible caching. This class.
@@ -29,7 +29,7 @@ class LazyFetchAssoc implements ArrayAccess
 	 * cache
 	 * @var array
 	 */
-	protected $data = array();
+	protected $data = [];
 
 	public $idField = 'id';
 
@@ -65,7 +65,7 @@ class LazyFetchAssoc implements ArrayAccess
 
 	protected function fetch($id)
 	{
-		$row = $this->db->fetchSelectQuery($this->table, array($this->idField => $id));
+		$row = $this->db->fetchSelectQuery($this->table, [$this->idField => $id]);
 		return $row;
 	}
 

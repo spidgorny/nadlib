@@ -3,7 +3,7 @@
 class SearchPlaceholder extends AppController
 {
 
-	var $ajaxLinks = array(
+	var $ajaxLinks = [
 		'?c=SearchPlaceholder&action=sleep&time=1',
 		'?c=SearchPlaceholder&action=sleep&time=2',
 		'?c=SearchPlaceholder&action=sleep&time=3',
@@ -14,7 +14,7 @@ class SearchPlaceholder extends AppController
 		'?c=SearchPlaceholder&action=sleep&time=8',
 		'?c=SearchPlaceholder&action=sleep&time=9',
 		'?c=SearchPlaceholder&action=sleep&time=10',
-	);
+	];
 
 	function render()
 	{

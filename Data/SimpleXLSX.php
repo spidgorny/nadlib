@@ -17,7 +17,7 @@
 
 	Example 4.1:
 	$xlsx = new SimpleXLSX('book.xlsx');
-	print_r( $xlsx->sheetNames() ); // array( 1 => 'Sheet 1', 3 => 'Catalog' );
+	print_r( $xlsx->sheetNames() ); // [ 1 => 'Sheet 1', 3 => 'Catalog' ];
 	
 	Example 4.2:
 	$xlsx = new SimpleXLSX('book.xlsx');	
@@ -42,7 +42,7 @@
 	v0.6.4 (2013-03-13) rowsEx(), _parse(): fixed date column type & format detection
 	v0.6.3 (2013-03-13) rowsEx(): fixed formulas, added date type 'd', added format 'format'
 						dimension(): fixed empty sheet dimension
-	                    + sheetNames() - returns array( sheet_id => sheet_name, sheet_id2 => sheet_name2 ...)
+	                    + sheetNames() - returns [ sheet_id => sheet_name, sheet_id2 => sheet_name2 ...]
 	v0.6.2 (2012-10-04) fixed empty cells, rowsEx() returns type and formulas now
 	v0.6.1 (2012-09-14) removed "raise exception" and fixed _unzip
 	v0.6 (2012-09-13) success(), error(), __constructor( $filename, $is_data = false )
@@ -59,13 +59,13 @@ class SimpleXLSX
 	private $sheets;
 	private $styles;
 	private $hyperlinks;
-	private $package = array(
+	private $package = [
 		'filename' => '',
 		'mtime' => 0,
 		'size' => 0,
 		'comment' => '',
-		'entries' => array()
-	);
+		'entries' => []
+	];
 	private $sharedstrings;
 	private $error = false;
 	private $debug = false;
@@ -75,8 +75,8 @@ class SimpleXLSX
 	const SCHEMA_REL_WORKSHEET = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet';
 	const SCHEMA_REL_STYLES = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles';
 
-	private $workbook_cell_formats = array();
-	private $built_in_cell_formats = array(
+	private $workbook_cell_formats = [];
+	private $built_in_cell_formats = [
 		0 => 'General',
 		1 => '0',
 		2 => '0.00',
@@ -123,7 +123,7 @@ class SimpleXLSX
 		68 => 't0.00%',
 		69 => 't# ?/?',
 		70 => 't# ??/??',
-	);
+	];
 
 	function __construct($filename, $is_data = false, $debug = false)
 	{
@@ -157,7 +157,7 @@ class SimpleXLSX
 	function sheetNames()
 	{
 
-		$result = array();
+		$result = [];
 
 		foreach ($this->workbook->sheets->sheet as $s) {
 
@@ -173,7 +173,7 @@ class SimpleXLSX
 			$ws = $this->sheets[$worksheet_id];
 
 			if (isset($ws->hyperlinks)) {
-				$this->hyperlinks = array();
+				$this->hyperlinks = [];
 				foreach ($ws->hyperlinks->hyperlink as $hyperlink) {
 					$this->hyperlinks[(string)$hyperlink['ref']] = (string)$hyperlink['display'];
 				}
@@ -197,14 +197,14 @@ class SimpleXLSX
 		if (strpos($ref, ':') !== false) {
 			$d = explode(':', $ref);
 			if (!isset($d[1]))
-				return array(0, 0);
+				return [0, 0];
 			$index = $this->_columnIndex($d[1]);
-			return array($index[0] + 1, $index[1] + 1);
+			return [$index[0] + 1, $index[1] + 1];
 		} else if (strlen($ref)) { // 0.6.8
 			$index = $this->_columnIndex($ref);
-			return array($index[0] + 1, $index[1] + 1);
+			return [$index[0] + 1, $index[1] + 1];
 		} else
-			return array(0, 0);
+			return [0, 0];
 
 	}
 
@@ -215,7 +215,7 @@ class SimpleXLSX
 		if (($ws = $this->worksheet($worksheet_id)) === false)
 			return false;
 
-		$rows = array();
+		$rows = [];
 		$curR = 0;
 
 		list($cols,) = $this->dimension($worksheet_id);
@@ -243,7 +243,7 @@ class SimpleXLSX
 		if (($ws = $this->worksheet($worksheet_id)) === false)
 			return false;
 
-		$rows = array();
+		$rows = [];
 		$curR = 0;
 		list($cols,) = $this->dimension($worksheet_id);
 
@@ -260,14 +260,14 @@ class SimpleXLSX
 				} else
 					$format = '';
 
-				$rows[$curR][$curC] = array(
+				$rows[$curR][$curC] = [
 					'type' => $t,
 					'name' => (string)$c['r'],
 					'value' => $this->value($c),
 					'href' => $this->href($c),
 					'f' => (string)$c->f,
 					'format' => $format
-				);
+				];
 			}
 			for ($i = 0; $i < $cols; $i++) {
 
@@ -277,7 +277,7 @@ class SimpleXLSX
 					for ($c = '', $j = $i; $j >= 0; $j = intval($j / 26) - 1)
 						$c = chr($j % 26 + 65) . $c;
 
-					$rows[$curR][$i] = array(
+					$rows[$curR][$i] = [
 						'type' => '',
 //						'name' => chr($i + 65).($curR+1),
 						'name' => $c . ($curR + 1),
@@ -285,7 +285,7 @@ class SimpleXLSX
 						'href' => '',
 						'f' => '',
 						'format' => ''
-					);
+					];
 				}
 			}
 
@@ -312,7 +312,7 @@ class SimpleXLSX
 			for ($i = $colLen - 1; $i >= 0; $i--)
 				$index += (ord($col{$i}) - 64) * pow(26, $colLen - $i - 1);
 
-			return array($index - 1, $row - 1);
+			return [$index - 1, $row - 1];
 		} else
 			throw new Exception("Invalid cell index.");
 	}
@@ -389,7 +389,7 @@ class SimpleXLSX
 	{
 
 		// Clear current file
-		$this->datasec = array();
+		$this->datasec = [];
 
 		if ($is_data) {
 
@@ -428,17 +428,17 @@ class SimpleXLSX
 			$this->error('Unknown format');
 			return false;
 		}
-		$aE = array(
+		$aE = [
 			0 => substr($vZ, 0, $pcd),
 			1 => substr($vZ, $pcd + 3)
-		);
+		];
 
 		// Normal way
 		$aP = unpack('x16/v1CL', $aE[1]);
 		$this->package['comment'] = substr($aE[1], 18, $aP['CL']);
 
 		// Translates end of line from other operating systems
-		$this->package['comment'] = strtr($this->package['comment'], array("\r\n" => "\n", "\r" => "\n"));
+		$this->package['comment'] = strtr($this->package['comment'], ["\r\n" => "\n", "\r" => "\n"]);
 
 		// Cut the entries from the central directory
 		$aE = explode("\x50\x4b\x01\x02", $vZ);
@@ -449,7 +449,7 @@ class SimpleXLSX
 
 		// Loop through the entries
 		foreach ($aE as $vZ) {
-			$aI = array();
+			$aI = [];
 			$aI['E'] = 0;
 			$aI['EM'] = '';
 			// Retrieving local file header information
@@ -554,14 +554,14 @@ class SimpleXLSX
 				(($aP['FD'] & 0xfe00) >> 9) + 1980);
 
 			//$this->Entries[] = &new SimpleUnzipEntry($aI);
-			$this->package['entries'][] = array(
+			$this->package['entries'][] = [
 				'data' => $aI['D'],
 				'error' => $aI['E'],
 				'error_msg' => $aI['EM'],
 				'name' => $aI['N'],
 				'path' => $aI['P'],
 				'time' => $aI['T']
-			);
+			];
 
 		} // end for each entries
 	}
@@ -629,9 +629,9 @@ class SimpleXLSX
 	function _parse()
 	{
 		// Document data holders
-		$this->sharedstrings = array();
-		$this->sheets = array();
-//		$this->styles = array();
+		$this->sharedstrings = [];
+		$this->sheets = [];
+//		$this->styles = [];
 
 		// Read relations and search for officeDocument
 		if ($relations = $this->getEntryXML("_rels/.rels")) {
@@ -682,7 +682,7 @@ class SimpleXLSX
 								} else if ($workbookRelation['Type'] == SimpleXLSX::SCHEMA_REL_STYLES) {
 									$this->styles = $this->getEntryXML($path);
 
-									$nf = array();
+									$nf = [];
 									if ($this->styles->numFmts->numFmt != NULL)
 										foreach ($this->styles->numFmts->numFmt as $v)
 											$nf[(int)$v['numFmtId']] = (string)$v['formatCode'];
@@ -715,7 +715,7 @@ class SimpleXLSX
 
 	private function _parseRichText($is = null)
 	{
-		$value = array();
+		$value = [];
 
 		if (isset($is->t)) {
 			$value[] = (string)$is->t;

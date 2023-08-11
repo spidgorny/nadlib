@@ -71,9 +71,9 @@ class IndexBE extends IndexBase
 		$this->ll = new LocalLangDummy();
 		//debug($this->ll);
 
-		$menu = array(
+		$menu = [
 			'HomeBE' => 'Home',
-			'ServerStat' => new Recursive('Info', array(
+			'ServerStat' => new Recursive('Info', [
 				'ServerStat' => 'Server Stat',
 				'ServerData' => 'Server Data',
 				'Session' => 'Session',
@@ -85,13 +85,13 @@ class IndexBE extends IndexBase
 				'IniCheck' => 'php.ini Check',
 				'TimeTrack' => 'Time Track',
 				'Issues' => 'Issues',
-			)),
-			'UnitTestReport' => new Recursive('Test', array(
+			]),
+			'UnitTestReport' => new Recursive('Test', [
 				'UnitTestReport' => 'Unit Test Report',
 				'ValidatorCheck' => 'Validator Check',
 				'TestQueue' => 'Test Queue',
-			)),
-			'ExplainQuery' => new Recursive('DB', array(
+			]),
+			'ExplainQuery' => new Recursive('DB', [
 				'AlterDB' => 'Alter DB',
 				'AlterCharset' => 'Alter Charset',
 				'AlterTable' => 'Alter Table',
@@ -99,12 +99,12 @@ class IndexBE extends IndexBase
 				'OptimizeDB' => 'Optimize DB',
 				'ExplainQuery' => 'Explain Query',
 				'Localize' => 'Localize',
-			)),
-			'ClearCache' => new Recursive('FE', array(
+			]),
+			'ClearCache' => new Recursive('FE', [
 				'ClearCache' => 'Clear Cache',
 				'JumpFrontend' => '<- Frontend',
-			)),
-		);
+			]),
+		];
 		$menu = $this->loadBEmenu($menu);
 		$this->menu = new Menu($menu, 0);
 		$this->menu->ulClass = 'nav navbar-nav';
@@ -132,7 +132,7 @@ class IndexBE extends IndexBase
 				$c = Spyc::YAMLLoad('../../../../class/config.yaml');
 				//debug($c['BEmenu']);
 				if ($c['BEmenu']) {
-					//$c['BEmenu'] = array('FE' => $c['BEmenu']);
+					//$c['BEmenu'] = ['FE' => $c['BEmenu']];
 					foreach ($c['BEmenu'] as $key => $sub) {
 						if (is_array($sub)) {
 							$menu['ClearCache']->elements[$key] = new Recursive($key, $sub);

@@ -67,7 +67,7 @@ class HTMLFormTimeRange extends HTMLFormType
 		} else {
 			throw new Exception('Unable to parse time range: ' . $value);
 		}
-		return array($s, $e);
+		return [$s, $e];
 	}
 
 	function render()

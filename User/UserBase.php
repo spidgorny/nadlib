@@ -7,9 +7,9 @@ abstract class UserBase extends OODBase implements UserModelInterface
 
 	var $idField = 'id';
 
-	protected $prefs = array();
+	protected $prefs = [];
 
-	public static $instances = array();
+	public static $instances = [];
 
 	/**
 	 * $id is intentionally not = NULL in order to force using getInstance()
@@ -54,7 +54,7 @@ abstract class UserBase extends OODBase implements UserModelInterface
 	 */
 	function checkPassword($login, $password)
 	{
-		$query = $this->db->getSelectQuery($this->table, array($this->idField => $login));
+		$query = $this->db->getSelectQuery($this->table, [$this->idField => $login]);
 		//debug($query);
 		$row = $this->db->fetchAssoc($query);
 		//debug(array($login, $password, $row['password']));
@@ -77,7 +77,7 @@ abstract class UserBase extends OODBase implements UserModelInterface
 	{
 		//debug($data);
 		if ($data['email']) {
-			$this->findInDB(array('email' => $data['email']));
+			$this->findInDB(['email' => $data['email']]);
 			if ($this->id) {
 				throw new Exception('Such e-mail is already used. <a href="?c=ForgotPassword">Forgot password?</a>');
 			} else {

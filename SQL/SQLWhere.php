@@ -8,7 +8,7 @@ class SQLWhere
 	 */
 	protected $db;
 
-	protected $parts = array();
+	protected $parts = [];
 
 	function __construct($where = NULL)
 	{
@@ -120,7 +120,7 @@ class SQLWhere
 
 	function getParameters()
 	{
-		$parameters = array();
+		$parameters = [];
 		foreach ($this->parts as $part) {
 			if ($part instanceof SQLWherePart) {
 				$plus = $part->getParameter();

@@ -5,7 +5,7 @@ class SQLSelect
 
 	var $db;
 
-	protected $parts = array();
+	protected $parts = [];
 
 	function __construct($parts)
 	{

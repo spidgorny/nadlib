@@ -42,12 +42,12 @@ class Debug
 		if (false && ifsetor($_COOKIE['debug'])) {
 			echo 'Renderer: ' . $this->renderer;
 			echo '<pre>';
-			var_dump(array(
+			var_dump([
 				'canCLI' => $this->canCLI(),
 				'canFirebug' => $this->canFirebug(),
 				'canDebugster' => $this->canDebugster(),
 				'canHTML' => $this->canHTML(),
-			));
+			]);
 			echo '</pre>';
 		}
 		$this->request = Request::getInstance();
@@ -119,7 +119,7 @@ class Debug
 	function debugWithFirebug($params, $title = '')
 	{
 		$content = '';
-		$params = is_array($params) ? $params : array($params);
+		$params = is_array($params) ? $params : [$params];
 		//debug_pre_print_backtrace();
 		$fp = FirePHP::getInstance(true);
 		if ($fp->detectClientExtension()) {
@@ -135,7 +135,7 @@ class Debug
 			}
 			$fp->log(1 == sizeof($params) ? first($params) : $params, $title);
 		} else {
-			$content = call_user_func_array(array('Debug', 'debug_args'), $params);
+			$content = call_user_func_array(['Debug', 'debug_args'], $params);
 		}
 		return $content;
 	}
@@ -173,10 +173,10 @@ class Debug
 	{
 		$db = debug_backtrace();
 		$db = array_slice($db, 2, sizeof($db));
-		$trace = array();
+		$trace = [];
 		$i = 0;
 		foreach ($db as $i => $row) {
-			$trace[] = ' * ' . self::getMethod($row, ifsetor($db[$i + 1], array()));
+			$trace[] = ' * ' . self::getMethod($row, ifsetor($db[$i + 1], []));
 			if (++$i > 7) break;
 		}
 		echo '---' . implode(BR, $trace) . "\n";
@@ -206,7 +206,7 @@ class Debug
 			debug_pre_print_backtrace();
 		}
 		$debugHTML = new DebugHTML($this);
-		$content = call_user_func(array($debugHTML, 'render'), $params);
+		$content = call_user_func([$debugHTML, 'render'], $params);
 		if (!is_null($content)) {
 			print($content);
 		}
@@ -238,7 +238,7 @@ class Debug
 		$traceObj = ArrayPlus::create($db)->column('object')->getData();
 		if (!array_search('slTable', $traceObj) && class_exists('slTable', false)) {
 			$trace = '<pre style="white-space: pre-wrap; margin: 0;">' .
-				new slTable($db, 'class="nospacing"', array(
+				new slTable($db, 'class="nospacing"', [
 					'file' => 'file',
 					'line' => 'line',
 					'class' => 'class',
@@ -246,14 +246,14 @@ class Debug
 					'type' => 'type',
 					'function' => 'function',
 					'args' => 'args',
-				)) . '</pre>';
+				]) . '</pre>';
 		} else {
 			$trace = 'No self-trace in slTable';
 		}
 		return $trace;
 	}
 
-	static function getMethod(array $first, array $next = array())
+	static function getMethod(array $first, array $next = [])
 	{
 		$curFunc = ifsetor($next['function']);
 		$nextFunc = ifsetor($first['function']);
@@ -312,7 +312,7 @@ class Debug
 		for ($i = 0; $i < $cut; $i++) {
 			array_shift($debug);
 		}
-		$content = array();
+		$content = [];
 		foreach ($debug as $i => $debugLine) {
 			if (ifsetor($debugLine['object'])) {
 				$object = gettype2($debugLine['object'], $withHash);
@@ -342,7 +342,7 @@ class Debug
 	 */
 	static function formatBytes($bytes, $precision = 2)
 	{
-		$units = array('B', 'KB', 'MB', 'GB', 'TB');
+		$units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
 		$bytes = max($bytes, 0);
 		$pow = floor(($bytes ? log($bytes) : 0) / log(1024));
@@ -357,7 +357,7 @@ class Debug
 
 	static function getArraySize(array $tmpArray)
 	{
-		$size = array();
+		$size = [];
 		foreach ($tmpArray as $key => $row) {
 			$size[$key] = strlen(serialize($row));
 		}
@@ -417,7 +417,7 @@ class Debug
 		static $recursive;
 		if (!$spaces) {
 			echo '<pre class="debug">';
-			$recursive = array();
+			$recursive = [];
 		}
 		if (is_object($row)) {
 			$hash = spl_object_hash($row);
@@ -467,11 +467,11 @@ class Debug
 		}
 	}
 
-	static function findObject($struct, $type, $path = array())
+	static function findObject($struct, $type, $path = [])
 	{
 		static $recursive;
 		if (!$path) {
-			$recursive = array();
+			$recursive = [];
 		}
 		if (is_object($struct)) {
 			$hash = spl_object_hash($struct);

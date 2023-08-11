@@ -31,7 +31,7 @@ class MySQL extends dbLayerBase implements DBInterface
 	 * Reserved MySQL words
 	 * @var array
 	 */
-	protected $reserved = array(
+	protected $reserved = [
 		0 => 'ACCESSIBLE',
 		1 => 'ADD',
 		2 => 'ALL',
@@ -255,7 +255,7 @@ class MySQL extends dbLayerBase implements DBInterface
 		'TERMINATED',
 		'UNDO',
 		'VALUES',
-	);
+	];
 
 	function __construct($db = NULL, $host = '127.0.0.1', $login = 'root', $password = '')
 	{
@@ -298,14 +298,14 @@ class MySQL extends dbLayerBase implements DBInterface
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	function perform($query, array $params = array())
+	function perform($query, array $params = [])
 	{
 		if (isset($GLOBALS['profiler'])) {
 			$c = 2;
 			do {
 				$caller = Debug::getCaller($c);
 				$c++;
-			} while (in_array($caller, array(
+			} while (in_array($caller, [
 				'MySQL::fetchSelectQuery',
 				'MySQL::runSelectQuery',
 				'OODBase::findInDB',
@@ -314,7 +314,7 @@ class MySQL extends dbLayerBase implements DBInterface
 				'MySQL::getTableColumns',
 				'MySQL::perform',
 				'OODBase::fetchFromDB',
-			)));
+			]));
 			$profilerKey = __METHOD__ . " (" . $caller . ")";
 			TaylorProfiler::start($profilerKey);
 		}
@@ -342,11 +342,11 @@ class MySQL extends dbLayerBase implements DBInterface
 		}
 		if (!$res || mysql_errno($this->connection)) {
 			if (DEVELOPMENT) {
-				debug(array(
+				debug([
 					'code' => mysql_errno($this->connection),
 					'text' => mysql_error($this->connection),
 					'query' => $query,
-				));
+				]);
 			}
 			debug_pre_print_backtrace();
 			$e = new DatabaseException(mysql_errno($this->connection) . ': ' . mysql_error($this->connection) .
@@ -497,7 +497,7 @@ class MySQL extends dbLayerBase implements DBInterface
 			$res = $this->perform($query);
 			$columns = $this->fetchAll($res, 'Field');
 		} else {
-			$columns = array();
+			$columns = [];
 		}
 		TaylorProfiler::stop(__METHOD__ . " ({$table})" . Debug::getCaller());
 		return $columns;
@@ -513,7 +513,7 @@ class MySQL extends dbLayerBase implements DBInterface
 			}
 		}
 		if (method_exists($this->qb, $method)) {
-			return call_user_func_array(array($this->qb, $method), $params);
+			return call_user_func_array([$this->qb, $method], $params);
 		} else {
 			debug(get_class($this->qb));
 			throw new Exception($method . '() not found in ' . get_class($this) . ' and SQLBuilder');
@@ -560,7 +560,7 @@ class MySQL extends dbLayerBase implements DBInterface
 	 */
 	function fetchPartitionMySQL($res, $start, $limit)
 	{
-		$data = array();
+		$data = [];
 		for ($i = 0; $i < $start + $limit; $i++) {
 			$row = $this->fetchAssoc($res);
 			if ($row !== false) {

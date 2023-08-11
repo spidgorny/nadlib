@@ -20,7 +20,7 @@ class TimeTrackHG extends AppControllerBE
 
 			$total = $this->showTotal($times);
 			$who = $this->showByWho($times);
-			$content[] = $this->inTable(array($total, $who));
+			$content[] = $this->inTable([$total, $who]);
 			$content[] = $this->listTimes($times);
 		}
 		return $content;
@@ -54,7 +54,7 @@ class TimeTrackHG extends AppControllerBE
 	{
 		$i = 0;
 		$iEmpty = 0;
-		$table = array();
+		$table = [];
 		foreach ($file as $line) {
 			$line = trim($line);
 			list($key, $line) = trimExplode(':', $line, 2);
@@ -70,7 +70,7 @@ class TimeTrackHG extends AppControllerBE
 
 	function parseTime(array $lines)
 	{
-		$times = array();
+		$times = [];
 		foreach ($lines as $line) {
 			//$s = \Stringy\Stringy::create($line['summary']);
 			$summaryLines = trimExplode("\n", $line['summary']);
@@ -81,12 +81,12 @@ class TimeTrackHG extends AppControllerBE
 						$dur = Duration::fromHuman($candidate);
 						//debug($sumLine, $candidate, $dur);
 						if ($dur->getTimestamp()) {
-							$times[] = array(
+							$times[] = [
 								'who' => $line['user'],
 								'when' => $line['date'],
 								'time' => $dur->getHours(),
 								'what' => $line['summary'],
-							);
+							];
 						}
 					}
 				}
@@ -102,10 +102,10 @@ class TimeTrackHG extends AppControllerBE
 		}
 		$s = new slTable($times, 'class="table table=striped"');
 		$s->generateThes();
-		$s->thes['what'] = array(
+		$s->thes['what'] = [
 			'name' => 'what',
 			'no_hsc' => true,
-		);
+		];
 		return $s;
 	}
 

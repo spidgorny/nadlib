@@ -29,7 +29,7 @@ class MessageQueue extends OODBase
 	 * Contains data
 	 * @var array
 	 */
-	private $taskData = array();
+	private $taskData = [];
 
 
 	public function __construct($type)
@@ -53,7 +53,7 @@ class MessageQueue extends OODBase
 	{
 		// need to delete previous record, otherwise infinite loop
 		$this->id = NULL;
-		$this->data = array();
+		$this->data = [];
 		$this->db->transaction();
 		$newTaskOK = $this->fetchNextTask($this->type);
 		if ($newTaskOK) {
@@ -105,10 +105,10 @@ class MessageQueue extends OODBase
 	 */
 	private function fetchNextTask($type)
 	{
-		$where = array(
+		$where = [
 			'status' => self::STATUS_NEW,
 			'type' => $type
-		);
+		];
 
 		$orderBy = 'ORDER BY id ASC';
 
@@ -124,10 +124,10 @@ class MessageQueue extends OODBase
 
 	function count()
 	{
-		$where = array(
+		$where = [
 			'status' => self::STATUS_NEW,
 			'type' => $this->type,
-		);
+		];
 		$res = $this->db->runSelectQuery($this->table, $where);
 		return $this->db->numRows($res);
 	}
@@ -160,9 +160,9 @@ class MessageQueue extends OODBase
 	 */
 	public function setStatus($status)
 	{
-		$data = array(
+		$data = [
 			'status' => $status
-		);
+		];
 		$this->update($data);
 	}
 
@@ -175,12 +175,12 @@ class MessageQueue extends OODBase
 	 */
 	public function push($taskData, $userId = null)
 	{
-		$data = array(
+		$data = [
 			'ctime' => new SQLNow(),
 			'type' => $this->type,
 			'status' => self::STATUS_NEW,
 			'data' => json_encode($taskData)
-		);
+		];
 
 		if (!empty($userId)) {
 			$data['cuser'] = $userId;
@@ -200,4 +200,3 @@ class MessageQueue extends OODBase
 	}
 
 }
-

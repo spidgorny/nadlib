@@ -44,10 +44,10 @@ class TYPO3Page extends OODBase
 	{
 		// retrieve once for each colPos
 		if (!$this->content || $this->colPos != $colPos) {
-			$this->content = new TYPO3ContentCollection($this->id, array(
+			$this->content = new TYPO3ContentCollection($this->id, [
 				'colPos' => $colPos,
 				'sys_language_uid' => 0,    // default, getPageOverlay() for other langs
-			));
+			]);
 			$this->content->objectify();
 			/* @var TYPO3Content */
 			$this->colPos = $colPos;
@@ -119,10 +119,10 @@ class TYPO3Page extends OODBase
 	{
 		if (Config::getInstance()->langID) {
 			$po = new TYPO3PageOverlay();
-			$po->findInDB(array(
+			$po->findInDB([
 				'pid' => $this->id,
 				'sys_language_uid' => Config::getInstance()->langID,
-			));
+			]);
 		}
 		return $po->id ? $po : null;
 	}

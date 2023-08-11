@@ -49,9 +49,9 @@ class dbLayer extends dbLayerBase implements DBInterface
 	 */
 	var $db;
 
-	var $reserved = array(
+	var $reserved = [
 		'SELECT', 'LIKE', 'TO',
-	);
+	];
 
 	/**
 	 * @param string $dbName
@@ -114,7 +114,7 @@ class dbLayer extends dbLayerBase implements DBInterface
 		return true;
 	}
 
-	function perform($query, array $params = array())
+	function perform($query, array $params = [])
 	{
 //		echo $query, BR;
 		$prof = new Profiler();
@@ -241,7 +241,7 @@ class dbLayer extends dbLayerBase implements DBInterface
 		$return = $cache[$table];
 		TaylorProfiler::stop(__METHOD__);
 		// used to only attach columns in bug list
-		$pageAttachCustom = array('BugLog', 'Filter');
+		$pageAttachCustom = ['BugLog', 'Filter'];
 		if (in_array($_REQUEST['pageType'], $pageAttachCustom)) {
 			$cO = CustomCatList::getInstance($_SESSION['sesProject']);
 			if (is_array($cO->customColumns)) {
@@ -257,7 +257,7 @@ class dbLayer extends dbLayerBase implements DBInterface
 	{
 		$meta = pg_meta_data($this->connection, $table);
 		if (is_array($meta)) {
-			$return = array();
+			$return = [];
 			foreach ($meta as $col => $m) {
 				$return[$col] = $m['type'];
 			}
@@ -309,7 +309,7 @@ class dbLayer extends dbLayerBase implements DBInterface
 	 * $column = $as[1];
 	 * }
 	 *
-	 * $b = array();
+	 * $b = [];
 	 * foreach ($a as $row) {
 	 * $b[$row[$key]] = $row[$column];
 	 * }
@@ -331,7 +331,7 @@ class dbLayer extends dbLayerBase implements DBInterface
 		} else {
 			$result = $query;
 		}
-		$return = array();
+		$return = [];
 		while ($row = pg_fetch_assoc($result)) {
 			if ($val) {
 				$value = $row[$val];
@@ -389,9 +389,9 @@ class dbLayer extends dbLayerBase implements DBInterface
 	{
 		return first(
 			$this->fetchAssoc(
-				$this->perform("select pg_get_viewdef($1, true)", array(
+				$this->perform("select pg_get_viewdef($1, true)", [
 					$viewName
-				))
+				])
 			)
 		);
 	}
@@ -501,7 +501,7 @@ class dbLayer extends dbLayerBase implements DBInterface
 			debug($this->lastQuery, sizeof($res));
 		}
 		if (!$res) {
-			$res = array();
+			$res = [];
 		} elseif ($key) {
 			$ap = ArrayPlus::create($res)->IDalize($key)->getData();
 			//debug(sizeof($res), sizeof($ap));
@@ -524,7 +524,7 @@ class dbLayer extends dbLayerBase implements DBInterface
 		$row = pg_fetch_assoc($res);
 		/*      // problem in OODBase
 		 * 		if (!$row) {
-					$row = array();
+					$row = [];
 				}*/
 		return $row;
 	}
@@ -633,7 +633,7 @@ order by a.attnum';
 	 */
 	function getArrayIntersect(array $options, $field = 'list_next')
 	{
-		$bigOR = array();
+		$bigOR = [];
 		foreach ($options as $n) {
 			$bigOR[] = "FIND_IN_SET('" . $n . "', {$field})";
 		}
@@ -649,7 +649,7 @@ order by a.attnum';
 	function __call($method, array $params)
 	{
 		if (method_exists($this->getQb(), $method)) {
-			return call_user_func_array(array($this->getQb(), $method), $params);
+			return call_user_func_array([$this->getQb(), $method], $params);
 		} else {
 			throw new Exception('Method ' . __CLASS__ . '::' . $method . ' doesn\'t exist.');
 		}
@@ -669,7 +669,7 @@ order by a.attnum';
 
 	function getCallerFunction()
 	{
-		$skipFunctions = array(
+		$skipFunctions = [
 			'runSelectQuery',
 			'fetchSelectQuery',
 			'sqlFind',
@@ -681,14 +681,14 @@ order by a.attnum';
 			'init',
 			'__construct',
 			'getInstance',
-		);
+		];
 		$debug = debug_backtrace();
 		$prev = array_shift($debug);    // getCallerFunction
 		while (sizeof($debug) && in_array($debug[0]['function'], $skipFunctions)) {
 			$prev = array_shift($debug);
 		}
 		reset($debug);
-		$content = array();
+		$content = [];
 		/** @noinspection PhpUnusedLocalVariableInspection */
 		foreach (range(1, 2) as $_) {
 			$func = current($debug);
@@ -759,7 +759,7 @@ order by a.attnum';
 
 	function getResultFields($res)
 	{
-		$fields = array();
+		$fields = [];
 		for ($f = 0; $f < pg_num_fields($res); $f++) {
 			$newField = pg_fieldname($res, $f);
 			$fields[$newField] = pg_field_type($res, $f);
@@ -807,7 +807,7 @@ WHERE ccu.table_name='" . $table . "'");
 
 	/**
 	 * @param string $table Table name
-	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
+	 * @param array $columns ['name' => 'John', 'lastname' => 'Doe']
 	 * @param array $primaryKey ['id', 'id_profile']
 	 * @return string
 	 */

@@ -71,7 +71,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface
 			$this->dsn = $scheme . ':' . $db;
 			$this->database = basename($db);
 		} else {
-			$aDSN = array(
+			$aDSN = [
 				'DATABASE' => $db,
 				'host' => $host,
 				'SYSTEM' => $host,
@@ -79,7 +79,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface
 				'HOSTNAME' => $host,
 				'PORT' => $port,
 				'PROTOCOL' => 'TCPIP',
-			);
+			];
 			if ($driver) {
 				$aDSN += [
 					'DRIVER' => '{' . $driver . '}',
@@ -106,10 +106,10 @@ class dbLayerPDO extends dbLayerBase implements DBInterface
 	function connectDSN($dsn, $user = NULL, $password = NULL)
 	{
 		$this->dsn = $dsn;
-		$options = array(
+		$options = [
 			PDO::ATTR_PERSISTENT => false,
 			PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-		);
+		];
 		if ($this->isMySQL()) {
 			$this->dsn .= ';charset=utf8';
 			$options += [PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"];
@@ -134,7 +134,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface
 		}
 	}
 
-	function perform($query, array $params = array())
+	function perform($query, array $params = [])
 	{
 //		echo $query, BR;
 		//debug($params);
@@ -177,7 +177,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface
 				$this->queryLog->log($query, $diffTime, $this->lastResult->rowCount());
 			}
 			if (!$ok) {
-				debug(array(
+				debug([
 					'class' => get_class($this),
 					'ok' => $ok,
 					'code' => $this->connection->errorCode(),
@@ -185,8 +185,8 @@ class dbLayerPDO extends dbLayerBase implements DBInterface
 					'query' => $query,
 					'connection' => $this->connection,
 					'result' => $this->lastResult,
-				));
-				$e = new DatabaseException(getDebug(array(
+				]);
+				$e = new DatabaseException(getDebug([
 					'class' => get_class($this),
 					'ok' => $ok,
 					'code' => $this->connection->errorCode(),
@@ -194,20 +194,20 @@ class dbLayerPDO extends dbLayerBase implements DBInterface
 					'query' => $query,
 					'connection' => $this->connection,
 					'result' => $this->lastResult,
-				)),
+				]),
 					$this->connection->errorCode() ?: 0);
 				$e->setQuery($query);
 				throw $e;
 			}
 		} else {
-			$e = new DatabaseException(getDebug(array(
+			$e = new DatabaseException(getDebug([
 				'class' => get_class($this),
 				'code' => $this->connection->errorCode(),
 				'errorInfo' => $this->connection->errorInfo(),
 				'query' => $query,
 				'connection' => $this->connection,
 				'result' => $this->lastResult,
-			)),
+			]),
 				$this->connection->errorCode() ?: 0);
 			$e->setQuery($query);
 			throw $e;
@@ -259,7 +259,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface
 	 */
 	function getTablesEx()
 	{
-		$tables = array();
+		$tables = [];
 		$scheme = $this->getScheme();
 		if ($this->isMySQL()) {
 			$res = $this->perform('show tables');
@@ -267,7 +267,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface
 			$tables = ArrayPlus::create($tables)->column('0')->getData(); // "Tables_is_DBname"
 			$keys = $tables;
 			foreach ($tables as &$name) {
-				$name = array('table' => $name);
+				$name = ['table' => $name];
 			}
 			$tables = array_combine($keys, $tables);
 		} elseif ($scheme == 'odbc') {
@@ -427,7 +427,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface
 	 */
 	function fetchPartitionMySQL($res, $start, $limit)
 	{
-		$data = array();
+		$data = [];
 		for ($i = 0; $i < $start + $limit; $i++) {
 			$row = $this->fetchAssoc($res);
 			if ($row !== false) {
@@ -474,7 +474,7 @@ class dbLayerPDO extends dbLayerBase implements DBInterface
 
 	function getIndexesFrom($table)
 	{
-		return array();
+		return [];
 	}
 
 	/**

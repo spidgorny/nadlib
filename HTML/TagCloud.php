@@ -2,7 +2,7 @@
 
 class TagCloud extends AppController
 {
-	protected $words = array();
+	protected $words = [];
 	protected $count;
 
 	function __construct()
@@ -10,7 +10,7 @@ class TagCloud extends AppController
 		parent::__construct();
 		$words = $this->db->perform('SELECT id, name, count(*) AS count FROM app_tag GROUP BY name ORDER BY name');
 		$words = $this->db->fetchAll($words);
-		$words = ArrayPlus::create($words)->each(array($this, 'parseWords'))->getData();
+		$words = ArrayPlus::create($words)->each([$this, 'parseWords'])->getData();
 		//debug($words);
 		$this->words = $words;
 
@@ -35,11 +35,11 @@ class TagCloud extends AppController
 		$cloud = new WordCloud();
 		foreach ($this->words as $row) {
 			$size = round($row['count'] / $this->count * 9);
-			$cloud->addWord(array(
+			$cloud->addWord([
 				'word' => $row['name'],// . ' ('.$row['count'].')',
 				'size' => $size,
 				'url' => $url,
-			));
+			]);
 		}
 		//$content .= $cloud->showCloud();
 		$cloud = $cloud->showCloud('array');

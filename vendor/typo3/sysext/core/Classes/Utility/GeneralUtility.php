@@ -71,14 +71,14 @@ class GeneralUtility
 	 *
 	 * @var array<SingletonInterface>
 	 */
-	static protected $singletonInstances = array();
+	static protected $singletonInstances = [];
 
 	/**
 	 * Instances returned by makeInstance, using the class names as array keys
 	 *
 	 * @var array<array><object>
 	 */
-	static protected $nonSingletonInstances = array();
+	static protected $nonSingletonInstances = [];
 
 	/*************************
 	 *
@@ -125,8 +125,8 @@ class GeneralUtility
 	 */
 	static public function _GPmerged($parameter)
 	{
-		$postParameter = isset($_POST[$parameter]) && is_array($_POST[$parameter]) ? $_POST[$parameter] : array();
-		$getParameter = isset($_GET[$parameter]) && is_array($_GET[$parameter]) ? $_GET[$parameter] : array();
+		$postParameter = isset($_POST[$parameter]) && is_array($_POST[$parameter]) ? $_POST[$parameter] : [];
+		$getParameter = isset($_GET[$parameter]) && is_array($_GET[$parameter]) ? $_GET[$parameter] : [];
 		$mergedParameters = self::array_merge_recursive_overrule($getParameter, $postParameter);
 		self::stripSlashesOnArray($mergedParameters);
 		return $mergedParameters;
@@ -195,7 +195,7 @@ class GeneralUtility
 		if ($key != '') {
 			if (strpos($key, '|') !== FALSE) {
 				$pieces = explode('|', $key);
-				$newGet = array();
+				$newGet = [];
 				$pointer = &$newGet;
 				foreach ($pieces as $piece) {
 					$pointer = &$pointer[$piece];
@@ -745,7 +745,7 @@ class GeneralUtility
 	static public function expandList($list)
 	{
 		$items = explode(',', $list);
-		$list = array();
+		$list = [];
 		foreach ($items as $item) {
 			$range = explode('-', $item);
 			if (isset($range[1])) {
@@ -864,7 +864,7 @@ class GeneralUtility
 	 */
 	static public function split_fileref($fileref)
 	{
-		$reg = array();
+		$reg = [];
 		if (preg_match('/(.*\\/)(.*)$/', $fileref, $reg)) {
 			$info['path'] = $reg[1];
 			$info['file'] = $reg[2];
@@ -1009,12 +1009,12 @@ class GeneralUtility
 	 */
 	static public function splitCalc($string, $operators)
 	{
-		$res = array();
+		$res = [];
 		$sign = '+';
 		while ($string) {
 			$valueLen = strcspn($string, $operators);
 			$value = substr($string, 0, $valueLen);
-			$res[] = array($sign, trim($value));
+			$res[] = [$sign, trim($value)];
 			$sign = substr($string, $valueLen, 1);
 			$string = substr($string, $valueLen + 1);
 		}
@@ -1102,7 +1102,7 @@ class GeneralUtility
 			return FALSE;
 		}
 		require_once PATH_typo3 . 'contrib/idna/idna_convert.class.php';
-		$IDN = new idna_convert(array('idn_version' => 2008));
+		$IDN = new idna_convert(['idn_version' => 2008]);
 		return filter_var($IDN->encode($email), FILTER_VALIDATE_EMAIL) !== FALSE;
 	}
 
@@ -1362,7 +1362,7 @@ class GeneralUtility
 	static public function isValidUrl($url)
 	{
 		require_once PATH_typo3 . 'contrib/idna/idna_convert.class.php';
-		$IDN = new idna_convert(array('idn_version' => 2008));
+		$IDN = new idna_convert(['idn_version' => 2008]);
 		return filter_var($IDN->encode($url), FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED) !== FALSE;
 	}
 
@@ -1376,7 +1376,7 @@ class GeneralUtility
 	 * Please note that the order of function parameters is reverse compared to the PHP function in_array()!!!
 	 *
 	 * Comparison to PHP in_array():
-	 * -> $array = array(0, 1, 2, 3);
+	 * -> $array = [0, 1, 2, 3];
 	 * -> variant_a := \TYPO3\CMS\Core\Utility\GeneralUtility::inArray($array, $needle)
 	 * -> variant_b := in_array($needle, $array)
 	 * -> variant_c := in_array($needle, $array, TRUE)
@@ -1421,7 +1421,7 @@ class GeneralUtility
 
 	/**
 	 * Reverse explode which explodes the string counting from behind.
-	 * Thus \TYPO3\CMS\Core\Utility\GeneralUtility::revExplode(':','my:words:here',2) will return array('my:words','here')
+	 * Thus \TYPO3\CMS\Core\Utility\GeneralUtility::revExplode(':','my:words:here',2) will return ['my:words','here']
 	 *
 	 * @param string $delimiter Delimiter string to explode with
 	 * @param string $string The string to explode
@@ -1450,7 +1450,7 @@ class GeneralUtility
 		$explodedValues = explode($delim, $string);
 		$result = array_map('trim', $explodedValues);
 		if ($removeEmptyValues) {
-			$temp = array();
+			$temp = [];
 			foreach ($result as $value) {
 				if ($value !== '') {
 					$temp[] = $value;
@@ -1494,18 +1494,18 @@ class GeneralUtility
 	 * The values in $keepItems can be optionally evaluated by a custom callback function.
 	 *
 	 * Example (arguments used to call this function):
-	 * $array = array(
-	 * array('aa' => array('first', 'second'),
-	 * array('bb' => array('third', 'fourth'),
-	 * array('cc' => array('fifth', 'sixth'),
-	 * );
-	 * $keepItems = array('third');
+	 * $array = [
+	 * ['aa' => ['first', 'second'],
+	 * ['bb' => ['third', 'fourth'],
+	 * ['cc' => ['fifth', 'sixth'],
+	 * ];
+	 * $keepItems = ['third'];
 	 * $getValueFunc = create_function('$value', 'return $value[0];');
 	 *
 	 * Returns:
-	 * array(
-	 * array('bb' => array('third', 'fourth'),
-	 * )
+	 * [
+	 * 	['bb' => ['third', 'fourth'],
+	 * ]
 	 *
 	 * @param array $array The initial array to be filtered/reduced
 	 * @param mixed $keepItems The items which are allowed/kept in the array - accepts array or csv string
@@ -1573,7 +1573,7 @@ class GeneralUtility
 	 */
 	static public function explodeUrl2Array($string, $multidim = FALSE)
 	{
-		$output = array();
+		$output = [];
 		if ($multidim) {
 			parse_str($string, $output);
 		} else {
@@ -1600,7 +1600,7 @@ class GeneralUtility
 	static public function compileSelectedGetVarsFromArray($varList, array $getArray, $GPvarAlt = TRUE)
 	{
 		$keys = self::trimExplode(',', $varList, 1);
-		$outArr = array();
+		$outArr = [];
 		foreach ($keys as $v) {
 			if (isset($getArray[$v])) {
 				$outArr[$v] = $getArray[$v];
@@ -1748,7 +1748,7 @@ class GeneralUtility
 	 */
 	static public function arrayDiffAssocRecursive(array $array1, array $array2)
 	{
-		$differenceArray = array();
+		$differenceArray = [];
 		foreach ($array1 as $key => $value) {
 			if (!array_key_exists($key, $array2)) {
 				$differenceArray[$key] = $value;
@@ -1771,7 +1771,7 @@ class GeneralUtility
 	 */
 	static public function csvValues(array $row, $delim = ',', $quote = '"')
 	{
-		$out = array();
+		$out = [];
 		foreach ($row as $value) {
 			$out[] = str_replace($quote, $quote . $quote, $value);
 		}
@@ -1781,14 +1781,14 @@ class GeneralUtility
 
 	/**
 	 * Removes dots "." from end of a key identifier of TypoScript styled array.
-	 * array('key.' => array('property.' => 'value')) --> array('key' => array('property' => 'value'))
+	 * ['key.' => ['property.' => 'value']] --> ['key' => ['property' => 'value']]
 	 *
 	 * @param array $ts TypoScript configuration array
 	 * @return array TypoScript configuration array without dots at the end of all keys
 	 */
 	static public function removeDotsFromTS(array $ts)
 	{
-		$out = array();
+		$out = [];
 		foreach ($ts as $key => $value) {
 			if (is_array($value)) {
 				$key = rtrim($key, '.');
@@ -1837,7 +1837,7 @@ class GeneralUtility
 		// Attribute name is stored here
 		$name = '';
 		$valuemode = FALSE;
-		$attributes = array();
+		$attributes = [];
 		foreach ($components as $key => $val) {
 			// Only if $name is set (if there is an attribute, that waits for a value), that valuemode is enabled. This ensures that the attribute is assigned it's value
 			if ($val != '=') {
@@ -1872,7 +1872,7 @@ class GeneralUtility
 		$tag_tmp = trim(preg_replace('/^<[^[:space:]]*/', '', trim($tag)));
 		// Removes any > in the end of the string
 		$tag_tmp = trim(rtrim($tag_tmp, '>'));
-		$value = array();
+		$value = [];
 		// Compared with empty string instead , 030102
 		while (strcmp($tag_tmp, '')) {
 			$firstChar = substr($tag_tmp, 0, 1);
@@ -1906,7 +1906,7 @@ class GeneralUtility
 	static public function implodeAttributes(array $arr, $xhtmlSafe = FALSE, $dontOmitBlankAttribs = FALSE)
 	{
 		if ($xhtmlSafe) {
-			$newArr = array();
+			$newArr = [];
 			foreach ($arr as $p => $v) {
 				if (!isset($newArr[strtolower($p)])) {
 					$newArr[strtolower($p)] = htmlspecialchars($v);
@@ -1914,7 +1914,7 @@ class GeneralUtility
 			}
 			$arr = $newArr;
 		}
-		$list = array();
+		$list = [];
 		foreach ($arr as $p => $v) {
 			if (strcmp($v, '') || $dontOmitBlankAttribs) {
 				$list[] = $p . '="' . $v . '"';
@@ -1940,7 +1940,7 @@ class GeneralUtility
 			// remove nl from the beginning
 			$string = preg_replace('/^\\n+/', '', $string);
 			// re-ident to one tab using the first line as reference
-			$match = array();
+			$match = [];
 			if (preg_match('/^(\\t+)/', $string, $match)) {
 				$string = str_replace($match[1], TAB, $string);
 			}
@@ -1964,8 +1964,8 @@ class GeneralUtility
 	static public function xml2tree($string, $depth = 999)
 	{
 		$parser = xml_parser_create();
-		$vals = array();
-		$index = array();
+		$vals = [];
+		$index = [];
 		xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, 0);
 		xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 0);
 		xml_parse_into_struct($parser, $string, $vals, $index);
@@ -1973,10 +1973,10 @@ class GeneralUtility
 			return 'Line ' . xml_get_current_line_number($parser) . ': ' . xml_error_string(xml_get_error_code($parser));
 		}
 		xml_parser_free($parser);
-		$stack = array(array());
+		$stack = [[]];
 		$stacktop = 0;
 		$startPoint = 0;
-		$tagi = array();
+		$tagi = [];
 		foreach ($vals as $key => $val) {
 			$type = $val['type'];
 			// open tag:
@@ -1985,7 +1985,7 @@ class GeneralUtility
 				if ($depth == $stacktop) {
 					$startPoint = $key;
 				}
-				$tagi = array('tag' => $val['tag']);
+				$tagi = ['tag' => $val['tag']];
 				if (isset($val['attributes'])) {
 					$tagi['attrs'] = $val['attributes'];
 				}
@@ -2028,7 +2028,7 @@ class GeneralUtility
 	 * @return string An XML string made from the input content in the array.
 	 * @see xml2array(),array2xml()
 	 */
-	static public function array2xml_cs(array $array, $docTag = 'phparray', array $options = array(), $charset = '')
+	static public function array2xml_cs(array $array, $docTag = 'phparray', array $options = [], $charset = '')
 	{
 		// Set default charset unless explicitly specified
 		$charset = $charset ? $charset : 'utf-8';
@@ -2053,12 +2053,12 @@ class GeneralUtility
 	 * @param integer $level Current recursion level. Don't change, stay at zero!
 	 * @param string $docTag Alternative document tag. Default is "phparray".
 	 * @param integer $spaceInd If greater than zero, then the number of spaces corresponding to this number is used for indenting, if less than zero - no indentation, if zero - a single TAB is used
-	 * @param array $options Options for the compilation. Key "useNindex" => 0/1 (boolean: whether to use "n0, n1, n2" for num. indexes); Key "useIndexTagForNum" => "[tag for numerical indexes]"; Key "useIndexTagForAssoc" => "[tag for associative indexes"; Key "parentTagMap" => array('parentTag' => 'thisLevelTag')
+	 * @param array $options Options for the compilation. Key "useNindex" => 0/1 (boolean: whether to use "n0, n1, n2" for num. indexes); Key "useIndexTagForNum" => "[tag for numerical indexes]"; Key "useIndexTagForAssoc" => "[tag for associative indexes"; Key "parentTagMap" => ['parentTag' => 'thisLevelTag']
 	 * @param array $stackData Stack data. Don't touch.
 	 * @return string An XML string made from the input content in the array.
 	 * @see xml2array()
 	 */
-	static public function array2xml(array $array, $NSprefix = '', $level = 0, $docTag = 'phparray', $spaceInd = 0, array $options = array(), array $stackData = array())
+	static public function array2xml(array $array, $NSprefix = '', $level = 0, $docTag = 'phparray', $spaceInd = 0, array $options = [], array $stackData = [])
 	{
 		// The list of byte values which will trigger binary-safe storage. If any value has one of these char values in it, it will be encoded in base64
 		$binaryChars = chr(0) . chr(1) . chr(2) . chr(3) . chr(4) . chr(5) . chr(6) . chr(7) . chr(8) . chr(11) . chr(12) . chr(14) . chr(15) . chr(16) . chr(17) . chr(18) . chr(19) . chr(20) . chr(21) . chr(22) . chr(23) . chr(24) . chr(25) . chr(26) . chr(27) . chr(28) . chr(29) . chr(30) . chr(31);
@@ -2116,11 +2116,11 @@ class GeneralUtility
 					$subOptions = $options;
 					$clearStackPath = FALSE;
 				}
-				$content = $nl . self::array2xml($v, $NSprefix, ($level + 1), '', $spaceInd, $subOptions, array(
+				$content = $nl . self::array2xml($v, $NSprefix, ($level + 1), '', $spaceInd, $subOptions, [
 						'parentTagName' => $tagName,
 						'grandParentTagName' => $stackData['parentTagName'],
 						'path' => ($clearStackPath ? '' : $stackData['path'] . '/' . $tagName)
-					)) . ($spaceInd >= 0 ? str_pad('', ($level + 1) * $indentN, $indentChar) : '');
+					]) . ($spaceInd >= 0 ? str_pad('', ($level + 1) * $indentN, $indentChar) : '');
 				// Do not set "type = array". Makes prettier XML but means that empty arrays are not restored with xml2array
 				if ((int)$options['disableTypeAttrib'] != 2) {
 					$attr .= ' type="array"';
@@ -2171,7 +2171,7 @@ class GeneralUtility
 	 */
 	static public function xml2array($string, $NSprefix = '', $reportDocTag = FALSE)
 	{
-		static $firstLevelCache = array();
+		static $firstLevelCache = [];
 		$identifier = md5($string . $NSprefix . ($reportDocTag ? '1' : '0'));
 		// Look up in first level cache
 		if (!empty($firstLevelCache[$identifier])) {
@@ -2204,12 +2204,12 @@ class GeneralUtility
 	{
 		// Create parser:
 		$parser = xml_parser_create();
-		$vals = array();
-		$index = array();
+		$vals = [];
+		$index = [];
 		xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, 0);
 		xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 0);
 		// Default output charset is UTF-8, only ASCII, ISO-8859-1 and UTF-8 are supported!!!
-		$match = array();
+		$match = [];
 		preg_match('/^[[:space:]]*<\\?xml[^>]*encoding[[:space:]]*=[[:space:]]*"([^"]*)"/', substr($string, 0, 200), $match);
 		$theCharset = $match[1] ? $match[1] : 'utf-8';
 		// us-ascii / utf-8 / iso-8859-1
@@ -2222,9 +2222,9 @@ class GeneralUtility
 		}
 		xml_parser_free($parser);
 		// Init vars:
-		$stack = array(array());
+		$stack = [[]];
 		$stacktop = 0;
-		$current = array();
+		$current = [];
 		$tagName = '';
 		$documentTag = '';
 		// Traverse the parsed XML structure:
@@ -2249,9 +2249,9 @@ class GeneralUtility
 				case 'open':
 					// If open tag it means there is an array stored in sub-elements. Therefore increase the stackpointer and reset the accumulation array:
 					// Setting blank place holder
-					$current[$tagName] = array();
+					$current[$tagName] = [];
 					$stack[$stacktop++] = $current;
-					$current = array();
+					$current = [];
 					break;
 				case 'close':
 					// If the tag is "close" then it is an array which is closing and we decrease the stack pointer.
@@ -2282,7 +2282,7 @@ class GeneralUtility
 								break;
 							case 'array':
 								// MUST be an empty array since it is processed as a value; Empty arrays would end up here because they would have no tags inside...
-								$current[$tagName] = array();
+								$current[$tagName] = [];
 								break;
 						}
 					}
@@ -2348,7 +2348,7 @@ class GeneralUtility
 	 */
 	static public function xmlGetHeaderAttribs($xmlData)
 	{
-		$match = array();
+		$match = [];
 		if (preg_match('/^\\s*<\\?xml([^>]*)\\?\\>/', $xmlData, $match)) {
 			return self::get_tag_attributes($match[1]);
 		}
@@ -2367,16 +2367,16 @@ class GeneralUtility
 			$fakeThis = FALSE;
 			foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['minifyJavaScript'] as $hookMethod) {
 				try {
-					$parameters = array('script' => $script);
+					$parameters = ['script' => $script];
 					$script = static::callUserFunction($hookMethod, $parameters, $fakeThis);
 				} catch (Exception $e) {
 					$errorMessage = 'Error minifying java script: ' . $e->getMessage();
 					$error .= $errorMessage;
-					static::devLog($errorMessage, 'TYPO3\\CMS\\Core\\Utility\\GeneralUtility', 2, array(
+					static::devLog($errorMessage, 'TYPO3\\CMS\\Core\\Utility\\GeneralUtility', 2, [
 						'JavaScript' => $script,
 						'Stack trace' => $e->getTrace(),
 						'hook' => $hookMethod
-					));
+					]);
 				}
 			}
 		}
@@ -2531,11 +2531,11 @@ Connection: close
 				}
 				return FALSE;
 			}
-			$ctx = stream_context_create(array(
-				'http' => array(
+			$ctx = stream_context_create([
+				'http' => [
 					'header' => implode(CRLF, $requestHeaders)
-				)
-			));
+				]
+			]);
 			$content = @file_get_contents($url, FALSE, $ctx);
 			if ($content === FALSE && isset($report)) {
 				$report['error'] = -1;
@@ -2849,7 +2849,7 @@ Connection: close
 		if ($path) {
 			if (is_dir($path)) {
 				$dir = scandir($path);
-				$dirs = array();
+				$dirs = [];
 				foreach ($dir as $entry) {
 					if (is_dir($path . '/' . $entry) && $entry != '..' && $entry != '.') {
 						$dirs[] = $entry;
@@ -2875,8 +2875,8 @@ Connection: close
 	static public function getFilesInDir($path, $extensionList = '', $prependPath = FALSE, $order = '', $excludePattern = '')
 	{
 		// Initialize variables:
-		$filearray = array();
-		$sortarray = array();
+		$filearray = [];
+		$sortarray = [];
 		$path = rtrim($path, '/');
 		// Find files+directories:
 		if (@is_dir($path)) {
@@ -2906,7 +2906,7 @@ Connection: close
 		// Sort them:
 		if ($order) {
 			asort($sortarray);
-			$newArr = array();
+			$newArr = [];
 			foreach ($sortarray as $k => $v) {
 				$newArr[$k] = $filearray[$k];
 			}
@@ -2986,7 +2986,7 @@ Connection: close
 	static public function resolveBackPath($pathStr)
 	{
 		$parts = explode('/', $pathStr);
-		$output = array();
+		$output = [];
 		$c = 0;
 		foreach ($parts as $pV) {
 			if ($pV == '..') {
@@ -3170,7 +3170,7 @@ Connection: close
 	 * @param array $getParams Array of GET parameters to include
 	 * @return string
 	 */
-	static public function linkThisScript(array $getParams = array())
+	static public function linkThisScript(array $getParams = [])
 	{
 		$parts = self::getIndpEnv('SCRIPT_NAME');
 		$params = self::_GET();
@@ -3193,10 +3193,10 @@ Connection: close
 	 * @param array $getParams Array of key/value pairs for get parameters to add/overrule with. Can be multidimensional.
 	 * @return string Output URL with added getParams.
 	 */
-	static public function linkThisUrl($url, array $getParams = array())
+	static public function linkThisUrl($url, array $getParams = [])
 	{
 		$parts = parse_url($url);
-		$getP = array();
+		$getP = [];
 		if ($parts['query']) {
 			parse_str($parts['query'], $getP);
 		}
@@ -3381,7 +3381,7 @@ Connection: close
 				$SFN = self::getIndpEnv('SCRIPT_FILENAME');
 				$SN_A = explode('/', strrev(self::getIndpEnv('SCRIPT_NAME')));
 				$SFN_A = explode('/', strrev($SFN));
-				$acc = array();
+				$acc = [];
 				foreach ($SN_A as $kk => $vv) {
 					if (!strcmp($SFN_A[$kk], $vv)) {
 						$acc[] = $vv;
@@ -3447,7 +3447,7 @@ Connection: close
 				}
 				break;
 			case '_ARRAY':
-				$out = array();
+				$out = [];
 				// Here, list ALL possible keys to this function for debug display.
 				$envTestVars = self::trimExplode(',', '
 					HTTP_HOST,
@@ -3503,7 +3503,7 @@ Connection: close
 		if (!$useragent) {
 			$useragent = self::getIndpEnv('HTTP_USER_AGENT');
 		}
-		$bInfo = array();
+		$bInfo = [];
 		// Which browser?
 		if (strpos($useragent, 'Konqueror') !== FALSE) {
 			$bInfo['BROWSER'] = 'konqu';
@@ -3841,7 +3841,7 @@ Connection: close
 	static public function stdAuthCode($uid_or_record, $fields = '', $codeLength = 8)
 	{
 		if (is_array($uid_or_record)) {
-			$recCopy_temp = array();
+			$recCopy_temp = [];
 			if ($fields) {
 				$fieldArr = self::trimExplode(',', $fields, 1);
 				foreach ($fieldArr as $k => $v) {
@@ -4013,7 +4013,7 @@ Connection: close
 			// Default sheet
 			$sheet = 'sDEF';
 		}
-		return array($dataStruct, $sheet, $singleSheet);
+		return [$dataStruct, $sheet, $singleSheet];
 	}
 
 	/**
@@ -4026,7 +4026,7 @@ Connection: close
 	static public function resolveAllSheetsInDS(array $dataStructArray)
 	{
 		if (is_array($dataStructArray['sheets'])) {
-			$out = array('sheets' => array());
+			$out = ['sheets' => []];
 			foreach ($dataStructArray['sheets'] as $sheetId => $sDat) {
 				list($ds, $aS) = self::resolveSheetDefInDS($dataStructArray, $sheetId);
 				if ($sheetId == $aS) {
@@ -4035,7 +4035,7 @@ Connection: close
 			}
 		} else {
 			list($ds) = self::resolveSheetDefInDS($dataStructArray);
-			$out = array('sheets' => array('sDEF' => $ds));
+			$out = ['sheets' => ['sDEF' => $ds]];
 		}
 		return $out;
 	}
@@ -4057,14 +4057,14 @@ Connection: close
 		$content = FALSE;
 		// Check if we're using a closure and invoke it directly.
 		if (is_object($funcName) && is_a($funcName, 'Closure')) {
-			return call_user_func_array($funcName, array(&$params, &$ref));
+			return call_user_func_array($funcName, [&$params, &$ref]);
 		}
 		// Check persistent object and if found, call directly and exit.
 		if (is_array($GLOBALS['T3_VAR']['callUserFunction'][$funcName])) {
-			return call_user_func_array(array(
+			return call_user_func_array([
 				&$GLOBALS['T3_VAR']['callUserFunction'][$funcName]['obj'],
 				$GLOBALS['T3_VAR']['callUserFunction'][$funcName]['method']
-			), array(&$params, &$ref));
+			], [&$params, &$ref]);
 		}
 		// Check file-reference prefix; if found, require_once() the file (should be library of code)
 		if (strpos($funcName, ':') !== FALSE) {
@@ -4103,13 +4103,13 @@ Connection: close
 				if (method_exists($classObj, $parts[1])) {
 					// If persistent object should be created, set reference:
 					if ($storePersistentObject) {
-						$GLOBALS['T3_VAR']['callUserFunction'][$funcName] = array(
+						$GLOBALS['T3_VAR']['callUserFunction'][$funcName] = [
 							'method' => $parts[1],
 							'obj' => &$classObj
-						);
+						];
 					}
 					// Call method:
-					$content = call_user_func_array(array(&$classObj, $parts[1]), array(&$params, &$ref));
+					$content = call_user_func_array([&$classObj, $parts[1]], [&$params, &$ref]);
 				} else {
 					$errorMsg = 'No method name \'' . $parts[1] . '\' in class ' . $parts[0];
 					if ($errorMode == 2) {
@@ -4129,7 +4129,7 @@ Connection: close
 		} else {
 			// Function
 			if (function_exists($funcRef)) {
-				$content = call_user_func_array($funcRef, array(&$params, &$ref));
+				$content = call_user_func_array($funcRef, [&$params, &$ref]);
 			} else {
 				$errorMsg = 'No function named: ' . $funcRef;
 				if ($errorMode == 2) {
@@ -4198,7 +4198,7 @@ Connection: close
 	 * @return bool TRUE if name is allowed
 	 * @deprecated since 6.0, will be removed two versions later
 	 */
-	static public function hasValidClassPrefix($classRef, array $additionalPrefixes = array())
+	static public function hasValidClassPrefix($classRef, array $additionalPrefixes = [])
 	{
 		self::logDeprecatedFunction();
 		return TRUE;
@@ -4213,7 +4213,7 @@ Connection: close
 	static public function getValidClassPrefixes()
 	{
 		self::logDeprecatedFunction();
-		$validPrefixes = array('tx_', 'Tx_', 'user_', 'User_', 't3lib_', '');
+		$validPrefixes = ['tx_', 'Tx_', 'user_', 'User_', 't3lib_', ''];
 		return $validPrefixes;
 	}
 
@@ -4354,7 +4354,7 @@ Connection: close
 	 */
 	static public function resetSingletonInstances(array $newSingletonInstances)
 	{
-		static::$singletonInstances = array();
+		static::$singletonInstances = [];
 		foreach ($newSingletonInstances as $className => $instance) {
 			static::setSingletonInstance($className, $instance);
 		}
@@ -4399,7 +4399,7 @@ Connection: close
 			throw new InvalidArgumentException('$instance must not be an instance of TYPO3\\CMS\\Core\\SingletonInterface. ' . 'For setting singletons, please use setSingletonInstance.', 1288969325);
 		}
 		if (!isset(self::$nonSingletonInstances[$className])) {
-			self::$nonSingletonInstances[$className] = array();
+			self::$nonSingletonInstances[$className] = [];
 		}
 		self::$nonSingletonInstances[$className][] = $instance;
 	}
@@ -4436,8 +4436,8 @@ Connection: close
 	 */
 	static public function purgeInstances()
 	{
-		self::$singletonInstances = array();
-		self::$nonSingletonInstances = array();
+		self::$singletonInstances = [];
+		self::$nonSingletonInstances = [];
 	}
 
 	/**
@@ -4449,17 +4449,17 @@ Connection: close
 	 * @param mixed $excludeServiceKeys List of service keys which should be excluded in the search for a service. Array or comma list.
 	 * @return object The service object or an array with error info's.
 	 */
-	static public function makeInstanceService($serviceType, $serviceSubType = '', $excludeServiceKeys = array())
+	static public function makeInstanceService($serviceType, $serviceSubType = '', $excludeServiceKeys = [])
 	{
 		$error = FALSE;
 		if (!is_array($excludeServiceKeys)) {
 			$excludeServiceKeys = self::trimExplode(',', $excludeServiceKeys, 1);
 		}
-		$requestInfo = array(
+		$requestInfo = [
 			'requestedServiceType' => $serviceType,
 			'requestedServiceSubType' => $serviceSubType,
 			'requestedExcludeServiceKeys' => $excludeServiceKeys
-		);
+		];
 		while ($info = ExtensionManagementUtility::findService($serviceType, $serviceSubType, $excludeServiceKeys)) {
 			// provide information about requested service to service object
 			$info = array_merge($info, $requestInfo);
@@ -4487,7 +4487,7 @@ Connection: close
 
 				$obj = self::makeInstance($info['className']);
 				if (is_object($obj)) {
-					if (!@is_callable(array($obj, 'init'))) {
+					if (!@is_callable([$obj, 'init'])) {
 						// use silent logging??? I don't think so.
 						die('Broken service:' . DebugUtility::viewArray($info));
 					}
@@ -4497,7 +4497,7 @@ Connection: close
 						// create persistent object
 						$GLOBALS['T3_VAR']['makeInstanceService'][$info['className']] = $obj;
 						// needed to delete temp files
-						register_shutdown_function(array(&$obj, '__destruct'));
+						register_shutdown_function([&$obj, '__destruct']);
 						return $obj;
 					}
 					$error = $obj->getLastErrorArray();
@@ -4563,7 +4563,7 @@ Connection: close
 		$email = self::normalizeMailAddress($email);
 		if (!$dontEncodeHeader) {
 			// Mail headers must be ASCII, therefore we convert the whole header to either base64 or quoted_printable
-			$newHeaders = array();
+			$newHeaders = [];
 			// Split the header in lines and convert each line separately
 			foreach (explode(LF, $headers) as $line) {
 				// Field tags must not be encoded
@@ -4705,8 +4705,8 @@ Connection: close
 						// Encoded words in the header should not contain non-encoded:
 						// * spaces. "_" is a shortcut for "=20". See RFC 2047 for details.
 						// * question mark. See RFC 1342 (http://tools.ietf.org/html/rfc1342)
-						$search = array(' ', '?');
-						$replace = array('_', '=3F');
+						$search = [' ', '?'];
+						$replace = ['_', '=3F'];
 						$qpValue = str_replace($search, $replace, $qpValue);
 						$part = '=?' . $charset . '?Q?' . $qpValue . '?=';
 					}
@@ -4770,12 +4770,12 @@ Connection: close
 			$md5 = substr(md5($inUrl), 0, 20);
 			$count = $GLOBALS['TYPO3_DB']->exec_SELECTcountRows('*', 'cache_md5params', 'md5hash=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($md5, 'cache_md5params'));
 			if (!$count) {
-				$insertFields = array(
+				$insertFields = [
 					'md5hash' => $md5,
 					'tstamp' => $GLOBALS['EXEC_TIME'],
 					'type' => 2,
 					'params' => $inUrl
-				);
+				];
 				$GLOBALS['TYPO3_DB']->exec_INSERTquery('cache_md5params', $insertFields);
 			}
 			$inUrl = ($index_script_url ? $index_script_url : self::getIndpEnv('TYPO3_REQUEST_DIR') . 'index.php') . '?RDCT=' . $md5;
@@ -4815,7 +4815,7 @@ Connection: close
 		}
 		// Init custom logging
 		if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['systemLog'])) {
-			$params = array('initLog' => TRUE);
+			$params = ['initLog' => TRUE];
 			$fakeThis = FALSE;
 			foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['systemLog'] as $hookMethod) {
 				self::callUserFunction($hookMethod, $params, $fakeThis);
@@ -4861,7 +4861,7 @@ Connection: close
 		}
 		// Do custom logging
 		if (isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['systemLog']) && is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['systemLog'])) {
-			$params = array('msg' => $msg, 'extKey' => $extKey, 'backTrace' => debug_backtrace(), 'severity' => $severity);
+			$params = ['msg' => $msg, 'extKey' => $extKey, 'backTrace' => debug_backtrace(), 'severity' => $severity];
 			$fakeThis = FALSE;
 			foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['systemLog'] as $hookMethod) {
 				self::callUserFunction($hookMethod, $params, $fakeThis);
@@ -4906,7 +4906,7 @@ Connection: close
 			} elseif ($type == 'error_log') {
 				error_log($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['systemLogHost'] . $msgLine, 0);
 			} elseif ($type == 'syslog') {
-				$priority = array(LOG_INFO, LOG_NOTICE, LOG_WARNING, LOG_ERR, LOG_CRIT);
+				$priority = [LOG_INFO, LOG_NOTICE, LOG_WARNING, LOG_ERR, LOG_CRIT];
 				syslog($priority[(int)$severity], $msgLine);
 			}
 		}
@@ -4929,7 +4929,7 @@ Connection: close
 	static public function devLog($msg, $extKey, $severity = 0, $dataVar = FALSE)
 	{
 		if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['devLog'])) {
-			$params = array('msg' => $msg, 'extKey' => $extKey, 'severity' => $severity, 'dataVar' => $dataVar);
+			$params = ['msg' => $msg, 'extKey' => $extKey, 'severity' => $severity, 'dataVar' => $dataVar];
 			$fakeThis = FALSE;
 			foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_div.php']['devLog'] as $hookMethod) {
 				self::callUserFunction($hookMethod, $params, $fakeThis);
@@ -5037,7 +5037,7 @@ Connection: close
 	 * @param integer $valueLength Long string values are shortened to this length. Default: 20
 	 * @return string Output string with key names and their value as string
 	 */
-	static public function arrayToLogString(array $arr, $valueList = array(), $valueLength = 20)
+	static public function arrayToLogString(array $arr, $valueList = [], $valueLength = 20)
 	{
 		$str = '';
 		if (!is_array($valueList)) {

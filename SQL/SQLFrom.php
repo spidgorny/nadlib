@@ -8,7 +8,7 @@ class SQLFrom extends SQLWherePart
 	 */
 	var $db;
 
-	protected $parts = array();
+	protected $parts = [];
 
 	function __construct($from)
 	{

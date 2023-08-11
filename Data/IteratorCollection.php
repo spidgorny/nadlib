@@ -10,7 +10,7 @@ class IteratorCollection /*extends Collection*/
 	implements Iterator, Countable
 {
 
-	var $data = array();
+	var $data = [];
 
 	function rewind()
 	{

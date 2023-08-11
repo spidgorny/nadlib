@@ -3,7 +3,7 @@
 class SQLJoin
 {
 
-	protected $parts = array();
+	protected $parts = [];
 
 	function __construct($join = NULL)
 	{

@@ -17,21 +17,21 @@ class HTML
 	 * @param array $more
 	 * @return HTMLTag
 	 */
-	function a($href, $text = '', $isHTML = false, array $more = array())
+	function a($href, $text = '', $isHTML = false, array $more = [])
 	{
-		return new HTMLTag('a', array(
+		return new HTMLTag('a', [
 				'href' => $href,
-			) + $more, $text ?: $href, $isHTML);
+			] + $more, $text ?: $href, $isHTML);
 	}
 
-	function div($content, $class = '', array $more = array())
+	function div($content, $class = '', array $more = [])
 	{
 		$more['class'] = ifsetor($more['class']) . ' ' . $class;
 		$more = HTMLTag::renderAttr($more);
 		return '<div ' . $more . '>' . $this->s($content) . '</div>';
 	}
 
-	function span($content, $class = '', array $more = array())
+	function span($content, $class = '', array $more = [])
 	{
 		$more['class'] = ifsetor($more['class']) . ' ' . $class;
 		$more = HTMLTag::renderAttr($more);
@@ -78,12 +78,12 @@ class HTML
 		return '<h4>' . $this->s($content) . '</h4>';
 	}
 
-	function h5($content, array $more = array())
+	function h5($content, array $more = [])
 	{
 		return '<h5 ' . HTMLTag::renderAttr($more) . '>' . $this->s($content) . '</h5>';
 	}
 
-	function h6($content, array $more = array())
+	function h6($content, array $more = [])
 	{
 		return '<h6 ' . HTMLTag::renderAttr($more) . '>' . $this->s($content) . '</h6>';
 	}
@@ -100,17 +100,17 @@ class HTML
 		</div>';
 	}
 
-	function p($content, array $attr = array())
+	function p($content, array $attr = [])
 	{
 		$more = HTMLTag::renderAttr($attr);
 		return '<p ' . $more . '>' . $this->s($content) . '</p>';
 	}
 
-	function img($src, array $attr = array())
+	function img($src, array $attr = [])
 	{
-		return new HTMLTag('img', array(
+		return new HTMLTag('img', [
 				'src' => /*$this->e*/ ($src),    // encoding is not necessary for &amp; in URL
-			) + $attr);
+			] + $attr);
 	}
 
 	function e($content)
@@ -128,7 +128,7 @@ class HTML
 		return '<script src="' . $file . '" type="text/javascript"></script>';
 	}
 
-	function url($page, array $params = array())
+	function url($page, array $params = [])
 	{
 		return $page . '?' . http_build_query($params);
 	}

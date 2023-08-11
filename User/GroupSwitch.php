@@ -9,9 +9,9 @@ class GroupSwitch extends AppController
 	 * @see Index
 	 * @var array
 	 */
-	public $allowedUsers = array();
+	public $allowedUsers = [];
 
-	protected $groups = array();
+	protected $groups = [];
 
 	function render()
 	{
@@ -50,12 +50,12 @@ class GroupSwitch extends AppController
 
 	function renderGroups()
 	{
-		$items = array();
+		$items = [];
 		foreach ($this->groups as $groupID => $groupName) {
-			$el = $this->makeLink($groupName, array(
+			$el = $this->makeLink($groupName, [
 					'action' => 'setGroup',
 					'groupID' => $groupID,
-				), get_class($this)) . ' ';
+				], get_class($this)) . ' ';
 			if ($this->isCurrentGroup($groupID)) {
 				$el = '<b>' . $el . '</b>';
 			}

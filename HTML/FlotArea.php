@@ -31,11 +31,11 @@ class FlotArea
 
 	function getSeries()
 	{
-		$series = array();
+		$series = [];
 		ksort($this->data);
 		foreach ($this->data as $time => $pair) {
 			foreach ($this->series as $key) {
-				$series[$key][] = array($time * 1000, $pair[$key]);
+				$series[$key][] = [$time * 1000, $pair[$key]];
 			}
 		}
 		return $series;

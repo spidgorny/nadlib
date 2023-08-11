@@ -12,7 +12,7 @@ class WordReader
 	 */
 	public $inputNameWrap;
 
-	public $inputValues = array();
+	public $inputValues = [];
 
 	/**
 	 * How many next table rows should collapse.
@@ -22,7 +22,7 @@ class WordReader
 
 	protected $closeLabelAfterText;
 
-	public $struct = array();
+	public $struct = [];
 
 	protected $structText = '';        // temp
 

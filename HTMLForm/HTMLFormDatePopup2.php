@@ -12,9 +12,9 @@ class HTMLFormDatePopup2
 	protected $desc;
 	public $id;
 
-	function __construct(HTMLForm $form, $name, $value, array $desc = array(
+	function __construct(HTMLForm $form, $name, $value, array $desc = [
 		'phpFormat' => 'Y-m-d',
-	))
+	])
 	{
 		$this->form = $form;
 		$this->name = $name;

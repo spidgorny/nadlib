@@ -27,7 +27,7 @@ class View extends stdClass
 	 */
 	protected $request;
 
-	protected $parts = array();
+	protected $parts = [];
 
 	protected $folder;
 
@@ -40,7 +40,7 @@ class View extends stdClass
 	 * Store something here and then @use $this->data('asd') to access it with escaping
 	 * @var array
 	 */
-	public $data = array();
+	public $data = [];
 
 	/**
 	 * @var AppController
@@ -147,7 +147,7 @@ class View extends stdClass
 	function wikify($text, $linkCallback = null)
 	{
 		$inUL = false;
-		$lines2 = array();
+		$lines2 = [];
 		$lines = trimExplode("\n", '' . $text);
 		foreach ($lines as $line) {
 			if ($line[0] == '*' || $line[0] == '-') {
@@ -249,9 +249,9 @@ class View extends stdClass
 
 	function __call($func, array $args)
 	{
-		$method = array($this->caller, $func);
+		$method = [$this->caller, $func];
 		if (!is_callable($method) || !method_exists($this->caller, $func)) {
-			//$method = array($this->caller, end(explode('::', $func)));
+			//$method = [$this->caller, end(explode('::', $func))];
 			$methodName = get_class($this->caller) . '::' . $func;
 			throw new Exception('View: Method ' . $func . ' (' . $methodName . ') doesn\'t exists.');
 		}
@@ -284,10 +284,10 @@ class View extends stdClass
 		$urls = $this->_autolink_find_URLS($text);
 		if (!empty($urls)) // i.e. there were some URLS found in the text
 		{
-			array_walk($urls, array($this, '_autolink_create_html_tags'), array(
+			array_walk($urls, [$this, '_autolink_create_html_tags'], [
 				'target' => $target,
 				'nofollow' => $nofollow,
-			));
+			]);
 			$text = str_replace(array_keys($urls), array_values($urls), $text);
 		}
 		return $text;
@@ -311,7 +311,7 @@ class View extends stdClass
 		if ($c) {
 			return (array_flip($m[0]));
 		}
-		return (array());
+		return ([]);
 	}
 
 	function _autolink_create_html_tags(&$value, $key, $other = NULL)
@@ -345,17 +345,17 @@ class View extends stdClass
 		return $money;
 	}
 
-	static function bar($percent, array $params = array(), $attr = array())
+	static function bar($percent, array $params = [], $attr = [])
 	{
 		$percent = round($percent);
-		$src = AutoLoad::getInstance()->nadlibFromDocRoot . 'bar.php?' . http_build_query($params + array(
+		$src = AutoLoad::getInstance()->nadlibFromDocRoot . 'bar.php?' . http_build_query($params + [
 					'rating' => $percent,
 					'color' => '6DC5B4',
-				));
-		$attr += array(
+				]);
+		$attr += [
 			'src' => $src,
 			'alt' => $percent . '%',
-		);
+		];
 		return new HTMLTag('img', $attr, NULL);
 	}
 
@@ -380,8 +380,8 @@ class View extends stdClass
 		//debug($config);
 		$cc = new CommentCollection();
 		$config->set('HTML.Allowed', $cc->allowedTags);
-		$config->set('Attr.AllowedFrameTargets', array('_blank'));
-		$config->set('Attr.AllowedRel', array('nofollow'));
+		$config->set('Attr.AllowedFrameTargets', ['_blank']);
+		$config->set('Attr.AllowedRel', ['nofollow']);
 		$config->set('AutoFormat.Linkify', true);
 		$config->set('HTML.TargetBlank', true);
 		$config->set('HTML.Nofollow', true);

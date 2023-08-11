@@ -119,7 +119,7 @@ class Date extends Time
 
 	public function isWeekend()
 	{
-		return in_array($this->format('D'), array('Sat', 'Sun'));
+		return in_array($this->format('D'), ['Sat', 'Sun']);
 	}
 
 	function getHumanMerged()

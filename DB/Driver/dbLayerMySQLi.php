@@ -40,7 +40,7 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface
 	 * @return bool|mysqli_result
 	 * @throws DatabaseException
 	 */
-	function perform($query, array $params = array())
+	function perform($query, array $params = [])
 	{
 		$this->lastQuery = $query;
 
@@ -66,7 +66,7 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface
 						// pass by reference
 					}
 					//debug($data, $meta, $field, $this->columns);
-					$ok = call_user_func_array(array($stmt, 'bind_result'), $this->columns);
+					$ok = call_user_func_array([$stmt, 'bind_result'], $this->columns);
 				}
 				if (!$ok) {
 					throw new DatabaseException(mysqli_error($this->connection));
@@ -94,7 +94,7 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface
 
 	private function makeValuesReferenced(array $arr)
 	{
-		$refs = array();
+		$refs = [];
 		foreach ($arr as $key => $value) {
 			$refs[$key] = &$arr[$key];
 		}
@@ -184,7 +184,7 @@ class dbLayerMySQLi extends dbLayerBase implements DBInterface
 
 	/**
 	 * @param string $table Table name
-	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
+	 * @param array $columns ['name' => 'John', 'lastname' => 'Doe']
 	 * @return string
 	 */
 	function getReplaceQuery($table, $columns)

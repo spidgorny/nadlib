@@ -7,7 +7,7 @@
 class DIContainer
 {
 
-	protected $values = array();
+	protected $values = [];
 
 	function __set($id, $value)
 	{

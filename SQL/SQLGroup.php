@@ -5,9 +5,9 @@ class SQLGroup
 
 	var $db;
 
-	protected $parts = array();
+	protected $parts = [];
 
-	function __construct($order = array())
+	function __construct($order = [])
 	{
 		if (is_array($order)) {
 			$this->parts = $order;

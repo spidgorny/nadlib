@@ -8,7 +8,7 @@ class Preferences
 	 */
 	protected $user;
 
-	public $prefs = array();    // for debug
+	public $prefs = [];    // for debug
 
 	function __construct(User $user)
 	{

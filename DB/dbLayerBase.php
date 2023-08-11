@@ -17,7 +17,7 @@ abstract class dbLayerBase implements DBInterface
 	 * which can't be used as field names and must be quoted
 	 * @var array
 	 */
-	protected $reserved = array();
+	protected $reserved = [];
 
 	/**
 	 * @var resource
@@ -85,7 +85,7 @@ abstract class dbLayerBase implements DBInterface
 			}
 		}
 		if (method_exists($this->qb, $method)) {
-			return call_user_func_array(array($this->qb, $method), $params);
+			return call_user_func_array([$this->qb, $method], $params);
 		} else {
 			throw new Exception($method . ' not found in ' . get_class($this) . ' and SQLBuilder');
 		}
@@ -107,7 +107,7 @@ abstract class dbLayerBase implements DBInterface
 		}
 		$max = $start + $limit;
 		$max = min($max, $this->numRows($res));
-		$data = array();
+		$data = [];
 		for ($i = $start; $i < $max; $i++) {
 			$this->dataSeek($res, $i);
 			$row = $this->fetchAssocSeek($res);
@@ -166,7 +166,7 @@ abstract class dbLayerBase implements DBInterface
 
 	function getTables()
 	{
-		return array();
+		return [];
 	}
 
 	function lastInsertID($res, $table = NULL)
@@ -200,22 +200,22 @@ abstract class dbLayerBase implements DBInterface
 
 	function fetchAssoc($res)
 	{
-		return array();
+		return [];
 	}
 
 	function getTablesEx()
 	{
-		return array();
+		return [];
 	}
 
 	function getTableColumnsEx($table)
 	{
-		return array();
+		return [];
 	}
 
 	function getIndexesFrom($table)
 	{
-		return array();
+		return [];
 	}
 
 	function isConnected()
@@ -237,7 +237,7 @@ abstract class dbLayerBase implements DBInterface
 	{
 		return in_array(
 			$this->getScheme(),
-			array('mysql', 'mysqli'));
+			['mysql', 'mysqli']);
 	}
 
 	function isPostgres()
@@ -262,7 +262,7 @@ abstract class dbLayerBase implements DBInterface
 
 	function quoteKeys(array $a)
 	{
-		$c = array();
+		$c = [];
 		foreach ($a as $b) {
 			$c[] = $this->quoteKey($b);
 		}

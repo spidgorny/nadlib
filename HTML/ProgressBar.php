@@ -292,11 +292,11 @@ class ProgressBar
 	 */
 	function getTerminalSizeOnWindows()
 	{
-		$output = array();
-		$size = array('width' => 0, 'height' => 0);
+		$output = [];
+		$size = ['width' => 0, 'height' => 0];
 		exec('mode', $output);
 		foreach ($output as $line) {
-			$matches = array();
+			$matches = [];
 			$w = preg_match('/^\s*columns\:?\s*(\d+)\s*$/i', $line, $matches);
 			if ($w) {
 				$size['width'] = intval($matches[1]);
@@ -316,8 +316,8 @@ class ProgressBar
 	function getTerminalSizeOnLinux()
 	{
 		$size = array_combine(
-			array('width', 'height'),
-			array(exec('tput cols'), exec('tput lines'))
+			['width', 'height'],
+			[exec('tput cols'), exec('tput lines')]
 		);
 		return $size;
 	}
@@ -341,10 +341,10 @@ class ProgressBar
 			}
 		}
 		//echo 'event: status', "\n\n";
-		echo 'data: ' . json_encode(array(
+		echo 'data: ' . json_encode([
 				'current' => $index,
 				'total' => $this->count,
-			)), "\n\n";
+			]), "\n\n";
 		if (ob_get_status()) {
 			ob_end_flush();
 		}
@@ -353,7 +353,7 @@ class ProgressBar
 
 	function done($content)
 	{
-		echo 'data: ', json_encode(array('complete' => $content)), "\n\n";
+		echo 'data: ', json_encode(['complete' => $content]), "\n\n";
 	}
 
 	/**

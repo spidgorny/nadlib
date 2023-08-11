@@ -14,9 +14,9 @@ class Recursive
 	 */
 	public $value;
 
-	public $elements = array();
+	public $elements = [];
 
-	function __construct($value, array $elements = array())
+	function __construct($value, array $elements = [])
 	{
 		$this->value = $value;
 		$this->elements = $elements;
@@ -85,7 +85,7 @@ class Recursive
 	 */
 	function eachRecursiveKey($callback, $level = 0)
 	{
-		$new = array();
+		$new = [];
 		foreach ($this->elements as $i => $el) {
 			if ($el instanceof Recursive) {
 				$val = $el->eachRecursiveKey($callback, $level + 1);

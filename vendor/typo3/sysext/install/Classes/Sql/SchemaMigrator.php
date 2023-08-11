@@ -54,7 +54,7 @@ class SchemaMigrator
 	/**
 	 * @var array Caching output of $GLOBALS['TYPO3_DB']->admin_get_charsets()
 	 */
-	protected $character_sets = array();
+	protected $character_sets = [];
 
 	// Maximum field width of MYSQL
 	const MYSQL_MAXIMUM_FIELD_WIDTH = 64;
@@ -99,7 +99,7 @@ class SchemaMigrator
 	{
 		$lines = GeneralUtility::trimExplode(LF, $fileContent, 1);
 		$table = '';
-		$total = array();
+		$total = [];
 		foreach ($lines as $value) {
 			if (substr($value, 0, 1) == '#') {
 				// Ignore comments
@@ -116,7 +116,7 @@ class SchemaMigrator
 				}
 			} else {
 				if (substr($value, 0, 1) == ')' && substr($value, -1) == ';') {
-					$ttype = array();
+					$ttype = [];
 					if (preg_match('/(ENGINE|TYPE)[ ]*=[ ]*([a-zA-Z]*)/', $value, $ttype)) {
 						$total[$table]['extra']['ENGINE'] = $ttype[2];
 					}
@@ -160,8 +160,8 @@ class SchemaMigrator
 						$total[$table]['fields'][$key] = $parts[1];
 					} else {
 						// Key definition
-						$search = array('/UNIQUE (INDEX|KEY)/', '/FULLTEXT (INDEX|KEY)/', '/INDEX/');
-						$replace = array('UNIQUE', 'FULLTEXT', 'KEY');
+						$search = ['/UNIQUE (INDEX|KEY)/', '/FULLTEXT (INDEX|KEY)/', '/INDEX/'];
+						$replace = ['UNIQUE', 'FULLTEXT', 'KEY'];
 						$lineV = preg_replace($search, $replace, $lineV);
 						if (preg_match('/PRIMARY|UNIQUE|FULLTEXT/', $parts[0])) {
 							$parts[1] = preg_replace('/^(KEY|INDEX) /', '', $parts[1]);
@@ -210,20 +210,20 @@ class SchemaMigrator
 								if ($newSize <= 255) {
 									$fInfo['value'] = $newSize;
 								} else {
-									$fInfo = array(
+									$fInfo = [
 										'fieldType' => 'text',
-										'featureIndex' => array(
-											'NOTNULL' => array(
+										'featureIndex' => [
+											'NOTNULL' => [
 												'keyword' => 'NOT NULL'
-											)
-										)
-									);
+											]
+										]
+									];
 									// Change key definition if necessary (must use "prefix" on TEXT columns)
 									if (is_array($cfg['keys'])) {
 										foreach ($cfg['keys'] as $kN => $kType) {
-											$match = array();
+											$match = [];
 											preg_match('/^([^(]*)\\(([^)]+)\\)(.*)/', $kType, $match);
-											$keys = array();
+											$keys = [];
 											foreach (GeneralUtility::trimExplode(',', $match[2]) as $kfN) {
 												if ($fN == $kfN) {
 													$kfN .= '(' . $newSize . ')';
@@ -263,7 +263,7 @@ class SchemaMigrator
 				$this->character_sets = $GLOBALS['TYPO3_DB']->admin_get_charsets();
 			} else {
 				// Add empty element to avoid that the check will be repeated
-				$this->character_sets[$charset] = array();
+				$this->character_sets[$charset] = [];
 			}
 		}
 		$collation = '';
@@ -280,9 +280,9 @@ class SchemaMigrator
 	 */
 	public function getFieldDefinitions_database()
 	{
-		$total = array();
-		$tempKeys = array();
-		$tempKeysPrefix = array();
+		$total = [];
+		$tempKeys = [];
+		$tempKeysPrefix = [];
 		$GLOBALS['TYPO3_DB']->sql_select_db();
 		echo $GLOBALS['TYPO3_DB']->sql_error();
 		$tables = $GLOBALS['TYPO3_DB']->admin_get_tables();
@@ -317,10 +317,10 @@ class SchemaMigrator
 			}
 			// Table status (storage engine, collaction, etc.)
 			if (is_array($tableStatus)) {
-				$tableExtraFields = array(
+				$tableExtraFields = [
 					'Engine' => 'ENGINE',
 					'Collation' => 'COLLATE'
-				);
+				];
 				foreach ($tableExtraFields as $mysqlKey => $internalKey) {
 					if (isset($tableStatus[$mysqlKey])) {
 						$total[$tableName]['extra'][$internalKey] = $tableStatus[$mysqlKey];
@@ -352,8 +352,8 @@ class SchemaMigrator
 	 */
 	public function getDatabaseExtra($FDsrc, $FDcomp, $onlyTableList = '', $ignoreNotNullWhenComparing = TRUE)
 	{
-		$extraArr = array();
-		$diffArr = array();
+		$extraArr = [];
+		$diffArr = [];
 		if (is_array($FDsrc)) {
 			foreach ($FDsrc as $table => $info) {
 				if (!strlen($onlyTableList) || GeneralUtility::inList($onlyTableList, $table)) {
@@ -391,11 +391,11 @@ class SchemaMigrator
 				}
 			}
 		}
-		$output = array(
+		$output = [
 			'extra' => $extraArr,
 			'diff' => $diffArr,
 			'diff_currentValues' => $diffArr_cur
-		);
+		];
 		return $output;
 	}
 
@@ -408,7 +408,7 @@ class SchemaMigrator
 	 */
 	public function getUpdateSuggestions($diffArr, $keyList = 'extra,diff')
 	{
-		$statements = array();
+		$statements = [];
 		$deletedPrefixKey = $this->deletedPrefixKey;
 		$deletedPrefixLength = strlen($deletedPrefixKey);
 		$remove = 0;
@@ -420,7 +420,7 @@ class SchemaMigrator
 		foreach ($keyList as $theKey) {
 			if (is_array($diffArr[$theKey])) {
 				foreach ($diffArr[$theKey] as $table => $info) {
-					$whole_table = array();
+					$whole_table = [];
 					if (is_array($info['fields'])) {
 						foreach ($info['fields'] as $fN => $fV) {
 							if ($info['whole_table']) {
@@ -484,8 +484,8 @@ class SchemaMigrator
 						}
 					}
 					if (is_array($info['extra'])) {
-						$extras = array();
-						$extras_currentValue = array();
+						$extras = [];
+						$extras_currentValue = [];
 						$clear_table = FALSE;
 						foreach ($info['extra'] as $fN => $fV) {
 							// Only consider statements which are missing in the database but don't remove existing properties
@@ -563,7 +563,7 @@ class SchemaMigrator
 	 */
 	public function assembleFieldDefinition($row)
 	{
-		$field = array($row['Type']);
+		$field = [$row['Type']];
 		if ($row['Null'] == 'NO') {
 			$field[] = 'NOT NULL';
 		}
@@ -595,7 +595,7 @@ class SchemaMigrator
 	{
 		$sqlcodeArr = explode(LF, $sqlcode);
 		// Based on the assumption that the sql-dump has
-		$statementArray = array();
+		$statementArray = [];
 		$statementArrayPointer = 0;
 		foreach ($sqlcodeArr as $line => $lineContent) {
 			$is_set = 0;
@@ -631,10 +631,10 @@ class SchemaMigrator
 	 */
 	public function getCreateTables($statements, $insertCountFlag = FALSE)
 	{
-		$crTables = array();
-		$insertCount = array();
+		$crTables = [];
+		$insertCount = [];
 		foreach ($statements as $line => $lineContent) {
-			$reg = array();
+			$reg = [];
 			if (preg_match('/^create[[:space:]]*table[[:space:]]*[`]?([[:alnum:]_]*)[`]?/i', substr($lineContent, 0, 100), $reg)) {
 				$table = trim($reg[1]);
 				if ($table) {
@@ -656,7 +656,7 @@ class SchemaMigrator
 				$insertCount[$nTable]++;
 			}
 		}
-		return array($crTables, $insertCount);
+		return [$crTables, $insertCount];
 	}
 
 	/**
@@ -668,9 +668,9 @@ class SchemaMigrator
 	 */
 	public function getTableInsertStatements($statements, $table)
 	{
-		$outStatements = array();
+		$outStatements = [];
 		foreach ($statements as $line => $lineContent) {
-			$reg = array();
+			$reg = [];
 			if (preg_match('/^insert[[:space:]]*into[[:space:]]*[`]?([[:alnum:]_]*)[`]?/i', substr($lineContent, 0, 100), $reg)) {
 				$nTable = trim($reg[1]);
 				if ($nTable && !strcmp($table, $nTable)) {
@@ -690,7 +690,7 @@ class SchemaMigrator
 	 */
 	public function performUpdateQueries($arr, $keyArr)
 	{
-		$result = array();
+		$result = [];
 		if (is_array($arr)) {
 			foreach ($arr as $key => $string) {
 				if (isset($keyArr[$key]) && $keyArr[$key]) {

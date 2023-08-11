@@ -56,7 +56,7 @@ class Messages extends MergedContent
 	{
 		if (isset($_SESSION[__CLASS__])) {
 			$this->content = $_SESSION[__CLASS__]['messages'];
-			$_SESSION[__CLASS__]['messages'] = array();
+			$_SESSION[__CLASS__]['messages'] = [];
 		}
 	}
 

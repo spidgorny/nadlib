@@ -6,7 +6,7 @@
  * Usage: $data['mtime'] = new AsIs('NOW()');
  * Before that you would have to use this:
  * $data['mtime'] = 'now()';
- * $data['mtime.'] = array('asis' => TRUE);
+ * $data['mtime.'] = ['asis' => TRUE];
  * It's effectively just a container for the value but it's easy to check like this:
  * if ($val instanceof AsIs) {...
  *
@@ -24,10 +24,10 @@ class AsIsOp extends AsIs
 
 	function debug()
 	{
-		return array(
+		return [
 			'field' => $this->field,
 			'value' => $this->value,
-		);
+		];
 	}
 
 }

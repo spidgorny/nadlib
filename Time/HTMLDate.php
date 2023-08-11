@@ -5,10 +5,10 @@ class HTMLDate extends DateTime
 
 	function __toString()
 	{
-		return new HTMLTag('time', array(
+		return new HTMLTag('time', [
 				'datetime' => $this->format('Y-m-d H:i:s'),
 				'title' => $this->format('Y-m-d H:i:s'),
-			), $this->format('Y-m-d H:i')) . '';
+			], $this->format('Y-m-d H:i')) . '';
 	}
 
 }

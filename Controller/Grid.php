@@ -157,7 +157,7 @@ abstract class Grid extends AppController
 	 */
 	/*function clearFilterAction() {
 		if ($this->request->getControllerString() == get_class($this)) {
-			$this->filter = array();
+			$this->filter = [];
 			$cn = get_class($this->collection);
 			$this->user->setPref('Filter.'.$cn, $this->filter);
 			Index::getInstance()->message('Filter cleared');
@@ -172,14 +172,14 @@ abstract class Grid extends AppController
 
 	function showFilter()
 	{
-		$content = array();
+		$content = [];
 		if ($this->filter) {
 			$f = new HTMLFormTable();
 			$f->method('GET');
 			$f->defaultBR = true;
 			$this->filter = $f->fillValues($this->filter, $this->request->getAll());
 			$f->showForm($this->filter);
-			$f->submit('Filter', array('class' => 'btn btn-primary'));
+			$f->submit('Filter', ['class' => 'btn btn-primary']);
 			$content[] = $f->getContent();
 		}
 		return $content;
@@ -187,7 +187,7 @@ abstract class Grid extends AppController
 
 	function getFilterWhere()
 	{
-		$where = array();
+		$where = [];
 		if ($this->filter) {
 			foreach ($this->filter as $field => $desc) {
 				$value = $this->request->getTrim($field);

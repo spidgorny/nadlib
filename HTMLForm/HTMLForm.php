@@ -7,7 +7,7 @@ class HTMLForm
 
 	protected $method = "POST";
 
-	protected $prefix = array();
+	protected $prefix = [];
 
 	var $stdout = "";
 
@@ -25,14 +25,14 @@ class HTMLForm
 
 	protected $fieldset;
 
-	protected $fieldsetMore = array();
+	protected $fieldsetMore = [];
 
 	/**
 	 * @var array
 	 */
-	var $formMore = array(
+	var $formMore = [
 		'class' => '',
-	);
+	];
 
 	public $debug = false;
 
@@ -80,13 +80,13 @@ class HTMLForm
 		if (is_array($p)) {
 			$this->prefix = $p;
 		} else if ($p) {
-			$this->prefix = array($p);
+			$this->prefix = [$p];
 		} else {
-			$this->prefix = array();
+			$this->prefix = [];
 		}
 	}
 
-	function fieldset($name, $more = array())
+	function fieldset($name, $more = [])
 	{
 		$this->fieldset = $name;
 		$this->fieldsetMore = $more;
@@ -101,7 +101,7 @@ class HTMLForm
 	{
 		$a = '';
 		$path = $this->prefix;
-		$path = array_merge($path, is_array($name) ? $name : array($name));
+		$path = array_merge($path, is_array($name) ? $name : [$name]);
 		$first = array_shift($path);
 		$a .= $first;
 		if ($path) {
@@ -196,7 +196,7 @@ class HTMLForm
 		$this->text('</td></tr>');
 	}
 
-	function password($name, $value = "", array $desc = array())
+	function password($name, $value = "", array $desc = [])
 	{
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= "<input type=\"password\" ".$this->getName($name)." value=\"$value\">\n";
@@ -234,7 +234,7 @@ class HTMLForm
 	function radioLabel($name, $value, $checked, $label = "", $more = '')
 	{
 		$value = htmlspecialchars($value, ENT_QUOTES);
-		$aName = is_array($name) ? $name : array();
+		$aName = is_array($name) ? $name : [];
 		$id = implode('_', array_merge($this->prefix, $aName)) . "_" . $value;
 		$this->stdout .= '<label class="radio" for="' . $id . '">
 		<input
@@ -286,7 +286,7 @@ class HTMLForm
 		}
 	}
 
-	function file($name, array $desc = array())
+	function file($name, array $desc = [])
 	{
 		//$this->stdout .= "<input type=file ".$this->getName($name)." ".$desc['more'].">";
 		$this->stdout .= $this->getInput("file", $name, '', ifsetor($desc['more']), ifsetor($desc['class']));
@@ -305,8 +305,8 @@ class HTMLForm
 	 * @see renderSelectionOptions
 	 */
 	function selection($name, array $aOptions = NULL, $default,
-										 $autoSubmit = FALSE, $more = array(),
-										 $multiple = false, array $desc = array())
+										 $autoSubmit = FALSE, $more = [],
+										 $multiple = false, array $desc = [])
 	{
 		$sel = new HTMLFormSelection($name, $aOptions, $default);
 		$sel->autoSubmit = $autoSubmit;
@@ -324,7 +324,7 @@ class HTMLForm
 	 * @param $value
 	 * @param array $desc
 	 */
-	function date($name, $value, array $desc = array())
+	function date($name, $value, array $desc = [])
 	{
 //		debug($value);
 		$format = ifsetor($desc['format']) ? $desc['format'] : 'd.m.Y';
@@ -357,7 +357,7 @@ class HTMLForm
 	 * @param null $id
 	 * @param array $params
 	 */
-	function datepopup($name, $value = NULL, $type = "input", $activator = NULL, $id = NULL, $params = array())
+	function datepopup($name, $value = NULL, $type = "input", $activator = NULL, $id = NULL, $params = [])
 	{
 		$id = $id ? $id : uniqid('datepopup');
 		$fullname = $this->getName($name, '', TRUE);
@@ -396,12 +396,12 @@ class HTMLForm
 		$index->footer['init_cal_' . $id] = $script;
 	}
 
-	function datepopup2($name, $value = NULL, $plusConfig = '', array $desc = array())
+	function datepopup2($name, $value = NULL, $plusConfig = '', array $desc = [])
 	{
-		$dp2 = new HTMLFormDatePopup2($this, $name, $value, $desc + array(
+		$dp2 = new HTMLFormDatePopup2($this, $name, $value, $desc + [
 				'plusConfig' => $plusConfig,
 				'phpFormat' => 'Y-m-d',
-			));
+			]);
 		$this->stdout .= $dp2 . '';
 		return $dp2->id;
 	}
@@ -429,7 +429,7 @@ class HTMLForm
 	 * @param array $params
 	 * @return string
 	 */
-	function submit($value = NULL, array $params = array())
+	function submit($value = NULL, array $params = [])
 	{
 		$params['class'] = ifsetor($params['class'], 'submit btn');
 		$params['name'] = ifsetor($params['name'], 'btnSubmit');
@@ -442,13 +442,13 @@ class HTMLForm
 		return $content;
 	}
 
-	function button($innerHTML = NULL, array $more = array())
+	function button($innerHTML = NULL, array $more = [])
 	{
 		$more = HTMLTag::renderAttr($more);
 		$this->stdout .= "<button $more>$innerHTML</button>\n";
 	}
 
-	function image($value = NULL, $more = "", $desc = array())
+	function image($value = NULL, $more = "", $desc = [])
 	{
 		$more = is_array($more) ? HTMLTag::renderAttr($more) : $more;
 		$value = htmlspecialchars($value, ENT_QUOTES);
@@ -472,10 +472,10 @@ class HTMLForm
 		} else {
 			$attributes = $this->formMore;
 		}
-		$attributes += array(
+		$attributes += [
 			'action' => $this->action,
 			'method' => $this->method,
-		);
+		];
 		if ($this->enctype) {
 			$attributes["enctype"] = $this->enctype;
 		}
@@ -541,16 +541,16 @@ class HTMLForm
 	 * @param array $desc
 	 *        'between' - text that separates checkboxes (default ", ")
 	 */
-	function set($name, $value = array(), array $desc)
+	function set($name, $value = [], array $desc)
 	{
 		if ($value) {
 			if (!is_array($value)) {
 				$value = explode(',', $value);
 			}
 		} else {
-			$value = array();
+			$value = [];
 		}
-		$newName = array_merge($name, array(''));    // []
+		$newName = array_merge($name, ['']);    // []
 		$tmp = $this->class;
 		$this->class = 'submit';
 		$between = ifsetor($desc['between'], ', ');
@@ -567,14 +567,14 @@ class HTMLForm
 		$this->class = $tmp;
 	}
 
-	function keyset($name, $value = array(), array $desc)
+	function keyset($name, $value = [], array $desc)
 	{
 		if ($value) {
 			if (!is_array($value)) {
 				$value = explode(',', $value);
 			}
 		} else {
-			$value = array();
+			$value = [];
 		}
 		$tmp = $this->class;
 		$this->class = 'submit';
@@ -658,7 +658,7 @@ class HTMLForm
 				//document.observe("dom:loaded", function() {
 				window.onload = function () {
 					var myMenuItems = [';
-		$optArr = array();
+		$optArr = [];
 		foreach ($options as $id => $name) {
 			$optArr[] = '{
 						    name: "' . $name . '",
@@ -689,11 +689,11 @@ class HTMLForm
 	 */
 	function interval($name, $value, $more = '')
 	{
-		$name1 = array($name, 'from');
+		$name1 = [$name, 'from'];
 		$value1 = $value['from'];
 		$value1 = htmlspecialchars($value1, ENT_QUOTES);
 		$this->stdout .= "von: <input type=text " . $this->getName($name1) . " $more value=\"" . $value1 . "\" size='10'>\n";
-		$name2 = array($name, 'till');
+		$name2 = [$name, 'till'];
 		$value2 = $value['till'];
 		$value2 = htmlspecialchars($value2, ENT_QUOTES);
 		$this->stdout .= "bis: <input type=text " . $this->getName($name2) . " $more value=\"" . $value2 . "\" size='10'>\n";
@@ -719,7 +719,7 @@ class HTMLForm
 			height: ' . $height . ';
 			overflow: auto;
 			" class="checkarray ' . $sName . '">';
-		$newName = array_merge($name, array(''));
+		$newName = array_merge($name, ['']);
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
 				(is_array($selected) && in_array($value, $selected));
@@ -825,7 +825,7 @@ class HTMLForm
 		println("</select>");
 	}
 
-	function recaptcha(array $desc = array())
+	function recaptcha(array $desc = [])
 	{
 		$hfr = new HTMLFormRecaptcha();
 		$r = Request::getInstance();

@@ -16,10 +16,10 @@ class CollectionView
 	 */
 	public $useSorting = true;
 
-	public $tableMore = array(
+	public $tableMore = [
 		'class' => "nospacing table table-striped",
 		'width' => "100%",
-	);
+	];
 
 	public $wrapTag = 'div';
 
@@ -35,7 +35,7 @@ class CollectionView
 
 	function renderMembers()
 	{
-		$content = array();
+		$content = [];
 		//debug(sizeof($this->members));
 		if ($this->collection->objectify()) {
 			/**
@@ -52,11 +52,11 @@ class CollectionView
 				}
 			}
 			if ($this->wrapTag) {
-				$content = array(
+				$content = [
 					'<' . $this->wrapTag . ' class="' . get_class($this->collection) . '">',
 					$content,
 					'</' . $this->wrapTag . '>'
-				);
+				];
 			}
 		} elseif ($this->noDataMessage) {
 			//Index::getInstance()->ll->debug = true;
@@ -64,7 +64,7 @@ class CollectionView
 		}
 		if ($this->collection->pager) {
 			$pages = $this->collection->pager->renderPageSelectors();
-			$content = array($pages, $content, $pages);
+			$content = [$pages, $content, $pages];
 		}
 		return $content;
 	}
@@ -125,7 +125,7 @@ class CollectionView
 				$s->sortLinkPrefix = new URL(NULL,
 					ifsetor($controller->linkVars)
 						? $controller->linkVars
-						: array());
+						: []);
 			}
 		}
 		return $s;

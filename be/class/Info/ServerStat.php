@@ -3,7 +3,7 @@
 class ServerStat extends AppControllerBE
 {
 	var $start_time;
-	var $LOG = array();
+	var $LOG = [];
 	var $COUNTQUERIES = 0;
 	var $totalTime;
 
@@ -12,7 +12,7 @@ class ServerStat extends AppControllerBE
 	 */
 	var $config;
 
-	function __construct($start_time = NULL, $LOG = array(), $COUNTQUERIES = 0)
+	function __construct($start_time = NULL, $LOG = [], $COUNTQUERIES = 0)
 	{
 		parent::__construct();
 		$this->start_time = $start_time ? $start_time : $_SERVER['REQUEST_TIME'];
@@ -70,7 +70,7 @@ class ServerStat extends AppControllerBE
 		$useMem = memory_get_usage();
 		$allMem = intval(ini_get('memory_limit')) * 1024 * 1024;
 
-		$conf = array();
+		$conf = [];
 		$conf['Server'] = $_SERVER['SERVER_NAME'];
 		$conf['IP'] = $_SERVER['SERVER_ADDR'];
 		$conf['PHP'] = phpversion();
@@ -81,15 +81,15 @@ class ServerStat extends AppControllerBE
 		$conf['nadlibFromDocRoot'] = AutoLoad::getInstance()->nadlibFromDocRoot;
 		$conf['memory_limit'] = number_format($allMem / 1024 / 1024, 3, '.', '') . ' MB';
 		$conf['Mem. used'] = number_format($useMem / 1024 / 1024, 3, '.', '') . ' MB';
-		$conf['Mem. used %'] = new HTMLTag('td', array(
+		$conf['Mem. used %'] = new HTMLTag('td', [
 			'style' => 'width: 100px; background: no-repeat url(' . $this->getBarURL($useMem / $allMem * 100) . ');'
-		), number_format($useMem / $allMem * 100, 3) . '%');
+		], number_format($useMem / $allMem * 100, 3) . '%');
 		$conf['Mem. peak'] = number_format(memory_get_usage() / 1024 / 1024, 3, '.', '') . ' MB';
 		if (session_id()) {
 			$sessionPath = ini_get('session.save_path');
 			$sessionPath = $sessionPath ? $sessionPath : '/tmp';
 			$sessionFile = $sessionPath . '/sess_' . session_id();
-			//$conf[] = array('param' => 'Session File',		'value' => $sessionFile);
+			//$conf[] = ['param' => 'Session File',		'value' => $sessionFile];
 			$conf['Sess. size'] = @filesize($sessionFile);
 		}
 		$s = slTable::showAssoc($conf);
@@ -99,7 +99,7 @@ class ServerStat extends AppControllerBE
 
 	function getPerformanceInfo()
 	{
-		$this->LOG = is_array($this->LOG) ? $this->LOG : array();
+		$this->LOG = is_array($this->LOG) ? $this->LOG : [];
 
 		// calculating total sql time
 		$totalTime = 0;
@@ -115,13 +115,13 @@ class ServerStat extends AppControllerBE
 			$this->LOG[$i]['query'] = '<span title="' . $this->LOG[$i]['title'] . '">' . $this->LOG[$i]['query'] . '</span>';
 			$this->LOG[$i]['###TD_CLASS###'] = 'invisible';
 		}
-		usort($this->LOG, array($this, 'sortLog'));
+		usort($this->LOG, [$this, 'sortLog']);
 
 		$allTime = microtime(true) - $this->start_time;
 		$sqlTime = $totalTime;
 		$phpTime = $allTime - $sqlTime;
 
-		$conf = array();
+		$conf = [];
 		$conf['100% Time'] = number_format($allTime, 3, '.', '');
 		$conf['PHP Time'] = number_format($phpTime, 3, '.', '');
 		$conf['PHP Time %'] = $this->getBarWith(number_format($phpTime / $allTime * 100, 3, '.', ''));
@@ -138,54 +138,54 @@ class ServerStat extends AppControllerBE
 
 	function getServerInfo()
 	{
-		$conf = array();
+		$conf = [];
 		$total = @disk_total_space('/');
 		if ($total) {
 			$diskpercent = ($total - @disk_free_space('/')) / $total * 100;
 		}
-		$conf[] = array('param' => 'Disk space',
-			'value' => number_format($dts = $total / 1024 / 1024 / 1024, 3, '.', '') . ' GB');
-		$conf[] = array('param' => 'Disk used',
-			'value' => number_format($dts - @disk_free_space('/') / 1024 / 1024 / 1024, 3, '.', '') . ' GB');
-		//$conf[] = array('param' => 'Disk used',
-		//'value' => number_format($diskpercent, 3, '.', '').' %');
-		//$conf[] = array('param' => 'Disk used',
-		//'value' => $this->getBar($diskpercent));
-		$conf[] = array('param' => 'Disk used %',
-			'value' => new HTMLTag('td', array(
+		$conf[] = ['param' => 'Disk space',
+			'value' => number_format($dts = $total / 1024 / 1024 / 1024, 3, '.', '') . ' GB'];
+		$conf[] = ['param' => 'Disk used',
+			'value' => number_format($dts - @disk_free_space('/') / 1024 / 1024 / 1024, 3, '.', '') . ' GB'];
+		//$conf[] = ['param' => 'Disk used',
+		//'value' => number_format($diskpercent, 3, '.', '').' %'];
+		//$conf[] = ['param' => 'Disk used',
+		//'value' => $this->getBar($diskpercent)];
+		$conf[] = ['param' => 'Disk used %',
+			'value' => new HTMLTag('td', [
 				'style' => 'width: 100px; background: no-repeat url(' . $this->getBarURL($diskpercent) . ');'
-			), number_format($diskpercent, 3) . '%'));
+			], number_format($diskpercent, 3) . '%')];
 		$cpu = $this->getCpuUsage();
-		//$conf[] = array('param' => 'CPU used',
-		//'value' => number_format(100 - $cpu['idle'], 3, '.', '').'%');
-		//$conf[] = array('param' => 'CPU used',
-		//'value' => $this->getBar(100 - $cpu['idle']));
-		$conf[] = array('param' => 'CPU used %',
-			'value' => new HTMLTag('td', array(
+		//$conf[] = ['param' => 'CPU used',
+		//'value' => number_format(100 - $cpu['idle'], 3, '.', '').'%'];
+		//$conf[] = ['param' => 'CPU used',
+		//'value' => $this->getBar(100 - $cpu['idle'])];
+		$conf[] = ['param' => 'CPU used %',
+			'value' => new HTMLTag('td', [
 				'style' => 'width: 100px; background: no-repeat url(' . $this->getBarURL(100 - $cpu['idle']) . ');'
-			), number_format(100 - $cpu['idle'], 3) . '%'));
+			], number_format(100 - $cpu['idle'], 3) . '%')];
 		$ram = $this->getRAMInfo();
-		$conf[] = array('param' => 'RAM',
-			'value' => number_format($ram['total'] / 1024, 3, '.', '') . ' Mb');
-		$conf[] = array('param' => 'RAM used',
-			'value' => number_format($ram['used'] / 1024, 3, '.', '') . ' Mb');
-		//$conf[] = array('param' => 'RAM used',
-		//'value' => number_format($ram['percent'], 3, '.', '').'%');
-		//$conf[] = array('param' => 'RAM used',
-		//'value' => $this->getBar($ram['percent']));
-		$conf[] = array('param' => 'RAM used %',
-			'value' => new HTMLTag('td', array(
+		$conf[] = ['param' => 'RAM',
+			'value' => number_format($ram['total'] / 1024, 3, '.', '') . ' Mb'];
+		$conf[] = ['param' => 'RAM used',
+			'value' => number_format($ram['used'] / 1024, 3, '.', '') . ' Mb'];
+		//$conf[] = ['param' => 'RAM used',
+		//'value' => number_format($ram['percent'], 3, '.', '').'%'];
+		//$conf[] = ['param' => 'RAM used',
+		//'value' => $this->getBar($ram['percent'])];
+		$conf[] = ['param' => 'RAM used %',
+			'value' => new HTMLTag('td', [
 				'style' => 'width: 100px; background: no-repeat url(' . $this->getBarURL($ram['percent']) . ');'
-			), number_format($ram['percent'], 3) . '%'));
-		$conf[] = array('param' => 'Uptime',
-			'value' => $this->format_uptime(implode('', array_slice(explode(" ", @file_get_contents('/proc/uptime')), 0, 1))));
-		$conf[] = array('param' => 'Server load',
-			'value' => implode('', array_slice(explode(' ', @file_get_contents('/proc/loadavg')), 0, 1)));
+			], number_format($ram['percent'], 3) . '%')];
+		$conf[] = ['param' => 'Uptime',
+			'value' => $this->format_uptime(implode('', array_slice(explode(" ", @file_get_contents('/proc/uptime')), 0, 1)))];
+		$conf[] = ['param' => 'Server load',
+			'value' => implode('', array_slice(explode(' ', @file_get_contents('/proc/loadavg')), 0, 1))];
 
-		$s = new slTable($conf, '', array(
+		$s = new slTable($conf, '', [
 			'param' => '',
 			'value' => '',
-		));
+		]);
 		$s->more = 'class="table table-striped table-condensed"';
 		return $s;
 	}
@@ -193,16 +193,16 @@ class ServerStat extends AppControllerBE
 	function getQueryLog()
 	{
 		$s = new slTable('dumpQueries', 'width="100%"');
-		$s->thes(array(
-			'query' => array('name' => 'Query', 'no_hsc' => TRUE, 'colspan' => 7, 'new_tr' => TRUE),
+		$s->thes([
+			'query' => ['name' => 'Query', 'no_hsc' => TRUE, 'colspan' => 7, 'new_tr' => TRUE],
 			'function' => '<a href="javascript: void(0);" onclick="toggleRows(\'dumpQueries\');">Func.</a>',
 			'line' => '(l)',
 			//'results' => 'Rows',
-			'elapsed' => array('name' => '1st', 'decimals' => 3),
+			'elapsed' => ['name' => '1st', 'decimals' => 3],
 			'count' => '#',
-			'total' => array('name' => $this->totalTime, 'decimals' => 3),
+			'total' => ['name' => $this->totalTime, 'decimals' => 3],
 			'percent' => '100%',
-		));
+		]);
 		$s->data = ifsetor($this->LOG, ifsetor($this->config->db->queryLog));
 		$s->isOddEven = TRUE;
 		$s->more = 'class="nospacing"';
@@ -237,9 +237,9 @@ class ServerStat extends AppControllerBE
 
 	function getBarWith($value)
 	{
-		return new HTMLTag('td', array(
+		return new HTMLTag('td', [
 			'style' => 'width: 100px; background: no-repeat url(' . $this->getBarURL($value) . ');'
-		), $value . ' %');
+		], $value . ' %');
 	}
 
 	protected function getStat($_statPath = '/proc/stat')
@@ -252,7 +252,7 @@ class ServerStat extends AppControllerBE
 			return false;
 		}
 
-		$return = array();
+		$return = [];
 		$return['user'] = $parts[0];
 		$return['nice'] = $parts[1];
 		$return['system'] = $parts[2];
@@ -277,28 +277,28 @@ class ServerStat extends AppControllerBE
 			$belegtq = $insgesamtq - $freiq;
 			$prozent_belegtq = 100 * $belegtq / $insgesamtq;
 		}
-		$res = array(
+		$res = [
 			'total' => ifsetor($totalp),
 			'used' => ifsetor($belegtq),
 			'free' => ifsetor($freiq),
 			'percent' => ifsetor($prozent_belegtq),
-		);
+		];
 		return $res;
 	}
 
 	function getCpuUsage($_statPath = '/proc/stat')
 	{
 		TaylorProfiler::start(__METHOD__);
-		$percentages = array(
+		$percentages = [
 			'idle' => NULL,
-		);
+		];
 		if (@file_exists($_statPath)) {
 			$time1 = $this->getStat($_statPath) or die("getCpuUsage(): couldn't access STAT path or STAT file invalid\n");
 			sleep(1);
 			$time2 = $this->getStat($_statPath) or die("getCpuUsage(): couldn't access STAT path or STAT file invalid\n");
 			//debug($time1, $time2);
 
-			$delta = array();
+			$delta = [];
 
 			foreach ($time1 as $k => $v) {
 				$delta[$k] = $time2[$k] - $v;

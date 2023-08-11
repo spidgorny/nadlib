@@ -45,7 +45,7 @@ if (!function_exists('first')) {
 	 */
 	function array_combine_stringkey(array $a, array $b)
 	{
-		$ret = array();
+		$ret = [];
 		reset($b);
 		foreach ($a as $key) {
 			$ret[$key] = current($b);
@@ -72,14 +72,14 @@ if (!function_exists('first')) {
 	 */
 	function unique_multidim_array(array $matriz)
 	{
-		$aux_ini = array();
+		$aux_ini = [];
 		foreach ($matriz as $n => $source) {
 			$aux_ini[$n] = serialize($source);
 		}
 
 		$mat = array_unique($aux_ini);
 
-		$entrega = array();
+		$entrega = [];
 		foreach ($mat as $n => $serial) {
 			$entrega[$n] = unserialize($serial);
 

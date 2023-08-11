@@ -6,7 +6,7 @@
  * Usage: $data['mtime'] = new AsIs('NOW()');    // there's SQLNow() for this
  * Before that you would have to use this:
  * $data['mtime'] = 'now()';
- * $data['mtime.'] = array('asis' => TRUE);
+ * $data['mtime.'] = ['asis' => TRUE];
  * It's effectively just a container for the value but it's easy to check like this:
  * if ($val instanceof AsIs) {...
  *

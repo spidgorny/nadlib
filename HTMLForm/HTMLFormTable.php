@@ -68,7 +68,7 @@ class HTMLFormTable extends HTMLForm
 	 */
 	public $isValid = false;
 
-	function __construct(array $desc = array(), $prefix = array(), $fieldset = '')
+	function __construct(array $desc = [], $prefix = [], $fieldset = '')
 	{
 		parent::__construct();
 		$this->setDesc($desc);
@@ -198,7 +198,7 @@ class HTMLFormTable extends HTMLForm
 	 * @return $this
 	 * @todo remove $formData parameter as the class should be initialized with desc
 	 */
-	function showForm(array $formData = NULL, $prefix = array(), $mainForm = TRUE, $append = '')
+	function showForm(array $formData = NULL, $prefix = [], $mainForm = TRUE, $append = '')
 	{
 //		echo json_encode(array_keys($this->desc)), BR;
 		$this->tableMore['class'] .= $this->defaultBR ? ' defaultBR' : '';
@@ -206,7 +206,7 @@ class HTMLFormTable extends HTMLForm
 		return $this;
 	}
 
-	function getForm(array $formData, array $prefix = array(), $mainForm = TRUE, $append = '')
+	function getForm(array $formData, array $prefix = [], $mainForm = TRUE, $append = '')
 	{
 		if (!is_array($formData)) {
 			debug_pre_print_backtrace();
@@ -239,7 +239,7 @@ class HTMLFormTable extends HTMLForm
 		return $part;
 	}
 
-	function renderFormRows(array $formData, array $prefix = array())
+	function renderFormRows(array $formData, array $prefix = [])
 	{
 //		echo json_encode(array_keys($formData)), BR;
 		$tmp = $this->stdout;
@@ -284,7 +284,7 @@ class HTMLFormTable extends HTMLForm
 				$this->stdout .= '</tr>';
 			} elseif (is_array($fieldDesc)
 				|| $fieldDesc instanceof HTMLFormFieldInterface) {
-				if (in_array($sType, array('hidden', 'hiddenArray'))) {
+				if (in_array($sType, ['hidden', 'hiddenArray'])) {
 					// hidden are shown without table cells
 					//debug(array($formData, $path, $fieldDesc));
 					$this->showCell($path, $fieldDesc);
@@ -362,7 +362,7 @@ class HTMLFormTable extends HTMLForm
 		//debug(array($fieldName, $desc));
 		$desc['TDmore'] = (isset($desc['TDmore']) && is_array($desc['TDmore']))
 			? $desc['TDmore']
-			: array();
+			: [];
 		if (isset($desc['newTD'])) {
 			$this->stdout .= '</tr></table></td>
 			<td ' . $desc['TDmore'] . '><table ' . HTMLForm::getAttrHTML($this->tableMore) . '><tr>';
@@ -370,7 +370,7 @@ class HTMLFormTable extends HTMLForm
 		$fieldValue = isset($desc['value']) ? $desc['value'] : NULL;
 		$type = isset($desc['type']) ? $desc['type'] : NULL;
 
-		if (is_object($type) || ($type != 'hidden' && !in_array($type, array('fieldset', '/fieldset')))) {
+		if (is_object($type) || ($type != 'hidden' && !in_array($type, ['fieldset', '/fieldset']))) {
 			if (empty($desc['formHide'])) {
 				if (!empty($desc['br']) || $this->defaultBR) {
 				} else {
@@ -470,7 +470,7 @@ class HTMLFormTable extends HTMLForm
 	function getValues(array $arr = NULL, $col = 'value')
 	{
 		$arr = $arr ? $arr : $this->desc;
-		$res = array();
+		$res = [];
 		if (is_array($arr)) {
 			foreach ($arr as $key => $ar) {
 				if (is_array($ar) && !$ar['disabled']) {
@@ -493,7 +493,7 @@ class HTMLFormTable extends HTMLForm
 	 * @param array $form Structure of the form.
 	 * @return array    Processed $form.
 	 */
-	function acquireValues(array $desc, $form = array())
+	function acquireValues(array $desc, $form = [])
 	{
 		foreach ($desc as $field => $params) {
 			$type = ifsetor($params['type']);
@@ -503,7 +503,7 @@ class HTMLFormTable extends HTMLForm
 				if ($date) {
 					$form[$field] = $date;
 				}
-			} elseif (in_array($type, array('check', 'checkbox'))) {
+			} elseif (in_array($type, ['check', 'checkbox'])) {
 				$form[$field] = strtolower($form[$field]) == 'on'
 					|| ($form[$field] ? true : false);
 			}
@@ -603,12 +603,12 @@ class HTMLFormTable extends HTMLForm
 		return $field->getContent();
 	}
 
-	function repostRequest(Request $r, array $prefixes = array())
+	function repostRequest(Request $r, array $prefixes = [])
 	{
 		//debug($r);
 		foreach ($r->getAll() as $key => $val) {
 			if (is_array($val)) {
-				$this->repostRequest(new Request($val), array_merge($prefixes, array($key)));
+				$this->repostRequest(new Request($val), array_merge($prefixes, [$key]));
 			} else {
 				$copy = $prefixes;
 				array_shift($copy);
@@ -659,15 +659,15 @@ class HTMLFormTable extends HTMLForm
 			} else {
 				$token = uniqid(php_uname('n'), true);
 			}
-			$this->desc['xsrf'] = array(
+			$this->desc['xsrf'] = [
 				'type' => 'hidden',
 				'value' => $token,
-			);
+			];
 			$_SESSION[__CLASS__]['xsrf'][$class] = $token;
 		} else {    // Check
-			$this->desc['xsrf'] = array(
+			$this->desc['xsrf'] = [
 				'value' => '',    // use fill($this->request->getAll()) to fill in and validate()
-			);
+			];
 		}
 	}
 
@@ -686,7 +686,7 @@ class HTMLFormTable extends HTMLForm
 
 	static function sliceFromTill(array $desc, $from, $till = NULL)
 	{
-		$desc2 = array();
+		$desc2 = [];
 		$copy = false;
 		foreach ($desc as $key => $val) {
 			if (!$copy) {

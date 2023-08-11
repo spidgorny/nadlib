@@ -6,11 +6,11 @@ class TYPO3PageCollection extends Collection
 	var $idField = 'uid';
 	var $orderBy = 'ORDER BY sorting';
 	var $parentField = 'pid';
-	var $where = array(
+	var $where = [
 		'hidden' => false,
 		'deleted' => false,
 		'doktype' => 1,
-	);
+	];
 
 	function objectify($class = '', $byInstance = false)
 	{

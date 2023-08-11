@@ -70,10 +70,10 @@ class DebugHTML
 		} else {
 			$function = '';
 		}
-		$props = array(
+		$props = [
 			'<span class="debug_prop">Function:</span> ' . $function,
 			'<span class="debug_prop">Type:</span> ' . gettype2($a)
-		);
+		];
 		if (!is_array($a) && !is_object($a) && !is_resource($a)) {
 			$props[] = '<span class="debug_prop">Length:</span> ' . strlen($a);
 		}

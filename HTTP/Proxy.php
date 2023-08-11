@@ -5,7 +5,7 @@ class Proxy extends OODBase
 	public $table = 'proxy';
 	protected $titleColumn = 'proxy';
 
-	static $best = array();
+	static $best = [];
 
 	protected static $maxFail = 15;
 	protected static $maxFailBest = 200;
@@ -33,7 +33,7 @@ class Proxy extends OODBase
 		/** @var AppController $c */
 		$c = Index::getInstance()->controller;
 		if (rand(0, 100) < $percentRandom) { // 25%
-			$row = $db->fetchSelectQuery('proxy', array('fail' => new AsIs('< ') . self::$maxFail),
+			$row = $db->fetchSelectQuery('proxy', ['fail' => new AsIs('< ') . self::$maxFail],
 				'ORDER BY rand() LIMIT 1');
 			if ($row[0]) {
 				$proxy = new Proxy($row[0]);
@@ -62,7 +62,7 @@ class Proxy extends OODBase
 
 	function getList()
 	{
-		$rows = $this->db->fetchSelectQuery('proxy', array(), 'ORDER BY ok DESC, fail ASC LIMIT 100');
+		$rows = $this->db->fetchSelectQuery('proxy', [], 'ORDER BY ok DESC, fail ASC LIMIT 100');
 		return $rows;
 	}
 
@@ -70,10 +70,10 @@ class Proxy extends OODBase
 	{
 		if (!self::$best) {
 			$db = Config::getInstance()->getDB();
-			$rows = $db->fetchSelectQuery('proxy', array(
+			$rows = $db->fetchSelectQuery('proxy', [
 				'fail' => new AsIsOp('< ' . self::$maxFailBest),
 				//'ok' => new AsIs('> 0'),
-			), '
+			], '
 			/*ORDER BY ok DESC, fail ASC*/
 			ORDER BY ratio DESC
 			LIMIT ' . $limit, '*, ok/fail AS ratio');
@@ -84,36 +84,36 @@ class Proxy extends OODBase
 	}
 
 	/**
-	 * @return array(342571/359601)
+	 * @return [342571/359601]
 	 */
 	static function getProxies()
 	{
 		$db = Config::getInstance()->getDB();
-		$row = $db->fetchSelectQuery('proxy', array(), '', 'count(*)');    // total
+		$row = $db->fetchSelectQuery('proxy', [], '', 'count(*)');    // total
 		$p = new Proxy();
 		$okProxy = $p->getOKcount();
-		return array($okProxy, $row[0]['count(*)']);
+		return [$okProxy, $row[0]['count(*)']];
 	}
 
 	function getOKcount()
 	{
-		$rowOK = $this->db->fetchSelectQuery('proxy', array(
+		$rowOK = $this->db->fetchSelectQuery('proxy', [
 			'fail' => new AsIsOp('< ' . self::$maxFail)
-		), '', 'count(*)');
+		], '', 'count(*)');
 		return $rowOK[0]['count(*)'];
 	}
 
 	function fail()
 	{
 		if ($this->id) {
-			$this->update(array('fail' => $this->data['fail'] + 1));
+			$this->update(['fail' => $this->data['fail'] + 1]);
 		}
 	}
 
 	function ok()
 	{
 		if ($this->id) {
-			$this->update(array('ok' => $this->data['ok'] + 1));
+			$this->update(['ok' => $this->data['ok'] + 1]);
 		}
 	}
 

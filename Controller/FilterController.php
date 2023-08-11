@@ -68,7 +68,7 @@ class FilterController extends AppController
 		$fields = is_array($fields) ? $fields : $this->fields;
 
 		//debug($this->filter);
-		$desc = array();
+		$desc = [];
 		foreach ($fields as $key => $k) {
 			if (!is_array($k)) {
 				$k = ['name' => $k];
@@ -96,11 +96,11 @@ class FilterController extends AppController
 			$options = NULL;
 		} elseif (ifsetor($k['tf'])) {    // boolean
 			$k['type'] = 'select';
-			$stv = new slTableValue('', array());
-			$options = array(
+			$stv = new slTableValue('', []);
+			$options = [
 				't' => $stv->SLTABLE_IMG_CHECK,
 				'f' => $stv->SLTABLE_IMG_CROSS,
-			);
+			];
 			//debug($key, $this->filter[$key]);
 		} elseif (ifsetor($k['type']) == 'select') {
 			if (!isset($k['options'])) {    // NOT ifsetor as we want to accept empty
@@ -120,7 +120,7 @@ class FilterController extends AppController
 			$k['type'] = $k['type'] ?: 'input';
 			$options = NULL;
 		}
-		$k = array(
+		$k = [
 				'label' => $k['name'],
 				'type' => $k['type'] ?: 'text',
 				'options' => $options,
@@ -128,7 +128,7 @@ class FilterController extends AppController
 				'value' => isset($this->filter[$key]) ? $this->filter[$key] : ifsetor($k['value']),
 				'more' => ['class' => "text input-medium"],
 				'===' => true,
-			) + $k;
+			] + $k;
 //		debug(without($k, 'options'));
 		return $k;
 	}
@@ -139,7 +139,7 @@ class FilterController extends AppController
 			$res = $this->db->getTableOptions($this->model->table
 				? $this->model->table
 				: $this->collection->table,
-				$key, array(), 'ORDER BY ' . $key, $key);    // NOT 'id' (DISTINCT!)
+				$key, [], 'ORDER BY ' . $key, $key);    // NOT 'id' (DISTINCT!)
 
 			if ($count) {
 				foreach ($res as &$val) {
@@ -164,7 +164,7 @@ class FilterController extends AppController
 	 */
 	function getFilterWhere(array $desc)
 	{
-		$where = array();
+		$where = [];
 
 		$filterList = $this->filter->getIterator();
 //		debug(gettype2($this->injectFilterDesc), count($desc),

@@ -145,7 +145,7 @@ class DatabaseResultIterator implements Iterator, Countable
 	function fetchAll()
 	{
 		$this->log(__METHOD__);
-		$data = array();
+		$data = [];
 		foreach ($this as $row) {
 			$data[] = $row;
 		}

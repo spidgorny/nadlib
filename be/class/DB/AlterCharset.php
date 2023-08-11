@@ -27,11 +27,11 @@ class AlterCharset extends AppControllerBE
 			$charsetColor = $charset == $this->desired ? 'muted' : 'alert';
 			$content .= ' <span class="' . $charsetColor . '">' . $charset . '</span>';
 			if ($charset != $this->desired) {
-				$content .= ' <a href="' . new URL('', array(
+				$content .= ' <a href="' . new URL('', [
 						'c' => __CLASS__,
 						'action' => 'alterTableCharset',
 						'table' => $table,
-					)) . '">ALTER</a>';
+					]) . '">ALTER</a>';
 			}
 			$content .= $this->renderTableColumns($table);
 
@@ -49,63 +49,63 @@ class AlterCharset extends AppControllerBE
 
 	function renderTableColumns($table)
 	{
-		$badList = array();
+		$badList = [];
 		$columns = $this->db->getTableColumns($table);
 		foreach ($columns as $row) {
 			if ($row['Collation'] && $row['Collation'] != $this->desired) {
-				$row['alter'] = ' <a href="' . new URL('', array(
+				$row['alter'] = ' <a href="' . new URL('', [
 						'c' => __CLASS__,
 						'action' => 'alterColumnCharset',
 						'table' => $table,
 						'column' => $row['Field'],
-					)) . '">ALTER</a>';
+					]) . '">ALTER</a>';
 				$row['alter'] = ' <a href="http://localhost/adminer/?server=127.0.0.1&username=root&db=t3vpc&create=' . $table . '">Adminer</a>';
 				$badList[] = $row;
 			}
 		}
-		$s = new slTable($badList, '', array(
+		$s = new slTable($badList, '', [
 			'Field' =>
-				array(
+				[
 					'name' => 'Field',
-				),
+				],
 			'Type' =>
-				array(
+				[
 					'name' => 'Type',
-				),
+				],
 			'Collation' =>
-				array(
+				[
 					'name' => 'Collation',
-				),
+				],
 			'Null' =>
-				array(
+				[
 					'name' => 'Null',
-				),
+				],
 			'Key' =>
-				array(
+				[
 					'name' => 'Key',
-				),
+				],
 			'Default' =>
-				array(
+				[
 					'name' => 'Default',
-				),
+				],
 			'Extra' =>
-				array(
+				[
 					'name' => 'Extra',
-				),
+				],
 			'Privileges' =>
-				array(
+				[
 					'name' => 'Privileges',
-				),
+				],
 			'Comment' =>
-				array(
+				[
 					'name' => 'Comment',
-				),
+				],
 			'alter' =>
-				array(
+				[
 					'name' => 'alter',
 					'no_hsc' => true,
-				),
-		));
+				],
+		]);
 		//$s->generateThes();
 		//var_export($s->thes);
 		$content = $s;

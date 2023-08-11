@@ -7,11 +7,11 @@
 class Mixer
 {
 
-	var $methodPerformers = array();
+	var $methodPerformers = [];
 
 	public function __construct()
 	{
-		$this->methodPerformers = array();
+		$this->methodPerformers = [];
 	}
 
 	public function __call($method, $args)
@@ -19,7 +19,7 @@ class Mixer
 		if (array_key_exists($method, $this->methodPerformers)) {
 			$performer = $this->methodPerformers[$method];
 			$this->copyInternals($this, $performer);
-			$result = call_user_func_array(array($performer, $method), $args);
+			$result = call_user_func_array([$performer, $method], $args);
 			$this->copyInternals($performer, $this);
 			return $result;
 		} else {

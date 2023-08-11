@@ -43,7 +43,7 @@ class BijouDBConnector extends dbLayerBase implements DBInterface
 	 * @return mixed
 	 * @see SQLBuilder
 	 */
-	/*	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = 'uid', $noDeleted = FALSE) {
+	/*	function getTableOptions($table, $titleField, $where = [], $order = NULL, $idField = 'uid', $noDeleted = FALSE) {
 			//$query = $this->getSelectQuery($table, $where, $order);
 			$res = $this->runSelectQuery($table, $where, $order, '', FALSE, !$noDeleted);
 			//t3lib_div::debug($where);
@@ -78,7 +78,7 @@ class BijouDBConnector extends dbLayerBase implements DBInterface
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		}
-		$data = array();
+		$data = [];
 		while (($row = $this->fetchAssoc($res)) !== FALSE) {
 			$data[$row[$key]] = $row;
 		}
@@ -87,7 +87,7 @@ class BijouDBConnector extends dbLayerBase implements DBInterface
 
 	function fetchAllAsIs($res)
 	{
-		$data = array();
+		$data = [];
 		while (($row = $this->fetchAssoc($res)) !== FALSE) {
 			$data[] = $row;
 		}
@@ -96,7 +96,7 @@ class BijouDBConnector extends dbLayerBase implements DBInterface
 
 	function fetchAllFromJoin($res, $prefixes)
 	{
-		$data = array();
+		$data = [];
 		while (($row = mysql_fetch_row($res)) !== FALSE) {
 			$prow = $this->distributePrefixes($res, $row, $prefixes);
 			$data[] = $prow;
@@ -106,7 +106,7 @@ class BijouDBConnector extends dbLayerBase implements DBInterface
 
 	function distributePrefixes($res, $row, $prefixes)
 	{
-		$prow = array();
+		$prow = [];
 		reset($prefixes);
 		$coli = 0;
 		foreach ($row as $colv) {
@@ -162,13 +162,13 @@ class BijouDBConnector extends dbLayerBase implements DBInterface
 
 	function getDefaultInsertFields()
 	{
-		$set = array(
+		$set = [
 			'pid' => $this->caller->generalStoragePID,
 			'crdate' => time(),
 			'tstamp' => time(),
 			'cruser_id' => $GLOBALS['TSFE']->fe_user->user['uid']
 				? $GLOBALS['TSFE']->fe_user->user['uid'] : 0,
-		);
+		];
 		//debugster($set);
 		return $set;
 	}
@@ -209,7 +209,7 @@ class BijouDBConnector extends dbLayerBase implements DBInterface
 	 * @return array
 	 * @deprecated
 	 */
-	function fetchSelectQuery($table, $where = array(), $orderBy = '', $what = '', $whatExclusive = false)
+	function fetchSelectQuery($table, $where = [], $orderBy = '', $what = '', $whatExclusive = false)
 	{
 		die(__METHOD__);
 		$result = $this->runSelectQuery($table, $where, $orderBy, $what, $whatExclusive);
@@ -224,7 +224,7 @@ class BijouDBConnector extends dbLayerBase implements DBInterface
 		return $row;
 	}
 
-	function runSelectQuery($table, array $where = array(), $orderBy = '', $what = '', $whatExclusive = FALSE, $filterFields = TRUE)
+	function runSelectQuery($table, array $where = [], $orderBy = '', $what = '', $whatExclusive = FALSE, $filterFields = TRUE)
 	{
 		if ($filterFields) {
 			//$where += $this->filterFields(NULL, NULL, $this->getFirstWord($table));

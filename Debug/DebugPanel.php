@@ -9,7 +9,7 @@
  * ...
  * $dp = DebugPanel::getInstance();
  * $dp->addPanel('TaylorProfiler', new htmlString($GLOBALS['profiler']->printTimers(TRUE)));
- * DebugPanel::getInstance()->addPanel('System Variables', array(
+ * DebugPanel::getInstance()->addPanel('System Variables', [
  * 'REQUEST' => $_REQUEST,
  * 'GET' => $_GET,
  * 'POST' => $_POST,
@@ -17,17 +17,17 @@
  * 'COOKIE' => $_COOKIE,
  * 'SESSION' => $_SESSION,
  * 'GLOBALS' => $_GLOBALS,
- * ));
- * DebugPanel::getInstance()->addPanel('Test', array(
+ * ]);
+ * DebugPanel::getInstance()->addPanel('Test', [
  * 'string' => 'Hello World!',
  * 'int' => 10,
  * 'double' => 3.1428,
  * 'null' => null,
  * 'bool' => true,
- * 'array' => array(0, 1, 2, 3, 'slawa'),
- * 'panel' => array('info' => array('position' => 'fixed')),
+ * 'array' => [0, 1, 2, 3, 'slawa'],
+ * 'panel' => ['info' => ['position' => 'fixed']],
  * 'someHTML' => new htmlString('<big>Hi</big>I am an <span style="text-decoration: small-caps;">HTML</span> string.'),
- * ));
+ * ]);
  * DebugPanel::getInstance()->addPanel('Server Stat', new htmlString(new ServerStat().''));
  *
  */
@@ -36,7 +36,7 @@ class DebugPanel
 	static protected $instance;
 	protected $name = 'DebugPanel';
 	protected $content = '';
-	protected $panels = array();
+	protected $panels = [];
 	public $header = 'h6';
 
 	protected function __construct($name = NULL, $content = NULL)
@@ -106,14 +106,14 @@ class DebugPanel
 
 	function viewArray($array)
 	{
-		$table = array();
+		$table = [];
 		foreach ($array as $key => $val) {
-			$row = array();
+			$row = [];
 			$row['key'] = $key;
 			$row += $this->getVarParams($val);
 			$type = $row['type'];
 			//$row['typeName'] = '<div class="'.$type.'">'.$row['typeName'].'</div>';
-			$row['typeName'] = new HTMLTag('td', array('class' => $type), $row['typeName']);
+			$row['typeName'] = new HTMLTag('td', ['class' => $type], $row['typeName']);
 			unset($row['type']);
 			unset($row['size']);
 			unset($row['length']);
@@ -121,9 +121,9 @@ class DebugPanel
 			unset($row['hash']);
 			unset($row['extends']);
 			if (is_array($val) || is_object($val) || is_null($val)) {
-				$row['value'] = new HTMLTag('td', array('class' => $type), $val ? new DebugPanel($key, $val) : '', TRUE);
+				$row['value'] = new HTMLTag('td', ['class' => $type], $val ? new DebugPanel($key, $val) : '', TRUE);
 			} else {
-				$row['value'] = new HTMLTag('td', array('class' => $type . ' overflow'), $val);
+				$row['value'] = new HTMLTag('td', ['class' => $type . ' overflow'], $val);
 			}
 			$table[] = $row;
 		}
@@ -132,7 +132,7 @@ class DebugPanel
 
 	function getVarParams($var)
 	{
-		$params = array();
+		$params = [];
 		$type = gettype($var);
 		$params['type'] = $type;
 		if (is_array($var)) {

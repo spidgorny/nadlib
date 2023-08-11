@@ -4,7 +4,7 @@
  * Interface DBInterface
  * @mixin SQLBuilder
  * @method fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = NULL)
- * @method runSelectQuery($table, array $where = array(), $order = '', $addSelect = '')
+ * @method runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
  * @method runUpdateInsert($table, $set, $where)
  */
 interface DBInterface

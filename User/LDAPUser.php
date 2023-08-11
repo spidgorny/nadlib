@@ -11,12 +11,12 @@ class LDAPUser extends UserBase
 	 */
 	public $data;
 
-	function __construct(array $ldapInfo = array())
+	function __construct(array $ldapInfo = [])
 	{
 		$this->initLDAP($ldapInfo);
 	}
 
-	function initLDAP(array $ldapInfo = array())
+	function initLDAP(array $ldapInfo = [])
 	{
 		$goodKeys = array_filter(array_keys($ldapInfo), 'is_string');
 		$ldapInfo = array_intersect_key($ldapInfo, array_flip($goodKeys));
@@ -66,7 +66,7 @@ class LDAPUser extends UserBase
 	 */
 	function getInfo()
 	{
-		$simpleData = array();
+		$simpleData = [];
 		foreach ($this->data as $field => $data) {
 			if (is_array($data) && $data['count'] == 1) {
 				$simpleData[$field] = $data[0];

@@ -85,7 +85,7 @@ class LDAPLogin
 		if ($this->_ldapconn) {
 			$filter = "(&(objectClass=user)(objectCategory=person)(cn=" . $this->_sanitizeLdap($username) . "))";
 			//echo $filter;
-			$attributes = array('dn', 'uid', 'fullname', 'givenname', 'firstname');
+			$attributes = ['dn', 'uid', 'fullname', 'givenname', 'firstname'];
 
 //			debug($this->_ldapconn, $this->LDAP_BASEDN, $filter);
 			$search = ldap_search($this->_ldapconn, $this->LDAP_BASEDN, $filter/*, $attributes*/);
@@ -152,7 +152,7 @@ class LDAPLogin
 	{
 		$this->_connectLdap();
 
-		$search = ldap_search($this->_ldapconn, $this->LDAP_BASEDN, $query, array(), null, 50);
+		$search = ldap_search($this->_ldapconn, $this->LDAP_BASEDN, $query, [], null, 50);
 		$info = ldap_get_entries($this->_ldapconn, $search);
 		unset($info['count']);
 		foreach ($info as &$user) {

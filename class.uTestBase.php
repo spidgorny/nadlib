@@ -13,10 +13,10 @@ class uTestBase extends AppControllerBE
 	 * true/false counter
 	 * @var array
 	 */
-	protected $stat = array(
+	protected $stat = [
 		true => 0,
 		false => 0,
-	);
+	];
 
 	function render()
 	{
@@ -43,7 +43,7 @@ class uTestBase extends AppControllerBE
 			if (substr($function, 0, 5) == 'test_') {
 				$this->start = microtime(TRUE);
 				ob_start();
-				$contentPlus = call_user_func(array($this, $function));
+				$contentPlus = call_user_func([$this, $function]);
 				$debug = ob_get_clean();
 				if ($debug) {
 					$content .= '<tr><td colspan="99">' . $debug . '</td></tr>';
@@ -67,9 +67,9 @@ class uTestBase extends AppControllerBE
 
 	function assertEqual($v1, $v2, $comment = '', $bool = NULL)
 	{
-		$row = array();
+		$row = [];
 		$dbt = debug_backtrace();
-		if (in_array($dbt[1]['function'], array('assert', 'assertNotEqual'))) {
+		if (in_array($dbt[1]['function'], ['assert', 'assertNotEqual'])) {
 			$db = $dbt[2];
 			$db1 = $dbt[3];
 		} else {

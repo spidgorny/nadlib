@@ -31,9 +31,9 @@ class dbLayerSQLite extends dbLayerBase implements DBInterface
 	 * MUST BE UPPERCASE
 	 * @var array
 	 */
-	var $reserved = array(
+	var $reserved = [
 		'FROM',
-	);
+	];
 
 	function __construct($file)
 	{
