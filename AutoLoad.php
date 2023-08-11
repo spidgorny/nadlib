@@ -415,7 +415,10 @@ class AutoLoad
 		//echo $class.' ['.$file.'] '.(file_exists($file) ? "YES" : "NO").'<br />'."\n";
 
 		//pre_print_r($class, $file, $file2);
-		if ($file && file_exists($file)) {
+		if (!$file) {
+			return null;
+		}
+		if (file_exists($file)) {
 			$this->stat['loadFile1']++;
 		} else {
 			$file2 = str_replace('class.', '', $file);
