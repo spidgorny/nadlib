@@ -499,8 +499,7 @@ class SQLBuilder
 		//debug($query); if ($_COOKIE['debug']) { exit(); }
 
 		$res = $this->perform($query);
-		$data = $this->fetchAll($res, $idField);
-		return $data;
+        return $this->fetchAll($res, $idField);
 	}
 
 	function runUpdateQuery($table, array $columns, array $where)
