@@ -72,13 +72,12 @@ class InitNADLIB
 	{
 //debug($_COOKIE);
 		if (!defined('DEVELOPMENT')) {
+			$isDebug = ifsetor($_COOKIE['debug'], getenv('DEBUG'));
 			if (Request::isCLI()) {
-				define('DEVELOPMENT', Request::isWindows()
-					|| ifsetor($_COOKIE['debug'], getenv('DEBUG'))
-				);
+				define('DEVELOPMENT', Request::isWindows() || $isDebug);
 				echo 'DEVELOPMENT: ', DEVELOPMENT, BR;
 			} else {
-				define('DEVELOPMENT', ifsetor($_COOKIE['debug'], getenv('DEBUG')));
+				define('DEVELOPMENT', $isDebug);
 			}
 		}
 
