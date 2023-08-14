@@ -146,13 +146,13 @@ class Collection implements IteratorAggregate
 
 	/**
 	 * Gives warnings if 'id' column in the data is not set.
-	 * Potentially saves you from trouble futher down the processing.
+	 * Potentially saves you from trouble further down the processing.
 	 * @var bool
 	 */
 	public $allowMerge = false;
 
 	/**
-	 * @param integer /-1 $pid
+	 * @param integer|null /-1 $pid
 	 *        if -1 - will not retrieve data from DB
 	 *        if 00 - will retrieve all data
 	 *        if >0 - will retrieve data where PID = $pid
