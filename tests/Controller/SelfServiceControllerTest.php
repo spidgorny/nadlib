@@ -2,7 +2,7 @@
 
 namespace Controller;
 
-use AppBundle\Controller\SelfServiceController;
+use AppBundle\Controller\Request\SelfServiceController;
 use PHPUnit\Framework\TestCase;
 use TestConfig;
 
