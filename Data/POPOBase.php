@@ -8,16 +8,10 @@
 class POPOBase
 {
 
-	/**
-	 * @var \ReflectionClass
-	 */
-	protected $reflector;
-
 	public $_missingProperties = [];
 
 	public function __construct($set)
 	{
-		$this->reflector = new ReflectionClass($this);
 		if (is_object($set)) {
 			foreach (get_object_vars($set) as $key => $val) {
 				$this->$key = $this->transform($key, $val);
@@ -31,8 +25,9 @@ class POPOBase
 
 	public function transform($name, $value)
 	{
+		$reflector = new ReflectionClass($this);
 		try {
-			$prop = $this->reflector->getProperty($name);
+			$prop = $reflector->getProperty($name);
 			if ($prop) {
 				$type = $prop->getType() ? $prop->getType()->getName() : null;
 				if (!$type) {
@@ -93,16 +88,6 @@ class POPOBase
 	public function toJson()
 	{
 		return json_encode($this, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
-	}
-
-	public function __sleep()
-	{
-		$varNames = get_object_vars($this);
-		$varNames = array_merge($varNames, $varNames);
-		unset($varNames['reflector']);
-		$varNames = array_keys($varNames);
-//		llog($varNames);
-		return $varNames;
 	}
 
 }
