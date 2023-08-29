@@ -8,16 +8,10 @@
 class POPOBase
 {
 
-	/**
-	 * @var \ReflectionClass
-	 */
-	protected $reflector;
-
 	public $_missingProperties = [];
 
 	public function __construct($set)
 	{
-		$this->reflector = new ReflectionClass($this);
 		if (is_object($set)) {
 			foreach (get_object_vars($set) as $key => $val) {
 				$this->$key = $this->transform($key, $val);
@@ -31,8 +25,9 @@ class POPOBase
 
 	public function transform($name, $value)
 	{
+		$reflector = new ReflectionClass($this);
 		try {
-			$prop = $this->reflector->getProperty($name);
+			$prop = $reflector->getProperty($name);
 			if ($prop) {
 				$type = $prop->getType() ? $prop->getType()->getName() : null;
 				if (!$type) {
@@ -74,7 +69,7 @@ class POPOBase
 						break;
 					default:
 						// inner subclasses
-						if (class_exists($type)) {
+						if ($type && class_exists($type)) {
 							$value = new $type($value);
 						}
 				}
