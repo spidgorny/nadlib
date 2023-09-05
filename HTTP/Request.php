@@ -483,24 +483,33 @@ class Request
 //			|| DEVELOPMENT
 			&& $this->canRedirect($controller)
 		) {
-			ob_start();
-			debug_print_backtrace(defined('DEBUG_BACKTRACE_IGNORE_ARGS')
-				? DEBUG_BACKTRACE_IGNORE_ARGS : NULL);
-			$bt = ob_get_clean();
-			$bt = trimExplode("\n", $bt);
-			foreach ($bt as $i => $line) {
-				$ii = str_pad($i, 2, '0', STR_PAD_LEFT);
-				header('Redirect-From-' . $ii . ': ' . $line);
-			}
-
+			$this->showStackTraceAsHeaders($this->getStackTrace());
 			header('Location: ' . $controller);
 			echo 'Redirecting to <a href="' . $controller . '">' . $controller . '</a>';
 		} else {
 			$this->redirectJS($controller, DEVELOPMENT ? 0 : 0);
 		}
-		if ($exit && !$this->isPHPUnit()) {
+		if ($exit && !self::isPHPUnit()) {
 			exit();
 		}
+	}
+
+	public function getStackTrace()
+	{
+		ob_start();
+		debug_print_backtrace(defined('DEBUG_BACKTRACE_IGNORE_ARGS')
+			? DEBUG_BACKTRACE_IGNORE_ARGS : NULL);
+		$bt = ob_get_clean();
+		return trimExplode("\n", $bt);
+	}
+
+	public function showStackTraceAsHeaders(array $bt, $prefix = 'Redirect-From-')
+	{
+		foreach ($bt as $i => $line) {
+			$ii = str_pad($i, 2, '0', STR_PAD_LEFT);
+			header($prefix . $ii . ': ' . $line);
+		}
+
 	}
 
 	function canRedirect($to)
@@ -510,9 +519,9 @@ class Request
 			$absURL->makeAbsolute();
 			//debug($absURL.'', $to.''); exit();
 			return $absURL . '' != $to . '';
-		} else {
-			return true;
 		}
+
+		return true;
 	}
 
 	function redirectJS($controller, $delay = 0, $message =
@@ -531,14 +540,14 @@ class Request
 		if (str_startsWith($relative, 'http')) {
 			$link = $relative;
 		} else {
-			$link = $this->getLocation() . $relative;
+			$link = self::getLocation() . $relative;
 		}
 		if (!headers_sent()) {
 			header('X-Redirect: ' . $link);    // to be handled by AJAX callback
 			exit();
-		} else {
-			$this->redirectJS($link);
 		}
+
+		$this->redirectJS($link);
 	}
 
 	/**
