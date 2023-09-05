@@ -55,7 +55,7 @@ abstract class Controller
 	public $useRouter = false;
 
 	/**
-	 * @var User|Client|userMan|LoginUser
+	 * @var User|Client|UserManager|LoginUser
 	 */
 	public $user;
 
@@ -110,7 +110,7 @@ abstract class Controller
 	{
 		if (ifsetor($_REQUEST['d']) == 'log') echo get_class($this) . '::' . __METHOD__ . BR;
 		$this->index = class_exists('Index', false)
-			? Index::getInstance(false) : NULL;
+			? Index::getInstance(false) : null;
 		$this->request = Request::getInstance();
 		$this->useRouter = $this->request->apacheModuleRewrite();
 		$this->al = AutoLoad::getInstance();
@@ -141,7 +141,7 @@ abstract class Controller
 	 * @protected
 	 * @use getURL()
 	 */
-	protected function makeURL(array $params, $prefix = NULL)
+	protected function makeURL(array $params, $prefix = null)
 	{
 		if (!$prefix && $this->useRouter) { // default value is = mod_rewrite
 			$class = ifsetor($params['c']);
@@ -149,10 +149,10 @@ abstract class Controller
 				unset($params['c']);    // RealURL
 				$prefix = $class;
 			} else {
-				$class = NULL;
+				$class = null;
 			}
 		} else {
-			$class = NULL;
+			$class = null;
 			// this is the only way to supply controller
 			//unset($params['c']);
 		}
@@ -349,7 +349,7 @@ abstract class Controller
 	 * @param array $more
 	 * @return array|string
 	 */
-	function encloseInAA($content, $caption = '', $h = NULL, array $more = [])
+	function encloseInAA($content, $caption = '', $h = null, array $more = [])
 	{
 		$h = $h ? $h : $this->encloseTag;
 		$content = $this->s($content);
@@ -367,7 +367,7 @@ abstract class Controller
 		return $content;
 	}
 
-	function encloseInToggle($content, $title, $height = 'auto', $isOpen = NULL, $tag = 'h3')
+	function encloseInToggle($content, $title, $height = 'auto', $isOpen = null, $tag = 'h3')
 	{
 		if ($content) {
 			// buggy: prevents all clicks on the page in KA.de
@@ -393,7 +393,7 @@ abstract class Controller
 		return $content;
 	}
 
-	function performAction($action = NULL)
+	function performAction($action = null)
 	{
 		$content = '';
 		if ($this->request->isCLI()) {
@@ -563,7 +563,7 @@ abstract class Controller
 	 * @param array $submitParams
 	 * @return HTMLForm
 	 */
-	function getActionButton($name, $action, $formAction = NULL, array $hidden = [], $submitClass = '', array $submitParams = [])
+	function getActionButton($name, $action, $formAction = null, array $hidden = [], $submitClass = '', array $submitParams = [])
 	{
 		$f = new HTMLForm();
 		if ($formAction) {
@@ -724,7 +724,7 @@ abstract class Controller
 		</div>';
 	}
 
-	function linkToAction($action = '', array $params = [], $controller = NULL)
+	function linkToAction($action = '', array $params = [], $controller = null)
 	{
 		if (!$controller) {
 			$controller = get_class($this);
@@ -775,12 +775,12 @@ abstract class Controller
 		return '<script src="' . $file . '" type="text/javascript"></script>';
 	}
 
-	function log($action, $data = NULL)
+	function log($action, $data = null)
 	{
 		$this->log[] = new LogEntry($action, $data);
 	}
 
-	static function link($text = NULL, array $params = [])
+	static function link($text = null, array $params = [])
 	{
 		/** @var Controller $self */
 		$self = static::class;
