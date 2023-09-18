@@ -14,7 +14,7 @@ class ExcelReader
 
 	function __construct($excelFile, $usePersistance = false)
 	{
-		$this->excel = $excelFile{0} == '/'
+		$this->excel = $excelFile[0] == '/'
 			? $excelFile
 			: $excelFile;
 		$this->filename .= basename($this->excel) . '.serial';
