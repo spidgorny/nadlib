@@ -154,7 +154,6 @@ if (!function_exists('str_startsWith')) {
 	 */
 		function path_plus($path, $plus, $plus2 = null)
 	{
-        llog('path_plus', $path, $plus);
 		$freq = array_count_values(str_split($path));
 		$separator = ifsetor($freq['/']) >= ifsetor($freq['\\']) ? '/' : '\\';
 //		llog($separator);

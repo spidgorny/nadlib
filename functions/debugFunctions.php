@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__.DIRECTORY_SEPARATOR.'../static.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . '../static.php';
 /**
  * May already be defined in TYPO3
  */
@@ -324,8 +324,14 @@ function llog(...$vars)
 	}
 
 	$vars = array_map(static function ($el) {
-		if (is_object($el) && !($el instanceof stdClass)) {
-			return typ($el);
+		if (is_object($el)) {
+			llog('isObject: yes, is stdClass: ', $el instanceof stdClass);
+			if (!($el instanceof stdClass)) {
+				if (method_exists($el, '__toString')) {
+					return $el->__toString();
+				}
+				return typ($el, true, true);
+			}
 		}
 		return $el;
 	}, $vars);
