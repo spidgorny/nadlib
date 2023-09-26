@@ -325,7 +325,6 @@ function llog(...$vars)
 
 	$vars = array_map(static function ($el) {
 		if (is_object($el)) {
-			llog('isObject: yes, is stdClass: ', $el instanceof stdClass);
 			if (!($el instanceof stdClass)) {
 				if (method_exists($el, '__toString')) {
 					return $el->__toString();
