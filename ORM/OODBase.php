@@ -886,8 +886,9 @@ abstract class OODBase
 		return (int)$this->id;
 	}
 
-	public function getBool($value)
+	public function getBool($key)
 	{
+		$value = $this->data[$key] ?? null;
 		//debug($value, $this->lastSelectQuery);
 		if (is_bool($value)) {
 			return $value;

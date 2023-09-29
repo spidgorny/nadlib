@@ -9,7 +9,7 @@
  * @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
  * @method  runDeleteQuery($table, array $where)
  */
-class DBLayer extends DBLayerBase implements DBInterface
+class DBLayer extends DBLayerBase
 {
 
 	/**

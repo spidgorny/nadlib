@@ -23,6 +23,11 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return $key;
 	}
 
+	public static function __callStatic(string $name, array $arguments)
+	{
+		return new static($name, $arguments[0], $arguments[1], $arguments[2]);
+	}
+
 	public function __construct($tag, array $attr = [], $content = '', $isHTML = false)
 	{
 		$this->tag = $tag;

@@ -36,6 +36,7 @@ class OODBaseTest extends \PHPUnit\Framework\TestCase
 		];
 		foreach ($set as $source => $expected) {
 //			echo $source, ' => ', $expected, BR;
+			$this->sut->data[$source] = $source;
 			$this->assertEquals($expected, $this->sut->getBool($source));
 		}
 	}
