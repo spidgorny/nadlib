@@ -2,8 +2,8 @@
 
 /**
  * General HTML Tag representation.
+ * @method pre(array $attr, ToStringable $content, bool $isHtml)
  */
-
 class HTMLTag implements ArrayAccess, ToStringable
 {
 	public $tag;
