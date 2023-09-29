@@ -2,7 +2,7 @@
 
 /**
  * General HTML Tag representation.
- * @method pre(array $attr, ToStringable $content, bool $isHtml)
+ * @method static pre(array $attr = [], ToStringable $content = '', bool $isHtml = false)
  */
 class HTMLTag implements ArrayAccess, ToStringable
 {
