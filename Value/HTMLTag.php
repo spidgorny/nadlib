@@ -81,7 +81,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 	{
 		$set = [];
 		foreach ($attr as $key => $val) {
-			if (is_array($val) && $key == 'style') {
+			if (is_array($val) && $key === 'style') {
 				$style = ArrayPlus::create($val);
 				$style = $style->getHeaders('; ');
 				$val = $style;                        // for style="a: b; c: d"
