@@ -156,7 +156,7 @@ class IndexBase /*extends Controller*/
 //			debug('session already started', session_id(), session_status());
 		}
 		if (ifsetor($_SESSION['HTTP_USER_AGENT'])) {
-			if ($_SESSION['HTTP_USER_AGENT'] != $_SERVER['HTTP_USER_AGENT']) {
+			if ($_SESSION['HTTP_USER_AGENT'] !== $_SERVER['HTTP_USER_AGENT']) {
 				session_regenerate_id(true);
 				unset($_SESSION['HTTP_USER_AGENT']);
 				throw new AccessDeniedException('Session hijacking detected. Please try again');
@@ -165,7 +165,7 @@ class IndexBase /*extends Controller*/
 			$_SESSION['HTTP_USER_AGENT'] = ifsetor($_SERVER['HTTP_USER_AGENT']);
 		}
 		if (ifsetor($_SESSION['REMOTE_ADDR'])) {
-			if ($_SESSION['REMOTE_ADDR'] != $_SERVER['REMOTE_ADDR']) {
+			if ($_SESSION['REMOTE_ADDR'] !== $_SERVER['REMOTE_ADDR']) {
 				session_regenerate_id(true);
 				unset($_SESSION['REMOTE_ADDR']);
 				throw new AccessDeniedException('Session hijacking detected. Please try again.');
@@ -186,9 +186,7 @@ class IndexBase /*extends Controller*/
 	public static function getInstance($createNew = false, ConfigInterface $config = null)
 	{
 		TaylorProfiler::start(__METHOD__);
-		$instance = self::$instance
-			? self::$instance
-			: null;
+		$instance = self::$instance ?: null;
 		if (!$instance && $createNew) {
 			$static = get_called_class();
 			$instance = new $static($config);
@@ -220,7 +218,6 @@ class IndexBase /*extends Controller*/
 	public function initController()
 	{
 		// already created
-		// already created
 		if ($this->controller instanceof Controller) {
 			return;
 		}
@@ -248,7 +245,7 @@ class IndexBase /*extends Controller*/
 		TaylorProfiler::start(__METHOD__);
 		$slugParts = explode('/', $class);
 		$class = end($slugParts);    // again, because __autoload needs the full path
-//		debug(__METHOD__, $slugParts, $class, class_exists($class));
+//		llog(__METHOD__, $slugParts, $class, class_exists($class));
 		if (class_exists($class)) {
 			$this->controller = $this->makeController($class);
 		} else {
@@ -268,13 +265,10 @@ class IndexBase /*extends Controller*/
 	 */
 	public function makeController($class)
 	{
-		// v1
-//			$this->controller = new $class();
+//		llog('getID', method_exists($this->config, 'getDI'));
 		// v3
 		if (method_exists($this->config, 'getDI')) {
 			$di = $this->config->getDI();
-			// v1
-//			$this->controller = new $class();
 			// v3
 			if (method_exists($this->config, 'getDI')) {
 				$di = $this->config->getDI();
@@ -284,6 +278,9 @@ class IndexBase /*extends Controller*/
 				$ms = new MarshalParams($this->config);
 				$this->controller = $ms->make($class);
 			}
+		} else {
+			// v1
+			$this->controller = new $class();
 		}
 		// debug($class, get_class($this->controller));
 		if (method_exists($this->controller, 'postInit')) {
@@ -328,7 +325,7 @@ class IndexBase /*extends Controller*/
 
 		$content = $this->renderTemplateIfNotAjax($content);
 		TaylorProfiler::stop(__METHOD__);
-		$content .= $this->renderProfiler();
+		$content .= $this->s($this->renderProfiler());
 		return $content;
 	}
 
@@ -685,8 +682,7 @@ class IndexBase /*extends Controller*/
 	public function renderProfiler()
 	{
 		$pp = new PageProfiler();
-		$content = $pp->render();
-		return $content;
+		return $pp->render();
 	}
 
 	public function implodeCSS()
