@@ -28,11 +28,12 @@ if (!function_exists('get_overriden_methods')) {
 						$matches);
 					if (!isset($matches[1])) {
 						// must be an edge case.
-						throw new Exception ("Could not find caller class: originating method call is obscured.");
+						throw new RuntimeException("Could not find caller class: originating method call is obscured.");
 					}
 					switch ($matches[1]) {
 						case 'self':
 						case 'parent':
+							// phpstan-ignore-next-line
 							return get_called_class($bt, $l + 1);
 						default:
 							return $matches[1];
@@ -42,14 +43,16 @@ if (!function_exists('get_overriden_methods')) {
 					switch ($bt[$l]['function']) {
 						case '__get':
 							// edge case -> get class of calling object
-							if (!is_object($bt[$l]['object'])) throw new Exception ("Edge case fail. __get called on non object.");
+							if (!is_object($bt[$l]['object'])) {
+								throw new RuntimeException("Edge case fail. __get called on non object.");
+							}
 							return get_class($bt[$l]['object']);
 						default:
 							return $bt[$l]['class'];
 					}
 
 				default:
-					throw new Exception ("Unknown backtrace method type");
+					throw new RuntimeException("Unknown backtrace method type");
 			}
 		}
 	}

@@ -2,13 +2,10 @@
 
 abstract class UserBase extends OODBase implements UserModelInterface
 {
-	public $table = 'user';
-
-	public $idField = 'id';
-
-	protected $prefs = [];
-
 	public static $instances = [];
+	public $table = 'user';
+	public $idField = 'id';
+	protected $prefs = [];
 
 	/**
 	 * $id is intentionally not = NULL in order to force using getInstance()
@@ -51,7 +48,6 @@ abstract class UserBase extends OODBase implements UserModelInterface
 	 *
 	 * @param string $login
 	 * @param string $password - plain text password (no, it's md5'ed already)
-	 *
 	 * @return boolean
 	 * @throws Exception
 	 */
@@ -61,7 +57,7 @@ abstract class UserBase extends OODBase implements UserModelInterface
 		//debug($query);
 		$row = $this->db->fetchAssoc($query);
 		//debug(array($login, $password, $row['password']));
-		$ok = $row['password'] && $row['password'] == $password;
+		$ok = $row['password'] && $row['password'] === $password;
 		if ($ok) {
 			$this->init($row);
 		}
@@ -73,8 +69,8 @@ abstract class UserBase extends OODBase implements UserModelInterface
 	 * Will NOT md5 password inside as Client is UserBased.
 	 *
 	 * @param array $data
-	 * @throws Exception
 	 * @return void
+	 * @throws Exception
 	 */
 	public function insertUniqEmail(array $data)
 	{
@@ -82,11 +78,11 @@ abstract class UserBase extends OODBase implements UserModelInterface
 		if ($data['email']) {
 			$this->findInDB(['email' => $data['email']]);
 			if ($this->id) {
-				throw new Exception('Such e-mail is already used. <a href="?c=ForgotPassword">Forgot password?</a>');
-			} else {
-				//$data['password'] = md5($data['password']);
-				$this->insertNoUserCheck($data);
+				throw new RuntimeException('Such e-mail is already used. <a href="?c=ForgotPassword">Forgot password?</a>');
 			}
+
+//$data['password'] = md5($data['password']);
+			$this->insertNoUserCheck($data);
 		} else {
 			$index = Index::getInstance();
 			debug(__METHOD__);
@@ -104,22 +100,6 @@ abstract class UserBase extends OODBase implements UserModelInterface
 		$this->db->perform($query);
 		unset($data['ctime']);
 		$this->findInDB($data);
-	}
-
-	/**
-	 * These preferences are supposed to be stored in DB
-	 * But UserBase is NOT doing it.
-	 * @param $key
-	 * @param $val
-	 */
-	public function setPref($key, $val)
-	{
-		$this->prefs[$key] = $val;
-	}
-
-	public function getPref($key)
-	{
-		return ifsetor($this->prefs[$key]);
 	}
 
 	public function getAllPrefs()
@@ -146,6 +126,22 @@ abstract class UserBase extends OODBase implements UserModelInterface
 		*/
 		$this->setPref($key, $val);
 		return $val;
+	}
+
+	public function getPref($key)
+	{
+		return ifsetor($this->prefs[$key]);
+	}
+
+	/**
+	 * These preferences are supposed to be stored in DB
+	 * But UserBase is NOT doing it.
+	 * @param $key
+	 * @param $val
+	 */
+	public function setPref($key, $val)
+	{
+		$this->prefs[$key] = $val;
 	}
 
 	public function isAuth()
