@@ -292,13 +292,6 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 					];
 				$this->form->submit($desc['value'], $more);
 				break;
-			case 'jqueryFileTree':
-				$tree = new JQueryFileTree($desc['tree']);
-				$tree->setField($fieldName);
-//				$tree->setForm($this);
-				$tree->form->prefix($this->form->getPrefix());
-				$this->form->stdout .= $tree->render();
-				break;
 			case 'captcha':
 				$this->form->captcha($fieldName, $fieldValue, $desc->getArray());
 				break;
