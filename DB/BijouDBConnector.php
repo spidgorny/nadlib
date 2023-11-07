@@ -4,36 +4,25 @@
  * Class BijouDBConnector
  * Attaches to $GLOBALS['TYPO3_DB'] withing TYPO3 and acts as a proxy
  */
-class BijouDBConnector extends DBLayerBase implements DBInterface
+class BijouDBConnector extends DBLayerBase
 {
 
-	/**
-	 * @var t3lib_DB|\TYPO3\CMS\Core\Database\DatabaseConnection
-	 */
-	protected $t3db;
-
 	public $lastError;
+	protected $t3db;
+	protected $caller;
 
-	/**
-	 * @param t3lib_DB|\TYPO3\CMS\Core\Database\DatabaseConnection $t3lib_DB
-	 */
-	public function __construct(t3lib_DB $t3lib_DB = null)
+	public function __construct($t3lib_DB = null)
 	{
 		$this->t3db = $t3lib_DB ? $t3lib_DB : $GLOBALS['TYPO3_DB'];
 //		$this->setQB();
 	}
 
-	public function perform($query, array $params = [])
+	public function fetchRow($res)
 	{
-		$this->lastQuery = $query;
-		$start = array_sum(explode(' ', microtime()));
-		$res = $this->t3db->sql_query($query);
-		if (!$res) {
-			$this->lastError = $this->t3db->sql_error();
+		if (is_string($res)) {
+			$res = $this->perform($res);
 		}
-		$elapsed = array_sum(explode(' ', microtime())) - $start;
-		$this->saveQueryLog($query, $elapsed);
-		return $res;
+		return $this->t3db->sql_fetch_row($res);
 	}
 
 	/**
@@ -54,6 +43,31 @@ class BijouDBConnector extends DBLayerBase implements DBInterface
 		}
 	*/
 
+	public function perform($query, array $params = [])
+	{
+		$this->lastQuery = $query;
+		$start = array_sum(explode(' ', microtime()));
+		$res = $this->t3db->sql_query($query);
+		if (!$res) {
+			$this->lastError = $this->t3db->sql_error();
+		}
+		$elapsed = array_sum(explode(' ', microtime())) - $start;
+		$this->saveQueryLog($query, $elapsed);
+		return $res;
+	}
+
+	public function fetchAll($res, $key = 'uid')
+	{
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
+		$data = [];
+		while (($row = $this->fetchAssoc($res)) !== FALSE) {
+			$data[$row[$key]] = $row;
+		}
+		return $data;
+	}
+
 	/**
 	 * @see SQLBuilder
 	 * @param resource $res
@@ -67,26 +81,6 @@ class BijouDBConnector extends DBLayerBase implements DBInterface
 		$row = $this->t3db->sql_fetch_assoc($res);
 		//d($res, $row);
 		return $row;
-	}
-
-	public function fetchRow($res)
-	{
-		if (is_string($res)) {
-			$res = $this->perform($res);
-		}
-		return $this->t3db->sql_fetch_row($res);
-	}
-
-	public function fetchAll($res, $key = 'uid')
-	{
-		if (is_string($res)) {
-			$res = $this->perform($res);
-		}
-		$data = [];
-		while (($row = $this->fetchAssoc($res)) !== FALSE) {
-			$data[$row[$key]] = $row;
-		}
-		return $data;
 	}
 
 	public function fetchAllAsIs($res)
@@ -126,14 +120,14 @@ class BijouDBConnector extends DBLayerBase implements DBInterface
 		return $prow;
 	}
 
-	public function getLastInsertID($res = null)
-	{
-		return $this->t3db->sql_insert_id($res);
-	}
-
 	public function lastInsertID($res = null, $table = null)
 	{
 		return $this->getLastInsertID($res);
+	}
+
+	public function getLastInsertID($res = null)
+	{
+		return $this->t3db->sql_insert_id($res);
 	}
 
 	public function quoteSQL($value, $desc = null)
@@ -141,29 +135,37 @@ class BijouDBConnector extends DBLayerBase implements DBInterface
 		//var_dump($value); print(gettype($value) . "<br>");
 		if ($value === null) {
 			return 'NULL';
-		} elseif ($value === true) {
+		}
+
+		if ($value === true) {
 			return "TRUE";
-		} elseif ($value === false) {
+		}
+
+		if ($value === false) {
 			return "FALSE";
-		} elseif (is_int($value)) {
+		}
+
+		if (is_int($value)) {
 			return $value;
-		} elseif ($desc['asis']) {
+		}
+
+		if ($desc['asis']) {
 			return /*$this->escapeString(*/
 				$value/*)*/
 				;
-		} else {
-			return $this->escapeString($value);
 		}
-	}
 
-	public function numRows($res = null)
-	{
-		return $this->t3db->sql_num_rows($res);
+		return $this->escapeString($value);
 	}
 
 	public function escapeString($value)
 	{
 		return $this->t3db->fullQuoteStr($value, '');
+	}
+
+	public function numRows($res = null)
+	{
+		return $this->t3db->sql_num_rows($res);
 	}
 
 	public function getDefaultInsertFields()

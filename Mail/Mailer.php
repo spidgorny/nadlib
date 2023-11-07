@@ -110,6 +110,33 @@ class Mailer implements MailerInterface
 		$this->rebuildMessage();
 	}
 
+	public function getPlainText()
+	{
+		if (class_exists('HTMLPurifier_Config')) {
+			$config = HTMLPurifier_Config::createDefault();
+			$config->set('HTML.Allowed', '');
+			$purifier = new HTMLPurifier($config);
+			$mailText = $purifier->purify($this->bodytext);
+//			$mailText = str_replace("\n\n", "\n", $mailText);
+//			$mailText = str_replace("\r\n\r\n", "\r\n", $mailText);
+			$mailText = explode(PHP_EOL, $mailText);    // keep blank lines
+			$mailText = array_map('trim', $mailText);
+			$mailText = implode(PHP_EOL, $mailText);
+		} else {
+			$mailText = strip_tags($this->bodytext);
+		}
+		return $mailText;
+	}
+
+	public function attach($name, $mime, $content)
+	{
+		$this->attachments[] = [
+			'name' => $name,
+			'mime' => $mime,
+			'content' => $content,
+		];
+	}
+
 	/**
 	 * Should not be called more than once since it corrupts
 	 * $this->bodytext
@@ -154,13 +181,16 @@ class Mailer implements MailerInterface
 		$this->bodytext = $message;
 	}
 
-	public function attach($name, $mime, $content)
+	public function debug()
 	{
-		$this->attachments[] = [
-			'name' => $name,
-			'mime' => $mime,
-			'content' => $content,
-		];
+		$assoc = [];
+		$assoc['to'] = $this->to;
+		$assoc['subject'] = $this->getSubject();
+		$assoc['isHTML'] = self::isHTML($this->bodytext);
+		$assoc['headers'] = new HtmlString(implode('<br />', $this->headers));
+		$assoc['params'] = implode(' ', $this->params);
+		$assoc['bodyText'] = nl2br($this->getBodyText());
+		return slTable::showAssoc($assoc);
 	}
 
 	public function getSubject()
@@ -175,16 +205,29 @@ class Mailer implements MailerInterface
 		return $bodyText;
 	}
 
-	public function debug()
+	/**
+	 * @return \SendGrid\Response
+	 */
+	public function sendGrid()
 	{
-		$assoc = [];
-		$assoc['to'] = $this->to;
-		$assoc['subject'] = $this->getSubject();
-		$assoc['isHTML'] = self::isHTML($this->bodytext);
-		$assoc['headers'] = new htmlString(implode('<br />', $this->headers));
-		$assoc['params'] = implode(' ', $this->params);
-		$assoc['bodyText'] = nl2br($this->getBodyText());
-		return slTable::showAssoc($assoc);
+		$config = Config::getInstance();
+		$mail = $this->getSendGridMail();
+
+		$sg = $config->getSendGrid();
+
+		/** @var $response \SendGrid\Response */
+		$response = $sg->client->mail()->send()->post($mail);
+		return $response;
+	}
+
+	public function getSendGridMail()
+	{
+		$config = Config::getInstance();
+		$from = new SendGrid\Email(null, $config->mailFrom);
+		$to = new SendGrid\Email(null, $this->to);
+		$content = new SendGrid\Content('text/plain', $this->getPlainText());
+		$mail = new SendGrid\Mail($from, $this->subject, $to, $content);
+		return $mail;
 	}
 
 	/**
@@ -213,49 +256,6 @@ class Mailer implements MailerInterface
 			throw new MailerException('Invalid email address: ' . implode(', ', $this->to));
 		}
 		return $res;
-	}
-
-	public function getPlainText()
-	{
-		if (class_exists('HTMLPurifier_Config')) {
-			$config = HTMLPurifier_Config::createDefault();
-			$config->set('HTML.Allowed', '');
-			$purifier = new HTMLPurifier($config);
-			$mailText = $purifier->purify($this->bodytext);
-//			$mailText = str_replace("\n\n", "\n", $mailText);
-//			$mailText = str_replace("\r\n\r\n", "\r\n", $mailText);
-			$mailText = explode(PHP_EOL, $mailText);    // keep blank lines
-			$mailText = array_map('trim', $mailText);
-			$mailText = implode(PHP_EOL, $mailText);
-		} else {
-			$mailText = strip_tags($this->bodytext);
-		}
-		return $mailText;
-	}
-
-	public function getSendGridMail()
-	{
-		$config = Config::getInstance();
-		$from = new SendGrid\Email(null, $config->mailFrom);
-		$to = new SendGrid\Email(null, $this->to);
-		$content = new SendGrid\Content('text/plain', $this->getPlainText());
-		$mail = new SendGrid\Mail($from, $this->subject, $to, $content);
-		return $mail;
-	}
-
-	/**
-	 * @return \SendGrid\Response
-	 */
-	public function sendGrid()
-	{
-		$config = Config::getInstance();
-		$mail = $this->getSendGridMail();
-
-		$sg = $config->getSendGrid();
-
-		/** @var $response \SendGrid\Response */
-		$response = $sg->client->mail()->send()->post($mail);
-		return $response;
 	}
 
 }

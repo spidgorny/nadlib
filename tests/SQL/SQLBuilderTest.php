@@ -1,6 +1,6 @@
 <?php
 
-class SQLBuilderTest extends PHPUnit\Framework\TestCase
+class SQLBuilderTest extends NadlibTestCase
 {
 
 	/**

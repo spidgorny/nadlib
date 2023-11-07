@@ -26,4 +26,10 @@ class NadlibTestCase extends PHPUnit\Framework\TestCase
 		return implode(PHP_EOL, trimExplode("\n", $s));
 	}
 
+	public function expectException($exception)
+	{
+		$this->setExpectedException($exception);
+	}
+
+
 }

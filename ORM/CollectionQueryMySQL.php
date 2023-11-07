@@ -3,6 +3,10 @@
 class CollectionQueryMySQL extends CollectionQuery
 {
 
+	protected $parentField;
+	protected $parentID;
+	protected $count;
+	
 	/**
 	 * https://dev.mysql.com/doc/refman/5.0/en/information-functions.html#function_found-rows
 	 * @requires PHP 5.3

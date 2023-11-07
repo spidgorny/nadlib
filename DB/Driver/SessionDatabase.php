@@ -3,7 +3,6 @@
 namespace nadlib;
 
 use Nette\NotImplementedException;
-use SQLBuilder;
 
 /**
  * @method  fetchSelectQuery($table, $where = [], $order = '', $addFields = '', $idField = null)
@@ -21,27 +20,17 @@ class SessionDatabase implements \DBInterface
 {
 
 	/**
-	 * @var \Session
+	 * @var static
 	 */
-	protected $session;
-
+	static protected $instance;
 	/**
 	 * @var array
 	 */
 	public $data = [];
-
 	/**
-	 * @var static
+	 * @var \Session
 	 */
-	static protected $instance;
-
-	public static function initialize()
-	{
-		if (!self::$instance) {
-			self::$instance = new static();
-		}
-		return self::$instance;
-	}
+	protected $session;
 
 	public function __construct()
 	{
@@ -50,6 +39,14 @@ class SessionDatabase implements \DBInterface
 		foreach ($data as $table => $rows) {
 			$this->data[$table] = $rows;
 		}
+	}
+
+	public static function initialize()
+	{
+		if (!self::$instance) {
+			self::$instance = new static();
+		}
+		return self::$instance;
 	}
 
 	public function __destruct()
@@ -276,7 +273,7 @@ class SessionDatabase implements \DBInterface
 	/** @return string */
 	public function getDSN()
 	{
-		// TODO: Implement getDSN() method.
+		return '';
 	}
 
 	public function getInfo()

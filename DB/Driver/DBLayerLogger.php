@@ -20,6 +20,12 @@ class DBLayerLogger extends DBLayerBase implements DBInterface
 		//$this->qb = Config::getInstance()->getQb();
 	}
 
+	public function perform($query, array $params = [])
+	{
+		$this->log($query);
+		return '';
+	}
+
 	public function log($query)
 	{
 		if ($this->logger) {
@@ -27,12 +33,6 @@ class DBLayerLogger extends DBLayerBase implements DBInterface
 		} else {
 			echo '>> ', $query, BR;
 		}
-	}
-
-	public function perform($query, array $params = [])
-	{
-		$this->log($query);
-		return '';
 	}
 
 	public function fetchOptions($a)
@@ -125,6 +125,7 @@ class DBLayerLogger extends DBLayerBase implements DBInterface
 	public function getScheme()
 	{
 		$this->log(__METHOD__);
+		return '';
 	}
 
 	public function getTablesEx()
@@ -153,7 +154,7 @@ class DBLayerLogger extends DBLayerBase implements DBInterface
 		$this->log(__METHOD__);
 		$this->data = $columns;
 		if (!ifsetor($this->data['id'])) {
-			$id = rand(1, 100);
+			$id = random_int(1, 100);
 			$this->data['id'] = $id;
 			debug($this->data);
 		}

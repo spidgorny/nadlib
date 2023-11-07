@@ -6,82 +6,68 @@ class AutoLoad
 {
 
 	/**
-	 * @var AutoLoadFolders
-	 */
-	var $folders;
-
-	/**
-	 * @var bool
-	 */
-	var $useCookies = true;
-
-	/**
-	 * @var boolean
-	 */
-	public $debug = 0;
-
-	public $debugStartup = 0;
-
-	/**
 	 * @var AutoLoad
 	 */
 	private static $instance;
-
 	/**
-	 * @var Path from the root of the OS to the application root
-	 * Z:/web/have-you-been-here/
+	 * @var AutoLoadFolders
 	 */
-	protected $appRoot;
-
+	public $folders;
+	/**
+	 * @var bool
+	 */
+	public $useCookies = true;
+	/**
+	 * @var bool
+	 */
+	public $debug = 0;
+	public $debugStartup = 0;
 	/**
 	 * Session stored map of each class to a file.
 	 * This prevents searching for each file.
 	 * @var array
 	 */
 	public $classFileMap = [];
-
 	/**
 	 * @var Config
 	 */
 	public $config;
-
 	/**
 	 * @var int
 	 */
 	public $count = 0;
-
 	/**
 	 * @var Path from the root of the domain to the application root.
 	 * Used as a prefix for JS/CSS files.
 	 * http://localhost:8080/[have-you-been-here]/index.php
 	 */
 	public $documentRoot;
-
 	/**
 	 * Relative to getcwd()
 	 * Can be "../" from /nadlib/be/
 	 * @var string
 	 */
 	public $nadlibRoot = 'vendor/spidgorny/nadlib/';
-
 	/**
 	 * Relative to $this->appRoot
 	 * @var string
 	 */
 	public $nadlibFromDocRoot;
-
 	public $nadlibFromCWD;
-
 	/**
 	 * @var Path
 	 */
 	public $componentsPath;
-
 	public $stat = [
 		'findInFolders' => 0,
 		'loadFile1' => 0,
 		'loadFile2' => 0,
 	];
+	/**
+	 * @var Path from the root of the OS to the application root
+	 * Z:/web/have-you-been-here/
+	 */
+	protected $appRoot;
 
 	/**
 	 * getFolders() is called from outside
@@ -99,38 +85,33 @@ class AutoLoad
 		require_once __DIR__ . '/AutoLoadFolders.php';
 	}
 
-	/**
-	 * @return AutoLoad
-	 */
-	static function getInstance()
+	public static function register()
 	{
-		if (!self::$instance) {
-			self::$instance = new self();
-			self::$instance->detectNadlibRoot();
-
-			// should not be called before $this->useCookies is set
-			//self::$instance->initFolders();
+		$instance = self::getInstance();
+		if (!$instance->folders) {
+			$instance->postInit();
 		}
-		return self::$instance;
-	}
-
-	function getAppRoot()
-	{
-		if (!$this->appRoot) {
-			$this->appRoot = $this->detectAppRoot();
+		// before composer <- incorrect
+		// composer autoload is much faster and should be first
+		$result = spl_autoload_register([$instance, 'load'], true, false);
+		if ($result) {
+			//echo __METHOD__ . ' OK'.BR;
+		} else {
+			//debug(phpversion());
+			//debug(error_get_last());
+			//debug(is_callable(array($instance, 'load')));
+//			function __autoload($class) {
+//				$instance = AutoLoad::getInstance();
+//				$instance->load($class);
+//			}
+			return $instance;
 		}
-		return $this->appRoot;
-	}
-
-	function setAppRoot($path)
-	{
-		$this->appRoot = $path;
 	}
 
 	/**
 	 * While loading Config, we need to make sure nadlib libraries can be loaded
 	 */
-	function postInit()
+	public function postInit()
 	{
 		if (!$this->folders) {
 			$this->folders = new AutoLoadFolders($this);
@@ -155,7 +136,215 @@ class AutoLoad
 		}
 	}
 
-	function detectNadlibRoot()
+	public function getAppRoot()
+	{
+		if (!$this->appRoot) {
+			$this->appRoot = $this->detectAppRoot();
+		}
+		return $this->appRoot;
+	}
+
+	public function setAppRoot($path)
+	{
+		$this->appRoot = $path;
+	}
+
+	public function detectAppRoot()
+	{
+		require_once __DIR__ . '/AppRootDetector.php';
+		$ard = new AppRootDetector();
+		return $ard->get();
+	}
+
+	public function __destruct()
+	{
+		if ($this->useCookies) {
+			$_SESSION[__CLASS__] = ifsetor($_SESSION[__CLASS__], []);
+			$_SESSION[__CLASS__]['classFileMap'] = $this->classFileMap;
+		}
+		//debug($this->stat, $this->classFileMap, $this->folders);
+	}
+
+	/**
+	 * Main __autoload() function
+	 * @param string $class
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function load($class)
+	{
+		/** @var TaylorProfiler $tp */
+		//echo TaylorProfiler::getElapsedTimeString().' '.$class.BR;
+
+		//$tp = TaylorProfiler::getInstance();
+		$tp = null;
+		if ($tp) $tp->start(__METHOD__);
+		$this->count++;
+
+		$file = $this->loadFileForClass($class);
+
+		if (!class_exists($class) && !interface_exists($class)) {
+			if (isset($_SESSION)) {
+				//debug('clear folder as '.$class.' is not found');
+				//$this->folders = array();				// @see __destruct(), commented as it's too global
+				$this->folders->clearCache();
+				//debug($_SESSION['AutoLoadFolders']['folders']);
+				$this->useCookies = false;                // prevent __destruct saving data to the session
+			}
+			//debug($this->folders);
+			if (class_exists('Config', false)) {
+				$config = Config::getInstance();
+				$notFoundException = ifsetor($config->config['autoload']['notFoundException']);
+			} else {
+				$notFoundException = false;
+			}
+
+			if ($notFoundException) {
+				if ($tp) $tp->stop(__METHOD__);
+				debug($this->folders->folders);
+				throw new Exception('Class ' . $class . ' (' . $file . ') not found.' . BR);
+			} else {
+				//debug_pre_print_backtrace();
+				//pre_print_r($file, $this->folders->folders, $this->folders->collectDebug);
+				$this->logError($class . ' not found by AutoLoad');
+			}
+			//echo '<font color="red">'.$classFile.'-'.$file.'</font> ';
+			if ($tp) $tp->stop(__METHOD__);
+			return false;
+		} else {
+			//echo $classFile.' ';
+			$this->logSuccess($class . ' OK');
+			if ($tp) $tp->stop(__METHOD__);
+			return true;
+		}
+	}
+
+	public function loadFileForClass($class)
+	{
+		$namespaces = explode('\\', $class);
+		$classFile = end($namespaces);                // why?
+
+		$subFolders = explode('/', $classFile);        // Download/GetAllRoutes
+		$classFile = array_pop($subFolders);        // [Download, GetAllRoutes]
+		$subFolders = implode('/', $subFolders);    // Download
+
+		$file = $this->getFileFromMap($class);
+		if ($file) {
+			/** @noinspection PhpIncludeInspection */
+			include_once $file;
+		} else {
+			$ns = $subFolders ?:
+				(sizeof($namespaces) > 1
+					? first($namespaces)
+					: null);
+//			$this->folders->collectDebug = array();
+
+			$file = $this->folders->findInFolders($classFile, $ns);
+//			echo __METHOD__, TAB, $class, TAB, $ns, TAB, $classFile, TAB, $file, BR;
+			if ($file) {
+				$this->classFileMap[$class] = $file;    // save
+				$this->logSuccess($class . ' found in ' . $file);
+				if (false
+					&& $this->debug
+					&& class_exists('AppController', false)
+					&& !Request::isCLI()) {
+					$subject = 'Class [' . $class . '] loaded from [' . $classFile . ']';
+					//$this->log($subject);
+					$c = new AppController();
+					echo $c->encloseInToggle(
+						implode("\n", $this->folders->collectDebug), $subject);
+				}
+
+				/** @noinspection PhpIncludeInspection */
+				include_once $file;
+				$this->classFileMap[$class] = $file;
+				$this->stat['findInFolders']++;
+
+				$this->logSuccess($class . ' exists: ' . class_exists($class));
+			} elseif ($this->debug) {
+				//debug($this->stat['folders'], $this->stat['configPath']);
+				//debug($this->folders);
+				$this->logError($class . ' not in folders [' . sizeof($this->folders->folders['']) . ']');
+				//pre_print_r($this->classFileMap);
+			}
+			//$this->folders->collectDebug = null;
+		}
+		return $file;
+	}
+
+	public function getFileFromMap($class)
+	{
+		$file = isset($this->classFileMap[$class])
+			? $this->classFileMap[$class] : null;
+
+		//echo $class.' ['.$file.'] '.(file_exists($file) ? "YES" : "NO").'<br />'."\n";
+
+		//pre_print_r($class, $file, $file2);
+		if ($file && file_exists($file)) {
+			$this->stat['loadFile1']++;
+		} else {
+			$file2 = str_replace('class.', '', $file);
+			if ($file2 && file_exists($file2)) {
+				$this->stat['loadFile2']++;
+				$file = $file2;
+			} else {
+				$this->logError($class . ' not found in classFileMap[' . sizeof($this->classFileMap) . ']');
+				//pre_print_r($this->classFileMap);
+				$file = null;
+			}
+		}
+		return $file;
+	}
+
+	public function logError($debugLine)
+	{
+		if ($this->debug) {
+			$this->dumpCSS();
+			echo '<span class="debug error">' . $debugLine . '</span>', BR;
+		}
+	}
+
+	public function dumpCSS()
+	{
+		static $once = 0;
+		if (Request::isCLI()) return;
+		echo '<style>
+			.debug.error {
+				background: lightpink;
+				color: red;
+			}
+			.debug.success {
+				background: lightgreen;
+				color: green;
+			}
+		</style>';
+		$once = 1;
+	}
+
+	public function logSuccess($debugLine)
+	{
+		if ($this->debug) {
+			$this->dumpCSS();
+			echo '<span class="debug success">' . $debugLine . '</span>', BR;
+		}
+	}
+
+	/**
+	 * @return AutoLoad
+	 */
+	public static function getInstance()
+	{
+		if (!self::$instance) {
+			self::$instance = new self();
+			self::$instance->detectNadlibRoot();
+
+			// should not be called before $this->useCookies is set
+			//self::$instance->initFolders();
+		}
+		return self::$instance;
+	}
+
+	public function detectNadlibRoot()
 	{
 		$this->documentRoot = new Path($_SERVER['DOCUMENT_ROOT']);
 		$this->documentRoot->resolveLink();
@@ -269,153 +458,6 @@ class AutoLoad
 		}
 	}
 
-	public function detectAppRoot()
-	{
-		require_once __DIR__ . '/AppRootDetector.php';
-		$ard = new AppRootDetector();
-		return $ard->get();
-	}
-
-	public function __destruct()
-	{
-		if ($this->useCookies) {
-			$_SESSION[__CLASS__] = ifsetor($_SESSION[__CLASS__], []);
-			$_SESSION[__CLASS__]['classFileMap'] = $this->classFileMap;
-		}
-		//debug($this->stat, $this->classFileMap, $this->folders);
-	}
-
-	/**
-	 * Main __autoload() function
-	 * @param string $class
-	 * @return bool
-	 * @throws Exception
-	 */
-	public function load($class)
-	{
-		/** @var TaylorProfiler $tp */
-		//echo TaylorProfiler::getElapsedTimeString().' '.$class.BR;
-
-		//$tp = TaylorProfiler::getInstance();
-		$tp = NULL;
-		if ($tp) $tp->start(__METHOD__);
-		$this->count++;
-
-		$file = $this->loadFileForClass($class);
-
-		if (!class_exists($class) && !interface_exists($class)) {
-			if (isset($_SESSION)) {
-				//debug('clear folder as '.$class.' is not found');
-				//$this->folders = array();				// @see __destruct(), commented as it's too global
-				$this->folders->clearCache();
-				//debug($_SESSION['AutoLoadFolders']['folders']);
-				$this->useCookies = false;                // prevent __destruct saving data to the session
-			}
-			//debug($this->folders);
-			if (class_exists('Config', false)) {
-				$config = Config::getInstance();
-				$notFoundException = ifsetor($config->config['autoload']['notFoundException']);
-			} else {
-				$notFoundException = false;
-			}
-
-			if ($notFoundException) {
-				if ($tp) $tp->stop(__METHOD__);
-				debug($this->folders->folders);
-				throw new Exception('Class ' . $class . ' (' . $file . ') not found.' . BR);
-			} else {
-				//debug_pre_print_backtrace();
-				//pre_print_r($file, $this->folders->folders, $this->folders->collectDebug);
-				$this->logError($class . ' not found by AutoLoad');
-			}
-			//echo '<font color="red">'.$classFile.'-'.$file.'</font> ';
-			if ($tp) $tp->stop(__METHOD__);
-			return false;
-		} else {
-			//echo $classFile.' ';
-			$this->logSuccess($class . ' OK');
-			if ($tp) $tp->stop(__METHOD__);
-			return true;
-		}
-	}
-
-	public function loadFileForClass($class)
-	{
-		$namespaces = explode('\\', $class);
-		$classFile = end($namespaces);                // why?
-
-		$subFolders = explode('/', $classFile);        // Download/GetAllRoutes
-		$classFile = array_pop($subFolders);        // [Download, GetAllRoutes]
-		$subFolders = implode('/', $subFolders);    // Download
-
-		$file = $this->getFileFromMap($class);
-		if ($file) {
-			/** @noinspection PhpIncludeInspection */
-			include_once $file;
-		} else {
-			$ns = $subFolders ?:
-				(sizeof($namespaces) > 1
-					? first($namespaces)
-					: null);
-//			$this->folders->collectDebug = array();
-
-			$file = $this->folders->findInFolders($classFile, $ns);
-//			echo __METHOD__, TAB, $class, TAB, $ns, TAB, $classFile, TAB, $file, BR;
-			if ($file) {
-				$this->classFileMap[$class] = $file;    // save
-				$this->logSuccess($class . ' found in ' . $file);
-				if (false
-					&& $this->debug
-					&& class_exists('AppController', false)
-					&& !Request::isCLI()) {
-					$subject = 'Class [' . $class . '] loaded from [' . $classFile . ']';
-					//$this->log($subject);
-					$c = new AppController();
-					echo $c->encloseInToggle(
-						implode("\n", $this->folders->collectDebug), $subject);
-				}
-
-				/** @noinspection PhpIncludeInspection */
-				include_once $file;
-				$this->classFileMap[$class] = $file;
-				$this->stat['findInFolders']++;
-
-				$this->logSuccess($class . ' exists: ' . class_exists($class));
-			} elseif ($this->debug) {
-				//debug($this->stat['folders'], $this->stat['configPath']);
-				//debug($this->folders);
-				$this->logError($class . ' not in folders [' . sizeof($this->folders->folders['']) . ']');
-				//pre_print_r($this->classFileMap);
-			}
-			//$this->folders->collectDebug = null;
-		}
-		return $file;
-	}
-
-	public function getFileFromMap($class)
-	{
-		$file = isset($this->classFileMap[$class])
-			? $this->classFileMap[$class] : NULL;
-
-		//echo $class.' ['.$file.'] '.(file_exists($file) ? "YES" : "NO").'<br />'."\n";
-
-		//pre_print_r($class, $file, $file2);
-		if ($file && file_exists($file)) {
-			$this->stat['loadFile1']++;
-		} else {
-			$file2 = str_replace('class.', '', $file);
-			if ($file2 && file_exists($file2)) {
-				$this->stat['loadFile2']++;
-				$file = $file2;
-			} else {
-				$this->logError($class . ' not found in classFileMap[' . sizeof($this->classFileMap) . ']');
-				//pre_print_r($this->classFileMap);
-				$file = NULL;
-			}
-		}
-		return $file;
-	}
-
 	public function log($debugLine)
 	{
 		if ($this->debug) {
@@ -426,62 +468,6 @@ class AutoLoad
 			} else {
 				echo $debugLine, BR;
 			}
-		}
-	}
-
-	public function logError($debugLine)
-	{
-		if ($this->debug) {
-			$this->dumpCSS();
-			echo '<span class="debug error">' . $debugLine . '</span>', BR;
-		}
-	}
-
-	public function logSuccess($debugLine)
-	{
-		if ($this->debug) {
-			$this->dumpCSS();
-			echo '<span class="debug success">' . $debugLine . '</span>', BR;
-		}
-	}
-
-	public function dumpCSS()
-	{
-		static $once = 0;
-		if (Request::isCLI()) return;
-		echo '<style>
-			.debug.error {
-				background: lightpink;
-				color: red;
-			}
-			.debug.success {
-				background: lightgreen;
-				color: green;
-			}
-		</style>';
-		$once = 1;
-	}
-
-	public static function register()
-	{
-		$instance = self::getInstance();
-		if (!$instance->folders) {
-			$instance->postInit();
-		}
-		// before composer <- incorrect
-		// composer autoload is much faster and should be first
-		$result = spl_autoload_register([$instance, 'load'], true, false);
-		if ($result) {
-			//echo __METHOD__ . ' OK'.BR;
-		} else {
-			//debug(phpversion());
-			//debug(error_get_last());
-			//debug(is_callable(array($instance, 'load')));
-//			function __autoload($class) {
-//				$instance = AutoLoad::getInstance();
-//				$instance->load($class);
-//			}
-			return $instance;
 		}
 	}
 

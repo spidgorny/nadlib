@@ -8,13 +8,11 @@
 class Time
 {
 
+	const HUMAN = 'H:i';
 	/**
 	 * @var int
 	 */
 	public $time;
-
-	const HUMAN = 'H:i';
-
 	/**
 	 * @var string
 	 */
@@ -62,6 +60,16 @@ class Time
 		//TaylorProfiler::stop(__METHOD__.' ('.MySQL::getCaller().')');
 	}
 
+	/**
+	 * DON'T USE getTimestamp() to get amount of seconds as it depends on the TZ
+	 *
+	 * @return int
+	 */
+	public function getTimestamp()
+	{
+		return $this->time;
+	}
+
 	public function updateDebug()
 	{
 		//TaylorProfiler::start(__METHOD__);
@@ -70,9 +78,22 @@ class Time
 		//TaylorProfiler::stop(__METHOD__);
 	}
 
-	public function __toString()
+	/**
+	 * YMDTHISZ
+	 *
+	 * @return string
+	 */
+	public function getISO()
 	{
-		return $this->format($this->format);
+		return gmdate('Ymd\THis\Z', $this->time);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getHumanDateTime()
+	{
+		return date('Y-m-d H:i', $this->time);
 	}
 
 	/**
@@ -86,19 +107,48 @@ class Time
 		return new $self($input, $relativeTo);
 	}
 
-	public function toSQL()
+	/**
+	 * Combines date and time and creates a new Time object
+	 * @param $date
+	 * @param $time
+	 * @return Time
+	 */
+	public static function combine($date, $time)
 	{
-		return date('Y-m-d H:i:s', $this->time);
+		if ($date instanceof Time) {
+			$date = $date->getISODate();
+		}
+		if ($time instanceof Time) {
+			$time = $time->getTime();
+		}
+		$string = $date . ' ' . $time;
+		//debug($string);
+		return new self($string);
+	}
+
+	public function __toString()
+	{
+		return $this->format($this->format);
 	}
 
 	/**
-	 * DON'T USE getTimestamp() to get amount of seconds as it depends on the TZ
-	 *
-	 * @return int
+	 * Calls the date function
+	 * @param $rules
+	 * @return string
 	 */
-	public function getTimestamp()
+	public function format($rules)
 	{
-		return $this->time;
+		if ($this->time) {
+			$content = date($rules, $this->time);
+		} else {
+			$content = '';
+		}
+		return $content;
+	}
+
+	public function toSQL()
+	{
+		return date('Y-m-d H:i:s', $this->time);
 	}
 
 	/**
@@ -107,6 +157,27 @@ class Time
 	public function getGMTTimestamp()
 	{
 		return strtotime($this->getISODate() . ' ' . $this->getTime() . ' GMT');
+	}
+
+	/**
+	 * System readable 2009-12-21
+	 *
+	 * @return string
+	 */
+	public function getISODate()
+	{
+		return date('Y-m-d', $this->time);
+	}
+
+	/**
+	 * 12:21:15
+	 *
+	 * @param string $format
+	 * @return string
+	 */
+	public function getTime($format = 'H:i:s')
+	{
+		return date($format, $this->time);
 	}
 
 	/**
@@ -130,11 +201,6 @@ class Time
 		return $this->time <= $than->time;
 	}
 
-	public function later(Time $than)
-	{
-		return $this->time > $than->time;
-	}
-
 	public function laterOrEqual(Time $than)
 	{
 		/*		debug(array(
@@ -143,41 +209,6 @@ class Time
 				));
 		*/
 		return $this->time >= $than->time;
-	}
-
-	/**
-	 * YMDTHISZ
-	 *
-	 * @return string
-	 */
-	public function getISO()
-	{
-		return gmdate('Ymd\THis\Z', $this->time);
-	}
-
-	/**
-	 * System readable 2009-12-21
-	 *
-	 * @return string
-	 */
-	public function getISODate()
-	{
-		return date('Y-m-d', $this->time);
-	}
-
-	public function getISODateTime()
-	{
-		return date('Y-m-d H:i:s', $this->time);
-	}
-
-	/**
-	 * Human readable 21.02.1979
-	 *
-	 * @return string
-	 */
-	public function getHumanDate()
-	{
-		return date('d.m.Y', $this->time);
 	}
 
 	/**
@@ -205,41 +236,14 @@ class Time
 	}
 
 	/**
-	 * 12:21
+	 * <span class="time">in 10 hours</span>
 	 *
-	 * @return string
+	 * @return HtmlString
 	 */
-	public function getHumanTime()
+	public function render()
 	{
-		return date('H:i', $this->time);
-	}
-
-	/**
-	 * 12:21
-	 *
-	 * @return string
-	 */
-	public function getHumanTimeGMT()
-	{
-		//$zone = datefmt_get_timezone();
-		$zone = date_default_timezone_get();
-		//datefmt_set_timezone('GMT');
-		date_default_timezone_set('GMT');
-		$str = date('H:i', $this->time);
-		//datefmt_set_timezone($zone);
-		date_default_timezone_set($zone);
-		return $str;
-	}
-
-	/**
-	 * 12:21:15
-	 *
-	 * @param string $format
-	 * @return string
-	 */
-	public function getTime($format = 'H:i:s')
-	{
-		return date($format, $this->time);
+		return new HtmlString('<time datetime="' . $this->getDateTime() . '"
+			class="time" title="' . $this->getDateTime() . '">' . $this->in() . '</span>');
 	}
 
 	/**
@@ -250,14 +254,6 @@ class Time
 	public function getDateTime()
 	{
 		return date('Y-m-d H:i:s', $this->time);
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getHumanDateTime()
-	{
-		return date('Y-m-d H:i', $this->time);
 	}
 
 	/**
@@ -336,17 +332,6 @@ class Time
 	}
 
 	/**
-	 * <span class="time">in 10 hours</span>
-	 *
-	 * @return htmlString
-	 */
-	public function render()
-	{
-		return new htmlString('<time datetime="' . $this->getDateTime() . '"
-			class="time" title="' . $this->getDateTime() . '">' . $this->in() . '</span>');
-	}
-
-	/**
 	 * Displays start of an hour with larger font
 	 *
 	 * @return string
@@ -361,21 +346,6 @@ class Time
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $noe;
-	}
-
-	/**
-	 * Calls the date function
-	 * @param $rules
-	 * @return string
-	 */
-	public function format($rules)
-	{
-		if ($this->time) {
-			$content = date($rules, $this->time);
-		} else {
-			$content = '';
-		}
-		return $content;
 	}
 
 	/**
@@ -410,6 +380,35 @@ class Time
 		$this->updateDebug();
 		//TaylorProfiler::stop(__METHOD__);
 		return $this;
+	}
+
+	/**
+	 * Does not modify itself
+	 * @param Time $plus
+	 * @param bool $debug
+	 * @return Time
+	 */
+	public function plus(Time $plus, $debug = FALSE)
+	{
+		//TaylorProfiler::start(__METHOD__);
+		/*$format = '+ '.
+			($plus->format('Y')-1970).' years '.
+			($plus->format('m')-1).' months '.
+			($plus->format('d')-1).' days '.
+			$plus->format('H').' hours '.
+			$plus->format('i').' minutes '.
+			$plus->format('s').' seconds';
+		$new = strtotime($format, $this->time);*/
+		//$format = gmmktime($plus->format('H'), $plus->format('i'), $plus->format('s'), $plus->format('m'), $plus->format('d'), $plus->format('Y'));
+		$format = $plus->getTimestamp();
+		$new = $this->time + $format;
+
+		if (0) {
+			echo $this . ' + ' . $format . ' (' . date('Y-m-d H:i:s', is_long($format) ? $format : 0) . ') = [' . $new . ']<br>';
+		}
+		$new = new self($new);
+		//TaylorProfiler::stop(__METHOD__);
+		return $new;
 	}
 
 	/**
@@ -450,65 +449,6 @@ class Time
 	 * @param bool $debug
 	 * @return Time
 	 */
-	public function plus(Time $plus, $debug = FALSE)
-	{
-		//TaylorProfiler::start(__METHOD__);
-		/*$format = '+ '.
-			($plus->format('Y')-1970).' years '.
-			($plus->format('m')-1).' months '.
-			($plus->format('d')-1).' days '.
-			$plus->format('H').' hours '.
-			$plus->format('i').' minutes '.
-			$plus->format('s').' seconds';
-		$new = strtotime($format, $this->time);*/
-		//$format = gmmktime($plus->format('H'), $plus->format('i'), $plus->format('s'), $plus->format('m'), $plus->format('d'), $plus->format('Y'));
-		$format = $plus->getTimestamp();
-		$new = $this->time + $format;
-
-		if (0) {
-			echo $this . ' + ' . $format . ' (' . date('Y-m-d H:i:s', is_long($format) ? $format : 0) . ') = [' . $new . ']<br>';
-		}
-		$new = new self($new);
-		//TaylorProfiler::stop(__METHOD__);
-		return $new;
-	}
-
-	public function plusDur(Duration $plus)
-	{
-		return new self($this->time + $plus->getTimestamp());
-	}
-
-	/**
-	 * Does not modify itself
-	 * @param Time $plus
-	 * @param bool $debug
-	 * @return Time
-	 */
-	public function minus(Time $plus, $debug = FALSE)
-	{
-		return $this->minus2($plus, $debug);
-		//TaylorProfiler::start(__METHOD__);
-		$format = '- ' .
-			($plus->format('Y') - 1970) . ' years ' .
-			($plus->format('m') - 1) . ' months ' .
-			($plus->format('d') - 1) . ' days ' .
-			$plus->format('H') . ' hours ' .
-			$plus->format('i') . ' minutes ' .
-			$plus->format('s') . ' seconds ago';
-		$new = strtotime($format, $this->time);
-		$static = get_class($this);
-		$new = new $static($new);
-		if ($debug) echo $this . ' ' . $format . ' = ' . $new . '<br>';
-		//TaylorProfiler::stop(__METHOD__);
-		return $new;
-	}
-
-	/**
-	 * Does not modify itself
-	 * @param Time $plus
-	 * @param bool $debug
-	 * @return Time
-	 */
 	public function minus2(Time $plus, $debug = FALSE)
 	{
 		//TaylorProfiler::start(__METHOD__);
@@ -520,6 +460,11 @@ class Time
 		$new = new $static($new);
 		//TaylorProfiler::stop(__METHOD__);
 		return $new;
+	}
+
+	public function plusDur(Duration $plus)
+	{
+		return new self($this->time + $plus->getTimestamp());
 	}
 
 	public function getDiff(Time $t2)
@@ -638,25 +583,6 @@ class Time
 		return $this;
 	}
 
-	/**
-	 * Combines date and time and creates a new Time object
-	 * @param $date
-	 * @param $time
-	 * @return Time
-	 */
-	public static function combine($date, $time)
-	{
-		if ($date instanceof Time) {
-			$date = $date->getISODate();
-		}
-		if ($time instanceof Time) {
-			$time = $time->getTime();
-		}
-		$string = $date . ' ' . $time;
-		//debug($string);
-		return new self($string);
-	}
-
 	public function getTimeIn($tz)
 	{
 		$temp = date_default_timezone_get();
@@ -664,20 +590,6 @@ class Time
 		$content = $this->format('H:i');
 		date_default_timezone_set($temp);
 		return $content;
-	}
-
-	/**
-	 * Only to chain methods
-	 *
-	 * @static
-	 * @param $str
-	 * @param null $rel
-	 * @return static
-	 */
-	public static function makeInstance($str, $rel = NULL)
-	{
-		$static = get_called_class();
-		return new $static($str, $rel);
 	}
 
 	public function getTwo()
@@ -702,6 +614,50 @@ class Time
 	}
 
 	/**
+	 * Does not modify itself
+	 * @param Time $plus
+	 * @param bool $debug
+	 * @return Time
+	 */
+	public function minus(Time $plus, $debug = FALSE)
+	{
+		return $this->minus2($plus, $debug);
+		//TaylorProfiler::start(__METHOD__);
+		$format = '- ' .
+			($plus->format('Y') - 1970) . ' years ' .
+			($plus->format('m') - 1) . ' months ' .
+			($plus->format('d') - 1) . ' days ' .
+			$plus->format('H') . ' hours ' .
+			$plus->format('i') . ' minutes ' .
+			$plus->format('s') . ' seconds ago';
+		$new = strtotime($format, $this->time);
+		$static = get_class($this);
+		$new = new $static($new);
+		if ($debug) echo $this . ' ' . $format . ' = ' . $new . '<br>';
+		//TaylorProfiler::stop(__METHOD__);
+		return $new;
+	}
+
+	/**
+	 * Only to chain methods
+	 *
+	 * @static
+	 * @param $str
+	 * @param null $rel
+	 * @return static
+	 */
+	public static function makeInstance($str, $rel = NULL)
+	{
+		$static = get_called_class();
+		return new $static($str, $rel);
+	}
+
+	public function later(Time $than)
+	{
+		return $this->time > $than->time;
+	}
+
+	/**
 	 * @return Date
 	 */
 	public function getDateObject()
@@ -711,17 +667,59 @@ class Time
 
 	public function getHTMLDate()
 	{
-		return new htmlString('<time datetime="' . $this->getISODateTime() . '">' . $this->getHumanDate() . '</time>');
+		return new HtmlString('<time datetime="' . $this->getISODateTime() . '">' . $this->getHumanDate() . '</time>');
+	}
+
+	public function getISODateTime()
+	{
+		return date('Y-m-d H:i:s', $this->time);
+	}
+
+	/**
+	 * Human readable 21.02.1979
+	 *
+	 * @return string
+	 */
+	public function getHumanDate()
+	{
+		return date('d.m.Y', $this->time);
 	}
 
 	public function getHTMLTime()
 	{
-		return new htmlString('<time datetime="' . $this->getISODateTime() . '">' . $this->getHumanTime() . '</time>');
+		return new HtmlString('<time datetime="' . $this->getISODateTime() . '">' . $this->getHumanTime() . '</time>');
+	}
+
+	/**
+	 * 12:21
+	 *
+	 * @return string
+	 */
+	public function getHumanTime()
+	{
+		return date('H:i', $this->time);
 	}
 
 	public function getHTMLTimeGMT()
 	{
-		return new htmlString('<time datetime="' . $this->getISODateTime() . '">' . $this->getHumanTimeGMT() . '</time>');
+		return new HtmlString('<time datetime="' . $this->getISODateTime() . '">' . $this->getHumanTimeGMT() . '</time>');
+	}
+
+	/**
+	 * 12:21
+	 *
+	 * @return string
+	 */
+	public function getHumanTimeGMT()
+	{
+		//$zone = datefmt_get_timezone();
+		$zone = date_default_timezone_get();
+		//datefmt_set_timezone('GMT');
+		date_default_timezone_set('GMT');
+		$str = date('H:i', $this->time);
+		//datefmt_set_timezone($zone);
+		date_default_timezone_set($zone);
+		return $str;
 	}
 
 	public function setFormat($string)

@@ -4,19 +4,17 @@ class PGArray extends AsIs
 {
 
 	/**
+	 * @var array
+	 */
+	public $data;
+	/**
 	 * @var DBLayer
 	 */
 	protected $db;
-
 	/**
 	 * @var bool
 	 */
 	protected $standard_conforming_strings;
-
-	/**
-	 * @var array
-	 */
-	public $data;
 
 	public function __construct(DBInterface $db, array $data = null)
 	{
@@ -43,9 +41,8 @@ class PGArray extends AsIs
 	public function __sleep()
 	{
 		$props = get_object_vars($this);
-		$props = array_keys($props);
 		unset($props['db']);
-		return $props;
+		return array_keys($props);
 	}
 
 	/**
@@ -63,6 +60,37 @@ class PGArray extends AsIs
 	public function encodeInString()
 	{
 		return $this->setPGArray($this->data);
+	}
+
+	/**
+	 * @param array $data
+	 * @param string $type	"::integer[]"
+	 * @return AsIs
+	 */
+	public function setPGArray(array $data, $type = '')
+	{
+		foreach ($data as &$el) {
+			if (is_array($el)) {
+				$el = $this->setPGArray($el);
+			} else {
+				$el = pg_escape_string($el);
+//				$el = addslashes($el);
+
+				if ($this->standard_conforming_strings) {
+					//$el = addslashes($el); // changed after postgres version updated to 9.4
+					//$el = str_replace('\\', '\\\\', $el);
+					$el = str_replace("'", "''", $el);
+					$el = "'" . $el . "'";
+				} else {
+					$el = str_replace('"', '\\"', $el);
+					$el = '"' . $el . '"';
+				}
+			}
+		}
+		//$result = '{'.implode(',', $data).'}';
+		$result = new AsIs('ARRAY[' . implode(',', $data) . ']' . $type);
+		//debug($result.'', $this->standard_conforming_strings, $el, $data);
+		return $result;
 	}
 
 	/**
@@ -139,32 +167,6 @@ class PGArray extends AsIs
 		}
 	}
 
-	public static function str_getcsv($input, $delimiter = ',', $enclosure = '"', $escape = '\\', $eol = null)
-	{
-		$temp = fopen("php://memory", "rw");
-		fwrite($temp, $input);
-		fseek($temp, 0);
-		$r = [];
-		while (($data = fgetcsv($temp, 4096, $delimiter, $enclosure, $escape)) !== false) {
-//			$data = array_map('stripcslashes', $data);
-			$data = array_map(function ($str) {
-				// exactly opposite to setPGArray()
-				$str = str_replace('\"', '"', $str);
-				// this is needed because even with
-				// $standard_conforming_strings = on
-				// PostgreSQL is escaping backslashes
-				// inside arrays (not in normal strings)
-				// select 'a
-				// b', ARRAY['slawa', '{"a":"multi\nline"}']
-				$str = str_replace('\\\\', '\\', $str);
-				return $str;
-			}, $data);
-			$r[] = $data;
-		}
-		fclose($temp);
-		return ifsetor($r[0]);
-	}
-
 	/**
 	 * Change a db array into a PHP array
 	 * @param string $input
@@ -211,6 +213,60 @@ class PGArray extends AsIs
 			return $elements;
 		}
 	*/
+	public static function str_getcsv($input, $delimiter = ',', $enclosure = '"', $escape = '\\', $eol = null)
+	{
+		$temp = fopen("php://memory", "rw");
+		fwrite($temp, $input);
+		fseek($temp, 0);
+		$r = [];
+		while (($data = fgetcsv($temp, 4096, $delimiter, $enclosure, $escape)) !== false) {
+//			$data = array_map('stripcslashes', $data);
+			$data = array_map(function ($str) {
+				// exactly opposite to setPGArray()
+				$str = str_replace('\"', '"', $str);
+				// this is needed because even with
+				// $standard_conforming_strings = on
+				// PostgreSQL is escaping backslashes
+				// inside arrays (not in normal strings)
+				// select 'a
+				// b', ARRAY['slawa', '{"a":"multi\nline"}']
+				$str = str_replace('\\\\', '\\', $str);
+				return $str;
+			}, $data);
+			$r[] = $data;
+		}
+		fclose($temp);
+		return ifsetor($r[0]);
+	}
+
+	/*	public function getPGArray($text) {
+			$this->pg_array_parse($text, $output);
+			return $output;
+		}
+
+		private function pg_array_parse( $text, &$output, $limit = false, $offset = 1 ) {
+			if( false === $limit )
+			{
+				$limit = strlen( $text )-1;
+				$output = array();
+			}
+			if( '{}' != $text )
+				do
+				{
+					if( '{' != $text{$offset} )
+					{
+						preg_match( "/(\\{?\"([^\"\\\\]|\\\\.)*\"|[^,{}]+)+([,}]+)/", $text, $match, 0, $offset );
+						$offset += strlen( $match[0] );
+						$output[] = ( '"' != $match[1]{0} ? $match[1] : stripcslashes( substr( $match[1], 1, -1 ) ) );
+						if( '},' == $match[3] ) return $offset;
+					}
+					else  $offset = $this->pg_array_parse( $text, $output, $limit, $offset+1 );
+				}
+				while( $limit > $offset );
+		}
+	*/
+
+
 	public function getPGArray1D($input)
 	{
 		$pgArray = substr(substr(trim($input), 1), 0, -1);
@@ -241,67 +297,52 @@ class PGArray extends AsIs
 		return $out;
 	}
 
-	/*	public function getPGArray($text) {
-			$this->pg_array_parse($text, $output);
-			return $output;
-		}
-
-		private function pg_array_parse( $text, &$output, $limit = false, $offset = 1 ) {
-			if( false === $limit )
-			{
-				$limit = strlen( $text )-1;
-				$output = array();
-			}
-			if( '{}' != $text )
-				do
-				{
-					if( '{' != $text{$offset} )
-					{
-						preg_match( "/(\\{?\"([^\"\\\\]|\\\\.)*\"|[^,{}]+)+([,}]+)/", $text, $match, 0, $offset );
-						$offset += strlen( $match[0] );
-						$output[] = ( '"' != $match[1]{0} ? $match[1] : stripcslashes( substr( $match[1], 1, -1 ) ) );
-						if( '},' == $match[3] ) return $offset;
-					}
-					else  $offset = $this->pg_array_parse( $text, $output, $limit, $offset+1 );
-				}
-				while( $limit > $offset );
-		}
-	*/
-
-	/**
-	 * @param array $data
-	 * @param string $type	"::integer[]"
-	 * @return AsIs
-	 */
-	public function setPGArray(array $data, $type = '')
-	{
-		foreach ($data as &$el) {
-			if (is_array($el)) {
-				$el = $this->setPGArray($el);
-			} else {
-				$el = pg_escape_string($el);
-//				$el = addslashes($el);
-
-				if ($this->standard_conforming_strings) {
-					//$el = addslashes($el); // changed after postgres version updated to 9.4
-					//$el = str_replace('\\', '\\\\', $el);
-					$el = str_replace("'", "''", $el);
-					$el = "'" . $el . "'";
-				} else {
-					$el = str_replace('"', '\\"', $el);
-					$el = '"' . $el . '"';
-				}
-			}
-		}
-		//$result = '{'.implode(',', $data).'}';
-		$result = new AsIs('ARRAY[' . implode(',', $data) . ']' . $type);
-		//debug($result.'', $this->standard_conforming_strings, $el, $data);
-		return $result;
-	}
-
 	public function __toString2()
 	{
 		return $this->setPGArray($this->data);
+	}
+
+	public function getPGArrayFromJSON_bad($s)
+	{
+		$deepData = $this->pg_array_parse($s);
+
+		$tokens = [];
+		$tokens[] = strtok($s, '{,}"');
+		do {
+			$token1 = strtok('{,}"');
+			$tokens[] = $token1;
+		} while ($token1 != null);
+//		debug($tokens);
+
+		$keys = [];
+		foreach ($tokens as $chr) {
+			if (str_endsWith($chr, ':')) {
+				$keys[] = substr($chr, 0, -1);
+			}
+		}
+		debug($s, $deepData, $keys);
+
+		$arrays = array_filter($deepData, function ($el) {
+			return is_array($el);
+		});
+//		debug($arrays);
+
+		debug(sizeof($keys), sizeof($arrays), $keys);
+		$deepDataMerged = [];
+		if (sizeof($keys) == sizeof($arrays)) {
+			foreach ($deepData as $key => $val) {
+				if (is_array($val)) {
+					$key = current($keys);
+					next($keys);
+					$deepDataMerged[$key] = $val;
+				} else {
+					$deepDataMerged[$key] = $val;
+				}
+			}
+		} else {
+			$deepDataMerged = $deepData;
+		}
+		return $deepDataMerged;
 	}
 
 	/**
@@ -348,49 +389,6 @@ class PGArray extends AsIs
 		}
 
 		return $return;
-	}
-
-	public function getPGArrayFromJSON_bad($s)
-	{
-		$deepData = $this->pg_array_parse($s);
-
-		$tokens = [];
-		$tokens[] = strtok($s, '{,}"');
-		do {
-			$token1 = strtok('{,}"');
-			$tokens[] = $token1;
-		} while ($token1 != null);
-//		debug($tokens);
-
-		$keys = [];
-		foreach ($tokens as $chr) {
-			if (str_endsWith($chr, ':')) {
-				$keys[] = substr($chr, 0, -1);
-			}
-		}
-		debug($s, $deepData, $keys);
-
-		$arrays = array_filter($deepData, function ($el) {
-			return is_array($el);
-		});
-//		debug($arrays);
-
-		debug(sizeof($keys), sizeof($arrays), $keys);
-		$deepDataMerged = [];
-		if (sizeof($keys) == sizeof($arrays)) {
-			foreach ($deepData as $key => $val) {
-				if (is_array($val)) {
-					$key = current($keys);
-					next($keys);
-					$deepDataMerged[$key] = $val;
-				} else {
-					$deepDataMerged[$key] = $val;
-				}
-			}
-		} else {
-			$deepDataMerged = $deepData;
-		}
-		return $deepDataMerged;
 	}
 
 	public function getPGArrayFromJSON($s)

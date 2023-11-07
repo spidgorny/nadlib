@@ -4,31 +4,26 @@ class SQLSelectQuery extends SQLWherePart
 {
 
 	/**
-	 * @var DBLayerBase|DBLayer|MySQL|DBLayerPDO
-	 * @protected to prevent debug output
-	 */
-	protected $db;
-
-	/**
-	 * @var SQLSelect
-	 */
-	protected $select;
-
-	/**
-	 * @var SQLFrom
-	 */
-	protected $from;
-
-	/**
 	 * @var SQLJoin
 	 */
 	public $join;
-
 	/**
 	 * @var SQLWhere
 	 */
 	public $where;
-
+	/**
+	 * @var DBLayerBase|DBLayer|MySQL|DBLayerPDO
+	 * @protected to prevent debug output
+	 */
+	protected $db;
+	/**
+	 * @var SQLSelect
+	 */
+	protected $select;
+	/**
+	 * @var SQLFrom
+	 */
+	protected $from;
 	/**
 	 * @var  SQLGroup
 	 */
@@ -90,31 +85,6 @@ class SQLSelectQuery extends SQLWherePart
 		}
 	}
 
-	public function injectDB(DBInterface $db)
-	{
-		//debug(__METHOD__, gettype2($db));
-		$this->db = $db;
-		$this->from->injectDB($this->db);
-		if ($this->where) {
-			$this->where->injectDB($this->db);
-		}
-	}
-
-	public function setSelect(SQLSelect $select)
-	{
-		$this->select = $select;
-	}
-
-	public function setFrom(SQLFrom $from)
-	{
-		$this->from = $from;
-	}
-
-	public function setWhere(SQLWhere $where)
-	{
-		$this->where = $where;
-	}
-
 	public function setJoin(SQLJoin $join)
 	{
 		$this->join = $join;
@@ -138,50 +108,6 @@ class SQLSelectQuery extends SQLWherePart
 	public function setLimit(SQLLimit $limit)
 	{
 		$this->limit = $limit;
-	}
-
-	public function getDistance($lat, $lon, $latitude = 'latitude', $longitude = 'longitude')
-	{
-		if ($this->db->isSQLite()) {
-			$this->db->getConnection()->sqliteCreateFunction('sqrt', function ($a) {
-				return sqrt($a);
-			}, 1);
-			return "sqrt(($latitude - ($lat))*($latitude - ($lat)) + ($longitude - ($lon))*($longitude - ($lon))) AS distance";
-		} else {
-			return "( 6371 * acos( cos( radians($lat) ) * cos( radians( $latitude ) )
-			* cos( radians( $longitude ) - radians($lon) ) + sin( radians($lat) ) * sin(radians($latitude)) ) ) AS distance";
-		}
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getQuery()
-	{
-		$query = trim("SELECT
-{$this->select}
-FROM {$this->from}
-{$this->join}
-{$this->where}
-{$this->group}
-{$this->having}
-{$this->order}
-{$this->limit}");
-		// http://stackoverflow.com/a/709684
-		$query = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $query);
-		//		debug($this->where, $query, $this->getParameters());
-		return $query;
-	}
-
-	public function __toString()
-	{
-		try {
-			return $this->getQuery();
-		} catch (Exception $e) {
-			echo '<strong>', $e->getMessage(), '</strong>', BR;
-			//echo '<strong>', $e->getPrevious()->getMessage(), '</strong>', BR;
-			pre_print_r($e->getTraceAsString());
-		}
 	}
 
 	public static function sqlSH($sql)
@@ -233,48 +159,7 @@ FROM {$this->from}
 		$res = trim($res);
 		$res = str_replace('(<br><br>)', '()', $res);
 		$res = str_replace('(<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>)', '()', $res);
-		return new htmlString($res);
-	}
-
-	public function getParameters()
-	{
-		if ($this->where) {
-			$params = $this->where->getParameters();
-		} else {
-			$params = [];
-		}
-		if ($this->from instanceof SQLSubquery) {
-			$subParams = $this->from->getParameters();
-			//			debug($subParams);
-			$params += $subParams;
-		}
-		return $params;
-	}
-
-	/**
-	 * A way to perform a query with parameter without making a SQL
-	 */
-	public function perform()
-	{
-		$sQuery = $this->getQuery();
-		$aParams = $this->getParameters();
-		//		debug(['where' => $this->where, 'sql' => $sQuery, 'params' => $aParams]);
-		return $this->db->perform($sQuery, $aParams);
-	}
-
-	public function fetchAssoc()
-	{
-		return $this->db->fetchAssoc($this->perform());
-	}
-
-	public function fetchAll()
-	{
-		return $this->db->fetchAll($this->perform());
-	}
-
-	public function unsetOrder()
-	{
-		$this->order = null;
+		return new HtmlString($res);
 	}
 
 	/**
@@ -351,14 +236,119 @@ FROM {$this->from}
 		return $sq;
 	}
 
+	public function injectDB(DBInterface $db)
+	{
+		//debug(__METHOD__, gettype2($db));
+		$this->db = $db;
+		$this->from->injectDB($this->db);
+		if ($this->where) {
+			$this->where->injectDB($this->db);
+		}
+	}
+
+	public function getDistance($lat, $lon, $latitude = 'latitude', $longitude = 'longitude')
+	{
+		if ($this->db->isSQLite()) {
+			$this->db->getConnection()->sqliteCreateFunction('sqrt', function ($a) {
+				return sqrt($a);
+			}, 1);
+			return "sqrt(($latitude - ($lat))*($latitude - ($lat)) + ($longitude - ($lon))*($longitude - ($lon))) AS distance";
+		}
+
+		return "( 6371 * acos( cos( radians($lat) ) * cos( radians( $latitude ) )
+		* cos( radians( $longitude ) - radians($lon) ) + sin( radians($lat) ) * sin(radians($latitude)) ) ) AS distance";
+	}
+
+	public function __toString()
+	{
+		try {
+			return $this->getQuery();
+		} catch (Exception $e) {
+			//echo '<strong>', $e->getPrevious()->getMessage(), '</strong>', BR;
+			pre_print_r($e->getTraceAsString());
+			return '<strong>' . $e->getMessage() . '</strong>' . BR;
+		}
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getQuery()
+	{
+		$query = trim("SELECT
+{$this->select}
+FROM {$this->from}
+{$this->join}
+{$this->where}
+{$this->group}
+{$this->having}
+{$this->order}
+{$this->limit}");
+		// http://stackoverflow.com/a/709684
+		$query = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $query);
+		//		debug($this->where, $query, $this->getParameters());
+		return $query;
+	}
+
+	public function fetchAssoc()
+	{
+		return $this->db->fetchAssoc($this->perform());
+	}
+
+	/**
+	 * A way to perform a query with parameter without making a SQL
+	 */
+	public function perform()
+	{
+		$sQuery = $this->getQuery();
+		$aParams = $this->getParameters();
+		//		debug(['where' => $this->where, 'sql' => $sQuery, 'params' => $aParams]);
+		return $this->db->perform($sQuery, $aParams);
+	}
+
+	public function getParameters()
+	{
+		if ($this->where) {
+			$params = $this->where->getParameters();
+		} else {
+			$params = [];
+		}
+		if ($this->from instanceof SQLSubquery) {
+			$subParams = $this->from->getParameters();
+			//			debug($subParams);
+			$params += $subParams;
+		}
+		return $params;
+	}
+
+	public function fetchAll()
+	{
+		return $this->db->fetchAll($this->perform());
+	}
+
+	public function unsetOrder()
+	{
+		$this->order = null;
+	}
+
 	public function getFrom()
 	{
 		return $this->from;
 	}
 
+	public function setFrom(SQLFrom $from)
+	{
+		$this->from = $from;
+	}
+
 	public function getWhere()
 	{
 		return $this->where;
+	}
+
+	public function setWhere(SQLWhere $where)
+	{
+		$this->where = $where;
 	}
 
 	public function join($table, $on)
@@ -376,6 +366,11 @@ FROM {$this->from}
 	public function getSelect()
 	{
 		return $this->select;
+	}
+
+	public function setSelect(SQLSelect $select)
+	{
+		$this->select = $select;
 	}
 
 }

@@ -33,13 +33,18 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 	 */
 	protected $content;
 
-	public function __construct(array $desc, $fieldName = NULL)
+	public function __construct(array $desc, $fieldName = null)
 	{
 		$this->data = $desc;
 		if ($fieldName) {
 			$this->setField($fieldName);
 		}
 		$this->form = new HTMLForm();
+	}
+
+	public function setField($fieldName)
+	{
+		$this->fieldName = $fieldName;
 	}
 
 	public function offsetExists($offset)
@@ -80,16 +85,9 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 		return $this->data[$name];
 	}
 
-	public function getArray()
+	public function isOptional()
 	{
-		return $this->data;
-	}
-
-	public function getTypeString()
-	{
-		$type = ifsetor($this->data['type']);
-		if (is_null($type)) return null;
-		return is_string($type) ? $type : get_class($type);
+		return !$this->isObligatory();
 	}
 
 	public function isObligatory()
@@ -99,24 +97,11 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 			!in_array($type, ['check', 'checkbox', 'submit']);
 	}
 
-	public function isOptional()
+	public function getTypeString()
 	{
-		return !$this->isObligatory();
-	}
-
-	public function setField($fieldName)
-	{
-		$this->fieldName = $fieldName;
-	}
-
-	public function setForm(HTMLForm $form)
-	{
-		$this->form = $form;
-	}
-
-	public function setValue($value)
-	{
-		$this->data['value'] = $value;
+		$type = ifsetor($this->data['type']);
+		if (is_null($type)) return null;
+		return is_string($type) ? $type : get_class($type);
 	}
 
 	function render()
@@ -182,9 +167,14 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 		return $elementID;
 	}
 
-	function getContent()
+	public function setForm(HTMLForm $form)
 	{
-		return $this->content;
+		$this->form = $form;
+	}
+
+	public function setValue($value)
+	{
+		$this->data['value'] = $value;
 	}
 
 	/**
@@ -302,20 +292,6 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 					];
 				$this->form->submit($desc['value'], $more);
 				break;
-			case 'ajaxTreeInputOld':
-				//debug($this->getName($fieldName, '', TRUE));
-				$tree = new AjaxTreeOld($fieldName, $desc['value'], $desc->getArray());
-				$tree->setForm($this->form);
-				$this->form->stdout .= $tree->render();
-				break;
-			case 'ajaxTreeInput':
-				//debug($this->getName($fieldName, '', TRUE));
-				$tree = new AjaxTree($desc['tree']);
-//				$tree->setForm($this);
-				$tree->form->prefix($this->form->getPrefix());
-				$tree->setField($fieldName);
-				$this->form->stdout .= $tree->render();
-				break;
 			case 'jqueryFileTree':
 				$tree = new JQueryFileTree($desc['tree']);
 				$tree->setField($fieldName);
@@ -328,17 +304,17 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 				break;
 			case 'recaptcha':
 				$this->form->recaptcha($desc->getArray() + [
-						'name' => $this->form->getName($fieldName, '', TRUE)
+						'name' => $this->form->getName($fieldName, '', true)
 					]);
 				break;
 			case 'recaptchaAjax':
 				$this->form->recaptchaAjax(
 					$desc->getArray() + [
-						'name' => $this->form->getName($fieldName, '', TRUE)
+						'name' => $this->form->getName($fieldName, '', true)
 					]);
 				break;
 			case 'datatable':
-				$this->form->datatable($fieldName, $fieldValue, $desc, FALSE, $doDiv = TRUE, 'htmlftable');
+				$this->form->datatable($fieldName, $fieldValue, $desc, false, $doDiv = true, 'htmlftable');
 				break;
 			case 'ajaxSingleChoice':
 				$this->form->ajaxSingleChoice($fieldName, $fieldValue, $desc->getArray());
@@ -422,12 +398,22 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 					ifsetor($desc['class'],
 						is_array(ifsetor($desc['more']))
 							? ifsetor($desc['more']['class'])
-							: NULL
+							: null
 					)
 				);
 				//debug($desc, $desc->isObligatory(), $desc->getTypeString());
 				break;
 		}
+	}
+
+	public function getArray()
+	{
+		return $this->data;
+	}
+
+	function getContent()
+	{
+		return $this->content;
 	}
 
 	function isCheckbox()

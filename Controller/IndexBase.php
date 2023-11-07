@@ -6,62 +6,33 @@ class IndexBase /*extends Controller*/
 {    // infinite loop
 
 	/**
-	 * @var MySQL
+	 * @var Index|IndexBE
 	 */
-	protected $db;
-
+	protected static $instance;
 	/**
 	 * @see Config for a public property
 	 * @var LocalLangDummy
 	 */
 	public $ll;
-
-	/**
-	 * @var User|LoginUser
-	 * @public for template.phtml
-	 */
-	protected $user;
-
 	/**
 	 * For any error messages during initialization.
 	 *
 	 * @var \nadlib\HTML\Messages
 	 */
 	public $content;
-
 	/**
 	 * @var AppController
 	 */
 	public $controller;
-
-	/**
-	 * @var Index|IndexBE
-	 */
-	protected static $instance;
-
 	public $header = [];
-
 	public $footer = [];
-
 	public $loadJSfromGoogle = true;
-
 	public $template = 'template.phtml';
-
 	public $sidebar = '';
-
 	public $appName = 'Project name';
-
 	public $description = '';
-
 	public $keywords = '';
-
 	public $bodyClasses = [];
-
-	/**
-	 * @var Config
-	 */
-	protected $config;
-
 	var $csp = [
 		"default-src" => [
 			"'self'",
@@ -98,7 +69,19 @@ class IndexBase /*extends Controller*/
 			"'unsafe-eval'",
 		],
 	];
-
+	/**
+	 * @var MySQL
+	 */
+	protected $db;
+	/**
+	 * @var User|LoginUser
+	 * @public for template.phtml
+	 */
+	protected $user;
+	/**
+	 * @var Config
+	 */
+	protected $config;
 	/**
 	 * @var Request
 	 */
@@ -132,47 +115,29 @@ class IndexBase /*extends Controller*/
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	/**
-	 * @throws AccessDeniedException
-	 */
-	public function initSession()
+	public function setSecurityHeaders()
 	{
-//		debug('is session started', session_id(), session_status());
-		if (!Request::isCLI() && !Session::isActive() && !headers_sent()) {
-			ini_set('session.use_trans_sid', false);
-			ini_set('session.use_only_cookies', true);
-			ini_set('session.cookie_httponly', true);
-			ini_set('session.hash_bits_per_character', 6);
-			ini_set('session.hash_function', 'sha512');
-			$ok = session_start();
-			if (!$ok) {
-				throw new RuntimeException('session_start() failed');
-			} else {
-				//debug('session_start', session_id());
+		if (!headers_sent()) {
+			header('X-Frame-Options: SAMEORIGIN');
+			header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+			foreach ($this->csp as $key => &$val) {
+				$val = $key . ' ' . implode(' ', $val);
 			}
-		} else {
-//			debug('session already started', session_id(), session_status());
+			header('Content-Security-Policy: ' . implode('; ', $this->csp));
+			header('X-Content-Security-Policy: ' . implode('; ', $this->csp));
 		}
-		if (ifsetor($_SESSION['HTTP_USER_AGENT'])) {
-			if ($_SESSION['HTTP_USER_AGENT'] != $_SERVER['HTTP_USER_AGENT']) {
-				session_regenerate_id(true);
-				unset($_SESSION['HTTP_USER_AGENT']);
-				throw new AccessDeniedException('Session hijacking detected. Please try again');
-			}
-		} else {
-			$_SESSION['HTTP_USER_AGENT'] = ifsetor($_SERVER['HTTP_USER_AGENT']);
-		}
-		if (ifsetor($_SESSION['REMOTE_ADDR'])) {
-			if ($_SESSION['REMOTE_ADDR'] != $_SERVER['REMOTE_ADDR']) {
-				session_regenerate_id(true);
-				unset($_SESSION['REMOTE_ADDR']);
-				throw new AccessDeniedException('Session hijacking detected. Please try again.');
-			}
-		} else {
-			$_SESSION['REMOTE_ADDR'] = ifsetor($_SERVER['REMOTE_ADDR']);
-		}
-//		debug($_SESSION['HTTP_USER_AGENT'], $_SESSION['REMOTE_ADDR']);
-//		debug($_SERVER['HTTP_USER_AGENT'], $_SERVER['REMOTE_ADDR']);
+	}
+
+	/**
+	 * TODO: Remove the boolean parameter from getInstance()
+	 * TODO: And force to use makeInstance() in case it was true
+	 * @param Config|null $config
+	 * @return Index|IndexBE
+	 * @throws Exception
+	 */
+	public static function makeInstance(Config $config = null)
+	{
+		return static::getInstance(true, $config);
 	}
 
 	/**
@@ -197,15 +162,16 @@ class IndexBase /*extends Controller*/
 	}
 
 	/**
-	 * TODO: Remove the boolean parameter from getInstance()
-	 * TODO: And force to use makeInstance() in case it was true
-	 * @param Config|null $config
-	 * @return Index|IndexBE
+	 * @return AppController
 	 * @throws Exception
 	 */
-	public static function makeInstance(Config $config = null)
+	public function getController()
 	{
-		return static::getInstance(true, $config);
+		if (!$this->controller) {
+			$this->initController();
+		}
+		//debug(get_class($this->controller));
+		return $this->controller;
 	}
 
 	/**
@@ -231,6 +197,21 @@ class IndexBase /*extends Controller*/
 		}
 		$this->loadController($slug);
 		$this->bodyClasses[] = is_object($this->controller) ? get_class($this->controller) : '';
+	}
+
+	/**
+	 * Move it to the MRBS
+	 * @param string $action
+	 * @param mixed $data
+	 */
+	public function log($action, $data)
+	{
+		//debug($action, $bookingID);
+		/*$this->db->runInsertQuery('log', array(
+			'who' => $this->user->id,
+			'action' => $action,
+			'booking' => $bookingID,
+		));*/
 	}
 
 	/**
@@ -281,19 +262,6 @@ class IndexBase /*extends Controller*/
 		return $this->controller;
 	}
 
-	/**
-	 * @return AppController
-	 * @throws Exception
-	 */
-	public function getController()
-	{
-		if (!$this->controller) {
-			$this->initController();
-		}
-		//debug(get_class($this->controller));
-		return $this->controller;
-	}
-
 	public function render()
 	{
 		TaylorProfiler::start(__METHOD__);
@@ -319,6 +287,49 @@ class IndexBase /*extends Controller*/
 		TaylorProfiler::stop(__METHOD__);
 		$content .= $this->renderProfiler();
 		return $content;
+	}
+
+	/**
+	 * @throws AccessDeniedException
+	 */
+	public function initSession()
+	{
+//		debug('is session started', session_id(), session_status());
+		if (!Request::isCLI() && !Session::isActive() && !headers_sent()) {
+			ini_set('session.use_trans_sid', false);
+			ini_set('session.use_only_cookies', true);
+			ini_set('session.cookie_httponly', true);
+			ini_set('session.hash_bits_per_character', 6);
+			ini_set('session.hash_function', 'sha512');
+			$ok = session_start();
+			if (!$ok) {
+				throw new RuntimeException('session_start() failed');
+			} else {
+				//debug('session_start', session_id());
+			}
+		} else {
+//			debug('session already started', session_id(), session_status());
+		}
+		if (ifsetor($_SESSION['HTTP_USER_AGENT'])) {
+			if ($_SESSION['HTTP_USER_AGENT'] != $_SERVER['HTTP_USER_AGENT']) {
+				session_regenerate_id(true);
+				unset($_SESSION['HTTP_USER_AGENT']);
+				throw new AccessDeniedException('Session hijacking detected. Please try again');
+			}
+		} else {
+			$_SESSION['HTTP_USER_AGENT'] = ifsetor($_SERVER['HTTP_USER_AGENT']);
+		}
+		if (ifsetor($_SESSION['REMOTE_ADDR'])) {
+			if ($_SESSION['REMOTE_ADDR'] != $_SERVER['REMOTE_ADDR']) {
+				session_regenerate_id(true);
+				unset($_SESSION['REMOTE_ADDR']);
+				throw new AccessDeniedException('Session hijacking detected. Please try again.');
+			}
+		} else {
+			$_SESSION['REMOTE_ADDR'] = ifsetor($_SERVER['REMOTE_ADDR']);
+		}
+//		debug($_SESSION['HTTP_USER_AGENT'], $_SESSION['REMOTE_ADDR']);
+//		debug($_SERVER['HTTP_USER_AGENT'], $_SERVER['REMOTE_ADDR']);
 	}
 
 	public function renderController()
@@ -358,6 +369,70 @@ class IndexBase /*extends Controller*/
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $render;
+	}
+
+	/**
+	 * Does not catch LoginException - show your login form in Index
+	 * @param Exception $e
+	 * @param string $wrapClass
+	 * @return string
+	 */
+	public function renderException(Exception $e, $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error')
+	{
+		if ($this->request->isCLI()) {
+			echo get_class($e),
+			' #', $e->getCode(),
+			': ', $e->getMessage(), BR;
+			echo $e->getTraceAsString(), BR;
+			return '';
+		}
+
+		http_response_code($e->getCode());
+		if ($this->controller) {
+			$this->controller->title = get_class($this->controller);
+		}
+
+		$message = $e->getMessage();
+		$message = ($message instanceof HtmlString ||
+			$message[0] == '<')
+			? $message . ''
+			: htmlspecialchars($message);
+		$content = '<div class="' . $wrapClass . '">
+				' . get_class($e) .
+			($e->getCode() ? ' (' . $e->getCode() . ')' : '') . BR .
+			nl2br($message);
+		if (DEVELOPMENT || 0) {
+			$content .= BR . '<hr />' . '<div style="text-align: left">' .
+				nl2br($e->getTraceAsString()) . '</div>';
+			//$content .= getDebug($e);
+		}
+		$content .= '</div>';
+		if ($e instanceof LoginException) {
+			// catch this exception in your app Index class, it can't know what to do with all different apps
+			//$lf = new LoginForm();
+			//$content .= $lf;
+		} elseif ($e instanceof Exception404) {
+			$e->sendHeader();
+		}
+
+		return $content;
+	}
+
+	public function s($content)
+	{
+		return MergedContent::mergeStringArrayRecursive($content);
+	}
+
+	public function showSidebar()
+	{
+		TaylorProfiler::start(__METHOD__);
+		$content = '';
+		if (method_exists($this->controller, 'sidebar')) {
+			$content = $this->controller->sidebar();
+			$content = $this->s($content);
+		}
+		TaylorProfiler::stop(__METHOD__);
+		return $content;
 	}
 
 	public function renderTemplateIfNotAjax($content)
@@ -400,55 +475,10 @@ class IndexBase /*extends Controller*/
 		return $v;
 	}
 
-	public function s($content)
+	public function renderProfiler()
 	{
-		return MergedContent::mergeStringArrayRecursive($content);
-	}
-
-	/**
-	 * Does not catch LoginException - show your login form in Index
-	 * @param Exception $e
-	 * @param string $wrapClass
-	 * @return string
-	 */
-	public function renderException(Exception $e, $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error')
-	{
-		if ($this->request->isCLI()) {
-			echo get_class($e),
-			' #', $e->getCode(),
-			': ', $e->getMessage(), BR;
-			echo $e->getTraceAsString(), BR;
-			return '';
-		}
-
-		http_response_code($e->getCode());
-		if ($this->controller) {
-			$this->controller->title = get_class($this->controller);
-		}
-
-		$message = $e->getMessage();
-		$message = ($message instanceof htmlString ||
-			$message[0] == '<')
-			? $message . ''
-			: htmlspecialchars($message);
-		$content = '<div class="' . $wrapClass . '">
-				' . get_class($e) .
-			($e->getCode() ? ' (' . $e->getCode() . ')' : '') . BR .
-			nl2br($message);
-		if (DEVELOPMENT || 0) {
-			$content .= BR . '<hr />' . '<div style="text-align: left">' .
-				nl2br($e->getTraceAsString()) . '</div>';
-			//$content .= getDebug($e);
-		}
-		$content .= '</div>';
-		if ($e instanceof LoginException) {
-			// catch this exception in your app Index class, it can't know what to do with all different apps
-			//$lf = new LoginForm();
-			//$content .= $lf;
-		} elseif ($e instanceof Exception404) {
-			$e->sendHeader();
-		}
-
+		$pp = new PageProfiler();
+		$content = $pp->render();
 		return $content;
 	}
 
@@ -458,21 +488,6 @@ class IndexBase /*extends Controller*/
 			// called automatically(!)
 			//$this->user->__destruct();
 //		}
-	}
-
-	/**
-	 * Move it to the MRBS
-	 * @param string $action
-	 * @param mixed $data
-	 */
-	public function log($action, $data)
-	{
-		//debug($action, $bookingID);
-		/*$this->db->runInsertQuery('log', array(
-			'who' => $this->user->id,
-			'action' => $action,
-			'booking' => $bookingID,
-		));*/
 	}
 
 	public function message($text)
@@ -626,25 +641,6 @@ class IndexBase /*extends Controller*/
 		return $source;
 	}
 
-	public function showSidebar()
-	{
-		TaylorProfiler::start(__METHOD__);
-		$content = '';
-		if (method_exists($this->controller, 'sidebar')) {
-			$content = $this->controller->sidebar();
-			$content = $this->s($content);
-		}
-		TaylorProfiler::stop(__METHOD__);
-		return $content;
-	}
-
-	public function renderProfiler()
-	{
-		$pp = new PageProfiler();
-		$content = $pp->render();
-		return $content;
-	}
-
 	public function implodeCSS()
 	{
 		$content = [];
@@ -686,23 +682,8 @@ class IndexBase /*extends Controller*/
 		$this->bodyClasses[$name] = $name;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function setSecurityHeaders()
-	{
-		if (!headers_sent()) {
-			header('X-Frame-Options: SAMEORIGIN');
-			header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
-			foreach ($this->csp as $key => &$val) {
-				$val = $key . ' ' . implode(' ', $val);
-			}
-			header('Content-Security-Policy: ' . implode('; ', $this->csp));
-			header('X-Content-Security-Policy: ' . implode('; ', $this->csp));
-		}
-	}
-
 	/// to avoid Config::getInstance() if Index has a valid config
+
 	public function getConfig()
 	{
 		return $this->config;

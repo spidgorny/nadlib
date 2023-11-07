@@ -7,14 +7,9 @@ class HTML
 
 //	use HTMLHelper;
 
-	public function s($something)
-	{
-		return MergedContent::mergeStringArrayRecursive($something);
-	}
-
 	/**
 	 * @param string|URL $href
-	 * @param string|htmlString|HTMLTag $text
+	 * @param string|HtmlString|HTMLTag $text
 	 * @param bool $isHTML
 	 * @param array $more
 	 * @return HTMLTag
@@ -33,11 +28,16 @@ class HTML
 		return '<div ' . $more . '>' . $this->s($content) . '</div>';
 	}
 
+	public function s($something)
+	{
+		return MergedContent::mergeStringArrayRecursive($something);
+	}
+
 	public function span($content, $class = '', array $more = [])
 	{
 		$more['class'] = ifsetor($more['class']) . ' ' . $class;
 		$more = HTMLTag::renderAttr($more);
-		return new htmlString('<span ' . $more . '>' . $this->s($content) . '</span>');
+		return new HtmlString('<span ' . $more . '>' . $this->s($content) . '</span>');
 	}
 
 	public function info($content)
@@ -118,20 +118,6 @@ class HTML
 		return $html;
 	}
 
-	public function e($content)
-	{
-		if ($content instanceof HTMLTag) {
-			return $content;
-		}
-		if ($content instanceof htmlString) {
-			return $content;
-		}
-		if (is_array($content)) {
-			$content = MergedContent::mergeStringArrayRecursive($content);
-		}
-		return htmlspecialchars($content, ENT_QUOTES);
-	}
-
 	public function script($file)
 	{
 		$mtime = filemtime($file);
@@ -148,6 +134,20 @@ class HTML
 	{
 		$more = HTMLTag::renderAttr($attr);
 		return '<pre '.$more.'>' . $this->e($this->s($text)) . '</pre>';
+	}
+
+	public function e($content)
+	{
+		if ($content instanceof HTMLTag) {
+			return $content;
+		}
+		if ($content instanceof HtmlString) {
+			return $content;
+		}
+		if (is_array($content)) {
+			$content = MergedContent::mergeStringArrayRecursive($content);
+		}
+		return htmlspecialchars($content, ENT_QUOTES);
 	}
 
 	public function strong($text)

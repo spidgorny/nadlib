@@ -801,7 +801,6 @@ class Request
 			'result' => $controller,
 			'c' => $this->getTrim('c'),
 			//'levels' => $this->getURLLevels(),
-			'last' => isset($last) ? $last : null,
 			'default' => class_exists('Config')
 				? Config::getInstance()->defaultController
 				: null,
@@ -826,7 +825,7 @@ class Request
 			if (class_exists($c)) {
 				$ret = new $c();
 			} elseif ($c) {
-				throw new Exception('Class ' . $c . ' can\'t be found.');
+				throw new RuntimeException('Class ' . $c . ' can\'t be found.');
 			}
 		}
 		return $ret;
@@ -842,9 +841,9 @@ class Request
 		if (!headers_sent()) {
 			header('X-Redirect: ' . $link);    // to be handled by AJAX callback
 			exit();
-		} else {
-			$this->redirectJS($link);
 		}
+
+		$this->redirectJS($link);
 	}
 
 	public function redirectJS(
@@ -887,7 +886,7 @@ class Request
 
 	public function bool($name)
 	{
-		return (isset($this->data[$name]) && $this->data[$name]) ? true : false;
+		return (isset($this->data[$name]) && (bool)$this->data[$name]);
 	}
 
 	public function getHeader($name)
@@ -1314,10 +1313,6 @@ class Request
 
 	public function getPOST()
 	{
-		if (isset($HTTP_RAW_POST_DATA)) {
-			return $HTTP_RAW_POST_DATA;
-		}
-
 		return file_get_contents("php://input");
 	}
 

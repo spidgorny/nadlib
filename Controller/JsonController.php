@@ -96,7 +96,7 @@ trait JsonController
 		return [$request, $arguments];
 	}
 
-	public function __invoke($arg1 = null)
+	public function __invoke()
 	{
 		list($request, $arguments) = $this->getActionAndArguments();
 		return call_user_func_array([$this, $request], $arguments);

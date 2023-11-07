@@ -51,9 +51,9 @@ if (!function_exists('debugList')) {
 		die(__FUNCTION__ . '#' . __LINE__);
 	}
 
-	function d($a)
+	function d(...$a)
 	{
-		$params = func_num_args() == 1 ? $a : func_get_args();
+		$params = func_num_args() === 1 ? $a[0] : $a;
 		if (DEVELOPMENT) {
 			ob_start();
 			var_dump($params);
@@ -68,13 +68,8 @@ if (!function_exists('debugList')) {
 
 	/**
 	 * @param ...$a
-	 * @param mixed $b
-	 * @param mixed $c
-	 * @param mixed $d
-	 * @param mixed $e
-	 * @param mixed $f
 	 */
-	function nodebug($a, $b = null, $c = null, $d = null, $e = null, $f = null)
+	function nodebug(...$a)
 	{
 	}
 
@@ -84,7 +79,7 @@ if (!function_exists('debugList')) {
 		$debug = Debug::getInstance();
 		$dh = new DebugHTML($debug);
 		$content = $dh->printStyles();
-		if (ifsetor($params[1]) == DebugHTML::LEVELS) {
+		if (ifsetor($params[1]) === DebugHTML::LEVELS) {
 			$levels = ifsetor($params[2]);
 			$params[1] = $levels;
 		}
@@ -95,14 +90,16 @@ if (!function_exists('debugList')) {
 	/**
 	 * @param ..$a
 	 */
-	function pre_print_r($a)
+	function pre_print_r(...$a)
 	{
-		if (php_sapi_name() !== 'cli') {
+		if (PHP_SAPI !== 'cli') {
 			echo '<pre class="pre_print_r" style="white-space: pre-wrap;">';
-			print_r(func_num_args() == 1 ? $a : func_get_args());
+			/** @noinspection ForgottenDebugOutputInspection */
+			print_r(count($a) === 1 ? $a[0] : $a);
 			echo '</pre>';
 		} else {
-			print_r(func_num_args() == 1 ? $a : func_get_args());
+			/** @noinspection ForgottenDebugOutputInspection */
+			print_r(sizeof($a) === 1 ? $a[0] : $a);
 			echo PHP_EOL;
 		}
 	}
@@ -114,10 +111,11 @@ if (!function_exists('debugList')) {
 			'</pre>';
 	}
 
-	function pre_var_dump($a)
+	function pre_var_dump(...$a)
 	{
 		echo '<pre class="pre_var_dump" style="white-space: pre-wrap; font-size: 8pt;">';
-		var_dump(func_num_args() == 1 ? $a : func_get_args());
+		/** @noinspection ForgottenDebugOutputInspection */
+		var_dump(count($a) === 1 ? $a[0] : $a);
 		echo '</pre>';
 	}
 
@@ -134,7 +132,7 @@ if (!function_exists('debugList')) {
 		if (!ifsetor($used[$key])) {
 			$v = func_get_args();
 			//$v[] = $key;
-			call_user_func_array('debug', $v);
+			debug(...$v);
 			$used[$key] = true;
 		}
 	}
@@ -175,14 +173,18 @@ if (!function_exists('debugList')) {
 				">';
 			}
 			ob_start();
-			if (phpversion() >= '5.3.6') {
+			if (PHP_VERSION >= '5.3.6') {
+				/** @noinspection ForgottenDebugOutputInspection */
 				debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 			} else {
+				/** @noinspection ForgottenDebugOutputInspection */
 				debug_print_backtrace();
 			}
 			$content = ob_get_clean();
 			$content = str_replace(dirname(getcwd()), '', $content);
-			$content = str_replace('C:\\Users\\' . getenv('USERNAME') . '\\AppData\\Roaming\\Composer\\vendor\\phpunit\\phpunit\\src\\', '', $content);
+			$search = 'C:\\Users\\' . getenv('USERNAME') .
+				'\\AppData\\Roaming\\Composer\\vendor\\phpunit\\phpunit\\src\\';
+			$content = str_replace($search, '', $content);
 			echo $content;
 			if (!Request::isCLI()) {
 				print '</pre>';
@@ -213,12 +215,12 @@ if (!function_exists('debugList')) {
 			$level_names[E_STRICT] = 'E_STRICT';
 		}
 		$levels = [];
-		if (($value & E_ALL) == E_ALL) {
+		if (($value & E_ALL) === E_ALL) {
 			$levels[] = 'E_ALL';
 			$value &= ~E_ALL;
 		}
 		foreach ($level_names as $level => $name) {
-			if (($value & $level) == $level) {
+			if (($value & $level) === $level) {
 				$levels[] = $name;
 			}
 		}
@@ -230,7 +232,7 @@ if (!function_exists('debugList')) {
 	 * @param mixed $something
 	 * @param bool $withHash
 	 * @param null $isCLI
-	 * @return HTMLTag
+	 * @return HTMLTag|HtmlString
 	 */
 	function typ($something, $withHash = true, $isCLI = null)
 	{
@@ -273,22 +275,22 @@ if (!function_exists('debugList')) {
 		];
 		$class = ifsetor($bulma[$type]) . ' tag';
 
-		if ($type == 'string') {
+		if ($type === 'string') {
 			$typeName .= '[' . strlen($something) . ']';
 		}
-		if ($type == 'array') {
+		if ($type === 'array') {
 			$typeName .= '[' . sizeof($something) . ']';
 		}
 
 		if (!Request::isCLI()) {
 			return new HTMLTag('span', ['class' => $class], $typeName, true);
 		}
-		return new htmlString($typeName);
+		return new HtmlString($typeName);
 	}
 
 	/**
 	 * @param array|mixed $something
-	 * @return array|htmlString
+	 * @return array|HtmlString
 	 */
 	function gettypes($something)
 	{
@@ -298,16 +300,16 @@ if (!function_exists('debugList')) {
 				$types[$key] = strip_tags(typ($element));
 			}
 			return $types;
-		} else {
-			return typ($something);
 		}
+
+		return typ($something);
 		//return json_encode($types, JSON_PRETTY_PRINT);
 	}
 
-	function invariant($test, string $format_str, ...$args)
+	function invariant($test, string $format_str = null, ...$args)
 	{
 		if (!$test) {
-			throw new Exception($format_str ?? 'Invariant failed', ...$args);
+			throw new RuntimeException($format_str ?? 'Invariant failed', ...$args);
 		}
 	}
 

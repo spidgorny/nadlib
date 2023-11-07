@@ -63,7 +63,7 @@ if (!function_exists('get_overriden_methods')) {
 	function get_overriden_methods($class)
 	{
 		$rClass = new ReflectionClass($class);
-		$array = NULL;
+		$array = null;
 
 		foreach ($rClass->getMethods() as $rMethod) {
 			try {
@@ -75,7 +75,7 @@ if (!function_exists('get_overriden_methods')) {
 					== $rClass->getName()
 				) {
 					// if so, then it is overriden, so add to array
-					$array[] .= $rMethod->getName();
+					$array[] = $rMethod->getName();
 				}
 			} catch (Exception $e) { /* was not in parent class! */
 			}

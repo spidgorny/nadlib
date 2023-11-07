@@ -105,38 +105,6 @@ class Syndicator
 		return $s;
 	}
 
-	/**
-	 * @param $url
-	 * @param bool $caching
-	 * @param string $recodeUTF8
-	 * @return Syndicator
-	 */
-	public static function readAndParseXML($url, $caching = true, $recodeUTF8 = 'utf-8')
-	{
-		$s = new self($url, $caching, $recodeUTF8);
-		$s->input = 'XML';
-		$s->html = $s->retrieveFile();
-		$s->xml = $s->processFile($s->html);
-		return $s;
-	}
-
-	/**
-	 * @param $url
-	 * @param bool $caching
-	 * @param string $recodeUTF8
-	 * @return Syndicator
-	 */
-	public static function readAndParseJSON($url, $caching = true, $recodeUTF8 = 'utf-8')
-	{
-		$s = new self($url, $caching, $recodeUTF8);
-		$s->input = 'JSON';
-		$s->html = $s->retrieveFile();
-		$s->log(__METHOD__, 'Downloaded');
-		$s->json = json_decode($s->html);
-		$s->log(__METHOD__, 'JSON decoded');
-		return $s;
-	}
-
 	public function retrieveFile($retries = 1)
 	{
 		TaylorProfiler::start(__METHOD__);
@@ -174,22 +142,40 @@ class Syndicator
 		return $html;
 	}
 
-	function proxyOK()
+	public function get($string)
 	{
-		if ($this->useProxy && $this->useProxy instanceof Proxy) {
-			$c = Controller::getInstance();
-			$c->log(__METHOD__, 'Using proxy: ' . $this->useProxy . ': OK');
-			$this->useProxy->ok();
+		$elements = $this->getElements($string);
+		//debug($string, $elements);
+		foreach ($elements as &$e) {
+			$e = trim($e);
+		}
+		$elements = array_filter($elements);
+		if (sizeof($elements) == 0) {
+			return NULL;
+		}
+
+		if (sizeof($elements) == 1) {
+			return first($elements);
+		} else {
+			return $elements;
 		}
 	}
 
-	function proxyFail()
+	/**
+	 * @param $xpath
+	 * @return null|SimpleXMLElement[]
+	 */
+	function getElements($xpath)
 	{
-		if ($this->useProxy && $this->useProxy instanceof Proxy) {
-			$c = Controller::getInstance();
-			$c->log(__METHOD__, 'Using proxy: ' . $this->useProxy . ': OK');
-			$this->useProxy->fail();
+		TaylorProfiler::start(__METHOD__);
+		$target = NULL;
+		if ($this->xml) {
+			//debug($this->xml);
+			$this->xpath = $xpath;
+			$target = $this->xml->xpath($this->xpath);
 		}
+		TaylorProfiler::stop(__METHOD__);
+		return $target;
 	}
 
 	function log($method, $msg)
@@ -209,49 +195,22 @@ class Syndicator
 		}
 	}
 
-	/**
-	 * http://code.google.com/p/php-excel-reader/issues/attachmentText?id=8&aid=2334947382699781699&name=val_patch.php&token=45f8ef6a787d2ab55cb821688e28142d
-	 * @param $str
-	 * @return mixed
-	 */
-	function detect_cyr_charset($str)
+	function proxyOK()
 	{
-		$charsets = [
-			'koi8-r' => 0,
-			'Windows-1251' => 0,
-			'CP866' => 0,
-			'ISO-8859-5' => 0,
-			'MAC' => 0
-		];
-		for ($i = 0, $length = strlen($str); $i < $length; $i++) {
-			$char = ord($str[$i]);
-			//non-russian characters
-			if ($char < 128 || $char > 256) continue;
-
-			//CP866
-			if (($char > 159 && $char < 176) || ($char > 223 && $char < 242))
-				$charsets['CP866'] += LOWERCASE;
-			if (($char > 127 && $char < 160)) $charsets['CP866'] += UPPERCASE;
-
-			//KOI8-R
-			if (($char > 191 && $char < 223)) $charsets['koi8-r'] += LOWERCASE;
-			if (($char > 222 && $char < 256)) $charsets['koi8-r'] += UPPERCASE;
-
-			//WIN-1251
-			if ($char > 223 && $char < 256) $charsets['Windows-1251'] += LOWERCASE;
-			if ($char > 191 && $char < 224) $charsets['Windows-1251'] += UPPERCASE;
-
-			//MAC
-			if ($char > 221 && $char < 255) $charsets['MAC'] += LOWERCASE;
-			if ($char > 127 && $char < 160) $charsets['MAC'] += UPPERCASE;
-
-			//ISO-8859-5
-			if ($char > 207 && $char < 240) $charsets['ISO-8859-5'] += LOWERCASE;
-			if ($char > 175 && $char < 208) $charsets['ISO-8859-5'] += UPPERCASE;
-
+		if ($this->useProxy && $this->useProxy instanceof Proxy) {
+			$c = Controller::getInstance();
+			$c->log(__METHOD__, 'Using proxy: ' . $this->useProxy . ': OK');
+			$this->useProxy->ok();
 		}
-		arsort($charsets);
-		return key($charsets);
+	}
+
+	function proxyFail()
+	{
+		if ($this->useProxy && $this->useProxy instanceof Proxy) {
+			$c = Controller::getInstance();
+			$c->log(__METHOD__, 'Using proxy: ' . $this->useProxy . ': OK');
+			$this->useProxy->fail();
+		}
 	}
 
 	function processFile($html)
@@ -297,6 +256,51 @@ class Syndicator
 		$xml = $this->getXML($recode);
 		TaylorProfiler::stop(__METHOD__);
 		return $xml;
+	}
+
+	/**
+	 * http://code.google.com/p/php-excel-reader/issues/attachmentText?id=8&aid=2334947382699781699&name=val_patch.php&token=45f8ef6a787d2ab55cb821688e28142d
+	 * @param $str
+	 * @return mixed
+	 */
+	function detect_cyr_charset($str)
+	{
+		$charsets = [
+			'koi8-r' => 0,
+			'Windows-1251' => 0,
+			'CP866' => 0,
+			'ISO-8859-5' => 0,
+			'MAC' => 0
+		];
+		for ($i = 0, $length = strlen($str); $i < $length; $i++) {
+			$char = ord($str[$i]);
+			//non-russian characters
+			if ($char < 128 || $char > 256) continue;
+
+			//CP866
+			if (($char > 159 && $char < 176) || ($char > 223 && $char < 242))
+				$charsets['CP866'] += LOWERCASE;
+			if (($char > 127 && $char < 160)) $charsets['CP866'] += UPPERCASE;
+
+			//KOI8-R
+			if (($char > 191 && $char < 223)) $charsets['koi8-r'] += LOWERCASE;
+			if (($char > 222 && $char < 256)) $charsets['koi8-r'] += UPPERCASE;
+
+			//WIN-1251
+			if ($char > 223 && $char < 256) $charsets['Windows-1251'] += LOWERCASE;
+			if ($char > 191 && $char < 224) $charsets['Windows-1251'] += UPPERCASE;
+
+			//MAC
+			if ($char > 221 && $char < 255) $charsets['MAC'] += LOWERCASE;
+			if ($char > 127 && $char < 160) $charsets['MAC'] += UPPERCASE;
+
+			//ISO-8859-5
+			if ($char > 207 && $char < 240) $charsets['ISO-8859-5'] += LOWERCASE;
+			if ($char > 175 && $char < 208) $charsets['ISO-8859-5'] += UPPERCASE;
+
+		}
+		arsort($charsets);
+		return key($charsets);
 	}
 
 	function tidy($html)
@@ -379,20 +383,35 @@ class Syndicator
 	}
 
 	/**
-	 * @param $xpath
-	 * @return null|SimpleXMLElement[]
+	 * @param $url
+	 * @param bool $caching
+	 * @param string $recodeUTF8
+	 * @return Syndicator
 	 */
-	function getElements($xpath)
+	public static function readAndParseXML($url, $caching = true, $recodeUTF8 = 'utf-8')
 	{
-		TaylorProfiler::start(__METHOD__);
-		$target = NULL;
-		if ($this->xml) {
-			//debug($this->xml);
-			$this->xpath = $xpath;
-			$target = $this->xml->xpath($this->xpath);
-		}
-		TaylorProfiler::stop(__METHOD__);
-		return $target;
+		$s = new self($url, $caching, $recodeUTF8);
+		$s->input = 'XML';
+		$s->html = $s->retrieveFile();
+		$s->xml = $s->processFile($s->html);
+		return $s;
+	}
+
+	/**
+	 * @param $url
+	 * @param bool $caching
+	 * @param string $recodeUTF8
+	 * @return Syndicator
+	 */
+	public static function readAndParseJSON($url, $caching = true, $recodeUTF8 = 'utf-8')
+	{
+		$s = new self($url, $caching, $recodeUTF8);
+		$s->input = 'JSON';
+		$s->html = $s->retrieveFile();
+		$s->log(__METHOD__, 'Downloaded');
+		$s->json = json_decode($s->html);
+		$s->log(__METHOD__, 'JSON decoded');
+		return $s;
 	}
 
 	/**
@@ -480,42 +499,25 @@ class Syndicator
 		return $elements;
 	}
 
+//	/**
+//	 * composer require symfony/css-selector
+//	 * @param $selector
+//	 * @return SimpleXMLElement
+//	 */
+//	function select($selector)
+//	{
+//		$converter = new CssSelectorConverter();
+//		$xpath = $converter->toXPath($selector);
+//		//debug($xpath);
+//		return $this->getElement($xpath);
+//	}
+
 	function css($selector)
 	{
 		CssSelector::enableHtmlExtension();
 		$xpath = CssSelector::toXPath($selector);
 		//debug($xpath);
 		return $this->getElements($xpath);
-	}
-
-	/**
-	 * composer require symfony/css-selector
-	 * @param $selector
-	 * @return SimpleXMLElement
-	 */
-	function select($selector)
-	{
-		$converter = new CssSelectorConverter();
-		$xpath = $converter->toXPath($selector);
-		//debug($xpath);
-		return $this->getElement($xpath);
-	}
-
-	public function get($string)
-	{
-		$elements = $this->getElements($string);
-		//debug($string, $elements);
-		foreach ($elements as &$e) {
-			$e = trim($e);
-		}
-		$elements = array_filter($elements);
-		if (sizeof($elements) == 0) {
-			return NULL;
-		} elseif (sizeof($elements) == 1) {
-			return first($elements);
-		} else {
-			return $elements;
-		}
 	}
 
 	public function getEncoding()

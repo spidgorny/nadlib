@@ -33,10 +33,10 @@
  */
 class DebugPanel {
 	static protected $instance;
+	public $header = 'h6';
 	protected $name = 'DebugPanel';
 	protected $content = '';
 	protected $panels = [];
-	public $header = 'h6';
 
 	protected function __construct($name = NULL, $content = NULL) {
 		if ($name) {
@@ -46,80 +46,11 @@ class DebugPanel {
 		}
 		if (is_array($content)) {
 			$this->content = $this->viewArray($content);
-		} else if (is_object($content) && !($content instanceof htmlString)) {
+		} else if (is_object($content) && !($content instanceof HtmlString)) {
 			$this->content = $this->viewArray(get_object_vars($content));
 		} else {
-			$this->content = $content instanceof htmlString ? $content : htmlspecialchars($content);
+			$this->content = $content instanceof HtmlString ? $content : htmlspecialchars($content);
 		}
-	}
-
-	static function getInstance() {
-		if (!self::$instance) {
-			self::$instance = new self();
-		}
-		return self::$instance;
-	}
-
-	function getHeader() {
-		$content = '<link rel="stylesheet" type="text/css" href="css/debugPanel.css">';
-		//$content .= '<script src="js/jquery-1.3.2.min.js"></script>';
-		//$content .= '<script src="js/jquery-ui-1.7.2.custom.min.js"></script>';
-		//$content .= '<script src="js/jquery.cookie.js"></script>';
-		$content .= '<script src="js/jquery.json-2.2.min.js"></script>';
-		$content .= '<script src="js/debugPanel.js"></script>';
-		return $content;
-	}
-
-	function render() {
-		$content = $this->getHeader();
-		$this->header = 'h5';
-		$content .= '<div class="DebugPanel">'.$this->__toString().'</div>';
-		return $content;
-	}
-
-	function __toString() {
-		$h6 = $this->header;
-		$content = '<div class="panel">
-		<'.$h6.' class="'.gettype($this->content).'">'.$this->name.'</'.$h6.'>';
-		if ($this->content || $this->panels) {
-			$content .= '<div class="content">';
-			foreach ($this->panels as $panel) {
-				$content .= $panel;
-			}
-			$content .= $this->content.'</div>';
-		}
-		$content .= '</div>';
-		return $content;
-	}
-
-	function addPanel($name, $content) {
-		$dp = new DebugPanel($name, $content);
-		$this->panels[$name] = $dp;
-	}
-
-	function viewArray($array) {
-		$table = [];
-		foreach ($array as $key => $val) {
-			$row = [];
-			$row['key'] = $key;
-			$row += $this->getVarParams($val);
-			$type = $row['type'];
-			//$row['typeName'] = '<div class="'.$type.'">'.$row['typeName'].'</div>';
-			$row['typeName'] = new HTMLTag('td', ['class' => $type], $row['typeName']);
-			unset($row['type']);
-			unset($row['size']);
-			unset($row['length']);
-			unset($row['class']);
-			unset($row['hash']);
-			unset($row['extends']);
-			if (is_array($val) || is_object($val) || is_null($val)) {
-				$row['value'] = new HTMLTag('td', ['class' => $type], $val ? new DebugPanel($key, $val) : '', TRUE);
-			} else {
-				$row['value'] = new HTMLTag('td', ['class' => $type.' overflow'], $val);
-			}
-			$table[] = $row;
-		}
-		return new slTable($table, 'class="view_array array"');
 	}
 
 	function getVarParams($var) {
@@ -150,6 +81,75 @@ class DebugPanel {
 			$params['typeName'] = $type.'('.strlen($var).')';
 		}
 		return $params;
+	}
+
+	function viewArray($array) {
+		$table = [];
+		foreach ($array as $key => $val) {
+			$row = [];
+			$row['key'] = $key;
+			$row += $this->getVarParams($val);
+			$type = $row['type'];
+			//$row['typeName'] = '<div class="'.$type.'">'.$row['typeName'].'</div>';
+			$row['typeName'] = new HTMLTag('td', ['class' => $type], $row['typeName']);
+			unset($row['type']);
+			unset($row['size']);
+			unset($row['length']);
+			unset($row['class']);
+			unset($row['hash']);
+			unset($row['extends']);
+			if (is_array($val) || is_object($val) || is_null($val)) {
+				$row['value'] = new HTMLTag('td', ['class' => $type], $val ? new DebugPanel($key, $val) : '', TRUE);
+			} else {
+				$row['value'] = new HTMLTag('td', ['class' => $type.' overflow'], $val);
+			}
+			$table[] = $row;
+		}
+		return new slTable($table, 'class="view_array array"');
+	}
+
+	static function getInstance() {
+		if (!self::$instance) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
+	function render() {
+		$content = $this->getHeader();
+		$this->header = 'h5';
+		$content .= '<div class="DebugPanel">'.$this->__toString().'</div>';
+		return $content;
+	}
+
+	function getHeader() {
+		$content = '<link rel="stylesheet" type="text/css" href="css/debugPanel.css">';
+		//$content .= '<script src="js/jquery-1.3.2.min.js"></script>';
+		//$content .= '<script src="js/jquery-ui-1.7.2.custom.min.js"></script>';
+		//$content .= '<script src="js/jquery.cookie.js"></script>';
+		$content .= '<script src="js/jquery.json-2.2.min.js"></script>';
+		$content .= '<script src="js/debugPanel.js"></script>';
+		return $content;
+	}
+
+	function __toString() {
+		$h6 = $this->header;
+		$content = '<div class="panel">
+		<'.$h6.' class="'.gettype($this->content).'">'.$this->name.'</'.$h6.'>';
+		if ($this->content || $this->panels) {
+			$content .= '<div class="content">';
+			foreach ($this->panels as $panel) {
+				$content .= $panel;
+			}
+			$content .= $this->content.'</div>';
+		}
+		$content .= '</div>';
+		return $content;
+	}
+
+	function addPanel($name, $content) {
+		$dp = new DebugPanel($name, $content);
+		$this->panels[$name] = $dp;
 	}
 
 	function __destruct() {

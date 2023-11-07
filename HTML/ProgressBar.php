@@ -10,15 +10,11 @@ class ProgressBar {
 	var $textid;
 
 	var $decimals = 2;
-
-	protected $color = '#43b6df';
 	public $cliBR = "\r";
-
 	/**
 	 * @var bool
 	 */
 	var $cli = false;
-
 	/**
 	 * Must be false in order to user new ProgressBar(...) inside strings.
 	 * @var bool
@@ -26,27 +22,24 @@ class ProgressBar {
 	 * if enabled.
 	 */
 	var $destruct100 = false;
-
 	/**
 	 * Should be undefined so that it can be detected once and then stored.
 	 * Don't put default value here.
 	 * @var int
 	 */
 	var $cliWidth = NULL;
-
 	/**
 	 * If supplied then use $pb->setIndex($i) to calculate percentage automatically
 	 * @var int
 	 */
 	public $count = 0;
-
 	/**
 	 * Force getCss() to NOT load from Index if Index exists
 	 * @var bool
 	 */
 	public $useIndexCss = true;
-
 	public $cssFile = 'ProgressBarSimple.css';
+	protected $color = '#43b6df';
 
 	/**
 	 * @ param #2 $color = '#43b6df'
@@ -74,6 +67,60 @@ class ProgressBar {
 		$this->pbarid = 'progress-bar-' . $pbid;
 		$this->tbarid = 'transparent-bar-' . $pbid;
 		$this->textid = 'pb_text-' . $pbid;
+	}
+
+	static function getImageWithText($p, $css = 'display: inline-block; width: 100%; text-align: center; white-space: nowrap;', $append = '')
+	{
+		return new HtmlString('<div style="' . $css . '">' .
+			number_format($p, 2) . '&nbsp;%&nbsp;
+			' . self::getImage($p, $append) . '
+		</div>');
+	}
+
+	static function getImage($p, $append = '', $imgAttributes = [])
+	{
+		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
+		// absolute URL to work even before <base href> is defined
+		$prefix = Request::getInstance()->getLocation() . $prefix;
+		$imageURL = $prefix . 'bar.php?rating=' . round($p) . htmlspecialchars($append);
+		return '<img src="' . $imageURL . '"
+		style="vertical-align: middle;"
+		title="' . number_format($p, 2) . '%"
+		width="100"
+		height="15" ' . HTMLTag::renderAttr($imgAttributes) . '/>';
+	}
+
+	/**
+	 * Return only URL
+	 * @param        $p
+	 * @param string $append
+	 * @return string
+	 */
+	static function getBar($p, $append = '')
+	{
+		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
+		if (!$prefix || $prefix == '/') {
+			$prefix = 'vendor/spidgorny/nadlib/';
+		}
+		$prefix = Request::getInstance()->getLocation() . $prefix;
+		return $prefix . 'bar.php?rating=' . round($p) . $append;
+	}
+
+	static function getBackground($p, $width = '100px')
+	{
+		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
+		return '<div style="
+			display: inline-block;
+			width: ' . $width . ';
+			text-align: center;
+			wrap: nowrap;
+			background: url(' . $prefix . 'bar.php?rating=' . round($p) . '&height=14&width=' . intval($width) . ') no-repeat;">' . number_format($p, 2) . '%</div>';
+	}
+
+	static function getCounter($r, $size)
+	{
+		$r = str_pad($r, strlen($size), ' ', STR_PAD_LEFT);
+		return '[' . $r . '/' . $size . ']';
 	}
 
 	public function render()
@@ -122,11 +169,6 @@ class ProgressBar {
 		return '';
 	}
 
-	function __toString()
-	{
-		return $this->getContent();
-	}
-
 	function getContent()
 	{
 		$percentDone = floatval($this->percentDone);
@@ -147,19 +189,18 @@ class ProgressBar {
 		return $content;
 	}
 
-	function setProgressBarProgress($percentDone, $text = '', $after = '')
+	static function flush($ob_flush = false)
 	{
-		$this->percentDone = $percentDone;
-		$text = $text
-			?: number_format($this->percentDone, $this->decimals, '.', '') . '%';
-		if ($this->cli) {
-			if (!Request::isCron()) {
-				// \r first to preserve errors
-				echo $this->cliBR . $text . "\t" . $this->getCLIbar() . ' ' . $after;
-			} // else nothing
-		} else {
-			$this->setProgressBarJS($percentDone, $text);
+		print str_pad('', intval(ini_get('output_buffering')), ' ') . "\n";
+		if ($ob_flush) {
+			ob_end_flush();
 		}
+		flush();
+	}
+
+	function __toString()
+	{
+		return $this->getContent();
 	}
 
 	function setIndex($i, $always = false, $text = '', $after = '', $everyStep = 1000)
@@ -188,84 +229,19 @@ class ProgressBar {
 		return $percent;
 	}
 
-	static function flush($ob_flush = false)
+	function setProgressBarProgress($percentDone, $text = '', $after = '')
 	{
-		print str_pad('', intval(ini_get('output_buffering')), ' ') . "\n";
-		if ($ob_flush) {
-			ob_end_flush();
+		$this->percentDone = $percentDone;
+		$text = $text
+			?: number_format($this->percentDone, $this->decimals, '.', '') . '%';
+		if ($this->cli) {
+			if (!Request::isCron()) {
+				// \r first to preserve errors
+				echo $this->cliBR . $text . "\t" . $this->getCLIbar() . ' ' . $after;
+			} // else nothing
+		} else {
+			$this->setProgressBarJS($percentDone, $text);
 		}
-		flush();
-	}
-
-	function __destruct()
-	{
-		if ($this->destruct100) {
-			$this->setProgressBarProgress(100);
-		}
-	}
-
-	static function getImageWithText($p, $css = 'display: inline-block; width: 100%; text-align: center; white-space: nowrap;', $append = '')
-	{
-		return new htmlString('<div style="' . $css . '">' .
-			number_format($p, 2) . '&nbsp;%&nbsp;
-			' . self::getImage($p, $append) . '
-		</div>');
-	}
-
-	static function getImage($p, $append = '', $imgAttributes = [])
-	{
-		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
-		// absolute URL to work even before <base href> is defined
-		$prefix = Request::getInstance()->getLocation() . $prefix;
-		$imageURL = $prefix . 'bar.php?rating=' . round($p) . htmlspecialchars($append);
-		return '<img src="' . $imageURL . '"
-		style="vertical-align: middle;"
-		title="' . number_format($p, 2) . '%"
-		width="100"
-		height="15" ' . HTMLTag::renderAttr($imgAttributes) . '/>';
-	}
-
-	/**
-	 * Return only URL
-	 * @param        $p
-	 * @param string $append
-	 * @return string
-	 */
-	static function getBar($p, $append = '')
-	{
-		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
-		if (!$prefix || $prefix == '/') {
-			$prefix = 'vendor/spidgorny/nadlib/';
-		}
-		$prefix = Request::getInstance()->getLocation() . $prefix;
-		return $prefix . 'bar.php?rating=' . round($p) . $append;
-	}
-
-	static function getBackground($p, $width = '100px')
-	{
-		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
-		return '<div style="
-			display: inline-block;
-			width: ' . $width . ';
-			text-align: center;
-			wrap: nowrap;
-			background: url(' . $prefix . 'bar.php?rating=' . round($p) . '&height=14&width=' . intval($width) . ') no-repeat;">' . number_format($p, 2) . '%</div>';
-	}
-
-	public function setTitle()
-	{
-		print '
-		<script>
-			document.title = "' . number_format($this->percentDone, 3, '.', '') . '%";
-		</script>';
-	}
-
-	public function hide()
-	{
-		echo '<script>
-			var el = document.getElementById("' . $this->pbid . '");
-			el.parentNode.removeChild(el);
-		</script>';
 	}
 
 	function getCLIbar()
@@ -333,6 +309,51 @@ class ProgressBar {
 		return $size;
 	}
 
+	/**
+	 * @param $percentDone
+	 * @param $text
+	 */
+	private function setProgressBarJS($percentDone, $text)
+	{
+		print('
+			<script type="text/javascript">
+			if (document.getElementById("' . $this->pbarid . '")) {
+				document.getElementById("' . $this->pbarid . '").style.width = "' . $percentDone . '%";' . "\n");
+		if ($percentDone == 100) {
+			print('document.getElementById("' . $this->tbarid . '").style.display = "none";' . "\n");
+		} else {
+			print('document.getElementById("' . $this->tbarid . '").style.width = "' . (100 - $percentDone) . '%";' . "\n");
+		}
+		if ($text) {
+			print('document.getElementById("' . $this->textid . '").innerHTML = "' . htmlspecialchars(str_replace("\n", '\n', $text)) . '";' . "\n");
+		}
+		print('}</script>' . "\n");
+		$this->flush();
+	}
+
+	function __destruct()
+	{
+		if ($this->destruct100) {
+			$this->setProgressBarProgress(100);
+		}
+	}
+
+	public function setTitle()
+	{
+		print '
+		<script>
+			document.title = "' . number_format($this->percentDone, 3, '.', '') . '%";
+		</script>';
+	}
+
+	public function hide()
+	{
+		echo '<script>
+			var el = document.getElementById("' . $this->pbid . '");
+			el.parentNode.removeChild(el);
+		</script>';
+	}
+
 	public function startSSE($url)
 	{
 		Index::getInstance()->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . 'js/sse.js');
@@ -365,34 +386,6 @@ class ProgressBar {
 	function done($content)
 	{
 		echo 'data: ', json_encode(['complete' => $content]), "\n\n";
-	}
-
-	/**
-	 * @param $percentDone
-	 * @param $text
-	 */
-	private function setProgressBarJS($percentDone, $text)
-	{
-		print('
-			<script type="text/javascript">
-			if (document.getElementById("' . $this->pbarid . '")) {
-				document.getElementById("' . $this->pbarid . '").style.width = "' . $percentDone . '%";' . "\n");
-		if ($percentDone == 100) {
-			print('document.getElementById("' . $this->tbarid . '").style.display = "none";' . "\n");
-		} else {
-			print('document.getElementById("' . $this->tbarid . '").style.width = "' . (100 - $percentDone) . '%";' . "\n");
-		}
-		if ($text) {
-			print('document.getElementById("' . $this->textid . '").innerHTML = "' . htmlspecialchars(str_replace("\n", '\n', $text)) . '";' . "\n");
-		}
-		print('}</script>' . "\n");
-		$this->flush();
-	}
-
-	static function getCounter($r, $size)
-	{
-		$r = str_pad($r, strlen($size), ' ', STR_PAD_LEFT);
-		return '[' . $r . '/' . $size . ']';
 	}
 
 }

@@ -54,6 +54,40 @@ class LocalLangDB extends LocalLang
 		return $instance;
 	}
 
+	public function readDB($lang)
+	{
+		//debug_pre_print_backtrace();
+		$res = $this->db->getTableColumnsEx($this->table);
+		if ($res) {
+			// wrong query
+			/*$rows = $this->db->fetchSelectQuery($this->table.
+				" AS a RIGHT OUTER JOIN ".$this->table." AS en
+				ON ((a.code = en.code OR a.code IS NULL) AND en.lang = 'en')", array(
+				'a.lang' => new SQLAnd(array(
+					'a.lang' => new SQLWhereEqual('a.lang', $lang),
+					'a.lang ' => new SQLWhereEqual('a.lang', NULL),
+					)
+				),
+				'a.lang' => $lang,
+				'en.lang' => 'en',
+			), 'ORDER BY id',
+				'coalesce(a.id, en.id) AS id,
+				coalesce(a.code, en.code) AS code,
+				coalesce(a.lang, en.lang) AS lang,
+				coalesce(a.text, en.text) AS text,
+				a.page');
+			debug($this->db->lastQuery, sizeof($rows), first($rows));*/
+			$rows = $this->db->fetchSelectQuery($this->table, [
+				'lang' => $lang,
+			], 'ORDER BY id');
+			$rows = ArrayPlus::create($rows)->IDalize('id')->getData();
+		} else {
+			debug($this->db->lastQuery);
+			throw new Exception('No translation found in DB');
+		}
+		return $rows;
+	}
+
 	/**
 	 * Instead of searching if the original language (en) record exists
 	 * it tries to insert and then catches the UNIQUE constraint exception.
@@ -124,40 +158,6 @@ class LocalLangDB extends LocalLang
 		}
 	}
 
-	public function readDB($lang)
-	{
-		//debug_pre_print_backtrace();
-		$res = $this->db->getTableColumnsEx($this->table);
-		if ($res) {
-			// wrong query
-			/*$rows = $this->db->fetchSelectQuery($this->table.
-				" AS a RIGHT OUTER JOIN ".$this->table." AS en
-				ON ((a.code = en.code OR a.code IS NULL) AND en.lang = 'en')", array(
-				'a.lang' => new SQLAnd(array(
-					'a.lang' => new SQLWhereEqual('a.lang', $lang),
-					'a.lang ' => new SQLWhereEqual('a.lang', NULL),
-					)
-				),
-				'a.lang' => $lang,
-				'en.lang' => 'en',
-			), 'ORDER BY id',
-				'coalesce(a.id, en.id) AS id,
-				coalesce(a.code, en.code) AS code,
-				coalesce(a.lang, en.lang) AS lang,
-				coalesce(a.text, en.text) AS text,
-				a.page');
-			debug($this->db->lastQuery, sizeof($rows), first($rows));*/
-			$rows = $this->db->fetchSelectQuery($this->table, [
-				'lang' => $lang,
-			], 'ORDER BY id');
-			$rows = ArrayPlus::create($rows)->IDalize('id')->getData();
-		} else {
-			debug($this->db->lastQuery);
-			throw new Exception('No translation found in DB');
-		}
-		return $rows;
-	}
-
 	public function getRow($id)
 	{
 		return ifsetor($this->rows[$id]);
@@ -189,7 +189,7 @@ class LocalLangDB extends LocalLang
 		foreach ($langs as &$lang) {
 			$rows = $this->readDB($lang);
 			$lang = [
-				'img' => new htmlString('<img src="img/' . $lang . '.gif" width="20" height="12" />'),
+				'img' => new HtmlString('<img src="img/' . $lang . '.gif" width="20" height="12" />'),
 				'lang' => $lang,
 				'rows' => sizeof($rows),
 				'percent' => number_format(sizeof($rows) / $countEN * 100, 0) . '%',

@@ -19,6 +19,12 @@ class Date extends Time
 		}
 	}
 
+	function updateDebug()
+	{
+		$this->debug = gmdate('Y-m-d H:i \G\M\T', $this->time);
+		$this->human = $this->getHumanDateTime();
+	}
+
 	/**
 	 * Copy/paste because to 'static'
 	 * @param int $input
@@ -28,6 +34,19 @@ class Date extends Time
 	static function make($input = NULL, $relativeTo = NULL)
 	{
 		return new self($input, $relativeTo);
+	}
+
+	static function fromEurope($format)
+	{
+		$parts = explode('.', $format);
+		$parts = array_reverse($parts);
+		$parts = implode('-', $parts);
+		return new self($parts);
+	}
+
+	static public function fromHuman($str)
+	{
+		return new Date(strtotime($str));
 	}
 
 	/**
@@ -48,28 +67,9 @@ class Date extends Time
 		return gmdate('Y-m-d', $this->time);
 	}
 
-	function getISO()
-	{
-		return date('Y-m-d', $this->time);
-	}
-
 	function getGMT()
 	{
 		return gmdate('Y-m-d', $this->time);
-	}
-
-	function updateDebug()
-	{
-		$this->debug = gmdate('Y-m-d H:i \G\M\T', $this->time);
-		$this->human = $this->getHumanDateTime();
-	}
-
-	static function fromEurope($format)
-	{
-		$parts = explode('.', $format);
-		$parts = array_reverse($parts);
-		$parts = implode('-', $parts);
-		return new self($parts);
 	}
 
 	/**
@@ -85,11 +85,16 @@ class Date extends Time
 
 	/**
 	 * @param string $format d.m.Y
-	 * @return htmlString
+	 * @return HtmlString
 	 */
 	function html($format = 'd.m.Y')
 	{
-		return new htmlString('<time datetime="' . $this->getISO() . '">' . $this->format($format) . '</time>');
+		return new HtmlString('<time datetime="' . $this->getISO() . '">' . $this->format($format) . '</time>');
+	}
+
+	function getISO()
+	{
+		return date('Y-m-d', $this->time);
 	}
 
 	function days()
@@ -110,11 +115,6 @@ class Date extends Time
 	public function minusDur(Duration $day1)
 	{
 		return new self($this->time - $day1->getTimestamp());
-	}
-
-	static public function fromHuman($str)
-	{
-		return new Date(strtotime($str));
 	}
 
 	public function isWeekend()

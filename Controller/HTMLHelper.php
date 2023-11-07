@@ -5,14 +5,9 @@ use spidgorny\nadlib\HTTP\URL;
 trait HTMLHelper
 {
 
-	function s($something)
-	{
-		return MergedContent::mergeStringArrayRecursive($something);
-	}
-
 	/**
 	 * @param string|URL $href
-	 * @param string|htmlString $text
+	 * @param string|HtmlString $text
 	 * @param bool $isHTML
 	 * @param array $more
 	 * @return HTMLTag
@@ -29,6 +24,11 @@ trait HTMLHelper
 		$more['class'] = ifsetor($more['class']) . ' ' . $class;
 		$more = HTMLTag::renderAttr($more);
 		return '<div ' . $more . '>' . $this->s($content) . '</div>';
+	}
+
+	function s($something)
+	{
+		return MergedContent::mergeStringArrayRecursive($something);
 	}
 
 	function span($content, $class = '', array $more = [])

@@ -12,6 +12,14 @@ class HTMLTag implements ArrayAccess, ToStringable
 	public $isHTML = FALSE;
 	public $closingTag = true;
 
+	public function __construct($tag, array $attr = [], $content = '', $isHTML = false)
+	{
+		$this->tag = $tag;
+		$this->attr = $attr;
+		$this->content = $content;
+		$this->isHTML = $isHTML;
+	}
+
 	public static function key($candidate)
 	{
 		$key = $candidate;
@@ -23,104 +31,9 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return $key;
 	}
 
-	public function __construct($tag, array $attr = [], $content = '', $isHTML = false)
-	{
-		$this->tag = $tag;
-		$this->attr = $attr;
-		$this->content = $content;
-		$this->isHTML = $isHTML;
-	}
-
 	public static function div($content, array $param = [])
 	{
 		return new HTMLTag('div', $param, $content);
-	}
-
-	public function __toString()
-	{
-		try {
-			return $this->render();
-		} catch (Exception $e) {
-			debug_pre_print_backtrace();
-			die($e->getMessage());
-		}
-	}
-
-	public function render()
-	{
-		if (is_array($this->content) || $this->content instanceof MergedContent) {
-			$content = MergedContent::mergeStringArrayRecursive($this->content);
-		} else {
-			$content = ($this->isHTML
-				|| $this->content instanceof HTMLTag
-				|| $this->content instanceof htmlString)
-				? $this->content
-				: htmlspecialchars($this->content, ENT_QUOTES);
-		}
-		$attribs = $this->renderAttr($this->attr);
-		$xmlClose = $this->closingTag ? '' : '/';
-		$tag = '<' . trim($this->tag . ' ' . $attribs) . $xmlClose . '>';
-		$tag .= $content;
-		if ($this->closingTag) {
-			$tag .= '</' . $this->tag . '>' . "\n";
-		}
-		return $tag;
-	}
-
-	public function getContent()
-	{
-		return $this->content;
-	}
-
-	public static function renderAttr(array $attr)
-	{
-		$set = [];
-		foreach ($attr as $key => $val) {
-			if (is_array($val) && $key == 'style') {
-				$style = ArrayPlus::create($val);
-				$style = $style->getHeaders('; ');
-				$val = $style;                        // for style="a: b; c: d"
-			} elseif (is_array($val)) {
-				if (ArrayPlus::isRecursive($val)) {
-					debug($val);
-				}
-				$val = implode(' ', $val);        // for class="a b c"
-			}
-			$set[] = $key . '="' . htmlspecialchars($val, ENT_QUOTES | PHP_QUERY_RFC3986) . '"';
-		}
-		return implode(' ', $set);
-	}
-
-	/**
-	 * jQuery style
-	 * @param $name
-	 * @param null|string|mixed $value
-	 * @return mixed
-	 */
-	public function attr($name, $value = null)
-	{
-		if ($value) {
-			$this->attr[$name] = $value;
-			return $this;
-		} else {
-			return ifsetor($this->attr[$name]);
-		}
-	}
-
-	public function setAttr($name, $value)
-	{
-		$this->attr[$name] = $value;
-		return $this;
-	}
-
-	public function hasAttr($name)
-	{
-		return isset($this->attr[$name]);
-	}
-
-	public function getAttr($name)
-	{
-		return ifsetor($this->attr[$name]);
 	}
 
 	/**
@@ -165,6 +78,36 @@ class HTMLTag implements ArrayAccess, ToStringable
 			$obj->content = strip_tags($str);
 		}
 		return $obj;
+	}
+
+	/**
+	 * https://gist.github.com/rodneyrehm/3070128
+	 * @param string $text
+	 * @return array
+	 */
+	public static function parseAttributes($text)
+	{
+		if (is_array($text)) {
+			return $text;
+		}
+		$attributes = [];
+		$pattern = '#(?(DEFINE)
+(?<name>[a-zA-Z][a-zA-Z0-9-:]*)
+(?<value_double>"[^"]+")
+(?<value_single>\'[^\']+\')
+(?<value_none>[^\s>]+)
+(?<value>((?&value_double)|(?&value_single)|(?&value_none)))
+)
+(?<n>(?&name))(=(?<v>(?&value)))?#xs';
+
+		if (preg_match_all($pattern, $text, $matches, PREG_SET_ORDER)) {
+			foreach ($matches as $match) {
+				$attributes[$match['n']] = isset($match['v'])
+					? trim($match['v'], '\'"')
+					: null;
+			}
+		}
+		return $attributes;
 	}
 
 	public static function parseDOM($html)
@@ -216,34 +159,99 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return $content;
 	}
 
-	/**
-	 * https://gist.github.com/rodneyrehm/3070128
-	 * @param string $text
-	 * @return array
-	 */
-	public static function parseAttributes($text)
+	public static function __set_state(array $properties)
 	{
-		if (is_array($text)) {
-			return $text;
+		$a = new static($properties['tag']);
+		foreach ($properties as $key => $val) {
+			$a->$key = $val;
 		}
-		$attributes = [];
-		$pattern = '#(?(DEFINE)
-(?<name>[a-zA-Z][a-zA-Z0-9-:]*)
-(?<value_double>"[^"]+")
-(?<value_single>\'[^\']+\')
-(?<value_none>[^\s>]+)
-(?<value>((?&value_double)|(?&value_single)|(?&value_none)))
-)
-(?<n>(?&name))(=(?<v>(?&value)))?#xs';
+		return $a;
+	}
 
-		if (preg_match_all($pattern, $text, $matches, PREG_SET_ORDER)) {
-			foreach ($matches as $match) {
-				$attributes[$match['n']] = isset($match['v'])
-					? trim($match['v'], '\'"')
-					: null;
-			}
+	public static function a($href, $name, array $more = [], $isHTML = false)
+	{
+		return new self('a', ['href' => $href] + $more, $name, $isHTML);
+	}
+
+	public static function img($src, array $params = [])
+	{
+		return new self('img', ['src' => $src] + $params);
+	}
+
+	public function __toString()
+	{
+		try {
+			return $this->render();
+		} catch (Exception $e) {
+			debug_pre_print_backtrace();
+			die($e->getMessage());
 		}
-		return $attributes;
+	}
+
+	public function render()
+	{
+		if (is_array($this->content) || $this->content instanceof MergedContent) {
+			$content = MergedContent::mergeStringArrayRecursive($this->content);
+		} else {
+			$content = ($this->isHTML
+				|| $this->content instanceof HTMLTag
+				|| $this->content instanceof HtmlString)
+				? $this->content
+				: htmlspecialchars($this->content, ENT_QUOTES);
+		}
+		$attribs = $this->renderAttr($this->attr);
+		$xmlClose = $this->closingTag ? '' : '/';
+		$tag = '<' . trim($this->tag . ' ' . $attribs) . $xmlClose . '>';
+		$tag .= $content;
+		if ($this->closingTag) {
+			$tag .= '</' . $this->tag . '>' . "\n";
+		}
+		return $tag;
+	}
+
+	public static function renderAttr(array $attr)
+	{
+		$set = [];
+		foreach ($attr as $key => $val) {
+			if (is_array($val) && $key == 'style') {
+				$style = ArrayPlus::create($val);
+				$style = $style->getHeaders('; ');
+				$val = $style;                        // for style="a: b; c: d"
+			} elseif (is_array($val)) {
+				if (ArrayPlus::isRecursive($val)) {
+					debug($val);
+				}
+				$val = implode(' ', $val);        // for class="a b c"
+			}
+			$set[] = $key . '="' . htmlspecialchars($val, ENT_QUOTES | PHP_QUERY_RFC3986) . '"';
+		}
+		return implode(' ', $set);
+	}
+
+	public function getContent()
+	{
+		return $this->content;
+	}
+
+	/**
+	 * jQuery style
+	 * @param $name
+	 * @param null|string|mixed $value
+	 * @return mixed
+	 */
+	public function attr($name, $value = null)
+	{
+		if ($value) {
+			$this->attr[$name] = $value;
+			return $this;
+		} else {
+			return ifsetor($this->attr[$name]);
+		}
+	}
+
+	public function hasAttr($name)
+	{
+		return isset($this->attr[$name]);
 	}
 
 	public function offsetExists($offset)
@@ -256,6 +264,17 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return $this->getAttr($offset);
 	}
 
+	public function getAttr($name)
+	{
+		return ifsetor($this->attr[$name]);
+	}
+
+	public function setAttr($name, $value)
+	{
+		$this->attr[$name] = $value;
+		return $this;
+	}
+
 	public function offsetSet($offset, $value)
 	{
 		$this->setAttr($offset, $value);
@@ -266,15 +285,6 @@ class HTMLTag implements ArrayAccess, ToStringable
 		unset($this->attr[$offset]);
 	}
 
-	public static function __set_state(array $properties)
-	{
-		$a = new static($properties['tag']);
-		foreach ($properties as $key => $val) {
-			$a->$key = $val;
-		}
-		return $a;
-	}
-
 	public function getHash($length = null)
 	{
 		$hash = spl_object_hash($this);
@@ -283,16 +293,6 @@ class HTMLTag implements ArrayAccess, ToStringable
 			$hash = substr($hash, 0, $length);
 		}
 		return '#' . $hash;
-	}
-
-	public static function a($href, $name, array $more = [], $isHTML = false)
-	{
-		return new self('a', ['href' => $href] + $more, $name, $isHTML);
-	}
-
-	public static function img($src, array $params = [])
-	{
-		return new self('img', ['src' => $src] + $params);
 	}
 
 	public function cli()

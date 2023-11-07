@@ -43,23 +43,21 @@ abstract class Controller extends SimpleController
 	use HTMLHelper;
 
 	/**
+	 * accessible without login
+	 * @var bool
+	 */
+	public static $public = false;
+	/**
 	 * @var Request
 	 * @public for injecting something in PHPUnit
 	 */
 	public $request;
-
 	/**
 	 * @var boolean
 	 * @use $this->preventDefault() to set
 	 * Check manually in render()
 	 */
 	public $noRender = false;
-
-	/**
-	 * @var MySQL|DBLayer|DBLayerMS|DBLayerPDO|DBLayerSQLite|DBLayerBase|DBInterface
-	 */
-	protected $db;
-
 	/**
 	 * Will be taken as a <title> of the HTML table
 	 * @var string
@@ -77,29 +75,24 @@ abstract class Controller extends SimpleController
 	 * @var string|Wrap
 	 */
 	public $layout;
-
-	/**
-	 * accessible without login
-	 * @var bool
-	 */
-	public static $public = false;
-
 	/**
 	 * @var Config
 	 */
 	public $config;
-
 	/**
 	 * Used by Collection to get the current sorting method.
 	 * Ugly, please reprogram.
 	 * @var
 	 */
 	public $sortBy;
-
 	/**
 	 * @var Linker
 	 */
 	public $linker;
+	/**
+	 * @var MySQL|DBLayer|DBLayerMS|DBLayerPDO|DBLayerSQLite|DBLayerBase|DBInterface
+	 */
+	protected $db;
 
 	public function __construct()
 	{
@@ -124,6 +117,25 @@ abstract class Controller extends SimpleController
 		if (!$this->linker->useRouter) {
 			$this->linker->linkVars['c'] = get_class($this);
 		}
+	}
+
+	public static function link($text = null, array $params = [])
+	{
+		/** @var Controller $self */
+		$self = get_called_class();
+		return new HTMLTag('a', array(
+			'href' => $self::href($params)
+		), $text ?: $self);
+	}
+
+	public static function href(array $params = [])
+	{
+		$self = get_called_class();
+		$url = $self;
+		if ($params) {
+			$url .= '?' . http_build_query($params);
+		}
+		return $url;
 	}
 
 	public function __call($method, array $arguments)
@@ -154,7 +166,7 @@ abstract class Controller extends SimpleController
 
 	public function encloseIn($title, $content)
 	{
-		$title = $title instanceof htmlString ? $title : htmlspecialchars($title);
+		$title = $title instanceof HtmlString ? $title : htmlspecialchars($title);
 		$content = $this->s($content);
 		return '<fieldset><legend>' . $title . '</legend>' . $content . '</fieldset>';
 	}
@@ -183,6 +195,23 @@ abstract class Controller extends SimpleController
 		//debug_pre_print_backtrace();
 		//$more['style'] = "position: relative;";	// project specific
 		$content = new HTMLTag('section', $more, $content, true);
+		return $content;
+	}
+
+	/**
+	 * @param string $caption
+	 * @param string $hTag
+	 * @return string
+	 * @throws Exception
+	 */
+	public function getCaption($caption, $hTag = 'h3')
+	{
+//		$al = AutoLoad::getInstance();
+		$slug = URL::friendlyURL($caption);
+		$content = '
+			<' . $hTag . ' id="' . $slug . '">' .
+			$caption .
+			'</' . $hTag . '>';
 		return $content;
 	}
 
@@ -286,6 +315,13 @@ abstract class Controller extends SimpleController
 		return $content;
 	}
 
+	/**
+	 * Commented to allow get_class_methods() to return false
+	 * @return string
+	 */
+	//function getMenuSuffix() {
+	//	return '';
+	//}
 	public function inEqualColumnsHTML5()
 	{
 		$this->index->addCSS(AutoLoad::getInstance()->nadlibFromDocRoot . 'CSS/display-box.css');
@@ -338,13 +374,7 @@ abstract class Controller extends SimpleController
 		return $content;
 	}
 
-	/**
-	 * Commented to allow get_class_methods() to return false
-	 * @return string
-	 */
-	//function getMenuSuffix() {
-	//	return '';
-	//}
+
 
 	public function sidebar()
 	{
@@ -401,42 +431,6 @@ abstract class Controller extends SimpleController
 	public function log($action, ...$data)
 	{
 		$this->log[] = new LogEntry($action, $data);
-	}
-
-	public static function link($text = null, array $params = [])
-	{
-		/** @var Controller $self */
-		$self = get_called_class();
-		return new HTMLTag('a', array(
-			'href' => $self::href($params)
-		), $text ?: $self);
-	}
-
-	public static function href(array $params = [])
-	{
-		$self = get_called_class();
-		$url = $self;
-		if ($params) {
-			$url .= '?' . http_build_query($params);
-		}
-		return $url;
-	}
-
-	/**
-	 * @param string $caption
-	 * @param string $hTag
-	 * @return string
-	 * @throws Exception
-	 */
-	public function getCaption($caption, $hTag = 'h3')
-	{
-//		$al = AutoLoad::getInstance();
-		$slug = URL::friendlyURL($caption);
-		$content = '
-			<' . $hTag . ' id="' . $slug . '">' .
-			$caption .
-			'</' . $hTag . '>';
-		return $content;
 	}
 
 	/**

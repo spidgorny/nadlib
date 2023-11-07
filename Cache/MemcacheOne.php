@@ -1,6 +1,7 @@
 <?php
 
-class MemcacheOne {
+class MemcacheOne
+{
 
 	/**
 	 * @var string
@@ -22,31 +23,37 @@ class MemcacheOne {
 	 */
 	protected $value;
 
-	function __construct($key, $expires = 3600) {
+	public function __construct($key, $expires = 3600)
+	{
 		$this->key = $key;
 		$this->expires = $expires;
 		$this->mf = new MemcacheFile();
 		$this->value = $this->mf->get($this->key, $this->expires);
 	}
 
-	function is_Set() {
+	public function is_Set()
+	{
 		return !!$this->value;
 	}
 
-	function getValue() {
+	public function getValue()
+	{
 		return $this->value;
 	}
 
-	function set($newValue) {
+	public function set($newValue)
+	{
 		$this->mf->set($this->key, $newValue);
 		$this->value = $newValue;
 	}
 
-	function getAge() {
+	public function getAge()
+	{
 		return $this->mf->getAge($this->key);
 	}
 
-	function map() {
+	public function map()
+	{
 		return $this->mf->map($this->key);
 	}
 

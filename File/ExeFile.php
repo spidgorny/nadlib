@@ -24,7 +24,7 @@ class ExeFile extends File
 			return FALSE;
 		}
 		$Header = fread($handle, 64);
-		if (substr($Header, 0, 2) != 'MZ') {
+		if (substr($Header, 0, 2) !== 'MZ') {
 			return FALSE;
 		}
 		$PEOffset = unpack("V", substr($Header, 60, 4));
@@ -33,7 +33,7 @@ class ExeFile extends File
 		}
 		fseek($handle, $PEOffset[1], SEEK_SET);
 		$Header = fread($handle, 24);
-		if (substr($Header, 0, 2) != 'PE') {
+		if (substr($Header, 0, 2) !== 'PE') {
 			return FALSE;
 		}
 		$Machine = unpack("v", substr($Header, 4, 2));
@@ -47,7 +47,7 @@ class ExeFile extends File
 		$SecHdr = null;
 		for ($x = 0; $x < $NoSections[1]; $x++) {      //$x fixed here
 			$SecHdr = fread($handle, 40);
-			if (substr($SecHdr, 0, 5) == '.rsrc') {         //resource section
+			if (substr($SecHdr, 0, 5) === '.rsrc') {         //resource section
 				$ResFound = TRUE;
 				break;
 			}
@@ -61,7 +61,8 @@ class ExeFile extends File
 		fseek($handle, $InfoOff[1], SEEK_SET);
 		$Info = fread($handle, $InfoSize[1]);
 		$NumDirs = unpack("v", substr($Info, 14, 2));
-		$InfoFound = FALSE;
+		$SubOff = null;
+		$InfoFound = false;
 		for ($x = 0; $x < $NumDirs[1]; $x++) {
 			$Type = unpack("V", substr($Info, ($x * 8) + 16, 4));
 			if ($Type[1] == static::RT_VERSION) {             //FILEINFO resource
@@ -116,6 +117,11 @@ class ExeFile extends File
 		return $version;
 	}
 
+	public function GetFileVersionSeeking()
+	{
+		return $this->GetValueOfSeeking('FileVersion');
+	}
+
 	function GetValueOfSeeking($seeking)
 	{
 		$FileName = $this->getPathname();
@@ -123,7 +129,7 @@ class ExeFile extends File
 		if (!$handle) return FALSE;
 		$Header = fread($handle, 64);
 
-		if (substr($Header, 0, 2) != 'MZ') return FALSE;
+		if (substr($Header, 0, 2) !== 'MZ') return FALSE;
 
 		$PEOffset = unpack("V", substr($Header, 60, 4));
 		if ($PEOffset[1]<64) return FALSE;
@@ -131,7 +137,7 @@ class ExeFile extends File
 		fseek($handle, $PEOffset[1], SEEK_SET);
 		$Header = fread ($handle, 24);
 
-		if (substr($Header, 0, 2) != 'PE') return FALSE;
+		if (substr($Header, 0, 2) !== 'PE') return FALSE;
 
 		$Machine = unpack("v", substr($Header, 4, 2));
 		if ($Machine[1] != 332) {
@@ -142,12 +148,13 @@ class ExeFile extends File
 		$OptHdrSize = unpack("v", substr($Header, 20, 2));
 		fseek($handle, $OptHdrSize[1], SEEK_CUR);
 
+		$SecHdr = null;
 		$ResFound = FALSE;
 		for ($x = 0; $x < $NoSections[1]; $x++)
 		{
 			//$x fixed here
 			$SecHdr = fread($handle, 40);
-			if (substr($SecHdr, 0, 5) == '.rsrc')
+			if (substr($SecHdr, 0, 5) === '.rsrc')
 			{
 				//resource section
 				$ResFound = TRUE;
@@ -168,6 +175,7 @@ class ExeFile extends File
 		$NumNamedDirs = unpack("v",substr($Info, 12, 2));
 		$NumDirs = unpack("v", substr($Info, 14, 2));
 
+		$SubOff = null;
 		$InfoFound = FALSE;
 		for ($x = 0; $x < ($NumDirs[1] + $NumNamedDirs[1]); $x++)
 		{
@@ -182,7 +190,7 @@ class ExeFile extends File
 		}
 
 		if (!$InfoFound) {
-			return FALSE;
+			return false;
 		}
 
 		if (0)
@@ -219,11 +227,6 @@ class ExeFile extends File
 		}
 
 		return false;
-	}
-
-	public function GetFileVersionSeeking()
-	{
-		return $this->GetValueOfSeeking('FileVersion');
 	}
 
 }

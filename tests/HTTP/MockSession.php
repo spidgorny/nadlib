@@ -1,18 +1,21 @@
 <?php
 
+use nadlib\HTTP\SessionInterface;
+
 /**
  * Class MockSession
  * When running in PHPUnit we get
  * session_start(): Cannot send session cookie - headers already sent
  * Therefore we hack session with files.
  */
-class MockSession implements SessionInterface {
+class MockSession implements SessionInterface
+{
 
-	var $file;
+	public $file;
 
-	var $data = [];
+	public $data = [];
 
-	function __construct($file)
+	public function __construct($file)
 	{
 		$this->file = $file;
 		if (is_file($file)) {
@@ -22,32 +25,32 @@ class MockSession implements SessionInterface {
 		}
 	}
 
-	function __destruct()
+	public function __destruct()
 	{
 		file_put_contents($this->file, serialize($this->data));
 	}
 
-	function save($key, $val)
+	public function save($key, $val)
 	{
 		$this->data[$key] = $val;
 	}
 
-	function get($key)
+	public function get($key)
 	{
 		return ifsetor($this->data[$key]);
 	}
 
-	function has($key)
+	public function has($key)
 	{
 		return !!ifsetor($this->data[$key]);
 	}
 
-	function getAll()
+	public function getAll()
 	{
 		return $this->data;
 	}
 
-	function delete($key)
+	public function delete($key)
 	{
 		unset($this->data[$key]);
 	}
