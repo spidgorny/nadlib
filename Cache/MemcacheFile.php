@@ -29,7 +29,7 @@ class MemcacheFile implements MemcacheInterface
 	public function __construct($folder = null, $expire = 0)
 	{
 		if (MemcacheArray::$debug) {
-			echo __METHOD__ . '(' . $key . ')' . BR;
+			echo __METHOD__ . BR;
 		}
 		$this->folder = $folder ?: self::$defaultFolder;
 		if (!Path::isItAbsolute($this->folder)) {
@@ -55,13 +55,10 @@ class MemcacheFile implements MemcacheInterface
 				'finalCachePath' => $finalCachePath,
 			]);
 			throw new Exception(__METHOD__ . ' cache folder missing');
-		} else {
-			$this->folder = cap($finalCachePath);    // important as we concat
 		}
 
-		if ($key) {
-			$this->key = $key;
-		}
+		$this->folder = cap($finalCachePath);    // important as we concat
+
 		if ($expire) {
 			$this->expire = $expire;
 		}
@@ -75,7 +72,7 @@ class MemcacheFile implements MemcacheInterface
 	public function get($key = NULL, $expire = 0)
 	{
 		TaylorProfiler::start(__METHOD__);
-		$val = NULL;
+		$val = null;
 		$key = $key ?: $this->key;
 		$expire = $expire ?: $this->expire;
 		$file = $this->map($key);
@@ -113,7 +110,7 @@ class MemcacheFile implements MemcacheInterface
 		$file = $this->map($key);
 		$mtime = @filemtime($file);
 		$bigger = ($mtime > (time() - $expire));
-		if ($this->key == 'OvertimeChart::getStatsCached') {
+		if ($this->key === 'OvertimeChart::getStatsCached') {
 //			debug($this->key, $file, $mtime, $expire, $bigger);
 		}
 		return /*!$expire ||*/ $bigger;
@@ -157,6 +154,7 @@ class MemcacheFile implements MemcacheInterface
 	/**
 	 * @param string $key
 	 * @return Duration
+	 * @throws Exception
 	 */
 	public function getAge($key)
 	{
