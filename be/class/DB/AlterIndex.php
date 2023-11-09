@@ -48,7 +48,7 @@ class AlterIndex extends AppControllerBE
 		$content[] = 'DB: ' . $this->db->database . BR;
 		$content[] = 'File: ' . basename($this->jsonFile) . BR;
 		if ($this->db->database) {
-			$content[] = $this->getActionButton('Save DB Struct', 'saveStruct', NULL, [], 'btn btn-info');
+			$content[] = $this->getActionButton('Save DB Struct', 'saveStruct', null, [], 'btn btn-info');
 		}
 		return $content;
 	}
@@ -74,7 +74,7 @@ class AlterIndex extends AppControllerBE
 		return $content;
 	}
 
-	function saveStructAction()
+	public function saveStructAction()
 	{
 		$struct = $this->getDBStruct();
 		if (phpversion() > '5.4') {
@@ -87,7 +87,7 @@ class AlterIndex extends AppControllerBE
 		return 'Saved: ' . strlen($json) . '<br />';
 	}
 
-	function getDBStruct()
+	public function getDBStruct()
 	{
 		$result = [];
 		$tables = $this->db->getTables();
@@ -102,7 +102,7 @@ class AlterIndex extends AppControllerBE
 		return $result;
 	}
 
-	function render()
+	public function render()
 	{
 		$content[] = $this->performAction();
 		if ($this->jsonFile && is_readable($this->jsonFile)) {
@@ -121,7 +121,7 @@ class AlterIndex extends AppControllerBE
 		return $content;
 	}
 
-	function renderTableStruct(array $struct, array $local)
+	public function renderTableStruct(array $struct, array $local)
 	{
 		$content = '';
 		foreach ($struct as $table => $desc) {
@@ -148,7 +148,7 @@ class AlterIndex extends AppControllerBE
 		return $content;
 	}
 
-	function convertFromOtherDB(array $desc)
+	public function convertFromOtherDB(array $desc)
 	{
 		if ($desc['tbl_name']) {    // SQLite
 			$desc['Table'] = $desc['tbl_name'];

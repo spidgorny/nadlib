@@ -109,10 +109,10 @@ class Linker
 	}
 
 	/**
-	 * @see makeRelURL
 	 * @param array $params
 	 * @return URL
 	 * @throws Exception
+	 * @see makeRelURL
 	 */
 	public function adjustURL(array $params)
 	{

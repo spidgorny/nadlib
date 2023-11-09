@@ -1,8 +1,10 @@
 <?php
 
-class RestController extends AppController {
+class RestController extends AppController
+{
 
-	function loginBasic() {
+	public function loginBasic()
+	{
 		$this->request->set('ajax', true);
 		$login = ifsetor($_SERVER['PHP_AUTH_USER']);
 		$password = ifsetor($_SERVER['PHP_AUTH_PW']);
@@ -13,18 +15,19 @@ class RestController extends AppController {
 			throw new AccessDeniedException();
 		} else {
 			$_COOKIE[$auth->config->cookie_name] = $status['hash'];
-			$this->user->login();	// again
+			$this->user->login();  // again
 		}
 	}
 
-	function render() {
+	public function render()
+	{
 		$this->request->set('ajax', true);
 		$verb = $this->request->getMethod();
 		$id = $this->request->getURLLevel(1);
 		$data = $this->request->getPOST();
 
 		if ($id) {
-			$method = $verb.'1';
+			$method = $verb . '1';
 		} else {
 			$method = $verb;
 		}
@@ -36,7 +39,7 @@ class RestController extends AppController {
 				$content = $this->$method($data);
 			}
 		} else {
-			throw new HttpInvalidParamException('Method '.$verb.' not found');
+			throw new HttpInvalidParamException('Method ' . $verb . ' not found');
 		}
 
 		if (is_array($content)) {
@@ -78,7 +81,8 @@ class RestController extends AppController {
 	 * Returns documentation - what can be done by this end-point
 	 * @return array
 	 */
-	function OPTIONS() {
+	public function OPTIONS()
+	{
 		$allows = [];
 		$about = [];
 		$rc = new ReflectionClass($this);
@@ -93,7 +97,7 @@ class RestController extends AppController {
 				];
 			}
 		}
-		header('Allow: '.implode(', ', $allows));
+		header('Allow: ' . implode(', ', $allows));
 		return $about;
 	}
 

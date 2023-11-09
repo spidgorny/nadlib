@@ -1,7 +1,7 @@
 <?php
 
 if (!function_exists('__')) {
-	function __($a, $sub1 = NULL, $sub2 = NULL, $sub3 = NULL)
+	function __($a, $sub1 = null, $sub2 = null, $sub3 = null)
 	{
 		$a = str_replace('%1', $sub1, $a);
 		$a = str_replace('%2', $sub2, $a);

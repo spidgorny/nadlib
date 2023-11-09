@@ -386,7 +386,7 @@ class HTMLForm implements ToStringable
 	 * @return string
 	 * @throws Exception
 	 */
-	public function datepopup($name, $value = NULL, $type = "input", $activator = NULL, $id = NULL, $params = [])
+	public function datepopup($name, $value = null, $type = "input", $activator = null, $id = null, $params = [])
 	{
 		$id = $id ? $id : uniqid('datepopup', true);
 		$fullname = $this->getName($name, '', true);
@@ -432,7 +432,7 @@ class HTMLForm implements ToStringable
 		return $script;
 	}
 
-	public function datepopup2($name, $value = NULL, $plusConfig = '', array $desc = [])
+	public function datepopup2($name, $value = null, $plusConfig = '', array $desc = [])
 	{
 		$dp2 = new HTMLFormDatePopup2($this, $name, $value, $desc + [
 				'plusConfig' => $plusConfig,
@@ -615,7 +615,8 @@ class HTMLForm implements ToStringable
 		array $more = [],
 		$multiple = false,
 		array $desc = []
-	) {
+	)
+	{
 		$sel = new HTMLFormSelection($name, $aOptions, $default);
 		$sel->autoSubmit = $autoSubmit;
 		$sel->more = is_string($more) ? HTMLTag::parseAttributes($more) : $more;
@@ -725,7 +726,7 @@ class HTMLForm implements ToStringable
 	/**
 	 * @param $name
 	 * @param $value
-	 * @param boolean $checked
+	 * @param bool $checked
 	 * @param string $label
 	 * @param string $more
 	 */

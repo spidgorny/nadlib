@@ -9,8 +9,10 @@
 namespace nadlib\Base;
 
 use LazyLoader;
+use PHPUnit\Framework\TestCase;
+use stdClass;
 
-class LazyLoaderTest extends \PHPUnit\Framework\TestCase
+class LazyLoaderTest extends TestCase
 {
 
 	public function test_ll_same_value()
@@ -24,7 +26,7 @@ class LazyLoaderTest extends \PHPUnit\Framework\TestCase
 
 	public function test_ll_same_object()
 	{
-		$l1 = new LazyLoader(new \stdClass());
+		$l1 = new LazyLoader(new stdClass());
 		$v1 = $l1();
 		$v2 = $l1();
 		$this->assertEquals(spl_object_hash($v1), spl_object_hash($v2));

@@ -1,5 +1,7 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 /**
  * Class Flot - is drawing a flot chart.
  */
@@ -55,7 +57,7 @@ class FlotPie extends AppController
 		$charts = [];
 		$dKeys = [];
 		foreach ($this->data as $key => $val) {
-			$jsKey = 'd_' . \spidgorny\nadlib\HTTP\URL::friendlyURL($key);
+			$jsKey = 'd_' . URL::friendlyURL($key);
 			$jsKey = str_replace('-', '_', $jsKey);
 			$dKeys[] = $jsKey;
 			$charts[] = 'var ' . $jsKey . ' = {

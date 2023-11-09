@@ -5,9 +5,9 @@ class Date extends Time
 	const HUMAN = 'd.m.Y';
 	const SYSTEM = 'Y-m-d';
 
-	var $format = 'd.m.Y';
+	public $format = 'd.m.Y';
 
-	function __construct($input = null, $relativeTo = null)
+	public function __construct($input = null, $relativeTo = null)
 	{
 		parent::__construct($input, $relativeTo);
 		//$this->modify('Y-m-d \G\M\T'); // very slow!
@@ -19,7 +19,7 @@ class Date extends Time
 		}
 	}
 
-	function updateDebug()
+	public function updateDebug()
 	{
 		$this->debug = gmdate('Y-m-d H:i \G\M\T', $this->time);
 		$this->human = $this->getHumanDateTime();
@@ -31,12 +31,12 @@ class Date extends Time
 	 * @param int $relativeTo
 	 * @return static
 	 */
-	static function make($input = NULL, $relativeTo = NULL)
+	public static function make($input = null, $relativeTo = null)
 	{
 		return new self($input, $relativeTo);
 	}
 
-	static function fromEurope($format)
+	public static function fromEurope($format)
 	{
 		$parts = explode('.', $format);
 		$parts = array_reverse($parts);
@@ -44,16 +44,16 @@ class Date extends Time
 		return new self($parts);
 	}
 
-	static public function fromHuman($str)
+	public static function fromHuman($str)
 	{
 		return new Date(strtotime($str));
 	}
 
 	/**
-	 * @deprecated This is using gmdate()
 	 * @return string
+	 * @deprecated This is using gmdate()
 	 */
-	function getMySQL()
+	public function getMySQL()
 	{
 		return date('Y-m-d', $this->time);
 	}
@@ -62,12 +62,12 @@ class Date extends Time
 	 * This is using gmdate()
 	 * @return string
 	 */
-	function getMySQLUTC()
+	public function getMySQLUTC()
 	{
 		return gmdate('Y-m-d', $this->time);
 	}
 
-	function getGMT()
+	public function getGMT()
 	{
 		return gmdate('Y-m-d', $this->time);
 	}
@@ -78,7 +78,7 @@ class Date extends Time
 	 * @param string $formula
 	 * @return Time
 	 */
-	function math($formula)
+	public function math($formula)
 	{
 		return new self(strtotime($formula, $this->time));
 	}
@@ -87,27 +87,27 @@ class Date extends Time
 	 * @param string $format d.m.Y
 	 * @return HtmlString
 	 */
-	function html($format = 'd.m.Y')
+	public function html($format = 'd.m.Y')
 	{
 		return new HtmlString('<time datetime="' . $this->getISO() . '">' . $this->format($format) . '</time>');
 	}
 
-	function getISO()
+	public function getISO()
 	{
 		return date('Y-m-d', $this->time);
 	}
 
-	function days()
+	public function days()
 	{
 		return $this->getTimestamp() / 60 / 60 / 24;
 	}
 
-	function getSystem()
+	public function getSystem()
 	{
 		return $this->format('Y-m-d');
 	}
 
-	function plusDur(Duration $plus)
+	public function plusDur(Duration $plus)
 	{
 		return new self($this->time + $plus->getTimestamp());
 	}
@@ -122,7 +122,7 @@ class Date extends Time
 		return in_array($this->format('D'), ['Sat', 'Sun']);
 	}
 
-	function getHumanMerged()
+	public function getHumanMerged()
 	{
 		return date('Ymd', $this->time);
 	}
@@ -145,24 +145,24 @@ class Date extends Time
 		return date('D', $this->time);
 	}
 
-	function getApproximate()
+	public function getApproximate()
 	{
 		return $this->getHTMLDate();
 	}
 
-	function addTime($sTime)
+	public function addTime($sTime)
 	{
 		$time = new Time($this->getTimestamp());
 		$time->addTime($sTime);
 		return $time;
 	}
 
-	function isFuture()
+	public function isFuture()
 	{
 		return $this->getISODate() > date('Y-m-d');
 	}
 
-	function isPast()
+	public function isPast()
 	{
 		return $this->getISODate() < date('Y-m-d');
 	}

@@ -83,7 +83,7 @@ class DatabaseResultIterator implements Iterator, Countable
 			$params = $query->getParameters();
 			//debug($query, $params);
 		}
-		$this->log('call perform() on '.get_class($this->db));
+		$this->log('call perform() on ' . get_class($this->db));
 		$this->dbResultResource = $this->db->perform($query, $params);
 		$this->log(__METHOD__, [
 			'dbResultResource' => $this->dbResultResource

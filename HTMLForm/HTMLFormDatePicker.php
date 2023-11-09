@@ -1,6 +1,7 @@
 <?php
 
-class HTMLFormDatePicker extends HTMLFormType implements HTMLFormTypeInterface {
+class HTMLFormDatePicker extends HTMLFormType implements HTMLFormTypeInterface
+{
 	/**
 	 * PHP Format
 	 * @var string
@@ -17,18 +18,20 @@ class HTMLFormDatePicker extends HTMLFormType implements HTMLFormTypeInterface {
 
 	public $inputType = 'date';
 
-	var $content;
+	public $content;
 
 	/**
 	 *
 	 */
-	function __construct() {
+	public function __construct()
+	{
 		$index = Index::getInstance();
 		$index->addJQueryUI();    // for the picker
 		$index->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . 'js/HTMLFormDatePicker.js');
 	}
 
-	function render() {
+	public function render()
+	{
 		$tmp = $this->form->stdout;
 		$this->form->stdout = '';
 //
@@ -59,31 +62,34 @@ class HTMLFormDatePicker extends HTMLFormType implements HTMLFormTypeInterface {
 	 * @param $value
 	 * @return int
 	 */
-	function getISODate($value) {
+	public function getISODate($value)
+	{
 		//debug($value, is_integer($value), is_numeric($value), strtotime($value));
 		if ($value && (is_integer($value) || is_numeric($value))) {
 			$val = intval($value);
-		} else if ($value && is_string($value) && $this->jsFormat == 'dd.mm.yy') {
+		} elseif ($value && is_string($value) && $this->jsFormat == 'dd.mm.yy') {
 			$val = explode('.', $value);
 			$val = array_reverse($val);
 			$val = implode('-', $val);
 			$val = strtotime($val);
-		} else if ($value) {
+		} elseif ($value) {
 			$val = $value;
 			$val = strtotime($val);
 		} else {
-			$val = NULL;    // time();
+			$val = null;    // time();
 		}
 		//debug($this->jsFormat, $value, $val);
 		return $val;
 	}
 
-	function setValue($value) {
+	public function setValue($value)
+	{
 		//debug(__METHOD__, $this->field, $value);
 		parent::setValue($value);
 	}
 
-	function getContent() {
+	public function getContent()
+	{
 //		echo __METHOD__, BR;
 		return $this->render();
 	}

@@ -6,9 +6,10 @@ require_once __DIR__ . '/TaylorProfiler.php';
 /**
  * Class Ticker
  */
-class Ticker {
+class Ticker
+{
 
-	static $instance;
+	static public $instance;
 
 	/**
 	 * @var string "html"
@@ -26,32 +27,32 @@ class Ticker {
 	/**
 	 * @var int
 	 */
-	var $prevMemory = 0;
+	public $prevMemory = 0;
 
 	/**
 	 * Tells if stopOutput() was called
 	 * @var bool
 	 */
-	var $noOutput = false;
+	public $noOutput = false;
 
 	/**
 	 * How often tick has interrupted a particular function
 	 * @var array
 	 */
-	var $functionCount = [];
+	public $functionCount = [];
 
 	/**
 	 * The first time the function is called
 	 * @var array
 	 */
-	var $firstCall = [];
+	public $firstCall = [];
 
 	/**
 	 * @var array
 	 */
-	var $lastCall = [];
+	public $lastCall = [];
 
-	function __construct()
+	public function __construct()
 	{
 		self::$instance = $this;
 		$isCLI = $this->isCLI();
@@ -87,7 +88,7 @@ class Ticker {
 		return self::$instance ?: self::$instance = new static();
 	}
 
-	static function enableTick($ticker = 1000, $func = null)
+	public static function enableTick($ticker = 1000, $func = null)
 	{
 		$tp = self::getInstance();
 		$ok = register_tick_function($func ?: [$tp, 'tick']);
@@ -105,13 +106,13 @@ class Ticker {
 	 * This is not working reliably yet. Stops output forever
 	 * @deprecated
 	 */
-	function stopOutput()
+	public function stopOutput()
 	{
 		ob_start([$this, 'ob_end']);
 		$this->noOutput = true;
 	}
 
-	function ob_end($output)
+	public function ob_end($output)
 	{
 		// don't print
 		return 'Collected output length: ' . strlen($output) . BR;
@@ -120,7 +121,7 @@ class Ticker {
 	/**
 	 * @throws Exception
 	 */
-	function tick()
+	public function tick()
 	{
 		$bt = debug_backtrace();
 		$list = [];
@@ -177,7 +178,7 @@ class Ticker {
 		}
 	}
 
-	function render($output, $time)
+	public function render($output, $time)
 	{
 		if ($this->tickTo == 'html') {
 			if ($this->isCLI()) {
@@ -203,14 +204,14 @@ class Ticker {
 		}
 	}
 
-	static function disableTick()
+	public static function disableTick()
 	{
 		echo __METHOD__, BR;
 		$tp = self::getInstance();
 		unregister_tick_function([$tp, 'tick']);
 	}
 
-	function __destruct()
+	public function __destruct()
 	{
 		arsort($this->functionCount);
 		foreach ($this->functionCount as $function => $count) {

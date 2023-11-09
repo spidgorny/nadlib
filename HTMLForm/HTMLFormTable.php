@@ -76,7 +76,7 @@ class HTMLFormTable extends HTMLForm
 	 * @param null $id
 	 * @see HTMLFormField
 	 */
-	public function __construct(array $desc = [], $prefix = [], $fieldset = '', $id = NULL)
+	public function __construct(array $desc = [], $prefix = [], $fieldset = '', $id = null)
 	{
 		parent::__construct('', $id);
 		$this->setDesc($desc);
@@ -155,7 +155,7 @@ class HTMLFormTable extends HTMLForm
 	{
 		//debug($desc->getArray());
 		$elementID = $desc->elementID;
-		$withBR = (ifsetor($desc['br']) === NULL && $this->defaultBR) || $desc['br'];
+		$withBR = (ifsetor($desc['br']) === null && $this->defaultBR) || $desc['br'];
 		if (isset($desc['label'])) {
 			$label = $desc['label'];
 			if (!$withBR) {
@@ -322,18 +322,18 @@ class HTMLFormTable extends HTMLForm
 	{
 		//debug($fieldDesc);
 		if (!isset($fieldDesc['horisontal']) || !$fieldDesc['horisontal']) {
-			$this->stdout .= "<tr " . $this->getAttrHTML(isset($fieldDesc['TRmore']) ? $fieldDesc['TRmore'] : NULL) . ">";
+			$this->stdout .= "<tr " . $this->getAttrHTML(isset($fieldDesc['TRmore']) ? $fieldDesc['TRmore'] : null) . ">";
 		}
 
 		if (isset($fieldDesc['table'])) {
 			$this->stdout .= '<td>';
-			$this->showForm($fieldDesc, $path, FALSE);
+			$this->showForm($fieldDesc, $path, false);
 			$this->stdout .= "</td>";
 		}
 		if (isset($fieldDesc['dependant'])) {
 			$fieldDesc['prepend'] = '<fieldset class="expandable"><legend>';
 			$fieldDesc['append'] .= '</legend>' .
-				$this->getForm($fieldDesc['dependant'], $prefix, FALSE) // $path
+				$this->getForm($fieldDesc['dependant'], $prefix, false) // $path
 				. '</fieldset>';
 			$this->showCell($path, $fieldDesc);
 		} elseif (isset($fieldDesc['horisontal'])) {
@@ -375,8 +375,8 @@ class HTMLFormTable extends HTMLForm
 			$this->stdout .= '</tr></table></td>
 			<td ' . $desc['TDmore'] . '><table ' . HTMLForm::getAttrHTML($this->tableMore) . '><tr>' . "\n";
 		}
-		$fieldValue = isset($desc['value']) ? $desc['value'] : NULL;
-		$type = isset($desc['type']) ? $desc['type'] : NULL;
+		$fieldValue = isset($desc['value']) ? $desc['value'] : null;
+		$type = isset($desc['type']) ? $desc['type'] : null;
 
 		if (is_object($type) || ($type != 'hidden' && !in_array($type, ['fieldset', '/fieldset']))) {
 			if (empty($desc['formHide'])) {
@@ -424,7 +424,7 @@ class HTMLFormTable extends HTMLForm
 				$this->stdout .= ifsetor($desc['afterLabel']);
 
 				if (ifsetor($desc['error'])) {
-					$this->stdout .= '<div id="errorContainer[' . $this->getName($fieldName, '', TRUE) . ']"
+					$this->stdout .= '<div id="errorContainer[' . $this->getName($fieldName, '', true) . ']"
 					class="error ui-state-error alert-error alert-danger">';
 					$this->stdout .= $desc['error'];
 					$this->stdout .= '</div>';
@@ -475,7 +475,7 @@ class HTMLFormTable extends HTMLForm
 	 * @return array    1D array with name/values
 	 * @deprecated
 	 */
-	public function getValues(array $arr = NULL, $col = 'value')
+	public function getValues(array $arr = null, $col = 'value')
 	{
 		$arr = $arr ? $arr : $this->desc;
 		$res = [];
@@ -525,17 +525,17 @@ class HTMLFormTable extends HTMLForm
 	 * and as $assoc['key']['value'] = $value.
 	 * Non-static due to $this->withValue and $this->formatDate
 	 *
-	 * @param    array $desc - Structure of the HTMLFormTable
-	 * @param    array $assoc - Values in one of the supported formats.
-	 * @param    boolean    ??? what's for?
+	 * @param array $desc - Structure of the HTMLFormTable
+	 * @param array $assoc - Values in one of the supported formats.
+	 * @param bool    ??? what's for?
 	 * @return    array    HTMLFormTable structure.
 	 */
-	protected function fillValues(array $desc, array $assoc = NULL, $forceInsert = false)
+	protected function fillValues(array $desc, array $assoc = null, $forceInsert = false)
 	{
 		foreach ($assoc as $key => $val) {
 			//$descKey = ifsetor($desc[$key]);		// CREATES $key => NULL INDEXES
 
-			$descKey = isset($desc[$key]) ? $desc[$key] : NULL;
+			$descKey = isset($desc[$key]) ? $desc[$key] : null;
 			if (!$descKey) continue;
 
 			// convert to array

@@ -4,9 +4,10 @@
  * Class ModelWithCollection
  * Collection code is deprecated, but we keep it here for some time, just in case.
  */
-class ModelWithCollection extends Model {
+class ModelWithCollection extends Model
+{
 
-	var $itemClassName = '?';
+	public $itemClassName = '?';
 
 	/**
 	 * @param array $where
@@ -14,7 +15,7 @@ class ModelWithCollection extends Model {
 	 * @return Collection
 	 * @deprecated
 	 */
-	function getCollection(array $where = [], $orderBy = null)
+	public function getCollection(array $where = [], $orderBy = null)
 	{
 		$col = Collection::createForTable($this->db, $this->table);
 		$col->idField = $this->idField;
@@ -36,7 +37,7 @@ class ModelWithCollection extends Model {
 	 * @return mixed
 	 * @deprecated
 	 */
-	function getModel($id)
+	public function getModel($id)
 	{
 		$model = call_user_func([$this->itemClassName, 'getInstance'], $id);
 		return $model;
@@ -47,7 +48,7 @@ class ModelWithCollection extends Model {
 	 * object.
 	 * @return int
 	 */
-	function getCount()
+	public function getCount()
 	{
 		// don't uncomment as this leads to recursive calls to $this->getCollection()
 		return $this->getCollection()->getCount();

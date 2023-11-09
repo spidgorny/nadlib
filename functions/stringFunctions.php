@@ -41,7 +41,7 @@ if (!function_exists('str_startsWith')) {
 			if (is_array($haystack)) {
 				debug_pre_print_backtrace();
 			}
-			return FALSE !== strpos($haystack, $needle);
+			return false !== strpos($haystack, $needle);
 		}
 	}
 
@@ -50,7 +50,7 @@ if (!function_exists('str_startsWith')) {
 		if (is_array($haystack)) {
 			debug_pre_print_backtrace();
 		}
-		return FALSE !== stripos($haystack, $needle);
+		return false !== stripos($haystack, $needle);
 	}
 
 	if (!function_exists('contains')) {
@@ -147,12 +147,12 @@ if (!function_exists('str_startsWith')) {
 		$isAbs = isset($path[0]) &&
 			($path[0] == '/' || $path[0] == '\\' || $path[1] == ':');
 
-		$parts = trimExplode('/', $path.'');
+		$parts = trimExplode('/', $path . '');
 		$parts = array_merge($parts, trimExplode('/', $plus));
 
 		$root = '';
 //		if (!Request::isWindows()) {
-		if ($separator == '/') {	// not windows separator
+		if ($separator == '/') {  // not windows separator
 			$root = ($isAbs ? $separator : '');
 		}
 		$string = $root . implode($separator, $parts);
@@ -246,7 +246,7 @@ if (!function_exists('str_startsWith')) {
 				}
 			} elseif (strtoupper($ch) == $ch) {
 				if ($i) {
-					if (strlen($out) && $out[strlen($out)-1] != '_') {
+					if (strlen($out) && $out[strlen($out) - 1] != '_') {
 						$out .= '_';
 					}
 				}

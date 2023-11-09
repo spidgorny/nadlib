@@ -3,6 +3,6 @@
 class SQLAnd extends SQLOr
 {
 
-	var $join = ' AND ';
+	public $join = ' AND ';
 
 }

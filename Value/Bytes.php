@@ -3,9 +3,9 @@
 class Bytes
 {
 
-	var $value;
+	public $value;
 
-	var $suffix = [
+	public $suffix = [
 		'b' => 'b',
 		'k' => 'kb',
 		'm' => 'mb',
@@ -14,7 +14,7 @@ class Bytes
 		'p' => 'pb',
 	];
 
-	var $precision = 3;
+	public $precision = 3;
 
 	public static function create($bytes)
 	{
@@ -25,7 +25,7 @@ class Bytes
 	 * Bytes constructor.
 	 * @param string $bytes 10MB, 1.5GB
 	 */
-	function __construct($bytes)
+	public function __construct($bytes)
 	{
 		$iBytes = (string)(float)$bytes;
 		$sBytes = (string)$bytes;
@@ -42,7 +42,7 @@ class Bytes
 	 * @param string $val
 	 * @return int|string
 	 */
-	static function return_bytes($val)
+	public static function return_bytes($val)
 	{
 		$val = trim($val);
 		if (strlen($val)) {
@@ -65,12 +65,12 @@ class Bytes
 		return $val;
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		return $this->renderDynamic();
 	}
 
-	function renderDynamic()
+	public function renderDynamic()
 	{
 		if ($this->value < 1024) {
 			return $this->value . $this->suffix['b'];
@@ -88,7 +88,7 @@ class Bytes
 	{
 		return $this->value;
 	}
-	
+
 	public function getKB()
 	{
 		$val = $this->value / 1024;

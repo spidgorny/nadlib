@@ -3,29 +3,29 @@
 class ShowAssoc
 {
 
-	var $data = [];
+	public $data = [];
 
-	var $thes = [];
+	public $thes = [];
 
-	var $title;
+	public $title;
 
-	function __construct(array $assoc)
+	public function __construct(array $assoc)
 	{
 		$this->data = $assoc;
 	}
 
-	function setThes(array $thes)
+	public function setThes(array $thes)
 	{
 		$this->thes = $thes;
 	}
 
-	function setTitle($title)
+	public function setTitle($title)
 	{
 		$this->title = $title;
 		return $this;
 	}
 
-	function render()
+	public function render()
 	{
 		TaylorProfiler::start(__METHOD__);
 		$content[] = '<div class="showAssoc">';

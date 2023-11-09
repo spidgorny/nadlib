@@ -15,7 +15,7 @@ interface TaskInterface
 	 * Return value is only displayed on the command live.
 	 * To indicate a failure - throw Exception
 	 * @param array $data
-	 * @return boolean - success or not?
+	 * @return bool - success or not?
 	 */
 	public function process(array $data);
 

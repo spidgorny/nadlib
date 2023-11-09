@@ -4,11 +4,13 @@
  * Class LocalLangTest
  * It's reading data from the class/ll-en.json file and writes new messages back to it
  */
-class LocalLangJson extends LocalLangDummy {
+class LocalLangJson extends LocalLangDummy
+{
 
-	var $langFolder;
+	public $langFolder;
 
-	function __construct($langFolder = 'class/') {
+	public function __construct($langFolder = 'class/')
+	{
 		parent::__construct();
 		$this->langFolder = $langFolder;
 //		$this->log(__METHOD__, $this->langFolder);
@@ -18,8 +20,9 @@ class LocalLangJson extends LocalLangDummy {
 //		$this->log(__METHOD__, $bt);
 	}
 
-	function areThereTranslationsFor($lang) {
-		$this->lang = $lang;	// temporary
+	public function areThereTranslationsFor($lang)
+	{
+		$this->lang = $lang;  // temporary
 		$file = $this->getFilename();
 		$ok = is_file($file);
 		//debug($lang, $file, $ok);
@@ -29,18 +32,21 @@ class LocalLangJson extends LocalLangDummy {
 	/**
 	 * @return string
 	 */
-	function getFilename() {
+	public function getFilename()
+	{
 		return $this->langFolder . 'll-' . $this->lang . '.json';
 	}
 
-	function readDB() {
+	public function readDB()
+	{
 //		$this->log(__METHOD__, $this->getFilename());
 		$file = file_get_contents($this->getFilename());
 		$this->ll = json_decode($file, true);
 		//debug($file, $this->ll);
 	}
 
-	function __destruct() {
+	public function __destruct()
+	{
 		$jsonEncode = json_encode($this->ll, JSON_PRETTY_PRINT);
 		$file = $this->getFilename();
 		if (filesize($file) < mb_strlen($jsonEncode)) {
@@ -48,7 +54,8 @@ class LocalLangJson extends LocalLangDummy {
 		}
 	}
 
-	function saveMissingMessage($text) {
+	public function saveMissingMessage($text)
+	{
 		$this->updateMessage([
 			//'code' => RandomStringGenerator::likeYouTube(),
 			'code' => $text,
@@ -56,13 +63,15 @@ class LocalLangJson extends LocalLangDummy {
 		]);
 	}
 
-	function updateMessage(array $data) {
+	public function updateMessage(array $data)
+	{
 		$this->ll[$data['code']] = $data['text'];
 	}
 
-	function getEditLinkMaybe($text, $id = NULL, $class = 'untranslatedMessage') {
+	public function getEditLinkMaybe($text, $id = null, $class = 'untranslatedMessage')
+	{
 		if ($this->indicateUntranslated) {
-			$trans = new HtmlString('<span class="untranslatedMessage">['.htmlspecialchars($text).']</span>');
+			$trans = new HtmlString('<span class="untranslatedMessage">[' . htmlspecialchars($text) . ']</span>');
 		} else {
 			$trans = $text;
 		}

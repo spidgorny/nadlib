@@ -6,22 +6,26 @@
  * TODO: Make it part of the SQLFrom like this
  * new SQLFrom(new SQLSubquery()) - this way we can have multiple subqueries
  */
-class SQLSubquery extends SQLFrom {
+class SQLSubquery extends SQLFrom
+{
 
-	var $alias;
+	public $alias;
 
-	var $parameters = [];
+	public $parameters = [];
 
-	function __construct(SQLSelectQuery $selectQuery, $alias) {
+	public function __construct(SQLSelectQuery $selectQuery, $alias)
+	{
 		parent::__construct($selectQuery);
 		$this->alias = $alias;
 	}
 
-	function __toString() {
-		return '('.$this->parts[0].') AS '.$this->alias;
+	public function __toString()
+	{
+		return '(' . $this->parts[0] . ') AS ' . $this->alias;
 	}
 
-	function getParameters() {
+	public function getParameters()
+	{
 		/** @var SQLSelectQuery $selectQuery */
 		$selectQuery = $this->parts[0];
 		if (is_object($selectQuery)) {
@@ -31,7 +35,8 @@ class SQLSubquery extends SQLFrom {
 		}
 	}
 
-	function setParameters(array $p) {
+	public function setParameters(array $p)
+	{
 		$this->parameters = $p;
 	}
 

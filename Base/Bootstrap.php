@@ -2,6 +2,8 @@
 
 namespace spidgorny\nadlib;
 
+use Request;
+
 class Bootstrap
 {
 
@@ -10,7 +12,7 @@ class Bootstrap
 		echo 'cwd: ', basename(getcwd()), "\n";
 
 		require_once __DIR__ . '/../init.php';
-		@define('BR', \Request::isWindows()	? "\r\n" : "\n");
+		@define('BR', Request::isWindows() ? "\r\n" : "\n");
 
 		// first in order to load phpunit classes
 		$globalAutoload = getenv('USERPROFILE') .

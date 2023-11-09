@@ -8,9 +8,10 @@
 
 namespace nadlib\User;
 
+use PHPUnit\Framework\TestCase;
 use Preferences;
 
-class PreferencesTest extends \PHPUnit\Framework\TestCase
+class PreferencesTest extends TestCase
 {
 
 	public function testGet()

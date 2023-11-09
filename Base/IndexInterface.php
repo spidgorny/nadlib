@@ -10,14 +10,16 @@ namespace nadlib;
 interface IndexInterface
 {
 
-	static function getInstance($createNew = false);
+	public static function getInstance($createNew = false);
 
-	function render();
+	public function render();
 
-	function addJS($source);
+	public function addJS($source);
 
-	function message($text);
-	function error($text);
-	function success($text);
+	public function message($text);
+
+	public function error($text);
+
+	public function success($text);
 
 }

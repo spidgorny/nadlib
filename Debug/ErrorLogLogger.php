@@ -3,7 +3,7 @@
 class ErrorLogLogger
 {
 
-	function log($method, $data)
+	public function log($method, $data)
 	{
 		if (is_array($data)) {
 			$output = print_r($data, true);
@@ -17,7 +17,7 @@ class ErrorLogLogger
 		error_log('[' . $method . '] ' . $output);
 	}
 
-	function info($method, $data)
+	public function info($method, $data)
 	{
 		$this->log($method, $data);
 	}

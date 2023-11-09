@@ -7,7 +7,7 @@
 class HTMLFormRecaptcha
 {
 
-	var $publickey;
+	public $publickey;
 	protected $privatekey;
 
 	public function __construct()

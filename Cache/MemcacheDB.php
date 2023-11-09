@@ -1,31 +1,36 @@
 <?php
 
-class MemcacheDB implements MemcacheInterface {
+class MemcacheDB implements MemcacheInterface
+{
 
 	/**
 	 * @var DBLayerBase
 	 */
-	var $db;
+	public $db;
 
-	var $table = 'cache';
+	public $table = 'cache';
 
-	function __construct() {
+	public function __construct()
+	{
 		$this->db = Config::getInstance()->getDB();
 	}
 
-	function get($key) {
+	public function get($key)
+	{
 		$row = $this->getRow($key);
 		return $row['value'];
 	}
 
-	function getRow($key) {
+	public function getRow($key)
+	{
 		$row = $this->db->fetchOneSelectQuery($this->table, [
 			'key' => $key,
 		]);
 		return $row;
 	}
 
-	function set($key, $value) {
+	public function set($key, $value)
+	{
 		$this->db->runUpdateInsert($this->table, [
 			'value' => $value,
 			'mtime' => new SQLNow(),
@@ -34,12 +39,14 @@ class MemcacheDB implements MemcacheInterface {
 		]);
 	}
 
-	function isValid($key = NULL, $expire = 0) {
+	public function isValid($key = null, $expire = 0)
+	{
 		$row = $this->getRow($key);
 		return (strtotime($row['mtime']) - time()) < $expire;
 	}
 
-	function un_set($key) {
+	public function un_set($key)
+	{
 		$this->db->runDeleteQuery($this->table, [
 			'key' => $key,
 		]);

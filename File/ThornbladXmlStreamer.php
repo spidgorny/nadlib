@@ -24,7 +24,7 @@ abstract class ThornbladXmlStreamer
 
 	/**
 	 * @param string $mixed Path to XML file OR file handle
-	 * @param \Bytes|int $chunkSize Bytes to read per cycle (Optional, default is 16 KiB)
+	 * @param Bytes|int $chunkSize Bytes to read per cycle (Optional, default is 16 KiB)
 	 * @param string $customRootNode Specific root node to use (Optional)
 	 * @param int $totalBytes Xml file size - Required if supplied file handle
 	 * @param string $customChildNode

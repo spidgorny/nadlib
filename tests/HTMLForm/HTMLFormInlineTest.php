@@ -9,8 +9,9 @@
 namespace nadlib\HTMLForm;
 
 use HTMLFormInline;
+use PHPUnit\Framework\TestCase;
 
-class HTMLFormInlineTest extends \PHPUnit\Framework\TestCase
+class HTMLFormInlineTest extends TestCase
 {
 
 	public function testSimple()
@@ -37,7 +38,7 @@ class HTMLFormInlineTest extends \PHPUnit\Framework\TestCase
 	{
 //	echo chunk_split(bin2hex($string), 32);
 //	echo PHP_EOL;
-		$ok = str_replace("\n", "\r\n", str_replace("\r", '', $string));	// working
+		$ok = str_replace("\n", "\r\n", str_replace("\r", '', $string));  // working
 //	$ok = preg_replace("~\r\n?~u", PHP_EOL, $string);	// not working
 //	$ok = preg_replace("~\R~u", PHP_EOL, $string);		// working
 //	echo chunk_split(bin2hex($ok), 32);

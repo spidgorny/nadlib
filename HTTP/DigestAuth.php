@@ -1,16 +1,19 @@
 <?php
 
-class DigestAuth {
+class DigestAuth
+{
 	protected $realm;
 	public $userAssoc = [];
 	public $username;
 
-	function __construct($realm) {
+	public function __construct($realm)
+	{
 		$this->realm = $realm;
 	}
 
 	// maryna.sigayeva@web.de
-	function run() {
+	public function run()
+	{
 		$digestString = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] : $_SERVER['HTTP_AUTORIZATION'];
 		$digestString = $digestString ? $digestString : $_SERVER['PHP_AUTH_DIGEST'];
 		if (empty($digestString)) {
@@ -31,8 +34,8 @@ class DigestAuth {
 		$password = $this->userAssoc[$data['username']];
 		//debug($this->realm, $data['username'], $password); exit();
 		$A1 = md5($data['username'] . ':' . $this->realm . ':' . $password);
-		$A2 = md5($_SERVER['REQUEST_METHOD'].':'.$data['uri']);
-		$valid_response = md5($A1.':'.$data['nonce'].':'.$data['nc'].':'.$data['cnonce'].':'.$data['qop'].':'.$A2);
+		$A2 = md5($_SERVER['REQUEST_METHOD'] . ':' . $data['uri']);
+		$valid_response = md5($A1 . ':' . $data['nonce'] . ':' . $data['nc'] . ':' . $data['cnonce'] . ':' . $data['qop'] . ':' . $A2);
 
 		if ($data['response'] != $valid_response) {
 			$this->headers();
@@ -46,23 +49,25 @@ class DigestAuth {
 		return true;
 	}
 
-	function headers() {
+	public function headers()
+	{
 		header('HTTP/1.1 401 Unauthorized');
-		header('WWW-Authenticate: Digest realm="'.$this->realm.
-			'",qop="auth",nonce="'.uniqid().'",opaque="'.md5($this->realm).'"');
+		header('WWW-Authenticate: Digest realm="' . $this->realm .
+			'",qop="auth",nonce="' . uniqid() . '",opaque="' . md5($this->realm) . '"');
 	}
 
 	// function to parse the http auth header
-	function http_digest_parse($txt) {
+	public function http_digest_parse($txt)
+	{
 		// protect against missing data
 		$needed_parts = [
-			'nonce'=>1,
-			'nc'=>1,
-			'cnonce'=>1,
-			'qop'=>1,
-			'username'=>1,
-			'uri'=>1,
-			'response'=>1];
+			'nonce' => 1,
+			'nc' => 1,
+			'cnonce' => 1,
+			'qop' => 1,
+			'username' => 1,
+			'uri' => 1,
+			'response' => 1];
 		$data = [];
 		$keys = implode('|', array_keys($needed_parts));
 
@@ -80,17 +85,18 @@ class DigestAuth {
 	 * Reverse function below. Requesting DigestAuth...
 	 */
 
-	function POST($url, $auth, $content) {
+	public function POST($url, $auth, $content)
+	{
 		$length = strlen($content);
 
 		$headers[] = "Content-Length: $length";
 
 		$poster = curl_init($url);
 
-		curl_setopt($poster, CURLOPT_FOLLOWLOCATION, TRUE);
+		curl_setopt($poster, CURLOPT_FOLLOWLOCATION, true);
 		curl_setopt($poster, CURLOPT_CONNECTTIMEOUT, 5);
 		curl_setopt($poster, CURLOPT_TIMEOUT, 60);
-		curl_setopt($poster, CURLOPT_HTTPHEADER, $headers );
+		curl_setopt($poster, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($poster, CURLOPT_HEADER, 1);
 		curl_setopt($poster, CURLOPT_USERPWD, $auth);
 		curl_setopt($poster, CURLOPT_HTTPAUTH, CURLAUTH_DIGEST);

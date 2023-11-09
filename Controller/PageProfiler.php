@@ -6,14 +6,14 @@ class PageProfiler
 	/**
 	 * @var Request
 	 */
-	var $request;
+	public $request;
 
 	/**
 	 * @var HTML
 	 */
-	var $html;
+	public $html;
 
-	function __construct()
+	public function __construct()
 	{
 		$this->request = Request::getInstance();
 		$this->html = new HTML();

@@ -75,7 +75,7 @@ abstract class OODBase
 	 * Constructor should be given the ID of the existing record in DB.
 	 * If you want to use methods without knowing the ID, the call them statically like this Version::insertRecord();
 	 *
-	 * @param integer|array|SQLWhere|DBInterface $id - can be ID in the database or the whole records
+	 * @param int|array|SQLWhere|DBInterface $id - can be ID in the database or the whole records
 	 * as associative array
 	 *
 	 * @throws Exception
@@ -320,7 +320,7 @@ abstract class OODBase
 	 * @return int|null
 	 * @throws Exception
 	 */
-	public static function createRecord(array $insert, $class = NULL)
+	public static function createRecord(array $insert, $class = null)
 	{
 		TaylorProfiler::start(__METHOD__);
 		//$insert = $this->db->getDefaultInsertFields() + $insert; // no overwriting?
@@ -390,7 +390,7 @@ abstract class OODBase
 	 *
 	 * @param SQLWhere $where
 	 * @param string $orderby
-	 * @return boolean (id) of the found record
+	 * @return bool (id) of the found record
 	 * @throws Exception
 	 */
 	public function findInDBbySQLWhere(SQLWhere $where, $orderby = '')
@@ -453,8 +453,8 @@ abstract class OODBase
 	 * Updates current record ($this->id)
 	 *
 	 * @param array $data
-	 * @throws Exception
 	 * @return resource result from the runUpdateQuery
+	 * @throws Exception
 	 */
 	public function update(array $data)
 	{
@@ -520,8 +520,8 @@ abstract class OODBase
 	 * Returns $this
 	 *
 	 * @param array $data
-	 * @throws Exception
 	 * @return OODBase
+	 * @throws Exception
 	 */
 	public function insert(array $data)
 	{
@@ -615,7 +615,7 @@ abstract class OODBase
 	public function showAssoc(array $thes = [
 		'id' => 'ID',
 		'name' => 'Name'
-	], $title = null)
+	],                              $title = null)
 	{
 		$ss = new ShowAssoc($this->data);
 		$ss->setThes($thes);
@@ -829,9 +829,9 @@ abstract class OODBase
 	 * @throws Exception
 	 */
 	public function insertUpdate(array $fields,
-								 array $where = [],
-								 array $insert = [],
-								 array $update = []
+															 array $where = [],
+															 array $insert = [],
+															 array $update = []
 	)
 	{
 		TaylorProfiler::start(__METHOD__);

@@ -53,7 +53,7 @@ abstract class Controller extends SimpleController
 	 */
 	public $request;
 	/**
-	 * @var boolean
+	 * @var bool
 	 * @use $this->preventDefault() to set
 	 * Check manually in render()
 	 */
@@ -123,9 +123,9 @@ abstract class Controller extends SimpleController
 	{
 		/** @var Controller $self */
 		$self = get_called_class();
-		return new HTMLTag('a', array(
+		return new HTMLTag('a', [
 			'href' => $self::href($params)
-		), $text ?: $self);
+		], $text ?: $self);
 	}
 
 	public static function href(array $params = [])
@@ -266,7 +266,7 @@ abstract class Controller extends SimpleController
 			if (method_exists($proxy, $method)) {
 				if ($this->request->isCLI()) {
 					$assoc = array_slice(ifsetor($_SERVER['argv'], []), 3);
-					$content = call_user_func_array(array($proxy, $method), $assoc);
+					$content = call_user_func_array([$proxy, $method], $assoc);
 				} else {
 					$caller = new MarshalParams($proxy);
 					$content = $caller->call($method);
@@ -373,7 +373,6 @@ abstract class Controller extends SimpleController
 		$content .= '</div>';
 		return $content;
 	}
-
 
 
 	public function sidebar()

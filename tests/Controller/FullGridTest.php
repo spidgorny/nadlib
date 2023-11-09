@@ -2,23 +2,26 @@
 
 namespace nadlib\Controller;
 
-use FullGrid;
+use Config;
+use DBPlacebo;
+use FullGrid4Test;
+use PHPUnit\Framework\TestCase;
 
-class FullGridTest extends \PHPUnit\Framework\TestCase
+class FullGridTest extends TestCase
 {
 
 	public function setUp()
 	{
-		$config = \Config::getInstance();
-		$config->setDB(new \DBPlacebo());
+		$config = Config::getInstance();
+		$config->setDB(new DBPlacebo());
 	}
 
 	public function testGetColumnsForm()
 	{
-		$fg = new \FullGrid4Test();
+		$fg = new FullGrid4Test();
 		$fg->postInit();
 		$fg->getColumnsForm();
-		$this->assertTrue(true);	// not crashed
+		$this->assertTrue(true);  // not crashed
 	}
 
 }

@@ -8,7 +8,7 @@
 
 class slXMLParser
 {
-	var $parsed;
+	public $parsed;
 
 	public function parseText($content)
 	{

@@ -3,7 +3,7 @@ jQuery(document).ready(function ($) {
 	$("#AjaxLogin a[rel='forgotPassword']").on("click", function (e) {
 		var a = $(e.target);
 		//console.log(a, a.attr('href'));
-		var href = a.attr("href")+"&"+a.parents("form").formSerialize().replace("&mode=login", "");
+		var href = a.attr("href") + "&" + a.parents("form").formSerialize().replace("&mode=login", "");
 		$("#AjaxLogin").load(href);
 		e.preventDefault();
 	});
@@ -54,9 +54,9 @@ jQuery(document).ready(function ($) {
 	}
 });
 
-jQuery.fn.evalScripts = function() {
-	$("script", this).each(function(){
-		eval( this.text || this.textContent || this.innerHTML || "");
+jQuery.fn.evalScripts = function () {
+	$("script", this).each(function () {
+		eval(this.text || this.textContent || this.innerHTML || "");
 	});
 };
 
@@ -71,7 +71,7 @@ jQuery(document).ready(function ($) {
 			form.find('input[name="rating"]').val(stars);
 			var cr = form.find('li.ratingWidth');
 			//console.log(a, form, stars, cr);
-			cr.css('width', (stars*20)+'%');
+			cr.css('width', (stars * 20) + '%');
 			var submit = form.find('input[type="submit"]');
 			//console.log(submit.get(0));
 			submit.attr('disabled', false);
@@ -94,7 +94,7 @@ jQuery(document).ready(function ($) {
 		e.preventDefault();
 	});
 	$('.LinkToMyAccount').on('click', function (e) {
-		$('html, body').animate({scrollTop:0}, 'slow');
+		$('html, body').animate({scrollTop: 0}, 'slow');
 		$('div#AjaxLogin[rel="toggle"]').slideDown();
 		var login = $('#AjaxLogin input[name="username"]');
 		//console.log(login, login.get(0));
@@ -104,29 +104,28 @@ jQuery(document).ready(function ($) {
 	});
 });
 
-function createCookie(name,value,days) {
+function createCookie(name, value, days) {
 	if (days) {
 		var date = new Date();
-		date.setTime(date.getTime()+(days*24*60*60*1000));
-		var expires = "; expires="+date.toGMTString();
-	}
-	else var expires = "";
-	document.cookie = name+"="+value+expires+"; path=/";
+		date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+		var expires = "; expires=" + date.toGMTString();
+	} else var expires = "";
+	document.cookie = name + "=" + value + expires + "; path=/";
 }
 
 function readCookie(name) {
 	var nameEQ = name + "=";
 	var ca = document.cookie.split(';');
-	for(var i=0;i < ca.length;i++) {
+	for (var i = 0; i < ca.length; i++) {
 		var c = ca[i];
-		while (c.charAt(0)==' ') c = c.substring(1,c.length);
-		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+		while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
 	}
 	return null;
 }
 
 function eraseCookie(name) {
-	createCookie(name,"",-1);
+	createCookie(name, "", -1);
 }
 
 function toggleLogin(self) {

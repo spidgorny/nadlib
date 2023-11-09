@@ -82,7 +82,7 @@ class SVGChart
 		return $content;
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		return $this->render() . '';
 	}

@@ -208,8 +208,8 @@ class ArrayPlus extends ArrayObject implements Countable
 	 * Modifies itself
 	 * @param string $key
 	 * @param bool $allowMerge
-	 * @throws Exception
 	 * @return ArrayPlus
+	 * @throws Exception
 	 */
 	public function IDalize($key = 'id', $allowMerge = false)
 	{
@@ -234,7 +234,7 @@ class ArrayPlus extends ArrayObject implements Countable
 
 	/**
 	 * [
-	 * 	['a' => 'b'],
+	 *  ['a' => 'b'],
 	 *  ['a' => 'c']
 	 * ] ---> [
 	 *  ['a' => ['b', 'c']]
@@ -1170,7 +1170,7 @@ class ArrayPlus extends ArrayObject implements Countable
 					if (is_object($v)) {
 						//					var_dump($v);
 					}
-					if ($v instanceof \FilterBetween) {
+					if ($v instanceof FilterBetween) {
 						$ok = $v->apply($row->$k);
 					} elseif (is_array($v)) {
 						$ok = in_array($row->$k, $v);

@@ -60,8 +60,8 @@ class FilterController extends Controller
 	 * Why manually? I don't know, it could change.
 	 *
 	 * @param array $fields
-	 * @throws Exception
 	 * @return array
+	 * @throws Exception
 	 */
 	public function getFilterDesc(array $fields = null)
 	{
@@ -142,8 +142,8 @@ class FilterController extends Controller
 		if ($this->model instanceof OODBase) {
 			$res = $this->db->getTableOptions(
 				$this->model->table
-				? $this->model->table
-				: $this->collection->table,
+					? $this->model->table
+					: $this->collection->table,
 				$key, [], 'ORDER BY ' . $key, $key);    // NOT 'id' (DISTINCT!)
 
 			if ($count) {

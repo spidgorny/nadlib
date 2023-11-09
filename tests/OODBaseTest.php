@@ -8,7 +8,9 @@
 
 namespace nadlib\Test;
 
-class OODBaseTest extends \PHPUnit\Framework\TestCase
+use PHPUnit\Framework\TestCase;
+
+class OODBaseTest extends TestCase
 {
 
 	protected $sut;

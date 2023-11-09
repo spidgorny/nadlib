@@ -50,7 +50,7 @@ class Stats
 	 */
 	public static function buildDistribution(array $set, $numBuckets = 25)
 	{
-		$buckets = array_fill(0, $numBuckets+1, 0);
+		$buckets = array_fill(0, $numBuckets + 1, 0);
 //		debug($buckets);
 		$min = min($set);
 		$max = max($set);

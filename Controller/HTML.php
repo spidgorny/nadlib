@@ -133,7 +133,7 @@ class HTML
 	public function pre($text, array $attr = [])
 	{
 		$more = HTMLTag::renderAttr($attr);
-		return '<pre '.$more.'>' . $this->e($this->s($text)) . '</pre>';
+		return '<pre ' . $more . '>' . $this->e($this->s($text)) . '</pre>';
 	}
 
 	public function e($content)

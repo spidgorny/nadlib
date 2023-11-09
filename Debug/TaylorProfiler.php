@@ -25,24 +25,24 @@ class TaylorProfiler
 	/**
 	 * @var SplObjectStorage
 	 */
-	static $sos;
+	static public $sos;
 	/**
 	 * @var TaylorProfiler
 	 */
-	static $instance;
-	var $description;
-	var $description2;
-	var $startTime;
-	var $endTime;
-	var $initTime;
-	var $cur_timer;
-	var $stack;
-	var $trail;
-	var $trace;
-	var $count;
-	var $running;
-	var $output_enabled;
-	var $trace_enabled;
+	static public $instance;
+	public $description;
+	public $description2;
+	public $startTime;
+	public $endTime;
+	public $initTime;
+	public $cur_timer;
+	public $stack;
+	public $trail;
+	public $trace;
+	public $count;
+	public $running;
+	public $output_enabled;
+	public $trace_enabled;
 	public $isLog = false;
 
 	/**
@@ -161,7 +161,7 @@ class TaylorProfiler
 		}
 	}//end start_time
 
-		public static function getMemoryUsage()
+	public static function getMemoryUsage()
 	{
 		static $max;
 		static $previous;
@@ -381,7 +381,7 @@ class TaylorProfiler
 		$this->output_enabled = false;
 	}
 
-/**
+	/**
 	 *   Measure the elapsed time since the profile class was initialised
 	 *
 	 */

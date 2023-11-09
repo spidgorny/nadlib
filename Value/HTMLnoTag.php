@@ -1,8 +1,10 @@
 <?php
 
-class HTMLnoTag {
+class HTMLnoTag
+{
 
-	function __toString() {
+	public function __toString()
+	{
 		return '[HTMLnoTag]';
 	}
 

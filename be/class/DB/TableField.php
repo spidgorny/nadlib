@@ -1,26 +1,27 @@
 <?php
 
-class TableField {
+class TableField
+{
 
-	var $field;
+	public $field;
 
-	var $type;
+	public $type;
 
-	var $collation;
+	public $collation;
 
-	var $isNull;
+	public $isNull;
 
-	var $key;
+	public $key;
 
-	var $default;
+	public $default;
 
-	var $comment;
+	public $comment;
 
-	var $extra = [];
+	public $extra = [];
 
-	var $references;
+	public $references;
 
-	static function init(array $row)
+	public static function init(array $row)
 	{
 		//debug($row); exit();
 		if (isset($row['cid']) || isset($row['pk'])) {
@@ -45,7 +46,7 @@ class TableField {
 	 * @param array $row
 	 * @return TableField
 	 */
-	static function initMySQL(array $row)
+	public static function initMySQL(array $row)
 	{
 		$self = new self();
 		$self->field = $row['Field'];
@@ -70,7 +71,7 @@ class TableField {
 	 * @param array $desc
 	 * @return TableField
 	 */
-	static function initSQLite(array $desc)
+	public static function initSQLite(array $desc)
 	{
 		$self = new self();
 		$self->field = $desc['name'];
@@ -84,18 +85,18 @@ class TableField {
 
 	/**
 	 * array(8) {
-	'num'  =>  int(15)
-	'type'  =>  string(4) "int4"
-	'len'  =>  int(4)
-	'not null'  =>  bool(false)
-	'has default'  =>  bool(false)
-	'array dims'  =>  int(0)
-	'is enum'  =>  bool(false)
-	'pg_field'  =>  string(12) "id_publisher"
+	 * 'num'  =>  int(15)
+	 * 'type'  =>  string(4) "int4"
+	 * 'len'  =>  int(4)
+	 * 'not null'  =>  bool(false)
+	 * 'has default'  =>  bool(false)
+	 * 'array dims'  =>  int(0)
+	 * 'is enum'  =>  bool(false)
+	 * 'pg_field'  =>  string(12) "id_publisher"
 	 * @param array $desc
 	 * @return TableField
 	 */
-	static function initPostgreSQL(array $desc)
+	public static function initPostgreSQL(array $desc)
 	{
 		$self = new self();
 		$self->field = $desc['pg_field'];
@@ -106,7 +107,7 @@ class TableField {
 		return $self;
 	}
 
-	static function unQuote($string)
+	public static function unQuote($string)
 	{
 		$first = $string[0];
 		if ($first == '"' || $first == "'") {
@@ -115,7 +116,7 @@ class TableField {
 		return $string;
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		$copy = get_object_vars($this);
 		$copy['isNull'] = $copy['isNull'] ? 'is NULL' : 'NOT NULL';
@@ -124,12 +125,12 @@ class TableField {
 		return implode(' ', $copy);
 	}
 
-	function isBoolean()
+	public function isBoolean()
 	{
 		return in_array($this->type, ['bool', 'boolean', 'binary(1)']);
 	}
 
-	function isNull()
+	public function isNull()
 	{
 		return $this->isNull;
 	}
@@ -142,17 +143,17 @@ class TableField {
 			'tinyint(1)', 'tinyint(4)']);
 	}
 
-	function isText()
+	public function isText()
 	{
 		return in_array($this->type, ['text', 'varchar(255)', 'tinytext', 'string']);
 	}
 
-	function isTime()
+	public function isTime()
 	{
 		return in_array($this->type, ['numeric', 'timestamp', 'datetime']);
 	}
 
-	function isFloat()
+	public function isFloat()
 	{
 		return in_array($this->type, ['real', 'double', 'float']);
 	}

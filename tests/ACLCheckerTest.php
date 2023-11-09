@@ -8,7 +8,12 @@
 
 namespace nadlib\Test;
 
-class ACLCheckerTest extends \PHPUnit\Framework\TestCase
+use ACLChecker;
+use NOEUser;
+use PHPUnit\Framework\TestCase;
+use TestController;
+
+class ACLCheckerTest extends TestCase
 {
 
 	public function test_compareACL()
@@ -16,9 +21,9 @@ class ACLCheckerTest extends \PHPUnit\Framework\TestCase
 		$this->markTestIncomplete(
 			'AppController was not found.'
 		);
-		$controller = new \TestController();
+		$controller = new TestController();
 		$controller->user = null;
-		$ac = new \ACLChecker($controller);
+		$ac = new ACLChecker($controller);
 		$okNothing = $ac->compareACL(null);
 		$okNull = $ac->compareACL('null');
 		$okUser = $ac->compareACL('user');
@@ -30,10 +35,10 @@ class ACLCheckerTest extends \PHPUnit\Framework\TestCase
 		$this->markTestIncomplete(
 			'AppController was not found.'
 		);
-		$controller = new \TestController();
-		$controller->user = new \NOEUser();
+		$controller = new TestController();
+		$controller->user = new NOEUser();
 		$controller->user->id = 1;
-		$ac = new \ACLChecker($controller);
+		$ac = new ACLChecker($controller);
 		$okNothing = $ac->compareACL(null);
 		$okNull = $ac->compareACL('null');
 		$okUser = $ac->compareACL('user');

@@ -6,9 +6,11 @@
  * Well, not anymore. Since we made proc_open able to get PID.
  * Well, this PID is of the parent cmd process not the PHP process.
  */
-class RunTask extends AppController {
+class RunTask extends AppController
+{
 
-	function render() {
+	public function render()
+	{
 		$id = ifsetor($_SERVER['argv'][2]);
 		if ($id) {
 			$task = new RunnerTask();

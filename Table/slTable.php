@@ -344,7 +344,7 @@ class slTable implements ToStringable
 	 * Otherwise you're sorting just a portion of the data.
 	 *
 	 * @param string $by - can be array (for easy explode(' ', 'field DESC') processing
-	 * @param boolean $or
+	 * @param bool $or
 	 */
 	public function setSortBy($by = null, $or = null)
 	{
@@ -767,7 +767,7 @@ class slTable implements ToStringable
 		try {
 			return $this->getContent();
 		} catch (Exception $e) {
-			return get_class($this).'@'.spl_object_hash($this);
+			return get_class($this) . '@' . spl_object_hash($this);
 		}
 	}
 

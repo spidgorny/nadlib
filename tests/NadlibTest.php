@@ -3,7 +3,7 @@
 class NadlibTest extends PHPUnit\Framework\TestCase
 {
 
-	function test_requireAll()
+	public function test_requireAll()
 	{
 
 		$this->markTestIncomplete(

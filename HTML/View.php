@@ -1,5 +1,6 @@
 <?php
 
+use Michelf\Markdown;
 use spidgorny\nadlib\HTTP\URL;
 
 class View extends stdClass
@@ -376,11 +377,11 @@ class View extends stdClass
 
 	public function _autolink_create_html_tags(&$value, $key, $other = null)
 	{
-		$target = $nofollow = NULL;
+		$target = $nofollow = null;
 		if (is_array($other)) {
-			$target = ($other['target'] ? " target=\"$other[target]\"" : NULL);
+			$target = ($other['target'] ? " target=\"$other[target]\"" : null);
 			// see: http://www.google.com/googleblog/2005/01/preventing-comment-spam.html
-			$nofollow = ($other['nofollow'] ? ' rel="nofollow"' : NULL);
+			$nofollow = ($other['nofollow'] ? ' rel="nofollow"' : null);
 		}
 		$value = "<a href=\"$key\"$target$nofollow>$key</a>";
 	}
@@ -419,7 +420,7 @@ class View extends stdClass
 		return new HTMLTag('img', $attr, null);
 	}
 
-	function purifyLinkify($comment)
+	public function purifyLinkify($comment)
 	{
 		$comment = preg_replace("/#(\w+)/", "<a href=\"Search?q=\\1\" target=\"_blank\">#\\1</a>", $comment);
 		$comment = $this->cleanComment($comment);
@@ -432,7 +433,7 @@ class View extends stdClass
 	 * @param string $comment
 	 * @return string
 	 */
-	function cleanComment($comment, array $allowedTags = [
+	public function cleanComment($comment, array $allowedTags = [
 		'a[href]'
 	])
 	{
@@ -441,8 +442,8 @@ class View extends stdClass
 		$config = HTMLPurifier_Config::createDefault();
 		//debug($config);
 		$config->set('HTML.Allowed', implode(',', $allowedTags));
-		$config->set('Attr.AllowedFrameTargets', array('_blank'));
-		$config->set('Attr.AllowedRel', array('nofollow'));
+		$config->set('Attr.AllowedFrameTargets', ['_blank']);
+		$config->set('Attr.AllowedRel', ['nofollow']);
 		$config->set('AutoFormat.Linkify', true);
 		$config->set('HTML.TargetBlank', true);
 		$config->set('HTML.Nofollow', true);
@@ -451,7 +452,7 @@ class View extends stdClass
 		return $clean_html;
 	}
 
-	function getEmbeddables($comment)
+	public function getEmbeddables($comment)
 	{
 		$content = '';
 		$links = $this->getLinks($comment);
@@ -471,12 +472,12 @@ class View extends stdClass
 	 * @param $comment
 	 * @return array
 	 */
-	function getLinks($comment)
+	public function getLinks($comment)
 	{
 		return View::_autolink_find_URLS($comment);
 	}
 
-	function s($a)
+	public function s($a)
 	{
 //		echo typ($a), BR;
 //		debug_pre_print_backtrace();
@@ -486,7 +487,7 @@ class View extends stdClass
 
 	public static function markdown($text)
 	{
-		$my_html = \Michelf\Markdown::defaultTransform($text);
+		$my_html = Markdown::defaultTransform($text);
 		return $my_html;
 	}
 

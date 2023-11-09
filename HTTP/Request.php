@@ -849,7 +849,8 @@ class Request
 	public function redirectJS(
 		$controller, $delay = 0, $message =
 	'Redirecting to %1'
-	) {
+	)
+	{
 		echo __($message, '<a href="' . $controller . '">' . $controller . '</a>') . '
 			<script>
 				setTimeout(function () {

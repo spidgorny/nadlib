@@ -58,7 +58,7 @@ class Collection implements IteratorAggregate, ToStringable
 	public $query;
 	/**
 	 * Is NULL until it's set to 0 or more
-	 * @var integer Total amount of data retrieved (not limited by Pager)
+	 * @var int Total amount of data retrieved (not limited by Pager)
 	 */
 	public $count = null;
 	/**
@@ -132,7 +132,7 @@ class Collection implements IteratorAggregate, ToStringable
 	protected $logger;
 
 	/**
-	 * @param integer /-1 $pid
+	 * @param int /-1 $pid
 	 *        if -1 - will not retrieve data from DB
 	 *        if 00 - will retrieve all data
 	 *        if >0 - will retrieve data where PID = $pid
@@ -144,7 +144,8 @@ class Collection implements IteratorAggregate, ToStringable
 	public function __construct(
 		$pid = null, /*array/SQLWhere*/
 		$where = [], $order = '', DBInterface $db = null
-	) {
+	)
+	{
 		//$taylorKey = get_class($this).'::'.__FUNCTION__." ({$this->table})";
 		$taylorKey = Debug::getBackLog(5, 0, BR, false);
 		TaylorProfiler::start($taylorKey);
@@ -205,9 +206,9 @@ class Collection implements IteratorAggregate, ToStringable
 	 */
 	public function getData($preProcess = true)
 	{
-		$this->log(get_class($this) . '::' . __FUNCTION__ . '(preProcess='.$preProcess.')');
-		$this->log(__METHOD__, 'collection Where'. json_encode($this->where));
-		$this->log(__METHOD__, 'query: '.$this->query . '');
+		$this->log(get_class($this) . '::' . __FUNCTION__ . '(preProcess=' . $preProcess . ')');
+		$this->log(__METHOD__, 'collection Where' . json_encode($this->where));
+		$this->log(__METHOD__, 'query: ' . $this->query . '');
 		$this->log(__METHOD__, [
 			'data' => $this->data
 				? count($this->data)
@@ -379,7 +380,7 @@ class Collection implements IteratorAggregate, ToStringable
 		$this->log(get_class($this) . '::' . __FUNCTION__, ['original', $this->count]);
 //		$this->log('this->query', $this->query.'');
 //		$this->log('getQueryWithLimit', $this->getQueryWithLimit().'');
-		$queryIsTheSame = ($this->query.'') === ($this->getQueryWithLimit().'');
+		$queryIsTheSame = ($this->query . '') === ($this->getQueryWithLimit() . '');
 		if ($this->count !== null && $queryIsTheSame) {
 			return $this->count;
 		}
@@ -591,17 +592,16 @@ class Collection implements IteratorAggregate, ToStringable
 			foreach ($this->getProcessedData() as $id => $row) {
 				if ($this->itemClassName) {
 					$list[$id] = $this->renderListItem($row);
-				} else
-					if ($this->thes) {
-						$row = $this->prepareRenderRow($row);   // add link
-						$item = '';
-						foreach ($this->thes as $key => $_) {
-							$item .= $row[$key] . ' ';
-						}
-						$list[$id] = $item;
-					} else {
-						$list[$id] = $row[$this->titleColumn];
+				} elseif ($this->thes) {
+					$row = $this->prepareRenderRow($row);   // add link
+					$item = '';
+					foreach ($this->thes as $key => $_) {
+						$item .= $row[$key] . ' ';
 					}
+					$list[$id] = $item;
+				} else {
+					$list[$id] = $row[$this->titleColumn];
+				}
 			}
 			return new UL($list);
 		}

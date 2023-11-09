@@ -1,15 +1,16 @@
 <?php
 
-class DSNBuilderMSSQL extends DSNBuilder {
+class DSNBuilderMSSQL extends DSNBuilder
+{
 
-	var $host;
-	var $user;
-	var $pass;
-	var $db;
-	var $port;
-	var $driver;
+	public $host;
+	public $user;
+	public $pass;
+	public $db;
+	public $port;
+	public $driver;
 
-	function __construct($host, $user, $pass, $db, $port = 3306)
+	public function __construct($host, $user, $pass, $db, $port = 3306)
 	{
 		$this->host = $host;
 		$this->user = $user;
@@ -18,11 +19,12 @@ class DSNBuilderMSSQL extends DSNBuilder {
 		$this->port = $port;
 	}
 
-	function setDriver($driver) {
+	public function setDriver($driver)
+	{
 		$this->driver = $driver;
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		$aDSN = [
 			'DATABASE' => $this->db,
@@ -34,7 +36,7 @@ class DSNBuilderMSSQL extends DSNBuilder {
 			'PROTOCOL' => 'TCPIP',
 			'DRIVER' => '{' . $this->driver . '}',
 		];
-		return 'mssql:'.$this->getDSN($aDSN);
+		return 'mssql:' . $this->getDSN($aDSN);
 	}
 
 }

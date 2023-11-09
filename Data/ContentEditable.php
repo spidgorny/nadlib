@@ -1,6 +1,7 @@
 <?php
 
-class ContentEditable {
+class ContentEditable
+{
 
 	/**
 	 * @var string EventVersionsAvailable
@@ -17,9 +18,10 @@ class ContentEditable {
 	 */
 	public $content;
 
-	function __construct($file) {
+	public function __construct($file)
+	{
 		$this->file = $file;
-		$files = glob('pages/'.$this->file.'.*');
+		$files = glob('pages/' . $this->file . '.*');
 		$this->filename = $files[0];
 		$this->content = @file_get_contents($this->filename);
 		if (!$this->content) {
@@ -28,7 +30,8 @@ class ContentEditable {
 		//echo __METHOD__.': '.$this->content.'<br />'."\n";
 	}
 
-	function getHeader() {
+	public function getHeader()
+	{
 		$index = Index::getInstance();
 		$index->addJQuery();
 		$index->addJQueryUI();
@@ -41,17 +44,20 @@ class ContentEditable {
 		$index->addJS("vendor/spidgorny/nadlib/js/contentEditable.js");
 	}
 
-	function store() {
+	public function store()
+	{
 		$html = html_entity_decode($this->content);
 		file_put_contents($this->filename, $html);
 		//echo __METHOD__.': '.$this->content.'<br />'."\n";
 	}
 
-	function __destruct() {
+	public function __destruct()
+	{
 		//$this->store();
 	}
 
-	function __toString() {
+	public function __toString()
+	{
 		$ext = pathinfo($this->filename, PATHINFO_EXTENSION);
 		switch ($ext) {
 			case 'txt':
@@ -59,7 +65,7 @@ class ContentEditable {
 				break;
 			case 'html':
 				$content = $this->content;
-				$content = str_replace('src="', 'src="'.dirname($this->filename).'/', $content);	// IMG
+				$content = str_replace('src="', 'src="' . dirname($this->filename) . '/', $content);  // IMG
 				break;
 			case 'md':
 				$md = new Markdown($this->filename);
@@ -77,10 +83,11 @@ class ContentEditable {
 	 * @return string
 	 * @throws Exception
 	 */
-	function render($saveURL) {
-		$content = '<div class="editable" data-save-url="'.$saveURL.urlencode($this->file).'">'.
-			$this->__toString().
-		'</div>';
+	public function render($saveURL)
+	{
+		$content = '<div class="editable" data-save-url="' . $saveURL . urlencode($this->file) . '">' .
+			$this->__toString() .
+			'</div>';
 		return $content;
 	}
 

@@ -45,7 +45,7 @@ class HTMLTable
 		$content['table'] = '<table>';
 		$content['thead'] = '<thead><tr>';
 		foreach ((array)$this->thes as $key => $_) {
-			$content['th.'.$key] = '<th>' . htmlspecialchars($key) . '</th>';
+			$content['th.' . $key] = '<th>' . htmlspecialchars($key) . '</th>';
 		}
 		$content['/thead'] = '</tr></thead>';
 		$content['tbody'] = '<tbody>';

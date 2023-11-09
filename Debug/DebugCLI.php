@@ -30,7 +30,7 @@ class DebugCLI
 		$db = array_slice($db, 2, sizeof($db));
 		$trace = [];
 		$row = first($db);
-		$trace[] = $row['file'].':'.$row['line'];
+		$trace[] = $row['file'] . ':' . $row['line'];
 		foreach ($db as $i => $row) {
 			$trace[] = ' * ' . Debug::getMethod($row, ifsetor($db[$i + 1], []));
 			if (++$i > 7) {

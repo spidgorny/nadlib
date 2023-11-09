@@ -116,7 +116,7 @@ class LDAPLogin
 
 					if ($ldapbind) {
 						/** @var LDAPUser $user */
-						$user = new $this->userClass;
+						$user = new $this->userClass();
 						$user->initLDAP($info[$i]);
 						return $user;
 					} else {

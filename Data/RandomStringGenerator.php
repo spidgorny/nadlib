@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__.'/functions.php';
+require_once __DIR__ . '/functions.php';
 
 /**
  * Class RandomStringGenerator
@@ -95,7 +95,7 @@ class RandomStringGenerator
 		return ($min + $rnd);
 	}
 
-	function generateSplit4($length)
+	public function generateSplit4($length)
 	{
 		$continuous = $this->generate($length);
 		$parts = chunk_split($continuous, 4, '-');
@@ -105,7 +105,7 @@ class RandomStringGenerator
 		return $parts;
 	}
 
-	static function likeYouTube()
+	public static function likeYouTube()
 	{
 		$gen = new self();
 		return $gen->generate(10);
@@ -167,4 +167,3 @@ class RandomStringGenerator
 	}
 
 }
-

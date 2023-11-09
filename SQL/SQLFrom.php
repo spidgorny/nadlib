@@ -6,17 +6,17 @@ class SQLFrom extends SQLWherePart
 	/**
 	 * @var DBInterface
 	 */
-	var $db;
+	public $db;
 
 	protected $parts = [];
 
-	function __construct($from)
+	public function __construct($from)
 	{
 		parent::__construct();
 		$this->parts[] = trim($from);
 	}
 
-	function __toString()
+	public function __toString()
 	{
 //		$config = Config::getInstance();
 //		debug(
@@ -31,7 +31,7 @@ class SQLFrom extends SQLWherePart
 		return implode(', ', $this->db->quoteKeys($this->parts));
 	}
 
-	function getAll()
+	public function getAll()
 	{
 		return $this->parts;
 	}

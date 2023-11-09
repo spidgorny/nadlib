@@ -16,7 +16,7 @@ abstract class Grid extends AppController
 	public $model;
 
 	/**
-	 * @var \nadlib\Controller\Filter
+	 * @var Filter
 	 */
 	public $filter;
 
@@ -266,7 +266,7 @@ abstract class Grid extends AppController
 
 	/**
 	 * @param string $cn
-	 * @param boolean $allowEdit
+	 * @param bool $allowEdit
 	 * @throws LoginException
 	 */
 	public function setColumns($cn, $allowEdit)

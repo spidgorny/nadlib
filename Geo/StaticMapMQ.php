@@ -8,21 +8,23 @@
  *
  * Warning: This service requires an API key.
  */
-class StaticMapMQ {
+class StaticMapMQ
+{
 
-	var $key;
+	public $key;
 
-	var $secret;
+	public $secret;
 
-	var $location;
+	public $location;
 
-	var $lat;
+	public $lat;
 
-	var $lon;
+	public $lon;
 
-	var $size = '640x480';
+	public $size = '640x480';
 
-	function __construct($key, $secret, $location = '', $lat = NULL, $lon = NULL) {
+	public function __construct($key, $secret, $location = '', $lat = null, $lon = null)
+	{
 		$this->key = $key;
 		$this->secret = $secret;
 		$this->location = $location;
@@ -30,17 +32,18 @@ class StaticMapMQ {
 		$this->lon = $lon;
 	}
 
-	function render() {
+	public function render()
+	{
 		list($width, $height) = trimExplode('x', $this->size);
 		$params = [
-			'key'    => $this->key,
-			'size'   => $width.','.$height,
+			'key' => $this->key,
+			'size' => $width . ',' . $height,
 			'center' => $this->location,
 		];
-		$src = 'https://beta.mapquestapi.com/staticmap/v5/map?'.http_build_query($params);
+		$src = 'https://beta.mapquestapi.com/staticmap/v5/map?' . http_build_query($params);
 		$html = new HTML();
 		$img = $html->img($src, [
-			'width'  => $width,
+			'width' => $width,
 			'height' => $height,
 		]);
 		return $img;

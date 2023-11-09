@@ -9,7 +9,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 	public $tag;
 	public $attr = [];
 	public $content;
-	public $isHTML = FALSE;
+	public $isHTML = false;
 	public $closingTag = true;
 
 	public function __construct($tag, array $attr = [], $content = '', $isHTML = false)
@@ -137,7 +137,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 				//$hasChildNodes = $child->hasChildNodes();	// incl Text
 				$hasChildNodes = 0;
 				foreach ($child->childNodes as $node) {
-					if (!($node instanceof \DomText)) {
+					if (!($node instanceof DomText)) {
 						$hasChildNodes++;
 					}
 				}

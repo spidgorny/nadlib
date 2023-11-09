@@ -1,5 +1,6 @@
 <?php
 
+use nadlib\IndexInterface;
 use spidgorny\nadlib\HTTP\URL;
 
 /**
@@ -18,7 +19,7 @@ abstract class SimpleController
 	 */
 	protected static $instance = [];
 	/**
-	 * @var Index|\nadlib\IndexInterface
+	 * @var Index|IndexInterface
 	 */
 	public $index;
 	/**
@@ -82,7 +83,7 @@ abstract class SimpleController
 			return call_user_func_array($this->html->$method, $arguments);
 		}
 
-		throw new RuntimeException('Method '.$method.' not found in '.get_class($this));
+		throw new RuntimeException('Method ' . $method . ' not found in ' . get_class($this));
 	}
 
 	/**

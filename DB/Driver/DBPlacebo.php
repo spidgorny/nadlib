@@ -84,7 +84,7 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 
 	public function quoteKey($key)
 	{
-		return '"'.$key.'"';
+		return '"' . $key . '"';
 	}
 
 	public function escape($string)
@@ -121,7 +121,7 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 
 	public function getScheme()
 	{
-		return get_class($this).'://';
+		return get_class($this) . '://';
 	}
 
 	public function getTablesEx()

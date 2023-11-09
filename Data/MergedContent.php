@@ -12,7 +12,7 @@
 class MergedContent implements ArrayAccess
 {
 
-	var $content = [];
+	public $content = [];
 
 	public function __construct(array $parts = [])
 	{
@@ -97,7 +97,7 @@ class MergedContent implements ArrayAccess
 	 *
 	 * @param string $key An data key to check for
 	 * @access public
-	 * @return boolean
+	 * @return bool
 	 * @abstracting ArrayAccess
 	 */
 	public function __isset($key)
@@ -126,7 +126,7 @@ class MergedContent implements ArrayAccess
 	 * @param string|string[] $render
 	 * @return string
 	 */
-	static function mergeStringArrayRecursive($render)
+	public static function mergeStringArrayRecursive($render)
 	{
 		TaylorProfiler::start(__METHOD__);
 		if (is_array($render)) {

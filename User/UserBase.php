@@ -48,7 +48,7 @@ abstract class UserBase extends OODBase implements UserModelInterface
 	 *
 	 * @param string $login
 	 * @param string $password - plain text password (no, it's md5'ed already)
-	 * @return boolean
+	 * @return bool
 	 * @throws Exception
 	 */
 	public function checkPassword($login, $password)

@@ -50,7 +50,7 @@ class Time
 				Config::getInstance()->log(__CLASS__ . '#' . __LINE__, __('"%1" is unrecognized as a valid date.', $input));
 			}
 		} else {
-			if ($relativeTo === NULL) {
+			if ($relativeTo === null) {
 				$this->time = time();
 			} else {
 				$this->time = $relativeTo;
@@ -373,7 +373,7 @@ class Time
 	 * @param bool $debug
 	 * @return Time
 	 */
-	public function add(Time $plus, $debug = FALSE)
+	public function add(Time $plus, $debug = false)
 	{
 		//TaylorProfiler::start(__METHOD__);
 		$this->time = $this->plus($plus, $debug)->time;
@@ -388,7 +388,7 @@ class Time
 	 * @param bool $debug
 	 * @return Time
 	 */
-	public function plus(Time $plus, $debug = FALSE)
+	public function plus(Time $plus, $debug = false)
 	{
 		//TaylorProfiler::start(__METHOD__);
 		/*$format = '+ '.
@@ -418,7 +418,7 @@ class Time
 	 * @param bool $debug
 	 * @return static
 	 */
-	public function addDur(Duration $plus, $debug = FALSE)
+	public function addDur(Duration $plus, $debug = false)
 	{
 		TaylorProfiler::start(__METHOD__);
 		$this->time = $this->time + $plus->getTimestamp();
@@ -434,7 +434,7 @@ class Time
 	 * @param bool $debug
 	 * @return Time
 	 */
-	public function substract(Time $plus, $debug = FALSE)
+	public function substract(Time $plus, $debug = false)
 	{
 		//TaylorProfiler::start(__METHOD__);
 		$this->time = $this->minus2($plus, $debug)->time;
@@ -449,7 +449,7 @@ class Time
 	 * @param bool $debug
 	 * @return Time
 	 */
-	public function minus2(Time $plus, $debug = FALSE)
+	public function minus2(Time $plus, $debug = false)
 	{
 		//TaylorProfiler::start(__METHOD__);
 		//$format = gmmktime($plus->format('H'), $plus->format('i'), $plus->format('s'), $plus->format('m'), $plus->format('d'), $plus->format('Y'));
@@ -619,7 +619,7 @@ class Time
 	 * @param bool $debug
 	 * @return Time
 	 */
-	public function minus(Time $plus, $debug = FALSE)
+	public function minus(Time $plus, $debug = false)
 	{
 		return $this->minus2($plus, $debug);
 		//TaylorProfiler::start(__METHOD__);
@@ -646,7 +646,7 @@ class Time
 	 * @param null $rel
 	 * @return static
 	 */
-	public static function makeInstance($str, $rel = NULL)
+	public static function makeInstance($str, $rel = null)
 	{
 		$static = get_called_class();
 		return new $static($str, $rel);

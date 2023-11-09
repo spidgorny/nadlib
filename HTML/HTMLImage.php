@@ -6,7 +6,7 @@ class HTMLImage extends HTMLTag
 	/**
 	 * @var string
 	 */
-	var $filename;
+	public $filename;
 
 	public function __construct($filename, array $attr = [])
 	{
@@ -57,7 +57,7 @@ class HTMLImage extends HTMLTag
 
 	public function getExif()
 	{
-		$exif = NULL;
+		$exif = null;
 		if (file_exists($this->filename)
 			&& str_endsWith($this->filename, '.jpeg')
 			&& function_exists('exif_read_data')
@@ -69,7 +69,7 @@ class HTMLImage extends HTMLTag
 
 	public function getLatLon()
 	{
-		$lat = $lon = NULL;
+		$lat = $lon = null;
 		$exif = $this->getExif();
 		if ($exif && $exif["GPSLatitude"]) {
 			$lat = $this->getGps($exif["GPSLatitude"], $exif['GPSLatitudeRef']);
@@ -135,7 +135,7 @@ class HTMLImage extends HTMLTag
 
 	public function getMimeExt()
 	{
-		$newExt = NULL;
+		$newExt = null;
 		$u = new Uploader();
 		$mime = $u->get_mime_type($this->filename);
 		//debug($mime);
@@ -151,7 +151,7 @@ class HTMLImage extends HTMLTag
 		return $newExt;
 	}
 
-	public function resize($width, $height = NULL)
+	public function resize($width, $height = null)
 	{
 		if (!$height) {
 			$height = $width;

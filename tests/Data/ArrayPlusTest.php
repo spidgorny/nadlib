@@ -1,6 +1,7 @@
 <?php
 
-class ArrayPlusTest extends IteratorArrayAccessTest {
+class ArrayPlusTest extends IteratorArrayAccessTest
+{
 
 	/**
 	 * @var ArrayPlus $ai

@@ -33,7 +33,7 @@ class PageSize extends Controller
 	/**
 	 * @var int - default for all instances
 	 */
-	static public $default = 20;
+	public static $default = 20;
 
 	/**
 	 * @param null $selected - default for this instance
@@ -49,13 +49,13 @@ class PageSize extends Controller
 		if (!$this->selected) {
 			$this->selected = $selected;
 			$this->options[$this->selected] = $selected;
-			$this->log[] = 'Constructor: '.$this->selected;
+			$this->log[] = 'Constructor: ' . $this->selected;
 		}
 
 		// in the worst case - default
 		if (!$this->selected) {
 			$this->selected = self::$default;
-			$this->log[] = 'Default: '.$this->selected;
+			$this->log[] = 'Default: ' . $this->selected;
 		}
 
 		$this->options = array_combine($this->options, $this->options);
@@ -80,7 +80,7 @@ class PageSize extends Controller
 
 	/**
 	 * Returns the $this->selected value making sure it's not too big
-	 * @return integer
+	 * @return int
 	 */
 	public function get()
 	{

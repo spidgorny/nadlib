@@ -126,8 +126,8 @@ class Menu /*extends Controller*/
 		}
 		00 && debug([
 			'cwd' => getcwd(),
-			'docRoot' => $this->request->getDocumentRoot().'',
-			'getPathAfterDocRoot' => $this->request->getPathAfterDocRoot().'',
+			'docRoot' => $this->request->getDocumentRoot() . '',
+			'getPathAfterDocRoot' => $this->request->getPathAfterDocRoot() . '',
 			'useRouter' => $this->useRouter(),
 			'useControllerSlug' => $this->useControllerSlug,
 			'rootPath' => $rootPath,
@@ -171,8 +171,8 @@ class Menu /*extends Controller*/
 			'current' => $this->current,
 			'basePath' => $this->basePath . '',
 			'cwd' => getcwd(),
-			'docRoot' => $this->request->getDocumentRoot().'',
-			'getPathAfterDocRoot' => $this->request->getPathAfterDocRoot().'',
+			'docRoot' => $this->request->getDocumentRoot() . '',
+			'getPathAfterDocRoot' => $this->request->getPathAfterDocRoot() . '',
 			'useRouter()' => $this->useRouter(),
 			'rootPath' => $this->basePath->getPath()->getLevels(),
 			'getControllerString' => $this->request->getControllerString(),
@@ -511,7 +511,7 @@ class Menu /*extends Controller*/
 			'useRecursiveURL' => $this->useRecursiveURL,
 			'useControllerSlug' => $this->useControllerSlug,
 			'basePath' => $this->basePath . '',
-			'link' => $link.''
+			'link' => $link . ''
 		]);
 		return $link;
 	}
@@ -528,7 +528,7 @@ class Menu /*extends Controller*/
 	{
 		foreach ($this->items as $class => $_) {
 			try {
-				new $class;
+				new $class();
 			} catch (Exception $e) {
 				unset($this->items[$class]);
 			}

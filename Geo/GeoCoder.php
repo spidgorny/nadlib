@@ -1,6 +1,7 @@
 <?php
 
-class GeoCoder {
+class GeoCoder
+{
 
 	function query($address)
 	{

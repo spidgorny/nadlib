@@ -10,7 +10,7 @@ class Exception404 extends Exception
 		parent::__construct($this->message . '"' . $message . '"', $code, $previous);
 	}
 
-	function sendHeader()
+	public function sendHeader()
 	{
 		if (!headers_sent()) {
 //			header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");

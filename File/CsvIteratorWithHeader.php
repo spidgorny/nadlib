@@ -6,7 +6,7 @@ class CsvIteratorWithHeader extends CsvIterator
 	/**
 	 * @var array
 	 */
-	var $columns;
+	public $columns;
 
 	public function __construct($filename, $delimiter = ',', $convertUTF8 = false)
 	{
@@ -55,7 +55,7 @@ class CsvIteratorWithHeader extends CsvIterator
 //		debug(__METHOD__, $this->current());
 	}
 
-	function ftell()
+	public function ftell()
 	{
 		return ftell($this->filePointer);
 	}

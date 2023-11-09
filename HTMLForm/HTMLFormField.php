@@ -15,7 +15,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 	 * to the HTMLFormField with specific members
 	 * @var array
 	 */
-	var $data = [];
+	public $data = [];
 
 	/**
 	 * @var string
@@ -104,7 +104,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 		return is_string($type) ? $type : get_class($type);
 	}
 
-	function render()
+	public function render()
 	{
 		$fieldName = $this->fieldName;
 		$desc = $this;
@@ -154,7 +154,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 		return $this->content;
 	}
 
-	function getID($from)
+	public function getID($from)
 	{
 		if (is_array($from)) {
 			$elementID = 'id-' . implode('-', $from);
@@ -404,17 +404,17 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 		return $this->data;
 	}
 
-	function getContent()
+	public function getContent()
 	{
 		return $this->content;
 	}
 
-	function isCheckbox()
+	public function isCheckbox()
 	{
 		return $this->getTypeString() == 'checkbox';
 	}
 
-	function setOptional($is = true)
+	public function setOptional($is = true)
 	{
 		$this->data['optional'] = $is;
 	}

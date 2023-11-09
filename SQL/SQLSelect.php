@@ -39,7 +39,7 @@ class SQLSelect
 	public function contains($string)
 	{
 		foreach ($this->parts as $p) {
-			if (str_contains($p.'', $string)) {
+			if (str_contains($p . '', $string)) {
 				return true;
 			}
 		}

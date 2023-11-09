@@ -1,20 +1,23 @@
 <?php
 
-class SQLHaving extends SQLWhere {
+class SQLHaving extends SQLWhere
+{
 
 	protected $parts = [];
 
-	function __construct($order = []) {
+	public function __construct($order = [])
+	{
 		if (is_array($order)) {
 			$this->parts = $order;
-		} else if ($order) {
+		} elseif ($order) {
 			$this->parts[] = $order;
 		}
 	}
 
-	function __toString() {
+	public function __toString()
+	{
 		if ($this->parts) {
-			return 'ORDER BY '.implode(' ', $this->parts);
+			return 'ORDER BY ' . implode(' ', $this->parts);
 		} else {
 			return '';
 		}

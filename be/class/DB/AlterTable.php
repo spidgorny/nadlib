@@ -38,7 +38,7 @@ class AlterTable extends AlterIndex
 		}
 	}
 
-	function sidebar()
+	public function sidebar()
 	{
 		$content = [];
 		$content[] = $this->showDBInfo();
@@ -46,7 +46,7 @@ class AlterTable extends AlterIndex
 		return $content;
 	}
 
-	function renderTableStruct(array $struct, array $local)
+	public function renderTableStruct(array $struct, array $local)
 	{
 		$class = $this->getDBclass();
 		$func = 'renderTableStruct';
@@ -56,7 +56,7 @@ class AlterTable extends AlterIndex
 		return $content;
 	}
 
-	function compareStruct(array $struct, array $local)
+	public function compareStruct(array $struct, array $local)
 	{
 		$content = '';
 		//debug(array_keys($local));
@@ -92,7 +92,7 @@ class AlterTable extends AlterIndex
 		return $content;
 	}
 
-	function compareTables($table, array $fromFile, array $fromDatabase)
+	public function compareTables($table, array $fromFile, array $fromDatabase)
 	{
 		$indexCompare = [];
 		foreach ($fromFile as $i => $index) {
@@ -136,7 +136,7 @@ class AlterTable extends AlterIndex
 		return $indexCompare;
 	}
 
-	function click($table, $query)
+	public function click($table, $query)
 	{
 		$link = $this->a($this->makeURL([
 			'c' => get_class($this),
@@ -154,7 +154,7 @@ class AlterTable extends AlterIndex
 	 * @param array $local
 	 * @return string
 	 */
-	function renderTableStructdbLayerBL(array $struct, array $local)
+	public function renderTableStructdbLayerBL(array $struct, array $local)
 	{
 		$content = '';
 		foreach ($struct as $table => $desc) {
@@ -200,7 +200,7 @@ class AlterTable extends AlterIndex
 		return $content;
 	}
 
-	function renderTableStructdbLayerSQLite(array $struct, array $local)
+	public function renderTableStructdbLayerSQLite(array $struct, array $local)
 	{
 		$content = '';
 		foreach ($struct as $table => $desc) {
@@ -267,10 +267,10 @@ class AlterTable extends AlterIndex
 
 	/**
 	 * TODO
-	 * @see AlterTableHandler
 	 * @param array $a
 	 * @param array $b
 	 * @return bool
+	 * @see AlterTableHandler
 	 */
 	public function sameType($a, $b)
 	{

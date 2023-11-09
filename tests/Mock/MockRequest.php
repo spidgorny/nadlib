@@ -2,7 +2,9 @@
 
 namespace nadlib\Test;
 
-class MockRequest extends \Request
+use Request;
+
+class MockRequest extends Request
 {
 
 	public static function getLocation($isUTF8 = false)

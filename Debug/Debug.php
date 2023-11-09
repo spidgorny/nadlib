@@ -8,7 +8,7 @@ class Debug
 	/**
 	 * @var Debug
 	 */
-	static protected $instance;
+	protected static $instance;
 
 	/**
 	 * no debug unless $_COOKIE['debug']
@@ -513,7 +513,7 @@ class Debug
 		}
 	}
 
-	static function findObject($struct, $type, $path = [])
+	public static function findObject($struct, $type, $path = [])
 	{
 		static $recursive;
 		if (!$path) {

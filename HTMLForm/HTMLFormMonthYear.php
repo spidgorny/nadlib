@@ -3,16 +3,16 @@
 class HTMLFormMonthYear extends HTMLFormType
 {
 
-	var $months = [
-		NULL => 'месяц', 1 =>
+	public $months = [
+		null => 'месяц', 1 =>
 			'Jan', 'Feb', 'Mar',
 		'Apr', 'May', 'Jun',
 		'Jul', 'Aug', 'Sep',
 		'Oct', 'Nov', 'Dec'];
 
-	var $selMonth;
+	public $selMonth;
 
-	var $year;
+	public $year;
 
 	/**
 	 * @param string $field
@@ -54,7 +54,7 @@ class HTMLFormMonthYear extends HTMLFormType
 
 	public function validate()
 	{
-		return $this->year ? NULL : 'Введите год';
+		return $this->year ? null : 'Введите год';
 	}
 
 	public function showMonthOptions()

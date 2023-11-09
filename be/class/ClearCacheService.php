@@ -3,7 +3,7 @@
 class ClearCacheService
 {
 
-	function clearCacheIn($folder)
+	public function clearCacheIn($folder)
 	{
 		$files = $this->getFiles($folder);
 		foreach ($files as $file) {

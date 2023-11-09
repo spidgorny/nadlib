@@ -12,7 +12,7 @@ class PlainSessionUser extends User
 	/**
 	 * @var PlainSessionUser
 	 */
-	static protected $instance;
+	protected static $instance;
 
 	/**
 	 * @var Session

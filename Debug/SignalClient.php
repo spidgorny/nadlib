@@ -1,35 +1,39 @@
 <?php
 
+use GuzzleHttp\Client;
+
 /**
  * Class SignalClient - send vitality information to the signal server
  */
-class SignalClient {
+class SignalClient
+{
 
 	/**
 	 * @var string URL
 	 */
-	var $endpoint;
+	public $endpoint;
 
 	/**
-	 * @var \GuzzleHttp\Client
+	 * @var Client
 	 */
-	var $guzzle;
+	public $guzzle;
 
-	function __construct($endpoint, GuzzleHttp\Client $guzzle)
+	public function __construct($endpoint, GuzzleHttp\Client $guzzle)
 	{
 		$this->endpoint = $endpoint;
 		$this->guzzle = $guzzle;
 	}
 
-	function success($message)
+	public function success($message)
 	{
-		$this->guzzle->post($this->endpoint.'/success', [
+		$this->guzzle->post($this->endpoint . '/success', [
 			'message' => $message,
 		]);
 	}
 
-	function exception(Exception $e) {
-		$this->guzzle->post($this->endpoint.'/exception', [
+	public function exception(Exception $e)
+	{
+		$this->guzzle->post($this->endpoint . '/exception', [
 			'code' => $e->getCode(),
 			'file' => $e->getFile(),
 			'line' => $e->getLine(),
@@ -38,9 +42,9 @@ class SignalClient {
 		]);
 	}
 
-	function error($message)
+	public function error($message)
 	{
-		$this->guzzle->post($this->endpoint.'/error', [
+		$this->guzzle->post($this->endpoint . '/error', [
 			'message' => $message,
 		]);
 	}

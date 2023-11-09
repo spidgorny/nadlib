@@ -1,33 +1,34 @@
 <?php
 
-class ProgressBar {
+class ProgressBar
+{
 
-	var $percentDone = 0;
+	public $percentDone = 0;
 
-	var $pbid;
-	var $pbarid;
-	var $tbarid;
-	var $textid;
+	public $pbid;
+	public $pbarid;
+	public $tbarid;
+	public $textid;
 
-	var $decimals = 2;
+	public $decimals = 2;
 	public $cliBR = "\r";
 	/**
 	 * @var bool
 	 */
-	var $cli = false;
+	public $cli = false;
 	/**
 	 * Must be false in order to user new ProgressBar(...) inside strings.
 	 * @var bool
 	 * Destructor will set the progress bar to 100%
 	 * if enabled.
 	 */
-	var $destruct100 = false;
+	public $destruct100 = false;
 	/**
 	 * Should be undefined so that it can be detected once and then stored.
 	 * Don't put default value here.
 	 * @var int
 	 */
-	var $cliWidth = NULL;
+	public $cliWidth = null;
 	/**
 	 * If supplied then use $pb->setIndex($i) to calculate percentage automatically
 	 * @var int
@@ -69,7 +70,7 @@ class ProgressBar {
 		$this->textid = 'pb_text-' . $pbid;
 	}
 
-	static function getImageWithText($p, $css = 'display: inline-block; width: 100%; text-align: center; white-space: nowrap;', $append = '')
+	public static function getImageWithText($p, $css = 'display: inline-block; width: 100%; text-align: center; white-space: nowrap;', $append = '')
 	{
 		return new HtmlString('<div style="' . $css . '">' .
 			number_format($p, 2) . '&nbsp;%&nbsp;
@@ -77,7 +78,7 @@ class ProgressBar {
 		</div>');
 	}
 
-	static function getImage($p, $append = '', $imgAttributes = [])
+	public static function getImage($p, $append = '', $imgAttributes = [])
 	{
 		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
 		// absolute URL to work even before <base href> is defined
@@ -96,7 +97,7 @@ class ProgressBar {
 	 * @param string $append
 	 * @return string
 	 */
-	static function getBar($p, $append = '')
+	public static function getBar($p, $append = '')
 	{
 		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
 		if (!$prefix || $prefix == '/') {
@@ -106,7 +107,7 @@ class ProgressBar {
 		return $prefix . 'bar.php?rating=' . round($p) . $append;
 	}
 
-	static function getBackground($p, $width = '100px')
+	public static function getBackground($p, $width = '100px')
 	{
 		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
 		return '<div style="
@@ -117,7 +118,7 @@ class ProgressBar {
 			background: url(' . $prefix . 'bar.php?rating=' . round($p) . '&height=14&width=' . intval($width) . ') no-repeat;">' . number_format($p, 2) . '%</div>';
 	}
 
-	static function getCounter($r, $size)
+	public static function getCounter($r, $size)
 	{
 		$r = str_pad($r, strlen($size), ' ', STR_PAD_LEFT);
 		return '[' . $r . '/' . $size . ']';
@@ -146,7 +147,7 @@ class ProgressBar {
 	 * pre-compiles LESS inline
 	 * @return string
 	 */
-	function getCSS()
+	public function getCSS()
 	{
 		$less = AutoLoad::getInstance()->nadlibFromDocRoot . 'CSS/' . $this->cssFile;
 		$cssFile = str_replace('.less', '.css', $less);
@@ -169,7 +170,7 @@ class ProgressBar {
 		return '';
 	}
 
-	function getContent()
+	public function getContent()
 	{
 		$percentDone = floatval($this->percentDone);
 		$percentDone = max(0, min(100, $percentDone));
@@ -189,7 +190,7 @@ class ProgressBar {
 		return $content;
 	}
 
-	static function flush($ob_flush = false)
+	public static function flush($ob_flush = false)
 	{
 		print str_pad('', intval(ini_get('output_buffering')), ' ') . "\n";
 		if ($ob_flush) {
@@ -198,12 +199,12 @@ class ProgressBar {
 		flush();
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		return $this->getContent();
 	}
 
-	function setIndex($i, $always = false, $text = '', $after = '', $everyStep = 1000)
+	public function setIndex($i, $always = false, $text = '', $after = '', $everyStep = 1000)
 	{
 		static $last;
 		if (!$this->count) {
@@ -229,7 +230,7 @@ class ProgressBar {
 		return $percent;
 	}
 
-	function setProgressBarProgress($percentDone, $text = '', $after = '')
+	public function setProgressBarProgress($percentDone, $text = '', $after = '')
 	{
 		$this->percentDone = $percentDone;
 		$text = $text
@@ -244,7 +245,7 @@ class ProgressBar {
 		}
 	}
 
-	function getCLIbar()
+	public function getCLIbar()
 	{
 		$content = '';
 		if (!$this->cliWidth) {
@@ -259,12 +260,12 @@ class ProgressBar {
 		return $content;
 	}
 
-	function getTerminalWidth()
+	public function getTerminalWidth()
 	{
 		if (Request::isWindows()) {
 			$both = $this->getTerminalSizeOnWindows();
 			$width = $both['width'];
-		} else if (!Request::isCron()) {
+		} elseif (!Request::isCron()) {
 			$both = $this->getTerminalSizeOnLinux();
 			$width = $both['width'];
 		} else {
@@ -277,7 +278,7 @@ class ProgressBar {
 	 * http://stackoverflow.com/questions/263890/how-do-i-find-the-width-height-of-a-terminal-window
 	 * @return array
 	 */
-	function getTerminalSizeOnWindows()
+	public function getTerminalSizeOnWindows()
 	{
 		$output = [];
 		$size = ['width' => 0, 'height' => 0];
@@ -293,14 +294,14 @@ class ProgressBar {
 					$size['height'] = intval($matches[1]);
 				}
 			}
-			if ($size['width'] AND $size['height']) {
+			if ($size['width'] and $size['height']) {
 				break;
 			}
 		}
 		return $size;
 	}
 
-	function getTerminalSizeOnLinux()
+	public function getTerminalSizeOnLinux()
 	{
 		$size = array_combine(
 			['width', 'height'],
@@ -331,7 +332,7 @@ class ProgressBar {
 		$this->flush();
 	}
 
-	function __destruct()
+	public function __destruct()
 	{
 		if ($this->destruct100) {
 			$this->setProgressBarProgress(100);
@@ -383,7 +384,7 @@ class ProgressBar {
 		flush();
 	}
 
-	function done($content)
+	public function done($content)
 	{
 		echo 'data: ', json_encode(['complete' => $content]), "\n\n";
 	}

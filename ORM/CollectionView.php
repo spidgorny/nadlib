@@ -10,7 +10,7 @@ class CollectionView
 	 */
 	protected $collection;
 
-	var $noDataMessage = 'No data';
+	public $noDataMessage = 'No data';
 
 	/**
 	 * Indication to slTable
@@ -98,7 +98,7 @@ class CollectionView
 				$content = [$pages .
 					'<div class="collection"
 					 id="' . get_class($this->collection) . '">',
-					$s,	// not HTML, may need to process later
+					$s,  // not HTML, may need to process later
 					'</div>',
 					$pages];
 			} else {

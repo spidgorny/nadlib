@@ -1,40 +1,41 @@
 <?php
 
-class BarImage {
+class BarImage
+{
 
-	var $expires = 31536000; //60*60*24*365;	// days
+	public $expires = 31536000; //60*60*24*365;	// days
 
-	var $width;
+	public $width;
 
-	var $height;
-
-	/**
-	 * @var array
-	 */
-	var $color;
+	public $height;
 
 	/**
 	 * @var array
 	 */
-	var $backColor;
+	public $color;
 
-	var $symmetric = false;
+	/**
+	 * @var array
+	 */
+	public $backColor;
 
-	var $withBorder = true;
+	public $symmetric = false;
 
-	function __construct()
+	public $withBorder = true;
+
+	public function __construct()
 	{
 		$this->width = isset($_GET['width']) ? $_GET['width'] : 100;
 		$this->height = isset($_GET['height']) ? $_GET['height'] : 15;
-		$color = isset($_GET['color']) ? $_GET['color'] : NULL;
+		$color = isset($_GET['color']) ? $_GET['color'] : null;
 		$this->color = $color ? $this->html2rgb($color) : [0x43, 0xB6, 0xDF]; #43B6DF
-		$bg = isset($_GET['bg']) ? $_GET['bg'] : NULL;
+		$bg = isset($_GET['bg']) ? $_GET['bg'] : null;
 		$this->backColor = $bg ? $this->html2rgb($bg) : [0xFF, 0xFF, 0xFF];
 		$this->symmetric = ifsetor($_REQUEST['symmetric']);
 		$this->withBorder = !ifsetor($_GET['!border']);
 	}
 
-	function setHeaders()
+	public function setHeaders()
 	{
 		error_reporting(E_ALL);
 		//ini_set('display_errors', false);
@@ -44,7 +45,7 @@ class BarImage {
 		header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $this->expires) . ' GMT');
 	}
 
-	function drawRating($rating)
+	public function drawRating($rating)
 	{
 		$ratingbar = ($rating / 100) * ($this->width - 5);
 		$barDX = 2;
@@ -77,7 +78,7 @@ class BarImage {
 		imagedestroy($image);
 	}
 
-	function html2rgb($color)
+	public function html2rgb($color)
 	{
 		if ($color[0] == '#') {
 			$color = substr($color, 1);

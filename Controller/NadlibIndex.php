@@ -11,7 +11,7 @@ class NadlibIndex
 	/**
 	 * @var NadlibIndex
 	 */
-	static public $instance;
+	public static $instance;
 
 	/**
 	 * @var DIContainer
@@ -72,7 +72,7 @@ class NadlibIndex
 		self::$instance = $this;
 	}
 
-	function render()
+	public function render()
 	{
 		if (Request::isCLI()) {
 			$content[] = $this->cliMode();
@@ -91,7 +91,7 @@ class NadlibIndex
 		return $content;
 	}
 
-	function cliMode()
+	public function cliMode()
 	{
 		$content[] = 'Nadlib CLI mode';
 		$this->request->importCLIparams();
@@ -106,12 +106,12 @@ class NadlibIndex
 		return $content;
 	}
 
-	function initAction()
+	public function initAction()
 	{
 		return 'initAction';
 	}
 
-	function s($content)
+	public function s($content)
 	{
 		return MergedContent::mergeStringArrayRecursive($content);
 	}

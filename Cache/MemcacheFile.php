@@ -7,7 +7,7 @@ class MemcacheFile implements MemcacheInterface
 	 * Can be set statically in the bootstrap to influence all instances
 	 * @var string
 	 */
-	static $defaultFolder = 'cache/';
+	static public $defaultFolder = 'cache/';
 
 	/**
 	 * @used in ClearCache
@@ -69,7 +69,7 @@ class MemcacheFile implements MemcacheInterface
 	 * @param int $expire
 	 * @return mixed|null|string
 	 */
-	public function get($key = NULL, $expire = 0)
+	public function get($key = null, $expire = 0)
 	{
 		TaylorProfiler::start(__METHOD__);
 		$val = null;
@@ -103,7 +103,7 @@ class MemcacheFile implements MemcacheInterface
 		return $file;
 	}
 
-	public function isValid($key = NULL, $expire = 0)
+	public function isValid($key = null, $expire = 0)
 	{
 		$key = $key ?: $this->key;
 		$expire = $expire ?: $this->expire;

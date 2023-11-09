@@ -1,5 +1,6 @@
 <?php
 
+use nadlib\HTML\Messages;
 use nadlib\HTTP\Session;
 
 class IndexBase /*extends Controller*/
@@ -17,7 +18,7 @@ class IndexBase /*extends Controller*/
 	/**
 	 * For any error messages during initialization.
 	 *
-	 * @var \nadlib\HTML\Messages
+	 * @var Messages
 	 */
 	public $content;
 	/**
@@ -33,7 +34,7 @@ class IndexBase /*extends Controller*/
 	public $description = '';
 	public $keywords = '';
 	public $bodyClasses = [];
-	var $csp = [
+	public $csp = [
 		"default-src" => [
 			"'self'",
 			"'unsafe-inline'",
@@ -485,8 +486,8 @@ class IndexBase /*extends Controller*/
 	public function __destruct()
 	{
 //		if (is_object($this->user) && method_exists($this->user, '__destruct')) {
-			// called automatically(!)
-			//$this->user->__destruct();
+		// called automatically(!)
+		//$this->user->__destruct();
 //		}
 	}
 

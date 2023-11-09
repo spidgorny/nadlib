@@ -2,7 +2,7 @@
 // Specification: http://dev.w3.org/html5/eventsource/
 // Definitions by: Yannik Hampe <https://github.com/yankee42>
 
-declare var EventSource : sse.IEventSourceStatic;
+declare var EventSource: sse.IEventSourceStatic;
 
 declare module sse {
 
@@ -20,7 +20,8 @@ declare module sse {
 	}
 
 	interface IEventSourceStatic {
-		new (url: string, eventSourceInitDict?: IEventSourceInit): IEventSourceStatic;
+		new(url: string, eventSourceInitDict?: IEventSourceInit): IEventSourceStatic;
+
 		/** The serialisation of this EventSource object's url. */
 		url: string;
 		withCredentials: boolean;

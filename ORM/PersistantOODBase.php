@@ -14,9 +14,9 @@ class PersistantOODBase extends OODBase
 	 */
 	public $originalData;
 
-	static public $inserted = 0;
-	static public $updated = 0;
-	static public $skipped = 0;
+	public static $inserted = 0;
+	public static $updated = 0;
+	public static $skipped = 0;
 
 	// define them in a subclass for static::inserted to work
 

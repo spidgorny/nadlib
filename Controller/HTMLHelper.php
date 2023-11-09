@@ -12,48 +12,48 @@ trait HTMLHelper
 	 * @param array $more
 	 * @return HTMLTag
 	 */
-	function a($href, $text = '', $isHTML = false, array $more = [])
+	public function a($href, $text = '', $isHTML = false, array $more = [])
 	{
 		return new HTMLTag('a', [
 				'href' => $href,
 			] + $more, $text ?: $href, $isHTML);
 	}
 
-	function div($content, $class = '', array $more = [])
+	public function div($content, $class = '', array $more = [])
 	{
 		$more['class'] = ifsetor($more['class']) . ' ' . $class;
 		$more = HTMLTag::renderAttr($more);
 		return '<div ' . $more . '>' . $this->s($content) . '</div>';
 	}
 
-	function s($something)
+	public function s($something)
 	{
 		return MergedContent::mergeStringArrayRecursive($something);
 	}
 
-	function span($content, $class = '', array $more = [])
+	public function span($content, $class = '', array $more = [])
 	{
 		$more['class'] = ifsetor($more['class']) . ' ' . $class;
 		$more = HTMLTag::renderAttr($more);
 		return '<span ' . $more . '>' . $this->s($content) . '</span>';
 	}
 
-	function info($content)
+	public function info($content)
 	{
 		return '<div class="alert alert-info">' . $this->s($content) . '</div>';
 	}
 
-	function error($content)
+	public function error($content)
 	{
 		return '<div class="alert alert-danger">' . $this->s($content) . '</div>';
 	}
 
-	function success($content)
+	public function success($content)
 	{
 		return '<div class="alert alert-success">' . $this->s($content) . '</div>';
 	}
 
-	function message($content)
+	public function message($content)
 	{
 		return '<div class="alert alert-warning">' . $this->s($content) . '</div>';
 	}
@@ -78,17 +78,17 @@ trait HTMLHelper
 		return '<h4 ' . HTMLTag::renderAttr($attrs) . '>' . $this->s($content) . '</h4>';
 	}
 
-	function h5($content, array $more = [])
+	public function h5($content, array $more = [])
 	{
 		return '<h5 ' . HTMLTag::renderAttr($more) . '>' . $this->s($content) . '</h5>';
 	}
 
-	function h6($content, array $more = [])
+	public function h6($content, array $more = [])
 	{
 		return '<h6 ' . HTMLTag::renderAttr($more) . '>' . $this->s($content) . '</h6>';
 	}
 
-	function progress($percent)
+	public function progress($percent)
 	{
 		$percent = intval($percent);
 		return '<div class="progress">
@@ -100,20 +100,20 @@ trait HTMLHelper
 		</div>';
 	}
 
-	function p($content, array $attr = [])
+	public function p($content, array $attr = [])
 	{
 		$more = HTMLTag::renderAttr($attr);
 		return '<p ' . $more . '>' . $this->s($content) . '</p>';
 	}
 
-	function img($src, array $attr = [])
+	public function img($src, array $attr = [])
 	{
 		return new HTMLTag('img', [
 				'src' => /*$this->e*/ ($src),    // encoding is not necessary for &amp; in URL
 			] + $attr);
 	}
 
-	function e($content)
+	public function e($content)
 	{
 		if (is_array($content)) {
 			$content = MergedContent::mergeStringArrayRecursive($content);
@@ -121,14 +121,14 @@ trait HTMLHelper
 		return htmlspecialchars($content, ENT_QUOTES);
 	}
 
-	function script($file)
+	public function script($file)
 	{
 		$mtime = filemtime($file);
 		$file .= '?' . $mtime;
 		return '<script src="' . $file . '" type="text/javascript"></script>';
 	}
 
-	function url($page, array $params = [])
+	public function url($page, array $params = [])
 	{
 		return $page . '?' . http_build_query($params);
 	}

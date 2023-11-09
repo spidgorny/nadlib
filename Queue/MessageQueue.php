@@ -15,8 +15,8 @@ class MessageQueue extends OODBase
 	const STATUS_DONE = 'DONE';
 	const STATUS_FAILED = 'FAILED';
 
-	var $table = 'message_queue';
-	var $idField = 'id';
+	public $table = 'message_queue';
+	public $idField = 'id';
 
 	/**
 	 * Class name
@@ -121,7 +121,7 @@ class MessageQueue extends OODBase
 		}
 	}
 
-	function count()
+	public function count()
 	{
 		$where = [
 			'status' => self::STATUS_NEW,
@@ -192,11 +192,10 @@ class MessageQueue extends OODBase
 		return $this->data['status'];
 	}
 
-	function update(array $data)
+	public function update(array $data)
 	{
 		$data['mtime'] = new SQLNow();
 		return parent::update($data);
 	}
 
 }
-

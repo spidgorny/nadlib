@@ -7,7 +7,7 @@ if (!function_exists('__')) {    // conflict with cakePHP
 		if (class_exists('Config')) {
 			$config = Config::getInstance();
 		} else {
-			$config = NULL;
+			$config = null;
 		}
 		nodebug($code, !!$config,
 			is_object($config) ? get_class($config) : gettype($config),

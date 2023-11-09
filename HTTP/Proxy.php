@@ -14,7 +14,7 @@ use OODBase;
 class Proxy extends OODBase
 {
 
-	static public $best = [];
+	public static $best = [];
 	protected static $maxFail = 15;
 	protected static $maxFailBest = 200;
 	public $table = 'proxy';

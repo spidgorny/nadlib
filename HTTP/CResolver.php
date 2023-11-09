@@ -1,15 +1,16 @@
 <?php
 
-class CResolver implements ResolverInterface {
+class CResolver implements ResolverInterface
+{
 
-	var $slug;
+	public $slug;
 
-	function __construct($slug)
+	public function __construct($slug)
 	{
 		$this->slug = $slug;
 	}
 
-	function getController()
+	public function getController()
 	{
 		$controller = $this->slug;
 		// to simplify URL it first searches for the corresponding controller

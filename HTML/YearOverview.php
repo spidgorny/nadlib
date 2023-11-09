@@ -3,13 +3,13 @@
 class YearOverview extends Controller
 {
 
-	var $year;
+	public $year;
 
-	var $days = [];
+	public $days = [];
 
-	var $beginning;
+	public $beginning;
 
-	var $dowName = [
+	public $dowName = [
 		1 => 'Mon',
 		'Tue',
 		'Wed',
@@ -19,9 +19,9 @@ class YearOverview extends Controller
 		'Sun',
 	];
 
-	var $maxIntensity = '#1e6823';
+	public $maxIntensity = '#1e6823';
 
-	function __construct($year = null)
+	public function __construct($year = null)
 	{
 		$this->year = $year ?: date('Y');
 		$this->beginning = mktime(0, 0, 0, 1, 1, $this->year);
@@ -35,7 +35,7 @@ class YearOverview extends Controller
 		}
 	}
 
-	function addActivity($day, $count)
+	public function addActivity($day, $count)
 	{
 		$day = strtotime($day);
 		$day = date('Y-m-d', $day);
@@ -45,7 +45,7 @@ class YearOverview extends Controller
 	/**
 	 * The values in $this->days are supposed to be in [0, 100] range
 	 */
-	function normalize()
+	public function normalize()
 	{
 		$max = max($this->days);
 		if ($max) {
@@ -55,7 +55,7 @@ class YearOverview extends Controller
 		}
 	}
 
-	function render()
+	public function render()
 	{
 		// diff between Monday and first of Jan
 		$diff = date('N', $this->beginning) - 1;

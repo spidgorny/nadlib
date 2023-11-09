@@ -6,24 +6,25 @@
  * Date: 2017-03-22
  * Time: 17:38
  */
-class StaticMapOSM {
+class StaticMapOSM
+{
 
-	var $location;
+	public $location;
 
-	var $lat;
+	public $lat;
 
-	var $lon;
+	public $lon;
 
-	var $size = '640x480';
+	public $size = '640x480';
 
-	function __construct($location, $lat = NULL, $lon = NULL)
+	public function __construct($location, $lat = null, $lon = null)
 	{
 		$this->location = $location;
 		$this->lat = $lat;
 		$this->lon = $lon;
 	}
 
-	function render()
+	public function render()
 	{
 		list($width, $height) = explode('x', $this->size);
 		if ($this->lat && $this->lon) {

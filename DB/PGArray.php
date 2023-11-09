@@ -64,7 +64,7 @@ class PGArray extends AsIs
 
 	/**
 	 * @param array $data
-	 * @param string $type	"::integer[]"
+	 * @param string $type "::integer[]"
 	 * @return AsIs
 	 */
 	public function setPGArray(array $data, $type = '')
@@ -128,8 +128,8 @@ class PGArray extends AsIs
 	/**
 	 * Slawa's own recursive approach. Not working 100%. See mTest from ORS.
 	 * @param string $input
-	 * @internal param string $dbarr
 	 * @return array
+	 * @internal param string $dbarr
 	 */
 	public function getPGArray($input)
 	{
@@ -147,10 +147,10 @@ class PGArray extends AsIs
 				// JSON inside
 				$jsonStart = strpos($input, '{');
 				$jsonEnd = strpos($input, '}');
-				$json = substr($input, $jsonStart, $jsonEnd-$jsonStart+1);
-				$input = substr($input, 0, $jsonStart).
-					'*!*JSON*!*'.
-					substr($input, $jsonEnd+1);
+				$json = substr($input, $jsonStart, $jsonEnd - $jsonStart + 1);
+				$input = substr($input, 0, $jsonStart) .
+					'*!*JSON*!*' .
+					substr($input, $jsonEnd + 1);
 				$parts = $this->str_getcsv($input, ',', '"');
 //				ini_set('xdebug.var_display_max_data', 9999);
 //				debug($input, $parts, $json);
@@ -170,8 +170,8 @@ class PGArray extends AsIs
 	/**
 	 * Change a db array into a PHP array
 	 * @param string $input
-	 * @internal param String $arr representing the DB array
 	 * @return A PHP array
+	 * @internal param String $arr representing the DB array
 	 */
 	/*	function getPGArray($dbarr) {
 			// Take off the first and last characters (the braces)
@@ -359,7 +359,7 @@ class PGArray extends AsIs
 		}
 		$return = [];
 		$string = false;
-		$quote='';
+		$quote = '';
 		$len = strlen($s);
 		$v = '';
 		for ($i = $start + 1; $i < $len; $i++) {
@@ -420,7 +420,7 @@ class PGArray extends AsIs
 
 	public function unnest($sElements)
 	{
-		$rows = $this->db->fetchAll("SELECT unnest('".pg_escape_string($sElements)."'::text[])");
+		$rows = $this->db->fetchAll("SELECT unnest('" . pg_escape_string($sElements) . "'::text[])");
 //		$rows = $this->db->fetchAll("SELECT unnest(string_to_array('".pg_escape_string($sElements)."'::text, ','))");
 		return $rows;
 	}

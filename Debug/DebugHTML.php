@@ -5,8 +5,8 @@ class DebugHTML
 
 	const LEVELS = 'LEVELS';
 
-	static public $stylesPrinted = false;
-	static public $defaultLevels = 4;
+	public static $stylesPrinted = false;
+	public static $defaultLevels = 4;
 	/**
 	 * @var Debug
 	 */

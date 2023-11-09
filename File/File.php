@@ -61,7 +61,7 @@ class File
 
 	public function getPathname()
 	{
-		return $this->dir.'/'.$this->name;
+		return $this->dir . '/' . $this->name;
 	}
 
 	public function md5()

@@ -1,20 +1,23 @@
 <?php
 
-class InitNADLIB {
+use Composer\Autoload\ClassLoader;
 
-	var $useCookies = true;
+class InitNADLIB
+{
+
+	public $useCookies = true;
 
 	/**
 	 * @var AutoLoad
 	 */
-	var $al;
+	public $al;
 
-	var $startTime;
+	public $startTime;
 
-	var $endTime;
+	public $endTime;
 
 	/**
-	 * @var \Composer\Autoload\ClassLoader
+	 * @var ClassLoader
 	 */
 	public $composer;
 
@@ -23,7 +26,7 @@ class InitNADLIB {
 	 */
 	public $development;
 
-	function __construct()
+	public function __construct()
 	{
 		$this->startTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
 		require_once dirname(__FILE__) . '/AutoLoad.php';
@@ -56,7 +59,7 @@ class InitNADLIB {
 	public function init()
 	{
 		// maybe InitNADLIB was loaded by composer autoload
-		require_once __DIR__.'/../init.php';
+		require_once __DIR__ . '/../init.php';
 		//print_r($_SERVER);
 		$this->setDefaults();
 		$this->setErrorReporting();
@@ -92,10 +95,10 @@ class InitNADLIB {
 		$this->endTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
 	}
 
-	function initWhoops()
+	public function initWhoops()
 	{
-		$run = new Whoops\Run;
-		$handler = new Whoops\Handler\PrettyPageHandler;
+		$run = new Whoops\Run();
+		$handler = new Whoops\Handler\PrettyPageHandler();
 		$run->pushHandler($handler);
 		$run->register();
 	}
@@ -163,7 +166,7 @@ border-radius: 5px;">');
 		} else {
 			@header('X-nadlib: PRODUCTION');
 			error_reporting(0);
-			ini_set('display_errors', FALSE);
+			ini_set('display_errors', false);
 		}
 	}
 
@@ -179,7 +182,7 @@ border-radius: 5px;">');
 					? Config::getInstance()->timeLimit
 					: 5);    // small enough to notice if the site is having perf. problems
 			}
-			$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : NULL;
+			$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : null;
 			if (!Request::isCLI() && !headers_sent()) {
 				header('Cache-Control: no-cache, no-store, max-age=0');
 				header('Expires: -1');

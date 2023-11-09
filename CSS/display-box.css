@@ -17,6 +17,7 @@ http://stackoverflow.com/questions/16280040/css3-flexbox-display-box-vs-flexbox-
 	-moz-box-align: stretch;
 	box-align: stretch;
 }
+
 .display-box100 {
 	-moz-box-sizing: border-box;
 	-webkit-box-sizing: border-box;
@@ -42,6 +43,7 @@ http://stackoverflow.com/questions/16280040/css3-flexbox-display-box-vs-flexbox-
 	overflow: auto;
 	flex-grow: 1;
 }
+
 .display-box > *:first-child,
 .flex-box:first-child {
 	margin-left: 0;
@@ -50,6 +52,7 @@ http://stackoverflow.com/questions/16280040/css3-flexbox-display-box-vs-flexbox-
 .display-box.equal {
 	display: flex;
 }
+
 .flex-equal {
 	-webkit-flex-box: 1;
 	-moz-flex-box: 1;

@@ -116,7 +116,7 @@ class SQLBuilder
 	public static function getFirstWord($table)
 	{
 		if (!$table) {
-			throw new InvalidArgumentException(__METHOD__.' called on ['.$table.']');
+			throw new InvalidArgumentException(__METHOD__ . ' called on [' . $table . ']');
 		}
 		$table1 = trimExplode(' ', $table);
 		$table0 = $table1[0];
@@ -133,9 +133,9 @@ class SQLBuilder
 	 * In other words, it takes care of col = 'NULL' situation and makes it 'col IS NULL'
 	 *
 	 * @param array $where
-	 * @throws Exception
-	 * @throws MustBeStringException
 	 * @return array
+	 * @throws MustBeStringException
+	 * @throws Exception
 	 */
 	public function quoteWhere(array $where)
 	{
@@ -202,7 +202,7 @@ class SQLBuilder
 		}
 		//debug($query);
 		$this->db->commit();
-		$this->lastQuery = $query;	// overwrite 'commit'
+		$this->lastQuery = $query;  // overwrite 'commit'
 		TaylorProfiler::stop(__METHOD__);
 		return $inserted;
 	}
@@ -267,8 +267,8 @@ class SQLBuilder
 	 *
 	 * @param mixed $value
 	 * @param string $key
-	 * @throws MustBeStringException
 	 * @return string
+	 * @throws MustBeStringException
 	 */
 	public function quoteSQL($value, $key = null)
 	{
@@ -384,8 +384,8 @@ class SQLBuilder
 	 * @param $table
 	 * @param array $fields
 	 * @param array $insert
-	 * @throws Exception
 	 * @return resource
+	 * @throws Exception
 	 */
 	public function runInsertNew($table, array $fields, array $insert = [])
 	{
@@ -645,7 +645,7 @@ class SQLBuilder
 	{
 		$query = $this->getSelectQuery($table, $where, $order, $selectPlus);
 		if ($this->logToLog) {
-			llog($query.'', $query->getParameters(), get_class($this->db), $this->db->getConnection());
+			llog($query . '', $query->getParameters(), get_class($this->db), $this->db->getConnection());
 		}
 		$res = $this->db->perform($query, $query->getParameters());
 		if ($this->logToLog) {

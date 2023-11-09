@@ -3,7 +3,7 @@
 class AlterTableCLI extends AlterTable
 {
 
-	function __construct()
+	public function __construct()
 	{
 		if (!Request::isCLI()) {
 			die(__CLASS__ . ' can only be called by admin');
@@ -17,17 +17,17 @@ class AlterTableCLI extends AlterTable
 		parent::__construct();
 	}
 
-	function render()
+	public function render()
 	{
 		echo 'DB Class: ', typ($this->db), BR;
 		echo 'DB Schema: ', $this->db->getScheme(), BR;
 		$action = $this->request->getTrim('action');
 		$action = $action ?: ifsetor($_SERVER['argv'][2]);
 		echo 'Action: ', $action, BR;
-		return $this->performAction();	// save, list, try
+		return $this->performAction();  // save, list, try
 	}
 
-	function saveAction()
+	public function saveAction()
 	{
 		echo 'File: ', $this->jsonFile, BR;
 		echo 'Size: ', filesize($this->jsonFile), BR;
@@ -36,14 +36,14 @@ class AlterTableCLI extends AlterTable
 		echo 'Size: ', filesize($this->jsonFile), BR;
 	}
 
-	function listAction()
+	public function listAction()
 	{
 		/** @var UL $ul */
 		$ul = $this->listFiles()[0];
 		$ul->cli();
 	}
 
-	function tryAction()
+	public function tryAction()
 	{
 		$filename = $this->jsonFile;
 		//$filename = str_replace('sql\\', '', $filename);

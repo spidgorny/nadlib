@@ -172,10 +172,10 @@ class SQLSelectQuery extends SQLWherePart
 	 */
 	public static function getSelectQueryP(
 		DBInterface $db,
-		$table,
-		$where = [],
-		$sOrder = '',
-		$addSelect = null
+								$table,
+								$where = [],
+								$sOrder = '',
+								$addSelect = null
 	)
 	{
 		$table1 = SQLBuilder::getFirstWord($table);

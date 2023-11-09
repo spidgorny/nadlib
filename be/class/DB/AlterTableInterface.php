@@ -9,7 +9,7 @@ interface AlterTableInterface
 	 * @param array $columns
 	 * @return mixed
 	 */
-	function getCreateQuery($table, array $columns);
+	public function getCreateQuery($table, array $columns);
 
 	/**
 	 * ALTER TABLE CHANGE COLUMN $oldName ...
@@ -18,7 +18,7 @@ interface AlterTableInterface
 	 * @param TableField $index
 	 * @return mixed
 	 */
-	function getAlterQuery($table, $oldName, TableField $index);
+	public function getAlterQuery($table, $oldName, TableField $index);
 
 	/**
 	 * ALTER TABLE ADD COLUMN ...
@@ -26,8 +26,8 @@ interface AlterTableInterface
 	 * @param TableField $index
 	 * @return mixed
 	 */
-	function getAddQuery($table, TableField $index);
+	public function getAddQuery($table, TableField $index);
 
-	function getFieldParams(TableField $index);
+	public function getFieldParams(TableField $index);
 
 }

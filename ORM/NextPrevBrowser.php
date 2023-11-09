@@ -35,8 +35,8 @@ class NextPrevBrowser
 	 * elements on the page still have prev and next elements. But it's SLOW!
 	 *
 	 * @param OODBase $model
-	 * @throws Exception
 	 * @return string
+	 * @throws Exception
 	 */
 	public function getNextPrevBrowser(OODBase $model)
 	{
@@ -117,7 +117,7 @@ class NextPrevBrowser
 	 * @param $arrow
 	 * @return HTMLTag
 	 */
-	protected function getNextPrevLink(array $prev, $arrow): \HTMLTag
+	protected function getNextPrevLink(array $prev, $arrow): HTMLTag
 	{
 		if ($prev['singleLink']) {
 			$content = new HTMLTag('a', [

@@ -3,7 +3,7 @@
 class TimeTrackHG extends AppControllerBE
 {
 
-	var $cacheFile;
+	public $cacheFile;
 
 	public function __construct()
 	{

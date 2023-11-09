@@ -29,7 +29,7 @@ class FakeMailer implements MailerInterface
 		//pre_print_r(__METHOD__, get_object_vars($this), func_get_args());
 		$message = $this->getSwiftMessage($cc, $bcc, $attachments, $additionalSenders);
 
-		$transport = new Swift_NullTransport();	// <== null
+		$transport = new Swift_NullTransport();  // <== null
 		$mailer = new Swift_Mailer($transport);
 		$failedRecipients = [];
 		$sent = $mailer->send($message, $failedRecipients);

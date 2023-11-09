@@ -6,39 +6,39 @@ class Timeline2 /*extends AppController */
 	/**
 	 * @var Date
 	 */
-	var $start;
+	public $start;
 
 	/**
 	 * @var Date
 	 */
-	var $end;
+	public $end;
 
 	/**
 	 * @var Time
 	 */
-	var $duration;
+	public $duration;
 
-	var $width;
+	public $width;
 
-	var $height;
+	public $height;
 
-	var $fillBottomColor = '#EAEAEA';
+	public $fillBottomColor = '#EAEAEA';
 
-	var $fillTopColor = '#DADADA';
+	public $fillTopColor = '#DADADA';
 
-	var $rangeColor = '#0088CC';
+	public $rangeColor = '#0088CC';
 
-	var $textColor = 'rgb(100,100,100)';
+	public $textColor = 'rgb(100,100,100)';
 
-	var $rangeContent = [];
+	public $rangeContent = [];
 
-	var $height_10;
-	var $height_20;
-	var $height_30;
-	var $fontSize;
-	var $dayWidth;
+	public $height_10;
+	public $height_20;
+	public $height_30;
+	public $fontSize;
+	public $dayWidth;
 
-	function __construct($width, $height, Date $start, Date $end)
+	public function __construct($width, $height, Date $start, Date $end)
 	{
 		$this->width = $width;
 		$this->height = $height;
@@ -107,8 +107,8 @@ class Timeline2 /*extends AppController */
 		$i = 0;
 		/* @var $date Time */
 		for ($date = new Time($this->start);
-			 $date->earlier($this->end);
-			 $date->add(new Duration('1 hour'))) {
+				 $date->earlier($this->end);
+				 $date->add(new Duration('1 hour'))) {
 			$x = $this->date2xTime($date);
 			if ($this->dayWidth > 24 * 2) {    // 24h * 2 pixels
 				$content .= '<line x1="' . $x . '" y1="' . ($this->height_10) . '" x2="' . $x . '"
@@ -133,8 +133,8 @@ class Timeline2 /*extends AppController */
 	{
 		$content = '';
 		for ($date = clone $this->start/* @var $date Date */;
-			 $date->earlier($this->end);
-			 $date->add(new Duration('1 day'))) {
+				 $date->earlier($this->end);
+				 $date->add(new Duration('1 day'))) {
 			$x = $this->date2x($date);
 			if ($this->dayWidth > 2) {    // px
 				$content .= '<line x1="' . $x . '" y1="' . ($this->height_10) . '" x2="' . $x . '"
@@ -159,8 +159,8 @@ class Timeline2 /*extends AppController */
 		$content = '';
 		$firstWeek = new Date(strtotime('monday', $this->start->getTimestamp()));
 		for ($date = $firstWeek/* @var $date Date */;
-			 $date->earlier($this->end);
-			 $date->add(new Duration('1 week'))) {
+				 $date->earlier($this->end);
+				 $date->add(new Duration('1 week'))) {
 			$x = $this->date2x($date);
 			$content .= '<line x1="' . $x . '"
 				y1="' . $this->height_10 . '"
@@ -180,8 +180,8 @@ class Timeline2 /*extends AppController */
 		$content = '';
 		for ($date = clone $this->start
 			/* @var $date Date */;
-			 $date->earlier($this->end);
-			 $date->add(new Duration('next month'))) {
+				 $date->earlier($this->end);
+				 $date->add(new Duration('next month'))) {
 			// Fix, because it jumps to 2015-03-04
 			//debug($date);
 			// gmdate() and GMT are very important here
@@ -212,8 +212,8 @@ class Timeline2 /*extends AppController */
 		if (($this->dayWidth * 30) < ($this->fontSize * 3)) {    // 3 letters in Jan
 			for ($date = clone $this->start
 				/* @var $date Date */;
-				 $date->earlier($this->end);
-				 $date->add(new Duration('1 year'))) {
+					 $date->earlier($this->end);
+					 $date->add(new Duration('1 year'))) {
 				$x = $this->date2x($date);
 				$content .= '<text
 						x="' . ($x + 1) . '"
@@ -248,8 +248,8 @@ class Timeline2 /*extends AppController */
 	}
 
 	public function renderTimeRange(Time $from, Time $till,
-							 $style = 'fill: #0088CC; stroke-width:0; stroke:rgb(0,0,0)',
-							 $more = [])
+																			 $style = 'fill: #0088CC; stroke-width:0; stroke:rgb(0,0,0)',
+																			 $more = [])
 	{
 		$x = $this->date2xTime($from);
 		$width = $this->date2xTime($till) - $x;

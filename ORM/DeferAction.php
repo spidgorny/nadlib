@@ -3,11 +3,11 @@
 class DeferAction extends OODBase
 {
 	const table = 'defer_action';
-	var $table = self::table;
+	public $table = self::table;
 	const idField = 'id';
-	var $idField = self::idField;
+	public $idField = self::idField;
 
-	var $queue;
+	public $queue;
 
 	public function __construct($queue)
 	{

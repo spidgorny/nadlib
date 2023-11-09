@@ -1,22 +1,26 @@
 <?php
 
-class MiniProfiler {
+class MiniProfiler
+{
 	protected $timer = [];
 	protected $lastName = [];
 
-	function startTimer($name) {
+	public function startTimer($name)
+	{
 		$this->timer[$name]['start'] = microtime(true);
 		//$this->lastName[] = $name;
 	}
 
-	function stopTimer($name) {
+	public function stopTimer($name)
+	{
 		$this->timer[$name]['duration'] += microtime(true) - $this->timer[$name]['start'];
 		$this->timer[$name]['times']++;
 		$this->timer[$name]['start'] = microtime(true);
 		//$this->lastName[] = $name;
 	}
 
-	function printTimers() {
+	public function printTimers()
+	{
 		$table = [];
 		foreach ($this->timer as $name => $t) {
 			$table[] = [

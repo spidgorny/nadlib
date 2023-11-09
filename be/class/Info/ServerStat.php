@@ -2,17 +2,17 @@
 
 class ServerStat extends AppControllerBE
 {
-	var $start_time;
-	var $LOG = [];
-	var $COUNTQUERIES = 0;
-	var $totalTime;
+	public $start_time;
+	public $LOG = [];
+	public $COUNTQUERIES = 0;
+	public $totalTime;
 
 	/**
 	 * @var Config
 	 */
-	var $config;
+	public $config;
 
-	function __construct($start_time = null, $LOG = [], $COUNTQUERIES = 0)
+	public function __construct($start_time = null, $LOG = [], $COUNTQUERIES = 0)
 	{
 		parent::__construct();
 		$this->start_time = $start_time ? $start_time : $_SERVER['REQUEST_TIME'];
@@ -21,7 +21,7 @@ class ServerStat extends AppControllerBE
 		$this->config = Config::getInstance();
 	}
 
-	function render()
+	public function render()
 	{
 		$this->index->addJS('be/js/main.js');
 		$content = $this->performAction();
@@ -39,14 +39,14 @@ class ServerStat extends AppControllerBE
 	 * AJAX
 	 * @return string
 	 */
-	function updateHereAction()
+	public function updateHereAction()
 	{
 		$content = $this->renderEverything();
 		$content .= '<script> updateHere(); </script>';
 		return $content;
 	}
 
-	function renderEverything()
+	public function renderEverything()
 	{
 		$content = '<div class="col-md-5">';
 		$content .= '<fieldset><legend>PHP Info</legend>' . $this->getPHPInfo() . '</fieldset>';
@@ -65,7 +65,7 @@ class ServerStat extends AppControllerBE
 		return $content;
 	}
 
-	function getPHPInfo()
+	public function getPHPInfo()
 	{
 		$useMem = memory_get_usage();
 		$allMem = intval(ini_get('memory_limit')) * 1024 * 1024;
@@ -97,7 +97,7 @@ class ServerStat extends AppControllerBE
 		return $s;
 	}
 
-	function getPerformanceInfo()
+	public function getPerformanceInfo()
 	{
 		$this->LOG = is_array($this->LOG) ? $this->LOG : [];
 
@@ -136,7 +136,7 @@ class ServerStat extends AppControllerBE
 		return $conf;
 	}
 
-	function getServerInfo()
+	public function getServerInfo()
 	{
 		$conf = [];
 		$total = @disk_total_space('/');
@@ -208,18 +208,18 @@ class ServerStat extends AppControllerBE
 		return $s;
 	}
 
-	function getQueryLog()
+	public function getQueryLog()
 	{
 		$s = new slTable('dumpQueries', 'width="100%"');
 		$s->thes([
-			'query'    => ['name' => 'Query', 'no_hsc' => true, 'colspan' => 7, 'new_tr' => true],
+			'query' => ['name' => 'Query', 'no_hsc' => true, 'colspan' => 7, 'new_tr' => true],
 			'function' => '<a href="javascript: void(0);" onclick="toggleRows(\'dumpQueries\');">Func.</a>',
-			'line'     => '(l)',
+			'line' => '(l)',
 			//'results' => 'Rows',
-			'elapsed'  => ['name' => '1st', 'decimals' => 3],
-			'count'    => '#',
-			'total'    => ['name' => $this->totalTime, 'decimals' => 3],
-			'percent'  => '100%',
+			'elapsed' => ['name' => '1st', 'decimals' => 3],
+			'count' => '#',
+			'total' => ['name' => $this->totalTime, 'decimals' => 3],
+			'percent' => '100%',
 		]);
 		$s->data = ifsetor($this->LOG, ifsetor($this->config->getDB()->getQueryLog()));
 		$s->isOddEven = true;
@@ -227,7 +227,7 @@ class ServerStat extends AppControllerBE
 		return $s;
 	}
 
-	function format_uptime($seconds)
+	public function format_uptime($seconds)
 	{
 		$secs = intval($seconds % 60);
 		$mins = intval($seconds / 60 % 60);
@@ -241,19 +241,19 @@ class ServerStat extends AppControllerBE
 		return $uptimeString;
 	}
 
-	function getBarURL($percent)
+	public function getBarURL($percent)
 	{
 		$content = AutoLoad::getInstance()->nadlibFromDocRoot . 'bar.php?rating=' . round($percent) . '&!border=0&height=25';
 		return $content;
 	}
 
-	function getBar($percent)
+	public function getBar($percent)
 	{
 		$content = '<img src="' . $this->getBarURL($percent) . '" />';
 		return $content;
 	}
 
-	function getBarWith($value)
+	public function getBarWith($value)
 	{
 		return new HTMLTag('td', [
 			'style' => 'width: 100px; background: no-repeat url(' . $this->getBarURL($value) . ');',
@@ -278,7 +278,7 @@ class ServerStat extends AppControllerBE
 		return $return;
 	}
 
-	function getRAMInfo()
+	public function getRAMInfo()
 	{
 		$meminfo = "/proc/meminfo";
 		if (@file_exists($meminfo)) {
@@ -296,15 +296,15 @@ class ServerStat extends AppControllerBE
 			$prozent_belegtq = 100 * $belegtq / $insgesamtq;
 		}
 		$res = [
-			'total'   => ifsetor($totalp),
-			'used'    => ifsetor($belegtq),
-			'free'    => ifsetor($freiq),
+			'total' => ifsetor($totalp),
+			'used' => ifsetor($belegtq),
+			'free' => ifsetor($freiq),
 			'percent' => ifsetor($prozent_belegtq),
 		];
 		return $res;
 	}
 
-	function getCpuUsage($_statPath = '/proc/stat')
+	public function getCpuUsage($_statPath = '/proc/stat')
 	{
 		TaylorProfiler::start(__METHOD__);
 		$percentages = [
@@ -332,7 +332,7 @@ class ServerStat extends AppControllerBE
 		return $percentages;
 	}
 
-	function sortLog($a, $b)
+	public function sortLog($a, $b)
 	{
 		$a = $a['total'];
 		$b = $b['total'];
@@ -353,7 +353,7 @@ class ServerStat extends AppControllerBE
 		}
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		return $this->render();
 	}

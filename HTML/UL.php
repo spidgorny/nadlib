@@ -80,7 +80,7 @@ class UL implements ToStringable
 				}
 				$li = $wrap->wrap($li);
 			} else {
-				$link = NULL;
+				$link = null;
 			}
 
 			$line = Wrap::make($this->wrap)->wrap($li);

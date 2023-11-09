@@ -141,7 +141,6 @@ class Flot extends Controller
 	 * Fixed for Posa Cards
 	 *
 	 * @param string $divID
-	 * @throws Exception
 	 * @return string
 	 * array[19]
 	 * 1309471200    array[2]
@@ -150,6 +149,7 @@ class Flot extends Controller
 	 * 1314828000    array[2]
 	 * 0    integer    1314828000000
 	 * 1    integer    39
+	 * @throws Exception
 	 */
 	public function render($divID = 'chart1')
 	{
@@ -235,10 +235,10 @@ class Flot extends Controller
 	 * Uses strtotime() so the $timeKey values should be PHP parsable
 	 *
 	 * @param array $rows
-	 * @internal param string $keyKey
+	 * @return array
 	 * @internal param string $timeKey
 	 * @internal param string $amountKey
-	 * @return array
+	 * @internal param string $keyKey
 	 */
 	public function getChartTable(array $rows)
 	{

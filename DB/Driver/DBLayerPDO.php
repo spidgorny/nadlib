@@ -34,9 +34,9 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	protected $dataSeek = null;
 
 	public function __construct($db = null, $host = null,
-								$user = null, $password = null,
-								$scheme = 'mysql', $driver = null,
-								$port = 3306)
+															$user = null, $password = null,
+															$scheme = 'mysql', $driver = null,
+															$port = 3306)
 	{
 		if ($user) {
 			$this->connect($user, $password,
@@ -60,7 +60,8 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	 * @param string $db
 	 * @param int $port
 	 */
-	function connect($user, $password, $scheme, $driver, $host, $db, $port = 3306) {
+	public function connect($user, $password, $scheme, $driver, $host, $db, $port = 3306)
+	{
 		//$dsn = $scheme.':DRIVER={'.$driver.'};DATABASE='.$db.';SYSTEM='.$host.';dbname='.$db.';HOSTNAME='.$host.';PORT='.$port.';PROTOCOL=TCPIP;';
 		if ($scheme === 'sqlite') {
 			$this->database = basename($db);
@@ -231,7 +232,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	 * @return mixed
 	 * @see http://php.net/manual/de/function.parse-url.php#83828
 	 */
-	function parseUrl($url)
+	public function parseUrl($url)
 	{
 		$r = "^(?:(?P<scheme>\w+)://)?";
 		$r .= "(?:(?P<login>\w+):(?P<pass>\w+)@)?";
@@ -271,7 +272,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		return $scheme;
 	}
 
-	public function fetchAll($stringOrRes, $key = NULL)
+	public function fetchAll($stringOrRes, $key = null)
 	{
 		if (is_string($stringOrRes)) {
 			$res = $this->perform($stringOrRes);
@@ -409,7 +410,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		];
 		$scheme = $this->getScheme();
 		if (isset($driverMap[$scheme])) {
-			return new $driverMap[$scheme];
+			return new $driverMap[$scheme]();
 		}
 
 		throw new InvalidArgumentException(__METHOD__ . ' not implemented for [' . $scheme . ']');
@@ -579,7 +580,8 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		foreach ($plus as $name => $attribute) {
 			try {
 				$info[$name] = $this->connection->getAttribute($attribute);
-			} catch (PDOException $e) {}
+			} catch (PDOException $e) {
+			}
 		}
 		return $info;
 	}

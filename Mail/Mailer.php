@@ -1,5 +1,7 @@
 <?php
 
+use SendGrid\Response;
+
 /**
  * Class Mailer - simple mail sending class which supports either plain text or HTML
  * mails. No attachments. Use SwiftMailer for anything more complicated. Takes care
@@ -206,7 +208,7 @@ class Mailer implements MailerInterface
 	}
 
 	/**
-	 * @return \SendGrid\Response
+	 * @return Response
 	 */
 	public function sendGrid()
 	{
@@ -215,7 +217,7 @@ class Mailer implements MailerInterface
 
 		$sg = $config->getSendGrid();
 
-		/** @var $response \SendGrid\Response */
+		/** @var $response Response */
 		$response = $sg->client->mail()->send()->post($mail);
 		return $response;
 	}

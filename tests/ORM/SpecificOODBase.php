@@ -2,6 +2,9 @@
 
 namespace nadlib\Test;
 
-class SpecificOODBase extends \OODBase {
+use OODBase;
+
+class SpecificOODBase extends OODBase
+{
 
 }

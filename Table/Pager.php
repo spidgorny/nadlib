@@ -21,12 +21,12 @@ class Pager
 	 * @var int
 	 * @use setItemsPerPage
 	 */
-	var $itemsPerPage = 20;
+	public $itemsPerPage = 20;
 	/**
 	 * Offset in SQL
 	 * @var int
 	 */
-	var $startingRecord = 0;
+	public $startingRecord = 0;
 	/**
 	 * Current Page (0+)
 	 * @var int
@@ -122,7 +122,7 @@ class Pager
 	}
 
 	/**
-	 * @return User|\LoginUser
+	 * @return User|LoginUser
 	 */
 	public function getUser()
 	{

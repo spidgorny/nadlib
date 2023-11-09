@@ -26,9 +26,9 @@ class BijouDBConnector extends DBLayerBase
 	}
 
 	/**
-	 * @see SQLBuilder
 	 * @param $res
 	 * @return mixed
+	 * @see SQLBuilder
 	 */
 	/*	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = 'uid', $noDeleted = FALSE) {
 			//$query = $this->getSelectQuery($table, $where, $order);
@@ -62,16 +62,16 @@ class BijouDBConnector extends DBLayerBase
 			$res = $this->perform($res);
 		}
 		$data = [];
-		while (($row = $this->fetchAssoc($res)) !== FALSE) {
+		while (($row = $this->fetchAssoc($res)) !== false) {
 			$data[$row[$key]] = $row;
 		}
 		return $data;
 	}
 
 	/**
-	 * @see SQLBuilder
 	 * @param resource $res
 	 * @return mixed
+	 * @see SQLBuilder
 	 */
 	public function fetchAssoc($res)
 	{
@@ -86,7 +86,7 @@ class BijouDBConnector extends DBLayerBase
 	public function fetchAllAsIs($res)
 	{
 		$data = [];
-		while (($row = $this->fetchAssoc($res)) !== FALSE) {
+		while (($row = $this->fetchAssoc($res)) !== false) {
 			$data[] = $row;
 		}
 		return $data;
@@ -95,7 +95,7 @@ class BijouDBConnector extends DBLayerBase
 	public function fetchAllFromJoin($res, $prefixes)
 	{
 		$data = [];
-		while (($row = mysql_fetch_row($res)) !== FALSE) {
+		while (($row = mysql_fetch_row($res)) !== false) {
 			$prow = $this->distributePrefixes($res, $row, $prefixes);
 			$data[] = $prow;
 		}
@@ -232,7 +232,7 @@ class BijouDBConnector extends DBLayerBase
 		return $row;
 	}
 
-	public function runSelectQuery($table, array $where = [], $orderBy = '', $what = '', $whatExclusive = FALSE, $filterFields = TRUE)
+	public function runSelectQuery($table, array $where = [], $orderBy = '', $what = '', $whatExclusive = false, $filterFields = true)
 	{
 		if ($filterFields) {
 			//$where += $this->filterFields(NULL, NULL, $this->getFirstWord($table));

@@ -1,8 +1,9 @@
 <?php
 
-class DebugFirebug {
+class DebugFirebug
+{
 
-	static function canFirebug()
+	public static function canFirebug()
 	{
 		$can = class_exists('FirePHP', false)
 			&& !Request::isCLI()
@@ -23,7 +24,7 @@ class DebugFirebug {
 		return $can;
 	}
 
-	function debug($params, $title = '')
+	public function debug($params, $title = '')
 	{
 		$content = '';
 		$params = is_array($params) ? $params : [$params];

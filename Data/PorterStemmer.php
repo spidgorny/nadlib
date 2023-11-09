@@ -91,7 +91,7 @@ class PorterStemmer
 
 						$word = substr($word, 0, -1);
 
-					} else if (self::m($word) == 1 and self::cvc($word)) {
+					} elseif (self::m($word) == 1 and self::cvc($word)) {
 						$word .= 'e';
 					}
 				}
@@ -298,7 +298,7 @@ class PorterStemmer
 			if (self::m(substr($word, 0, -1)) > 1) {
 				self::replace($word, 'e', '');
 
-			} else if (self::m(substr($word, 0, -1)) == 1) {
+			} elseif (self::m(substr($word, 0, -1)) == 1) {
 
 				if (!self::cvc(substr($word, 0, -1))) {
 					self::replace($word, 'e', '');

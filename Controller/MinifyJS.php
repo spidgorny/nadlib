@@ -18,7 +18,7 @@ class MinifyJS
 		if (!file_exists($index_php)) {
 			return null;
 		}
-		$include = array(); // some files can't be found
+		$include = []; // some files can't be found
 		$files = array_keys($this->footer);
 
 		$docRoot = realpath($_SERVER['DOCUMENT_ROOT']);
