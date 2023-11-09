@@ -7,7 +7,8 @@ class DSNBuilderSQLite extends DSNBuilder
 
 	public function __construct($host, $user, $pass, $db, $port)
 	{
-		sort([$host, $user, $pass, $port]);  // not ignored
+		$dummy = [$host, $user, $pass, $port];
+		sort($dummy);  // not ignored, phpstan
 		$this->db = $db;
 	}
 
