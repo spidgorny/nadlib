@@ -1,5 +1,6 @@
 <?php
 
+use PHPSQLParser\PHPSQLCreator;
 use PHPSQLParser\PHPSQLParser;
 
 class SQLQuery extends PHPSQLParser
@@ -9,7 +10,7 @@ class SQLQuery extends PHPSQLParser
 
 	public function __construct($sql = false, $calcPositions = false)
 	{
-		if ($sql instanceof SQLQuery) {
+		if ($sql instanceof self) {
 			$this->parsed = $sql->parsed;
 		} else {
 			parent::__construct($sql, $calcPositions);
@@ -21,11 +22,11 @@ class SQLQuery extends PHPSQLParser
 		return $this->getQuery();
 	}
 
-	public function getQuery()
+	public function getQuery(): string
 	{
-		$psc = new PHPSQLParser\PHPSQLCreator($this->parsed);
+		$psc = new PHPSQLCreator($this->parsed);
 		$query = $psc->created . '';
-		$query = str_replace([
+		return str_replace([
 			'SELECT',
 			'FROM',
 			'WHERE',
@@ -42,7 +43,6 @@ class SQLQuery extends PHPSQLParser
 			"\nORDER",
 			"\nLIMIT",
 		], $query);
-		return $query;
 	}
 
 	public function appendCalcRows()
@@ -54,7 +54,7 @@ class SQLQuery extends PHPSQLParser
 			'delim' => ' ',
 		]);
 		//debug($sql->parsed);
-		if ($this->parsed['ORDER'] && $this->parsed['ORDER'][0]['base_expr'] != 'FIELD') {
+		if ($this->parsed['ORDER'] && $this->parsed['ORDER'][0]['base_expr'] !== 'FIELD') {
 			$this->parsed['ORDER'][0]['expr_type'] = 'colref';
 		}
 		//debug($sql->parsed);
