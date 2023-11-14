@@ -150,7 +150,6 @@ if (!function_exists('str_startsWith')) {
 	 * @param string $plus
 	 * @param null $plus2
 	 * @return string
-	 * @throws Exception
 	 */
 		function path_plus($path, $plus, $plus2 = null)
 	{
