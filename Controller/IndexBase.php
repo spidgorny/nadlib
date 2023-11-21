@@ -302,14 +302,11 @@ class IndexBase /*extends Controller*/
 			ini_set('session.cookie_httponly', true);
 			ini_set('session.hash_bits_per_character', 6);
 			ini_set('session.hash_function', 'sha512');
+			llog('session_start in initSession');
 			$ok = session_start();
 			if (!$ok) {
 				throw new RuntimeException('session_start() failed');
-			} else {
-				//debug('session_start', session_id());
 			}
-		} else {
-//			debug('session already started', session_id(), session_status());
 		}
 		if (ifsetor($_SESSION['HTTP_USER_AGENT'])) {
 			if ($_SESSION['HTTP_USER_AGENT'] != $_SERVER['HTTP_USER_AGENT']) {

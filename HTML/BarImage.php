@@ -25,14 +25,36 @@ class BarImage
 
 	public function __construct()
 	{
-		$this->width = isset($_GET['width']) ? $_GET['width'] : 100;
-		$this->height = isset($_GET['height']) ? $_GET['height'] : 15;
-		$color = isset($_GET['color']) ? $_GET['color'] : null;
+		$this->width = $_GET['width'] ?? 100;
+		$this->height = $_GET['height'] ?? 15;
+		$color = $_GET['color'] ?? null;
 		$this->color = $color ? $this->html2rgb($color) : [0x43, 0xB6, 0xDF]; #43B6DF
-		$bg = isset($_GET['bg']) ? $_GET['bg'] : null;
+		$bg = $_GET['bg'] ?? null;
 		$this->backColor = $bg ? $this->html2rgb($bg) : [0xFF, 0xFF, 0xFF];
 		$this->symmetric = ifsetor($_REQUEST['symmetric']);
 		$this->withBorder = !ifsetor($_GET['!border']);
+	}
+
+	public function html2rgb($color)
+	{
+		if ($color[0] === '#') {
+			$color = substr($color, 1);
+		}
+
+		if (strlen($color) === 6)
+			list($r, $g, $b) = [$color[0] . $color[1],
+				$color[2] . $color[3],
+				$color[4] . $color[5]];
+		elseif (strlen($color) === 3)
+			list($r, $g, $b) = [$color[0] . $color[0], $color[1] . $color[1], $color[2] . $color[2]];
+		else
+			return false;
+
+		$r = hexdec($r);
+		$g = hexdec($g);
+		$b = hexdec($b);
+
+		return [$r, $g, $b];
 	}
 
 	public function setHeaders()
@@ -76,28 +98,6 @@ class BarImage
 		}
 		imagepng($image);
 		imagedestroy($image);
-	}
-
-	public function html2rgb($color)
-	{
-		if ($color[0] == '#') {
-			$color = substr($color, 1);
-		}
-
-		if (strlen($color) == 6)
-			list($r, $g, $b) = [$color[0] . $color[1],
-				$color[2] . $color[3],
-				$color[4] . $color[5]];
-		elseif (strlen($color) == 3)
-			list($r, $g, $b) = [$color[0] . $color[0], $color[1] . $color[1], $color[2] . $color[2]];
-		else
-			return false;
-
-		$r = hexdec($r);
-		$g = hexdec($g);
-		$b = hexdec($b);
-
-		return [$r, $g, $b];
 	}
 
 }

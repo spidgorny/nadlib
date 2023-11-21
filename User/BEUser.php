@@ -24,6 +24,7 @@ class BEUser extends UserBase
 	{
 		//debug('session_start');
 		if (session_status() != PHP_SESSION_ACTIVE && !Request::isCLI() && !headers_sent()) {
+			llog('session_start in BEUser');
 			session_start();
 		}
 	}

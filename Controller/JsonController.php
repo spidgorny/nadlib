@@ -6,6 +6,7 @@ trait JsonController
 {
 
 	public static $publicAPI = false;
+	public $user;
 
 	public function afterConstruct()
 	{
@@ -36,7 +37,7 @@ trait JsonController
 
 		$headers = function_exists('apache_request_headers')
 			? apache_request_headers() : [];
-		llog('apache_headers in JsonController for', get_class($this), $headers);
+//		llog('apache_headers in JsonController for', get_class($this), $headers);
 
 		$authorization = $this->request->getHeader('Authorization');
 //		llog($authorization);
@@ -79,11 +80,11 @@ trait JsonController
 //		llog('$thisParents', $thisParents);
 		foreach (array_reverse($levels) as $i => $el) {
 			$isThisController = in_array($el, $thisParents);
-			llog(get_class($this), $el, 'isThisController:', $isThisController);
+//			llog(get_class($this), $el, 'isThisController:', $isThisController);
 			if ($isThisController) {
 				$last = $el;
 				$arguments = array_slice($levels, count($levels) - $i);    // rest are args
-				llog('arguments', $arguments);
+//				llog('arguments', $arguments);
 				break;
 			}
 		}
@@ -92,7 +93,7 @@ trait JsonController
 		}
 		$request = trim($last, '/\\ ');
 		$request = explode('.', $request)[0];
-		llog(['request' => $request, 'arguments' => $arguments]);
+//		llog(['request' => $request, 'arguments' => $arguments]);
 		return [$request, $arguments];
 	}
 

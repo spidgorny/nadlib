@@ -51,35 +51,7 @@ class AutoLoadFolders
 
 	public function getFoldersFromSession()
 	{
-		$folders = [];
-		if (!Request::isCLI()) {
-			if ($this->al->useCookies) {
-				//debug('session_start', $this->nadlibFromDocRoot);
-				//session_set_cookie_params(0, '');	// current folder
-				if ((phpversion() < 5.4 || (
-							phpversion() >= 5.4
-							&& session_status() != PHP_SESSION_ACTIVE
-						)
-					) && !headers_sent() && $this->al->useCookies) {
-					//echo '$this->useCookies', $this->useCookies, BR;
-					//echo 'session_start ', __METHOD__, BR;
-					//debug_pre_print_backtrace();
-					$ok = session_start();
-					if (!$ok) {
-						throw new RuntimeException('session_start() failed');
-					} else {
-						//debug('session_start', session_id());
-					}
-				}
-
-				if (isset($_SESSION[__CLASS__])) {
-					$folders = isset($_SESSION[__CLASS__]['folders'])
-						? $_SESSION[__CLASS__]['folders']
-						: [];
-				}
-			}
-		}
-		return $folders;
+		return [];
 	}
 
 	public function getFolders()
