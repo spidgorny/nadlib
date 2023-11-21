@@ -362,6 +362,13 @@ abstract class OODBase
 		return new ArrayPlus($ids);
 	}
 
+	public static function where(array $where, $orderBy = '')
+	{
+		$blanc = new static();
+		$db = Config::getInstance()->getDB();
+		return Collection::createForTable($db, $blanc->table, $where, $orderBy);
+	}
+
 	/**
 	 * @param array|NULL $where
 	 * @return null

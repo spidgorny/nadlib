@@ -531,21 +531,28 @@ class Collection implements IteratorAggregate, ToStringable
 	 */
 	public function objectify($class = null, $byInstance = false)
 	{
-		$class = $class ? $class : $this->itemClassName;
-		if (!$this->members) {
-			$this->log(__METHOD__, ['class' => $class, 'instance' => $byInstance]);
-			$this->members = [];   // somehow necessary
-			foreach ($this->getData() as $row) {
-				$key = $row[$this->idField];
-				if ($byInstance) {
-					//$this->members[$key] = call_user_func_array(array($class, 'getInstance'), array($row));
-					$this->members[$key] = call_user_func($class . '::getInstance', $row);
-				} else {
-					$this->members[$key] = new $class($row);
-				}
+		$class = $class ?: $this->itemClassName;
+		if ($this->members) {
+			return $this->members;
+		}
+
+		$this->log(__METHOD__, ['class' => $class, 'instance' => $byInstance]);
+		$this->members = [];   // somehow necessary
+		foreach ($this->getData() as $row) {
+			$key = $row[$this->idField];
+			if ($byInstance) {
+				//$this->members[$key] = call_user_func_array(array($class, 'getInstance'), array($row));
+				$this->members[$key] = call_user_func($class . '::getInstance', $row);
+			} else {
+				$this->members[$key] = new $class($row);
 			}
 		}
 		return $this->members;
+	}
+
+	public function getObjects()
+	{
+	  return collect($this->objectify());
 	}
 
 	/**
