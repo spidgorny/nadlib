@@ -366,7 +366,10 @@ abstract class OODBase
 	{
 		$blanc = new static();
 		$db = Config::getInstance()->getDB();
-		return Collection::createForTable($db, $blanc->table, $where, $orderBy);
+		$collection = Collection::createForTable($db, $blanc->table, $where, $orderBy);
+		$collection->idField = $blanc->idField;
+		$collection->itemClassName = static::class;
+		return $collection;
 	}
 
 	/**
@@ -384,7 +387,7 @@ abstract class OODBase
 				return null;
 			}
 		}
-		$this->log(get_called_class() . '::' . __FUNCTION__, $where);
+		$this->log(static::class . '::' . __FUNCTION__, $where);
 		$query = $this->db->getDeleteQuery($this->table, $where);
 		$this->lastQuery = $query;
 		$res = $this->db->perform($query);
@@ -396,13 +399,13 @@ abstract class OODBase
 	/**
 	 *
 	 * @param SQLWhere $where
-	 * @param string $orderby
+	 * @param string $orderBy
 	 * @return bool (id) of the found record
 	 * @throws Exception
 	 */
-	public function findInDBbySQLWhere(SQLWhere $where, $orderby = '')
+	public function findInDBbySQLWhere(SQLWhere $where, $orderBy = '')
 	{
-		$rows = $this->db->fetchSelectQuerySW($this->table, $where, $orderby);
+		$rows = $this->db->fetchSelectQuerySW($this->table, $where, $orderBy);
 		//debug($rows);
 		if ($rows) {
 			$this->data = $rows[0];

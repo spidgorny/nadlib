@@ -6,15 +6,18 @@
  */
 class HtmlString implements ToStringable
 {
+	use DirectDataAccess;
 
+	public $data = [];
 	protected $value = '';
 
-	public function __construct($input)
+	public function __construct($input, array $props = [])
 	{
 		if (is_array($input)) {
 			$input = implode(PHP_EOL, $input);
 		}
 		$this->value = $input . '';
+		$this->data = $props;
 	}
 
 	/**

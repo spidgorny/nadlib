@@ -156,7 +156,7 @@ class DebugHTML
 	 * @param int $levels
 	 * @return string|NULL    - will be recursive while levels is more than zero, but NULL is a special case
 	 */
-	public static function view_array($a, $levels = 1, $tableClass = 'view_array')
+	public static function view_array($a, $levels = 1, $tableClass = 'view_array font-mono')
 	{
 		if (is_object($a)) {
 			if (method_exists($a, 'debug')) {

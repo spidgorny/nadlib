@@ -83,7 +83,7 @@ if (!function_exists('debugList')) {
 			$levels = ifsetor($params[2]);
 			$params[1] = $levels;
 		}
-		$content .= call_user_func_array([$dh, 'view_array'], $params);
+		$content .= $dh::view_array(...$params);
 		return $content;
 	}
 
