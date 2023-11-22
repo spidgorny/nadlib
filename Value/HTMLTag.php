@@ -36,6 +36,11 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return new HTMLTag('div', $param, $content);
 	}
 
+	public static function pre($content, array $param = [])
+	{
+		return new HTMLTag('pre', $param, $content);
+	}
+
 	/**
 	 * <a href="file/20131128/Animal-Planet.xml" target="_blank" class="nolink">32</a>
 	 * @param string $str

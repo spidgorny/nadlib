@@ -468,7 +468,7 @@ abstract class OODBase
 		if ($this->id) {
 			TaylorProfiler::start(__METHOD__);
 			$action = get_called_class() . '::' . __FUNCTION__ . '(id: ' . json_encode($this->id) . ')';
-			$this->log($action, $data);
+//			$this->log($action, $data);
 			$where = [];
 			if (is_array($this->idField)) {
 				foreach ($this->idField as $field) {
@@ -518,7 +518,7 @@ abstract class OODBase
 				$this->table,
 				$this->idField
 			);
-			throw new Exception($msg);
+			throw new RuntimeException($msg);
 		}
 		return $res;
 	}

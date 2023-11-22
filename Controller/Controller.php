@@ -122,7 +122,7 @@ abstract class Controller extends SimpleController
 	public static function link($text = null, array $params = [])
 	{
 		/** @var Controller $self */
-		$self = get_called_class();
+		$self = static::class;
 		return new HTMLTag('a', [
 			'href' => $self::href($params)
 		], $text ?: $self);
@@ -130,8 +130,7 @@ abstract class Controller extends SimpleController
 
 	public static function href(array $params = [])
 	{
-		$self = get_called_class();
-		$url = $self;
+		$url = last(trimExplode('\\', static::class));
 		if ($params) {
 			$url .= '?' . http_build_query($params);
 		}
@@ -142,11 +141,13 @@ abstract class Controller extends SimpleController
 	{
 		if (method_exists($this->linker, $method)) {
 			return call_user_func_array([$this->linker, $method], $arguments);
-		} elseif (method_exists($this->html, $method)) {
-			return call_user_func_array([$this->html, $method], $arguments);
-		} else {
-			throw new RuntimeException('Method ' . $method . ' not found in ' . get_class($this));
 		}
+
+		if (method_exists($this->html, $method)) {
+			return call_user_func_array([$this->html, $method], $arguments);
+		}
+
+		throw new RuntimeException('Method ' . $method . ' not found in ' . get_class($this));
 	}
 
 	/**
