@@ -83,8 +83,7 @@ class UL
 			$line = str_replace('###ACTIVE###', $class == $this->activeClass ? $this->active : '', $line);
 			$out[] = $line;
 		}
-		$content = $this->before . implode("\n", $out) . $this->after;
-		return $content;
+		return $this->before . implode("\n", $out) . $this->after;
 	}
 
 	public function __toString()

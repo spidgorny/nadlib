@@ -12,7 +12,9 @@ if (!function_exists('first')) {
 		reset($list);
 		return current($list);
 	}
+}
 
+if (!function_exists('last')) {
 	/**
 	 * Complements the built-in end() function
 	 * @param array $list
@@ -22,7 +24,9 @@ if (!function_exists('first')) {
 	{
 		return end($list);
 	}
+}
 
+if (!function_exists('eachv')) {
 	/**
 	 * This is equal to return next(each($list))
 	 *
@@ -35,7 +39,9 @@ if (!function_exists('first')) {
 		next($list);
 		return $current;
 	}
+}
 
+if (!function_exists('array_combine_stringkey')) {
 	/**
 	 * Array_combine only works when both arrays are indexed by numbers
 	 * @used FullGrid
@@ -53,7 +59,9 @@ if (!function_exists('first')) {
 		}
 		return $ret;
 	}
+}
 
+if (!function_exists('is_assoc')) {
 	/**
 	 * http://stackoverflow.com/questions/173400/php-arrays-a-good-way-to-check-if-an-array-is-associative-or-sequential
 	 * @param $arr
@@ -63,7 +71,9 @@ if (!function_exists('first')) {
 	{
 		return array_keys($arr) !== range(0, count($arr) - 1);
 	}
+}
 
+if (!function_exists('unique_multidim_array')) {
 	/**
 	 * Makes it unique on a first level only
 	 * http://php.net/manual/en/function.array-unique.php#116302
@@ -95,10 +105,11 @@ if (!function_exists('first')) {
 			}
 		}
 
-		$matriz = unique_multidim_array($matriz);
-		return $matriz;
+		return unique_multidim_array($matriz);
 	}
+}
 
+if (!function_exists('array_to_string')) {
 	/**
 	 * Will call __toString() on every object in array
 	 * @param array $a
@@ -115,7 +126,9 @@ if (!function_exists('first')) {
 		}
 		return $a;
 	}
+}
 
+if (!function_exists('without')) {
 	function without(array $source, $remove)
 	{
 		if (phpversion() > 5.6) {
