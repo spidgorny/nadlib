@@ -1,17 +1,15 @@
 <?php
 
-class Lesser extends AppController
+class Lesser extends AppControllerBE
 {
-
-	public $layout = 'none';
-
-	protected $output = 'cache/merge.css';
 
 	/**
 	 * No auth needed
 	 * @var bool
 	 */
 	public static $public = true;
+	public $layout = 'none';
+	protected $output = 'cache/merge.css';
 
 	public function __construct()
 	{
@@ -37,7 +35,7 @@ class Lesser extends AppController
 			echo '#mkdir(', $cacheDir, ');' . "\n";
 			$ok = mkdir($cacheDir);
 			if (!$ok) {
-				throw new Exception('Cache dir not existing, can not be created. ' . $cacheDir);
+				throw new RuntimeException('Cache dir not existing, can not be created. ' . $cacheDir);
 			}
 		}
 		@set_time_limit(30);  // compiling bootstrap

@@ -1,31 +1,28 @@
 <?php
 
-class AppControllerBE extends AppController
+class AppControllerBE extends Controller
 {
+
+/**
+	 * Protect from unauthorized access
+	 * @var bool
+	 */
+	public static $public = false;
 
 	/**
 	 * -forceDL in CLI will re-download and extract data
 	 * @var bool
 	 */
 	public $forceCronjobDL = false;
-
 	/**
 	 * - force in CLI will force process data even if they were processed recently
 	 * @var bool
 	 */
 	public $forceCronjob = false;
-
 	/**
 	 * @var string
 	 */
-	public $nadlibFromDocRoot;
-
-	/**
-	 * Protect from unauthorized access
-	 * @var bool
-	 */
-	public static $public = false;    // must be false at all times!
-
+	public $nadlibFromDocRoot;    // must be false at all times!
 	public $layout = '<div class="col-md-9">|</div>';
 
 	public function __construct()

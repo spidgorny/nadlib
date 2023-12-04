@@ -1,6 +1,6 @@
 <?php
 
-class ProtectedController extends AppController
+class ProtectedController extends AppControllerBE
 {
 
 	public function __construct()

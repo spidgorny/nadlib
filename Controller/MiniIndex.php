@@ -1,6 +1,6 @@
 <?php
 
-class MiniIndex extends AppController
+class MiniIndex extends AppControllerBE
 {
 
 	/**
@@ -12,7 +12,7 @@ class MiniIndex extends AppController
 	 */
 	public $menu;
 	/**
-	 * @var AppController
+	 * @var AppControllerBE
 	 */
 	public $controller;
 	public $header = [];

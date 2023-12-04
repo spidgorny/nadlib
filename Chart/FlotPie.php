@@ -5,7 +5,7 @@ use spidgorny\nadlib\HTTP\URL;
 /**
  * Class Flot - is drawing a flot chart.
  */
-class FlotPie extends AppController
+class FlotPie extends AppControllerBE
 {
 
 	/**
@@ -34,6 +34,7 @@ class FlotPie extends AppController
 	 */
 	public function __construct(array $data)
 	{
+		parent::__construct();
 		$this->data = $data;
 	}
 

@@ -1,6 +1,6 @@
 <?php
 
-class SearchPlaceholder extends AppController
+class SearchPlaceholder extends AppControllerBE
 {
 
 	public $ajaxLinks = [

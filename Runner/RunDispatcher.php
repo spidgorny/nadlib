@@ -6,7 +6,7 @@
  * it will watch the queue and start new processes
  * as soon as resources are available.
  */
-class RunDispatcher extends AppController
+class RunDispatcher extends AppControllerBE
 {
 
 	public $runner;

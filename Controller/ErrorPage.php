@@ -1,6 +1,6 @@
 <?php
 
-class ErrorPage extends AppController
+class ErrorPage extends AppControllerBE
 {
 
 	protected $http_status_codes = [

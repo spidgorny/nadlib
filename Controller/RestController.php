@@ -1,6 +1,6 @@
 <?php
 
-class RestController extends AppController
+class RestController extends AppControllerBE
 {
 
 	public function loginBasic()
@@ -13,10 +13,10 @@ class RestController extends AppController
 		//pre_print_r($status);
 		if ($status['error']) {
 			throw new AccessDeniedException();
-		} else {
-			$_COOKIE[$auth->config->cookie_name] = $status['hash'];
-			$this->user->login();  // again
 		}
+
+		$_COOKIE[$auth->config->cookie_name] = $status['hash'];
+		$this->user->login();  // again
 	}
 
 	public function render()

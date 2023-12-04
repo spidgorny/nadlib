@@ -5,7 +5,7 @@
  * ErrorDocument 404 /index.php?c=PHPRewrite
  * @acl *
  */
-class PHPRewrite extends AppController
+class PHPRewrite extends AppControllerBE
 {
 
 	/**

@@ -2,7 +2,7 @@
 
 use spidgorny\nadlib\HTTP\URL;
 
-class AjaxLogin extends AppController
+class AjaxLogin extends AppControllerBE
 {
 
 	/**

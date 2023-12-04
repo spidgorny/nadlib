@@ -1,6 +1,6 @@
 <?php
 
-class RunnerTaskController extends AppController
+class RunnerTaskController extends AppControllerBE
 {
 
 	/**
