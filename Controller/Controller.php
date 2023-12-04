@@ -47,11 +47,7 @@ abstract class Controller extends SimpleController
 	 * @var bool
 	 */
 	public static $public = false;
-	/**
-	 * accessible without login
-	 * @var bool
-	 */
-	public static $public = false;
+
 	/**
 	 * @var bool
 	 * @use $this->preventDefault() to set
@@ -224,7 +220,7 @@ abstract class Controller extends SimpleController
 			$this->index->addJQuery();
 			$this->index->addJS($nadlibPath . 'js/showHide.js');
 			$this->index->addJS($nadlibPath . 'js/encloseInToggle.js');
-			$id = uniqid();
+			$id = uniqid('', true);
 
 			$content = '<div class="encloseIn">
 				<' . $tag . '>
@@ -461,23 +457,6 @@ abstract class Controller extends SimpleController
 	public function log($action, ...$data)
 	{
 		$this->log[] = new LogEntry($action, $data);
-	}
-
-	/**
-	 * @param string $caption
-	 * @param string $hTag
-	 * @return string
-	 * @throws Exception
-	 */
-	public function getCaption($caption, $hTag = 'h3')
-	{
-//		$al = AutoLoad::getInstance();
-		$slug = URL::friendlyURL($caption);
-		$content = '
-			<' . $hTag . ' id="' . $slug . '">' .
-			$caption .
-			'</' . $hTag . '>';
-		return $content;
 	}
 
 	/**

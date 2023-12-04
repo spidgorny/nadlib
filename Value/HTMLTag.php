@@ -36,14 +36,6 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return new static($name, $arguments[0], $arguments[1], $arguments[2]);
 	}
 
-	public function __construct($tag, array $attr = [], $content = '', $isHTML = false)
-	{
-		$this->tag = $tag;
-		$this->attr = $attr;
-		$this->content = $content;
-		$this->isHTML = $isHTML;
-	}
-
 	public static function div($content, array $param = [])
 	{
 		return new HTMLTag('div', $param, $content);
@@ -57,8 +49,8 @@ class HTMLTag implements ArrayAccess, ToStringable
 	public static function pre($content, array $param = [])
 	{
 		$set = [];
-		foreach ($attr as $key => $val) {
-			if (is_array($val) && $key == 'style') {
+		foreach ($param as $key => $val) {
+			if (is_array($val) && $key === 'style') {
 				$style = ArrayPlus::create($val);
 				$style = $style->getHeaders('; ');
 				$val = $style;                        // for style="a: b; c: d"
@@ -84,9 +76,9 @@ class HTMLTag implements ArrayAccess, ToStringable
 		if ($value) {
 			$this->attr[$name] = $value;
 			return $this;
-		} else {
-			return ifsetor($this->attr[$name]);
 		}
+
+		return ifsetor($this->attr[$name]);
 	}
 
 	public function setAttr($name, $value)
@@ -302,56 +294,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return $this->content;
 	}
 
-	/**
-	 * jQuery style
-	 * @param $name
-	 * @param null|string|mixed $value
-	 * @return mixed
-	 */
-	public function attr($name, $value = null)
-	{
-		if ($value) {
-			$this->attr[$name] = $value;
-			return $this;
-		} else {
-			return ifsetor($this->attr[$name]);
-		}
-	}
-
-	public function hasAttr($name)
-	{
-		return isset($this->attr[$name]);
-	}
-
-	/**
-	 * https://gist.github.com/rodneyrehm/3070128
-	 * @param string|array $text
-	 * @return array
-	 */
-	public static function parseAttributes($text)
-	{
-		if (is_array($text)) {
-			return $text;
-		}
-		$attributes = [];
-		$pattern = '#(?(DEFINE)
-(?<name>[a-zA-Z][a-zA-Z0-9-:]*)
-(?<value_double>"[^"]+")
-(?<value_single>\'[^\']+\')
-(?<value_none>[^\s>]+)
-(?<value>((?&value_double)|(?&value_single)|(?&value_none)))
-)
-(?<n>(?&name))(=(?<v>(?&value)))?#xs';
-
-		if (preg_match_all($pattern, $text, $matches, PREG_SET_ORDER)) {
-			foreach ($matches as $match) {
-				$attributes[$match['n']] = isset($match['v'])
-					? trim($match['v'], '\'"')
-					: null;
-			}
-		}
-		return $attributes;
-	}	public function offsetExists($offset)
+	public function offsetExists($offset)
 	{
 		return isset($this->attr[$offset]);
 	}
@@ -359,17 +302,6 @@ class HTMLTag implements ArrayAccess, ToStringable
 	public function offsetGet($offset)
 	{
 		return $this->getAttr($offset);
-	}
-
-	public function getAttr($name)
-	{
-		return ifsetor($this->attr[$name]);
-	}
-
-	public function setAttr($name, $value)
-	{
-		$this->attr[$name] = $value;
-		return $this;
 	}
 
 	public function offsetSet($offset, $value)

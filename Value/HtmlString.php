@@ -8,7 +8,6 @@ class HtmlString implements ToStringable
 {
 	use DirectDataAccess;
 
-	public $data = [];
 	protected $value = '';
 
 	public function __construct($input, array $props = [])
@@ -36,9 +35,8 @@ class HtmlString implements ToStringable
 
 	public function replace($one, $two)
 	{
-		$new = new HtmlString(
+		return new HtmlString(
 			str_replace($one, $two, $this->value));
-		return $new;
 	}
 
 	public function cli()

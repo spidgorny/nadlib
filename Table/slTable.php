@@ -194,8 +194,8 @@ class slTable implements ToStringable
 			if ($thes) {
 				$thes = array_combine($thes, $thes);
 				foreach ($thes as $i => &$th) {
-					if (!strlen($i)
-						|| (strlen($i) && $i[strlen($i) - 1] !== '.')
+					if (is_string($i)&& (!strlen($i)
+						|| (strlen($i) && $i[strlen($i) - 1] !== '.'))
 					) {
 						$th = ['name' => $th];
 					} else {
@@ -447,49 +447,12 @@ class slTable implements ToStringable
 		//debug($this->thes[$this->sortBy]);
 	}
 
-	public function generateThes()
-	{
-		if (!sizeof($this->thes)) {
-			$thes = [];
-			foreach ($this->data as $current) {
-				$thes = array_merge($thes, array_keys($current));
-				$thes = array_unique($thes);    // if put outside the loop may lead to out of memory error
-			}
-			if ($thes) {
-				$thes = array_combine($thes, $thes);
-				foreach ($thes as $i => &$th) {
-					if (is_string($i)&& (!strlen($i)
-						|| (strlen($i) && $i[strlen($i) - 1] !== '.'))
-					) {
-						$th = ['name' => $th];
-					} else {
-						unset($thes[$i]);
-					}
-				}
-				unset($th);
-				unset($thes['###TD_CLASS###']);
-				unset($thes['###TR_MORE###']);
-				$this->thes($thes);
-				$this->isOddEven = true;
-				//$this->thesMore = 'style="background-color: #5cacee; color: white;"';
-				if (!$this->more) {
-					$this->more = [
-						'class' => 'nospacing',
-					];
-				}
-			}
-		}
-		return $this->thes;
-	}
-
 	public function getThesNames()
 	{
 		$names = [];
 		foreach ($this->thes as $field => $thv) {
 			if (is_array($thv)) {
-				$thvName = isset($thv['name'])
-					? $thv['name']
-					: (isset($thv['label']) ? $thv['label'] : '');
+				$thvName = $thv['name'] ?? ($thv['label'] ?? '');
 			} else {
 				$thvName = $thv;
 			}
@@ -905,22 +868,6 @@ class slTable implements ToStringable
 			$xls[] = $line;
 		}
 		return $xls;
-	}
-
-	public function getThesNames()
-	{
-		$names = [];
-		foreach ($this->thes as $field => $thv) {
-			if (is_array($thv)) {
-				$thvName = isset($thv['name'])
-					? $thv['name']
-					: (isset($thv['label']) ? $thv['label'] : '');
-			} else {
-				$thvName = $thv;
-			}
-			$names[$field] = $thvName;
-		}
-		return $names;
 	}
 
 	public function autoFormat()

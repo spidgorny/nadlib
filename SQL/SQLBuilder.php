@@ -141,7 +141,8 @@ class SQLBuilder
 	{
 		$set = [];
 		foreach ($where as $key => $val) {
-			if (!strlen($key) || (strlen($key) && $key[strlen($key) - 1] !== '.')) {
+			$endsWithDot = is_string($key) && $key[strlen($key) - 1] !== '.';
+			if (!is_string($key) || $endsWithDot) {
 				$equal = new SQLWhereEqual($key, $val);
 				$equal->injectDB($this->db);
 				$set[] = $equal->__toString();
@@ -357,30 +358,6 @@ class SQLBuilder
 	}
 
 	/**
-	 * Quotes the values as quoteValues does, but also puts the key out and the correct comparison.
-	 * In other words, it takes care of col = 'NULL' situation and makes it 'col IS NULL'
-	 *
-	 * @param array $where
-	 * @return array
-	 * @throws MustBeStringException
-	 * @throws Exception
-	 */
-	public function quoteWhere(array $where)
-	{
-		$set = [];
-		foreach ($where as $key => $val) {
-			$endsWithDot = is_string($key) && $key[strlen($key) - 1] !== '.';
-			if (!is_string($key) || $endsWithDot) {
-				$equal = new SQLWhereEqual($key, $val);
-				$equal->injectDB($this->db);
-				$set[] = $equal->__toString();
-			}
-		}
-		//debug($set);
-		return $set;
-	}
-
-	/**
 	 * @param string $table Table name
 	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
 	 * @param array $where
@@ -400,23 +377,6 @@ class SQLBuilder
 			$q .= "VALUES ({$values})";
 		}
 		return $q;
-	}
-
-	/**
-	 * Quotes the complete array if necessary.
-	 *
-	 * @param array $a
-	 * @return array
-	 * @throws MustBeStringException
-	 */
-	public function quoteValues(array $a)
-	{
-		//		debug(__METHOD__, $a);
-		$c = [];
-		foreach ($a as $key => $b) {
-			$c[] = $this->quoteSQL($b, $key);
-		}
-		return $c;
 	}
 
 	/**
@@ -479,8 +439,7 @@ class SQLBuilder
 		//debug($query); if ($_COOKIE['debug']) { exit(); }
 
 		$res = $this->perform($query);
-		$data = $this->fetchAll($res, $idField);
-		return $data;
+		return $this->fetchAll($res, $idField);
 	}
 
 	/**

@@ -312,7 +312,7 @@ class HTMLForm implements ToStringable
 			$elementID = 'id-' . $from;
 		}
 		if (!$elementID) {
-			$elementID = uniqid('id-');
+			$elementID = uniqid('id-', true);
 		}
 		return $elementID;
 	}
@@ -625,37 +625,6 @@ class HTMLForm implements ToStringable
 	}
 
 	/**
-	 * @param string|string[] $name
-	 * @param array|null $aOptions
-	 * @param string|int $default
-	 * @param bool $autoSubmit
-	 * @param array|string $more
-	 * @param bool $multiple
-	 * @param array $desc
-	 *
-	 * @see renderSelectionOptions
-	 */
-	public function selection(
-		$name,
-		$aOptions,
-		$default,
-		$autoSubmit = false,
-		array $more = [],
-		$multiple = false,
-		array $desc = []
-	)
-	{
-		$sel = new HTMLFormSelection($name, $aOptions, $default);
-		$sel->autoSubmit = $autoSubmit;
-		$sel->more = is_string($more) ? HTMLTag::parseAttributes($more) : $more;
-		$sel->multiple = $multiple;
-		$sel->setDesc($desc);
-		//debug($name, $desc);
-		$sel->setForm($this);
-		$this->stdout .= $sel->render();
-	}
-
-	/**
 	 * A set of checkboxes. The value is COMMA SEPARATED!
 	 *
 	 * @param string|array $name
@@ -904,8 +873,8 @@ document.observe("dom:loaded", () => {
 	 */
 	public function popuptree($name, $valueID, $valueName, $desc)
 	{
-		$id1 = 'popuptree' . uniqid();
-		$id2 = 'popuptree' . uniqid();
+		$id1 = 'popuptree' . uniqid('', true);
+		$id2 = 'popuptree' . uniqid('', true);
 		$functionName = 'accept_' . $desc['table'] . '_' . $desc['titleColumn'] . '_' . (++$GLOBALS['popuptreeCall']);
 		$this->hidden($name, $valueID, 'style="width: 5em" readonly id="' . $id1 . '"'); // hidden
 		$this->text(NL);
@@ -984,7 +953,7 @@ document.observe("dom:loaded", () => {
 
 	public function flipSwitch($name, $value, $checked, $more = '')
 	{
-		$id = uniqid('flipSwitch_');
+		$id = uniqid('flipSwitch_', true);
 		$this->stdout .= '<div class="onoffswitch">
     <input type="checkbox" name="' . $name . '"
      value="' . $value . '"

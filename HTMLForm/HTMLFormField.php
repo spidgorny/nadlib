@@ -83,6 +83,16 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 		return ifsetor($this->data[$name], null);
 	}
 
+	public function __isset($name)
+	{
+		return ifsetor($this->data[$name], null);
+	}
+
+	public function __set($name, $value)
+	{
+		$this->data[$name] = $value;
+	}
+
 	public function isOptional()
 	{
 		return !$this->isObligatory();
@@ -102,23 +112,6 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 			return null;
 		}
 		return is_string($type) ? $type : get_class($type);
-	}
-
-	public function isObligatory()
-	{
-		$type = $this->getTypeString();
-		return !ifsetor($this->data['optional']) &&
-			!in_array($type, ['check', 'checkbox', 'submit']);
-	}
-
-	public function isOptional()
-	{
-		return !$this->isObligatory();
-	}
-
-	public function setField($fieldName)
-	{
-		$this->fieldName = $fieldName;
 	}
 
 	public function setForm(HTMLForm $form)
@@ -192,16 +185,6 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 			$elementID = uniqid('id-', true);
 		}
 		return $elementID;
-	}
-
-	public function setForm(HTMLForm $form)
-	{
-		$this->form = $form;
-	}
-
-	public function setValue($value)
-	{
-		$this->data['value'] = $value;
 	}
 
 	/**

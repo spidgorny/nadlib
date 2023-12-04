@@ -216,47 +216,4 @@ class IndexBE extends IndexBase
 			parent::showSidebar();
 	}
 
-	/**
-	 * @return array
-	 */
-	public static function getMenu()
-	{
-		$menu = [
-			'HomeBE' => 'Home',
-			'ServerStat' => new Recursive('Info', [
-				SysInfo::class => 'Sys Info',
-				'ServerStat' => 'Server Stat',
-				'ServerData' => 'Server Data',
-				'SessionView' => 'Session',
-				'Cookies' => 'Cookies',
-				'ConfigView' => 'config.yaml',
-				'PHPInfo' => 'phpinfo()',
-				'About' => 'About',
-				'Documentation' => 'Documentation',
-				'IniCheck' => 'php.ini Check',
-				'TimeTrack' => 'Time Track',
-				'Issues' => 'Issues',
-			]),
-			'UnitTestReport' => new Recursive('Test', [
-				'UnitTestReport' => 'Unit Test Report',
-				'ValidatorCheck' => 'Validator Check',
-				'TestQueue' => 'Test Queue',
-			]),
-			'ExplainQuery' => new Recursive('DB', [
-				'AlterDB' => 'Alter DB',
-				'AlterCharset' => 'Alter Charset',
-				'AlterTable' => 'Alter Table',
-				'AlterIndex' => 'Alter Indexes',
-				'OptimizeDB' => 'Optimize DB',
-				'ExplainQuery' => 'Explain Query',
-				'Localize' => 'Localize',
-			]),
-			'ClearCache' => new Recursive('FE', [
-				'ClearCache' => 'Clear Cache',
-				'JumpFrontend' => '<- Frontend',
-			]),
-		];
-		return $menu;
-	}
-
 }

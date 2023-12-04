@@ -271,7 +271,7 @@ class Collection implements IteratorAggregate, ToStringable
 	 */
 	public function setData($data)
 	{
-		$this->log(get_class($this) . '::' . __FUNCTION__ . '(' . sizeof($data) . ')');
+		$this->log(get_class($this) . '::' . __FUNCTION__ . '(' . count($data) . ')');
 		$this->log(__METHOD__, ['from' => Debug::getCaller(2)]);
 		//debug_pre_print_backtrace();
 		//$this->log(__METHOD__, get_call_stack());
@@ -289,25 +289,6 @@ class Collection implements IteratorAggregate, ToStringable
 		// after it was set (see $this->getData()
 		// which is called in $this->render())
 		$this->query = $this->query ?: __METHOD__;
-	}
-
-	public function log($action, $data = [])
-	{
-		if ($this->logger) {
-			if (!is_array($data)) {
-				$data = ['data' => $data];
-			}
-			$this->logger->info($action, $data);
-		} else {
-			$this->log[] = new LogEntry($action, $data);
-		}
-	}
-
-	public function isFetched()
-	{
-		return $this->query && $this->data !== null;
-		// we may have fetched only 0 rows
-		//|| !$this->data->count())) {
 	}
 
 	/**
@@ -442,16 +423,6 @@ class Collection implements IteratorAggregate, ToStringable
 		return $row;
 	}
 
-	public function postInit()
-	{
-		//$this->pager = new Pager();
-		if (class_exists('Index', false)) {
-			$index = Index::getInstance();
-			$this->controller = &$index->controller;
-		}
-		//debug(get_class($this->controller));
-	}
-
 	public function translateThes()
 	{
 		if (is_array($this->thes)) {
@@ -536,32 +507,6 @@ class Collection implements IteratorAggregate, ToStringable
 		return $this->data;
 	}
 
-	/**
-	 * A function to fake the data as if it was retrieved from DB
-	 * @param $data array|ArrayPlus
-	 */
-	public function setData($data)
-	{
-		$this->log(get_class($this) . '::' . __FUNCTION__ . '(' . count($data) . ')');
-		$this->log(__METHOD__, ['from' => Debug::getCaller(2)]);
-		//debug_pre_print_backtrace();
-		//$this->log(__METHOD__, get_call_stack());
-		if ($data instanceof ArrayPlus) {
-			$this->data = $data;    // preserve sorting
-		} else {
-			$this->data = ArrayPlus::create((array)$data);
-		}
-		// PROBLEM! This is supposed to be the total amount
-		// Don't uncomment
-		//$this->count = count($this->data);
-		$this->count = __METHOD__;    // we need to disable getCount()
-
-		// this is needed to not retrieve the data again
-		// after it was set (see $this->getData()
-		// which is called in $this->render())
-		$this->query = $this->query ?: __METHOD__;
-	}
-
 	public function prepareRenderRow(array $row)
 	{
 		if (is_callable($this->prepareRenderRow)) {
@@ -569,21 +514,6 @@ class Collection implements IteratorAggregate, ToStringable
 			$row = $closure($row);
 		}
 		return $row;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getOptions()
-	{
-		$options = [];
-		//debug(get_class($this), $this->table, $this->titleColumn, $this->getCount());
-		foreach ($this->getProcessedData() as $row) {
-			//if ( !in_array($row[$this->idField], $blackList) ) {
-			$options[$row[$this->idField]] = $row[$this->titleColumn];
-			//}
-		}
-		return $options;
 	}
 
 	/**
@@ -747,23 +677,13 @@ class Collection implements IteratorAggregate, ToStringable
 		return $this;
 	}
 
-	public function prepareRenderRow(array $row)
-	{
-		if (is_callable($this->prepareRenderRow)) {
-			$closure = $this->prepareRenderRow;
-			$row = $closure($row);
-		}
-		return $row;
-	}
-
 	/**
 	 * Calls __toString on each member
 	 * @return string
 	 */
 	public function renderMembers()
 	{
-		$view = $this->getView();
-		return $view->renderMembers();
+		return $this->getView()->renderMembers();
 	}
 
 	public function objectifyAsPlus()
@@ -865,18 +785,6 @@ class Collection implements IteratorAggregate, ToStringable
 		return $memberIterator;
 	}
 
-	public function getLazyIterator()
-	{
-		$query = $this->getCollectionQuery()->getQuery();
-		//debug($query);
-
-		$lazy = new DatabaseResultIteratorAssoc($this->db, $this->idField);
-		$lazy->perform($query);
-		$this->query = $lazy->query;
-
-		return $lazy;
-	}
-
 	public function clearInstances()
 	{
 		unset($this->data);
@@ -950,7 +858,7 @@ class Collection implements IteratorAggregate, ToStringable
 	public function setMembers(array $countries)
 	{
 		$this->members = $countries;
-		$this->count = sizeof($this->members);
+		$this->count = count($this->members);
 		$this->query = __METHOD__;
 
 		$this->data = ArrayPlus::create();

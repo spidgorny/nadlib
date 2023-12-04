@@ -18,11 +18,7 @@ abstract class SimpleController
 	 * @var Controller[]
 	 */
 	protected static $instance = [];
-	/**
-	 * Instance per class
-	 * @var Controller[]
-	 */
-	protected static $instance = [];
+
 	/**
 	 * @var Index|IndexInterface
 	 */
@@ -209,8 +205,7 @@ abstract class SimpleController
 	public function performAction($action = null)
 	{
 		$content = '';
-		$method = $action
-			?: (!empty($reqAction) ? $reqAction : 'index');
+		$method = $action ?? $this->detectAction();
 		if ($method) {
 			$method .= 'Action';        // ZendFramework style
 			//			debug($method, method_exists($this, $method));
@@ -256,41 +251,6 @@ abstract class SimpleController
 	public function s($something)
 	{
 		return MergedContent::mergeStringArrayRecursive($something);
-	}
-
-	/**
-	 * Wraps the content in a div/section with a header.
-	 * The header is linkable.
-	 * @param string|array|ToStringable $content
-	 * @param string $caption
-	 * @param string $h
-	 * @param array $more
-	 * @return ToStringable
-	 * @throws Exception
-	 */
-	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
-	{
-		$h = $h ? $h : $this->encloseTag;
-		$content = $this->s($content);
-		if ($caption) {
-			$content = [
-				'caption' => $this->getCaption($caption, $h),
-				$content
-			];
-		}
-		$more['class'] = ifsetor($more['class'], 'padding clearfix');
-		$more['class'] .= ' ' . get_class($this);
-		//debug_pre_print_backtrace();
-		//$more['style'] = "position: relative;";	// project specific
-		$content = new HTMLTag('section', $more, $content, true);
-		return $content;
-	}
-
-	public function getCaption($caption, $hTag)
-	{
-		return '<' . $hTag . '>' .
-			$caption .
-			'</' . $hTag . '>';
 	}
 
 	public function log($action, ...$data)

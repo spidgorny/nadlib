@@ -601,69 +601,16 @@ class DBLayer extends DBLayerBase
 			return $value ? "'t'" : "'f'";
 		}
 
+//		if ($value instanceof SQLParam) {
+//			return $value;
+//		}
+
 		if (is_scalar($value)) {
 			return "'" . $this->escape($value) . "'";
 		}
 
 		debug($key, $value);
 		throw new MustBeStringException('Must be string.');
-	}
-
-	/**
-	 * Overrides because of pg_fetch_all
-	 * @param resource|string $result
-	 * @param null $key
-	 * @return array
-	 * @throws Exception
-	 */
-	public function fetchAll($result, $key = null)
-	{
-		$params = [];
-		if ($result instanceof SQLSelectQuery) {
-			/** @var SQLSelectQuery $queryObj */
-			$queryObj = $result;
-			$result = $queryObj->getQuery();
-			$params = $queryObj->getParameters();
-		}
-		if (is_string($result)) {
-			//debug($result);
-			$result = $this->perform($result, $params);
-		}
-		//debug($this->numRows($result));
-		$res = pg_fetch_all($result);
-		pg_free_result($result);
-		if (ifsetor($_REQUEST['d']) == 'q') {
-			debug($this->lastQuery, sizeof($res));
-		}
-		if (!$res) {
-			$res = [];
-		} elseif ($key) {
-			$ap = ArrayPlus::create($res)->IDalize($key)->getData();
-			//debug(sizeof($res), sizeof($ap));
-			$res = $ap;
-		}
-
-		return $res;
-	}
-
-	/**
-	 * @param resource/query $result
-	 * @return array
-	 * @throws DatabaseException
-	 * @throws MustBeStringException
-	 */
-	public function fetchAssoc($res)
-	{
-		if (is_string($res)) {
-			$res = $this->perform($res);
-		}
-//		error_log(__METHOD__ . ' [' . $res . ']');
-		$row = pg_fetch_assoc($res);
-		/*      // problem in OODBase
-		 * 		if (!$row) {
-					$row = array();
-				}*/
-		return $row;
 	}
 
 	/**
@@ -689,15 +636,13 @@ class DBLayer extends DBLayerBase
 	public function getAllRows($query)
 	{
 		$result = $this->perform($query);
-		$data = $this->fetchAll($result);
-		return $data;
+		return $this->fetchAll($result);
 	}
 
 	public function getFirstRow($query)
 	{
 		$result = $this->perform($query);
-		$row = pg_fetch_assoc($result);
-		return $row;
+		return pg_fetch_assoc($result);
 	}
 
 	public function getFirstValue($query)
@@ -759,46 +704,6 @@ order by a.attnum';
 		$comment = $assoc[$column];
 		//debug($query, $rows, $assoc, $comment);
 		return $comment;
-	}
-
-	/**
-	 * @param mixed $value
-	 * @param null $key
-	 * @return string
-	 * @throws MustBeStringException
-	 */
-	public function quoteSQL($value, $key = null)
-	{
-		if ($value === null) {
-			return "NULL";
-		}
-
-		if ($value === false) {
-			return "'f'";
-		}
-
-		if ($value === true) {
-			return "'t'";
-		}
-
-		if (is_int($value)) {  // is_numeric - bad: operator does not exist: character varying = integer
-			return $value;
-		}
-
-		if (is_bool($value)) {
-			return $value ? "'t'" : "'f'";
-		}
-
-//		if ($value instanceof SQLParam) {
-//			return $value;
-//		}
-
-		if (is_scalar($value)) {
-			return "'" . $this->escape($value) . "'";
-		}
-
-		debug($key, $value);
-		throw new MustBeStringException('Must be string.');
 	}
 
 	public function escape($str)
