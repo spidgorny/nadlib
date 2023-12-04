@@ -49,7 +49,7 @@ class AjaxLogin extends AppController
 		parent::__construct();
 		$config = Config::getInstance();
 		$config->mergeConfig($this);
-		$action = $action ? $action : $this->request->getTrim('action');    // don't reverse this line as it will call mode=login twice
+		$action = $action ?: $this->request->getTrim('action');    // don't reverse this line as it will call mode=login twice
 		if ($action) {
 			$this->action = $action;
 			//debug($this->action);
@@ -532,9 +532,6 @@ class AjaxLogin extends AppController
 	{
 		throw new RuntimeException('Not implemented');
 //		return '<a href="' . LoginService::class . '" class="btn btn-primary navbar-btn">Login</a>';
-	}
-		$content = $f;
-		return $content;
 	}
 
 	public function logoutForm()
