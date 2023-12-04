@@ -148,11 +148,17 @@ abstract class Controller extends SimpleController
 		return $table;
 	}
 
-	public function encloseIn($title, $content)
+	public function encloseInFieldset($title, $content)
 	{
 		$title = $title instanceof htmlString ? $title : htmlspecialchars($title);
 		$content = $this->s($content);
 		return '<fieldset><legend>' . $title . '</legend>' . $content . '</fieldset>';
+	}
+
+	public function wrapInDiv($content, $className = '')
+	{
+		$content = $this->s($content);
+		return new HTMLTag('div', ['class' => $className], $content);
 	}
 
 	public function encloseInToggle($content, $title, $height = 'auto', $isOpen = null, $tag = 'h3')
@@ -163,7 +169,7 @@ abstract class Controller extends SimpleController
 			$this->index->addJQuery();
 			$this->index->addJS($nadlibPath . 'js/showHide.js');
 			$this->index->addJS($nadlibPath . 'js/encloseInToggle.js');
-			$id = uniqid();
+			$id = uniqid('', true);
 
 			$content = '<div class="encloseIn">
 				<' . $tag . '>
@@ -213,8 +219,7 @@ abstract class Controller extends SimpleController
 			$html = $this->s($html);
 			$content .= '<div class="flex-box">' . $html . '</div>';
 		}
-		$content = '<div class="display-box">' . $content . '</div>';
-		return $content;
+		return '<div class="display-box">' . $content . '</div>';
 	}
 
 	public function inEqualColumnsHTML5()
@@ -226,8 +231,7 @@ abstract class Controller extends SimpleController
 			$html = $this->s($html);
 			$content .= '<div class="flex-box flex-equal">' . $html . '</div>';
 		}
-		$content = '<div class="display-box equal">' . $content . '</div>';
-		return $content;
+		return '<div class="display-box equal">' . $content . '</div>';
 	}
 
 	public function encloseInTableHTML3(array $cells, array $more = [], array $colMore = [])
@@ -366,11 +370,10 @@ abstract class Controller extends SimpleController
 	{
 //		$al = AutoLoad::getInstance();
 		$slug = URL::friendlyURL($caption);
-		$content = '
+		return '
 			<' . $hTag . ' id="' . $slug . '">' .
 			$caption .
 			'</' . $hTag . '>';
-		return $content;
 	}
 
 	/**
@@ -388,11 +391,10 @@ abstract class Controller extends SimpleController
 		$link = '<a class="header-link" href="#' . $slug . '">
 				<i class="fa fa-link"></i>
 			</a>';
-		$content = '<a name="' . URL::friendlyURL($caption) . '"></a>
+		return '<a name="' . URL::friendlyURL($caption) . '"></a>
 			<' . $h . ' id="' . $slug . '">' .
 			$link . $caption .
 			'</' . $h . '>';
-		return $content;
 	}
 
 	public function makeNewOf($className, $id)

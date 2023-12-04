@@ -2,7 +2,7 @@
 
 use spidgorny\nadlib\HTTP\URL;
 
-class View extends stdClass
+class View extends stdClass implements ToStringable
 {
 
 	//use HTMLHelper;

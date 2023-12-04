@@ -78,7 +78,7 @@ class Localize extends AppControllerBE
 		if (!$this->noRender) {
 			$content[] = $this->renderList();
 		}
-		$content = $this->encloseIn(__('Localize') . ' (' . sizeof($this->allKeys) . ')', $content);
+		$content = $this->encloseInFieldset(__('Localize') . ' (' . sizeof($this->allKeys) . ')', $content);
 		//$this->index->addJQuery();
 		$this->index->addJS('vendor/tuupola/jquery_jeditable/jquery.jeditable.js');
 		$this->index->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . "js/Localize.js");

@@ -133,8 +133,8 @@ abstract class SimpleController
 	public function indexAction()
 	{
 		$content = $this->renderTemplate();
-		$content = $this->html->div($content, str_replace('\\', '-', get_class($this)));
-		return $content;
+		$title = str_replace('\\', '-', get_class($this));
+		return $this->html->div($content, $title);
 	}
 
 	public function renderTemplate()
@@ -192,8 +192,7 @@ abstract class SimpleController
 		$more['class'] .= ' ' . get_class($this);
 		//debug_pre_print_backtrace();
 		//$more['style'] = "position: relative;";	// project specific
-		$content = new HTMLTag('section', $more, $content, true);
-		return $content;
+		return new HTMLTag('section', $more, $content, true);
 	}
 
 	public function getCaption($caption, $hTag)
@@ -212,15 +211,7 @@ abstract class SimpleController
 	public function performAction($action = null)
 	{
 		$content = '';
-		if (Request::isCLI()) {
-			//debug($_SERVER['argv']);
-			$reqAction = ifsetor($_SERVER['argv'][2]);    // it was 1
-		} else {
-			$reqAction = $this->request->getTrim('action');
-		}
-		//		debug($reqAction);
-		$method = $action
-			?: (!empty($reqAction) ? $reqAction : 'index');
+		$method = $action	?: $this->detectAction();
 		if ($method) {
 			$method .= 'Action';        // ZendFramework style
 			//			debug($method, method_exists($this, $method));
@@ -246,6 +237,16 @@ abstract class SimpleController
 			}
 		}
 		return $content;
+	}
+
+	public function detectAction()
+	{
+		if (Request::isCLI()) {
+			//debug($_SERVER['argv']);
+			return ifsetor($_SERVER['argv'][2]);    // it was 1
+		}
+
+		return $this->request->getTrim('action') ?? 'index';
 	}
 
 	public function s($something)

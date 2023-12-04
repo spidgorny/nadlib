@@ -102,7 +102,7 @@ class AjaxTree extends HTMLFormType implements HTMLFormTypeInterface
 
 		$this->form->stdout .= '<div id="' . $id . '" class="htmlFormAjaxTree" style="display: none;">';
 		$e = new AppController();
-		$this->form->stdout .= $e->encloseIn('Select an element', $renderTree, TRUE, [
+		$this->form->stdout .= $e->encloseInFieldset('Select an element', $renderTree, TRUE, [
 			'closeButton' => $id,
 			'innerStyle' => 'height: 400px; overflow: scroll;',
 			'innerID' => 'inner_' . $textName,
