@@ -2,21 +2,21 @@
 
 class DBLayerOCI extends DBLayer implements DBInterface
 {
-	var $connection = NULL;
-	var $COUNTQUERIES = 0;
-	var $LAST_PERFORM_RESULT;
-	var $LOG;
-	var $debug = FALSE;
-	var $debugOnce = FALSE;
-	var $is_connected = FALSE;
+	public $connection = null;
+	public $COUNTQUERIES = 0;
+	public $LAST_PERFORM_RESULT;
+	public $LOG;
+	public $debug = false;
+	public $debugOnce = false;
+	public $is_connected = false;
 
-	function __construct($tns, $user, $pass)
+	public function __construct($tns, $user, $pass)
 	{
 		$this->connect($tns, $user, $pass);
 		//debug('<div class="error">OCI CONNECT</div>');
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		return '[Object of type dbLayerOCI]';
 	}
@@ -28,41 +28,41 @@ class DBLayerOCI extends DBLayer implements DBInterface
 	 * @param string $host - unused, for declaration consistency
 	 * @return bool|null|resource
 	 */
-	function connect($tns = null, $user = null, $pass = null, $host = 'localhost')
+	public function connect($tns = null, $user = null, $pass = null, $host = 'localhost')
 	{
 		$this->connection = oci_connect($user, $pass, $tns);
 		if (!$this->connection) {
 			print('Error in Oracle library: connection failed. Reason: ' . getDebug(oci_error($this->connection)) . BR);
-			return NULL;
+			return null;
 		}
 		return $this->connection;
 	}
 
-	function getConnection()
+	public function getConnection()
 	{
 		return $this->connection;
 	}
 
-	function disconnect()
+	public function disconnect()
 	{
 		oci_close($this->connection);
 	}
 
-	function insertFields()
+	public function insertFields()
 	{
 		return [];
 	}
 
-	function updateFields()
+	public function updateFields()
 	{
 		return [];
 	}
 
-	function performOCI($query, $canprint = TRUE, $try = FALSE)
+	public function performOCI($query, $canprint = true, $try = false)
 	{
 		if (!$this->connection) {
 			print('Error in Oracle library: no connection. Query: ' . $query . BR);
-			return NULL;
+			return null;
 		}
 		$this->COUNTQUERIES++;
 		if ($this->debugOnce || $this->debug) {
@@ -82,7 +82,7 @@ class DBLayerOCI extends DBLayer implements DBInterface
 			//debug($this->LAST_PERFORM_RESULT); exit();
 			//debug(oci_error($this->LAST_PERFORM_RESULT)); exit();
 			if (oci_error($this->LAST_PERFORM_RESULT)) {
-				$this->LAST_PERFORM_RESULT = NULL;
+				$this->LAST_PERFORM_RESULT = null;
 			}
 		} else {
 			oci_execute($this->LAST_PERFORM_RESULT, OCI_DEFAULT);
@@ -98,7 +98,7 @@ class DBLayerOCI extends DBLayer implements DBInterface
 		$numRows = $this->numRows($this->LAST_PERFORM_RESULT);
 		if ($this->debugOnce || $this->debug) {
 			debug([$query]);
-			$this->debugOnce = FALSE;
+			$this->debugOnce = false;
 		}
 		$elapsed = number_format($time2['float'] - $time1['float'], 3);
 		$debug = debug_backtrace();
@@ -161,7 +161,7 @@ class DBLayerOCI extends DBLayer implements DBInterface
 			ora_rollback($this->CONNECTION);
 		}
 	*/
-	function quoteSQL($value, $more = [])
+	public function quoteSQL($value, $more = [])
 	{
 		if ($value == "CURRENT_TIMESTAMP") {
 			return $value;
@@ -202,10 +202,10 @@ class DBLayerOCI extends DBLayer implements DBInterface
 		return oci_num_rows($result);
 	}
 
-	public function numRows($result = NULL)
+	public function numRows($result = null)
 	{
 		$i = 0;
-		while (($row = $this->fetchAssoc($result)) !== FALSE) {
+		while (($row = $this->fetchAssoc($result)) !== false) {
 			$i++;
 		}
 		return $i;

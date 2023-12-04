@@ -5,18 +5,15 @@ class DebugHTML
 
 	const LEVELS = 'LEVELS';
 
-	static $stylesPrinted = false;
-
+	public static $stylesPrinted = false;
+	public static $defaultLevels = 4;
 	/**
 	 * @var Debug
 	 */
-	var $helper;
+	public $helper;
+	public $htmlPrologSent = false;
 
-	var $htmlPrologSent = false;
-
-	static $defaultLevels = 4;
-
-	function __construct(Debug $helper)
+	public function __construct(Debug $helper)
 	{
 		$this->helper = $helper;
 	}
@@ -30,7 +27,7 @@ class DebugHTML
 		return $type;
 	}
 
-	function render()
+	public function render()
 	{
 		$levels = self::$defaultLevels;
 		$args = func_get_args();
@@ -52,15 +49,15 @@ class DebugHTML
 				<html lang="en-US">
 				<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 				' . $content;
-				$this->htmlProlorSent = true;
+				$this->htmlPrologSent = true;
 			}
 		}
 		return $content;
 	}
 
-	function getLevels(array &$args)
+	public function getLevels(array &$args)
 	{
-		if (sizeof($args) == 1) {
+		if (sizeof($args) === 1) {
 			$a = $args[0];
 			$levels = self::$defaultLevels;
 		} else {
@@ -74,6 +71,31 @@ class DebugHTML
 		}
 		$args = $a;
 		return $levels;
+	}
+
+	public function renderHTMLView(array $db, $a, $levels)
+	{
+		$props = $this->getProps($db, $a);
+
+		$backlog = Debug::getBackLog(1, 6);
+		$trace = Debug::getTraceTable($db);
+//		$trace = '<ul><li>' . Debug::getBackLog(20, 6, '<li>') . '</ul>';
+
+		$content = '
+			<div class="debug">
+				<div class="caption">
+					' . $this->renderProps($props) . '
+					<a href="javascript: void(0);" onclick="
+						var a = this.nextSibling.nextSibling;
+						a.style.display = a.style.display == \'block\' ? \'none\' : \'block\';
+					">' . $backlog . '</a>
+					<div style="display: none;">' . $trace . '</div>
+				</div>
+				<div class="">
+					' . static::view_array($a, $levels) . '
+				</div>
+			</div>';
+		return $content;
 	}
 
 	protected function getProps($db, $a)
@@ -129,38 +151,13 @@ class DebugHTML
 		return $props;
 	}
 
-	function renderProps(array $props)
+	public function renderProps(array $props)
 	{
 		$rows = [];
 		foreach ($props as $key => $val) {
-			$rows[] = '<span class="debug_prop">'.$key.'</span> '.$val;
+			$rows[] = '<span class="debug_prop">' . $key . '</span> ' . $val;
 		}
 		return implode(BR, $rows);
-	}
-
-	function renderHTMLView(array $db, $a, $levels)
-	{
-		$props = $this->getProps($db, $a);
-
-		$backlog = Debug::getBackLog(1, 6);
-		$trace = Debug::getTraceTable($db);
-//		$trace = '<ul><li>' . Debug::getBackLog(20, 6, '<li>') . '</ul>';
-
-		$content = '
-			<div class="debug">
-				<div class="caption">
-					' . $this->renderProps($props) . '
-					<a href="javascript: void(0);" onclick="
-						var a = this.nextSibling.nextSibling;
-						a.style.display = a.style.display == \'block\' ? \'none\' : \'block\';
-					">' . $backlog . '</a>
-					<div style="display: none;">' . $trace . '</div>
-				</div>
-				<div class="">
-					' . static::view_array($a, $levels) . '
-				</div>
-			</div>';
-		return $content;
 	}
 
 	/**
@@ -168,7 +165,7 @@ class DebugHTML
 	 * @param int $levels
 	 * @return string|NULL    - will be recursive while levels is more than zero, but NULL is a special case
 	 */
-	public static function view_array($a, $levels = 1, $tableClass = 'view_array')
+	public static function view_array($a, $levels = 1, $tableClass = 'view_array font-mono')
 	{
 		if (is_object($a)) {
 			if (method_exists($a, 'debug')) {
@@ -179,7 +176,7 @@ class DebugHTML
 				//	$a = $a->getName();	-- not enough info
 			} elseif (method_exists($a, '__debugInfo')) {
 				$a = $a->__debugInfo();
-			} elseif ($a instanceof htmlString) {
+			} elseif ($a instanceof HtmlString) {
 				$a = $a; // will take care below
 			} elseif ($a instanceof SimpleXMLElement) {
 				$a = 'XML[' . $a->asXML() . ']';
@@ -189,7 +186,7 @@ class DebugHTML
 		}
 
 		if (is_array($a)) {    // not else if so it also works for objects
-			$content = '<table class="'.$tableClass.'">';
+			$content = '<table class="' . $tableClass . '">';
 			foreach ($a as $i => $r) {
 				$type = typ($r);
 				$type = self::shortenType($type);
@@ -203,7 +200,7 @@ class DebugHTML
 				//debug_pre_print_backtrace(); flush();
 				if (($a !== $r) && (is_null($levels) || $levels > 0)) {
 					$content .= self::view_array($r,
-						is_null($levels) ? NULL : $levels - 1, $tableClass);
+						is_null($levels) ? null : $levels - 1, $tableClass);
 				} else {
 					$content .= '<i>Too deep, $level: ' . $levels . '</i>';
 				}
@@ -212,11 +209,11 @@ class DebugHTML
 			}
 			$content .= '</table>';
 		} elseif (is_object($a)) {
-			if ($a instanceof htmlString) {
+			if ($a instanceof HtmlString) {
 				$content = 'html[' . $a . ']';
 			} else {
 				$content = '<pre style="font-size: 12px; white-space: pre-wrap">' .
-					htmlspecialchars(print_r($a, TRUE)) . '</pre>';
+					htmlspecialchars(print_r($a, true)) . '</pre>';
 			}
 		} elseif (is_resource($a)) {
 			$content = $a;
@@ -228,7 +225,7 @@ class DebugHTML
 		} elseif (is_string($a) && strlen($a) && $a[0] === '{') {
 			$try = @json_decode($a);
 			if ($try) {
-				$content = '<pre style="white-space: pre-wrap">'.json_encode($try, JSON_PRETTY_PRINT).'</pre>';
+				$content = '<pre style="white-space: pre-wrap">' . json_encode($try, JSON_PRETTY_PRINT) . '</pre>';
 			} else {
 				$content = htmlspecialchars($a . '');
 			}
@@ -238,7 +235,7 @@ class DebugHTML
 		return $content;
 	}
 
-	static function printStyles()
+	public static function printStyles()
 	{
 		if (Request::isCLI()) return '';
 		$content = '';

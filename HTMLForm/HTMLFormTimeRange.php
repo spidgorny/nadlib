@@ -22,7 +22,7 @@ class HTMLFormTimeRange extends HTMLFormType
 	 * @param string $field
 	 * @param array $value - array of minutes
 	 */
-	function __construct($field, array $value)
+	public function __construct($field, array $value)
 	{
 //		parent::__construct();
 		$this->field = $field;
@@ -42,7 +42,7 @@ class HTMLFormTimeRange extends HTMLFormType
 	 *
 	 * @param string $value - 10:00-13:30
 	 */
-	function setValue($value)
+	public function setValue($value)
 	{
 		if ($value) {
 			list($this->start, $this->end) = $this->parseRange($value);
@@ -54,7 +54,7 @@ class HTMLFormTimeRange extends HTMLFormType
 	 * @return array[IndTime, IndTime]
 	 * @throws Exception
 	 */
-	static function parseRange($value)
+	public static function parseRange($value)
 	{
 		if (strlen($value) == 11) {
 			$parts = explode('-', $value);
@@ -70,7 +70,7 @@ class HTMLFormTimeRange extends HTMLFormType
 		return [$s, $e];
 	}
 
-	function render()
+	public function render()
 	{
 		assert($this->step);
 		$al = AutoLoad::getInstance();

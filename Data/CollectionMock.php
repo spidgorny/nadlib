@@ -8,7 +8,7 @@
 class CollectionMock
 {
 
-	var $members;
+	public $members;
 
 	public function __construct($pid = null, $where = [], $order = '')
 	{

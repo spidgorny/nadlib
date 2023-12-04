@@ -13,7 +13,7 @@ if (!defined('DEVELOPMENT')) {
 class ArrayFunctionsTest extends PHPUnit\Framework\TestCase
 {
 
-	function test_unique_multidim_array_thru()
+	public function test_unique_multidim_array_thru()
 	{
 		$fixture = [
 			'a' => 'b',

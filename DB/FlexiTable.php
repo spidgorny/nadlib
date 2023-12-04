@@ -26,7 +26,7 @@ class FlexiTable extends OODBase
 	 *
 	 * @var array
 	 */
-	static protected $tableColumns = [];
+	protected static $tableColumns = [];
 
 	/**
 	 * @var string 'ctime'

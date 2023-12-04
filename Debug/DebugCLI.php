@@ -17,7 +17,7 @@ class DebugCLI
 
 	public static function canCLI()
 	{
-		$isCURL = str_contains(ifsetor($_SERVER['HTTP_USER_AGENT'], ''), 'curl');
+		$isCURL = ifsetor($_SERVER['HTTP_USER_AGENT']) && str_contains(ifsetor($_SERVER['HTTP_USER_AGENT'], ''), 'curl');
 		return Request::isCLI() || $isCURL;
 	}
 
@@ -30,7 +30,7 @@ class DebugCLI
 		$db = array_slice($db, 2, sizeof($db));
 		$trace = [];
 		$row = first($db);
-		$trace[] = $row['file'].':'.$row['line'];
+		$trace[] = $row['file'] . ':' . $row['line'];
 		foreach ($db as $i => $row) {
 			$trace[] = ' * ' . Debug::getMethod($row, ifsetor($db[$i + 1], []));
 			if (++$i > 7) {
@@ -40,7 +40,7 @@ class DebugCLI
 		echo '⎯⎯⎯⎯⎯⎯⎯⎯⎯ ¯\_(ツ)_/¯ ' . $this->helper->name . BR .
 			implode(BR, $trace) . "\n";
 
-		if ($args instanceof htmlString) {
+		if ($args instanceof HtmlString) {
 			$args = strip_tags($args);
 		}
 

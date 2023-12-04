@@ -6,30 +6,30 @@ class DebugBulma extends DebugHTML
 	/**
 	 * @var Debug
 	 */
-	var $helper;
+	public $helper;
 
-	function __construct(Debug $helper)
+	public function __construct(Debug $helper)
 	{
 		$this->helper = $helper;
 	}
 
-	static function canBulma()
+	public static function canBulma()
 	{
 		return true;
 	}
 
-	static function printStyles()
+	public static function printStyles()
 	{
 //		echo '!!', __METHOD__, '!!';
 		return '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css" />';
 	}
 
-	function debug($params)
+	public function debug($params)
 	{
 		return call_user_func_array([$this, 'render'], func_get_args());
 	}
 
-	function renderProps(array $props)
+	public function renderProps(array $props)
 	{
 		$rows = ['<table class="table">'];
 		foreach ($props as $key => $val) {
@@ -80,7 +80,7 @@ class DebugBulma extends DebugHTML
 		return $content;
 	}
 
-	static function view_array($a, $levels = 1, $tableClass = 'view_array')
+	public static function view_array($a, $levels = 1, $tableClass = 'view_array')
 	{
 		return parent::view_array($a, $levels, 'table is-narrow is-bordered is-size-7');
 	}

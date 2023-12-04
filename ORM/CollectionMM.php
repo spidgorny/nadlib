@@ -73,7 +73,7 @@ class CollectionMM extends Collection
 	 * @param bool $byInstance
 	 * @return object[]
 	 */
-	function objectify($class = '', $byInstance = false)
+	public function objectify($class = '', $byInstance = false)
 	{
 		$this->members = [];   // somehow necessary
 		$class = $class ? $class : $this->itemClassName;

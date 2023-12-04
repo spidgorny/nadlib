@@ -11,22 +11,22 @@ class RunDispatcher extends AppController
 
 	public static $public = true;
 
-	var $runner;
+	public $runner;
 
-	var $parallelism = 3;
+	public $parallelism = 3;
 
 	/**
 	 * @var RunnerTask[]
 	 */
-	var $processes = [];
+	public $processes = [];
 
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 		$this->runner = new Runner();
 	}
 
-	function render()
+	public function render()
 	{
 		while (true) {
 			$queue = $this->runner->getTaskQueue();
@@ -50,7 +50,7 @@ class RunDispatcher extends AppController
 		}
 	}
 
-	function start(RunnerTask $task)
+	public function start(RunnerTask $task)
 	{
 		echo '> ', $task->getName(), '(', implode(', ', $task->getParams()), ')', BR;
 //		$cmd = $this->getTaskCommandLine();
@@ -73,18 +73,7 @@ class RunDispatcher extends AppController
 		return $cmd;
 	}
 
-	function getTaskCommandLine()
-	{
-		$cmd = 'php index.php ' . get_class($task->obj) . ' ' . $task->method;
-		$params = $task->getParams();
-		if ($params) {
-			$rMethod = new ReflectionMethod($task->obj, $task->method);
-			foreach ($rMethod->getParameters() as $i => $param) {
-				$cmd .= ' -' . $param->getName() . ' ' . $params[$i];
-			}
-		}
-		return $cmd;
-	}
+	public
 
 	function checkLiveProcesses()
 	{
@@ -113,10 +102,23 @@ class RunDispatcher extends AppController
 		}
 	}
 
+	public function getTaskCommandLine(RunnerTask $task)
+	{
+		$cmd = 'php index.php ' . get_class($task->obj) . ' ' . $task->method;
+		$params = $task->getParams();
+		if ($params) {
+			$rMethod = new ReflectionMethod($task->obj, $task->method);
+			foreach ($rMethod->getParameters() as $i => $param) {
+				$cmd .= ' -' . $param->getName() . ' ' . $params[$i];
+			}
+		}
+		return $cmd;
+	}
+
 	/**
 	 * Used for testing
 	 */
-	function spam()
+	public function spam()
 	{
 		foreach (range(30, 40) as $s) {
 			$task = RunnerTask::schedule(__CLASS__, 'sleepFor', [$s]);
@@ -124,7 +126,7 @@ class RunDispatcher extends AppController
 		}
 	}
 
-	function sleepFor($seconds)
+	publicfunction sleepFor($seconds)
 	{
 		echo __METHOD__ . '(' . $seconds . ')', ' PID: ', getmypid(), BR;
 		$start = microtime(true);

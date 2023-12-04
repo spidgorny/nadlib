@@ -2,13 +2,15 @@
 
 class CollectionQueryCache extends CollectionQuery
 {
+	protected $data;
+	protected $doCache = true;
+	protected $count;
 
 	/**
 	 * Wrapper for retrieveDataFromDB() to store/retrieve data from the cache file
-	 * @param bool $allowMerge
 	 * @throws Exception
 	 */
-	public function retrieveDataFromCache($allowMerge = false)
+	public function retrieveDataFromCache()
 	{
 		if (!$this->data) {                                                    // memory cache
 			$this->query = $this->getQuery();
@@ -30,12 +32,12 @@ class CollectionQueryCache extends CollectionQuery
 					}
 					$this->log('found in cache, age: ' . $fc->getAge());
 				} else {
-					$this->retrieveData($allowMerge);    // getQueryWithLimit() inside
+					$this->retrieveData();    // getQueryWithLimit() inside
 					$fc->set([$this->count, $this->data]);
 					$this->log('no cache, retrieve, store');
 				}
 			} else {
-				$this->retrieveData($allowMerge);
+				$this->retrieveData();
 			}
 			if ($_REQUEST['d']) {
 				//debug($cacheFile = $fc->map($this->query), $action, $this->count, filesize($cacheFile));

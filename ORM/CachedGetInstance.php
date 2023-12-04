@@ -37,9 +37,7 @@ trait CachedGetInstance
 				: NULL,
 		));*/
 		if (is_scalar($id)) {
-			$inst = isset(static::$instances[$static][$id])
-				? static::$instances[$static][$id]
-				: null;
+			$inst = self::$instances[$static][$id] ?? null;
 			if (!$inst) {
 				//debug('new ', get_called_class(), $id, array_keys(self::$instances));
 				/** @var OODBase $inst */
@@ -55,7 +53,7 @@ trait CachedGetInstance
 			$inst = new $static();    // only to find ->idField
 			$intID = $id[$inst->idField];
 			//debug($static, $intID, $id);
-			$inst = static::$instances[$static][$intID] ?? $inst;
+			$inst = self::$instances[$static][$intID] ?? $inst;
 			if (!$inst->id) {
 				$inst->init($id);    // array
 				static::storeInstance($inst, $intID);    // int id

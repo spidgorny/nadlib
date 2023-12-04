@@ -99,14 +99,14 @@ class RequestTest extends PHPUnit\Framework\TestCase
 		$_SERVER['HTTP_HOST'] = 'dev-jobz.local';
 		$location = Request::getLocation();
 //		debug($location . '');
-		$this->assertEquals('http://'.gethostname().'/', $location);
+		$this->assertEquals('http://' . gethostname() . '/', $location);
 	}
 
 	public function test_dir_of_file()
 	{
 		$set = [
 			'a' => '.',
-			'/a' => DIRECTORY_SEPARATOR,	// only case where Windows matter
+			'/a' => DIRECTORY_SEPARATOR,  // only case where Windows matter
 			'/a/b' => '/a',
 			'/a/b/c' => '/a/b',
 			'/a/b/c/' => '/a/b/c',

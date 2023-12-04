@@ -20,9 +20,9 @@ class DBLayerODBC extends DBLayerBase implements DBInterface
 	 */
 	public $result;
 
-	public $cursor = NULL;
+	public $cursor = null;
 
-	function __construct($user, $password, $host, $db)
+	public function __construct($user, $password, $host, $db)
 	{
 		if ($user) {
 			$this->connect($user, $password, $host, $db);
@@ -30,7 +30,7 @@ class DBLayerODBC extends DBLayerBase implements DBInterface
 		}
 	}
 
-	function connect($user, $password, $host, $db)
+	public function connect($user, $password, $host, $db)
 	{
 		//$this->connection = odbc_connect('odbc:DRIVER={IBM DB2 ODBC DRIVER};HOSTNAME='.$host.';PORT=50000;DATABASE=PCTRANSW;PROTOCOL=TCPIP', $user, $password);
 		$this->connection = odbc_pconnect('DSN=' . $host . ';DATABASE=' . $db, $user, $password);
@@ -49,50 +49,50 @@ class DBLayerODBC extends DBLayerBase implements DBInterface
 		return $this->result;
 	}
 
-	function numRows($res = null)
+	public function numRows($res = null)
 	{
 		return odbc_num_rows($res);
 	}
 
-	function affectedRows($res = NULL)
+	public function affectedRows($res = null)
 	{
 		// TODO: Implement affectedRows() method.
 	}
 
-	function getTables()
+	public function getTables()
 	{
 		$this->result = odbc_tables($this->connection);
 		return $this->fetchAll($this->result);
 	}
 
-	function escapeBool($value)
+	public function escapeBool($value)
 	{
 		return !!$value;
 	}
 
-	function free($res)
+	public function free($res)
 	{
 		if (is_resource($res)) {
 			odbc_free_result($res);
 		}
 	}
 
-	function lastInsertID($result, $key = NULL)
+	public function lastInsertID($result, $key = null)
 	{
 		// TODO: Implement lastInsertID() method.
 	}
 
-	function quoteKey($key)
+	public function quoteKey($key)
 	{
 		return $key;
 	}
 
-	function dataSeek($res, $set)
+	public function dataSeek($res, $set)
 	{
 		$this->cursor = $set;
 	}
 
-	function fetchAssoc($res)
+	public function fetchAssoc($res)
 	{
 		if ($this->connection) {
 			if (is_null($this->cursor)) {
@@ -108,7 +108,7 @@ class DBLayerODBC extends DBLayerBase implements DBInterface
 		}
 	}
 
-	function lastError()
+	public function lastError()
 	{
 		return 'ODBC error #' . odbc_error() . ': ' . odbc_errormsg();
 	}

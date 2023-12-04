@@ -87,7 +87,7 @@ class SQLSearch extends SQLWherePart
 		//debug($words);
 		foreach ($words as $word) {
 			//if (!$i) {
-			if (FALSE) {
+			if (false) {
 				$query .= $this->getSearchSubquery($word);
 				//$query .= '( '.$this->getSearchSubquery($word).')';
 				//$query .= ' AS score_'.$i;
@@ -115,7 +115,7 @@ class SQLSearch extends SQLWherePart
 		$from = new SQLFrom($table);
 		$where = new SQLWhere([]);
 		$query = new SQLSelectQuery($select, $from, $where,
-			NULL, NULL, NULL, new SQLOrder('id'));
+			null, null, null, new SQLOrder('id'));
 		//$query->setJoin(new SQLJoin("LEFT OUTER JOIN tag ON (tag.id_score = ".$this->table.".id)"));
 
 		//$query->where->add($this->getSearchWhere($word, $i ? 'score_'.$i : $table));

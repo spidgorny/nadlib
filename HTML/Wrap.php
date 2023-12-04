@@ -1,9 +1,11 @@
 <?php
 
-class Wrap {
+class Wrap
+{
 	protected $wrap1, $wrap2;
 
-	function  __construct($strWrap, $arrWrap2 = NULL) {
+	public function __construct($strWrap, $arrWrap2 = null)
+	{
 		if ($arrWrap2) {
 			$this->wrap1 = $strWrap;
 			$this->wrap2 = $arrWrap2;
@@ -17,17 +19,20 @@ class Wrap {
 		}
 	}
 
-	function __toString() {
-		return 'Wrap Object ('.strlen($this->wrap1).', '.strlen($this->wrap2).')';
+	public function __toString()
+	{
+		return 'Wrap Object (' . strlen($this->wrap1) . ', ' . strlen($this->wrap2) . ')';
 	}
 
-	function debug() {
+	public function debug()
+	{
 		return $this->__toString();
 	}
 
-	function wrap($str) {
+	public function wrap($str)
+	{
 		$str = MergedContent::mergeStringArrayRecursive($str);
-		return $this->wrap1.$str.$this->wrap2;
+		return $this->wrap1 . $str . $this->wrap2;
 	}
 
 	/**
@@ -35,7 +40,8 @@ class Wrap {
 	 * @param $w2
 	 * @return Wrap
 	 */
-	static function make($w1, $w2 = NULL) {
+	public static function make($w1, $w2 = null)
+	{
 		return new self($w1, $w2);
 	}
 

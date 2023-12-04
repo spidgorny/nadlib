@@ -1,5 +1,6 @@
 <?php
 
+use Michelf\Markdown;
 use spidgorny\nadlib\HTTP\URL;
 
 class View extends stdClass implements ToStringable
@@ -375,11 +376,11 @@ class View extends stdClass implements ToStringable
 
 	public function _autolink_create_html_tags(&$value, $key, $other = null)
 	{
-		$target = $nofollow = NULL;
+		$target = $nofollow = null;
 		if (is_array($other)) {
-			$target = ($other['target'] ? " target=\"$other[target]\"" : NULL);
+			$target = ($other['target'] ? " target=\"$other[target]\"" : null);
 			// see: http://www.google.com/googleblog/2005/01/preventing-comment-spam.html
-			$nofollow = ($other['nofollow'] ? ' rel="nofollow"' : NULL);
+			$nofollow = ($other['nofollow'] ? ' rel="nofollow"' : null);
 		}
 		$value = "<a href=\"$key\"$target$nofollow>$key</a>";
 	}
@@ -418,6 +419,63 @@ class View extends stdClass implements ToStringable
 		return new HTMLTag('img', $attr, null);
 	}
 
+	public function purifyLinkify($comment)
+	{
+		$comment = preg_replace("/#(\w+)/", "<a href=\"Search?q=\\1\" target=\"_blank\">#\\1</a>", $comment);
+		$comment = $this->cleanComment($comment);
+		$comment = nl2br($comment);
+		$comment .= $this->getEmbeddables($comment);
+		return $comment;
+	}
+
+	/**
+	 * @param string $comment
+	 * @return string
+	 */
+	public function cleanComment($comment, array $allowedTags = [
+		'a[href]'
+	])
+	{
+		//$v = new View('');
+		//$comment = $v->autolink($comment);
+		$config = HTMLPurifier_Config::createDefault();
+		//debug($config);
+		$config->set('HTML.Allowed', implode(',', $allowedTags));
+		$config->set('Attr.AllowedFrameTargets', ['_blank']);
+		$config->set('Attr.AllowedRel', ['nofollow']);
+		$config->set('AutoFormat.Linkify', true);
+		$config->set('HTML.TargetBlank', true);
+		$config->set('HTML.Nofollow', true);
+		$purifier = new HTMLPurifier($config);
+		$clean_html = $purifier->purify($comment);
+		return $clean_html;
+	}
+
+	public function getEmbeddables($comment)
+	{
+		$content = '';
+		$links = $this->getLinks($comment);
+		foreach ($links as $link => $_) {
+			/** @noinspection PhpUndefinedNamespaceInspection */
+			$Essence = @Essence\Essence::instance();
+			$Media = $Essence->embed($link);
+
+			if ($Media) {
+				$content .= $Media->html;
+			}
+		}
+		return $content;
+	}
+
+	/**
+	 * @param $comment
+	 * @return array
+	 */
+	public function getLinks($comment)
+	{
+		return View::_autolink_find_URLS($comment);
+	}
+
 	public function s($a)
 	{
 //		echo typ($a), BR;
@@ -428,7 +486,7 @@ class View extends stdClass implements ToStringable
 
 	public static function markdown($text)
 	{
-		$my_html = \Michelf\Markdown::defaultTransform($text);
+		$my_html = Markdown::defaultTransform($text);
 		return $my_html;
 	}
 

@@ -13,28 +13,28 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	/**
 	 * @var string
 	 */
-	var $file;
+	public $file;
 
 	/**
 	 * @var SQLite3
 	 */
-	var $connection;
+	public $connection;
 
 	/**
 	 * @var string
 	 */
-	var $lastQuery;
+	public $lastQuery;
 
 	/**
 	 * @var SQLiteResult
 	 */
-	var $lastResult;
+	public $lastResult;
 
 	/**
 	 * MUST BE UPPERCASE
 	 * @var array
 	 */
-	var $reserved = [
+	public $reserved = [
 		'FROM',
 	];
 
@@ -84,7 +84,7 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	 * @return int
 	 * @throws Exception
 	 */
-	public function numRows($res = NULL)
+	public function numRows($res = null)
 	{
 		$numRows = 0;
 		if ($res instanceof SQLite3Result) {
@@ -92,7 +92,7 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 			//debug(get_class($res), get_class_methods($res));
 			//$all = $this->fetchAll($res);   // will free() inside
 			//$numRows = sizeof($all);
-			while ($this->fetchAssoc($res) !== FALSE) {
+			while ($this->fetchAssoc($res) !== false) {
 				$numRows++;
 			}
 			$res->reset();
@@ -136,7 +136,7 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 		return $this->fetchAll($this->lastResult);
 	}
 
-	public function lastInsertID($res = NULL, $table = NULL)
+	public function lastInsertID($res = null, $table = null)
 	{
 		return $this->connection->lastInsertRowid();
 	}
@@ -155,7 +155,7 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	public function quoteKey($key)
 	{
 		if ($key instanceof AsIs) {
-			return $key.'';
+			return $key . '';
 		}
 		return '`' . $key . '`';
 	}
@@ -189,12 +189,12 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 	 * @return array
 	 * @throws Exception
 	 */
-	public function fetchAll($res_or_query, $index_by_key = NULL)
+	public function fetchAll($res_or_query, $index_by_key = null)
 	{
 		if (is_string($res_or_query)) {
 			$res = $this->perform($res_or_query);
 		} elseif ($res_or_query instanceof SQLSelectQuery) {
-			$res = $this->perform($res_or_query.'', $res_or_query->getParameters());
+			$res = $this->perform($res_or_query . '', $res_or_query->getParameters());
 		} elseif ($res_or_query instanceof SQLite3Result) {
 			$res = $res_or_query;
 		} else {
@@ -231,7 +231,7 @@ class DBLayerSQLite extends DBLayerBase implements DBInterface
 		if (is_string($res)) {
 			$res = $this->perform($res);
 		} elseif ($res instanceof SQLSelectQuery) {
-			$res = $this->perform($res.'', $res->getParameters());
+			$res = $this->perform($res . '', $res->getParameters());
 		} elseif ($res instanceof SQLite3Result) {
 //			$res = $res;
 		} else {

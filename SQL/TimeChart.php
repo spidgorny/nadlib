@@ -6,21 +6,21 @@ class TimeChart
 	/**
 	 * @var DBInterface
 	 */
-	var $db;
+	public $db;
 
-	var $table;
+	public $table;
 
 	/**
 	 * @var array
 	 */
-	var $where;
+	public $where;
 
 	/**
 	 * @var
 	 */
-	var $groupBy;
+	public $groupBy;
 
-	var $options = [
+	public $options = [
 		'year-month' => '%Y-%m',
 		'year' => '%Y',
 		'year-month-day' => '%Y-%m-%d',
@@ -28,7 +28,7 @@ class TimeChart
 		'dow' => '%w',
 	];
 
-	var $barWidths = [
+	public $barWidths = [
 		'year-month' => 24,
 		'year' => 360,
 		'year-month-day' => 0.9,
@@ -39,13 +39,13 @@ class TimeChart
 	/**
 	 * @var array[array]
 	 */
-	var $data;
+	public $data;
 
-	var $title = 'Appointments';
+	public $title = 'Appointments';
 
-	var $query;
+	public $query;
 
-	var $dow = [
+	public $dow = [
 		'1' => 'Monday',
 		'2' => 'Tuesday',
 		'3' => 'Wednesday',

@@ -14,7 +14,7 @@ class ULTest extends PHPUnit\Framework\TestCase
 	 */
 	protected $ul;
 
-	function setUp()
+	public function setUp()
 	{
 		$this->ul = new UL([
 			'slawa' => 'Slawa',
@@ -22,20 +22,20 @@ class ULTest extends PHPUnit\Framework\TestCase
 		]);
 	}
 
-	function test_noLink()
+	public function test_noLink()
 	{
 		$render = $this->ul->render();
 		$this->assertContains('<li class="active">Slawa</li>', $render);
 	}
 
-	function test_linkWrap()
+	public function test_linkWrap()
 	{
 		$this->ul->makeClickable();
 		$render = $this->ul->render();
 		$this->assertContains('<li class="active"><a href="slawa">Slawa</a></li>', $render);
 	}
 
-	function test_linkFunc()
+	public function test_linkFunc()
 	{
 		$this->ul->linkFunc = function ($class, $name) {
 			return "$class=>$name";

@@ -1,5 +1,6 @@
 <?php
 
+use nadlib\HTML\Messages;
 use nadlib\HTTP\Session;
 
 class IndexBase /*extends Controller*/
@@ -17,7 +18,7 @@ class IndexBase /*extends Controller*/
 	/**
 	 * For any error messages during initialization.
 	 *
-	 * @var \nadlib\HTML\Messages
+	 * @var Messages
 	 */
 	public $content;
 	/**
@@ -33,6 +34,12 @@ class IndexBase /*extends Controller*/
 	public $description = '';
 	public $keywords = '';
 	public $bodyClasses = [];
+
+	/**
+	 * @var Config
+	 */
+	protected $config;
+
 	var $csp = [
 		"default-src" => [
 			"'self'",
@@ -133,10 +140,46 @@ class IndexBase /*extends Controller*/
 	}
 
 	/**
+	 * @throws AccessDeniedException
+	 */
+	public function initSession()
+	{
+		if (!headers_sent()) {
+			header('X-Frame-Options: SAMEORIGIN');
+			header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+			foreach ($this->csp as $key => &$val) {
+				$val = $key . ' ' . implode(' ', $val);
+			}
+			header('Content-Security-Policy: ' . implode('; ', $this->csp));
+			header('X-Content-Security-Policy: ' . implode('; ', $this->csp));
+		}
+		if (ifsetor($_SESSION['HTTP_USER_AGENT'])) {
+			if ($_SESSION['HTTP_USER_AGENT'] != $_SERVER['HTTP_USER_AGENT']) {
+				session_regenerate_id(true);
+				unset($_SESSION['HTTP_USER_AGENT']);
+				throw new AccessDeniedException('Session hijacking detected. Please try again');
+			}
+		} else {
+			$_SESSION['HTTP_USER_AGENT'] = ifsetor($_SERVER['HTTP_USER_AGENT']);
+		}
+		if (ifsetor($_SESSION['REMOTE_ADDR'])) {
+			if ($_SESSION['REMOTE_ADDR'] != $_SERVER['REMOTE_ADDR']) {
+				session_regenerate_id(true);
+				unset($_SESSION['REMOTE_ADDR']);
+				throw new AccessDeniedException('Session hijacking detected. Please try again.');
+			}
+		} else {
+			$_SESSION['REMOTE_ADDR'] = ifsetor($_SERVER['REMOTE_ADDR']);
+		}
+//		debug($_SESSION['HTTP_USER_AGENT'], $_SESSION['REMOTE_ADDR']);
+//		debug($_SERVER['HTTP_USER_AGENT'], $_SERVER['REMOTE_ADDR']);
+	}
+
+ /**
 	 * TODO: Remove the boolean parameter from getInstance()
 	 * TODO: And force to use makeInstance() in case it was true
 	 * @param Config|null $config
-	 * @return Index
+	 * @return Index|IndexBE
 	 * @throws Exception
 	 */
 	public static function makeInstance(Config $config = null)
@@ -221,6 +264,21 @@ class IndexBase /*extends Controller*/
 	}
 
 	/**
+	 * Move it to the MRBS
+	 * @param string $action
+	 * @param mixed $data
+	 */
+	public function log($action, $data)
+	{
+		//debug($action, $bookingID);
+		/*$this->db->runInsertQuery('log', array(
+			'who' => $this->user->id,
+			'action' => $action,
+			'booking' => $bookingID,
+		));*/
+	}
+
+	/**
 	 * Usually autoload is taking care of the loading, but sometimes you want to check the path.
 	 * Will call postInit() of the controller if available.
 	 * @param string $class
@@ -247,6 +305,7 @@ class IndexBase /*extends Controller*/
 	 */
 	public function makeController($class)
 	{
+//		llog($class);
 		if (method_exists($this->config, 'getDI')) {
 			$di = $this->config->getDI();
 			$this->controller = $di->get($class);
@@ -302,14 +361,11 @@ class IndexBase /*extends Controller*/
 			ini_set('session.cookie_httponly', true);
 			ini_set('session.hash_bits_per_character', 6);
 			ini_set('session.hash_function', 'sha512');
+			llog('session_start in initSession');
 			$ok = session_start();
 			if (!$ok) {
 				throw new RuntimeException('session_start() failed');
-			} else {
-				//debug('session_start', session_id());
 			}
-		} else {
-//			debug('session already started', session_id(), session_status());
 		}
 		if (ifsetor($_SESSION['HTTP_USER_AGENT'])) {
 			if ($_SESSION['HTTP_USER_AGENT'] != $_SERVER['HTTP_USER_AGENT']) {
@@ -420,10 +476,74 @@ class IndexBase /*extends Controller*/
 		return $content;
 	}
 
+	/**
+	 * Does not catch LoginException - show your login form in Index
+	 * @param Exception $e
+	 * @param string $wrapClass
+	 * @return string
+	 */
+	public function renderException(Exception $e, $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error')
+	{
+		if ($this->request->isCLI()) {
+			echo get_class($e),
+			' #', $e->getCode(),
+			': ', $e->getMessage(), BR;
+			echo $e->getTraceAsString(), BR;
+			return '';
+		}
+
+		http_response_code($e->getCode());
+		if ($this->controller) {
+			$this->controller->title = get_class($this->controller);
+		}
+
+		$message = $e->getMessage();
+		$message = ($message instanceof HtmlString ||
+			$message[0] == '<')
+			? $message . ''
+			: htmlspecialchars($message);
+		$content = '<div class="' . $wrapClass . '">
+				' . get_class($e) .
+			($e->getCode() ? ' (' . $e->getCode() . ')' : '') . BR .
+			nl2br($message);
+		if (DEVELOPMENT || 0) {
+			$content .= BR . '<hr />' . '<div style="text-align: left">' .
+				nl2br($e->getTraceAsString()) . '</div>';
+			//$content .= getDebug($e);
+		}
+		$content .= '</div>';
+		if ($e instanceof LoginException) {
+			// catch this exception in your app Index class, it can't know what to do with all different apps
+			//$lf = new LoginForm();
+			//$content .= $lf;
+		} elseif ($e instanceof Exception404) {
+			$e->sendHeader();
+		}
+
+		return $content;
+	}
+
+	public function s($content)
+	{
+		return MergedContent::mergeStringArrayRecursive($content);
+	}
+
+	public function showSidebar()
+	{
+		TaylorProfiler::start(__METHOD__);
+		$content = '';
+		if (method_exists($this->controller, 'sidebar')) {
+			$content = $this->controller->sidebar();
+			$content = $this->s($content);
+		}
+		TaylorProfiler::stop(__METHOD__);
+		return $content;
+	}
+
 	public function renderTemplateIfNotAjax($content)
 	{
 		$contentOut = '';
-		if (!$this->request->isAjax() && !Request::isCLI()) {
+		if (!$this->request->isAjax() && !$this->request->isCLI()) {
 			// display Exception
 			$view = $this->renderTemplate($content);
 			//echo gettype2($view), BR;
@@ -469,12 +589,11 @@ class IndexBase /*extends Controller*/
 
 	public function __destruct()
 	{
-		if (is_object($this->user) && method_exists($this->user, '__destruct')) {
-			// called automatically(!)
-			//$this->user->__destruct();
-		}
+//		if (is_object($this->user) && method_exists($this->user, '__destruct')) {
+		// called automatically(!)
+		//$this->user->__destruct();
+//		}
 	}
-
 	public function message($text)
 	{
 		return $this->content->message($text);

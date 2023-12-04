@@ -3,9 +3,9 @@
 class AssocCollection
 {
 
-	var $data;
+	public $data;
 
-	function __construct(array $data = [])
+	public function __construct(array $data = [])
 	{
 		$this->data = $data;
 	}

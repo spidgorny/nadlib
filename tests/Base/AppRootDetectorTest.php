@@ -9,9 +9,9 @@
 namespace nadlib\Base;
 
 use AppRootDetector;
-use Request;
+use PHPUnit\Framework\TestCase;
 
-class AppRootDetectorTest extends \PHPUnit\Framework\TestCase
+class AppRootDetectorTest extends TestCase
 {
 
 	/**

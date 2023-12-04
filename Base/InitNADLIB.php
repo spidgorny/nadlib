@@ -1,9 +1,11 @@
 <?php
 
+use Composer\Autoload\ClassLoader;
+
 class InitNADLIB
 {
 
-	var $useCookies = true;
+	public $useCookies = true;
 
 	/**
 	 * @var AutoLoad
@@ -12,10 +14,10 @@ class InitNADLIB
 
 	public $startTime;
 
-	var $endTime;
+	public $endTime;
 
 	/**
-	 * @var \Composer\Autoload\ClassLoader
+	 * @var ClassLoader
 	 */
 	public $composer;
 
@@ -95,8 +97,8 @@ class InitNADLIB
 
 	public function initWhoops()
 	{
-		$run = new Whoops\Run;
-		$handler = new Whoops\Handler\PrettyPageHandler;
+		$run = new Whoops\Run();
+		$handler = new Whoops\Handler\PrettyPageHandler();
 		$run->pushHandler($handler);
 		$run->register();
 	}

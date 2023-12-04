@@ -3,16 +3,16 @@
 class ClearCache extends AppControllerBE
 {
 
-	var $dir = 'cache/';
+	public $dir = 'cache/';
 
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 		$mf = new MemcacheFile();
 		$this->dir = $mf->folder;
 	}
 
-	function render()
+	public function render()
 	{
 		$content = $this->performAction($this->detectAction());
 		$files = $this->getFiles();
@@ -33,18 +33,18 @@ class ClearCache extends AppControllerBE
 		return $content;
 	}
 
-	function getFiles()
+	public function getFiles()
 	{
 		$ccs = new ClearCacheService();
 		return $ccs->getFiles($this->dir);
 	}
 
-	function sidebar()
+	public function sidebar()
 	{
 		return $this->getActionButton('Clear Cache', 'clear');
 	}
 
-	function clearAction()
+	public function clearAction()
 	{
 		$ccs = new ClearCacheService();
 		$ccs->clearCacheIn($this->dir);

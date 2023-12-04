@@ -7,11 +7,11 @@
 class DBLayerJSONTable extends DBLayerBase implements DBInterface
 {
 
-	var $filename;
+	public $filename;
 
-	var $data = [];
+	public $data = [];
 
-	var $where = [];
+	public $where = [];
 
 	public function __construct($filename)
 	{
@@ -38,7 +38,7 @@ class DBLayerJSONTable extends DBLayerBase implements DBInterface
 		return $query;
 	}
 
-	public function fetchAll($res_or_query, $index_by_key = NULL)
+	public function fetchAll($res_or_query, $index_by_key = null)
 	{
 		//return $this->data;
 		$data = [];
@@ -74,7 +74,7 @@ class DBLayerJSONTable extends DBLayerBase implements DBInterface
 		return $row;
 	}
 
-	public function numRows($res = NULL)
+	public function numRows($res = null)
 	{
 		return sizeof($this->data);
 	}

@@ -19,7 +19,7 @@ class SessionUser extends PlainSessionUser
 	 */
 	public function autologin()
 	{
-		$class = get_called_class();
+		$class = static::class;
 		$login = $_SESSION[$class]['login'];
 		if (ifsetor($_SESSION[$class]) && $login) {
 			$inSession = $this->checkPassword($_SESSION[$class]['password']);
@@ -32,6 +32,11 @@ class SessionUser extends PlainSessionUser
 		}
 	}
 
+	public function checkPassword($sessionPassword)
+	{
+		return false;
+	}
+
 	public function autoCreate($email)
 	{
 		// we go here only if not logged in
@@ -42,7 +47,7 @@ class SessionUser extends PlainSessionUser
 			throw new Exception(__('Your e-mail is known to the system. Please enter a password.<br>
 			<a href="?c=ForgotPassword">Forgot password?</a>'));
 		} else {
-			$password = rand(1000000, 9999999);
+			$password = random_int(1000000, 9999999);
 			if (DEVELOPMENT) {
 				print 'Generated password: ' . $password;
 			}
@@ -76,21 +81,21 @@ class SessionUser extends PlainSessionUser
 	{
 		if (strlen($password) != 32) {
 			throw new Exception(__METHOD__ . ': supplied password is not hash.');
+		}
+
+		if ($this->id) {
+			$class = static::class;
+			$_SESSION[$class]['login'] = $email;
+			$_SESSION[$class]['password'] = $password;
 		} else {
-			if ($this->id) {
-				$class = get_called_class();
-				$_SESSION[$class]['login'] = $email;
-				$_SESSION[$class]['password'] = $password;
-			} else {
-				//debug($this->data, 'saveLogin');
-				throw new Exception('Login/password matched, but DB retrieval not.');
-			}
+			//debug($this->data, 'saveLogin');
+			throw new Exception('Login/password matched, but DB retrieval not.');
 		}
 	}
 
 	public function logout()
 	{
-		$class = get_called_class();
+		$class = static::class;
 		unset($_SESSION[$class]);
 		session_regenerate_id(true);
 		session_destroy();

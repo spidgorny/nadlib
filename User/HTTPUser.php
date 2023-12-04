@@ -48,7 +48,7 @@ class HTTPUser extends UserBase
 	 */
 	public function can($acl)
 	{
-		// TODO: Implement can() method.
+		return false;
 	}
 
 	public function prefs()

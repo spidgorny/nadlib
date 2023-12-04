@@ -29,37 +29,6 @@ class TagCloud extends Controller
 		return $row;
 	}
 
-	public function renderHTML()
-	{
-		$content = '';
-		$cloud = new WordCloud();
-		foreach ($this->words as $row) {
-			$size = round($row['count'] / $this->count * 9);
-			$cloud->addWord([
-				'word' => $row['name'],// . ' ('.$row['count'].')',
-				'size' => $size,
-				'url' => $url,
-			]);
-		}
-		//$content .= $cloud->showCloud();
-		$cloud = $cloud->showCloud('array');
-		foreach ($cloud as $cloudArray) {
-			$content .= ' &nbsp; <a href="' . $cloudArray['url'] . '" class="word size' . $cloudArray['range'] . '">' . $cloudArray['word'] . '</a> &nbsp;';
-		}
-		return $content;
-	}
-
-	public function renderXML()
-	{
-		$content = '';
-		foreach ($this->words as $row) {
-			$size = 8 + round($row['count'] / $this->count * 10); // 8...18
-			$content .= "<a href='" . $row['url'] . "' style='" . $size . "'>" . htmlspecialchars($row['name']) . "</a>";
-		}
-		$content = '<tags>' . $content . '</tags>';
-		return $content;
-	}
-
 	public function renderHTMLandFlash()
 	{
 		$this->index->addCSS('css/wordcloud.css');
@@ -90,6 +59,37 @@ class TagCloud extends Controller
 					so.write("flashcontent");
 				</script>';
 		*/
+	}
+
+	public function renderHTML($url = '')
+	{
+		$content = '';
+		$cloud = new WordCloud();
+		foreach ($this->words as $row) {
+			$size = round($row['count'] / $this->count * 9);
+			$cloud->addWord([
+				'word' => $row['name'],// . ' ('.$row['count'].')',
+				'size' => $size,
+				'url' => $url,
+			]);
+		}
+		//$content .= $cloud->showCloud();
+		$cloud = $cloud->showCloud('array');
+		foreach ($cloud as $cloudArray) {
+			$content .= ' &nbsp; <a href="' . $cloudArray['url'] . '" class="word size' . $cloudArray['range'] . '">' . $cloudArray['word'] . '</a> &nbsp;';
+		}
+		return $content;
+	}
+
+	public function renderXML()
+	{
+		$content = '';
+		foreach ($this->words as $row) {
+			$size = 8 + round($row['count'] / $this->count * 10); // 8...18
+			$content .= "<a href='" . $row['url'] . "' style='" . $size . "'>" . htmlspecialchars($row['name']) . "</a>";
+		}
+		$content = '<tags>' . $content . '</tags>';
+		return $content;
 	}
 
 }

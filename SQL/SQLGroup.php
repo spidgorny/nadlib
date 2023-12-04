@@ -1,12 +1,14 @@
 <?php
 
-class SQLGroup {
+class SQLGroup
+{
 
-	var $db;
+	public $db;
 
 	protected $parts = [];
 
-	function __construct($order = []) {
+	public function __construct($order = [])
+	{
 		if (is_array($order)) {
 			$this->parts = $order;
 		} elseif ($order) {
@@ -14,9 +16,10 @@ class SQLGroup {
 		}
 	}
 
-	function __toString() {
+	public function __toString()
+	{
 		if ($this->parts) {
-			return 'GROUP BY '.implode(' ', $this->parts);
+			return 'GROUP BY ' . implode(' ', $this->parts);
 		} else {
 			return '';
 		}

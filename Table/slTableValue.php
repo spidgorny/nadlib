@@ -8,31 +8,31 @@ class slTableValue
 	/**
 	 * @var mixed
 	 */
-	var $value = NULL;
+	public $value = null;
 
 	/**
 	 * @var array
 	 */
-	var $desc = [
+	public $desc = [
 		//		'hsc' => TRUE,
 	];
 
 	/**
 	 * @var MySQL|DBLayer
 	 */
-	var $db;
+	public $db;
 
 	/**
 	 * @var slTable
 	 */
-	var $caller;
+	public $caller;
 
 	//public $SLTABLE_IMG_CHECK = '<img src="img/check.png">';
 	public $SLTABLE_IMG_CHECK = '☑';
 	//public $SLTABLE_IMG_CROSS = '<img src="img/uncheck.png">';
 	public $SLTABLE_IMG_CROSS = '☐';
 
-	function __construct($value, array $desc = [])
+	public function __construct($value, array $desc = [])
 	{
 		if ($value instanceof slTableValue) {
 			$value = $value->value;
@@ -61,21 +61,21 @@ class slTableValue
 		}
 	*/
 
-	function render($col = NULL, array $row = [])
+	public function __toString()
+	{
+		return $this->render();
+	}
+
+	public function render($col = null, array $row = [])
 	{
 		$content = $this->getCell($col, $this->value, $this->desc, $row);
 		return $content;
 	}
 
-	function __toString()
-	{
-		return $this->render();
-	}
-
-	function getCell($col, $val, array $k, array $row)
+	public function getCell($col, $val, array $k, array $row)
 	{
 		$out = '';
-		$type = isset($k['type']) ? $k['type'] : NULL;
+		$type = isset($k['type']) ? $k['type'] : null;
 		if (is_object($type)) {
 			$type = get_class($type);
 		}
@@ -92,10 +92,10 @@ class slTableValue
 							$list = trimExplode(',', $val);
 							$out = [];
 							foreach ($list as $val) {
-								$out[] = $this->db->sqlFind($what, $k['from'], $id . " = '" . $val . "'", FALSE);
+								$out[] = $this->db->sqlFind($what, $k['from'], $id . " = '" . $val . "'", false);
 							}
 							$out = implode(', ', $out);
-						} else if ($k['from']) {
+						} elseif ($k['from']) {
 							$options = $this->db->fetchSelectQuery($k['from'], [$id => $val], '', $k['from'] . '.*, ' . $what);
 							//debug($options, $k); exit();
 							$whatAs = trimExplode('AS', $what);
@@ -124,7 +124,7 @@ class slTableValue
 				break;
 
 			case "gmdate":
-				if ($val !== NULL) {
+				if ($val !== null) {
 					if (is_numeric($val)) {
 						$out = gmdate($k['format'] ?: 'Y-m-d', $val);
 					} else {
@@ -321,7 +321,7 @@ class slTableValue
 					$out = $val->render();
 				} else {
 					//t3lib_div::debug($k);
-					if (isset($k['hsc']) && $k['hsc'] && !($val instanceof htmlString)) {
+					if (isset($k['hsc']) && $k['hsc'] && !($val instanceof HtmlString)) {
 						$val = htmlspecialchars($val);
 					}
 					if (ifsetor($k['explode'])) {
@@ -333,7 +333,7 @@ class slTableValue
 					}
 					if (isset($k['no_hsc']) && $k['no_hsc']) {
 						$out = $val;
-					} elseif ($val instanceof htmlString) {
+					} elseif ($val instanceof HtmlString) {
 						$out = $val . '';
 					} elseif ($val instanceof HTMLTag) {
 						$out = $val . '';
@@ -355,7 +355,7 @@ class slTableValue
 						if (is_assoc($val)) {
 							$out = json_encode($val, defined('JSON_PRETTY_PRINT')
 								? JSON_PRETTY_PRINT
-								: NULL);
+								: null);
 						} else {
 							$out = '[' . implode(', ', $val) . ']';
 						}
@@ -391,7 +391,7 @@ class slTableValue
 		return $out;
 	}
 
-	static function getHours($timestamp)
+	public static function getHours($timestamp)
 	{
 		if ($timestamp) {
 			//return gmdate('H:i', $timestamp);
@@ -402,7 +402,7 @@ class slTableValue
 			$rest = str_pad($rest, 2, '0', STR_PAD_LEFT);
 			return $whole . ':' . $rest;
 		}
-		return NULL;
+		return null;
 	}
 
 }

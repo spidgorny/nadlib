@@ -6,9 +6,9 @@ class RunnerTaskController extends AppController
 	/**
 	 * @var RunnerTask
 	 */
-	var $task;
+	public $task;
 
-	function __construct(RunnerTask $task)
+	public function __construct(RunnerTask $task)
 	{
 		parent::__construct();
 		$this->task = $task;

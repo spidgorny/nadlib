@@ -3,38 +3,40 @@
 /**
  * Class ACL
  * Convert your A && B && C && D into
-$canMakeSystem = ACL::make(
-	$column == 'description',
-	$isTranslator,
-	$this->canAddNotes(),
-	$translatorOfThatLanguage
-)->getAND();
+ * $canMakeSystem = ACL::make(
+ * $column == 'description',
+ * $isTranslator,
+ * $this->canAddNotes(),
+ * $translatorOfThatLanguage
+ * )->getAND();
  * Then you can debug this conditions
  */
-class ACL {
+class ACL
+{
 
 	/**
-	 * @var boolean[]
+	 * @var bool
 	 */
-	var $andConditions = [];
+	public $andConditions = [];
 
 	/**
 	 * @var ReflectionParameter[]
 	 */
-	var $strConditions = [];
+	public $strConditions = [];
 
 	/**
 	 * @var array
 	 */
-	var $callStack = [];
+	public $callStack = [];
 
 	/**
 	 * Corresponding source code
 	 * @var array
 	 */
-	var $source = [];
+	public $source = [];
 
-	function __construct(array $params) {
+	public function __construct(array $params)
+	{
 		$this->andConditions = $params;
 
 		$refFunc = new ReflectionMethod($this, __FUNCTION__);
@@ -49,21 +51,23 @@ class ACL {
 		//debug($this->callStack);
 
 		$source = file($this->callStack['file']);
-		for ($i = -sizeof($this->andConditions)-1; $i < -1; $i++) {
-			$this->source[] = trim($source[$this->callStack['line']+$i]);
+		for ($i = -sizeof($this->andConditions) - 1; $i < -1; $i++) {
+			$this->source[] = trim($source[$this->callStack['line'] + $i]);
 		}
 	}
 
 	/**
 	 * @return ACL
 	 */
-	static function make() {
+	public static function make()
+	{
 		$params = func_get_args();
 		$acl = new ACL($params);
 		return $acl;
 	}
 
-	function getAND() {
+	public function getAND()
+	{
 		if (ifsetor($_REQUEST['acl'])) {
 			$this->debug();
 		}
@@ -74,7 +78,8 @@ class ACL {
 		return $and;
 	}
 
-	function debug() {
+	public function debug()
+	{
 		$table = [];
 		foreach ($this->andConditions as $i => $_) {
 			$table[] = [
@@ -83,10 +88,10 @@ class ACL {
 			];
 		}
 		echo '<div style="background: #EEEEEE; border: solid 1px silver;">',
- 			'<div style="background: silver;">', basename($this->callStack['file']),
-			'#'.$this->callStack['line'],
-			' ', $this->callStack['function'], '()</div>',
-			new slTable($table),
+		'<div style="background: silver;">', basename($this->callStack['file']),
+			'#' . $this->callStack['line'],
+		' ', $this->callStack['function'], '()</div>',
+		new slTable($table),
 		'</div>';
 	}
 

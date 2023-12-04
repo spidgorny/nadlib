@@ -36,8 +36,8 @@ class JSONResponse
 		}
 
 		$json = json_encode($json + [
-			'duration' => $duration,
-		], $options) . '';
+					'duration' => $duration,
+				], $options) . '';
 		header('Content-Type: application/json');
 		return $json;
 	}

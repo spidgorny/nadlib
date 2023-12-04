@@ -9,7 +9,7 @@ class POPOBase
 {
 
 	/**
-	 * @var \ReflectionClass
+	 * @var ReflectionClass
 	 */
 	protected $reflector;
 

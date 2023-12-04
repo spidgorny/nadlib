@@ -11,14 +11,16 @@ class ConfigView extends AppControllerBE
 		'integer' => 'input',
 	];
 
-	function __construct()
+	public $file;
+
+	public function __construct()
 	{
 		parent::__construct();
 		$this->file = dirname(__FILE__) . '/../../../class/config.yaml';
 		$this->file = str_replace('\\', '/', $this->file);
 	}
 
-	function render()
+	public function render()
 	{
 		$content = '';
 		if (file_exists($this->file)) {
@@ -45,7 +47,7 @@ class ConfigView extends AppControllerBE
 		return $content;
 	}
 
-	function renderFormArray(HTMLFormTable $f, $class, array $data)
+	public function renderFormArray(HTMLFormTable $f, $class, array $data)
 	{
 		$f->fieldset($class);
 		$desc = [];
@@ -58,7 +60,7 @@ class ConfigView extends AppControllerBE
 					'set0' => true,
 					'optional' => true,
 				];
-			} else if (is_array($val)) {
+			} elseif (is_array($val)) {
 				/*$desc[$class.'['.$key.']'] = array(
 					'type' => 'html',
 					'code' => getDebug($val),

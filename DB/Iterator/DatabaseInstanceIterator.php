@@ -13,7 +13,7 @@ class DatabaseInstanceIterator extends DatabaseResultIteratorAssoc
 
 	public function retrieveRow()
 	{
-		$row = parent::retrieveRow();	// assoc
+		$row = parent::retrieveRow();  // assoc
 		if ($row) {
 			//debug($row, $this->className);
 			if (method_exists($this->className, 'getInstance')) {

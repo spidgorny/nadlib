@@ -10,6 +10,9 @@ if (!function_exists('str_startsWith')) {
 	 */
 	function str_startsWith($haystack, $needle)
 	{
+		if (!$haystack) {
+			return false;
+		}
 		if (!is_array($needle)) {
 			$needle = [$needle];
 		}
@@ -83,7 +86,7 @@ if (!function_exists('str_startsWith')) {
 			$is_string = is_string($str) || is_int($str);
 		}
 		if (!$is_string) {
-			debug('trimExplode', 'must be string', new htmlString(typ($str)));
+			debug('trimExplode', 'must be string', new HtmlString(typ($str)));
 //			debug_pre_print_backtrace();
 		}
 		if ($max) {
@@ -94,7 +97,9 @@ if (!function_exists('str_startsWith')) {
 		$parts = array_map('trim', $parts);
 		$parts = array_filter($parts);
 		$parts = array_values($parts);
-		$parts = array_pad($parts, $max, null);
+		if ($max) {
+			$parts = array_pad($parts, $max, null);
+		}
 		return $parts;
 	}
 
@@ -161,7 +166,7 @@ if (!function_exists('str_startsWith')) {
 		$isAbs = $char0 === '/' || $char0 === '\\' || $char1 === ':';
 
 		$path = str_replace('\\', '/', $path);  // for trim
-		$parts = trimExplode('/', $path);
+		$parts = trimExplode('/', $path );
 		$parts = array_merge($parts, trimExplode('/', $plus));
 
 		$root = '';

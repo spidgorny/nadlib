@@ -1,13 +1,14 @@
 <?php
 
-class AlterTablePostgres extends AlterTableHandler implements AlterTableInterface {
+class AlterTablePostgres extends AlterTableHandler implements AlterTableInterface
+{
 
 	/**
 	 * @param string $table
 	 * @param TableField[] $columns
 	 * @return mixed|string
 	 */
-	function getCreateQuery($table, array $columns)
+	public function getCreateQuery($table, array $columns)
 	{
 		$set = [];
 		foreach ($columns as $col) {
@@ -23,7 +24,7 @@ class AlterTablePostgres extends AlterTableHandler implements AlterTableInterfac
 			implode(",\n", $set) . ');';
 	}
 
-	function getAlterQuery($table, $oldName, TableField $index)
+	public function getAlterQuery($table, $oldName, TableField $index)
 	{
 		$query = "ALTER TABLE {$table} ALTER COLUMN $oldName " . $index->field .
 			' ' . $index->type .
@@ -32,7 +33,7 @@ class AlterTablePostgres extends AlterTableHandler implements AlterTableInterfac
 		return $query;
 	}
 
-	function getAddQuery($table, TableField $index)
+	public function getAddQuery($table, TableField $index)
 	{
 		$query = 'ALTER TABLE ' . $table . ' ADD COLUMN ' . $index->field .
 			' ' . $index->type .
@@ -40,7 +41,7 @@ class AlterTablePostgres extends AlterTableHandler implements AlterTableInterfac
 		return $query;
 	}
 
-	function getFieldParams(TableField $index)
+	public function getFieldParams(TableField $index)
 	{
 		return
 			' ' . ($index->isNull ? 'NULL' : 'NOT NULL');

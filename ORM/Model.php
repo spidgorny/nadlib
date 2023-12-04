@@ -19,11 +19,11 @@
 class Model
 {
 
-	var $table;
+	public $table;
 
-	var $idField = 'id';
+	public $idField = 'id';
 
-	var $titleColumn = 'name';
+	public $titleColumn = 'name';
 
 	/**
 	 * @var DBInterface|SQLBuilder|DBLayerBase
@@ -317,7 +317,7 @@ class Model
 				$id = $re->getProperty('id');
 				$dc2 = new DocCommentParser($id->getDocComment());
 
-				$type = new $f->type;
+				$type = new $f->type();
 
 				$f->type = $dc2->get('var')
 					? first(trimExplode(' ', $dc2->get('var')))

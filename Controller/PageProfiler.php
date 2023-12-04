@@ -6,36 +6,17 @@ class PageProfiler
 	/**
 	 * @var Request
 	 */
-	var $request;
+	public $request;
 
 	/**
 	 * @var HTML
 	 */
-	var $html;
+	public $html;
 
-	function __construct()
+	public function __construct()
 	{
 		$this->request = Request::getInstance();
 		$this->html = new HTML();
-	}
-
-	public function canOutput()
-	{
-		if (class_exists('Index')) {
-			$index = Index::getInstance();
-			$exceptions = in_array($index->controller ? get_class($index->controller) : null, ['Lesser']);
-		} else {
-			$exceptions = false;
-		}
-		$debug_page = isset($_COOKIE['debug_page'])
-			? $_COOKIE['debug_page']
-			: ifsetor($_COOKIE['debug']);
-
-		return DEVELOPMENT
-			&& !$this->request->isAjax()
-			&& !$exceptions
-			&& !$this->request->isCLI()
-			&& $debug_page;
 	}
 
 	/**
@@ -61,6 +42,25 @@ class PageProfiler
 			$content[] = $ft->render();
 		}
 		return $content;
+	}
+
+	public function canOutput()
+	{
+		if (class_exists('Index')) {
+			$index = Index::getInstance();
+			$exceptions = in_array($index->controller ? get_class($index->controller) : null, ['Lesser']);
+		} else {
+			$exceptions = false;
+		}
+		$debug_page = isset($_COOKIE['debug_page'])
+			? $_COOKIE['debug_page']
+			: ifsetor($_COOKIE['debug']);
+
+		return DEVELOPMENT
+			&& !$this->request->isAjax()
+			&& !$exceptions
+			&& !$this->request->isCLI()
+			&& $debug_page;
 	}
 
 	/**
@@ -108,10 +108,11 @@ class PageProfiler
 	 */
 	protected function getHeader()
 	{
-		$content = '';
-		if (class_exists('Index')) {
-			$index = Index::getInstance();
+		if (!class_exists('Index')) {
+			return '';
 		}
+		$content = '';
+		$index = Index::getInstance();
 		$content .= $this->html->h4('Header');
 		$header = json_encode($index->header, JSON_PRETTY_PRINT);
 		$header = str_replace('\/', '/', $header);

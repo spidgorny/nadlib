@@ -6,36 +6,36 @@
  */
 class DBLayerORA extends DBLayer implements DBInterface
 {
-	var $connection = NULL;
-	var $COUNTQUERIES = 0;
-	var $LAST_PERFORM_RESULT;
-	var $LOG;
-	var $debug = FALSE;
-	var $debugOnce = FALSE;
+	public $connection = null;
+	public $COUNTQUERIES = 0;
+	public $LAST_PERFORM_RESULT;
+	public $LOG;
+	public $debug = false;
+	public $debugOnce = false;
 
-	function __construct($tns, $pass)
+	public function __construct($tns, $pass)
 	{
 		$this->connect($tns, '', $pass);
 	}
 
-	function connect($tns = null, $user = null, $pass = null, $host = 'localhost')
+	public function connect($tns = null, $user = null, $pass = null, $host = 'localhost')
 	{
 		$this->connection = ora_logon($tns, $pass);
 		ora_commiton($this->connection);
 		return $this->connection;
 	}
 
-	function getConnection()
+	public function getConnection()
 	{
 		return $this->connection;
 	}
 
-	function disconnect()
+	public function disconnect()
 	{
 		ora_logoff($this->connection);
 	}
 
-	function performORA($query, $canprint = TRUE)
+	public function performORA($query, $canprint = true)
 	{
 		$this->COUNTQUERIES++;
 		if ($this->debugOnce || $this->debug) {
@@ -98,24 +98,24 @@ class DBLayerORA extends DBLayer implements DBInterface
 		return $this->LAST_PERFORM_RESULT;
 	}
 
-	function done($result)
+	public function done($result)
 	{
 		ora_close($result);
 	}
 
-	function transaction($serializable = false)
+	public function transaction($serializable = false)
 	{
 		// everything is a transaction in oracle
 		ora_commitoff($this->connection);
 	}
 
-	function commit()
+	public function commit()
 	{
 		ora_commit($this->connection);
 		ora_commiton($this->connection);
 	}
 
-	function rollback()
+	public function rollback()
 	{
 		ora_rollback($this->connection);
 	}
@@ -124,40 +124,40 @@ class DBLayerORA extends DBLayer implements DBInterface
 	{
 		if ($value == "CURRENT_TIMESTAMP") {
 			return $value;
-		} else if ($value === NULL) {
+		} elseif ($value === null) {
 			return 'NULL';
-		} else if ($value === TRUE) {
-			return TRUE;
-		} else if ($value === FALSE) {
+		} elseif ($value === true) {
+			return true;
+		} elseif ($value === false) {
 			return "'f'";
-		} else if (is_numeric($value)) {
+		} elseif (is_numeric($value)) {
 			return $value;
 		} else {
 			return "'" . pg_escape_string($value) . "'";
 		}
 	}
 
-	function fetchAll($result, $key = NULL)
+	public function fetchAll($result, $key = null)
 	{
 		$ret = [];
-		while (($row = $this->fetchAssoc($result)) !== FALSE) {
+		while (($row = $this->fetchAssoc($result)) !== false) {
 			$ret[] = $row;
 		}
 		return $ret;
 	}
 
-	function fetchAssoc($result)
+	public function fetchAssoc($result)
 	{
 		$array = [];
 		$res = ora_fetch_into($result, $array, ORA_FETCHINTO_NULLS | ORA_FETCHINTO_ASSOC);
 		if ($res) {
 			return $array;
 		} else {
-			return FALSE;
+			return false;
 		}
 	}
 
-	function numRows($result = NULL)
+	public function numRows($result = null)
 	{
 		return ora_numrows($result);
 	}

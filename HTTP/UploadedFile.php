@@ -3,12 +3,12 @@
 class UploadedFile
 {
 
-	var $name;
-	var $type;
-	var $tmp_name;
-	var $error;
-	var $size;
-	var $mime;
+	public $name;
+	public $type;
+	public $tmp_name;
+	public $error;
+	public $size;
+	public $mime;
 
 	public function __construct(array $data)
 	{

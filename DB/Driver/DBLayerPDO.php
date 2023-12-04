@@ -34,9 +34,9 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	protected $dataSeek = null;
 
 	public function __construct($db = null, $host = null,
-								$user = null, $password = null,
-								$scheme = 'mysql', $driver = null,
-								$port = 3306)
+															$user = null, $password = null,
+															$scheme = 'mysql', $driver = null,
+															$port = 3306)
 	{
 		if ($user) {
 			$this->connect($user, $password,
@@ -51,11 +51,6 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 //		debug_pre_print_backtrace();
 	}
 
-	public static function getAvailableDrivers()
-	{
-		return PDO::getAvailableDrivers();
-	}
-
 	/**
 	 * @param string $user
 	 * @param string $password
@@ -67,6 +62,13 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	 */
 	public function connect($user, $password, $scheme, $driver, $host, $db, $port = 3306)
 	{
+		//$dsn = $scheme.':DRIVER={'.$driver.'};DATABASE='.$db.';SYSTEM='.$host.';dbname='.$db.';HOSTNAME='.$host.';PORT='.$port.';PROTOCOL=TCPIP;';
+		if ($scheme === 'sqlite') {
+			$this->database = basename($db);
+		} else {
+			$this->database = $db;
+		}
+
 		$builder = DSNBuilder::make($scheme, $host, $user, $password, $db, $port);
 		if ($driver) {
 			$builder->setDriver($driver);
@@ -76,37 +78,6 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		$profiler = new Profiler();
 		$this->connectDSN($this->dsn, $user, $password);
 		$this->queryTime += $profiler->elapsed();
-		if ($this->isMySQL()) {
-			$my = new MySQL();
-			$this->reserved = $my->getReserved();
-		}
-	}
-
-	public function isConnected()
-	{
-		return !!$this->connection
-			&& PGSQL_CONNECTION_OK == pg_connection_status($this->connection);
-	}
-
-	/**
-	 * @param string $url
-	 * @return mixed
-	 * @see http://php.net/manual/de/function.parse-url.php#83828
-	 */
-	function parseUrl($url)
-	{
-		$r = "^(?:(?P<scheme>\w+)://)?";
-		$r .= "(?:(?P<login>\w+):(?P<pass>\w+)@)?";
-		$r .= "(?P<host>(?:(?P<subdomain>[\w\.]+)\.)?" . "(?P<domain>\w+\.(?P<extension>\w+)))";
-		$r .= "(?::(?P<port>\d+))?";
-		$r .= "(?P<path>[\w/]*/(?P<file>\w+(?:\.\w+)?)?)?";
-		$r .= "(?:\?(?P<arg>[\w=&]+))?";
-		$r .= "(?:#(?P<anchor>\w+))?";
-		$r = "!$r!";                                                // Delimiters
-
-		preg_match($r, $url, $out);
-
-		return $out;
 	}
 
 	public function connectDSN($dsn, $user = null, $password = null)
@@ -246,6 +217,38 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		return $this->lastResult;
 	}
 
+	public static function getAvailableDrivers()
+	{
+		return PDO::getAvailableDrivers();
+	}
+
+	public function isConnected()
+	{
+		return !!$this->connection
+			&& PGSQL_CONNECTION_OK == pg_connection_status($this->connection);
+	}
+
+	/**
+	 * @param string $url
+	 * @return mixed
+	 * @see http://php.net/manual/de/function.parse-url.php#83828
+	 */
+	public function parseUrl($url)
+	{
+		$r = "^(?:(?P<scheme>\w+)://)?";
+		$r .= "(?:(?P<login>\w+):(?P<pass>\w+)@)?";
+		$r .= "(?P<host>(?:(?P<subdomain>[\w\.]+)\.)?" . "(?P<domain>\w+\.(?P<extension>\w+)))";
+		$r .= "(?::(?P<port>\d+))?";
+		$r .= "(?P<path>[\w/]*/(?P<file>\w+(?:\.\w+)?)?)?";
+		$r .= "(?:\?(?P<arg>[\w=&]+))?";
+		$r .= "(?:#(?P<anchor>\w+))?";
+		$r = "!$r!";                                                // Delimiters
+
+		preg_match($r, $url, $out);
+
+		return $out;
+	}
+
 	/**
 	 * @param PDOStatement $res
 	 * @return array|mixed
@@ -263,16 +266,36 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		return $count;
 	}
 
-	public function affectedRows($res = null)
-	{
-		return $this->lastResult->rowCount();
-	}
-
 	public function getScheme()
 	{
 		$scheme = parse_url($this->dsn);
 		$scheme = $scheme['scheme'];
 		return $scheme;
+	}
+
+	public function fetchAll($stringOrRes, $key = null)
+	{
+		if (is_string($stringOrRes)) {
+			$res = $this->perform($stringOrRes);
+		} else {
+			$res = $stringOrRes;
+		}
+		$data = $res->fetchAll(PDO::FETCH_ASSOC);
+		//debug($this->lastQuery, $this->result, $data);
+
+		if ($key) {
+			$copy = $data;
+			$data = [];
+			foreach ($copy as $row) {
+				$data[$row[$key]] = $row;
+			}
+		}
+		return $data;
+	}
+
+	public function affectedRows($res = null)
+	{
+		return $this->lastResult->rowCount();
 	}
 
 	public function getTables()
@@ -321,60 +344,19 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		return $tables;
 	}
 
+	public function setQB(SQLBuilder $qb = null)
+	{
+		parent::setQB($qb);
+	}
+
 	public function lastInsertID($res, $table = null)
 	{
 		return $this->connection->lastInsertId();
 	}
 
-	/**
-	 * @param PDOStatement $res
-	 */
-	public function free($res)
-	{
-		if ($res) {
-			$res->closeCursor();
-		}
-	}
-
-	public function quoteKey($key)
-	{
-		$driver = $this->getDriver();
-		$content = $driver->quoteKey($key);
-		return $content;
-	}
-
-	public function getDriver()
-	{
-		$driverMap = [
-			'mysql' => MySQL::class,
-			'pgsql' => DBLayer::class,
-			'sqlite' => DBLayerSQLite::class,
-			'mssql' => DBLayerMS::class,
-		];
-		$scheme = $this->getScheme();
-		if (isset($driverMap[$scheme])) {
-			return new $driverMap[$scheme];
-		} else {
-			throw new InvalidArgumentException(__METHOD__ . ' not implemented for [' . $scheme . ']');
-		}
-	}
-
 	public function escapeBool($value)
 	{
 		return intval(!!$value);
-	}
-
-	/**
-	 * @param PDOStatement $res
-	 * @return mixed
-	 */
-	public function fetchAssoc($res)
-	{
-		if (is_string($res)) {
-			$res = $this->perform($res);
-		}
-		$row = $res->fetch(PDO::FETCH_ASSOC);
-		return $row;
 	}
 
 	public function dataSeek($res, $int)
@@ -415,6 +397,26 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		return $tableInfo;
 	}
 
+	public function quoteKey($key)
+	{
+		$driver = $this->getDriver();
+		return $driver->quoteKey($key);
+	}
+
+	public function getDriver()
+	{
+		$driverMap = [
+			'pgsql' => DBLayer::class,
+			'sqlite' => DBLayerSQLite::class,
+		];
+		$scheme = $this->getScheme();
+		if (isset($driverMap[$scheme])) {
+			return new $driverMap[$scheme]();
+		}
+
+		throw new InvalidArgumentException(__METHOD__ . ' not implemented for [' . $scheme . ']');
+	}
+
 	/**
 	 * Avoid this as hell, just for compatibility
 	 * @param string $str
@@ -427,26 +429,6 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 			$quoted = substr($quoted, 1, -1);
 		}
 		return $quoted;
-	}
-
-	public function fetchAll($stringOrRes, $key = NULL)
-	{
-		if (is_string($stringOrRes)) {
-			$res = $this->perform($stringOrRes);
-		} else {
-			$res = $stringOrRes;
-		}
-		$data = $res->fetchAll(PDO::FETCH_ASSOC);
-		//debug($this->lastQuery, $this->result, $data);
-
-		if ($key) {
-			$copy = $data;
-			$data = [];
-			foreach ($copy as $row) {
-				$data[$row[$key]] = $row;
-			}
-		}
-		return $data;
 	}
 
 	/**
@@ -473,6 +455,29 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		}
 		$this->free($res);
 		return $data;
+	}
+
+	/**
+	 * @param PDOStatement $res
+	 * @return mixed
+	 */
+	public function fetchAssoc($res)
+	{
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
+		$row = $res->fetch(PDO::FETCH_ASSOC);
+		return $row;
+	}
+
+	/**
+	 * @param PDOStatement $res
+	 */
+	public function free($res)
+	{
+		if ($res) {
+			$res->closeCursor();
+		}
 	}
 
 	public function uncompress($value)
@@ -518,11 +523,6 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		return $this->connection;
 	}
 
-	public function setQB(SQLBuilder $qb = null)
-	{
-		parent::setQB($qb);
-	}
-
 	public function getQb()
 	{
 		if (!isset($this->qb)) {
@@ -558,6 +558,11 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		}
 	}
 
+	public function getVersion()
+	{
+		return $this->getInfo()['ATTR_SERVER_VERSION'];
+	}
+
 	public function getInfo()
 	{
 		$info = [
@@ -576,14 +581,10 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		foreach ($plus as $name => $attribute) {
 			try {
 				$info[$name] = $this->connection->getAttribute($attribute);
-			} catch (PDOException $e) {}
+			} catch (PDOException $e) {
+			}
 		}
 		return $info;
-	}
-
-	public function getVersion()
-	{
-		return $this->getInfo()['ATTR_SERVER_VERSION'];
 	}
 
 }

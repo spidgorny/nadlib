@@ -7,6 +7,11 @@
 abstract class ThornbladXmlStreamer
 {
 	public $customChildNode;
+	/**
+	 * To see the amount of processed records
+	 * @var int
+	 */
+	public $counter = 0;
 	private $handle;
 	private $totalBytes;
 	private $readBytes = 0;
@@ -14,19 +19,12 @@ abstract class ThornbladXmlStreamer
 	private $chunk = "";
 	private $chunkSize;
 	private $readFromChunkPos;
-
 	private $rootNode;
 	private $customRootNode;
 
 	/**
-	 * To see the amount of processed records
-	 * @var int
-	 */
-	public $counter = 0;
-
-	/**
 	 * @param string $mixed Path to XML file OR file handle
-	 * @param \Bytes|int $chunkSize Bytes to read per cycle (Optional, default is 16 KiB)
+	 * @param Bytes|int $chunkSize Bytes to read per cycle (Optional, default is 16 KiB)
 	 * @param string $customRootNode Specific root node to use (Optional)
 	 * @param int $totalBytes Xml file size - Required if supplied file handle
 	 * @param string $customChildNode
@@ -53,15 +51,6 @@ abstract class ThornbladXmlStreamer
 		$this->customRootNode = $customRootNode;
 		$this->customChildNode = $customChildNode;
 	}
-
-	/**
-	 * Gets called for every XML node that is found as a child to the root node
-	 * @param string $xmlString Complete XML tree of the node as a string
-	 * @param string $elementName Name of the node for easy access
-	 * @param int $nodeIndex Zero-based index that increments for every node
-	 * @return void If false is returned, the streaming will stop
-	 */
-	abstract public function processNode($xmlString, $elementName, $nodeIndex);
 
 	/**
 	 * Gets the total read bytes so far
@@ -225,7 +214,7 @@ abstract class ThornbladXmlStreamer
 						$this->chunk = substr($this->chunk, strpos($this->chunk, $endTag) + strlen($endTag));
 						$this->readFromChunkPos = 0;
 
-						if (isset($continueParsing) && $continueParsing === false) {
+						if ($continueParsing === false) {
 							break(2);
 						}
 					} else {
@@ -251,5 +240,14 @@ abstract class ThornbladXmlStreamer
 		}
 		return true;
 	}
+
+	/**
+	 * Gets called for every XML node that is found as a child to the root node
+	 * @param string $xmlString Complete XML tree of the node as a string
+	 * @param string $elementName Name of the node for easy access
+	 * @param int $nodeIndex Zero-based index that increments for every node
+	 * @return bool If false is returned, the streaming will stop
+	 */
+	abstract public function processNode($xmlString, $elementName, $nodeIndex);
 
 }

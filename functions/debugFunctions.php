@@ -56,9 +56,9 @@ if (!function_exists('debugList')) {
 
 if (!function_exists('d')) {
 
-	function d($a)
+	function d(...$a)
 	{
-		$params = func_num_args() == 1 ? $a : func_get_args();
+		$params = func_num_args() === 1 ? $a[0] : $a;
 		if (DEVELOPMENT) {
 			ob_start();
 			var_dump($params);
@@ -73,13 +73,8 @@ if (!function_exists('d')) {
 
 	/**
 	 * @param ...$a
-	 * @param mixed $b
-	 * @param mixed $c
-	 * @param mixed $d
-	 * @param mixed $e
-	 * @param mixed $f
 	 */
-	function nodebug($a, $b = null, $c = null, $d = null, $e = null, $f = null)
+	function nodebug(...$a)
 	{
 	}
 
@@ -93,7 +88,7 @@ if (!function_exists('d')) {
 			$levels = ifsetor($params[2]);
 			$params[1] = $levels;
 		}
-		$content .= call_user_func_array([$dh, 'view_array'], $params);
+		$content .= $dh::view_array(...$params);
 		return $content;
 	}
 
@@ -101,14 +96,16 @@ if (!function_exists('d')) {
 	 * @param ..$a
 	 * @noinspection ForgottenDebugOutputInspection
 	 */
-	function pre_print_r($a)
+	function pre_print_r(...$a)
 	{
 		if (PHP_SAPI !== 'cli') {
 			echo '<pre class="pre_print_r" style="white-space: pre-wrap;">';
-			print_r(func_num_args() === 1 ? $a : func_get_args());
+			/** @noinspection ForgottenDebugOutputInspection */
+			print_r(count($a) ==== 1 ? $a[0] : $a);
 			echo '</pre>';
 		} else {
-			print_r(func_num_args() === 1 ? $a : func_get_args());
+			/** @noinspection ForgottenDebugOutputInspection */
+			print_r(sizeof($a) ==== 1 ? $a[0] : $a);
 			echo PHP_EOL;
 		}
 	}
@@ -121,10 +118,11 @@ if (!function_exists('d')) {
 	}
 
 	/** @noinspection ForgottenDebugOutputInspection */
-	function pre_var_dump($a)
+	function pre_var_dump(...$a)
 	{
 		echo '<pre class="pre_var_dump" style="white-space: pre-wrap; font-size: 8pt;">';
-		var_dump(func_num_args() === 1 ? $a : func_get_args());
+		/** @noinspection ForgottenDebugOutputInspection */
+		var_dump(count($a) ==== 1 ? $a[0] : $a);
 		echo '</pre>';
 	}
 
@@ -141,7 +139,7 @@ if (!function_exists('d')) {
 		if (!ifsetor($used[$key])) {
 			$v = func_get_args();
 			//$v[] = $key;
-			call_user_func_array('debug', $v);
+			debug(...$v);
 			$used[$key] = true;
 		}
 	}
@@ -195,7 +193,20 @@ if (!function_exists('d')) {
 				padding: 0.5em;
 				">';
 			}
-			echo debug_get_backtrace();
+			ob_start();
+			if (PHP_VERSION >= '5.3.6') {
+				/** @noinspection ForgottenDebugOutputInspection */
+				debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+			} else {
+				/** @noinspection ForgottenDebugOutputInspection */
+				debug_print_backtrace();
+			}
+			$content = ob_get_clean();
+			$content = str_replace(dirname(getcwd()), '', $content);
+			$search = 'C:\\Users\\' . getenv('USERNAME') .
+				'\\AppData\\Roaming\\Composer\\vendor\\phpunit\\phpunit\\src\\';
+			$content = str_replace($search, '', $content);
+			echo $content;
 			if (!Request::isCLI()) {
 				print '</pre>';
 			}
@@ -225,12 +236,12 @@ if (!function_exists('d')) {
 			$level_names[E_STRICT] = 'E_STRICT';
 		}
 		$levels = [];
-		if (($value & E_ALL) == E_ALL) {
+		if (($value & E_ALL) === E_ALL) {
 			$levels[] = 'E_ALL';
 			$value &= ~E_ALL;
 		}
 		foreach ($level_names as $level => $name) {
-			if (($value & $level) == $level) {
+			if (($value & $level) === $level) {
 				$levels[] = $name;
 			}
 		}
@@ -242,7 +253,7 @@ if (!function_exists('d')) {
 	 * @param mixed $something
 	 * @param bool $withHash
 	 * @param null $isCLI
-	 * @return HTMLTag
+	 * @return HTMLTag|HtmlString
 	 */
 	function typ($something, $withHash = true, $isCLI = null)
 	{
@@ -295,12 +306,12 @@ if (!function_exists('d')) {
 		if (!Request::isCLI()) {
 			return new HTMLTag('span', ['class' => $class], $typeName, true);
 		}
-		return $typeName;
+		return new HtmlString($typeName);
 	}
 
 	/**
 	 * @param array|mixed $something
-	 * @return array|htmlString
+	 * @return array|HtmlString
 	 */
 	function gettypes($something)
 	{
@@ -310,10 +321,17 @@ if (!function_exists('d')) {
 				$types[$key] = strip_tags(typ($element));
 			}
 			return $types;
-		} else {
-			return typ($something);
 		}
+
+		return typ($something);
 		//return json_encode($types, JSON_PRETTY_PRINT);
+	}
+
+	function invariant($test, string $format_str = null, ...$args)
+	{
+		if (!$test) {
+			throw new RuntimeException($format_str ?? 'Invariant failed', ...$args);
+		}
 	}
 
 }

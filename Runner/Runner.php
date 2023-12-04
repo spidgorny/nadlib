@@ -6,19 +6,19 @@ class Runner
 	/**
 	 * @var DBInterface
 	 */
-	var $db;
+	public $db;
 
 	/**
 	 * @var RunnerTask
 	 */
-	var $currentTask;
+	public $currentTask;
 
-	function __construct()
+	public function __construct()
 	{
 		$this->db = Config::getInstance()->getDB();
 	}
 
-	function run()
+	public function run()
 	{
 		echo 'Ready...', BR;
 		while (true) {
@@ -33,7 +33,7 @@ class Runner
 		}
 	}
 
-	function getNextCommand()
+	public function getNextCommand()
 	{
 		$task = RunnerTask::getNext();
 		if ($task) {
@@ -46,7 +46,7 @@ class Runner
 				$task->failed($e);
 			}
 		}
-		return NULL;
+		return null;
 	}
 
 	public function getPendingTasks()
@@ -54,7 +54,7 @@ class Runner
 		$rows = $this->db->fetchAllSelectQuery('runner', [
 			'status' => new SQLOr([
 				'status' => new SQLNotIn(['done', 'failed', 'killed']),
-				'status ' => NULL,
+				'status ' => null,
 			]),
 		], 'ORDER BY ctime');
 		//debug($this->db->lastQuery);
@@ -66,7 +66,7 @@ class Runner
 		$rows = $this->db->fetchAllSelectQuery('runner', [
 			'status' => new SQLOr([
 				'status' => '',
-				'status ' => NULL,
+				'status ' => null,
 			]),
 		], 'ORDER BY ctime');
 		return $rows;

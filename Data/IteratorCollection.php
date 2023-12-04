@@ -6,31 +6,39 @@
  * @deprecated Collection implements IteratorAggregate already
  * Fatal error: Class IteratorCollection cannot implement both Iterator and IteratorAggregate at the same time
  */
-class IteratorCollection /*extends Collection*/ implements Iterator, Countable {
+class IteratorCollection /*extends Collection*/
+	implements Iterator, Countable
+{
 
-	var $data = [];
+	public $data = [];
 
-	function rewind() {
+	public function rewind()
+	{
 		reset($this->data);
 	}
 
-	function current() {
+	public function current()
+	{
 		return current($this->data);
 	}
 
-	function key() {
+	public function key()
+	{
 		return key($this->data);
 	}
 
-	function next() {
+	public function next()
+	{
 		return next($this->data);
 	}
 
-	function valid() {
-		return $this->key() !== NULL;
+	public function valid()
+	{
+		return $this->key() !== null;
 	}
 
-	function count() {
+	public function count()
+	{
 		return sizeof($this->data);
 	}
 

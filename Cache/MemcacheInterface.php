@@ -3,10 +3,10 @@
 interface MemcacheInterface
 {
 
-	function get($key);
+	public function get($key);
 
-	function set($key, $val);
+	public function set($key, $val);
 
-	function isValid($key = NULL, $expire = 0);
+	public function isValid($key = null, $expire = 0);
 
 }

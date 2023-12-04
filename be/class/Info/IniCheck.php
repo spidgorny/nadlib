@@ -1,8 +1,9 @@
 <?php
 
-class IniCheck extends AppControllerBE {
+class IniCheck extends AppControllerBE
+{
 
-	function render()
+	public function render()
 	{
 		$content = [];
 		$iniFile = AutoLoad::getInstance()->getAppRoot() . '/php.ini';
@@ -23,7 +24,7 @@ class IniCheck extends AppControllerBE {
 		return $content;
 	}
 
-	function showSection(array $iniData)
+	public function showSection(array $iniData)
 	{
 		$table = [];
 		foreach ($iniData as $key => $val) {
@@ -54,7 +55,7 @@ class IniCheck extends AppControllerBE {
 		return $content;
 	}
 
-	function parseHtAccess($htaccess)
+	public function parseHtAccess($htaccess)
 	{
 		$ini = [];
 		$lines = file($htaccess);

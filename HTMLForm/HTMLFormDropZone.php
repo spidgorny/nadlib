@@ -5,22 +5,22 @@ use spidgorny\nadlib\HTTP\URL;
 class HTMLFormDropZone extends HTMLFormType implements HTMLFormFieldInterface
 {
 
-	var $makeFallback = true;
+	public $makeFallback = true;
 
-	var $class = 'dropzone';
+	public $class = 'dropzone';
 
 	/**
 	 * Shows the form element in the form
 	 * @return mixed
 	 * @throws Exception
 	 */
-	function render()
+	public function render()
 	{
 		$content = [];
 		if (!$this->form) {
 			$this->form = new HTMLForm();
 		}
-		$this->form->action(new URL(NULL, [
+		$this->form->action(new URL(null, [
 			'action' => 'upload',
 		]));
 		$this->form->formMore['class'] .= ' ' . $this->class;

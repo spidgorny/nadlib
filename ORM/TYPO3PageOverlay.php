@@ -2,12 +2,12 @@
 
 class TYPO3PageOverlay extends OODBase
 {
-	var $table = 'pages_language_overlay';
-	var $idField = 'uid';
-	var $titleColumn = 'title';
+	public $table = 'pages_language_overlay';
+	public $idField = 'uid';
+	public $titleColumn = 'title';
 
 	/**
-	 * @var integer sys_language_uid
+	 * @var int sys_language_uid
 	 */
 	public $langID;
 

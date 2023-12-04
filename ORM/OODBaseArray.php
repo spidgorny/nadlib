@@ -1,6 +1,7 @@
 <?php
 
-class OODBaseArray extends OODBase implements ArrayAccess {
+class OODBaseArray extends OODBase implements ArrayAccess
+{
 
 	/**
 	 * Whether a offset exists
@@ -8,13 +9,14 @@ class OODBaseArray extends OODBase implements ArrayAccess {
 	 * @param mixed $offset <p>
 	 * An offset to check for.
 	 * </p>
-	 * @return boolean true on success or false on failure.
+	 * @return bool true on success or false on failure.
 	 * </p>
 	 * <p>
 	 * The return value will be casted to boolean if non-boolean was returned.
 	 * @since 5.0.0
 	 */
-	public function offsetExists($offset) {
+	public function offsetExists($offset)
+	{
 		return isset($this->data[$offset]);
 	}
 
@@ -27,7 +29,8 @@ class OODBaseArray extends OODBase implements ArrayAccess {
 	 * @return mixed Can return all value types.
 	 * @since 5.0.0
 	 */
-	public function offsetGet($offset) {
+	public function offsetGet($offset)
+	{
 		return $this->get($offset);
 	}
 
@@ -43,7 +46,8 @@ class OODBaseArray extends OODBase implements ArrayAccess {
 	 * @return void
 	 * @since 5.0.0
 	 */
-	public function offsetSet($offset, $value) {
+	public function offsetSet($offset, $value)
+	{
 		$this->data[$offset] = $value;
 	}
 
@@ -56,7 +60,8 @@ class OODBaseArray extends OODBase implements ArrayAccess {
 	 * @return void
 	 * @since 5.0.0
 	 */
-	public function offsetUnset($offset) {
+	public function offsetUnset($offset)
+	{
 		unset($this->data[$offset]);
 	}
 

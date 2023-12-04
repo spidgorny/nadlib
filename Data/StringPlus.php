@@ -5,30 +5,10 @@
  */
 class StringPlus implements Iterator, ArrayAccess, Countable
 {
-	/**
-	 * Literal string.
-	 * @var string
-	 */
-	private $_string = '';
-
-	/**
-	 * String's encoding.
-	 * @var string uppercase
-	 */
-	private $_encoding = null;
-
-	/**
-	 * String's length.
-	 * @var int
-	 */
-	private $_length = null;
-
-	/**
-	 * Current position (Iterator).
-	 * @var int
-	 */
-	private $_index = 0;
-
+	const ALPHA = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	const ALNUM = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+	const NUMERIC = '0123456789';
+	const SPACE = ' ';
 	/**
 	 * Default string encoding. Will be used if no encoding is specified.
 	 * Value can changed at run-time with the static method {@link setDefaultEncoding()}.
@@ -59,11 +39,247 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * @var bool
 	 */
 	private static $_extUtf8 = null;
+	/**
+	 * Literal string.
+	 * @var string
+	 */
+	private $_string = '';
+	/**
+	 * String's encoding.
+	 * @var string uppercase
+	 */
+	private $_encoding = null;
+	/**
+	 * String's length.
+	 * @var int
+	 */
+	private $_length = null;
+	/**
+	 * Current position (Iterator).
+	 * @var int
+	 */
+	private $_index = 0;
 
-	const ALPHA = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-	const ALNUM = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-	const NUMERIC = '0123456789';
-	const SPACE = ' ';
+	/**
+	 * Constructs a string object.
+	 * @param string $string literal string
+	 * @param string $encoding string encoding (default null, auto-detection)
+	 * @return String
+	 */
+	public function __construct($string = '', $encoding = null)
+	{
+		$this->_string = (string)$string;
+		if ($encoding !== null) {
+			$this->_encoding = strtoupper(str_replace(' ', '-', (string)$encoding));
+		} elseif (self::$_defaultEncoding !== null) {
+			$this->_encoding = self::$_defaultEncoding;
+		}
+	}
+
+	/**
+	 * Returns an array with the string extensions that the class uses.
+	 * Possible values: standard, mbstring, iconv, utf8.
+	 * @return array
+	 */
+	public static function getLoadedExtensions()
+	{
+		$ext = ['standard'];
+		if (self::_mbstringLoaded()) {
+			$ext[] = 'mbstring';
+		}
+		if (self::_iconvLoaded()) {
+			$ext[] = 'iconv';
+		}
+		if (self::_utf8Loaded()) {
+			$ext[] = 'utf8';
+		}
+		return $ext;
+	}
+
+	/**
+	 * Checks if the mbstring extension is installed and loaded.
+	 * @access private
+	 * @return bool true if mbstring is available
+	 */
+	private static function _mbstringLoaded()
+	{
+		if (self::$_extMbstring === null) {
+			self::$_extMbstring = (bool)extension_loaded('mbstring');
+		}
+		return self::$_extMbstring;
+	}
+
+	/**
+	 * Checks if the iconv extension is installed and loaded.
+	 * @access private
+	 * @return bool true if iconv is available
+	 */
+	private static function _iconvLoaded()
+	{
+		if (self::$_extIconv === null) {
+			self::$_extIconv = (bool)extension_loaded('iconv');
+		}
+		return self::$_extIconv;
+	}
+
+	/**
+	 * Checks if the utf8 package is installed and loaded.
+	 * @access private
+	 * @return bool true if utf8 package is available
+	 */
+	private static function _utf8Loaded()
+	{
+		if (self::$_extUtf8 === null) {
+			self::$_extUtf8 = (bool)(defined('UTF8_CORE') && UTF8_CORE === true);
+		}
+		return self::$_extUtf8;
+	}
+
+	/**
+	 * Returns default encoding.
+	 * @return string
+	 */
+	public static function getDefaultEncoding()
+	{
+		return self::$_defaultEncoding;
+	}
+
+	/**
+	 * Sets default encoding.
+	 * Use null for auto-detection.
+	 * @param string $encoding encoding (default null)
+	 */
+	public static function setDefaultEncoding($encoding = null)
+	{
+		if ($encoding === null) {
+			self::$_defaultEncoding = null;
+		} else {
+			self::$_defaultEncoding = strtoupper(str_replace(' ', '-', (string)$encoding));
+		}
+	}
+
+	/**
+	 * Overload method. Proxies to {@link callbackStatic()}.
+	 * Method name starts with an underscore to prevent name clashes.
+	 * Example:
+	 * <code>
+	 * <?php
+	 * echo String::_squeeze(' a  b c ') // prints: a b c
+	 * ?>
+	 * </code>
+	 * @param mixed $name
+	 * @param array $args
+	 * @return mixed
+	 * @throws BadFunctionCallException
+	 */
+	public static function __callStatic($name, $args)
+	{
+		$name = substr($name, 1);
+		return self::callbackStatic($name, $args);
+	}
+
+	/**
+	 * Constructs a string object with the first argument as the string.
+	 * Returns the result of the instance method $name.
+	 * @param mixed $name callback function
+	 * @param array $args function arguments. the first argument is the string literal.
+	 * @return mixed
+	 * @throws BadFunctionCallException
+	 */
+	public static function callbackStatic($name, array $args)
+	{
+		if (empty($args)) {
+			throw new BadFunctionCallException('Static callback requires at least one parameter.');
+		}
+		$literal = array_shift($args);
+		$string = new self($literal);
+		return call_user_func_array([$string, $name], $args);
+	}
+
+	/**
+	 * Returns String with the first string argument.
+	 * If no string is found, returns an empty String.
+	 * Example:
+	 * <code>
+	 * <?php
+	 * echo String::first(array(), 0, 'first', null, 'second'); // prints: first
+	 * ?>
+	 * </code>
+	 * @return String
+	 */
+	public static function first()
+	{
+		$args = func_get_args();
+		foreach ($args as $arg) {
+			if (is_string($arg) || $arg instanceof self) {
+				return new self($arg);
+			}
+		}
+		return new self();
+	}
+
+	/**
+	 * Formats and returns String.
+	 * @param string $string formatting string
+	 * @param array $args
+	 * @return String
+	 */
+	public static function format($string, array $args)
+	{
+		return new self(vsprintf((string)$string, $args));
+	}
+
+	/**
+	 * Returns random String in length of $length.
+	 * The String consists of characters in $charset.
+	 * @param int $length String's length
+	 * @param string $charset String's charset (default alpha-numeric characters)
+	 * @return String
+	 */
+	public static function random($length, $charset = self::ALNUM)
+	{
+		$length = (int)$length;
+		$count = 0;
+		$str = '';
+		while ($length--) {
+			$str .= $charset[random_int(0, $count - 1)];
+		}
+		return new self($str);
+	}
+
+	/**
+	 * @param int $int
+	 * @return String
+	 */
+	public static function mb_chr($int)
+	{
+		if ($int <= 127) {
+			$json = chr($int);
+			return self::make($json);
+		}
+
+// shamelessly stolen from http://pageconfig.com/attachments/portable-utf8.php
+		if (extension_loaded('mbstring')) {
+			return mb_convert_encoding("&#$int;", 'UTF-8', 'HTML-ENTITIES');
+		}
+
+		if (version_compare(PHP_VERSION, '5.0.0') === 1) {
+			//html_entity_decode did not support Multi-Byte before PHP 5.0.0
+			return html_entity_decode("&#{$int};", ENT_QUOTES, 'UTF-8');
+		}
+
+		return '';
+	}
+
+	/**
+	 * @param string $str
+	 * @param string $encoding
+	 * @return static
+	 */
+	public static function make($str = '', $encoding = null)
+	{
+		return new self($str, $encoding);
+	}
 
 	/**
 	 * Overload method. Proxies to {@link callback()}.
@@ -85,30 +301,25 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
-	 * Constructs a string object.
-	 * @param string $string literal string
-	 * @param string $encoding string encoding (default null, auto-detection)
-	 * @return String
+	 * Returns the result of the callback function $name.
+	 * The literal string will be sent as the first argument.
+	 * @param mixed $name callback function
+	 * @param array $args additional function arguments (default empty)
+	 * @return mixed
+	 * @throws BadFunctionCallException
+	 * @see http://php.net/manual/en/language.pseudo-types.php#language.types.callback
 	 */
-	public function __construct($string = '', $encoding = null)
+	public function callback($name, array $args = [])
 	{
-		$this->_string = (string)$string;
-		if ($encoding !== null) {
-			$this->_encoding = strtoupper(str_replace(' ', '-', (string)$encoding));
-		} elseif (self::$_defaultEncoding !== null) {
-			$this->_encoding = self::$_defaultEncoding;
+		if (!is_callable($name)) {
+			throw new BadFunctionCallException('$name is not a valid callback.');
 		}
-	}
-
-	/**
-	 * @param string $str
-	 * @param string $encoding
-	 * @return static
-	 */
-	public static function make($str = '', $encoding = null)
-	{
-		$a = new self($str, $encoding);
-		return $a;
+		array_unshift($args, $this->_string);
+		$result = call_user_func_array($name, $args);
+		if (!is_string($result)) {
+			return $result;
+		}
+		return new self($result);
 	}
 
 	/**
@@ -135,213 +346,6 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 			return $this->getEncoding();
 		}
 		throw new BadMethodCallException('Undefined property.');
-	}
-
-	/**
-	 * Overload method. Returns the literal value of the string.
-	 * Useful for string operations like printing and concatenation.
-	 * For other uses, it is possible to use {@link toString()}.
-	 * Example:
-	 * <code>
-	 * <?php
-	 * $string = new String('123456');
-	 * echo $string; // prints: 123456
-	 * ?>
-	 * </code>
-	 * @return string
-	 */
-	public function __toString()
-	{
-		return $this->_string;
-	}
-
-	/**
-	 * Returns the result of the callback function $name.
-	 * The literal string will be sent as the first argument.
-	 * @param mixed $name callback function
-	 * @param array $args additional function arguments (default empty)
-	 * @return mixed
-	 * @throws BadFunctionCallException
-	 * @see http://php.net/manual/en/language.pseudo-types.php#language.types.callback
-	 */
-	public function callback($name, array $args = [])
-	{
-		if (!is_callable($name)) {
-			throw new BadFunctionCallException('$name is not a valid callback.');
-		}
-		array_unshift($args, $this->_string);
-		$result = call_user_func_array($name, $args);
-		if (!is_string($result)) {
-			return $result;
-		}
-		return new self($result);
-	}
-
-	/**
-	 * Capitalizes a string.
-	 * Changes the first letter to uppercase.
-	 * Example:
-	 * <code>
-	 * <?php
-	 * $string = new String('aBc');
-	 * echo $string->capitalize(); // prints: ABc
-	 * ?>
-	 * </code>
-	 * @return String
-	 */
-	public function capitalize()
-	{
-		if (function_exists('mb_ucfirst')) {
-			$string = mb_ucfirst($this->_string, $this->getEncoding());
-		} else if (function_exists('mb_substr')) {
-			$encoding = $this->getEncoding();
-			$string = mb_strtoupper(mb_substr($this->_string, 0, 1, $encoding), $encoding) .
-				mb_substr($this->_string, 1, null, $encoding);
-		} else {
-			$string = ucfirst($this->_string);
-		}
-		return new self($string);
-	}
-
-	/**
-	 * Returns the character at index $index, counting from zero.
-	 * If the index doesn't exists, returns null.
-	 * @param int $index character index, counting from zero.
-	 * @return String
-	 */
-	public function charAt($index)
-	{
-		return $this->substring($index, 1);
-	}
-
-	/**
-	 * Compares this string to the provided string.
-	 * Returns positive number if this string is greater than $string,
-	 * negative number if this string is less than $string,
-	 * and 0 in case the strings are equal.
-	 * This method is case-sensitive. See also {@link compareToIgnoreCase()}
-	 * @param string
-	 * @param int $characters upper limit of characters to use in comparison (default null)
-	 * @return int
-	 */
-	public function compareTo($string, $characters = null)
-	{
-		if ($characters === null) {
-			return strcmp($this->_string, (string)$string);
-		}
-		return strncmp($this->_string, (string)$string, (int)$characters);
-	}
-
-	/**
-	 * Similar to {@link compareTo()}, but case-insensitive.
-	 * @param string $string
-	 * @param int $characters upper limit of characters to use in comparison (default null)
-	 * @return int
-	 */
-	public function compareToIgnoreCase($string, $characters = null)
-	{
-		if ($characters === null) {
-			return strncasecmp($this->_string, (string)$string);
-		}
-		return strncasecmp($this->_string, (string)$string, (int)$characters);
-	}
-
-	/**
-	 * Concats a string and returns the new one.
-	 * Actually, it is the same as the dot operator.
-	 * @param string $string
-	 * @return String
-	 */
-	public function concat($string)
-	{
-		return new self($this->_string . (string)$string);
-	}
-
-	/**
-	 * Checks if the string contains a substring.
-	 * @param string $substr
-	 * @return bool true if the string contains $substr
-	 */
-	public function contains($substr)
-	{
-		return ($this->indexOf($substr) !== false);
-	}
-
-	/**
-	 * Counts the number of characters in the string.
-	 * Alias of {@link getLength()}. Intended to use with count().
-	 * Example:
-	 * <code>
-	 * <?php
-	 * $string = new String('123456');
-	 * echo $string->getLength(); // prints: 6
-	 * echo count($string); // prints: 6
-	 * ?>
-	 * </code>
-	 * @return int
-	 */
-	public function count()
-	{
-		return $this->getLength();
-	}
-
-	/**
-	 * Returns the current element.
-	 * @return String
-	 */
-	public function current()
-	{
-		return $this->charAt($this->_index);
-	}
-
-	/**
-	 * Checks if the string ends with a substring.
-	 * @param string $substr substring
-	 * @return bool true if the string ends with $substr.
-	 */
-	public function endsWith($substr)
-	{
-		$substr = new self($substr);
-		return ($this->lastIndexOf($substr) === $this->length() - $substr->length());
-	}
-
-	/**
-	 * Checks is this string is equal to the provided string.
-	 * This method is case-sensitive. See also {@link equalsIgnoreCase()}
-	 * @param string $string
-	 * @return bool true if the strings are equal
-	 */
-	public function equals($string)
-	{
-		return ($this->compareTo($string) === 0);
-	}
-
-	/**
-	 * Similar to {@link equals()}, but case-insensitive.
-	 * @param string $string
-	 * @return bool true if the strings are equal
-	 */
-	public function equalsIgnoreCase($string)
-	{
-		return ($this->compareToIgnoreCase($string) === 0);
-	}
-
-	/**
-	 * Returns String's encoding, or false in failure.
-	 * @return string|bool
-	 */
-	public function getEncoding()
-	{
-		if ($this->_encoding === null) {
-			if (function_exists('mb_detect_encoding')) {
-				$this->_encoding = mb_detect_encoding($this->_string);
-			} else if (function_exists('utf8_compliant') && utf8_compliant($this->_string)) {
-				$this->_encoding = 'UTF-8';
-			} else {
-				$this->_encoding = false;
-			}
-		}
-		return $this->_encoding;
 	}
 
 	/**
@@ -373,6 +377,78 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
+	 * Returns String's encoding, or false in failure.
+	 * @return string|bool
+	 */
+	public function getEncoding()
+	{
+		if ($this->_encoding === null) {
+			if (function_exists('mb_detect_encoding')) {
+				$this->_encoding = mb_detect_encoding($this->_string);
+			} elseif (function_exists('utf8_compliant') && utf8_compliant($this->_string)) {
+				$this->_encoding = 'UTF-8';
+			} else {
+				$this->_encoding = false;
+			}
+		}
+		return $this->_encoding;
+	}
+
+	/**
+	 * Overload method. Returns the literal value of the string.
+	 * Useful for string operations like printing and concatenation.
+	 * For other uses, it is possible to use {@link toString()}.
+	 * Example:
+	 * <code>
+	 * <?php
+	 * $string = new String('123456');
+	 * echo $string; // prints: 123456
+	 * ?>
+	 * </code>
+	 * @return string
+	 */
+	public function __toString()
+	{
+		return $this->_string;
+	}
+
+	/**
+	 * Capitalizes a string.
+	 * Changes the first letter to uppercase.
+	 * Example:
+	 * <code>
+	 * <?php
+	 * $string = new String('aBc');
+	 * echo $string->capitalize(); // prints: ABc
+	 * ?>
+	 * </code>
+	 * @return String
+	 */
+	public function capitalize()
+	{
+		if (function_exists('mb_ucfirst')) {
+			$string = mb_ucfirst($this->_string, $this->getEncoding());
+		} elseif (function_exists('mb_substr')) {
+			$encoding = $this->getEncoding();
+			$string = mb_strtoupper(mb_substr($this->_string, 0, 1, $encoding), $encoding) .
+				mb_substr($this->_string, 1, null, $encoding);
+		} else {
+			$string = ucfirst($this->_string);
+		}
+		return new self($string);
+	}
+
+	/**
+	 * Checks if the string contains a substring.
+	 * @param string $substr
+	 * @return bool true if the string contains $substr
+	 */
+	public function contains($substr)
+	{
+		return ($this->indexOf($substr) !== false);
+	}
+
+	/**
 	 * Returns the index of the first occurance of $substr in the string.
 	 * In case $substr is not a substring of the string, returns false.
 	 * @param String $substr substring
@@ -393,9 +469,155 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 		return $pos;
 	}
 
+	/**
+	 * Counts the number of characters in the string.
+	 * Alias of {@link getLength()}. Intended to use with count().
+	 * Example:
+	 * <code>
+	 * <?php
+	 * $string = new String('123456');
+	 * echo $string->getLength(); // prints: 6
+	 * echo count($string); // prints: 6
+	 * ?>
+	 * </code>
+	 * @return int
+	 */
+	public function count()
+	{
+		return $this->getLength();
+	}
+
+	/**
+	 * Returns the current element.
+	 * @return String
+	 */
+	public function current()
+	{
+		return $this->charAt($this->_index);
+	}
+
+	/**
+	 * Returns the character at index $index, counting from zero.
+	 * If the index doesn't exists, returns null.
+	 * @param int $index character index, counting from zero.
+	 * @return String
+	 */
+	public function charAt($index)
+	{
+		return $this->substring($index, 1);
+	}
+
+	/**
+	 * Returns part of the string.
+	 * @param int $start
+	 * @param int $length
+	 * @return String
+	 */
+	public function substring($start, $length = null)
+	{
+		if (function_exists('mb_substr')) {
+			$string = mb_substr($this->_string, $start, $length, $this->getEncoding());
+		} elseif ($this->getEncoding() === 'UTF-8' && function_exists('utf8_substr')) {
+			$string = utf8_substr($this->_string, $start, $length);
+		} elseif (function_exists('iconv_substr')) {
+			$string = iconv_substr($this->_string, $start, $length, $this->getEncoding());
+		} else {
+			$string = substr($this->_string, $start, $length);
+		}
+		return new self($string);
+	}
+
+	/**
+	 * Checks if the string ends with a substring.
+	 * @param string $substr substring
+	 * @return bool true if the string ends with $substr.
+	 */
+	public function endsWith($substr)
+	{
+		$substr = new self($substr);
+		return ($this->lastIndexOf($substr) === $this->getLength() - $substr->getLength());
+	}
+
+	/**
+	 * Returns the index of the last occurance of $substr in the string.
+	 * In case $substr is not a substring of the string, returns false.
+	 * @param String $substr substring
+	 * @param int $offset
+	 * @return int|bool
+	 */
+	public function lastIndexOf($substr, $offset = 0)
+	{
+		if (function_exists('mb_strrpos')) {
+			$pos = mb_strrpos($this->_string, (string)$substr, (int)$offset, $this->getEncoding());
+		} elseif ($this->getEncoding() === 'UTF-8' && function_exists('utf8_strrpos')) {
+			$pos = utf8_strrpos($this->_string, (string)$substr, ($offset === 0 ? null : $offset));
+		} elseif (function_exists('iconv_strrpos')) {
+			$pos = iconv_strrpos($this->_string, (string)$substr, $this->getEncoding());
+		} else {
+			$pos = strrpos($this->_string, (string)$substr, (int)$offset);
+		}
+		return $pos;
+	}
+
+	/**
+	 * Similar to {@link equals()}, but case-insensitive.
+	 * @param string $string
+	 * @return bool true if the strings are equal
+	 */
+	public function equalsIgnoreCase($string)
+	{
+		return ($this->compareToIgnoreCase($string) === 0);
+	}
+
+	/**
+	 * Similar to {@link compareTo()}, but case-insensitive.
+	 * @param string $string
+	 * @param int $characters upper limit of characters to use in comparison (default null)
+	 * @return int
+	 */
+	public function compareToIgnoreCase($string, $characters = null)
+	{
+		if ($characters === null) {
+			return strncasecmp($this->_string, (string)$string, 999999);
+		}
+		return strncasecmp($this->_string, (string)$string, (int)$characters);
+	}
+
 	public function insert($offset, $string)
 	{
 		return $this->splice($offset, 0, $string);
+	}
+
+	/**
+	 * Removes a part of the string and replace it with something else.
+	 * Example:
+	 * <code>
+	 * $string = new String('The fox jumped over the lazy dog.');
+	 * echo $string->splice(4, 0, 'quick brown ');
+	 * </code>
+	 * prints 'The quick brown fox jumped over the lazy dog.'
+	 * @return String
+	 */
+	public function splice($offset, $length = null, $replacement = '')
+	{
+		$count = $this->getLength();
+
+		// Offset handling (negative values measure from end of string)
+		if ($offset < 0) {
+			$offset += $count;
+		}
+
+		// Length handling (positive values measure from $offset; negative, from end of string; omitted = end of string)
+		if ($length === null) {
+			$length = $count;
+		} elseif ($length < 0) {
+			$length += $count - $offset;
+		}
+
+		return new self($this->substring(0, $offset) .
+			(string)$replacement .
+			$this->substring($offset + $length)
+		);
 	}
 
 	/**
@@ -408,22 +630,28 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
+	 * Removes characters from both parts of the string.
+	 * If $charlist is not provided, the default is to remove spaces.
+	 * @param string $charlist characters to remove (default space characters)
+	 * @return String
+	 */
+	public function trim($charlist = null)
+	{
+		if ($charlist !== null && $this->getEncoding() === 'UTF-8' && function_exists('utf8_trim')) {
+			$string = utf8_trim($this->_string, $charlist);
+		} else {
+			$string = trim($this->_string, $charlist);
+		}
+		return new self($string);
+	}
+
+	/**
 	 * Checks if the string is empty.
 	 * @return bool true if the string is empty
 	 */
 	public function isEmpty()
 	{
 		return ($this->_string === '');
-	}
-
-	/**
-	 * Checks if the string is lower case.
-	 * String is considered lower case if all the characters are lower case.
-	 * @return bool true if the string is lower case
-	 */
-	public function isLowerCase()
-	{
-		return $this->equals($this->toLowerCase());
 	}
 
 	/**
@@ -454,6 +682,49 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
+	 * Checks is this string is equal to the provided string.
+	 * This method is case-sensitive. See also {@link equalsIgnoreCase()}
+	 * @param string $string
+	 * @return bool true if the strings are equal
+	 */
+	public function equals($string)
+	{
+		return ($this->compareTo($string) === 0);
+	}
+
+	/**
+	 * Compares this string to the provided string.
+	 * Returns positive number if this string is greater than $string,
+	 * negative number if this string is less than $string,
+	 * and 0 in case the strings are equal.
+	 * This method is case-sensitive. See also {@link compareToIgnoreCase()}
+	 * @param string
+	 * @param int $characters upper limit of characters to use in comparison (default null)
+	 * @return int
+	 */
+	public function compareTo($string, $characters = null)
+	{
+		if ($characters === null) {
+			return strcmp($this->_string, (string)$string);
+		}
+		return strncmp($this->_string, (string)$string, (int)$characters);
+	}
+
+	/**
+	 * Revereses a string.
+	 * @return String
+	 */
+	public function reverse()
+	{
+		if ($this->getEncoding() === 'UTF-8' && function_exists('utf8_strrev')) {
+			$string = utf8_strrev($this->_string);
+		} else {
+			$string = strrev($this->_string);
+		}
+		return new self($string);
+	}
+
+	/**
 	 * Checks is the string is unicase.
 	 * Unicase string is one that has no case for its letters.
 	 * @return bool true if the string is unicase
@@ -461,6 +732,52 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	public function isUnicase()
 	{
 		return $this->toLowerCase()->equals($this->toUpperCase());
+	}
+
+	/**
+	 * Converts a string to lower case.
+	 * Example:
+	 * <code>
+	 * <?php
+	 * $string = new String('aBc');
+	 * echo $string->toLowerCase(); // prints: abc
+	 * ?>
+	 * </code>
+	 * @return String
+	 */
+	public function toLowerCase()
+	{
+		if (function_exists('mb_strtolower')) {
+			$string = mb_strtolower($this->_string, $this->getEncoding());
+		} elseif ($this->getEncoding() === 'UTF-8' && function_exists('utf8_strtolower')) {
+			$string = utf8_strtolower($this->_string);
+		} else {
+			$string = strtolower($this->_string);
+		}
+		return new self($string);
+	}
+
+	/**
+	 * Converts a string to upper case.
+	 * Example:
+	 * <code>
+	 * <?php
+	 * $string = new String('aBc');
+	 * echo $string->toUpperCase(); // prints: ABC
+	 * ?>
+	 * </code>
+	 * @return String
+	 */
+	public function toUpperCase()
+	{
+		if (function_exists('mb_strtoupper')) {
+			$string = mb_strtoupper($this->_string, $this->getEncoding());
+		} elseif ($this->getEncoding() === 'UTF-8' && function_exists('utf8_strtoupper')) {
+			$string = utf8_strtoupper($this->_string);
+		} else {
+			$string = strtoupper($this->_string);
+		}
+		return new self($string);
 	}
 
 	/**
@@ -480,27 +797,6 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	public function key()
 	{
 		return $this->_index;
-	}
-
-	/**
-	 * Returns the index of the last occurance of $substr in the string.
-	 * In case $substr is not a substring of the string, returns false.
-	 * @param String $substr substring
-	 * @param int $offset
-	 * @return int|bool
-	 */
-	public function lastIndexOf($substr, $offset = 0)
-	{
-		if (function_exists('mb_strrpos')) {
-			$pos = mb_strrpos($this->_string, (string)$substr, (int)$offset, $this->getEncoding());
-		} else if ($this->getEncoding() === 'UTF-8' && function_exists('utf8_strrpos')) {
-			$pos = utf8_strrpos($this->_string, (string)$substr, ($offset === 0 ? null : $offset));
-		} else if (function_exists('iconv_strrpos')) {
-			$pos = iconv_strrpos($this->_string, (string)$substr, (int)$offset, $this->getEncoding());
-		} else {
-			$pos = strrpos($this->_string, (string)$substr, (int)$offset);
-		}
-		return $pos;
 	}
 
 	/**
@@ -550,7 +846,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 */
 	public function offsetExists($offset)
 	{
-		return ($offset >= 0 && $offset < $this->length());
+		return ($offset >= 0 && $offset < $this->getLength());
 	}
 
 	/**
@@ -563,8 +859,8 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * ?>
 	 * </code>
 	 * @param int $offset character index, counting from zero.
-	 * @uses String::charAt
 	 * @return String
+	 * @uses String::charAt
 	 */
 	public function offsetGet($offset)
 	{
@@ -579,7 +875,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 */
 	public function offsetSet($offset, $value)
 	{
-		throw BadMethodCallException();
+		throw new BadMethodCallException();
 	}
 
 	/**
@@ -590,7 +886,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 */
 	public function offsetUnset($offset)
 	{
-		throw BadMethodCallException();
+		throw new BadMethodCallException();
 	}
 
 	/**
@@ -598,7 +894,6 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 */
 	public function overlay($string, $start, $end)
 	{
-
 	}
 
 	public function pad($length, $padding = self::SPACE)
@@ -620,23 +915,6 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
-	 * Removes all occurrences of a substring from the string.
-	 * @param string $substr substring
-	 * @param bool $regex whether $substr is a regular expression
-	 * @return String
-	 */
-	public function remove($substr)
-	{
-		return $this->replace($substr, '');
-	}
-
-	public function removeDuplicates($substr)
-	{
-		$pattern = '/(' . preg_quote($substr, '/') . ')+/';
-		return $this->replaceRegex($pattern, $substr);
-	}
-
-	/**
 	 * Removes first occurrence of a substring from the string.
 	 * @param string $substr substring
 	 * @param bool $regex whether $substr is a regular expression
@@ -652,9 +930,33 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 		$this->replaceRegex($pattern, '', $limit);
 	}
 
+	public function replaceRegex($search, $replace, $limit = null)
+	{
+		$limit = (($limit === null) ? -1 : (int)$limit);
+		$string = preg_replace($search, $replace, $this->_string, $limit);
+		return new self($string);
+	}
+
 	public function removeSpaces()
 	{
 		return $this->remove([" ", "\r", "\n", "\t", "\0", "\x0B"]);
+	}
+
+	/**
+	 * Removes all occurrences of a substring from the string.
+	 * @param string $substr substring
+	 * @param bool $regex whether $substr is a regular expression
+	 * @return String
+	 */
+	public function remove($substr)
+	{
+		return $this->replace($substr, '');
+	}
+
+	public function replace($search, $replace)
+	{
+		$string = str_replace($search, $replace, $this->_string);
+		return new self($string);
 	}
 
 	/**
@@ -668,7 +970,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	{
 		if ($multiplier === 0) {
 			$string = '';
-		} else if ($separator === null) {
+		} elseif ($separator === null) {
 			$string = str_repeat($this->_string, $multiplier);
 		} else {
 			$string = str_repeat($this->_string . (string)$separator, $multiplier - 1) . $this->_string;
@@ -676,36 +978,9 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 		return new self($string);
 	}
 
-	public function replace($search, $replace)
-	{
-		$string = str_replace($search, $replace, $this->_string);
-		return new self($string);
-	}
-
 	public function replaceOnce($search, $replace)
 	{
 		return $this->replaceRegex($search, $replace, 1);
-	}
-
-	public function replaceRegex($search, $replace, $limit = null)
-	{
-		$limit = (($limit === null) ? -1 : (int)$limit);
-		$string = preg_replace($search, $replace, $this->_string, $limit);
-		return new self($string);
-	}
-
-	/**
-	 * Revereses a string.
-	 * @return String
-	 */
-	public function reverse()
-	{
-		if ($this->getEncoding() === 'UTF-8' && function_exists('utf8_strrev')) {
-			$string = utf8_strrev($this->_string);
-		} else {
-			$string = strrev($this->_string);
-		}
-		return new self($string);
 	}
 
 	/**
@@ -736,38 +1011,6 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 		return new self(str_shuffle($this->_string));
 	}
 
-	/**
-	 * Removes a part of the string and replace it with something else.
-	 * Example:
-	 * <code>
-	 * $string = new String('The fox jumped over the lazy dog.');
-	 * echo $string->splice(4, 0, 'quick brown ');
-	 * </code>
-	 * prints 'The quick brown fox jumped over the lazy dog.'
-	 * @return String
-	 */
-	public function splice($offset, $length = null, $replacement = '')
-	{
-		$count = $this->length();
-
-		// Offset handling (negative values measure from end of string)
-		if ($offset < 0) {
-			$offset += $count;
-		}
-
-		// Length handling (positive values measure from $offset; negative, from end of string; omitted = end of string)
-		if ($length === null) {
-			$length = $count;
-		} else if ($length < 0) {
-			$length += $count - $offset;
-		}
-
-		return new self($this->substring(0, $offset) .
-			(string)$replacement .
-			$this->substring($offset + $length)
-		);
-	}
-
 	public function split($delimiter)
 	{
 		$array = explode($delimiter, $this->_string);
@@ -794,6 +1037,12 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 			->trim();
 	}
 
+	public function removeDuplicates($substr)
+	{
+		$pattern = '/(' . preg_quote($substr, '/') . ')+/';
+		return $this->replaceRegex($pattern, $substr);
+	}
+
 	/**
 	 * Checks if the string starts with a substring.
 	 * @param string $substr substring
@@ -802,26 +1051,6 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	public function startsWith($substr)
 	{
 		return ($this->indexOf($substr) === 0);
-	}
-
-	/**
-	 * Returns part of the string.
-	 * @param int $start
-	 * @param int $length
-	 * @return String
-	 */
-	public function substring($start, $length = null)
-	{
-		if (function_exists('mb_substr')) {
-			$string = mb_substr($this->_string, $start, $length, $this->getEncoding());
-		} else if ($this->getEncoding() === 'UTF-8' && function_exists('utf8_substr')) {
-			$string = utf8_substr($this->_string, $start, $length);
-		} else if (function_exists('iconv_substr')) {
-			$string = iconv_substr($this->_string, $start, $length, $this->getEncoding());
-		} else {
-			$string = substr($this->_string, $start, $length);
-		}
-		return new self($string);
 	}
 
 	/**
@@ -900,6 +1129,17 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
+	 * Concats a string and returns the new one.
+	 * Actually, it is the same as the dot operator.
+	 * @param string $string
+	 * @return String
+	 */
+	public function concat($string)
+	{
+		return new self($this->_string . (string)$string);
+	}
+
+	/**
 	 * Gets the substring before the last occurrence of a separator.
 	 * If no match is found returns null.
 	 * @param String $separator
@@ -933,7 +1173,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 		}
 		if ($left === null) {
 			$left = $right;
-		} else if ($right === null) {
+		} elseif ($right === null) {
 			$right = $left;
 		}
 
@@ -991,7 +1231,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	public function swapCase()
 	{
 		$string = '';
-		$length = $this->length();
+		$length = $this->getLength();
 		for ($i = 0; $i < $length; $i++) {
 			$char = $this->charAt($i);
 			if ($char->isLowerCase()) {
@@ -1001,6 +1241,16 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 			}
 		}
 		return new self($string);
+	}
+
+	/**
+	 * Checks if the string is lower case.
+	 * String is considered lower case if all the characters are lower case.
+	 * @return bool true if the string is lower case
+	 */
+	public function isLowerCase()
+	{
+		return $this->equals($this->toLowerCase());
 	}
 
 	/**
@@ -1026,74 +1276,12 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
-	 * Converts a string to lower case.
-	 * Example:
-	 * <code>
-	 * <?php
-	 * $string = new String('aBc');
-	 * echo $string->toLowerCase(); // prints: abc
-	 * ?>
-	 * </code>
-	 * @return String
-	 */
-	public function toLowerCase()
-	{
-		if (function_exists('mb_strtolower')) {
-			$string = mb_strtolower($this->_string, $this->getEncoding());
-		} else if ($this->getEncoding() === 'UTF-8' && function_exists('utf8_strtolower')) {
-			$string = utf8_strtolower($this->_string);
-		} else {
-			$string = strtolower($this->_string);
-		}
-		return new self($string);
-	}
-
-	/**
 	 * Returns the literal value of the string.
 	 * @return string
 	 */
 	public function toString()
 	{
 		return $this->_string;
-	}
-
-	/**
-	 * Converts a string to upper case.
-	 * Example:
-	 * <code>
-	 * <?php
-	 * $string = new String('aBc');
-	 * echo $string->toUpperCase(); // prints: ABC
-	 * ?>
-	 * </code>
-	 * @return String
-	 */
-	public function toUpperCase()
-	{
-		if (function_exists('mb_strtoupper')) {
-			$string = mb_strtoupper($this->_string, $this->getEncoding());
-		} else if ($this->getEncoding() === 'UTF-8' && function_exists('utf8_strtoupper')) {
-			$string = utf8_strtoupper($this->_string);
-		} else {
-			$string = strtoupper($this->_string);
-		}
-		return new self($string);
-	}
-
-	/**
-	 * Removes characters from both parts of the string.
-	 * If $charlist is not provided, the default is to remove spaces.
-	 * @param string $charlist characters to remove (default space characters)
-	 * @return String
-	 */
-	public function trim($charlist = null)
-	{
-		if ($charlist !== null && $this->getEncoding() === 'UTF-8' && function_exists('utf8_trim')) {
-			$string = utf8_trim($this->_string, $charlist);
-		} else {
-			$string = trim($this->_string, $charlist);
-		}
-		return new self($string);
 	}
 
 	/**
@@ -1144,11 +1332,11 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	{
 		if (function_exists('mb_lcfirst')) {
 			$string = mb_lcfirst($this->_string, $this->getEncoding());
-		} else if (function_exists('mb_substr')) {
+		} elseif (function_exists('mb_substr')) {
 			$encoding = $this->getEncoding();
 			$string = mb_strtolower(mb_substr($this->_string, 0, 1, $encoding), $encoding) .
 				mb_substr($this->_string, 1, null, $encoding);
-		} else if (function_exists('lcfirst')) {
+		} elseif (function_exists('lcfirst')) {
 			$string = lcfirst($this->_string);
 		} else {
 			$string = strtolower(substr($this->_string, 0, 1)) .
@@ -1163,7 +1351,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 */
 	public function valid()
 	{
-		return ($this->_index >= 0 && $this->_index < $this->length());
+		return ($this->_index >= 0 && $this->_index < $this->getLength());
 	}
 
 	/**
@@ -1175,218 +1363,9 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 		return $this->_string;
 	}
 
-
-	/**
-	 * Checks if the mbstring extension is installed and loaded.
-	 * @access private
-	 * @return bool true if mbstring is available
-	 */
-	private static function _mbstringLoaded()
-	{
-		if (self::$_extMbstring === null) {
-			self::$_extMbstring = (bool)extension_loaded('mbstring');
-		}
-		return self::$_extMbstring;
-	}
-
-	/**
-	 * Checks if the iconv extension is installed and loaded.
-	 * @access private
-	 * @return bool true if iconv is available
-	 */
-	private static function _iconvLoaded()
-	{
-		if (self::$_extIconv === null) {
-			self::$_extIconv = (bool)extension_loaded('iconv');
-		}
-		return self::$_extIconv;
-	}
-
-	/**
-	 * Checks if the utf8 package is installed and loaded.
-	 * @access private
-	 * @return bool true if utf8 package is available
-	 */
-	private static function _utf8Loaded()
-	{
-		if (self::$_extUtf8 === null) {
-			self::$_extUtf8 = (bool)(defined('UTF8_CORE') && UTF8_CORE === true);
-		}
-		return self::$_extUtf8;
-	}
-
-	/**
-	 * Returns an array with the string extensions that the class uses.
-	 * Possible values: standard, mbstring, iconv, utf8.
-	 * @return array
-	 */
-	public static function getLoadedExtensions()
-	{
-		$ext = ['standard'];
-		if (self::_mbstringLoaded()) {
-			$ext[] = 'mbstring';
-		}
-		if (self::_iconvLoaded()) {
-			$ext[] = 'iconv';
-		}
-		if (self::_utf8Loaded()) {
-			$ext[] = 'utf8';
-		}
-		return $ext;
-	}
-
-	/**
-	 * Sets default encoding.
-	 * Use null for auto-detection.
-	 * @param string $encoding encoding (default null)
-	 */
-	public static function setDefaultEncoding($encoding = null)
-	{
-		if ($encoding === null) {
-			self::$_defaultEncoding = null;
-		} else {
-			self::$_defaultEncoding = strtoupper(str_replace(' ', '-', (string)$encoding));
-		}
-	}
-
-	/**
-	 * Returns default encoding.
-	 * @return string
-	 */
-	public static function getDefaultEncoding()
-	{
-		return self::$_defaultEncoding;
-	}
-
-	/**
-	 * Constructs a string object with the first argument as the string.
-	 * Returns the result of the instance method $name.
-	 * @param mixed $name callback function
-	 * @param array $args function arguments. the first argument is the string literal.
-	 * @return mixed
-	 * @throws BadFunctionCallException
-	 */
-	public static function callbackStatic($name, array $args)
-	{
-		if (empty($args)) {
-			throw new BadFunctionCallException('Static callback requires at least one parameter.');
-		}
-		$literal = array_shift($args);
-		$string = new self($literal);
-		return call_user_func_array([$string, $name], $args);
-	}
-
-	/**
-	 * Overload method. Proxies to {@link callbackStatic()}.
-	 * Method name starts with an underscore to prevent name clashes.
-	 * Example:
-	 * <code>
-	 * <?php
-	 * echo String::_squeeze(' a  b c ') // prints: a b c
-	 * ?>
-	 * </code>
-	 * @param mixed $name
-	 * @param array $args
-	 * @return mixed
-	 * @throws BadFunctionCallException
-	 */
-	public static function __callStatic($name, $args)
-	{
-		$name = substr($name, 1);
-		return self::callbackStatic($name, $args);
-	}
-
-	/**
-	 * Returns String with the first string argument.
-	 * If no string is found, returns an empty String.
-	 * Example:
-	 * <code>
-	 * <?php
-	 * echo String::first(array(), 0, 'first', null, 'second'); // prints: first
-	 * ?>
-	 * </code>
-	 * @return String
-	 */
-	public static function first()
-	{
-		$args = func_get_args();
-		foreach ($args as $arg) {
-			if (is_string($arg) || $arg instanceof self) {
-				return new self($arg);
-			}
-		}
-		return new self();
-	}
-
-	/**
-	 * Formats and returns String.
-	 * @param string $string formatting string
-	 * @param array $args
-	 * @return String
-	 */
-	public static function format($string, array $args)
-	{
-		return new self(vsprintf((string)$string, $args));
-	}
-
-	/**
-	 * Returns random String in length of $length.
-	 * The String consists of characters in $charset.
-	 * @param int $length String's length
-	 * @param string $charset String's charset (default alpha-numeric characters)
-	 * @return String
-	 */
-	public static function random($length, $charset = self::ALNUM)
-	{
-		$length = (int)$length;
-		$count = (int)self::getLength($charset);
-		$str = '';
-		while ($length--) {
-			$str .= $charset[mt_rand(0, $count - 1)];
-		}
-		return new self($str);
-	}
-
 	public function mb_ord()
 	{
 		list(, $ord) = unpack('N', mb_convert_encoding($this->_string, 'UCS-4BE', 'UTF-8'));
 		return $ord;
-	}
-
-	/**
-	 * @param int $int
-	 * @return String
-	 */
-	public static function mb_chr($int)
-	{
-		if ($int <= 127) {
-			$json = chr($int);
-		} else {
-			// shamelessly stolen from http://pageconfig.com/attachments/portable-utf8.php
-			if (extension_loaded('mbstring')) {
-				return mb_convert_encoding("&#$int;", 'UTF-8', 'HTML-ENTITIES');
-			} else if (version_compare(phpversion(), '5.0.0') === 1) {
-				//html_entity_decode did not support Multi-Byte before PHP 5.0.0
-				return html_entity_decode("&#{$int};", ENT_QUOTES, 'UTF-8');
-			}
-		}
-		return String::make($json);
-	}
-
-}
-
-if (!class_exists('LogicException')) {
-	class LogicException extends Exception
-	{
-	}
-}
-if (!class_exists('BadFunctionCallException')) {
-	class BadFunctionCallException extends LogicException
-	{
-	}
-}
-if (!class_exists('BadMethodCallException')) {
-	class BadMethodCallException extends BadFunctionCallException
-	{
 	}
 }

@@ -89,7 +89,7 @@ class Duration extends Time
 	 * Parses the human string like '24h 10m'
 	 * No spaces allowed between the number and value
 	 * @param string $string
-	 * @return \Duration
+	 * @return Duration
 	 */
 	public static function fromHuman($string)
 	{
@@ -178,7 +178,7 @@ class Duration extends Time
 		//debug($duration);
 
 		if (is_array($duration)) {
-			$duration = array_slice($duration, 0, $perCount, TRUE);
+			$duration = array_slice($duration, 0, $perCount, true);
 			$content .= $this->array2string($duration);
 			//debug($this->time, $periods, $duration, $content);
 			if ($this->time < 0) {
@@ -315,7 +315,7 @@ class Duration extends Time
 		return abs($this->time) < abs($d2->getTimestamp());
 	}
 
-	function getSeconds()
+	public function getSeconds()
 	{
 		return $this->getTimestamp();
 	}

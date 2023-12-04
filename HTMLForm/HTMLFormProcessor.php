@@ -105,7 +105,7 @@ abstract class HTMLFormProcessor extends AppController
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	public abstract function getDesc();
+	abstract public function getDesc();
 
 	/**
 	 * If inherited can be used as both string and HTMLFormTable
@@ -172,6 +172,6 @@ abstract class HTMLFormProcessor extends AppController
 		return '<div class="HTMLFormProcessor">' . $this->render() . '</div>';
 	}
 
-	public abstract function onSuccess(array $data);
+	abstract public function onSuccess(array $data);
 
 }

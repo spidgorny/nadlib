@@ -18,7 +18,7 @@ class SecurityCheck extends AppControllerBE
 		return $content;
 	}
 
-	function checkFolder($folder)
+	public function checkFolder($folder)
 	{
 		$content = [];
 		$files = glob($folder . '*.php');
@@ -40,20 +40,20 @@ class SecurityCheck extends AppControllerBE
 		return $content;
 	}
 
-	function findClass(array $lines)
+	public function findClass(array $lines)
 	{
 		$lines = array_map(function ($line) {
 			if (str_startsWith($line, 'class')) {
 				$words = trimExplode(' ', $line);
 				return $words[1];    // class Something
 			}
-			return NULL;
+			return null;
 		}, $lines);
 		$lines = array_filter($lines);
 		return first($lines);
 	}
 
-	function checkClass(ReflectionClass $rc)
+	public function checkClass(ReflectionClass $rc)
 	{
 		$content = [];
 		$constructor = $rc->getConstructor();

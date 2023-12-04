@@ -44,7 +44,7 @@ class AjaxLogin extends AppController
 		'inlineForm',
 		'logout'];
 
-	function __construct($action = null)
+	public function __construct($action = null)
 	{
 		parent::__construct();
 		$config = Config::getInstance();
@@ -57,7 +57,7 @@ class AjaxLogin extends AppController
 		//$this->createDB();
 	}
 
-	function createDB()
+	public function createDB()
 	{
 		$this->db->perform("CREATE TABLE IF NOT EXISTS `user` (
   `id` int(11) NOT NULL auto_increment,
@@ -73,7 +73,7 @@ class AjaxLogin extends AppController
 )");
 	}
 
-	function dispatchAjax()
+	public function dispatchAjax()
 	{
 		$content = [];
 		if ($this->action) {
@@ -94,7 +94,7 @@ class AjaxLogin extends AppController
 		return $content;
 	}
 
-	function performAction($action = NULL)
+	public function performAction($action = null)
 	{
 		$content = [];
 		$action = $action ? $action : $this->action;
@@ -117,7 +117,7 @@ class AjaxLogin extends AppController
 	 * $this->user->try2login() should been called already
 	 * @return array
 	 */
-	function render()
+	public function render()
 	{
 		$content = [];
 		$this->getScript();
@@ -145,7 +145,7 @@ class AjaxLogin extends AppController
 		return $content;
 	}
 
-	function getScript()
+	public function getScript()
 	{
 		//$content = '<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>';
 		//$content = '<script src="http://code.jquery.com/jquery-1.8.1.min.js"></script>';
@@ -156,7 +156,7 @@ class AjaxLogin extends AppController
 			->addCSS($nadlibFromDocRoot . 'CSS/ajaxLogin.css');
 	}
 
-	function menuAction()
+	public function menuAction()
 	{
 		$linkEdit = $this->getURL([
 			'c' => get_class($this),
@@ -187,7 +187,7 @@ class AjaxLogin extends AppController
 		return $content;
 	}
 
-	function activateActionReal()
+	public function activateActionReal()
 	{
 		$content = '';
 		$id = $this->request->getTrim('id');
@@ -221,7 +221,7 @@ class AjaxLogin extends AppController
 		return $content;
 	}
 
-	function formAction(array $desc = null)
+	public function formAction(array $desc = null)
 	{
 		$f = $this->getLoginForm($desc);
 		$content = $this->encloseInAA($f, __('Login'));
@@ -233,7 +233,7 @@ class AjaxLogin extends AppController
 	 * @param array|NULL $desc
 	 * @return HTMLFormTable
 	 */
-	function getLoginForm(array $desc = null)
+	public function getLoginForm(array $desc = null)
 	{
 		$f = new HTMLFormTable();
 		$f->action('');     // specify action otherwise will logout
@@ -255,7 +255,7 @@ class AjaxLogin extends AppController
 		return $f;
 	}
 
-	function getLoginDesc()
+	public function getLoginDesc()
 	{
 		$desc = [];
 		$desc['username'] = [
@@ -275,7 +275,7 @@ class AjaxLogin extends AppController
 		return $desc;
 	}
 
-	function registerAction(array $desc = NULL)
+	public function registerAction(array $desc = null)
 	{
 		$f = new HTMLFormTable();
 		$f->formMore['onsubmit'] = "jQuery(this).ajaxSubmit({
@@ -290,7 +290,7 @@ class AjaxLogin extends AppController
 		//debug($desc);
 		$f->prefix('profile');
 		$f->desc = $desc;
-		$f->showForm();
+		$f->showForm($desc);
 		$f->prefix('');
 		$f->hidden('action', 'saveRegister');
 		$f->submit(__('Register'), [
@@ -307,7 +307,7 @@ class AjaxLogin extends AppController
 		return $content;
 	}
 
-	function getRegisterDesc()
+	public function getRegisterDesc()
 	{
 		$desc = [];
 		$desc['email'] = [
@@ -350,7 +350,7 @@ class AjaxLogin extends AppController
 	 * Both Login and Password fields - not used
 	 * @return string
 	 */
-	function inlineFormAction()
+	public function inlineFormAction()
 	{
 		if ($this->user && $this->user->isAuth()) {
 			$linkLogout = $this->getURL([
@@ -372,7 +372,7 @@ class AjaxLogin extends AppController
 						type="text"
 						name="username"
 						placeholder="E-mail"
-						value="' . (isset($_REQUEST['username']) ? $_REQUEST['username'] : NULL) . '" />
+						value="' . (isset($_REQUEST['username']) ? $_REQUEST['username'] : null) . '" />
 				</div>
 				<div class="form-group col-md-4">
 					<input class="form-control" type="password"
@@ -389,7 +389,7 @@ class AjaxLogin extends AppController
 	 * Taken as a default from wagner-verlag login. Should most likely be overwritten in a subclass.
 	 * @return string
 	 */
-	function loginAction()
+	public function loginAction()
 	{
 		$content = [];
 		$username = $this->request->getTrim('username');
@@ -525,16 +525,19 @@ class AjaxLogin extends AppController
 		$f->showForm();
 		$f->hidden('action', 'savePassword');
 		$f->submit(__('Change'));
+		return $f;
+	}
+
+	public function navbarLoginForm()
+	{
+		throw new RuntimeException('Not implemented');
+//		return '<a href="' . LoginService::class . '" class="btn btn-primary navbar-btn">Login</a>';
+	}
 		$content = $f;
 		return $content;
 	}
 
-	function navbarLoginForm()
-	{
-		return '<a href="' . LoginService::class . '" class="btn btn-primary navbar-btn">Login</a>';
-	}
-
-	function logoutForm()
+	public function logoutForm()
 	{
 		$a = new HTMLTag('a', [
 			'href' => get_class($this) . '?action=logout',
@@ -548,7 +551,7 @@ class AjaxLogin extends AppController
 		return $content;
 	}
 
-	function logoutAction()
+	public function logoutAction()
 	{
 		$this->user->logout();
 		$content[] = '<div class="message alert alert-success">' . __('You are logged out.') . '</div>';
@@ -560,14 +563,14 @@ class AjaxLogin extends AppController
 		return $content;
 	}
 
-	function forgotPasswordAction()
+	public function forgotPasswordAction()
 	{
 		$content = [];
 		$email = $this->request->getTrim('username');
 		if ($email) {
 			$this->user->findInDB([$this->user->loginField => $email]);
 			if ($this->user->id) {
-				$password = rand(1000000, 9999999);
+				$password = random_int(1000000, 9999999);
 				//debug($password);
 				$this->user->update(['password' => md5($this->secret . $password)]);
 				mail($this->user->data[$this->user->loginField],
@@ -592,7 +595,7 @@ class AjaxLogin extends AppController
 		return $content;
 	}
 
-	function saveRegisterAction()
+	public function saveRegisterAction()
 	{
 		$content = [];
 		$data = $this->request->getArray('profile');
@@ -613,7 +616,7 @@ class AjaxLogin extends AppController
 		return $content;
 	}
 
-	function createUser(array $data)
+	public function createUser(array $data)
 	{
 		$data['password'] = md5($this->secret . $data['password']);
 		$data['activated'] = 0;
@@ -632,11 +635,10 @@ class AjaxLogin extends AppController
 				'%2' => $this->user->data['surname'],
 				'%3' => $activateURL,
 			])), $this->mailHeaders);
-		$content = '<div class="message alert alert-info">' . __('You need to activate your account with the link sent to your e-mail address.') . '</div>';
-		return $content;
+		return '<div class="message alert alert-info">' . __('You need to activate your account with the link sent to your e-mail address.') . '</div>';
 	}
 
-	function getActivateURL()
+	public function getActivateURL()
 	{
 		//$activateURL = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'&'.http_build_query($params);
 		$params = [
@@ -659,17 +661,17 @@ class AjaxLogin extends AppController
 	 * as this is called from AJAX.
 	 * activateActionReal() is called from render()
 	 */
-	function activateAction()
+	public function activateAction()
 	{
 
 	}
 
-	function getUser()
+	public function getUser()
 	{
 		return $this->user;
 	}
 
-	function renderBigMessage()
+	public function renderBigMessage()
 	{
 		echo '<big>' . $this->message . '</big>';
 	}

@@ -1,23 +1,100 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 trait JsonController
 {
+
+	public static $publicAPI = false;
+	public $user;
 
 	public function afterConstruct()
 	{
 		$this->request->set('ajax', true);
-		$this->user = new NoUser();  // prevent API to hijack user session
+		$this->user = new APIUser();  // prevent API to hijack user session
 		$this->config->setUser($this->user);
 	}
 
 	public function validateAuthorization($registeredApps)
 	{
+//		llog(__METHOD__, DEVELOPMENT, $_SERVER['HTTP_HOST'], gethostname());
+		return DEVELOPMENT &&
+			$_SERVER['HTTP_HOST'] === 'localhost:2000' &&
+			gethostname() === '761K7Y2';
+	}
+
+	/**
+	 * @param array $registeredApps
+	 * @throws LoginException
+	 */
+	public function validateAuthorization(array $registeredApps)
+	{
+		list($actionClass) = $this->getActionAndArguments();
+		$obj = new $actionClass();
+		if ($obj::$publicAPI) {
+			return;
+		}
+
+		$headers = function_exists('apache_request_headers')
+			? apache_request_headers() : [];
+//		llog('apache_headers in JsonController for', get_class($this), $headers);
+
 		$authorization = $this->request->getHeader('Authorization');
 //		llog($authorization);
 		//debug($headers, $authorization);
-		if (!$authorization || !in_array($authorization, $registeredApps)) {
+		invariant($authorization, 'No Authorization Header');
+		if (!in_array($authorization, $registeredApps)) {
 			throw new LoginException('Authorization failed.', 401);
 		}
+	}
+
+	public function getActionAndArguments()
+	{
+		// debug($_SERVER);
+		$requestURI = ifsetor($_SERVER['REQUEST_URI']);
+		$url = new URL($requestURI);
+		$levels = $url->getPath()->getLevels();
+
+		if ($levels[0] === 'stage') {
+			$levels = array_slice($levels, 1);
+		}
+		if ($levels[0] === 'API') {
+			$levels = array_slice($levels, 1);
+		}
+//		llog('API Levels', $levels);
+
+		// next after /API/
+		//llog(get_class($this));
+		$last = null;
+		$arguments = [];
+		$thisParents = new ReflectionClass($this);
+		$thisParents = [
+			get_class($this),
+			$thisParents->getParentClass()->getName(),
+			'SoftwareImage',
+			'SoftwareImg',
+			AddVersion::class,
+			AddJob::class,
+			ArchiveComplete::class,
+		];
+//		llog('$thisParents', $thisParents);
+		foreach (array_reverse($levels) as $i => $el) {
+			$isThisController = in_array($el, $thisParents);
+//			llog(get_class($this), $el, 'isThisController:', $isThisController);
+			if ($isThisController) {
+				$last = $el;
+				$arguments = array_slice($levels, count($levels) - $i);    // rest are args
+//				llog('arguments', $arguments);
+				break;
+			}
+		}
+		if (!$last) {
+			$last = last($levels);
+		}
+		$request = trim($last, '/\\ ');
+		$request = explode('.', $request)[0];
+//		llog(['request' => $request, 'arguments' => $arguments]);
+		return [$request, $arguments];
 	}
 
 	public function __invoke()
@@ -26,35 +103,10 @@ trait JsonController
 		return call_user_func_array([$this, $request], $arguments);
 	}
 
-	public function getActionAndArguments()
-	{
-		//        debug($_SERVER);
-		$requestURI = ifsetor($_SERVER['REQUEST_URI']);
-		$url = new \spidgorny\nadlib\HTTP\URL($requestURI);
-		$levels = $url->getPath()->getLevels();
-
-		// next after /API/
-		//llog(get_class($this));
-		$last = null;
-		$arguments = [];
-		foreach ($levels as $i => $el) {
-			if ($el == get_class($this)) {
-				$last = ifsetor($levels[$i + 1]);
-				$arguments = array_slice($levels, $i + 2);    // rest are args
-				break;
-			}
-		}
-		if (!$last) {
-			$last = last($levels);
-		}
-		$request = trim($last, '/\\ ');
-		return [$request, $arguments];
-	}
-
 	public function jsonError(Exception $e, $httpCode = 500, array $extraData = [])
 	{
 		$message = '[' . get_class($e) . ']' . PHP_EOL . $e->getMessage() . PHP_EOL . $e->getFile() . '#' . $e->getLine();
-		llog($message);
+		llog(get_class($this), $message);
 		http_response_code($httpCode);
 		return $this->json([
 				'status' => 'error',
@@ -66,6 +118,7 @@ trait JsonController
 				'request' => $this->request->getAll(),
 				'headers' => getallheaders(),
 				'timestamp' => date('Y-m-d H:i:s'),
+				'back_trace' => debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS),
 				'duration' => microtime(true) - $_REQUEST['REQUEST_TIME_FLOAT'],
 			] + $extraData);
 	}

@@ -46,16 +46,16 @@ class ExcelReader
 		return $data;
 	}
 
-	function savePersistant($data)
+	public function savePersistant($data)
 	{
 		//$data = serialize($data);   // Serialization of 'SimpleXMLElement' is not allowed
 		$data = json_encode($data, defined(JSON_PRETTY_PRINT)
 			? JSON_PRETTY_PRINT
-			: NULL);
+			: null);
 		file_put_contents($this->filename, $data);
 	}
 
-	function readExcel()
+	public function readExcel()
 	{
 		if (file_exists($this->excel)) {
 			$filedata = file_get_contents($this->excel);
@@ -70,7 +70,7 @@ class ExcelReader
 		}
 	}
 
-	function getSheets()
+	public function getSheets()
 	{
 		$list = [];
 		foreach ($this->xml->Worksheet as $sheet) {
@@ -81,7 +81,7 @@ class ExcelReader
 		return $list;
 	}
 
-	function getSheet($sheet = 0)
+	public function getSheet($sheet = 0)
 	{
 		$data = [];
 		$s = $this->xml->Worksheet[$sheet]->Table;

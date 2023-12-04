@@ -6,11 +6,11 @@
 class DBLayerJSON extends DBLayerBase implements DBInterface
 {
 
-	var $folderName;
+	public $folderName;
 
-	var $tables = [];
+	public $tables = [];
 
-	var $currentQuery;
+	public $currentQuery;
 
 	public function __construct($folderName)
 	{
@@ -30,7 +30,7 @@ class DBLayerJSON extends DBLayerBase implements DBInterface
 		return $this->tables[$name];
 	}
 
-	public function fetchAll($res_or_query, $index_by_key = NULL)
+	public function fetchAll($res_or_query, $index_by_key = null)
 	{
 		if ($res_or_query instanceof DBLayerJSONTable) {
 			return $res_or_query->fetchAll($res_or_query, $index_by_key);
@@ -68,7 +68,7 @@ class DBLayerJSON extends DBLayerBase implements DBInterface
 		}
 	}
 
-	public function numRows($res = NULL)
+	public function numRows($res = null)
 	{
 		//debug(gettype2($res));
 		if (!($res instanceof DBLayerJSONTable)) {
@@ -97,7 +97,7 @@ class DBLayerJSON extends DBLayerBase implements DBInterface
 		return $t->runUpdateQuery($table, $data, $where);
 	}
 
-	public function getSelectQuery($table, array $where = [], $order = '', $addSelect = NULL)
+	public function getSelectQuery($table, array $where = [], $order = '', $addSelect = null)
 	{
 		$query = parent::getSelectQuery($table, $where, $order, $addSelect);
 		$this->currentQuery = $query;

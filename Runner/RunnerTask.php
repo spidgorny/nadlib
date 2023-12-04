@@ -3,11 +3,11 @@
 class RunnerTask
 {
 
-	var $data = [];
+	public $data = [];
 
-	var $obj;
+	public $obj;
 
-	var $method;
+	public $method;
 
 	protected $table = 'runner';
 
@@ -167,7 +167,7 @@ class RunnerTask
 		$row = $task->db->fetchOneSelectQuery('runner', [
 			'status' => new SQLOr([
 				'status' => '',
-				'status ' => NULL,
+				'status ' => null,
 			]),
 		], 'ORDER BY ctime');
 //		echo str_replace("\n", ' ', $task->db->lastQuery), BR;
@@ -177,7 +177,7 @@ class RunnerTask
 		} else {
 			$task->release();
 		}
-		return NULL;
+		return null;
 	}
 
 	public function getStatus()

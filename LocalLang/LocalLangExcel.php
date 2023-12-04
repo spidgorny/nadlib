@@ -8,7 +8,7 @@ class LocalLangExcel extends LocalLang
 {
 	protected $filename = 'lib/LocalLang.object';
 	protected $excel = 'lib/translation.xml';
-	protected $isCache = TRUE;
+	protected $isCache = true;
 
 	public function __construct($forceLang = null)
 	{
@@ -112,7 +112,7 @@ class LocalLangExcel extends LocalLang
 		return $data;
 	}
 
-	public static function getInstance($forceLang = NULL, $filename = null)
+	public static function getInstance($forceLang = null, $filename = null)
 	{
 		static $instance = null;
 		if (!$instance) {

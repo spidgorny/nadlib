@@ -3,7 +3,8 @@
 /**
  * Combines a Collection of elements from a database with an HTMLFormTable
  */
-interface HTMLFormCollection {
+interface HTMLFormCollection
+{
 
 	//var $field;
 	/**
@@ -12,14 +13,14 @@ interface HTMLFormCollection {
 	//var $form;
 	//var $value;
 
-	function setField($field);
+	public function setField($field);
 
-	function setForm(HTMLForm $form);
+	public function setForm(HTMLForm $form);
 
-	function setValue($value);
+	public function setValue($value);
 
-	function renderHTMLForm();
+	public function renderHTMLForm();
 
-	function setDesc($desc);
+	public function setDesc($desc);
 
 }

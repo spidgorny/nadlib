@@ -17,12 +17,12 @@ class AsIsOp extends AsIs
 
 	protected $value;
 
-	function __construct($val = '')
+	public function __construct($val = '')
 	{
 		parent::__construct($val);
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		$content = '';
 		if ($this->field) {
@@ -32,7 +32,7 @@ class AsIsOp extends AsIs
 		return $content;
 	}
 
-	function debug()
+	public function debug()
 	{
 		return [
 			'field' => $this->field,

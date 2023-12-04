@@ -1,5 +1,6 @@
 <?php
 
+use nadlib\IndexInterface;
 use spidgorny\nadlib\HTTP\URL;
 
 /**
@@ -18,7 +19,12 @@ abstract class SimpleController
 	 */
 	protected static $instance = [];
 	/**
-	 * @var Index|\nadlib\IndexInterface
+	 * Instance per class
+	 * @var Controller[]
+	 */
+	protected static $instance = [];
+	/**
+	 * @var Index|IndexInterface
 	 */
 	public $index;
 	/**
@@ -67,7 +73,8 @@ abstract class SimpleController
 			if ($index->controller instanceof $static) {
 				$result = $index->getController();
 			} else {
-				$result = new $static;
+				// phpstan-ignore-next-line
+				$result = new $static();
 			}
 		}
 		//debug($isset, get_class($index), get_class($result));
@@ -98,7 +105,7 @@ abstract class SimpleController
 		//		$params = $params + $this->linkVars;
 		//		debug($params);
 		//		return $this->makeURL($params, $prefix);
-		return ClosureCache::getInstance(spl_object_hash($this), function () {
+		return ClosureCache::getInstance(spl_object_hash($this), static function () {
 			return new URL();
 		})->get();
 	}
@@ -154,11 +161,46 @@ abstract class SimpleController
 
 	public function render()
 	{
-		$content[] = $this->performAction($this->detectAction());
+		$content[] = $this->performAction();
 		return $content;
 	}
 
 	/**
+	 * Wraps the content in a div/section with a header.
+	 * The header is linkable.
+	 * @param string|array|ToStringable $content
+	 * @param string $caption
+	 * @param string $h
+	 * @param array $more
+	 * @return ToStringable
+	 * @throws Exception
+	 */
+	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
+	{
+		$h = $h ? $h : $this->encloseTag;
+		$content = $this->s($content);
+		if ($caption) {
+			$content = [
+				'caption' => $this->getCaption($caption, $h),
+				$content
+			];
+		}
+		$more['class'] = ifsetor($more['class'], 'padding clearfix');
+		$more['class'] .= ' ' . get_class($this);
+		//debug_pre_print_backtrace();
+		//$more['style'] = "position: relative;";	// project specific
+		$content = new HTMLTag('section', $more, $content, true);
+		return $content;
+	}
+
+	public function getCaption($caption, $hTag)
+	{
+		return '<' . $hTag . '>' .
+			$caption .
+			'</' . $hTag . '>';
+	}
+
+ /**
 	 * Will call indexAction() method if no $action provided
 	 * @param $action
 	 * @return false|mixed|string
@@ -219,16 +261,16 @@ abstract class SimpleController
 	/**
 	 * Wraps the content in a div/section with a header.
 	 * The header is linkable.
-	 * @param string|array|\ToStringable $content
+	 * @param string|array|ToStringable $content
 	 * @param string $caption
 	 * @param string $h
 	 * @param array $more
-	 * @return \ToStringable
+	 * @return ToStringable
 	 * @throws Exception
 	 */
 	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
 	{
-		$h = $h ?: $this->encloseTag;
+		$h = $h ? $h : $this->encloseTag;
 		$content = $this->s($content);
 		if ($caption) {
 			$content = [
@@ -240,7 +282,8 @@ abstract class SimpleController
 		$more['class'] .= ' ' . get_class($this);
 		//debug_pre_print_backtrace();
 		//$more['style'] = "position: relative;";	// project specific
-		return new HTMLTag('section', $more, $content, true);
+		$content = new HTMLTag('section', $more, $content, true);
+		return $content;
 	}
 
 	public function getCaption($caption, $hTag)

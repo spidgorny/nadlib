@@ -7,7 +7,7 @@ class MemcacheFile implements MemcacheInterface
 	 * Can be set statically in the bootstrap to influence all instances
 	 * @var string
 	 */
-	static $defaultFolder = 'cache/';
+	static public $defaultFolder = 'cache/';
 
 	/**
 	 * @used in ClearCache
@@ -28,6 +28,9 @@ class MemcacheFile implements MemcacheInterface
 	 */
 	public function __construct($folder = null, $expire = 0)
 	{
+		if (MemcacheArray::$debug) {
+			echo __METHOD__ . BR;
+		}
 		$this->folder = $folder ?: self::$defaultFolder;
 		if (!Path::isItAbsolute($this->folder)) {
 			// if relative, add current app
@@ -51,10 +54,10 @@ class MemcacheFile implements MemcacheInterface
 				'folder' => $this->folder,
 				'finalCachePath' => $finalCachePath,
 			]);
-			die(__METHOD__);
-		} else {
-			$this->folder = cap($finalCachePath);    // important as we concat
+			throw new Exception(__METHOD__ . ' cache folder missing');
 		}
+
+		$this->folder = cap($finalCachePath);    // important as we concat
 
 		if ($expire) {
 			$this->expire = $expire;
@@ -66,10 +69,10 @@ class MemcacheFile implements MemcacheInterface
 	 * @param int $expire
 	 * @return mixed|null|string
 	 */
-	public function get($key = NULL, $expire = 0)
+	public function get($key = null, $expire = 0)
 	{
 		TaylorProfiler::start(__METHOD__);
-		$val = NULL;
+		$val = null;
 		$key = $key ?: $this->key;
 		$expire = $expire ?: $this->expire;
 		$file = $this->map($key);
@@ -100,14 +103,14 @@ class MemcacheFile implements MemcacheInterface
 		return $file;
 	}
 
-	public function isValid($key = NULL, $expire = 0)
+	public function isValid($key = null, $expire = 0)
 	{
 		$key = $key ?: $this->key;
 		$expire = $expire ?: $this->expire;
 		$file = $this->map($key);
 		$mtime = @filemtime($file);
 		$bigger = ($mtime > (time() - $expire));
-		if ($this->key == 'OvertimeChart::getStatsCached') {
+		if ($this->key === 'OvertimeChart::getStatsCached') {
 //			debug($this->key, $file, $mtime, $expire, $bigger);
 		}
 		return /*!$expire ||*/ $bigger;
@@ -149,6 +152,7 @@ class MemcacheFile implements MemcacheInterface
 	/**
 	 * @param string $key
 	 * @return Duration
+	 * @throws Exception
 	 */
 	public function getAge($key)
 	{

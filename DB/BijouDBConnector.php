@@ -6,24 +6,44 @@
  * @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
  * @method  runDeleteQuery($table, array $where)
  */
-class BijouDBConnector extends DBLayerBase implements DBInterface
+class BijouDBConnector extends DBLayerBase
 {
 
-	/**
-	 * @var t3lib_DB|\TYPO3\CMS\Core\Database\DatabaseConnection
-	 */
-	protected $t3db;
-
 	public $lastError;
+	protected $t3db;
+	protected $caller;
 
-	/**
-	 * @param t3lib_DB|\TYPO3\CMS\Core\Database\DatabaseConnection $t3lib_DB
-	 */
-	public function __construct(t3lib_DB $t3lib_DB = null)
+	public function __construct($t3lib_DB = null)
 	{
 		$this->t3db = $t3lib_DB ? $t3lib_DB : $GLOBALS['TYPO3_DB'];
 //		$this->setQB();
 	}
+
+	public function fetchRow($res)
+	{
+		if (is_string($res)) {
+			$res = $this->perform($res);
+		}
+		return $this->t3db->sql_fetch_row($res);
+	}
+
+	/**
+	 * @param $res
+	 * @return mixed
+	 * @see SQLBuilder
+	 */
+	/*	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = 'uid', $noDeleted = FALSE) {
+			//$query = $this->getSelectQuery($table, $where, $order);
+			$res = $this->runSelectQuery($table, $where, $order, '', FALSE, !$noDeleted);
+			//t3lib_div::debug($where);
+			//t3lib_div::debug($query);
+			//$res = $this->perform($query);
+			$data = $this->fetchAll($res);
+			$options = $this->IDalize($data, $titleField, $idField);
+			//debugster($options);
+			return $options;
+		}
+	*/
 
 	public function perform($query, array $params = [])
 	{
@@ -38,23 +58,22 @@ class BijouDBConnector extends DBLayerBase implements DBInterface
 		return $res;
 	}
 
-	/*	function getTableOptions($table, $titleField, $where = array(), $order = NULL, $idField = 'uid', $noDeleted = FALSE) {
-			//$query = $this->getSelectQuery($table, $where, $order);
-			$res = $this->runSelectQuery($table, $where, $order, '', FALSE, !$noDeleted);
-			//t3lib_div::debug($where);
-			//t3lib_div::debug($query);
-			//$res = $this->perform($query);
-			$data = $this->fetchAll($res);
-			$options = $this->IDalize($data, $titleField, $idField);
-			//debugster($options);
-			return $options;
+	public function fetchAll($res, $key = 'uid')
+	{
+		if (is_string($res)) {
+			$res = $this->perform($res);
 		}
-	*/
+		$data = [];
+		while (($row = $this->fetchAssoc($res)) !== false) {
+			$data[$row[$key]] = $row;
+		}
+		return $data;
+	}
 
 	/**
-	 * @see SQLBuilder
 	 * @param resource $res
 	 * @return mixed
+	 * @see SQLBuilder
 	 */
 	public function fetchAssoc($res)
 	{
@@ -66,30 +85,10 @@ class BijouDBConnector extends DBLayerBase implements DBInterface
 		return $row;
 	}
 
-	public function fetchRow($res)
-	{
-		if (is_string($res)) {
-			$res = $this->perform($res);
-		}
-		return $this->t3db->sql_fetch_row($res);
-	}
-
-	public function fetchAll($res, $key = 'uid')
-	{
-		if (is_string($res)) {
-			$res = $this->perform($res);
-		}
-		$data = [];
-		while (($row = $this->fetchAssoc($res)) !== FALSE) {
-			$data[$row[$key]] = $row;
-		}
-		return $data;
-	}
-
 	public function fetchAllAsIs($res)
 	{
 		$data = [];
-		while (($row = $this->fetchAssoc($res)) !== FALSE) {
+		while (($row = $this->fetchAssoc($res)) !== false) {
 			$data[] = $row;
 		}
 		return $data;
@@ -98,7 +97,7 @@ class BijouDBConnector extends DBLayerBase implements DBInterface
 	public function fetchAllFromJoin($res, $prefixes)
 	{
 		$data = [];
-		while (($row = mysql_fetch_row($res)) !== FALSE) {
+		while (($row = mysql_fetch_row($res)) !== false) {
 			$prow = $this->distributePrefixes($res, $row, $prefixes);
 			$data[] = $prow;
 		}
@@ -123,14 +122,14 @@ class BijouDBConnector extends DBLayerBase implements DBInterface
 		return $prow;
 	}
 
-	public function getLastInsertID($res = null)
-	{
-		return $this->t3db->sql_insert_id($res);
-	}
-
 	public function lastInsertID($res = null, $table = null)
 	{
 		return $this->getLastInsertID($res);
+	}
+
+	public function getLastInsertID($res = null)
+	{
+		return $this->t3db->sql_insert_id($res);
 	}
 
 	public function quoteSQL($value, $desc = null)
@@ -138,29 +137,37 @@ class BijouDBConnector extends DBLayerBase implements DBInterface
 		//var_dump($value); print(gettype($value) . "<br>");
 		if ($value === null) {
 			return 'NULL';
-		} elseif ($value === true) {
+		}
+
+		if ($value === true) {
 			return "TRUE";
-		} elseif ($value === false) {
+		}
+
+		if ($value === false) {
 			return "FALSE";
-		} elseif (is_int($value)) {
+		}
+
+		if (is_int($value)) {
 			return $value;
-		} elseif ($desc['asis']) {
+		}
+
+		if ($desc['asis']) {
 			return /*$this->escapeString(*/
 				$value/*)*/
 				;
-		} else {
-			return $this->escapeString($value);
 		}
-	}
 
-	public function numRows($res = null)
-	{
-		return $this->t3db->sql_num_rows($res);
+		return $this->escapeString($value);
 	}
 
 	public function escapeString($value)
 	{
 		return $this->t3db->fullQuoteStr($value, '');
+	}
+
+	public function numRows($res = null)
+	{
+		return $this->t3db->sql_num_rows($res);
 	}
 
 	public function getDefaultInsertFields()
@@ -227,7 +234,7 @@ class BijouDBConnector extends DBLayerBase implements DBInterface
 		return $row;
 	}
 
-	public function runSelectQuery($table, array $where = [], $orderBy = '', $what = '', $whatExclusive = FALSE, $filterFields = TRUE)
+	public function runSelectQuery($table, array $where = [], $orderBy = '', $what = '', $whatExclusive = false, $filterFields = true)
 	{
 		if ($filterFields) {
 			//$where += $this->filterFields(NULL, NULL, $this->getFirstWord($table));

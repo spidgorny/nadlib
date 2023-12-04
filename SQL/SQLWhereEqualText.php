@@ -1,8 +1,10 @@
 <?php
 
-class SQLWhereEqualText extends SQLWhereEqual {
+class SQLWhereEqualText extends SQLWhereEqual
+{
 
-	function __toString() {
+	public function __toString()
+	{
 		if (is_null($this->val)) {
 			$sql = $this->field . ' IS NULL';
 		} else {

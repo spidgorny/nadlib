@@ -20,7 +20,7 @@ class DocCommentParser
 	 */
 	protected $tags = [];
 
-	function __construct($text = null)
+	public function __construct($text = null)
 	{
 		$this->text = $text;
 		if ($this->text) {

@@ -41,8 +41,8 @@ class SwiftMailer implements MailerInterface
 	 * @param mixed $bcc
 	 * @param array $attachments
 	 * @param array $additionalSenders This will be added to
-	 * @throws Exception
 	 * @return int|array Either number of recipients who were accepted for delivery OR an array of failed recipients
+	 * @throws Exception
 	 */
 	public function sendSwiftMailerEmail($cc = null, $bcc = null, array $attachments = [], array $additionalSenders = [])
 	{

@@ -27,9 +27,9 @@ class SQLWherePart
 
 	/**
 	 * Not used directly
-	 * @see SQLWhereEqual
 	 * @return string
 	 * @throws MustBeStringException
+	 * @see SQLWhereEqual
 	 */
 	public function __toString()
 	{

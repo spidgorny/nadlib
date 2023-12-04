@@ -1,9 +1,10 @@
 <?php
 
-interface UserWithPreferences {
+interface UserWithPreferences
+{
 
-	function getPref($key);
+	public function getPref($key);
 
-	function setPref($key, $val);
+	public function setPref($key, $val);
 
 }

@@ -362,6 +362,50 @@ class Request
 		}
 	}
 
+	/**
+	 * http://stackoverflow.com/questions/738823/possible-values-for-php-os
+	 * @return bool
+	 */
+	public static function isWindows()
+	{
+		//$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
+		//return $os == 'Windows_NT';
+		return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+	}
+
+	public static function printDocumentRootDebug()
+	{
+		pre_print_r([
+			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
+			'SCRIPT_FILENAME' => $_SERVER['SCRIPT_FILENAME'],
+			'PHP_SELF' => $_SERVER['PHP_SELF'],
+			'cwd' => getcwd(),
+			'getDocumentRootByRequest' => self::getDocumentRootByRequest(),
+			'getDocumentRootByDocRoot' => self::getDocumentRootByDocRoot(),
+			'getDocumentRootByScript' => self::getDocumentRootByScript(),
+			'getDocumentRootByIsDir' => self::getDocumentRootByIsDir(),
+			'getDocumentRoot' => self::getDocumentRoot() . '',
+		]);
+	}
+
+	/**
+	 * @return mixed|string
+	 * //~depidsvy/something
+	 */
+	private static function getDocumentRootByScript()
+	{
+		$script = $_SERVER['SCRIPT_FILENAME'];
+		$pos = strpos($script, '/public_html');
+		if ($pos !== false) {
+			$docRoot = substr(dirname($script), $pos);
+			$docRoot = str_replace('public_html', '~depidsvy', $docRoot);
+			return $docRoot;
+		} else {
+			$docRoot = dirname($_SERVER['PHP_SELF']);
+			return $docRoot;
+		}
+	}
+
 	public static function getDocumentRootByIsDir()
 	{
 		$result = self::dir_of_file(
@@ -461,6 +505,29 @@ class Request
 		return isset($this->data[$name]) ? strval($this->data[$name]) : '';
 	}
 
+	public function getTrimLower($name)
+	{
+		return strtolower($this->trim($name));
+	}
+
+	public function trim($name)
+	{
+		return $this->getTrim($name);
+	}
+
+	/**
+	 * General filtering function
+	 * @param $name
+	 * @return string
+	 */
+	public function getTrim($name)
+	{
+		$value = $this->getString($name);
+		$value = strip_tags($value);
+		$value = trim($value);
+		return $value;
+	}
+
 	/**
 	 * Will strip tags
 	 * @param $name
@@ -495,17 +562,19 @@ class Request
 		return $value;
 	}
 
-	/**
-	 * General filtering function
-	 * @param $name
-	 * @return string
-	 */
-	public function getTrim($name)
+	public function int($name)
 	{
-		$value = $this->getString($name);
-		$value = strip_tags($value);
-		$value = trim($value);
-		return $value;
+		return isset($this->data[$name]) ? intval($this->data[$name]) : 0;
+	}
+
+	public function getInt($name)
+	{
+		return $this->int($name);
+	}
+
+	public function getIntOrNULL($name)
+	{
+		return $this->is_set($name) ? $this->int($name) : null;
 	}
 
 	/**
@@ -715,10 +784,10 @@ class Request
 	 * @param $value
 	 * @return string
 	 */
-	public function getCoalesce($a, $value)
+	public function getCoalesce($a, $value = null)
 	{
 		$a = $this->getTrim($a);
-		return $a ? $a : $value;
+		return $a ?: $value;
 	}
 
 	/**
@@ -821,7 +890,7 @@ class Request
 			if (class_exists($c)) {
 				$ret = new $c();
 			} elseif ($c) {
-				throw new Exception('Class ' . $c . ' can\'t be found.');
+				throw new RuntimeException('Class ' . $c . ' can\'t be found.');
 			}
 		}
 		return $ret;
@@ -870,7 +939,7 @@ class Request
 
 		$isXHR = false;
 		if (isset($headers['x-requested-with'])) {
-			$isXHR = $headers['x-requested-with'] === 'XMLHttpRequest';
+			$isXHR = strtolower($headers['x-requested-with']) === strtolower('XMLHttpRequest');
 		}
 
 		$acceptJson = str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
@@ -885,7 +954,7 @@ class Request
 
 	public function bool($name)
 	{
-		return (isset($this->data[$name]) && $this->data[$name]) ? true : false;
+		return (isset($this->data[$name]) && (bool)$this->data[$name]);
 	}
 
 	public function getHeader($name)
@@ -895,9 +964,19 @@ class Request
 //		array_map(static function ($x) {
 //			llog('header?', $x);
 //		}, array_keys($_SERVER));
-//		llog($headers);
+//		llog('getHeader', $headers);
 
-		return ifsetor($headers[$name]);
+		$found = ifsetor($headers[$name]);
+		if ($found) {
+			return $found;
+		}
+
+		foreach ($headers as $header => $value) {
+			if (strtolower($header) === strtolower($name)) {
+				return $value;
+			}
+		}
+		return null;
 	}
 
 	public function getJson($name, $array = true)
@@ -1051,6 +1130,28 @@ class Request
 		return '/';
 	}
 
+	public function getPathAfterAppRootByPath()
+	{
+		$al = AutoLoad::getInstance();
+		$docRoot = clone $al->documentRoot;
+		$docRoot->normalize()->realPath()->resolveLinks();
+
+		$path = $this->url->getPath();
+		$fullPath = clone $docRoot;
+		$fullPath->append($path);
+
+		//		d($docRoot.'', $path.'', $fullPath.'');
+		//		exit();
+		$fullPath->resolveLinksSimple();
+		//		$fullPath->onlyExisting();
+		//		d($fullPath.'');
+		$appRoot = $al->getAppRoot()->normalize()->realPath();
+		$fullPath->remove($appRoot);
+		//		$path->normalize();
+
+		return $fullPath;
+	}
+
 	public function setPath($path)
 	{
 		$this->url->setPath($path);
@@ -1117,6 +1218,12 @@ class Request
 		//filter_var($this->getTrim($name), ???)
 		$filename = $this->getTrim($name);
 		return basename($filename);
+	}
+
+	public function importCLIparams($noopt = [])
+	{
+		$this->data += $this->parseParameters($noopt);
+		return $this;
 	}
 
 	public function importCLIparams($noopt = [])
@@ -1227,6 +1334,11 @@ class Request
 		}
 	}
 
+	public function header($name, $value)
+	{
+		header($name . ': ' . $value);
+	}
+
 	/**
 	 * getNameless(1) doesn't provide validation.
 	 * Use importNameless() to associate parameters 1, 2, 3, with their names
@@ -1323,9 +1435,9 @@ class Request
 	{
 		if (isset($HTTP_RAW_POST_DATA)) {
 			return $HTTP_RAW_POST_DATA;
-		} else {
-			return file_get_contents("php://input");
 		}
+
+		return file_get_contents("php://input");
 	}
 
 	public function forceDownload($contentType, $filename)
@@ -1333,7 +1445,6 @@ class Request
 		header('Content-Type: ' . $contentType);
 		header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
 	}
-
 	public function getKeys()
 	{
 		return array_keys($this->data);
@@ -1344,6 +1455,8 @@ class Request
 		$info = $this->getGeoIP();
 		return trimExplode(',', $info->loc);
 	}
+
+	/// disposition = inline
 
 	public function getGeoIP()
 	{
@@ -1418,6 +1531,69 @@ class Request
 			$this->redirect($ref);
 		}
 		return true;
+	}
+
+	public function redirect($controller, $exit = true, array $params = [])
+	{
+		if (class_exists('Index')
+			&& Index::getInstance()
+			&& method_exists(Index::getInstance(), '__destruct')) {
+			Index::getInstance()->__destruct();
+		}
+		if ($params) {
+			$controller .= '?' . http_build_query($params);
+		}
+		if ($this->canRedirect($controller)) {
+			if (!headers_sent()) {
+				ob_start();
+				debug_print_backtrace(defined('DEBUG_BACKTRACE_IGNORE_ARGS')
+					? DEBUG_BACKTRACE_IGNORE_ARGS : null);
+				$bt = ob_get_clean();
+				$bt = trimExplode("\n", $bt);
+				foreach ($bt as $i => $line) {
+					$ii = str_pad($i, 2, '0', STR_PAD_LEFT);
+					header('Redirect-From-' . $ii . ': ' . $line);
+				}
+
+				header('Location: ' . $controller);
+			}
+			echo '<meta http-equiv="refresh" content="0; url=' . $controller . '">';
+			echo 'Redirecting to <a href="' . $controller . '">' . $controller . '</a>';
+		} else {
+			$this->redirectJS($controller, DEVELOPMENT ? 10000 : 0);
+		}
+		if ($exit && !$this->isPHPUnit()) {
+			session_write_close();
+			exit();
+		}
+		return $controller;
+	}
+
+	public function canRedirect($to)
+	{
+		if ($this->isGET()) {
+			$absURL = $this->getURL();
+			$absURL->makeAbsolute();
+			//debug($absURL.'', $to.''); exit();
+			return $absURL . '' != $to . '';
+		} else {
+			return true;
+		}
+	}
+
+	public function isGET()
+	{
+		return ifsetor($_SERVER['REQUEST_METHOD'], 'GET') == 'GET';
+	}
+
+	/**
+	 * Returns the current page URL as is. Similar to $_SERVER['REQUEST_URI'].
+	 *
+	 * @return URL
+	 */
+	public function getURL()
+	{
+		return $this->url;
 	}
 
 	public function redirect($controller, $exit = true, array $params = [])
@@ -1572,7 +1748,7 @@ class Request
 	public function getURLLevel($level)
 	{
 		$path = $this->getURLLevels();
-		return $path[$level] ?? null;
+		return isset($path[$level]) ? $path[$level] : null;
 	}
 
 	public function getJsonPost()

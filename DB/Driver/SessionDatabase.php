@@ -2,8 +2,12 @@
 
 namespace nadlib;
 
+use ArrayPlus;
+use DBInterface;
+use nadlib\HTTP\Session;
 use Nette\NotImplementedException;
-use SQLBuilder;
+use SQLSelectQuery;
+use SQLWhere;
 
 /**
  * @method  fetchSelectQuery($table, $where = [], $order = '', $addFields = '', $idField = null)
@@ -18,23 +22,30 @@ use SQLBuilder;
  * @method  getUpdateQuery($table, array $set, array $where)
  * @method  runDeleteQuery($table, array $where)
  */
-class SessionDatabase implements \DBInterface
+class SessionDatabase implements DBInterface
 {
 
+	/**
+	 * @var static
+	 */
+	protected static $instance;
+	/**
+	 * @var array
+	 */
+	public $data = [];
 	/**
 	 * @var \Session
 	 */
 	protected $session;
 
-	/**
-	 * @var array
-	 */
-	public $data = [];
-
-	/**
-	 * @var static
-	 */
-	static protected $instance;
+	public function __construct()
+	{
+		$this->session = new Session(__CLASS__);
+		$data = $this->session->getAll();
+		foreach ($data as $table => $rows) {
+			$this->data[$table] = $rows;
+		}
+	}
 
 	public static function initialize()
 	{
@@ -42,15 +53,6 @@ class SessionDatabase implements \DBInterface
 			self::$instance = new static();
 		}
 		return self::$instance;
-	}
-
-	public function __construct()
-	{
-		$this->session = new \nadlib\HTTP\Session(__CLASS__);
-		$data = $this->session->getAll();
-		foreach ($data as $table => $rows) {
-			$this->data[$table] = $rows;
-		}
 	}
 
 	public function __destruct()
@@ -65,7 +67,7 @@ class SessionDatabase implements \DBInterface
 		return $query;
 	}
 
-	public function numRows($res = NULL)
+	public function numRows($res = null)
 	{
 		if (is_string($res)) {
 			debug($res);
@@ -73,7 +75,7 @@ class SessionDatabase implements \DBInterface
 		}
 	}
 
-	public function affectedRows($res = NULL)
+	public function affectedRows($res = null)
 	{
 		debug(__METHOD__);
 	}
@@ -83,7 +85,7 @@ class SessionDatabase implements \DBInterface
 		return array_keys($this->data);
 	}
 
-	public function lastInsertID($res, $table = NULL)
+	public function lastInsertID($res, $table = null)
 	{
 		debug(__METHOD__);
 	}
@@ -158,9 +160,9 @@ class SessionDatabase implements \DBInterface
 		debug(__METHOD__);
 	}
 
-	public function fetchAll($res_or_query, $index_by_key = NULL)
+	public function fetchAll($res_or_query, $index_by_key = null)
 	{
-		if ($res_or_query instanceof \SQLSelectQuery) {
+		if ($res_or_query instanceof SQLSelectQuery) {
 			$table = first($res_or_query->getFrom()->getAll());
 			return $this->data[$table];
 		} else {
@@ -183,7 +185,7 @@ class SessionDatabase implements \DBInterface
 
 	public function runUpdateQuery($table, array $set, array $where)
 	{
-		$data = \ArrayPlus::create($this->data[$table]);
+		$data = ArrayPlus::create($this->data[$table]);
 		$data->filterBy($where);
 		foreach ($data as $key => $row) {
 			$this->data[$table][$key] = array_merge($this->data[$table][$key], $set);
@@ -192,15 +194,15 @@ class SessionDatabase implements \DBInterface
 
 	public function getSelectQuery($table, array $where, $orderBy = null)
 	{
-		return \SQLSelectQuery::getSelectQueryP($this, $table, $where, $orderBy);
+		return SQLSelectQuery::getSelectQueryP($this, $table, $where, $orderBy);
 	}
 
-	public function getSelectQuerySW($table, \SQLWhere $where, $orderBy = null)
+	public function getSelectQuerySW($table, SQLWhere $where, $orderBy = null)
 	{
-		return \SQLSelectQuery::getSelectQueryP($this, $table, $where->getAsArray(), $orderBy);
+		return SQLSelectQuery::getSelectQueryP($this, $table, $where->getAsArray(), $orderBy);
 	}
 
-	public function getCount(\SQLSelectQuery $query)
+	public function getCount(SQLSelectQuery $query)
 	{
 		$table = first($query->getFrom()->getAll());
 		$where = $query->getWhere();
@@ -212,7 +214,7 @@ class SessionDatabase implements \DBInterface
 
 	public function fetchOneSelectQuery($table, array $where)
 	{
-		$data = \ArrayPlus::create($this->data[$table]);
+		$data = ArrayPlus::create($this->data[$table]);
 		$data->filterBy($where);
 		return $data->count() ? $data->first() : null;
 	}
@@ -224,7 +226,7 @@ class SessionDatabase implements \DBInterface
 		if (!is_array($rows)) {
 			$rows = [];
 		}
-		$data = \ArrayPlus::create($rows);
+		$data = ArrayPlus::create($rows);
 		$data->filterBy($where);
 		return $data;
 	}
@@ -277,7 +279,7 @@ class SessionDatabase implements \DBInterface
 	/** @return string */
 	public function getDSN()
 	{
-		// TODO: Implement getDSN() method.
+		return '';
 	}
 
 	public function getInfo()

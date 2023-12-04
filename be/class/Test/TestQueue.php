@@ -1,26 +1,30 @@
 <?php
 
-class TestQueue extends AppController {
+class TestQueue extends AppController
+{
 
-	public function render() {
-		return $this->performAction($this->detectAction());
+	public function render()
+	{
+		$content = $this->performAction();
+		return $content;
 	}
 
-	public function processDeleteUserAction() {
+	public function processDeleteUserAction()
+	{
 		return $this->processTask('DeleteUser');
 	}
 
 	private function processTask($type) {
-		$content 	= '';
-		$counter 	= 0;
-		$msgQ 		= new MessageQueue($type);
+		$content = '';
+		$counter = 0;
+		$msgQ = new MessageQueue($type);
 
-		while($taskObj = $msgQ->getTaskObject()) {
+		while ($taskObj = $msgQ->getTaskObject()) {
 			try {
-				$content .= '<pre>'.++$counter.'  '. $taskObj->process($msgQ->getTaskData()) . '</pre>';
+				$content .= '<pre>' . ++$counter . '  ' . $taskObj->process($msgQ->getTaskData()) . '</pre>';
 				$msgQ->setStatus(MessageQueue::STATUS_DONE);
 
-			} catch(Exception $e) {
+			} catch (Exception $e) {
 				$msgQ->setStatus(MessageQueue::STATUS_FAILED);
 			}
 		}

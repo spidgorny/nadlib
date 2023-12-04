@@ -18,8 +18,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // Mod by Slawa.
 
-require_once __DIR__.'/init.php';
-require_once __DIR__.'/HTML/BarImage.php';
+require_once __DIR__ . '/init.php';
+require_once __DIR__ . '/HTML/BarImage.php';
 
 if (!function_exists('imagecreate')) {
 	error_reporting(ifsetor($_COOKIE['debug']) ? E_ALL : 0);

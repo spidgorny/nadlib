@@ -6,19 +6,9 @@ class HTMLForm implements ToStringable
 	const METHOD_GET = 'GET';
 
 	const METHOD_POST = 'POST';
-
-	protected $action = "";
-
-	protected $method = self::METHOD_POST;
-
-	protected $prefix = [];
-
 	public $stdout = "";
-
 	public $enctype = "";
-
 	public $target = "";
-
 	/**
 	 * Deprecated use for maybe XSS class in some form fields.
 	 * Now it's the class name (or just a unique identifier of the form) to be used
@@ -26,19 +16,18 @@ class HTMLForm implements ToStringable
 	 * @var string
 	 */
 	public $class = "";
-
-	protected $fieldset;
-
-	protected $fieldsetMore = [];
-
 	/**
 	 * @var array
 	 */
 	public $formMore = [
 		//'class' => '',
 	];
-
 	public $debug = false;
+	protected $action = "";
+	protected $method = self::METHOD_POST;
+	protected $prefix = [];
+	protected $fieldset;
+	protected $fieldsetMore = [];
 
 	public function __construct($action = '', $id = null)
 	{
@@ -46,6 +35,45 @@ class HTMLForm implements ToStringable
 		if ($id) {
 			$this->formMore['id'] = $id;
 		}
+	}
+
+	public static function dropSelect($fieldName, array $options)
+	{
+		$content = '
+			<input type="hidden" name="' . $fieldName . '" id="' . $fieldName . '">
+			<input type="text" name="' . $fieldName . '_name" id="' . $fieldName . '_name" onchange="setDropSelectValue(this.value, this.value);">
+			<img src="design/bb8120_options_icon.gif" id="' . $fieldName . '_selector">
+			<link rel="stylesheet" href="js/proto.menu.0.6.css" type="text/css" media="screen" />
+			<script src="js/proto.menu.0.6.js" defer="true"></script>
+			<script>
+				//document.observe("dom:loaded", function() {
+				window.onload = function () {
+					var myMenuItems = [';
+		$optArr = [];
+		foreach ($options as $id => $name) {
+			$optArr[] = '{
+						    name: "' . $name . '",
+						    className: "swr",
+						    callback: function() {
+								setDropSelectValue("' . $id . '", "' . $name . '");
+						    }
+					    }';
+		}
+		$content .= implode(',', $optArr) . '
+					];
+					new Proto.Menu({
+					  selector: "#' . $fieldName . '_selector",
+					  className: "menu desktop",
+					  menuItems: myMenuItems
+					});
+				};
+				function setDropSelectValue(id, name) {
+					$("' . $fieldName . '").value = id;
+					$("' . $fieldName . '_name").value = name;
+				}
+			</script>';
+
+		return $content;
 	}
 
 	public function formHideArray(array $ar)
@@ -62,6 +90,81 @@ class HTMLForm implements ToStringable
 		}
 	}
 
+	public function hidden($name, $value, array $more = [])
+	{
+		$content = $this->getInput("hidden", $name, $value, $more);
+		$this->stdout .= $content;
+		return $content;
+	}
+
+	/**
+	 * @param string $type
+	 * @param string $name
+	 * @param null $value
+	 * @param array $more - may be array
+	 * @param string $extraClass
+	 * @param string $namePlus
+	 *
+	 * @return string
+	 */
+	public function getInput($type, $name, $value = null, array $more = [], $extraClass = '', $namePlus = '')
+	{
+//		debug($type, $name, $value, $more, $extraClass, $namePlus);
+		$attrs = [];
+		$attrs['type'] = $type;
+		$attrs['class'] = trim($type . ' ' . $extraClass . ' ' . ifsetor($more['class']));
+		$attrs['name'] = $this->getName($name, $namePlus, true);
+		if ($value || $value === 0) {
+			$isHTML = $value instanceof HtmlString;
+			//debug($value, $isHTML);
+			if (!$isHTML) {
+				//$value = htmlspecialchars($value, ENT_QUOTES);
+				// escaped by HTMLTag::renderAttr
+			} else {
+				$value = str_replace('"', '&quot;', $value);
+			}
+			$attrs['value'] = $value;
+		}
+		$attrs += $more;
+		$a = "<input " . $this->getAttrHTML($attrs) . " />\n";
+		return $a;
+	}
+
+	public function getName($name, $namePlus = '', $onlyValue = false)
+	{
+		$a = '';
+		$path = $this->prefix;
+		$path = array_merge($path, is_array($name) ? $name : [$name]);
+		$first = array_shift($path);
+		$a .= $first;
+		if ($path) {
+			$a .= "[" . implode("][", $path) . "]";
+		}
+		$a .= $namePlus;
+		if (!$onlyValue) {
+			$a = ' name="' . $a . '"';
+		}
+
+		//debug($this->prefix, $name, $a);
+		return $a;
+	}
+
+	/**
+	 * Converts an assoc array into valid HTML name="value" string
+	 *
+	 * @param array $attr
+	 *
+	 * @return string
+	 */
+	public static function getAttrHTML(array $attr = null)
+	{
+		if ($attr) {
+			return HTMLTag::renderAttr($attr);
+		} else {
+			return '';
+		}
+	}
+
 	public function action($action)
 	{
 		$this->action = $action;
@@ -75,11 +178,6 @@ class HTMLForm implements ToStringable
 	public function target($target)
 	{
 		$this->target = $target;
-	}
-
-	public function text($a)
-	{
-		$this->stdout .= MergedContent::mergeStringArrayRecursive($a);
 	}
 
 	/**
@@ -113,25 +211,6 @@ class HTMLForm implements ToStringable
 		return $this->fieldset;
 	}
 
-	public function getName($name, $namePlus = '', $onlyValue = false)
-	{
-		$a = '';
-		$path = $this->prefix;
-		$path = array_merge($path, is_array($name) ? $name : [$name]);
-		$first = array_shift($path);
-		$a .= $first;
-		if ($path) {
-			$a .= "[" . implode("][", $path) . "]";
-		}
-		$a .= $namePlus;
-		if (!$onlyValue) {
-			$a = ' name="' . $a . '"';
-		}
-
-		//debug($this->prefix, $name, $a);
-		return $a;
-	}
-
 	public function getNameField($name, $namePlus = '', $onlyValue = false)
 	{
 		return $this->getName($name, $namePlus, $onlyValue);
@@ -140,64 +219,6 @@ class HTMLForm implements ToStringable
 	public function getNameTag($name)
 	{
 		return $this->getName($name, '', false);
-	}
-
-	/**
-	 * @param string $type
-	 * @param string $name
-	 * @param null $value
-	 * @param array $more - may be array
-	 * @param string $extraClass
-	 * @param string $namePlus
-	 *
-	 * @return string
-	 */
-	public function getInput($type, $name, $value = null, array $more = [], $extraClass = '', $namePlus = '')
-	{
-//		debug($type, $name, $value, $more, $extraClass, $namePlus);
-		$attrs = [];
-		$attrs['type'] = $type;
-		$attrs['class'] = trim($type . ' ' . $extraClass . ' ' . ifsetor($more['class']));
-		$attrs['name'] = $this->getName($name, $namePlus, true);
-		if ($value || $value === 0) {
-			$isHTML = $value instanceof htmlString;
-			//debug($value, $isHTML);
-			if (!$isHTML) {
-				//$value = htmlspecialchars($value, ENT_QUOTES);
-				// escaped by HTMLTag::renderAttr
-			} else {
-				$value = str_replace('"', '&quot;', $value);
-			}
-			$attrs['value'] = $value;
-		}
-		$attrs += $more;
-		$a = "<input " . $this->getAttrHTML($attrs) . " />\n";
-		return $a;
-	}
-
-	/**
-	 * @param string $name
-	 * @param string $value
-	 * @param array $more - may be array
-	 * @param string $type
-	 * @param string $extraClass
-	 */
-	public function input($name, $value = "", array $more = [], $type = 'text', $extraClass = '')
-	{
-		//$value = htmlspecialchars($value, ENT_QUOTES);
-		//$this->stdout .= '<input type="'.$type.'" '.$this->getName($name).' '.$more.' value="'.$value.'" />'."\n";
-		$this->stdout .= $this->getInput($type, $name, $value, $more, $extraClass);
-	}
-
-	public function add(HTMLFormFieldInterface $field)
-	{
-		$field->setForm($this);
-		$this->stdout .= $this->s($field->render());
-	}
-
-	public function s($content)
-	{
-		return MergedContent::mergeStringArrayRecursive($content);
 	}
 
 	public function label($for, $text)
@@ -221,21 +242,28 @@ class HTMLForm implements ToStringable
 		$this->text('</td></tr>');
 	}
 
-	public function password($name, $value = "", array $desc = [])
+	public function text($a)
 	{
-		//$value = htmlspecialchars($value, ENT_QUOTES);
-		//$this->stdout .= "<input type=\"password\" ".$this->getName($name)." value=\"$value\">\n";
-		$this->stdout .= $this->getInput("password", $name, $value, $desc, ifsetor($desc['class']));
+		$this->stdout .= MergedContent::mergeStringArrayRecursive($a);
 	}
 
-	public function hidden($name, $value, array $more = [])
+	/**
+	 * @param string $name
+	 * @param string $value
+	 * @param array $more - may be array
+	 * @param string $type
+	 * @param string $extraClass
+	 */
+	public function input($name, $value = "", array $more = [], $type = 'text', $extraClass = '')
 	{
-//		debug(__METHOD__, $name, $value);
 		//$value = htmlspecialchars($value, ENT_QUOTES);
-		//$this->stdout .= "<input type=hidden ".$this->getName($name). " value=\"$value\" ".$more.">";
-		$content = $this->getInput("hidden", $name, $value, $more);
-		$this->stdout .= $content;
-		return $content;
+		//$this->stdout .= '<input type="'.$type.'" '.$this->getName($name).' '.$more.' value="'.$value.'" />'."\n";
+		$this->stdout .= $this->getInput($type, $name, $value, $more, $extraClass);
+	}
+
+	public function password($name, $value = "", array $desc = [])
+	{
+		$this->stdout .= $this->getInput("password", $name, $value, $desc, ifsetor($desc['class']));
 	}
 
 	/**
@@ -251,27 +279,11 @@ class HTMLForm implements ToStringable
 		$this->stdout .= $this->getInput("radio", $name, $value, ($value == $checked ? ["checked" => 'checked'] : []) + $more);
 	}
 
-	/**
-	 * @param $name
-	 * @param $value
-	 * @param boolean $checked
-	 * @param string $label
-	 * @param string $more
-	 */
-	public function radioLabel($name, $value, $checked, $label = "", $more = '')
+	public function labelCheck($name, $value = 1, $checked = false, array $more = [], $autoSubmit = false, $label = '')
 	{
-		$value = htmlspecialchars($value, ENT_QUOTES);
-		$aName = is_array($name) ? $name : [];
-		$id = implode('_', array_merge($this->prefix, $aName)) . "_" . $value;
-		$this->stdout .= '<label class="radio" for="' . $id . '">
-		<input
-			type="radio"
-			' . $this->getName($name) . '
-			value="' . htmlspecialchars($value, ENT_QUOTES) . '" ' .
-			($checked ? "checked" : "") . '
-			id="' . $id . '"
-			' . (is_array($more) ? $this->getAttrHTML($more) : $more) . '> ';
-		$this->stdout .= $this->hsc($label) . "</label>";
+		$this->stdout .= '<label>';
+		$this->check($name, $value, $checked, $more, $autoSubmit);
+		$this->stdout .= ' ' . ($label) . '</label>';
 	}
 
 	public function check($name, $value = 1, $checked = false, array $more = [], $autoSubmit = false, array $desc = [])
@@ -282,13 +294,6 @@ class HTMLForm implements ToStringable
 		$box = new HTMLFormCheckbox($name, $checked, $desc);
 		$box->form = $this;    // for prefix to work
 		$this->stdout .= $box;
-	}
-
-	public function labelCheck($name, $value = 1, $checked = false, array $more = [], $autoSubmit = false, $label = '')
-	{
-		$this->stdout .= '<label>';
-		$this->check($name, $value, $checked, $more, $autoSubmit);
-		$this->stdout .= ' ' . ($label) . '</label>';
 	}
 
 	public function checkLabel($name, $value = 1, $checked = false, array $more = [], $autoSubmit = false, $label = '')
@@ -312,13 +317,12 @@ class HTMLForm implements ToStringable
 		return $elementID;
 	}
 
-	public function hsc($label)
+	/**
+	 * @return array
+	 */
+	public function getPrefix()
 	{
-		if ($label instanceof htmlString) {
-			return $label;
-		} else {
-			return htmlspecialchars($label, ENT_QUOTES);
-		}
+		return $this->prefix;
 	}
 
 	public function file($name, array $desc = [])
@@ -330,20 +334,24 @@ class HTMLForm implements ToStringable
 	}
 
 	/**
-	 * @param $name
-	 * @param $aOptions
-	 * @param $default
+	 * @param string|string[] $name
+	 * @param array $aOptions
+	 * @param string|int $default
 	 * @param bool $autoSubmit
-	 * @param array $more
+	 * @param array|string $more
 	 * @param bool $multiple
 	 * @param array $desc
 	 *
 	 * @see renderSelectionOptions
 	 */
 	public function selection(
-		$name, array $aOptions = null, $default,
-		$autoSubmit = false, array $more = [],
-		$multiple = false, array $desc = []
+		$name,
+		array $aOptions,
+		$default,
+		$autoSubmit = false,
+		array $more = [],
+		$multiple = false,
+		array $desc = []
 	) {
 		$sel = new HTMLFormSelection($name, $aOptions, $default);
 		$sel->autoSubmit = $autoSubmit;
@@ -406,9 +414,9 @@ class HTMLForm implements ToStringable
 	 * @return string
 	 * @throws Exception
 	 */
-	public function datepopup($name, $value = NULL, $type = "input", $activator = NULL, $id = NULL, $params = [])
+	public function datepopup($name, $value = null, $type = "input", $activator = null, $id = null, $params = [])
 	{
-		$id = $id ? $id : uniqid('datepopup');
+		$id = $id ? $id : uniqid('datepopup', true);
 		$fullname = $this->getName($name, '', true);
 		if (is_numeric($value)) {
 			$value = $value > 0 ? date('Y-m-d', $value) : '';
@@ -446,12 +454,13 @@ class HTMLForm implements ToStringable
 		if (class_exists('Index')) {
 			$index = Index::getInstance();
 			$index->footer['init_cal_' . $id] = $script;
-		} else {
-			return $script;
+			return '';
 		}
+
+		return $script;
 	}
 
-	public function datepopup2($name, $value = NULL, $plusConfig = '', array $desc = [])
+	public function datepopup2($name, $value = null, $plusConfig = '', array $desc = [])
 	{
 		$dp2 = new HTMLFormDatePopup2($this, $name, $value, $desc + [
 				'plusConfig' => $plusConfig,
@@ -495,27 +504,31 @@ class HTMLForm implements ToStringable
 		return $this;
 	}
 
-	public function button($innerHTML = null, array $more = [])
+	public function add(HTMLFormFieldInterface $field)
 	{
-		$more = HTMLTag::renderAttr($more);
-		$this->stdout .= "<button $more>$innerHTML</button>\n";
+		$field->setForm($this);
+		$this->stdout .= $this->s($field->render());
 	}
 
-	public function image($value = null, $more = "", $desc = [])
+	public function s($content)
 	{
-		$more = is_array($more) ? HTMLTag::renderAttr($more) : $more;
-		$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<input type=image
-		" . $this->getName('imgSubmit') . "
-		src=" . $desc['src'] . "
-		class='submitbutton' " .
-			($value ? "value=\"$value\"" : "") . " $more>\n";
+		return MergedContent::mergeStringArrayRecursive($content);
 	}
 
-	public function reset($value = null, $more = "")
+	/**
+	 * It was doing echo() since 2002 - in 2017 it's doing return
+	 * @return string
+	 */
+	public function render()
 	{
-		$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<input type=reset class=submit " . ($value ? "value=\"$value\"" : "") . " $more>\n";
+		return $this->getContent();
+	}
+
+	public function getContent()
+	{
+		$c = $this->getFormTag() . $this->stdout . $this->getFormEnd();
+
+		return $c;
 	}
 
 	public function getFormTag()
@@ -561,24 +574,32 @@ class HTMLForm implements ToStringable
 		return $a;
 	}
 
-	public function getContent()
+	public function button($innerHTML = null, array $more = [])
 	{
-		$c = $this->getFormTag() . $this->stdout . $this->getFormEnd();
-		return $c;
+		$more = HTMLTag::renderAttr($more);
+		$this->stdout .= "<button $more>$innerHTML</button>\n";
+	}
+
+	public function image($value = null, $more = "", $desc = [])
+	{
+		$more = is_array($more) ? HTMLTag::renderAttr($more) : $more;
+		$value = htmlspecialchars($value, ENT_QUOTES);
+		$this->stdout .= "<input type=image
+		" . $this->getName('imgSubmit') . "
+		src=" . $desc['src'] . "
+		class='submitbutton' " .
+			($value ? "value=\"$value\"" : "") . " $more>\n";
+	}
+
+	public function reset($value = null, $more = "")
+	{
+		$value = htmlspecialchars($value, ENT_QUOTES);
+		$this->stdout .= "<input type=reset class=submit " . ($value ? "value=\"$value\"" : "") . " $more>\n";
 	}
 
 	public function getBuffer()
 	{
 		return $this->stdout;
-	}
-
-	/**
-	 * It was doing echo() since 2002 - in 2017 it's doing return
-	 * @return string
-	 */
-	public function render()
-	{
-		return $this->getContent();
 	}
 
 	public function combo($fieldName, array $desc)
@@ -601,6 +622,37 @@ class HTMLForm implements ToStringable
 		);"', false, $desc);
 			$this->input($fieldName, $desc['value']);
 		}
+	}
+
+	/**
+	 * @param string|string[] $name
+	 * @param array|null $aOptions
+	 * @param string|int $default
+	 * @param bool $autoSubmit
+	 * @param array|string $more
+	 * @param bool $multiple
+	 * @param array $desc
+	 *
+	 * @see renderSelectionOptions
+	 */
+	public function selection(
+		$name,
+		$aOptions,
+		$default,
+		$autoSubmit = false,
+		array $more = [],
+		$multiple = false,
+		array $desc = []
+	)
+	{
+		$sel = new HTMLFormSelection($name, $aOptions, $default);
+		$sel->autoSubmit = $autoSubmit;
+		$sel->more = is_string($more) ? HTMLTag::parseAttributes($more) : $more;
+		$sel->multiple = $multiple;
+		$sel->setDesc($desc);
+		//debug($name, $desc);
+		$sel->setForm($this);
+		$this->stdout .= $sel->render();
 	}
 
 	/**
@@ -699,6 +751,38 @@ class HTMLForm implements ToStringable
 		}
 	}
 
+	/**
+	 * @param $name
+	 * @param $value
+	 * @param bool $checked
+	 * @param string $label
+	 * @param string $more
+	 */
+	public function radioLabel($name, $value, $checked, $label = "", $more = '')
+	{
+		$value = htmlspecialchars($value, ENT_QUOTES);
+		$aName = is_array($name) ? $name : [];
+		$id = implode('_', array_merge($this->prefix, $aName)) . "_" . $value;
+		$this->stdout .= '<label class="radio" for="' . $id . '">
+		<input
+			type="radio"
+			' . $this->getName($name) . '
+			value="' . htmlspecialchars($value, ENT_QUOTES) . '" ' .
+			($checked ? "checked" : "") . '
+			id="' . $id . '"
+			' . (is_array($more) ? $this->getAttrHTML($more) : $more) . '> ';
+		$this->stdout .= $this->hsc($label) . "</label>";
+	}
+
+	public function hsc($label)
+	{
+		if ($label instanceof HtmlString) {
+			return $label;
+		} else {
+			return htmlspecialchars($label, ENT_QUOTES);
+		}
+	}
+
 	public function jsCal2($fieldName, $fieldValue, $location = 'js/JSCal2/')
 	{
 		if (is_string($fieldValue)) {
@@ -727,45 +811,6 @@ document.observe("dom:loaded", () => {
     });
 });
 </script>';
-
-		return $content;
-	}
-
-	public static function dropSelect($fieldName, array $options)
-	{
-		$content = '
-			<input type="hidden" name="' . $fieldName . '" id="' . $fieldName . '">
-			<input type="text" name="' . $fieldName . '_name" id="' . $fieldName . '_name" onchange="setDropSelectValue(this.value, this.value);">
-			<img src="design/bb8120_options_icon.gif" id="' . $fieldName . '_selector">
-			<link rel="stylesheet" href="js/proto.menu.0.6.css" type="text/css" media="screen" />
-			<script src="js/proto.menu.0.6.js" defer="true"></script>
-			<script>
-				//document.observe("dom:loaded", function() {
-				window.onload = function () {
-					var myMenuItems = [';
-		$optArr = [];
-		foreach ($options as $id => $name) {
-			$optArr[] = '{
-						    name: "' . $name . '",
-						    className: "swr",
-						    callback: function() {
-								setDropSelectValue("' . $id . '", "' . $name . '");
-						    }
-					    }';
-		}
-		$content .= implode(',', $optArr) . '
-					];
-					new Proto.Menu({
-					  selector: "#' . $fieldName . '_selector",
-					  className: "menu desktop",
-					  menuItems: myMenuItems
-					});
-				};
-				function setDropSelectValue(id, name) {
-					$("' . $fieldName . '").value = id;
-					$("' . $fieldName . '_name").value = name;
-				}
-			</script>';
 
 		return $content;
 	}
@@ -839,7 +884,7 @@ document.observe("dom:loaded", () => {
 			$checked = (!is_array($selected) && $selected == $value) ||
 				(is_array($selected) && in_array($value, $selected));
 			$this->stdout .= '<div class="checkline_' . ($checked ? 'active' : 'normal') . '">';
-			$this->radioLabel($name, $value, $checked, new htmlString('<span title="id=' . $value . '">' . (is_array($row) ? implode(', ', $row) : $row) . '</span>'));
+			$this->radioLabel($name, $value, $checked, new HtmlString('<span title="id=' . $value . '">' . (is_array($row) ? implode(', ', $row) : $row) . '</span>'));
 			$this->stdout .= '</div>';
 		}
 		$this->stdout .= '</div>';
@@ -893,22 +938,6 @@ document.observe("dom:loaded", () => {
 	public function __toString()
 	{
 		return $this->getContent();
-	}
-
-	/**
-	 * Converts an assoc array into valid HTML name="value" string
-	 *
-	 * @param array $attr
-	 *
-	 * @return string
-	 */
-	public static function getAttrHTML(array $attr = null)
-	{
-		if ($attr) {
-			return HTMLTag::renderAttr($attr);
-		} else {
-			return '';
-		}
 	}
 
 	public function formColorSelector($name, $default)
@@ -1029,14 +1058,6 @@ document.observe("dom:loaded", () => {
 	 */
 	public function tree($fieldName, $tree, $fieldValue)
 	{
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getPrefix()
-	{
-		return $this->prefix;
 	}
 
 }

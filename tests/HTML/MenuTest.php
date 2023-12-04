@@ -96,11 +96,11 @@ class MenuTest extends PHPUnit\Framework\TestCase
 
 		$path1 = $m->getClassPath('Class1', []);
 //		debug($path1.'');
-		$this->assertEquals("http://$localhost/?c=Class1", $path1.'');
+		$this->assertEquals("http://$localhost/?c=Class1", $path1 . '');
 
 		$path1 = $m->getClassPath('http://someshit/', []);
 //		debug($path1.'');
-		$this->assertEquals('http://someshit/', $path1.'');
+		$this->assertEquals('http://someshit/', $path1 . '');
 
 		$m->basePath->reset();
 //		debug($m->basePath);
@@ -108,7 +108,7 @@ class MenuTest extends PHPUnit\Framework\TestCase
 //		$m->useRecursiveURL = true;
 		$path1 = $m->getClassPath('Class1', ['level1']);
 //		debug($path1.'');
-		$this->assertEquals("http://$localhost/level1/Class1", $path1.'');
+		$this->assertEquals("http://$localhost/level1/Class1", $path1 . '');
 	}
 
 }

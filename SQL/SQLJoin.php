@@ -1,10 +1,12 @@
 <?php
 
-class SQLJoin {
+class SQLJoin
+{
 
 	protected $parts = [];
 
-	function __construct($join = NULL) {
+	public function __construct($join = null)
+	{
 		if (is_array($join)) {
 			$this->parts = $join;
 		} else {
@@ -12,16 +14,19 @@ class SQLJoin {
 		}
 	}
 
-	function add($join) {
+	public function add($join)
+	{
 		if (!in_array($join, $this->parts)) {
 			$this->parts[] = $join;
 		}
 	}
 
-	function __toString() {
+	public function __toString()
+	{
 		if ($this->parts) {
 			return implode("\n", $this->parts);
 		}
+		return '';
 	}
 
 }

@@ -5,7 +5,7 @@ use nadlib\HTTP\Session;
 class FloatTime
 {
 
-	var $withCSS;
+	public $withCSS;
 
 	public function __construct($withCSS)
 	{

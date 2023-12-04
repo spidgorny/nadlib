@@ -117,7 +117,7 @@ class NextPrevBrowser
 	 * @param $arrow
 	 * @return HTMLTag
 	 */
-	protected function getNextPrevLink(array $prev, $arrow): \HTMLTag
+	protected function getNextPrevLink(array $prev, $arrow): HTMLTag
 	{
 		if (ifsetor($prev['singleLink'])) {
 			$content = new HTMLTag('a', [

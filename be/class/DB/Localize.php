@@ -113,7 +113,7 @@ class Localize extends AppControllerBE
 		return $content;
 	}
 
-	function getAllKeys()
+	public function getAllKeys()
 	{
 		if (!$this->allKeys) {
 			$all = $this->from->getMessages();
@@ -121,8 +121,8 @@ class Localize extends AppControllerBE
 			$all += $this->ru->getMessages();
 			if (($search = strtolower($this->request->getTrim('search')))) {
 				foreach ($all as $key => $trans) {
-					if (strpos(strtolower($trans), $search) === FALSE &&
-						strpos(strtolower($key), $search) === FALSE
+					if (strpos(strtolower($trans), $search) === false &&
+						strpos(strtolower($key), $search) === false
 					) {
 						unset($all[$key]);
 					}
@@ -135,7 +135,7 @@ class Localize extends AppControllerBE
 		return $this->allKeys;
 	}
 
-	function getTranslationTable(array $keys)
+	public function getTranslationTable(array $keys)
 	{
 		$table = [];
 		foreach ($keys as $key) {
@@ -207,7 +207,7 @@ class Localize extends AppControllerBE
 		return $table;
 	}
 
-	function saveAction()
+	public function saveAction()
 	{
 		$id = $this->request->getTrim('id');
 		if ($id) {
@@ -225,7 +225,7 @@ class Localize extends AppControllerBE
 	 * @return array
 	 * @throws DatabaseException
 	 */
-	function save($rel, $save)
+	public function save($rel, $save)
 	{
 		//$save = $this->request->getTrim('save');
 		//$rel = $this->request->getInt('rel');
@@ -256,7 +256,7 @@ class Localize extends AppControllerBE
 		return ['text' => $save] + (is_array($row) ? $row : []);
 	}
 
-	function sidebar()
+	public function sidebar()
 	{
 		$f = new HTMLForm();
 		$f->method('GET');
@@ -271,8 +271,8 @@ class Localize extends AppControllerBE
 		$content[] = $this->getActionButton('Delete Duplicates', 'deleteDuplicates');
 
 		$content[] = '<hr />';
-		$content[] = $this->getActionButton('Download JSON', 'downloadJSON', NULL, [], 'btn btn-info');
-		$content[] = $this->getActionButton('Save JSON', 'saveJSON', NULL, [], 'btn btn-info');
+		$content[] = $this->getActionButton('Download JSON', 'downloadJSON', null, [], 'btn btn-info');
+		$content[] = $this->getActionButton('Save JSON', 'saveJSON', null, [], 'btn btn-info');
 
 		$u = new Uploader(['json']);
 		$f = $u->getUploadForm('file');
@@ -322,7 +322,7 @@ class Localize extends AppControllerBE
 		$rows = $this->db->fetchSelectQuery($this->table, [
 			'lang' => 'en',
 		], 'ORDER BY code, id');
-		$prevCode = NULL;
+		$prevCode = null;
 		foreach ($rows as $row) {
 			if ($prevCode == $row['code']) {
 				echo 'Del: ', $row['code'], ' (id: ', $row['id'], ')<br />', "\n";

@@ -162,8 +162,8 @@ abstract class Scaffold extends AppController
 	 * Collection is way better to display raw data
 	 *
 	 * @return string
-	 * @deprecated
 	 * @throws Exception
+	 * @deprecated
 	 */
 	public function showTable()
 	{
@@ -259,8 +259,8 @@ abstract class Scaffold extends AppController
 	 * Return nothing or false to indicate success.
 	 * $this->insertRecord should return nothing?!?
 	 *
-	 * @throws Exception
 	 * @return string[]
+	 * @throws Exception
 	 */
 	public function showPerform()
 	{
@@ -276,7 +276,7 @@ abstract class Scaffold extends AppController
 						$content[] = $this->updateRecord($this->data);
 						break;
 					default:
-						throw new Exception(__METHOD__.' has no action');
+						throw new Exception(__METHOD__ . ' has no action');
 				}
 			} catch (DatabaseException $e) {
 				$content[] = '<p class="error ui-state-error">We were unable to perform the operation because "' . $e->getMessage() . '". Please check your form fields and retry. Please let us know if it still doesn\'t work using the <a href="?c=Contact">contact form</a>.';

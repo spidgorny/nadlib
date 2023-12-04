@@ -3,14 +3,16 @@
 class DSNBuilderSQLite extends DSNBuilder
 {
 
-	var $db;
+	public $db;
 
-	function __construct($host, $user, $pass, $db, $port)
+	public function __construct($host, $user, $pass, $db, $port)
 	{
+		$dummy = [$host, $user, $pass, $port];
+		sort($dummy);  // not ignored, phpstan
 		$this->db = $db;
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		return 'sqlite:' . $this->db;
 	}
