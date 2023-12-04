@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection ForgottenDebugOutputInspection */
 /********************************************************************************\
  * Copyright (C) Carl Taylor (cjtaylor@adepteo.com)                             *
  * Copyright (C) Torben Nehmer (torben@nehmer.net) for Code Cleanup             *
@@ -86,7 +86,7 @@ class TaylorProfiler
 	 */
 	public function startTimer($name = null, $desc = "")
 	{
-		$name = $name ? $name : $this->getName();
+		$name = $name ?: $this->getName();
 		if ($this->trace_enabled) {
 			$this->trace[] = [
 				'time' => time(),
@@ -96,7 +96,7 @@ class TaylorProfiler
 		}
 		if ($this->output_enabled) {
 			$n = array_push($this->stack, $this->cur_timer);
-			$this->__suspendTimer($this->stack[$n - 1]);
+			$this->suspendTimer($this->stack[$n - 1]);
 			$this->startTime[$name] = $this->getMicroTime();
 			$this->cur_timer = $name;
 			$this->description[$name] = $desc;
@@ -136,7 +136,7 @@ class TaylorProfiler
 	 * suspend  an individual timer
 	 * @param string $name
 	 */
-	public function __suspendTimer($name)
+	public function suspendTimer($name)
 	{
 		$this->trace[] = ['time' => time(), 'function' => "$name }...", 'memory' => memory_get_usage()];
 		$this->endTime[$name] = $this->getMicroTime();
@@ -161,10 +161,10 @@ class TaylorProfiler
 
 		if (array_key_exists($name, $this->endTime)) {
 			return ($this->endTime[$name] - $this->startTime[$name]);
-		} else {
-			$now = $this->getMicroTime();
-			return ($now - $this->startTime[$name]);
 		}
+
+		$now = $this->getMicroTime();
+		return ($now - $this->startTime[$name]);
 	}//end start_time
 
 	public static function getMemoryUsage()
@@ -238,8 +238,7 @@ class TaylorProfiler
 				: $_SERVER['REQUEST_TIME'];
 		}
 		$oaTime = microtime(true) - $since;
-		$totalTime = number_format($oaTime, 3, '.', '');
-		return $totalTime;
+		return number_format($oaTime, 3, '.', '');
 	}
 
 	/**
@@ -262,8 +261,7 @@ class TaylorProfiler
 	public static function renderFloat($withCSS = true)
 	{
 		$ft = new FloatTime($withCSS);
-		$content = $ft->render();
-		return $content;
+		return $ft->render();
 	}
 
 	/**
@@ -316,7 +314,7 @@ class TaylorProfiler
 		$method = $method ?: self::getName();
 		$tp = TaylorProfiler::getInstance();
 		if ($tp->isLog) {
-			error_log(strip_tags($method));
+			llog(strip_tags(str_replace(PHP_EOL, ' >> ', $method)));
 			$tp->startTimer($method);
 		}
 	}
@@ -335,14 +333,14 @@ class TaylorProfiler
 			$log = implode('', [
 				implode('', $path),
 				'[',
-				sizeof($var),
+				count($var),
 				']',
 				BR,
 			]);
 			error_log($log);
 			echo $log;
 			foreach ($var as $key => $val) {
-				if (!is_scalar($val) && $key != 'GLOBALS') {
+				if (!is_scalar($val) && $key !== 'GLOBALS') {
 					$newPath = array_merge($path, ['.' . $key]);
 					self::dumpMemory($val, $newPath);
 				}
@@ -356,7 +354,7 @@ class TaylorProfiler
 				$log = implode('', [
 					implode('', $path),
 					'{',
-					sizeof($objVars),
+					count($objVars),
 					'}',
 					BR,
 				]);
@@ -393,8 +391,7 @@ class TaylorProfiler
 	 */
 	public function elapsedOverall()
 	{
-		$oaTime = $this->getMicroTime() - $this->initTime;
-		return ($oaTime);
+		return $this->getMicroTime() - $this->initTime;
 	}
 
 	/**
@@ -420,7 +417,7 @@ class TaylorProfiler
 				$row['avg'] = $row['total'] * 1000 / $row['count'];
 				$row['perc'] = ($row['total'] / $oaTime) * 100;
 				$together[$key] = $row;
-				if ($key == 'unprofiled') {
+				if ($key === 'unprofiled') {
 					$together[$key]['bold'] = true;
 					$together[$key]['desc'] = 'Between new TaylorProfiler() and printTimers()';
 				}
@@ -435,7 +432,7 @@ class TaylorProfiler
 			$perc = ($missed / $oaTime) * 100;
 			$tot_perc += $perc;
 			$together['Missed between the calls'] = [
-				'desc' => 'Missed between the calls (' . $oaTime . '-' . $TimedTotal . '[' . sizeof($together) . '])',
+				'desc' => 'Missed between the calls (' . $oaTime . '-' . $TimedTotal . '[' . count($together) . '])',
 				'bold' => true,
 				'time' => number_format($missed, 2, '.', ''),
 				'total' => number_format($missed, 2, '.', ''),
@@ -530,10 +527,9 @@ class TaylorProfiler
 				'percent' => number_format($tot_perc, 2, '.', '') . '%',
 				'routine' => "OVERALL TIME (" . number_format(memory_get_peak_usage() / 1024 / 1024, 3, '.', '') . "MB)",
 			];
-			$content = Request::isCLI()
+			return Request::isCLI()
 				? $s->getCLITable(true)
 				: $s->getContent();
-			return $content;
 		}
 		return null;
 	}
@@ -545,7 +541,7 @@ class TaylorProfiler
 	 */
 	public function stopTimer($name = null)
 	{
-		$name = $name ? $name : $this->getName();
+		$name = $name ?: $this->getName();
 		if ($this->trace_enabled) {
 			$this->trace[] = ['time' => time(), 'function' => "$name }", 'memory' => memory_get_usage()];
 		}
@@ -557,7 +553,7 @@ class TaylorProfiler
 				$this->running[$name] += $this->elapsedTime($name);
 			}
 			$this->cur_timer = array_pop($this->stack);
-			$this->__resumeTimer($this->cur_timer);
+			$this->resumeTimer($this->cur_timer);
 			if (false) {
 				$hash = md5($name);
 				$hash = substr($hash, 0, 6);
@@ -571,7 +567,7 @@ class TaylorProfiler
 	 * resume  an individual timer
 	 * @param string $name
 	 */
-	public function __resumeTimer($name)
+	public function resumeTimer($name)
 	{
 		$this->trace[] = ['time' => time(), 'function' => "$name {...", 'memory' => memory_get_usage()];
 		$this->startTime[$name] = $this->getMicroTime();
@@ -582,7 +578,7 @@ class TaylorProfiler
 		$content = '';
 		if (!Request::isCLI()) {
 			$content .= '<style>' . file_get_contents(
-					dirname(__FILE__) . '/../CSS/TaylorProfiler.css'
+					__DIR__ . '/../CSS/TaylorProfiler.css'
 				) . '</style>';
 		}
 		return $content;
@@ -626,225 +622,10 @@ class TaylorProfiler
 	{
 		$ret = null;
 		$amem = array_column($this->trace, 'memory');
-		if (sizeof($amem)) {
+		if (count($amem)) {
 			$ret = max($amem);
 		}
 		return $ret;
 	}
 
-	public static function getMemoryUsage()
-	{
-		static $max;
-		static $previous;
-		$memLimit = new Bytes(ini_get('memory_limit'));
-		$max = $max ?: $memLimit->getBytes();
-		$maxMB = number_format($max / 1024 / 1024, 0, '.', '');
-		$cur = memory_get_usage(true);
-		$usedMB = number_format($cur / 1024 / 1024, 3, '.', '');
-		$percent = $maxMB != 0
-			? number_format($usedMB / $maxMB * 100, 3, '.', '')
-			: '';
-		$content = str_pad($usedMB, 8, ' ', STR_PAD_LEFT)
-			. '/' . $maxMB . 'MB '
-			. str_pad($percent, 8, ' ', STR_PAD_LEFT) . '% ';
-
-		$content .= '[' . str_repeat('=', $percent / 4) .
-			str_repeat('-', 25 - $percent / 4) .
-			']';
-
-		$increase = $usedMB - $previous;
-		$sign = $increase > 0 ? '+' : ' ';
-		$content .= ' (' . $sign . number_format($increase, 3, '.', '') . ' MB)';
-
-		$previous = $usedMB;
-		return $content;
-	}
-
-	public static function addMemoryMap($obj)
-	{
-		self::$sos = self::$sos ? self::$sos : new SplObjectStorage();
-		self::$sos->attach($obj);
-	}
-
-	public static function getMemoryMap()
-	{
-		$table = [];
-		foreach (self::$sos as $obj) {
-			$class = get_class($obj);
-			$table[$class]['count']++;
-			$table[$class]['mem1'] = strlen(serialize($obj));
-			$table[$class]['memory'] += $table[$class]['mem1'];
-		}
-		return $table;
-	}
-
-	/**
-	 * @return float
-	 */
-	public static function getElapsedTime()
-	{
-		$profiler = self::getInstance();
-		if ($profiler) {
-			$since = $profiler->initTime;
-		} else {
-			$since = $_SERVER['REQUEST_TIME_FLOAT']
-				? $_SERVER['REQUEST_TIME_FLOAT']
-				: $_SERVER['REQUEST_TIME'];
-		}
-		$oaTime = microtime(true) - $since;
-		$totalTime = number_format($oaTime, 3, '.', '');
-		return $totalTime;
-	}
-
-	/**
-	 * @return string
-	 */
-	public static function getElapsedTimeString()
-	{
-		$totalTime = self::getElapsedTime();
-		list($seconds, $ms) = explode('.', $totalTime);
-		$totalTime = gmdate('H:i:s', $seconds) . '.' . $ms;
-		return $totalTime;
-	}
-
-	public static function renderFloat($withCSS = true)
-	{
-		$ft = new FloatTime($withCSS);
-		$content = $ft->render();
-		return $content;
-	}
-
-	/**
-	 * @return float [0.0 .. 1.0]
-	 */
-	public static function getMemUsage()
-	{
-		require_once __DIR__ . '/../Value/Bytes.php';
-		$memory_limit = ini_get('memory_limit');
-		$memLimit = new Bytes($memory_limit);
-		$max = $memLimit->getBytes();
-		$cur = memory_get_usage();
-		//echo $cur, '/', $max, TAB, $memory_limit, TAB, $memLimit, BR;
-		return number_format($cur / $max, 3, '.', '');
-	}
-
-	public static function getTimeUsage()
-	{
-		static $max;
-		$max = $max ? $max : intval(ini_get('max_execution_time'));
-		$cur = microtime(true) - $_SERVER['REQUEST_TIME'];
-		return number_format($cur / $max, 3, '.', '');
-	}
-
-	public static function getMemDiff()
-	{
-		static $prev = 0;
-		$cur = memory_get_usage();
-		$diff = ($cur - $prev) / 1024 / 1024;
-		$return = ($diff > 0 ? '+' : '') . number_format($diff, 3, '.', '') . 'M';
-		$prev = $cur;
-		return $return;
-	}
-
-	/**
-	 * @param bool $output_enabled
-	 * @param bool $trace_enabled
-	 * @return null|TaylorProfiler
-	 */
-	public static function getInstance($output_enabled = false, $trace_enabled = false)
-	{
-		return ifsetor($GLOBALS['profiler']) instanceof self
-			? $GLOBALS['profiler']
-			: (
-			self::$instance
-				?: self::$instance = new self($output_enabled, $trace_enabled)
-			);
-	}
-
-	public static function dumpQueries()
-	{
-		$queryLog = class_exists('Config', false)
-			? (Config::getInstance()->getDB()
-				? Config::getInstance()->getDB()->getQueryLog()
-				: null)
-			: null;
-		if (DEVELOPMENT && $queryLog) {
-			return $queryLog->dumpQueriesTP();
-		}
-		return null;
-	}
-
-	public static function start($method = null)
-	{
-		$method = $method ?: self::getName();
-		$tp = TaylorProfiler::getInstance();
-		if ($tp->isLog) {
-			llog(strip_tags(str_replace(PHP_EOL, ' >> ', $method)));
-			$tp->startTimer($method);
-		}
-	}
-
-	public static function stop($method = null)
-	{
-		$method = $method ?: self::getName();
-		$tp = TaylorProfiler::getInstance();
-		$tp ? $tp->stopTimer($method) : null;
-	}
-
-	public static function dumpMemory($var, $path = [])
-	{
-		static $visited = [];
-		if (is_array($var)) {
-			$log = implode('', [
-				implode('', $path),
-				'[',
-				sizeof($var),
-				']',
-				BR,
-			]);
-			error_log($log);
-			echo $log;
-			foreach ($var as $key => $val) {
-				if (!is_scalar($val) && $key != 'GLOBALS') {
-					$newPath = array_merge($path, ['.' . $key]);
-					self::dumpMemory($val, $newPath);
-				}
-			}
-		} elseif (is_object($var)) {
-			if (in_array(spl_object_hash($var), $visited)) {
-				echo implode('', $path), ' *RECURSION*', PHP_EOL;
-			} else {
-				$visited[] = spl_object_hash($var);
-				$objVars = get_object_vars($var);
-				$log = implode('', [
-					implode('', $path),
-					'{',
-					sizeof($objVars),
-					'}',
-					BR,
-				]);
-				error_log($log);
-				echo $log;
-				foreach ($objVars as $key => $val) {
-					if (!is_scalar($val)) {
-						$newPath = array_merge($path, ['->' . $key]);
-						self::dumpMemory($val, $newPath);
-					}
-				}
-			}
-		}
-	}
-
 }
-
-/*
-function profiler_start($name) {
-    if (array_key_exists("midcom_profiler",$GLOBALS))
-      $GLOBALS["midcom_profiler"]->startTimer ($name);
-}
-
-function profiler_stop($name) {
-    if (array_key_exists("midcom_profiler",$GLOBALS))
-      $GLOBALS["midcom_profiler"]->stopTimer ($name);
-}
-*/

@@ -77,8 +77,9 @@ class IndexBase /*extends Controller*/
 		],
 	];
 	public $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error';
+
 	/**
-	 * @var MySQL
+	 * @var DbInterface
 	 */
 	protected $db;
 	/**
@@ -86,10 +87,7 @@ class IndexBase /*extends Controller*/
 	 * @public for template.phtml
 	 */
 	protected $user;
-	/**
-	 * @var Config
-	 */
-	protected $config;
+
 	/**
 	 * @var Request
 	 */
@@ -144,6 +142,19 @@ class IndexBase /*extends Controller*/
 	 */
 	public function initSession()
 	{
+//		debug('is session started', session_id(), session_status());
+		if (!Request::isCLI() && !Session::isActive() && !headers_sent()) {
+			ini_set('session.use_trans_sid', false);
+			ini_set('session.use_only_cookies', true);
+			ini_set('session.cookie_httponly', true);
+			ini_set('session.hash_bits_per_character', 6);
+			ini_set('session.hash_function', 'sha512');
+			llog('session_start in initSession');
+			$ok = session_start();
+			if (!$ok) {
+				throw new RuntimeException('session_start() failed');
+			}
+		}
 		if (!headers_sent()) {
 			header('X-Frame-Options: SAMEORIGIN');
 			header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
@@ -264,21 +275,6 @@ class IndexBase /*extends Controller*/
 	}
 
 	/**
-	 * Move it to the MRBS
-	 * @param string $action
-	 * @param mixed $data
-	 */
-	public function log($action, $data)
-	{
-		//debug($action, $bookingID);
-		/*$this->db->runInsertQuery('log', array(
-			'who' => $this->user->id,
-			'action' => $action,
-			'booking' => $bookingID,
-		));*/
-	}
-
-	/**
 	 * Usually autoload is taking care of the loading, but sometimes you want to check the path.
 	 * Will call postInit() of the controller if available.
 	 * @param string $class
@@ -349,46 +345,6 @@ class IndexBase /*extends Controller*/
 		return $content;
 	}
 
-	/**
-	 * @throws AccessDeniedException
-	 */
-	public function initSession()
-	{
-//		debug('is session started', session_id(), session_status());
-		if (!Request::isCLI() && !Session::isActive() && !headers_sent()) {
-			ini_set('session.use_trans_sid', false);
-			ini_set('session.use_only_cookies', true);
-			ini_set('session.cookie_httponly', true);
-			ini_set('session.hash_bits_per_character', 6);
-			ini_set('session.hash_function', 'sha512');
-			llog('session_start in initSession');
-			$ok = session_start();
-			if (!$ok) {
-				throw new RuntimeException('session_start() failed');
-			}
-		}
-		if (ifsetor($_SESSION['HTTP_USER_AGENT'])) {
-			if ($_SESSION['HTTP_USER_AGENT'] != $_SERVER['HTTP_USER_AGENT']) {
-				session_regenerate_id(true);
-				unset($_SESSION['HTTP_USER_AGENT']);
-				throw new AccessDeniedException('Session hijacking detected. Please try again');
-			}
-		} else {
-			$_SESSION['HTTP_USER_AGENT'] = ifsetor($_SERVER['HTTP_USER_AGENT']);
-		}
-		if (ifsetor($_SESSION['REMOTE_ADDR'])) {
-			if ($_SESSION['REMOTE_ADDR'] != $_SERVER['REMOTE_ADDR']) {
-				session_regenerate_id(true);
-				unset($_SESSION['REMOTE_ADDR']);
-				throw new AccessDeniedException('Session hijacking detected. Please try again.');
-			}
-		} else {
-			$_SESSION['REMOTE_ADDR'] = ifsetor($_SERVER['REMOTE_ADDR']);
-		}
-//		debug($_SESSION['HTTP_USER_AGENT'], $_SESSION['REMOTE_ADDR']);
-//		debug($_SERVER['HTTP_USER_AGENT'], $_SERVER['REMOTE_ADDR']);
-	}
-
 	public function renderController()
 	{
 		TaylorProfiler::start(__METHOD__);
@@ -438,14 +394,14 @@ class IndexBase /*extends Controller*/
 	 * @param string $wrapClass
 	 * @return string
 	 */
-	public function renderException(Exception $e)
+	public function renderException(Exception $e, $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error')
 	{
 		if ($this->request->isCLI()) {
 			echo get_class($e),
 			' #', $e->getCode(),
 			': ', $e->getMessage(), BR;
 			echo $e->getTraceAsString(), BR;
-			$content = '';
+			return '';
 		}
 		http_response_code($e->getCode());
 		if ($this->controller) {
@@ -471,70 +427,6 @@ class IndexBase /*extends Controller*/
 			} catch (Exception $e) {
 				// no sidebar
 			}
-		}
-		TaylorProfiler::stop(__METHOD__);
-		return $content;
-	}
-
-	/**
-	 * Does not catch LoginException - show your login form in Index
-	 * @param Exception $e
-	 * @param string $wrapClass
-	 * @return string
-	 */
-	public function renderException(Exception $e, $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error')
-	{
-		if ($this->request->isCLI()) {
-			echo get_class($e),
-			' #', $e->getCode(),
-			': ', $e->getMessage(), BR;
-			echo $e->getTraceAsString(), BR;
-			return '';
-		}
-
-		http_response_code($e->getCode());
-		if ($this->controller) {
-			$this->controller->title = get_class($this->controller);
-		}
-
-		$message = $e->getMessage();
-		$message = ($message instanceof HtmlString ||
-			$message[0] == '<')
-			? $message . ''
-			: htmlspecialchars($message);
-		$content = '<div class="' . $wrapClass . '">
-				' . get_class($e) .
-			($e->getCode() ? ' (' . $e->getCode() . ')' : '') . BR .
-			nl2br($message);
-		if (DEVELOPMENT || 0) {
-			$content .= BR . '<hr />' . '<div style="text-align: left">' .
-				nl2br($e->getTraceAsString()) . '</div>';
-			//$content .= getDebug($e);
-		}
-		$content .= '</div>';
-		if ($e instanceof LoginException) {
-			// catch this exception in your app Index class, it can't know what to do with all different apps
-			//$lf = new LoginForm();
-			//$content .= $lf;
-		} elseif ($e instanceof Exception404) {
-			$e->sendHeader();
-		}
-
-		return $content;
-	}
-
-	public function s($content)
-	{
-		return MergedContent::mergeStringArrayRecursive($content);
-	}
-
-	public function showSidebar()
-	{
-		TaylorProfiler::start(__METHOD__);
-		$content = '';
-		if (method_exists($this->controller, 'sidebar')) {
-			$content = $this->controller->sidebar();
-			$content = $this->s($content);
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $content;
@@ -758,7 +650,7 @@ class IndexBase /*extends Controller*/
 			} else {
 				$sourceCSS = str_replace('.less', '.css', $source);
 				if (file_exists($sourceCSS)) {
-					$fileName = $sourceCSS;
+					//$fileName = $sourceCSS;
 					$fileName = $this->addMtime($source);
 				} else {
 					$fileName = 'css/?c=Lesser&css=' . $source;
@@ -826,8 +718,7 @@ class IndexBase /*extends Controller*/
 			}
 		}
 //		debug('footer', sizeof($this->footer));
-		$content = implode("\n", $this->footer) . "\n";
-		return $content;
+		return implode("\n", $this->footer) . "\n";
 	}
 
 	public function addBodyClass($name)

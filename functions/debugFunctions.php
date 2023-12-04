@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection ForgottenDebugOutputInspection */
 
 require_once __DIR__ . '/../static.php';
 
@@ -101,11 +101,11 @@ if (!function_exists('d')) {
 		if (PHP_SAPI !== 'cli') {
 			echo '<pre class="pre_print_r" style="white-space: pre-wrap;">';
 			/** @noinspection ForgottenDebugOutputInspection */
-			print_r(count($a) ==== 1 ? $a[0] : $a);
+			print_r(count($a) === 1 ? $a[0] : $a);
 			echo '</pre>';
 		} else {
 			/** @noinspection ForgottenDebugOutputInspection */
-			print_r(sizeof($a) ==== 1 ? $a[0] : $a);
+			print_r(sizeof($a) === 1 ? $a[0] : $a);
 			echo PHP_EOL;
 		}
 	}
@@ -122,7 +122,7 @@ if (!function_exists('d')) {
 	{
 		echo '<pre class="pre_var_dump" style="white-space: pre-wrap; font-size: 8pt;">';
 		/** @noinspection ForgottenDebugOutputInspection */
-		var_dump(count($a) ==== 1 ? $a[0] : $a);
+		var_dump(count($a) === 1 ? $a[0] : $a);
 		echo '</pre>';
 	}
 
@@ -300,7 +300,7 @@ if (!function_exists('d')) {
 			$typeName .= '[' . strlen($something) . ']';
 		}
 		if ($type === 'array') {
-			$typeName .= '[' . sizeof($something) . ']';
+			$typeName .= '[' . count($something) . ']';
 		}
 
 		if (!Request::isCLI()) {
@@ -326,7 +326,9 @@ if (!function_exists('d')) {
 		return typ($something);
 		//return json_encode($types, JSON_PRETTY_PRINT);
 	}
+}
 
+if (!function_exists('invariant')) {
 	function invariant($test, string $format_str = null, ...$args)
 	{
 		if (!$test) {
@@ -336,40 +338,35 @@ if (!function_exists('d')) {
 
 }
 
-function invariant($value, $message = null)
-{
-	if (!$value) {
-		throw new Exception($message ?: 'Invariant failure in ' . Debug::getCaller());
-	}
-}
+if (!function_exists('llog')) {
+	function llog(...$vars)
+	{
+		$caller = Debug::getCaller();
+		$jsonOptions = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
 
-function llog(...$vars)
-{
-	$caller = Debug::getCaller();
-	$jsonOptions = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
-
-	if (defined('JSON_UNESCAPED_LINE_TERMINATORS')) {
-		$jsonOptions |= JSON_UNESCAPED_LINE_TERMINATORS;
-	}
-
-	$vars = array_map(static function ($el) {
-		if (is_object($el) && !($el instanceof stdClass)) {
-			return trim(strip_tags(typ($el)));
+		if (defined('JSON_UNESCAPED_LINE_TERMINATORS')) {
+			$jsonOptions |= JSON_UNESCAPED_LINE_TERMINATORS;
 		}
-		return $el;
-	}, $vars);
 
-	$type = null;
-	if (count($vars) === 1) {
-		$type = gettype(first($vars));
-		$output = json_encode(first($vars), $jsonOptions);
-	} else {
-		$type = 'multi';
-		$output = json_encode($vars, $jsonOptions);
+		$vars = array_map(static function ($el) {
+			if (is_object($el) && !($el instanceof stdClass)) {
+				return trim(strip_tags(typ($el)));
+			}
+			return $el;
+		}, $vars);
+
+		$type = null;
+		if (count($vars) === 1) {
+			$type = gettype(first($vars));
+			$output = json_encode(first($vars), $jsonOptions);
+		} else {
+			$type = 'multi';
+			$output = json_encode($vars, $jsonOptions);
+		}
+		if (strlen($output) > 80) {
+			$output = json_encode(count($vars) === 1 ? first($vars) : $vars, $jsonOptions | JSON_PRETTY_PRINT);
+		}
+		/** @noinspection ForgottenDebugOutputInspection */
+		error_log("{$caller} [{$type}] {$output}");
 	}
-	if (strlen($output) > 80) {
-		$output = json_encode(count($vars) === 1 ? first($vars) : $vars, $jsonOptions | JSON_PRETTY_PRINT);
-	}
-	/** @noinspection ForgottenDebugOutputInspection */
-	error_log("{$caller} [{$type}] {$output}");
 }
