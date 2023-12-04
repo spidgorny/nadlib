@@ -11,7 +11,7 @@ class SessionView extends AppControllerBE
 		$this->index->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . 'js/keepScrollPosition.js');
 	}
 
-	publicfunction render()
+	public function render()
 	{
 		$this->performAction($this->detectAction());
 		$content = '';

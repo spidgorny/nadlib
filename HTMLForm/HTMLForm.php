@@ -336,7 +336,7 @@ class HTMLForm implements ToStringable
 	/**
 	 * @param string|string[] $name
 	 * @param array $aOptions
-	 * @param string|int $default
+	 * @param string|int|null $default
 	 * @param bool $autoSubmit
 	 * @param array|string $more
 	 * @param bool $multiple

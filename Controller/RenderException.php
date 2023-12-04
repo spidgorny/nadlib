@@ -48,7 +48,7 @@ class RenderException
 		}
 
 		$message = $e->getMessage();
-		$message = ($message instanceof htmlString ||
+		$message = ($message instanceof HtmlString ||
 			$message[0] === '<')
 			? $message . ''
 			: htmlspecialchars($message);

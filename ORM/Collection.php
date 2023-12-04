@@ -869,7 +869,6 @@ class Collection implements IteratorAggregate, ToStringable
 
 	public function first()
 	{
-		//debug($this->getQuery());
 		return first($this->objectify());
 	}
 

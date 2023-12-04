@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Use $content instanceof htmlString ? $content : htmlspecialchars($content);
+ * Use $content instanceof HtmlString ? $content : htmlspecialchars($content);
  * Update: use htmlString:hsc($content)
  */
 class HtmlString implements ToStringable

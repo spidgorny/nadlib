@@ -86,7 +86,7 @@ abstract class Controller extends SimpleController
 	 */
 	public $linker;
 	/**
-	 * @var MySQL|DBLayer|DBLayerMS|DBLayerPDO|DBLayerSQLite|DBLayerBase|DBInterface
+	 * @var DBLayer|DBLayerPDO|DBLayerSQLite|DBLayerBase|DBInterface
 	 */
 	protected $db;
 
@@ -173,13 +173,13 @@ abstract class Controller extends SimpleController
 	 * The header is linkable.
 	 * @param $content
 	 * @param string $caption
-	 * @param null $h
+	 * @param string|null $h
 	 * @param array $more
-	 * @return array|string
+	 * @return array|string|string[]
 	 */
 	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
 	{
-		$h = $h ? $h : $this->encloseTag;
+		$h = $h ?: $this->encloseTag;
 		$content = $this->s($content);
 		if ($caption) {
 			$content = [
@@ -191,8 +191,7 @@ abstract class Controller extends SimpleController
 		$more['class'] .= ' ' . get_class($this);
 		//debug_pre_print_backtrace();
 		//$more['style'] = "position: relative;";	// project specific
-		$content = new HTMLTag('section', $more, $content, true);
-		return $content;
+		return new HTMLTag('section', $more, $content, true);
 	}
 
 	/**
@@ -205,11 +204,10 @@ abstract class Controller extends SimpleController
 	{
 //		$al = AutoLoad::getInstance();
 		$slug = URL::friendlyURL($caption);
-		$content = '
+		return '
 			<' . $hTag . ' id="' . $slug . '">' .
 			$caption .
 			'</' . $hTag . '>';
-		return $content;
 	}
 
 	public function encloseInToggle($content, $title, $height = 'auto', $isOpen = null, $tag = 'h3')

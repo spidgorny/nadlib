@@ -257,7 +257,7 @@ class slTable implements ToStringable
 			}
 
 			$val = [
-				//0 => $key instanceof htmlString ? $key : htmlspecialchars($key),
+				//0 => $key instanceof HtmlString ? $key : htmlspecialchars($key),
 				0 => htmlspecialchars($key),
 				'' => $val,
 			];
