@@ -28,6 +28,7 @@ class POPOBaseTest extends PHPUnit\Framework\TestCase
 
 	public function test__construct()
 	{
+		self::markTestSkipped('PG dependent');
 		$struct = [
 			'id' => '1',
 			'name' => '@slawa',

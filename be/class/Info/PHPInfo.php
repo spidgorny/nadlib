@@ -3,7 +3,7 @@
 class PHPInfo extends AppControllerBE
 {
 
-	public $layout = 'none';
+//	public $layout = '';
 
 	public function render()
 	{

@@ -3,7 +3,7 @@
 trait DirectDataAccess
 {
 
-	public $data;
+	public $data = [];
 
 	public function __get(string $key)
 	{

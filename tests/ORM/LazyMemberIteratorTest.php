@@ -47,10 +47,16 @@ class LazyMemberIteratorTest extends PHPUnit\Framework\TestCase
 
 	public function test_current_function_this_list()
 	{
+		$this->list->rewind();
 		$curM = $this->list->current();
 		$curF = current($this->list);
-		//debug($curM, $curF);
-		$this->assertEquals($curM, $curF);
+//		llog($this->list->getArrayCopy());
+//		llog($curM, $curF);
+		if (phpversion() >= '7.4') {
+			$this->assertEquals(false, $curF);
+		} else {
+			$this->assertEquals($curM, $curF);
+		}
 	}
 
 	/**

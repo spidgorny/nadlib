@@ -32,8 +32,8 @@ use spidgorny\nadlib\HTTP\URL;
  * @method pre($content)
  *
  * @method makeLink($text, array $params, $page = '', array $more = [], $isHTML = false)
- * @method makeURL(array $params = [], $prefix = '?')
- * @method makeRelURL()
+ * @method makeURL(array $params = [], $prefix = null)
+ * @method makeRelURL(array $params = [], $page = null)
  * @method makeRelLink($text, array $params, $page = '?')
  * @method getActionButton($name, $action, $formAction = null, array $hidden = [], $submitClass = '', array $submitParams = [])
  */
@@ -47,11 +47,7 @@ abstract class Controller extends SimpleController
 	 * @var bool
 	 */
 	public static $public = false;
-	/**
-	 * @var Request
-	 * @public for injecting something in PHPUnit
-	 */
-	public $request;
+
 	/**
 	 * @var bool
 	 * @use $this->preventDefault() to set
@@ -90,7 +86,7 @@ abstract class Controller extends SimpleController
 	 */
 	public $linker;
 	/**
-	 * @var MySQL|DBLayer|DBLayerMS|DBLayerPDO|DBLayerSQLite|DBLayerBase|DBInterface
+	 * @var DBLayer|DBLayerPDO|DBLayerSQLite|DBLayerBase|DBInterface
 	 */
 	protected $db;
 
@@ -111,7 +107,7 @@ abstract class Controller extends SimpleController
 			$this->config->mergeConfig($this);
 		}
 
-		$this->linker = new Linker($this->request);
+		$this->linker = new Linker($this->request, $this);
 		$this->linker->useRouter = $this->request->apacheModuleRewrite();
 
 		if (!$this->linker->useRouter) {
@@ -177,13 +173,13 @@ abstract class Controller extends SimpleController
 	 * The header is linkable.
 	 * @param $content
 	 * @param string $caption
-	 * @param null $h
+	 * @param string|null $h
 	 * @param array $more
-	 * @return array|string
+	 * @return array|string|string[]
 	 */
 	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
 	{
-		$h = $h ? $h : $this->encloseTag;
+		$h = $h ?: $this->encloseTag;
 		$content = $this->s($content);
 		if ($caption) {
 			$content = [
@@ -195,8 +191,7 @@ abstract class Controller extends SimpleController
 		$more['class'] .= ' ' . get_class($this);
 		//debug_pre_print_backtrace();
 		//$more['style'] = "position: relative;";	// project specific
-		$content = new HTMLTag('section', $more, $content, true);
-		return $content;
+		return new HTMLTag('section', $more, $content, true);
 	}
 
 	/**
@@ -209,11 +204,10 @@ abstract class Controller extends SimpleController
 	{
 //		$al = AutoLoad::getInstance();
 		$slug = URL::friendlyURL($caption);
-		$content = '
+		return '
 			<' . $hTag . ' id="' . $slug . '">' .
 			$caption .
 			'</' . $hTag . '>';
-		return $content;
 	}
 
 	public function encloseInToggle($content, $title, $height = 'auto', $isOpen = null, $tag = 'h3')
@@ -224,7 +218,7 @@ abstract class Controller extends SimpleController
 			$this->index->addJQuery();
 			$this->index->addJS($nadlibPath . 'js/showHide.js');
 			$this->index->addJS($nadlibPath . 'js/encloseInToggle.js');
-			$id = uniqid();
+			$id = uniqid('', true);
 
 			$content = '<div class="encloseIn">
 				<' . $tag . '>
@@ -285,6 +279,11 @@ abstract class Controller extends SimpleController
 		$this->noRender = true;
 	}
 
+	public function wrapInDiv($content, $className = '')
+	{
+		return ['<div class="'.$className.'">', $content, '</div>'];
+	}
+
 	/**
 	 * Uses float: left;
 	 * @params array[string]
@@ -310,10 +309,9 @@ abstract class Controller extends SimpleController
 		$content = '';
 		foreach ($elements as $html) {
 			$html = $this->s($html);
-			$content .= '<div class="flex-box">' . $html . '</div>';
+			$content .= '<div class="flex-box flex-equal">' . $html . '</div>';
 		}
-		$content = '<div class="display-box">' . $content . '</div>';
-		return $content;
+		return '<div class="display-box">' . $content . '</div>';
 	}
 
 	/**
@@ -329,6 +327,7 @@ abstract class Controller extends SimpleController
 		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
+			$html = $this->s($html);
 			$content .= '<div class="flex-box flex-equal">' . $html . '</div>';
 		}
 		$content = '<div class="display-box equal">' . $content . '</div>';
@@ -353,6 +352,13 @@ abstract class Controller extends SimpleController
 	}
 
 	/**
+	 * Commented to allow get_class_methods() to return false
+	 * @return string
+	 */
+	//function getMenuSuffix() {
+	//	return '';
+	//}
+	/**
 	 * Wraps all elements in <div class="column">|</div>
 	 * Use HTMLTag to do manual wrapping
 	 * @return string
@@ -374,6 +380,24 @@ abstract class Controller extends SimpleController
 		$content .= '</div>';
 		return $content;
 	}
+
+	public function encloseInRow(array $elements = [], array $attrs = [])
+	{
+		$this->index->addCSS(AutoLoad::getInstance()->nadlibFromDocRoot . 'CSS/columnContainer.less');
+		$content = '<div class="columnContainer">';
+		foreach ($elements as $i => &$el) {
+			if (!$el instanceof HTMLTag) {
+				$el = $this->s($el);
+				$el = new HTMLTag('div', [
+						'class' => 'column',
+					] + ifsetor($attrs[$i]), $el, true);
+			}
+		}
+		$content .= implode("\n", $elements);
+		$content .= '</div>';
+		return $content;
+	}
+
 
 
 	public function sidebar()
@@ -455,13 +479,6 @@ abstract class Controller extends SimpleController
 		return $content;
 	}
 
-	public function linkPage($className)
-	{
-		$obj = new $className();
-		$title = $obj->title;
-		return $this->a($className, $title);
-	}
-
 	public function makeNewOf($className, $id)
 	{
 		return new $className($id);
@@ -484,21 +501,6 @@ abstract class Controller extends SimpleController
 	public function self()
 	{
 		return substr(strrchr(get_class($this), '\\'), 1);
-	}
-
-	public function st($a)
-	{
-		return strip_tags($a);
-	}
-
-	public function makeActionURL($action = '', array $params = [], $path = '')
-	{
-		$urlParams = [
-				'c' => get_class($this),
-				'action' => $action,
-			] + $params;
-		$urlParams = array_filter($urlParams);
-		return $this->makeURL($urlParams, $path);
 	}
 
 }

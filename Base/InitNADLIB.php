@@ -45,7 +45,7 @@ class InitNADLIB
 		$this->al = AutoLoad::getInstance();
 		$this->al->useCookies = $this->useCookies;
 		$this->development = Request::isWindows()
-			|| ifsetor($_COOKIE['debug'])
+			|| ifsetor($_COOKIE['debug']) === ifsetor($_SERVER['HTTP_HOST'])
 			|| ini_get('debug')
 			|| getenv('NADLIB');
 	}
@@ -138,6 +138,7 @@ class InitNADLIB
 				pre_print_r('Output has started', $file, $line);
 			}
 			@header('X-nadlib: DEVELOPMENT');
+			@header('X-PHP-version: ' . PHP_VERSION);
 			error_reporting(-1);
 			//ini_set('display_errors', FALSE);
 			//trigger_error(str_repeat('*', 20));	// log file separator
@@ -178,11 +179,10 @@ border-radius: 5px;">');
 			if (class_exists('Config', false) && !Request::isCLI()) {
 				//print_r(Config::getInstance()->config['Config']);
 				// set_time_limit() has been disabled for security reasons
-				@set_time_limit(Config::getInstance()->timeLimit
-					? Config::getInstance()->timeLimit
-					: 5);    // small enough to notice if the site is having perf. problems
+				$timeLimit = Config::getInstance()->timeLimit;
+				@set_time_limit($timeLimit ?? 5);    // small enough to notice if the site is having perf. problems
 			}
-			$_REQUEST['d'] = isset($_REQUEST['d']) ? $_REQUEST['d'] : null;
+			$_REQUEST['d'] = $_REQUEST['d'] ?? null;
 			if (!Request::isCLI() && !headers_sent()) {
 				header('Cache-Control: no-cache, no-store, max-age=0');
 				header('Expires: -1');

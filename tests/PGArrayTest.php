@@ -21,6 +21,7 @@ class PGArrayTest extends PHPUnit\Framework\TestCase
 
 	public function setUp()
 	{
+		self::markTestSkipped('PG dependent');
 		$config = Config::getInstance();
 		$this->db = $config->getDB();
 		if (!$this->db instanceof DBLayer) {

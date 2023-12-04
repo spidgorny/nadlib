@@ -17,34 +17,28 @@ use spidgorny\nadlib\HTTP\URL;
 class Localize extends AppControllerBE
 {
 
-	/**
-	 * @var LocalLangDB
-	 */
-	protected $from;
-
-	/**
-	 * @var LocalLangDB
-	 */
-	protected $en, $de, $ru;
-
 	public $title = 'Localize';
-
 	public $table = 'interface';
-
 	public $languages = [
 		'en', 'de', 'ru',
 	];
-
 	/**
 	 * @var URL
 	 */
 	public $url;
-
 	/**
 	 * Cached
 	 * @var array
 	 */
 	public $allKeys = [];
+	/**
+	 * @var LocalLangDB
+	 */
+	protected $from;
+	/**
+	 * @var LocalLangDB
+	 */
+	protected $en, $de, $ru;
 
 	public function __construct()
 	{
@@ -70,7 +64,7 @@ class Localize extends AppControllerBE
 
 	public function render()
 	{
-		$content[] = $this->performAction();
+		$content[] = $this->performAction($this->detectAction());
 		/*$content .= '<div style="float: right;">'.$this->makeLink('Import missing.txt', array(
 			'c' => 'ImportMissing',
 		)).'</div>';*/
@@ -92,9 +86,9 @@ class Localize extends AppControllerBE
 		$table = $this->getTranslationTable($keys);
 
 		$pager = new Pager();
-		$pager->setNumberOfRecords(sizeof($table));
+		$pager->setNumberOfRecords(count($table));
 		$pager->detectCurrentPage();
-		$table = array_slice($table, $pager->startingRecord, $pager->itemsPerPage, true);
+		$table = array_slice($table, $pager->getStartingRecord(), $pager->getPageSize(), true);
 		$content[] = $pager->renderPageSelectors($this->url);
 
 		$s = new slTable($table, 'id="localize" width="100%" class="table _table-striped"', [
@@ -303,8 +297,8 @@ class Localize extends AppControllerBE
 			'type' => 'submit',
 			'value' => __('Add new translation'),
 		];
-		$f = new HTMLFormTable();
-		$f->showForm($desc);
+		$f = new HTMLFormTable($desc);
+		$f->showForm();
 		$content[] = $f;
 
 		return $content;

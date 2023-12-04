@@ -312,7 +312,7 @@ class HTMLForm implements ToStringable
 			$elementID = 'id-' . $from;
 		}
 		if (!$elementID) {
-			$elementID = uniqid('id-');
+			$elementID = uniqid('id-', true);
 		}
 		return $elementID;
 	}
@@ -331,6 +331,36 @@ class HTMLForm implements ToStringable
 		$this->stdout .= $this->getInput("file", $name, '', ifsetor($desc['more'], []), ifsetor($desc['class']));
 		$this->method = 'POST';
 		$this->enctype = "multipart/form-data";
+	}
+
+	/**
+	 * @param string|string[] $name
+	 * @param array $aOptions
+	 * @param string|int|null $default
+	 * @param bool $autoSubmit
+	 * @param array|string $more
+	 * @param bool $multiple
+	 * @param array $desc
+	 *
+	 * @see renderSelectionOptions
+	 */
+	public function selection(
+		$name,
+		array $aOptions,
+		$default,
+		$autoSubmit = false,
+		array $more = [],
+		$multiple = false,
+		array $desc = []
+	) {
+		$sel = new HTMLFormSelection($name, $aOptions, $default);
+		$sel->autoSubmit = $autoSubmit;
+		$sel->more = is_string($more) ? HTMLTag::parseAttributes($more) : $more;
+		$sel->multiple = $multiple;
+		$sel->setDesc($desc);
+		//debug($name, $desc);
+		$sel->setForm($this);
+		$this->stdout .= $sel->render();
 	}
 
 	/**
@@ -362,9 +392,7 @@ class HTMLForm implements ToStringable
 			$extraClass .= ' is-invalid';
 		}
 
-		$this->input(
-			$name,
-			$value,
+		$this->input($name, $value,
 			(isset($desc['id']) ? ['id' => $desc['id']] : []) +
 			ifsetor($desc['more'], []),
 			'date',
@@ -463,7 +491,7 @@ class HTMLForm implements ToStringable
 	/**
 	 * Changelog: second $more parameter was removed, please use $params instead
 	 *
-	 * @param string $value
+	 * @param string|null $value
 	 * @param array $params
 	 *
 	 * @return HTMLForm
@@ -594,37 +622,6 @@ class HTMLForm implements ToStringable
 		);"', false, $desc);
 			$this->input($fieldName, $desc['value']);
 		}
-	}
-
-	/**
-	 * @param string|string[] $name
-	 * @param array|null $aOptions
-	 * @param string|int $default
-	 * @param bool $autoSubmit
-	 * @param array|string $more
-	 * @param bool $multiple
-	 * @param array $desc
-	 *
-	 * @see renderSelectionOptions
-	 */
-	public function selection(
-		$name,
-		$aOptions,
-		$default,
-		$autoSubmit = false,
-		array $more = [],
-		$multiple = false,
-		array $desc = []
-	)
-	{
-		$sel = new HTMLFormSelection($name, $aOptions, $default);
-		$sel->autoSubmit = $autoSubmit;
-		$sel->more = is_string($more) ? HTMLTag::parseAttributes($more) : $more;
-		$sel->multiple = $multiple;
-		$sel->setDesc($desc);
-		//debug($name, $desc);
-		$sel->setForm($this);
-		$this->stdout .= $sel->render();
 	}
 
 	/**
@@ -876,8 +873,8 @@ document.observe("dom:loaded", () => {
 	 */
 	public function popuptree($name, $valueID, $valueName, $desc)
 	{
-		$id1 = 'popuptree' . uniqid();
-		$id2 = 'popuptree' . uniqid();
+		$id1 = 'popuptree' . uniqid('', true);
+		$id2 = 'popuptree' . uniqid('', true);
 		$functionName = 'accept_' . $desc['table'] . '_' . $desc['titleColumn'] . '_' . (++$GLOBALS['popuptreeCall']);
 		$this->hidden($name, $valueID, 'style="width: 5em" readonly id="' . $id1 . '"'); // hidden
 		$this->text(NL);
@@ -892,7 +889,7 @@ document.observe("dom:loaded", () => {
 
 	public function popupLink($self, $table, $titleColumn, $selected, $pid, $leaves, $id1, $id2, $functionName, $selectRoot)
 	{
-		$this->stdout .= Str::ahref('<img src="skin/default/img/browsefolder.png">',
+		$this->stdout .= str::ahref('<img src="skin/default/img/browsefolder.png">',
 			'bijouTreeSelect.php?self=' . $self . '&table=' . $table . '&titleColumn=' . $titleColumn .
 			'&pid=' . $pid . '&leaves=' . $leaves . '&selected=' . $selected . '&callback=' . $functionName .
 			'&selectRoot=' . $selectRoot, false, 'bijouTreeTarget');
@@ -956,7 +953,7 @@ document.observe("dom:loaded", () => {
 
 	public function flipSwitch($name, $value, $checked, $more = '')
 	{
-		$id = uniqid('flipSwitch_');
+		$id = uniqid('flipSwitch_', true);
 		$this->stdout .= '<div class="onoffswitch">
     <input type="checkbox" name="' . $name . '"
      value="' . $value . '"

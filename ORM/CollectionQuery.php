@@ -17,6 +17,15 @@ class CollectionQuery
 	 */
 	protected $pager;
 
+	/**
+	 * @param DBInterface $db
+	 * @param $table
+	 * @param $join
+	 * @param $where SQLWhere|array
+	 * @param $orderBy
+	 * @param $select
+	 * @param Pager|null $pager
+	 */
 	public function __construct(DBInterface $db, $table, $join, array $where, $orderBy, $select, Pager $pager = null)
 	{
 		$this->db = $db;
@@ -36,64 +45,18 @@ class CollectionQuery
 				&& $this->db->isMySQL())
 			);
 		if ($isMySQL) {
-			$cq = new CollectionQueryMySQL($this->db, $this->table, $this->join, $this->where, $this->orderBy,
-				$this->select, $this->pager);
+			$cq = new CollectionQueryMySQL($this->db,
+				$this->table,
+				$this->join,
+				$this->where,
+				$this->orderBy,
+				$this->select,
+				$this->pager);
 			$data = $cq->retrieveDataFromMySQL();
 		} else {
 			$data = $this->retrieveDataFromDB();
 		}
 		return $data;
-	}
-
-	/**
-	 * @return array
-	 * @throws Exception
-	 */
-	private function retrieveDataFromDB()
-	{
-		$taylorKey = get_class($this) . '::' . __FUNCTION__;
-		TaylorProfiler::start($taylorKey);
-//		$this->log(__METHOD__, Debug::getBackLog(25, 0, null, false));
-
-		$this->query = $this->getQueryWithLimit();
-		$this->log(__METHOD__, $this->query . '');
-
-		// in most cases we don't need to rasterize the query to SQL
-		$most_cases = true;
-		if ($most_cases) {
-			$data = $this->db->fetchAll($this->query);
-		} else {
-			// legacy case - need SQL string
-			if ($this->query instanceof SQLSelectQuery) {
-				$res = $this->query->perform();
-			} else {
-				$res = $this->db->perform($this->query);
-			}
-			$data = $this->db->fetchAll($res);
-		}
-		// fetchAll does implement free()
-//		$this->db->free($res);
-		TaylorProfiler::stop($taylorKey);
-		return $data;
-	}
-
-	public function getQueryWithLimit()
-	{
-		$query = $this->getQuery();
-		if ($this->pager) {
-			// do it only once
-			if (!$this->pager->numberOfRecords) {
-				//debug($this->pager->getObjectInfo());
-				//			debug($query);
-				$this->pager->initByQuery($query);
-				//			debug($query, $this->query);
-			}
-			$query = $this->pager->getSQLLimit($query);
-			//debug($query.''); exit();
-		}
-		//debug($query);
-		//TaylorProfiler::stop(__METHOD__." ({$this->table})");
-		return $query;
 	}
 
 	/**
@@ -143,8 +106,60 @@ class CollectionQuery
 		return $query;
 	}
 
+	public function getQueryWithLimit()
+	{
+		$query = $this->getQuery();
+		if ($this->pager) {
+			// do it only once
+			if (!$this->pager->numberOfRecords) {
+				//debug($this->pager->getObjectInfo());
+				//			debug($query);
+				$this->pager->initByQuery($query);
+				//			debug($query, $this->query);
+			}
+			$query = $this->pager->getSQLLimit($query);
+			//debug($query.''); exit();
+		}
+		//debug($query);
+		//TaylorProfiler::stop(__METHOD__." ({$this->table})");
+		return $query;
+	}
+
+	/**
+	 * @return array
+	 * @throws Exception
+	 */
+	private function retrieveDataFromDB()
+	{
+		$taylorKey = get_class($this) . '::' . __FUNCTION__;
+		TaylorProfiler::start($taylorKey);
+//		$this->log(__METHOD__, Debug::getBackLog(25, 0, null, false));
+
+		$this->query = $this->getQueryWithLimit();
+//		$this->log(__METHOD__, str_replace("\n", " ", str_replace("\t", " ", $this->query . '')));
+
+		// in most cases we don't need to rasterize the query to SQL
+		$most_cases = true;
+		if ($most_cases) {
+			$data = $this->db->fetchAll($this->query);
+		} else {
+			// legacy case - need SQL string
+			if ($this->query instanceof SQLSelectQuery) {
+				$res = $this->query->perform();
+			} else {
+				$res = $this->db->perform($this->query);
+			}
+			$data = $this->db->fetchAll($res);
+		}
+		// fetchAll does implement free()
+//		$this->db->free($res);
+		TaylorProfiler::stop($taylorKey);
+		return $data;
+	}
+
 	protected function log($action, ...$something)
 	{
+		llog($action, $something);
 		$logEntry = new LogEntry($action, $something);
 		$this->log[] = $logEntry;
 //		llog($logEntry);

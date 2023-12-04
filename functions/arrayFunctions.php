@@ -124,16 +124,20 @@ if (!function_exists('first')) {
 			return array_filter($source, function ($el, $key) use ($remove) {
 				if (is_array($remove)) {
 					return !in_array($key, $remove);
-				} else {
-					return $key != $remove;
 				}
+
+				return $key != $remove;
 			}, ARRAY_FILTER_USE_BOTH);
-		} else {
-			return array_diff_key($source,
-				array_flip((array)$remove));
 		}
+
+		return array_diff_key($source, array_flip((array)$remove));
 	}
 
+	/**
+	 * @param $callback - return both keys and values
+	 * @param array $array
+	 * @return array|false
+	 */
 	function array_map_keys($callback, array $array)
 	{
 		$keys = array_keys($array);
@@ -175,4 +179,49 @@ if (!function_exists('first')) {
 		return $r;
 	}
 
+}
+
+/**
+ * https://stackoverflow.com/questions/4790453/php-recursive-array-to-object
+ * Convert an array into a stdClass()
+ *
+ * @param array $array The array we want to convert
+ *
+ * @return  object
+ */
+function arrayToObject($array)
+{
+	// First we convert the array to a json string
+	$json = json_encode($array);
+
+	// The we convert the json string to a stdClass()
+	$object = json_decode($json);
+
+	return $object;
+}
+
+
+/**
+ * Convert a object to an array
+ *
+ * @param object $object The object we want to convert
+ *
+ * @return  array
+ */
+function objectToArray($object)
+{
+	// First we convert the object into a json string
+	$json = json_encode($object);
+
+	// Then we convert the json string to an array
+	return json_decode($json, true);
+}
+
+// https://www.reddit.com/r/PHPhelp/comments/7987wv/is_there_a_php_equivalent_of_javascripts_arrayfind/
+function array_find(callable $callback, array $array) {
+	foreach ($array as $key => $value) {
+		if ($callback($value, $key, $array)) {
+			return $value;
+		}
+	}
 }

@@ -13,14 +13,14 @@ class SessionView extends AppControllerBE
 
 	public function render()
 	{
-		$this->performAction();
+		$this->performAction($this->detectAction());
 		$content = '';
 		foreach ($_SESSION as $key => $val) {
 			$content .= '<h4>
 				<a name="' . $key . '">
 					' . $key . '
 				</a>
-				<a href="' . $this->getURL([
+				<a href="' . $this->makeURL([
 					'c' => 'Session',
 					'action' => 'del',
 					'del' => $key,

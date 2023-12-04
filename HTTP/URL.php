@@ -219,22 +219,27 @@ class URL
 		$this->components['query'] = $this->buildQuery();
 	}
 
+	public function __clone()
+	{
+		$this->path = clone $this->path;
+	}
+
 	/**
 	 * @return Path
 	 */
 	public function getPath()
 	{
 		$path = $this->path;
-		if (get_class($path) != 'Path') {
+		if (!$path instanceof \Path) {
 			debug(gettype($path), get_class($path), get_object_vars($path));
 			debug_pre_print_backtrace();
 		}
-		assert(get_class($path) == 'Path');
-		if ($this->documentRoot != '/') {
+		assert($path instanceof \Path);
+		if ($this->documentRoot !== '/') {
 			//$path = str_replace($this->documentRoot, '', $path);	// WHY???
 		}
 		if (!$path instanceof Path) {
-			$path = new Path($path);
+			$this->path = new Path($path);
 		}
 		nodebug([
 			'class($this->path)' => get_class($this->path),
@@ -243,11 +248,11 @@ class URL
 			'class($path)' => get_class($path),
 			'path' => $path . '',
 		]);
-		return $path;
+		return $this->path;
 	}
 
 	/**
-	 * @param $path
+	 * @param string|Path $path
 	 * @return $this
 	 */
 	public function setPath($path)

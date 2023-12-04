@@ -18,6 +18,15 @@ class DebugHTML
 		$this->helper = $helper;
 	}
 
+	private static function shortenType(string $type)
+	{
+		$type = str_replace('string', 'S', $type);
+		$type = str_replace('array', 'A', $type);
+		$type = str_replace('integer', 'I', $type);
+		$type = str_replace('boolean', 'B', $type);
+		return $type;
+	}
+
 	public function render()
 	{
 		$levels = self::$defaultLevels;
@@ -37,7 +46,7 @@ class DebugHTML
 				$this->helper->index->renderHead();
 			} elseif (!headers_sent() && !$this->htmlPrologSent) {
 				$content = '<!DOCTYPE html>
-				<html>
+				<html lang="en-US">
 				<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 				' . $content;
 				$this->htmlPrologSent = true;
@@ -91,7 +100,7 @@ class DebugHTML
 
 	protected function getProps($db, $a)
 	{
-		static $lastElepsed;
+		static $lastElapsed;
 
 		$first = ifsetor($db[2]);
 		if ($first) {
@@ -136,9 +145,9 @@ class DebugHTML
 		$props['Mem ±:'] = $memDiff;
 
 		$elapsed = number_format(microtime(true) - $_SERVER['REQUEST_TIME'], 3);
-		$elapsedDiff = '+' . number_format($elapsed - $lastElepsed, 3, '.', '');
+		$elapsedDiff = '+' . number_format($elapsed - $lastElapsed, 3, '.', '');
 		$props['Elapsed:'] = $elapsed . ' (<span style="color: green">' . $elapsedDiff . '</span>)' . BR;
-		$lastElepsed = $elapsed;
+		$lastElapsed = $elapsed;
 		return $props;
 	}
 
@@ -180,6 +189,7 @@ class DebugHTML
 			$content = '<table class="' . $tableClass . '">';
 			foreach ($a as $i => $r) {
 				$type = typ($r);
+				$type = self::shortenType($type);
 				$content .= '<tr>
 					<td>' . htmlspecialchars($i) . '</td>
 					<td>' . $type . '</td>

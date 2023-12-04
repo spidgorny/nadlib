@@ -47,6 +47,7 @@ class SQLOr extends SQLWherePart
 			$ors[] = $this->dciStyle();
 		} else {                        // MySQL
 			$ors = $this->db->quoteWhere($this->or);
+//			llog($this->or, $ors);
 		}
 
 		if ($ors) {

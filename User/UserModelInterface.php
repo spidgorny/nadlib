@@ -38,6 +38,8 @@ interface UserModelInterface
 
 	public function getAllSettings();
 
+	public function getSetting($key);
+
 	public function getGroup();
 
 //	public function getData();

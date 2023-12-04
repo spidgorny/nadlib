@@ -209,7 +209,7 @@ class AutoLoadFolders
 	 */
 	public function findInFolders($className, $namespace)
 	{
-		TaylorProfiler::start(__METHOD__);
+		TaylorProfiler::start(__METHOD__ . ' - ' . $className);
 		//pre_var_dump($className, $namespace);
 		//$appRoot = class_exists('Config') ? $this->config->appRoot : '';
 		//foreach ($this->folders as $namespace => $map) {
@@ -253,7 +253,7 @@ class AutoLoadFolders
 			}
 
 			// Index != index.php on Windows
-			if ($className == 'Index') {
+			if ($className === 'Index') {
 //				pre_print_r([$className, $file, basename($file)]);
 				if (basename(realpath($file)) != ($className . '.php')) {
 					$file = null;

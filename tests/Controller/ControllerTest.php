@@ -25,6 +25,7 @@ class ControllerTest extends TestCase
 
 	public function setUp()
 	{
+		self::markTestSkipped('PG dependent');
 		$this->request = new MockRequest();
 	}
 

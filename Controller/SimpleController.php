@@ -18,6 +18,7 @@ abstract class SimpleController
 	 * @var Controller[]
 	 */
 	protected static $instance = [];
+
 	/**
 	 * @var Index|IndexInterface
 	 */
@@ -43,14 +44,13 @@ abstract class SimpleController
 
 	public function __construct()
 	{
-		if (ifsetor($_REQUEST['d']) == 'log') {
+		if (ifsetor($_REQUEST['d']) === 'log') {
 			echo get_class($this) . '::' . __METHOD__ . BR;
 		}
 		$this->index = class_exists('Index', false)
 			? Index::getInstance(false) : null;
 		$this->request = Request::getInstance();
-		$this->title = $this->title ? $this->title
-			: last(trimExplode('\\', get_class($this)));
+		$this->title = $this->title ?: last(trimExplode('\\', get_class($this)));
 		//debug_pre_print_backtrace();
 		$this->html = new HTML();
 		self::$instance[get_class($this)] = $this;
@@ -126,8 +126,7 @@ abstract class SimpleController
 	public function indexAction()
 	{
 		$content = $this->renderTemplate();
-		$content = $this->html->div($content, str_replace('\\', '-', get_class($this)));
-		return $content;
+		return $this->html->div($content, str_replace('\\', '-', get_class($this)));
 	}
 
 	public function renderTemplate()
@@ -160,55 +159,6 @@ abstract class SimpleController
 	{
 		$content[] = $this->performAction();
 		return $content;
-	}
-
-	public function performAction($action = null)
-	{
-		$content = '';
-		if (Request::isCLI()) {
-			//debug($_SERVER['argv']);
-			$reqAction = ifsetor($_SERVER['argv'][2]);    // it was 1
-		} else {
-			$reqAction = $this->request->getTrim('action');
-		}
-		//		debug($reqAction);
-		$method = $action
-			?: (!empty($reqAction) ? $reqAction : 'index');
-		if ($method) {
-			$method .= 'Action';        // ZendFramework style
-			//			debug($method, method_exists($this, $method));
-
-			$proxy = $this->request->getTrim('proxy');
-			if ($proxy) {
-				$proxy = new $proxy($this);
-			} else {
-				$proxy = $this;
-			}
-
-			if (method_exists($proxy, $method)) {
-				if (Request::isCLI()) {
-					$assoc = array_slice(ifsetor($_SERVER['argv'], []), 3);
-					$content = call_user_func_array([$proxy, $method], $assoc);
-				} else {
-					$caller = new MarshalParams($proxy);
-					$content = $caller->call($method);
-				}
-			} else {
-				// other classes except main controller may result in multiple messages
-//				Index::getInstance()->message('Action "'.$method.'" does not exist in class "'.get_class($this).'".');
-			}
-		}
-		return $content;
-	}
-
-	public function __toString()
-	{
-		return $this->s($this->render());
-	}
-
-	public function s($something)
-	{
-		return MergedContent::mergeStringArrayRecursive($something);
 	}
 
 	/**
@@ -246,9 +196,67 @@ abstract class SimpleController
 			'</' . $hTag . '>';
 	}
 
+ /**
+	 * Will call indexAction() method if no $action provided
+	 * @param $action
+	 * @return false|mixed|string
+	 * @throws ReflectionException
+	 */
+	public function performAction($action = null)
+	{
+		$content = '';
+		$method = $action ?? $this->detectAction();
+		if ($method) {
+			$method .= 'Action';        // ZendFramework style
+			//			debug($method, method_exists($this, $method));
+
+			$proxy = $this->request->getTrim('proxy');
+			if ($proxy) {
+				$proxy = new $proxy($this);
+			} else {
+				$proxy = $this;
+			}
+
+			// other classes except main controller may result in multiple messages
+			if (method_exists($proxy, $method)) {
+				if (Request::isCLI()) {
+					$assoc = array_slice(ifsetor($_SERVER['argv'], []), 3);
+					$content = call_user_func_array([$proxy, $method], $assoc);
+				} else {
+					$caller = new MarshalParams($proxy);
+					$content = $caller->call($method);
+				}
+			}
+		}
+		return $content;
+	}
+
+	public function detectAction()
+	{
+		if (Request::isCLI()) {
+			//debug($_SERVER['argv']);
+			$reqAction = ifsetor($_SERVER['argv'][2]);    // it was 1
+		} else {
+			$reqAction = $this->request->getTrim('action');
+		}
+		//		debug($reqAction);
+		return $reqAction;
+	}
+
+	public function __toString()
+	{
+		return $this->s($this->render());
+	}
+
+	public function s($something)
+	{
+		return MergedContent::mergeStringArrayRecursive($something);
+	}
+
 	public function log($action, ...$data)
 	{
-		if (is_array($data) && count($data) === 1) {
+		llog($action, ...$data);
+		if (count($data) === 1) {
 			$data = $data[0];
 		}
 		$this->log[] = new LogEntry($action, $data);

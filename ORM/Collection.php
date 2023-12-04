@@ -198,6 +198,36 @@ class Collection implements IteratorAggregate, ToStringable
 		TaylorProfiler::stop($taylorKey);
 	}
 
+	public function postInit()
+	{
+		//$this->pager = new Pager();
+		if (class_exists('Index', false)) {
+			$index = Index::getInstance();
+			$this->controller = &$index->controller;
+		}
+		//debug(get_class($this->controller));
+	}
+
+	public function log($action, $data = [])
+	{
+//		llog($action, $data);
+		if ($this->logger) {
+			if (!is_array($data)) {
+				$data = ['data' => $data];
+			}
+			$this->logger->info($action, $data);
+		} else {
+			$this->log[] = new LogEntry($action, $data);
+		}
+	}
+
+	public function isFetched()
+	{
+		return $this->query && $this->data !== null;
+		// we may have fetched only 0 rows
+		//|| !$this->data->count())) {
+	}
+
 	/**
 	 * @param bool $preProcess
 	 * @return ArrayPlus
@@ -241,7 +271,7 @@ class Collection implements IteratorAggregate, ToStringable
 	 */
 	public function setData($data)
 	{
-		$this->log(get_class($this) . '::' . __FUNCTION__ . '(' . sizeof($data) . ')');
+		$this->log(get_class($this) . '::' . __FUNCTION__ . '(' . count($data) . ')');
 		$this->log(__METHOD__, ['from' => Debug::getCaller(2)]);
 		//debug_pre_print_backtrace();
 		//$this->log(__METHOD__, get_call_stack());
@@ -259,25 +289,6 @@ class Collection implements IteratorAggregate, ToStringable
 		// after it was set (see $this->getData()
 		// which is called in $this->render())
 		$this->query = $this->query ?: __METHOD__;
-	}
-
-	public function log($action, $data = [])
-	{
-		if ($this->logger) {
-			if (!is_array($data)) {
-				$data = ['data' => $data];
-			}
-			$this->logger->info($action, $data);
-		} else {
-			$this->log[] = new LogEntry($action, $data);
-		}
-	}
-
-	public function isFetched()
-	{
-		return $this->query && $this->data !== null;
-		// we may have fetched only 0 rows
-		//|| !$this->data->count())) {
 	}
 
 	/**
@@ -382,7 +393,7 @@ class Collection implements IteratorAggregate, ToStringable
 //		$this->log('getQueryWithLimit', $this->getQueryWithLimit().'');
 		$queryIsTheSame = ($this->query . '') === ($this->getQueryWithLimit() . '');
 		if ($this->count !== null && $queryIsTheSame) {
-			return $this->count;
+			return intval($this->count);
 		}
 		$this->query = $this->getQueryWithLimit();     // will init pager
 		if ($this->pager && $this->pager->numberOfRecords) {
@@ -393,7 +404,7 @@ class Collection implements IteratorAggregate, ToStringable
 			$this->count = $counter->getCount();
 		}
 		$this->log(get_class($this) . '::' . __FUNCTION__, ['exit', $this->count]);
-		return $this->count;
+		return intval($this->count);
 	}
 
 	public function getQueryWithLimit()
@@ -410,16 +421,6 @@ class Collection implements IteratorAggregate, ToStringable
 	public function preprocessRow(array $row)
 	{
 		return $row;
-	}
-
-	public function postInit()
-	{
-		//$this->pager = new Pager();
-		if (class_exists('Index', false)) {
-			$index = Index::getInstance();
-			$this->controller = &$index->controller;
-		}
-		//debug(get_class($this->controller));
 	}
 
 	public function translateThes()
@@ -440,6 +441,7 @@ class Collection implements IteratorAggregate, ToStringable
 	 * @param array $where
 	 * @param string $orderBy
 	 * @return Collection
+	 * @return string[] - returns the slTable if not using Pager
 	 * @throws Exception
 	 */
 	public static function createForTable(DBInterface $db, $table, array $where = [], $orderBy = '')
@@ -503,6 +505,15 @@ class Collection implements IteratorAggregate, ToStringable
 		$this->getData();
 		$this->preprocessData();
 		return $this->data;
+	}
+
+	public function prepareRenderRow(array $row)
+	{
+		if (is_callable($this->prepareRenderRow)) {
+			$closure = $this->prepareRenderRow;
+			$row = $closure($row);
+		}
+		return $row;
 	}
 
 	/**
@@ -666,23 +677,13 @@ class Collection implements IteratorAggregate, ToStringable
 		return $this;
 	}
 
-	public function prepareRenderRow(array $row)
-	{
-		if (is_callable($this->prepareRenderRow)) {
-			$closure = $this->prepareRenderRow;
-			$row = $closure($row);
-		}
-		return $row;
-	}
-
 	/**
 	 * Calls __toString on each member
 	 * @return string
 	 */
 	public function renderMembers()
 	{
-		$view = $this->getView();
-		return $view->renderMembers();
+		return $this->getView()->renderMembers();
 	}
 
 	public function objectifyAsPlus()
@@ -757,6 +758,18 @@ class Collection implements IteratorAggregate, ToStringable
 		return $list;
 	}
 
+	public function getLazyIterator()
+	{
+		$query = $this->getCollectionQuery()->getQuery();
+		//debug($query);
+
+		$lazy = new DatabaseResultIteratorAssoc($this->db, $this->idField);
+		$lazy->perform($query);
+		$this->query = $lazy->query;
+
+		return $lazy;
+	}
+
 	/**
 	 * @param string $class
 	 * @return LazyMemberIterator|$class[]
@@ -770,18 +783,6 @@ class Collection implements IteratorAggregate, ToStringable
 		$memberIterator = new LazyMemberIterator($arrayIterator, $class);
 		$memberIterator->count = $arrayIterator->count();
 		return $memberIterator;
-	}
-
-	public function getLazyIterator()
-	{
-		$query = $this->getCollectionQuery()->getQuery();
-		//debug($query);
-
-		$lazy = new DatabaseResultIteratorAssoc($this->db, $this->idField);
-		$lazy->perform($query);
-		$this->query = $lazy->query;
-
-		return $lazy;
 	}
 
 	public function clearInstances()
@@ -857,7 +858,7 @@ class Collection implements IteratorAggregate, ToStringable
 	public function setMembers(array $countries)
 	{
 		$this->members = $countries;
-		$this->count = sizeof($this->members);
+		$this->count = count($this->members);
 		$this->query = __METHOD__;
 
 		$this->data = ArrayPlus::create();
@@ -868,7 +869,6 @@ class Collection implements IteratorAggregate, ToStringable
 
 	public function first()
 	{
-		//debug($this->getQuery());
 		return first($this->objectify());
 	}
 

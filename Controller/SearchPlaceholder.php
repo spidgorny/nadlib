@@ -18,7 +18,7 @@ class SearchPlaceholder extends AppControllerBE
 
 	public function render()
 	{
-		$content = $this->performAction();
+		$content = $this->performAction($this->detectAction());
 		if (!$content) {
 			$content .= $this->renderProgressBar();
 		}

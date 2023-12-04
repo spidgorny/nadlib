@@ -8,7 +8,7 @@
  * DebugPanel::getInstance()->addPanel('Request', new Request());
  * ...
  * $dp = DebugPanel::getInstance();
- * $dp->addPanel('TaylorProfiler', new htmlString($GLOBALS['profiler']->printTimers(TRUE)));
+ * $dp->addPanel('TaylorProfiler', new HtmlString($GLOBALS['profiler']->printTimers(TRUE)));
  * DebugPanel::getInstance()->addPanel('System Variables', array(
  * 'REQUEST' => $_REQUEST,
  * 'GET' => $_GET,
@@ -26,9 +26,9 @@
  * 'bool' => true,
  * 'array' => array(0, 1, 2, 3, 'slawa'),
  * 'panel' => array('info' => array('position' => 'fixed')),
- * 'someHTML' => new htmlString('<big>Hi</big>I am an <span style="text-decoration: small-caps;">HTML</span> string.'),
+ * 'someHTML' => new HtmlString('<big>Hi</big>I am an <span style="text-decoration: small-caps;">HTML</span> string.'),
  * ));
- * DebugPanel::getInstance()->addPanel('Server Stat', new htmlString(new ServerStat().''));
+ * DebugPanel::getInstance()->addPanel('Server Stat', new HtmlString(new ServerStat().''));
  *
  */
 class DebugPanel

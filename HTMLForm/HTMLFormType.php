@@ -14,7 +14,7 @@ abstract class HTMLFormType implements HTMLFormFieldInterface
 	public $form;
 
 	/**
-	 * @var string[]|string
+	 * @var array
 	 */
 	public $field;
 
@@ -49,10 +49,10 @@ abstract class HTMLFormType implements HTMLFormFieldInterface
 		$this->field = $field;
 	}
 
-	public function setForm(HTMLForm $form)
+	public function setForm(HTMLForm $f)
 	{
-		$this->form = $form;
-		$this->fullName = $this->form->getName($this->field, '', true);
+		$this->form = $f;
+		$this->fullName = $this->form->getName($this->field, '', TRUE);
 	}
 
 	/**
@@ -83,7 +83,7 @@ abstract class HTMLFormType implements HTMLFormFieldInterface
 	 */
 	public function validate()
 	{
-		return null;
+		return NULL;
 	}
 
 }

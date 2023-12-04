@@ -185,4 +185,9 @@ class HTML
 		return strip_tags($a);
 	}
 
+	public function bold($text)
+	{
+		return '<b>' . $this->e($text) . '</b>';
+	}
+
 }

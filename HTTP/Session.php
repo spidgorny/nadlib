@@ -23,7 +23,7 @@ class Session implements SessionInterface
 		if (function_exists('session_status')) {
 			// somehow PHP_SESSION_NONE is the status when $_SESSION var exists
 			// PHP_SESSION_NONE removed as it's a major problem
-			return in_array(session_status(), [PHP_SESSION_ACTIVE]);
+			return session_status() === PHP_SESSION_ACTIVE;
 		}
 
 		return !!session_id() && isset($_SESSION);
@@ -45,20 +45,24 @@ class Session implements SessionInterface
 		return new self($prefix);
 	}
 
+	public function get($key, $default = null)
+	{
+		if (is_callable($default)) {
+			$default = $default();
+		}
+
+		if ($this->prefix) {
+			return ifsetor($_SESSION[$this->prefix][$key], $default);
+		}
+
+		return ifsetor($_SESSION[$key], $default);
+	}
+
 	public function getOnce($key)
 	{
 		$value = $this->get($key);
 		$this->delete($key);
 		return $value;
-	}
-
-	public function get($key)
-	{
-		if ($this->prefix) {
-			return ifsetor($_SESSION[$this->prefix][$key]);
-		}
-
-		return ifsetor($_SESSION[$key]);
 	}
 
 	public function delete($string)
@@ -92,6 +96,11 @@ class Session implements SessionInterface
 	public function __set($name, $value)
 	{
 		$this->save($name, $value);
+	}
+
+	public function __isset($name)
+	{
+		return $this->get($name);
 	}
 
 	public function clearAll()

@@ -3,19 +3,55 @@
 class File
 {
 
-	protected $dir;
+	public $isDir;
 
+	/**
+	 * @var string this is a relative path (can be absolute as well)
+	 */
 	protected $name;
 
+	/** @var SplFileInfo */
 	public $spl;
 
+	/**
+	 * @var \League\Flysystem\Filesystem
+	 */
 	public $fly;
 
+	/**
+	 * @var array[
+	 * 'type'=>'file',
+	 * 'path'=>'asd.ext',
+	 * 'timestamp'=>1234567890
+	 * 'size'=>1234,
+	 * 'dirname'=>string,
+	 * 'basename'=>string,
+	 * 'extension'=>'ext',
+	 * 'filename'=>'asd',
+	 * ]
+	 */
 	public $meta;
 
-	public static function fromLocal($file)
+	/**
+	 * @var string|null the path in the $name is relative to this
+	 */
+	public $relativeTo;
+
+	public static function fromLocal($file, string $relativeTo = null)
 	{
-		return new static($file);
+		if (!file_exists($file) && !is_dir($file)) {
+			throw new Exception('File ' . $file . ' does not exists');
+		}
+		$file = new static($file, $relativeTo);
+		$file->isDir = is_dir($file);
+		return $file;
+		// relative to some unknown root should work
+//		if (!file_exists($file) && !is_dir($file)) {
+//			throw new Exception('File ' . $file . ' does not exists');
+//		}
+		$file = new static($file, $relativeTo);
+		$file->isDir = is_dir($file);
+		return $file;
 	}
 
 	public static function fromSpl(SplFileInfo $info)
@@ -25,17 +61,18 @@ class File
 		return $file;
 	}
 
-	public static function fromFly(League\Flysystem\Filesystem $fly, array $file)
+	public static function fromFly(League\Flysystem\Filesystem $fly, array $fileMeta)
 	{
-		$file = new static($file['path']);
+		$file = new static($fileMeta['path']);
 		$file->fly = $fly;
-		$file->meta = $file;
+		$file->meta = $fileMeta;
 		return $file;
 	}
 
-	public function __construct($path)
+	public function __construct($path, string $relativeTo = null)
 	{
-		$this->dir = dirname($path);
+		$this->relativeTo = $relativeTo;
+		$this->dir = dirname($path) === '.' ? '' : dirname($path);
 		$this->name = basename($path);
 	}
 
@@ -61,7 +98,12 @@ class File
 
 	public function getPathname()
 	{
-		return $this->dir . '/' . $this->name;
+		if ($this->dir) {
+			return $this->dir . '/' . $this->name;
+		}
+		$absolute = path_plus($this->relativeTo, $this->name);
+//		llog(__METHOD__, $this->relativeTo, $this->name, $absolute);
+		return $absolute;
 	}
 
 	public function md5()
@@ -114,6 +156,11 @@ class File
 	public function getMTime()
 	{
 		return filemtime($this->getPathname());
+	}
+
+	public function getType()
+	{
+		return $this->isDir ? 'dir' : 'file';
 	}
 
 }

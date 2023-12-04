@@ -82,4 +82,8 @@ class TYPO3User extends UserBase
 		return null;
 	}
 
+	public function getSetting($key)
+	{
+		// TODO: Implement getSetting() method.
+	}
 }

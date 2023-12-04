@@ -83,7 +83,7 @@ if (!function_exists('str_startsWith')) {
 		if (is_object($str)) {
 			$is_string = method_exists($str, '__toString');
 		} else {
-			$is_string = is_string($str);
+			$is_string = is_string($str) || is_int($str);
 		}
 		if (!$is_string) {
 			debug('trimExplode', 'must be string', new HtmlString(typ($str)));
@@ -139,15 +139,34 @@ if (!function_exists('str_startsWith')) {
 		return $string;
 	}
 
-	function path_plus($path, $plus, $plus2 = null)
+	function get_path_separator($path)
 	{
 		$freq = array_count_values(str_split($path));
 		$separator = ifsetor($freq['/']) >= ifsetor($freq['\\']) ? '/' : '\\';
+//		llog($separator);
+		return $separator;
+	}
 
-		$isAbs = isset($path[0]) &&
-			($path[0] == '/' || $path[0] == '\\' || $path[1] == ':');
+	/**
+	 * @param string $path
+	 * @param string $plus
+	 * @param null $plus2
+	 * @return string
+	 * @throws Exception
+	 */
+	function path_plus($path, $plus, $plus2 = null)
+	{
+//		llog('path_plus', $path, $plus);
+		$freq = array_count_values(str_split($path));
+		$separator = ifsetor($freq['/']) >= ifsetor($freq['\\']) ? '/' : '\\';
+//		llog($separator);
 
-		$parts = trimExplode('/', $path . '');
+		$char0 = isset($path[0]) ? $path[0] : null;
+		$char1 = isset($path[1]) ? $path[1] : null;
+		$isAbs = $char0 === '/' || $char0 === '\\' || $char1 === ':';
+
+		$path = str_replace('\\', '/', $path);  // for trim
+		$parts = trimExplode('/', $path );
 		$parts = array_merge($parts, trimExplode('/', $plus));
 
 		$root = '';
@@ -240,13 +259,13 @@ if (!function_exists('str_startsWith')) {
 		$out = '';
 		$chars = preg_split('//u', $string, null, PREG_SPLIT_NO_EMPTY);
 		foreach ($chars as $i => $ch) {
-			if ($ch == ' ') {
-				if ($out[-1] != '_') {
+			if ($ch === ' ') {
+				if ($out[-1] !== '_') {
 					$out .= '_';
 				}
-			} elseif (strtoupper($ch) == $ch) {
+			} elseif (strtoupper($ch) === $ch) {
 				if ($i) {
-					if (strlen($out) && $out[strlen($out) - 1] != '_') {
+					if (strlen($out) && $out[strlen($out) - 1] !== '_') {
 						$out .= '_';
 					}
 				}
@@ -256,6 +275,11 @@ if (!function_exists('str_startsWith')) {
 			}
 		}
 		return $out;
+	}
+
+	function strip_namespace($className)
+	{
+			return last(trimExplode('\\', $className));
 	}
 
 }

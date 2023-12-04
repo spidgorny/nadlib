@@ -8,8 +8,9 @@ class SQLTest extends PHPUnit\Framework\TestCase
 	 */
 	protected $db;
 
-	public function setup()
+	public function setUp()
 	{
+		self::markTestSkipped('PG dependent');
 		$this->db = Config::getInstance()->getDB();
 	}
 

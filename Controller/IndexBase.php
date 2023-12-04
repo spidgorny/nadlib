@@ -22,7 +22,7 @@ class IndexBase /*extends Controller*/
 	 */
 	public $content;
 	/**
-	 * @var AppController
+	 * @var AppController|UserlessController
 	 */
 	public $controller;
 	public $header = [];
@@ -34,7 +34,13 @@ class IndexBase /*extends Controller*/
 	public $description = '';
 	public $keywords = '';
 	public $bodyClasses = [];
-	public $csp = [
+
+	/**
+	 * @var Config
+	 */
+	protected $config;
+
+	var $csp = [
 		"default-src" => [
 			"'self'",
 			"'unsafe-inline'",
@@ -70,8 +76,10 @@ class IndexBase /*extends Controller*/
 			"'unsafe-eval'",
 		],
 	];
+	public $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error';
+
 	/**
-	 * @var MySQL
+	 * @var DbInterface
 	 */
 	protected $db;
 	/**
@@ -79,10 +87,7 @@ class IndexBase /*extends Controller*/
 	 * @public for template.phtml
 	 */
 	protected $user;
-	/**
-	 * @var Config
-	 */
-	protected $config;
+
 	/**
 	 * @var Request
 	 */
@@ -116,6 +121,9 @@ class IndexBase /*extends Controller*/
 		TaylorProfiler::stop(__METHOD__);
 	}
 
+	/**
+	 * @return string
+	 */
 	public function setSecurityHeaders()
 	{
 		if (!headers_sent()) {
@@ -130,6 +138,55 @@ class IndexBase /*extends Controller*/
 	}
 
 	/**
+	 * @throws AccessDeniedException
+	 */
+	public function initSession()
+	{
+//		debug('is session started', session_id(), session_status());
+		if (!Request::isCLI() && !Session::isActive() && !headers_sent()) {
+			ini_set('session.use_trans_sid', false);
+			ini_set('session.use_only_cookies', true);
+			ini_set('session.cookie_httponly', true);
+			ini_set('session.hash_bits_per_character', 6);
+			ini_set('session.hash_function', 'sha512');
+			llog('session_start in initSession');
+			$ok = session_start();
+			if (!$ok) {
+				throw new RuntimeException('session_start() failed');
+			}
+		}
+		if (!headers_sent()) {
+			header('X-Frame-Options: SAMEORIGIN');
+			header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+			foreach ($this->csp as $key => &$val) {
+				$val = $key . ' ' . implode(' ', $val);
+			}
+			header('Content-Security-Policy: ' . implode('; ', $this->csp));
+			header('X-Content-Security-Policy: ' . implode('; ', $this->csp));
+		}
+		if (ifsetor($_SESSION['HTTP_USER_AGENT'])) {
+			if ($_SESSION['HTTP_USER_AGENT'] != $_SERVER['HTTP_USER_AGENT']) {
+				session_regenerate_id(true);
+				unset($_SESSION['HTTP_USER_AGENT']);
+				throw new AccessDeniedException('Session hijacking detected. Please try again');
+			}
+		} else {
+			$_SESSION['HTTP_USER_AGENT'] = ifsetor($_SERVER['HTTP_USER_AGENT']);
+		}
+		if (ifsetor($_SESSION['REMOTE_ADDR'])) {
+			if ($_SESSION['REMOTE_ADDR'] != $_SERVER['REMOTE_ADDR']) {
+				session_regenerate_id(true);
+				unset($_SESSION['REMOTE_ADDR']);
+				throw new AccessDeniedException('Session hijacking detected. Please try again.');
+			}
+		} else {
+			$_SESSION['REMOTE_ADDR'] = ifsetor($_SERVER['REMOTE_ADDR']);
+		}
+//		debug($_SESSION['HTTP_USER_AGENT'], $_SESSION['REMOTE_ADDR']);
+//		debug($_SERVER['HTTP_USER_AGENT'], $_SERVER['REMOTE_ADDR']);
+	}
+
+ /**
 	 * TODO: Remove the boolean parameter from getInstance()
 	 * TODO: And force to use makeInstance() in case it was true
 	 * @param Config|null $config
@@ -144,7 +201,7 @@ class IndexBase /*extends Controller*/
 	/**
 	 * @param bool $createNew - must be false
 	 * @param ConfigInterface|null $config
-	 * @return Index|IndexBE
+	 * @return Index
 	 * @throws Exception
 	 */
 	public static function getInstance($createNew = false, ConfigInterface $config = null)
@@ -185,6 +242,7 @@ class IndexBase /*extends Controller*/
 	public function initController()
 	{
 		// already created
+		// already created
 		if ($this->controller instanceof Controller) {
 			return;
 		}
@@ -198,6 +256,7 @@ class IndexBase /*extends Controller*/
 		}
 		$this->loadController($slug);
 		$this->bodyClasses[] = is_object($this->controller) ? get_class($this->controller) : '';
+		TaylorProfiler::stop(__METHOD__);
 	}
 
 	/**
@@ -223,20 +282,16 @@ class IndexBase /*extends Controller*/
 	 */
 	protected function loadController($class)
 	{
-		TaylorProfiler::start(__METHOD__);
 		$slugParts = explode('/', $class);
 		$class = end($slugParts);    // again, because __autoload needs the full path
 //		debug(__METHOD__, $slugParts, $class, class_exists($class));
 		if (class_exists($class)) {
 			$this->controller = $this->makeController($class);
-		} else {
-			//debug($_SESSION['autoloadCache']);
-			$exception = 'Class ' . $class . ' not found. Dev hint: try clearing autoload cache?';
-			unset($_SESSION['AutoLoad']);
-			TaylorProfiler::stop(__METHOD__);
-			throw new Exception404($exception);
-		}
-		TaylorProfiler::stop(__METHOD__);
+			return $this->controller;
+		}//debug($_SESSION['autoloadCache']);
+		$exception = 'Class ' . $class . ' not found. Dev hint: try clearing autoload cache?';
+		unset($_SESSION['AutoLoad']);
+		throw new Exception404($exception);
 	}
 
 	/**
@@ -255,7 +310,7 @@ class IndexBase /*extends Controller*/
 			$ms = new MarshalParams($this->config);
 			$this->controller = $ms->make($class);
 		}
-
+//			$this->controller = new $class();
 		// debug($class, get_class($this->controller));
 		if (method_exists($this->controller, 'postInit')) {
 			$this->controller->postInit();
@@ -290,56 +345,20 @@ class IndexBase /*extends Controller*/
 		return $content;
 	}
 
-	/**
-	 * @throws AccessDeniedException
-	 */
-	public function initSession()
-	{
-//		debug('is session started', session_id(), session_status());
-		if (!Request::isCLI() && !Session::isActive() && !headers_sent()) {
-			ini_set('session.use_trans_sid', false);
-			ini_set('session.use_only_cookies', true);
-			ini_set('session.cookie_httponly', true);
-			ini_set('session.hash_bits_per_character', 6);
-			ini_set('session.hash_function', 'sha512');
-			llog('session_start in initSession');
-			$ok = session_start();
-			if (!$ok) {
-				throw new RuntimeException('session_start() failed');
-			}
-		}
-		if (ifsetor($_SESSION['HTTP_USER_AGENT'])) {
-			if ($_SESSION['HTTP_USER_AGENT'] != $_SERVER['HTTP_USER_AGENT']) {
-				session_regenerate_id(true);
-				unset($_SESSION['HTTP_USER_AGENT']);
-				throw new AccessDeniedException('Session hijacking detected. Please try again');
-			}
-		} else {
-			$_SESSION['HTTP_USER_AGENT'] = ifsetor($_SERVER['HTTP_USER_AGENT']);
-		}
-		if (ifsetor($_SESSION['REMOTE_ADDR'])) {
-			if ($_SESSION['REMOTE_ADDR'] != $_SERVER['REMOTE_ADDR']) {
-				session_regenerate_id(true);
-				unset($_SESSION['REMOTE_ADDR']);
-				throw new AccessDeniedException('Session hijacking detected. Please try again.');
-			}
-		} else {
-			$_SESSION['REMOTE_ADDR'] = ifsetor($_SERVER['REMOTE_ADDR']);
-		}
-//		debug($_SESSION['HTTP_USER_AGENT'], $_SESSION['REMOTE_ADDR']);
-//		debug($_SERVER['HTTP_USER_AGENT'], $_SERVER['REMOTE_ADDR']);
-	}
-
 	public function renderController()
 	{
 		TaylorProfiler::start(__METHOD__);
+		$content = '';
 		$notOptions = array_filter(
 			array_slice(
 				ifsetor($_SERVER['argv'], []),
 				1
 			),
-			function ($el) {
-				return $el[0] != '-';    // --options
+			static function ($el) {
+				if (is_numeric($el)) {
+					return false;
+				}
+				return $el[0] !== '-';    // --options
 			}
 		);
 //		debug($notOptions); exit;
@@ -350,23 +369,23 @@ class IndexBase /*extends Controller*/
 			//$params = array_slice($_SERVER['argv'], 3);
 			//debug($this->request->getAll());
 			$marshal = new MarshalParams($this->controller);
-			$render = $marshal->call($method);
-			//$render = $this->controller->$method();
-		} else {
-			$render = $this->renderException(
+			$content = $marshal->call($method);
+			//$content = $this->controller->$method();
+		} elseif (!is_numeric($method)) {    // this is a parameter
+			$content = $this->renderException(
 				new InvalidArgumentException('Method ' . $method . ' is not callable on ' . get_class($this->controller))
 			);
 		}
-		$render = $this->s($render);
+		$content = $this->s($content);
 		$this->sidebar = $this->showSidebar();
 		if ($this->controller->layout instanceof Wrap
 			&& !$this->request->isAjax()) {
 			/** @var $this ->controller->layout Wrap */
-			$render = $this->controller->layout->wrap($render);
-			$render = str_replace('###SIDEBAR###', $this->showSidebar(), $render);
+			$content = $this->controller->layout->wrap($content);
+			$content = str_replace('###SIDEBAR###', $this->showSidebar(), $content);
 		}
 		TaylorProfiler::stop(__METHOD__);
-		return $render;
+		return $content;
 	}
 
 	/**
@@ -384,36 +403,12 @@ class IndexBase /*extends Controller*/
 			echo $e->getTraceAsString(), BR;
 			return '';
 		}
-
 		http_response_code($e->getCode());
 		if ($this->controller) {
 			$this->controller->title = get_class($this->controller);
 		}
-
-		$message = $e->getMessage();
-		$message = ($message instanceof HtmlString ||
-			$message[0] == '<')
-			? $message . ''
-			: htmlspecialchars($message);
-		$content = '<div class="' . $wrapClass . '">
-				' . get_class($e) .
-			($e->getCode() ? ' (' . $e->getCode() . ')' : '') . BR .
-			nl2br($message);
-		if (DEVELOPMENT || 0) {
-			$content .= BR . '<hr />' . '<div style="text-align: left">' .
-				nl2br($e->getTraceAsString()) . '</div>';
-			//$content .= getDebug($e);
-		}
-		$content .= '</div>';
-		if ($e instanceof LoginException) {
-			// catch this exception in your app Index class, it can't know what to do with all different apps
-			//$lf = new LoginForm();
-			//$content .= $lf;
-		} elseif ($e instanceof Exception404) {
-			$e->sendHeader();
-		}
-
-		return $content;
+		$re = new RenderException($e);
+		return $re->render($this->wrapClass);
 	}
 
 	public function s($content)
@@ -426,8 +421,12 @@ class IndexBase /*extends Controller*/
 		TaylorProfiler::start(__METHOD__);
 		$content = '';
 		if (method_exists($this->controller, 'sidebar')) {
-			$content = $this->controller->sidebar();
-			$content = $this->s($content);
+			try {
+				$content = $this->controller->sidebar();
+				$content = $this->s($content);
+			} catch (Exception $e) {
+				// no sidebar
+			}
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $content;
@@ -464,7 +463,7 @@ class IndexBase /*extends Controller*/
 
 		$v = new View($this->template, $this);
 		$v->content = $contentOut;
-		$v->title = strip_tags(ifsetor($this->controller->title));
+		$v->title = $this->controller ? strip_tags(ifsetor($this->controller->title)) : null;
 		$v->sidebar = $this->sidebar;
 		$v->baseHref = $this->request->getLocation();
 		//$lf = new LoginForm('inlineForm');	// too specific - in subclass
@@ -487,7 +486,6 @@ class IndexBase /*extends Controller*/
 		//$this->user->__destruct();
 //		}
 	}
-
 	public function message($text)
 	{
 		return $this->content->message($text);
@@ -506,6 +504,55 @@ class IndexBase /*extends Controller*/
 	public function info($text)
 	{
 		return $this->content->info($text);
+	}
+
+	public function addJQueryUI()
+	{
+		$this->addJQuery();
+		if (ifsetor($this->footer['jqueryui.js'])) {
+			return $this;
+		}
+		$al = AutoLoad::getInstance();
+		$jQueryPath = clone $al->componentsPath;
+		//debug($jQueryPath);
+		//$jQueryPath->appendString('jquery-ui/ui/minified/jquery-ui.min.js');
+		$jQueryPath->appendString('jquery-ui/jquery-ui.min.js');
+		$jQueryPath->setAsFile();
+		$appRoot = $al->getAppRoot();
+		nodebug([
+			'jQueryPath' => $jQueryPath,
+			'jQueryPath->exists()' => $jQueryPath->exists(),
+			'appRoot' => $appRoot,
+			'componentsPath' => $al->componentsPath,
+			'fe(jQueryPath)' => file_exists($jQueryPath->getUncapped()),
+			'fe(appRoot)' => file_exists($appRoot . $jQueryPath->getUncapped()),
+			'fe(nadlibFromDocRoot)' => file_exists($al->nadlibFromDocRoot . $jQueryPath),
+			'fe(componentsPath)' => file_exists($al->componentsPath . $jQueryPath),
+			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
+			'documentRoot' => $al->documentRoot,
+			'componentsPath.jQueryPath' => $al->componentsPath . $jQueryPath,
+		]);
+		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
+			if ($jQueryPath->exists()) {
+				$this->addJS($jQueryPath->relativeFromAppRoot()->getUncapped());
+				return $this;
+			} else {
+				$jQueryPath = clone $al->componentsPath;
+				$jQueryPath->appendString('jquery-ui/jquery-ui.js');
+				$jQueryPath->setAsFile();
+				if ($jQueryPath->exists()) {
+					$this->addJS($jQueryPath->relativeFromAppRoot()->getUncapped());
+					return $this;
+				}
+			}
+		}
+
+		// commented out because this should be project specific
+		//$this->addCSS('components/jquery-ui/themes/ui-lightness/jquery-ui.min.css');
+		$this->footer['jqueryui.js'] = '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+		<script>window.jQueryUI || document.write(\'<script src="' . $jQueryPath . '"><\/script>\')</script>';
+		$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/ui-lightness/jquery-ui.css');
+		return $this;
 	}
 
 	/**
@@ -603,7 +650,7 @@ class IndexBase /*extends Controller*/
 			} else {
 				$sourceCSS = str_replace('.less', '.css', $source);
 				if (file_exists($sourceCSS)) {
-					$fileName = $sourceCSS;
+					//$fileName = $sourceCSS;
 					$fileName = $this->addMtime($source);
 				} else {
 					$fileName = 'css/?c=Lesser&css=' . $source;
@@ -649,7 +696,7 @@ class IndexBase /*extends Controller*/
 		foreach ($this->footer as $key => $script) {
 			$script = strip_tags($script, '<script>');
 			$script = HTMLTag::parse($script);
-			if ($script && $script->tag == 'script') {
+			if ($script && $script->tag === 'script') {
 				$url = $script->getAttr('src');
 				if ($url) {
 					// not needed because we bundle all JS
@@ -671,8 +718,7 @@ class IndexBase /*extends Controller*/
 			}
 		}
 //		debug('footer', sizeof($this->footer));
-		$content = implode("\n", $this->footer) . "\n";
-		return $content;
+		return implode("\n", $this->footer) . "\n";
 	}
 
 	public function addBodyClass($name)

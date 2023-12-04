@@ -102,6 +102,22 @@ abstract class UserBase extends OODBase implements UserModelInterface
 		$this->findInDB($data);
 	}
 
+	/**
+	 * These preferences are supposed to be stored in DB
+	 * But UserBase is NOT doing it.
+	 * @param string $key
+	 * @param mixed $val
+	 */
+	public function setPref($key, $val)
+	{
+		$this->prefs[$key] = $val;
+	}
+
+	public function getPref($key)
+	{
+		return ifsetor($this->prefs[$key]);
+	}
+
 	public function getAllPrefs()
 	{
 		return $this->prefs;
@@ -128,22 +144,6 @@ abstract class UserBase extends OODBase implements UserModelInterface
 		return $val;
 	}
 
-	public function getPref($key)
-	{
-		return ifsetor($this->prefs[$key]);
-	}
-
-	/**
-	 * These preferences are supposed to be stored in DB
-	 * But UserBase is NOT doing it.
-	 * @param $key
-	 * @param $val
-	 */
-	public function setPref($key, $val)
-	{
-		$this->prefs[$key] = $val;
-	}
-
 	public function isAuth()
 	{
 		//debug($this);
@@ -152,11 +152,10 @@ abstract class UserBase extends OODBase implements UserModelInterface
 
 	public function getHTML()
 	{
-		$content = '<div class="user">
+		return '<div class="user">
 			<img src="' . $this->getGravatarURL(24) . '" class="gravatar24">' .
 			$this->getName() .
 			'</div>';
-		return $content;
 	}
 
 	public function getGravatarURL($gravatarSize = 50)
@@ -167,6 +166,6 @@ abstract class UserBase extends OODBase implements UserModelInterface
 						ifsetor($this->data['email'])
 					)
 				)
-			) . '?s=' . intval($gravatarSize);
+			) . '?s=' . (int)$gravatarSize;
 	}
 }

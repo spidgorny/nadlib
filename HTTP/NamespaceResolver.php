@@ -38,6 +38,17 @@ class NamespaceResolver implements ResolverInterface
 		return $controller;
 	}
 
+	public function getDefault($returnDefault)
+	{
+		if ($returnDefault && class_exists('Config')) {
+			// not good as we never get 404
+			$controller = Config::getInstance()->defaultController;
+		} else {
+			$controller = null;
+		}
+		return $controller;
+	}
+
 	public function tryNamespaces($class)
 	{
 		$last = null;

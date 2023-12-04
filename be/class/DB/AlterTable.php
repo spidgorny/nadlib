@@ -27,11 +27,11 @@ class AlterTable extends AlterIndex
 	public function setHandler()
 	{
 		$class = $this->getDBclass();
-		if ($class == 'mysql') {
+		if ($class === 'mysql') {
 			$this->handler = new AlterTableMySQL($this->db);
-		} elseif ($class == 'DBLayer') {
+		} elseif ($class === 'DBLayer') {
 			$this->handler = new AlterTablePostgres($this->db);
-		} elseif ($class == 'DBLayerSQLite') {
+		} elseif ($class === 'DBLayerSQLite') {
 			$this->handler = new AlterTableSQLite($this->db);
 		} else {
 			throw new Exception('Undefined AlterTable handler');

@@ -320,9 +320,10 @@ class Debug
 		for ($i = 0; $i < $stepBack; $i++) {
 			$bt = next($btl);
 		}
+		$btBefore = $btl[$stepBack - 1];
 		$object = ifsetor($bt['object']);
 		return ifsetor($bt['class'], is_object($object) ? get_class($object) : null)
-			. '::' . ifsetor($bt['function']);
+			. '::' . ifsetor($bt['function']) . '#' . ifsetor($btBefore['line']);
 	}
 
 	/**

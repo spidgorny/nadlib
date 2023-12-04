@@ -15,6 +15,7 @@ class SQLWhereTest extends NadlibTestCase
 	public function setUp()
 	{
 		parent::setUp();
+		self::markTestSkipped('PG dependent');
 		$this->db = Config::getInstance()->getDB();
 	}
 
@@ -57,6 +58,21 @@ class SQLWhereTest extends NadlibTestCase
 		$sq->add([
 			'a' => 'b',
 		]);
+	}
+
+	public function trim($sql)
+	{
+		$sql = str_replace("\n", ' ', $sql);
+		$sql = str_replace("\t", ' ', $sql);
+		$sql = preg_replace('/ +/', ' ', $sql);
+		$sql = trim($sql);
+//		echo $sql, BR;
+		return $sql;
+	}
+
+	public function setExpectedException($exception)
+	{
+		$this->expectException($exception);
 	}
 
 }

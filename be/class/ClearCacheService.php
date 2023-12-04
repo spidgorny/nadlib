@@ -17,12 +17,12 @@ class ClearCacheService
 		//echo "\n";
 	}
 
-	public function getFiles($dir)
+	function getFiles($dir)
 	{
 		$files = scandir($dir);
 		//debug(sizeof($files));
 		foreach ($files as $f => $file) {
-			if ($file[0] !== '.') {
+			if ($file{0} != '.') {
 				$files[$f] = [
 					'file' => $file,
 					'filelink' => '<a href="../../../../cache/' . $file . '">' . $file . '</a>',

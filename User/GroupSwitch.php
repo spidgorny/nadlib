@@ -20,7 +20,7 @@ class GroupSwitch extends Controller
 		//debug($this->user->data);
 		$content = '';
 		if ($this->canSwitchGroup()) {
-			$this->performAction();
+			$this->performAction($this->detectAction());
 			$this->groups = $this->fetchGroups();
 			$content = $this->renderGroups();
 		}
@@ -35,19 +35,6 @@ class GroupSwitch extends Controller
 	public function fetchGroups()
 	{
 		return $this->groups;
-	}
-
-	public function isCurrentGroup($groupID)
-	{
-		return $this->user->rights->groupID == $groupID;
-	}
-
-	public function setGroupAction()
-	{
-		$this->user->pretendOtherDepartment($this->request->getInt('groupID'));
-		$referer = new URL($_SERVER['HTTP_REFERER']);
-		//$referer->setParams();	// uncommented to let ORS redirect to the same RequestInfo?id=123
-		$this->request->redirect($referer);
 	}
 
 	public function renderGroups()
@@ -65,6 +52,19 @@ class GroupSwitch extends Controller
 		}
 		$content = implode(' | ', $items);
 		return $content;
+	}
+
+	public function isCurrentGroup($groupID)
+	{
+		return $this->user->rights->groupID == $groupID;
+	}
+
+	public function setGroupAction()
+	{
+		$this->user->pretendOtherDepartment($this->request->getInt('groupID'));
+		$referer = new URL($_SERVER['HTTP_REFERER']);
+		//$referer->setParams();	// uncommented to let ORS redirect to the same RequestInfo?id=123
+		$this->request->redirect($referer);
 	}
 
 }

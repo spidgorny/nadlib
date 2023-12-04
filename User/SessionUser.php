@@ -20,7 +20,8 @@ class SessionUser extends PlainSessionUser
 	public function autologin()
 	{
 		$class = static::class;
-		if (ifsetor($_SESSION[$class]) && ($login = $_SESSION[$class]['login'])) {
+		$login = $_SESSION[$class]['login'];
+		if (ifsetor($_SESSION[$class]) && $login) {
 			$inSession = $this->checkPassword($_SESSION[$class]['password']);
 			if ($inSession) {
 				//$this->findInDB(array('email' => $login));

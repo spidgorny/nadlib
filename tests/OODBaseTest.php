@@ -17,6 +17,7 @@ class OODBaseTest extends TestCase
 
 	public function setUp()
 	{
+		self::markTestSkipped('PG dependent');
 		$this->sut = new SpecificOODBase();
 	}
 
@@ -35,6 +36,7 @@ class OODBaseTest extends TestCase
 		];
 		foreach ($set as $source => $expected) {
 //			echo $source, ' => ', $expected, BR;
+			$this->sut->data[$source] = $source;
 			$this->assertEquals($expected, $this->sut->getBool($source));
 		}
 	}

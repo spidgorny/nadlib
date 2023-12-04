@@ -2,8 +2,8 @@
 
 /**
  * General HTML Tag representation.
+ * @method static pre(array $attr = [], ToStringable $content = '', bool $isHtml = false)
  */
-
 class HTMLTag implements ArrayAccess, ToStringable
 {
 	public $tag;
@@ -31,14 +31,70 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return $key;
 	}
 
+	public static function __callStatic(string $name, array $arguments)
+	{
+		return new static($name, $arguments[0], $arguments[1], $arguments[2]);
+	}
+
 	public static function div($content, array $param = [])
 	{
 		return new HTMLTag('div', $param, $content);
 	}
 
+	public static function span($content, array $param = [])
+	{
+		return new HTMLTag('span', $param, $content);
+	}
+
 	public static function pre($content, array $param = [])
 	{
-		return new HTMLTag('pre', $param, $content);
+		$set = [];
+		foreach ($param as $key => $val) {
+			if (is_array($val) && $key === 'style') {
+				$style = ArrayPlus::create($val);
+				$style = $style->getHeaders('; ');
+				$val = $style;                        // for style="a: b; c: d"
+			} elseif (is_array($val)) {
+				if (ArrayPlus::isRecursive($val)) {
+					debug($val);
+				}
+				$val = implode(' ', $val);        // for class="a b c"
+			}
+			$set[] = $key . '="' . htmlspecialchars($val, ENT_QUOTES | PHP_QUERY_RFC3986) . '"';
+		}
+		return implode(' ', $set);
+	}
+
+	/**
+	 * jQuery style
+	 * @param string $name
+	 * @param null|string|mixed $value
+	 * @return mixed
+	 */
+	public function attr($name, $value = null)
+	{
+		if ($value) {
+			$this->attr[$name] = $value;
+			return $this;
+		}
+
+		return ifsetor($this->attr[$name]);
+	}
+
+	public function setAttr($name, $value)
+	{
+		$this->attr[$name] = $value;
+		return $this;
+	}
+
+	public function hasAttr($name)
+	{
+		return isset($this->attr[$name]);
+	}
+
+	public function getAttr($name)
+	{
+		return ifsetor($this->attr[$name]);
 	}
 
 	/**
@@ -134,7 +190,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 			if ($child instanceof DOMElement) {
 				$attributes = [];
 				foreach ($child->attributes as $attribute_name => $attribute_node) {
-					/** @var  DOMNode $attribute_node */
+					/** @var DOMNode $attribute_node */
 					echo $attribute_name, ': ', typ($attribute_node), BR;
 					$attributes[$attribute_name] = $attribute_node->nodeValue;
 				}
@@ -238,27 +294,6 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return $this->content;
 	}
 
-	/**
-	 * jQuery style
-	 * @param $name
-	 * @param null|string|mixed $value
-	 * @return mixed
-	 */
-	public function attr($name, $value = null)
-	{
-		if ($value) {
-			$this->attr[$name] = $value;
-			return $this;
-		} else {
-			return ifsetor($this->attr[$name]);
-		}
-	}
-
-	public function hasAttr($name)
-	{
-		return isset($this->attr[$name]);
-	}
-
 	public function offsetExists($offset)
 	{
 		return isset($this->attr[$offset]);
@@ -267,17 +302,6 @@ class HTMLTag implements ArrayAccess, ToStringable
 	public function offsetGet($offset)
 	{
 		return $this->getAttr($offset);
-	}
-
-	public function getAttr($name)
-	{
-		return ifsetor($this->attr[$name]);
-	}
-
-	public function setAttr($name, $value)
-	{
-		$this->attr[$name] = $value;
-		return $this;
 	}
 
 	public function offsetSet($offset, $value)

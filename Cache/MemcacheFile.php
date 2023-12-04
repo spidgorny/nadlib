@@ -20,10 +20,10 @@ class MemcacheFile implements MemcacheInterface
 	public $expire = 0;
 
 	/**
-	 * If you define $key and $expire in the constructor
+	 * If you define $folder and $expire in the constructor
 	 * you don't need to define it in each method below.
 	 * Otherwise, please specify.
-	 * @param string $key
+	 * @param string $folder
 	 * @param int $expire
 	 */
 	public function __construct($folder = null, $expire = 0)
@@ -42,7 +42,7 @@ class MemcacheFile implements MemcacheInterface
 
 		$finalCachePath = realpath($sub . $this->folder);
 		if (!file_exists($finalCachePath) && !is_dir($finalCachePath)) {
-			debug([
+			llog([
 				'unable to access cache folder',
 				'env(storage)' => getenv('storage'),
 				'cwd' => getcwd(),
@@ -146,8 +146,6 @@ class MemcacheFile implements MemcacheInterface
 		if (file_exists($file)) {
 			//echo '<font color="green">Deleting '.$file.'</font>', BR;
 			unlink($file);
-		} else {
-			//echo '<font color="orange">Cache file'.$file.' does not exist.</font>', BR;
 		}
 	}
 

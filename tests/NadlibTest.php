@@ -6,7 +6,7 @@ class NadlibTest extends PHPUnit\Framework\TestCase
 	public function test_requireAll()
 	{
 
-		$this->markTestIncomplete(
+		$this->markTestSkipped(
 			'AppController was not found. Line 29.'
 		);
 

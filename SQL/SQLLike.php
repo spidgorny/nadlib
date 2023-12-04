@@ -30,6 +30,12 @@ class SQLLike extends SQLWherePart
 		$this->string = $string;
 	}
 
+	public function wrap($string)
+	{
+		$this->wrap = $string;
+		return $this;
+	}
+
 	public function __toString()
 	{
 		if (!$this->db) {

@@ -1,4 +1,6 @@
-<?php
+<?php /** @noinspection ForgottenDebugOutputInspection */
+
+require_once __DIR__ . '/../static.php';
 
 /**
  * May already be defined in TYPO3
@@ -8,9 +10,9 @@ if (!function_exists('debug')) {
 	/**
 	 * @param mixed,...$a
 	 */
-	function debug(...$a)
+	function debug($a)
 	{
-		$params = func_num_args() === 1 ? $a : func_get_args();
+		$params = func_num_args() == 1 ? $a : func_get_args();
 		if (class_exists(Debug::class)) {
 			$debug = Debug::getInstance();
 			$debug->debug($params);
@@ -50,6 +52,9 @@ if (!function_exists('debugList')) {
 		debug(func_get_args());
 		die(__FUNCTION__ . '#' . __LINE__);
 	}
+}
+
+if (!function_exists('d')) {
 
 	function d(...$a)
 	{
@@ -73,7 +78,7 @@ if (!function_exists('debugList')) {
 	{
 	}
 
-	function getDebug(...$args)
+	function getDebug()
 	{
 		$params = func_get_args();
 		$debug = Debug::getInstance();
@@ -89,6 +94,7 @@ if (!function_exists('debugList')) {
 
 	/**
 	 * @param ..$a
+	 * @noinspection ForgottenDebugOutputInspection
 	 */
 	function pre_print_r(...$a)
 	{
@@ -111,6 +117,7 @@ if (!function_exists('debugList')) {
 			'</pre>';
 	}
 
+	/** @noinspection ForgottenDebugOutputInspection */
 	function pre_var_dump(...$a)
 	{
 		echo '<pre class="pre_var_dump" style="white-space: pre-wrap; font-size: 8pt;">';
@@ -158,6 +165,20 @@ if (!function_exists('debugList')) {
 			$assoc[$key] = $len;
 		}
 		debug($assoc);
+	}
+
+	function debug_get_backtrace()
+	{
+		ob_start();
+		if (phpversion() >= '5.3.6') {
+			debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		} else {
+			debug_print_backtrace();
+		}
+		$content = ob_get_clean();
+		$content = str_replace(dirname(getcwd()), '', $content);
+		$content = str_replace('C:\\Users\\' . getenv('USERNAME') . '\\AppData\\Roaming\\Composer\\vendor\\phpunit\\phpunit\\src\\', '', $content);
+		return $content;
 	}
 
 	function debug_pre_print_backtrace()
@@ -279,7 +300,7 @@ if (!function_exists('debugList')) {
 			$typeName .= '[' . strlen($something) . ']';
 		}
 		if ($type === 'array') {
-			$typeName .= '[' . sizeof($something) . ']';
+			$typeName .= '[' . count($something) . ']';
 		}
 
 		if (!Request::isCLI()) {
@@ -305,7 +326,9 @@ if (!function_exists('debugList')) {
 		return typ($something);
 		//return json_encode($types, JSON_PRETTY_PRINT);
 	}
+}
 
+if (!function_exists('invariant')) {
 	function invariant($test, string $format_str = null, ...$args)
 	{
 		if (!$test) {
@@ -313,4 +336,37 @@ if (!function_exists('debugList')) {
 		}
 	}
 
+}
+
+if (!function_exists('llog')) {
+	function llog(...$vars)
+	{
+		$caller = Debug::getCaller();
+		$jsonOptions = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
+
+		if (defined('JSON_UNESCAPED_LINE_TERMINATORS')) {
+			$jsonOptions |= JSON_UNESCAPED_LINE_TERMINATORS;
+		}
+
+		$vars = array_map(static function ($el) {
+			if (is_object($el) && !($el instanceof stdClass)) {
+				return trim(strip_tags(typ($el)));
+			}
+			return $el;
+		}, $vars);
+
+		$type = null;
+		if (count($vars) === 1) {
+			$type = gettype(first($vars));
+			$output = json_encode(first($vars), $jsonOptions);
+		} else {
+			$type = 'multi';
+			$output = json_encode($vars, $jsonOptions);
+		}
+		if (strlen($output) > 80) {
+			$output = json_encode(count($vars) === 1 ? first($vars) : $vars, $jsonOptions | JSON_PRETTY_PRINT);
+		}
+		/** @noinspection ForgottenDebugOutputInspection */
+		error_log("{$caller} [{$type}] {$output}");
+	}
 }

@@ -25,8 +25,18 @@ class JSONResponse
 		if (defined('JSON_UNESCAPED_LINE_TERMINATORS')) {
 			$options |= JSON_UNESCAPED_LINE_TERMINATORS;
 		}
-		$json = json_encode($this->json + [
-					'duration' => microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],
+		$duration = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
+
+		if (is_object($this->json)) {
+			$json = get_object_vars($this->json);
+		} else {
+			$json = is_array($this->json) ? $this->json : [
+				'response' => $this->json,
+			];
+		}
+
+		$json = json_encode($json + [
+					'duration' => $duration,
 				], $options) . '';
 		header('Content-Type: application/json');
 		return $json;

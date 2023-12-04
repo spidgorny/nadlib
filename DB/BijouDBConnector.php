@@ -3,6 +3,8 @@
 /**
  * Class BijouDBConnector
  * Attaches to $GLOBALS['TYPO3_DB'] withing TYPO3 and acts as a proxy
+ * @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+ * @method  runDeleteQuery($table, array $where)
  */
 class BijouDBConnector extends DBLayerBase
 {
@@ -289,4 +291,14 @@ class BijouDBConnector extends DBLayerBase
 		return [];
 	}
 
+	public function getVersion()
+	{
+		// TODO: Implement getVersion() method.
+	}
+
+	public function __call($name, $arguments)
+	{
+		// TODO: Implement @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+		// TODO: Implement @method  runDeleteQuery($table, array $where)
+	}
 }

@@ -5,6 +5,7 @@
  * @mixin SQLBuilder
  * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
  * @method  getSelectQuery(string $table, array $where = [], $order = '', $addSelect = '')
+ * @method  runDeleteQuery($table, array $where)
  */
 class DBLayerLogger extends DBLayerBase implements DBInterface
 {
@@ -161,4 +162,8 @@ class DBLayerLogger extends DBLayerBase implements DBInterface
 		return $this->qb->getInsertQuery($table, $columns);
 	}
 
+	public function getVersion()
+	{
+		// TODO: Implement getVersion() method.
+	}
 }

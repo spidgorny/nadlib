@@ -11,7 +11,7 @@ class CollectionTest extends NadlibTestCase
 
 	public function test_lazyMemeberIterator()
 	{
-		$this->markTestIncomplete(
+		$this->markTestSkipped(
 			'RequestCollection was not found.'
 		);
 

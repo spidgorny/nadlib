@@ -3,6 +3,9 @@
 /**
  * Class MySQLi
  * Should work but it doesn't get num_rows() after store_result().
+ * @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+ * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+ * @method  runDeleteQuery($table, array $where)
  */
 class DBLayerMySQLi extends DBLayerBase implements DBInterface
 {
@@ -198,5 +201,17 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 		$table = $this->quoteKey($table);
 		$q = "REPLACE INTO {$table} ({$fields}) VALUES ({$values})";
 		return $q;
+	}
+
+	public function getVersion()
+	{
+		// TODO: Implement getVersion() method.
+	}
+
+	public function __call($name, $arguments)
+	{
+		// TODO: Implement @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+		// TODO: Implement @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+		// TODO: Implement @method  runDeleteQuery($table, array $where)
 	}
 }

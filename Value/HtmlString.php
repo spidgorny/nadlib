@@ -1,14 +1,13 @@
 <?php
 
 /**
- * Use $content instanceof htmlString ? $content : htmlspecialchars($content);
+ * Use $content instanceof HtmlString ? $content : htmlspecialchars($content);
  * Update: use htmlString:hsc($content)
  */
 class HtmlString implements ToStringable
 {
 	use DirectDataAccess;
 
-	public $data = [];
 	protected $value = '';
 
 	public function __construct($input, array $props = [])
@@ -22,8 +21,8 @@ class HtmlString implements ToStringable
 
 	/**
 	 * htmlspecialchars which knows about htmlString()
-	 * @param $string
-	 * @return string
+	 * @param string $string
+	 * @return string|htmlString
 	 */
 	public static function hsc($string)
 	{
@@ -36,9 +35,8 @@ class HtmlString implements ToStringable
 
 	public function replace($one, $two)
 	{
-		$new = new HtmlString(
+		return new HtmlString(
 			str_replace($one, $two, $this->value));
-		return $new;
 	}
 
 	public function cli()

@@ -1,7 +1,7 @@
 <?php
 
-require_once __DIR__ . '/../bootstrap.php';
-require_once __DIR__ . '/TestConfig.php';
+require_once __DIR__.'/../bootstrap.php';
+require_once __DIR__.'/TestConfig.php';
 if (is_file(__DIR__ . '/../vendor/autoload.php')) {
 	require_once __DIR__ . '/../vendor/autoload.php';
 }
@@ -14,11 +14,8 @@ if (is_file(__DIR__ . '/../vendor/autoload.php')) {
 //	Config::getInstance()->postInit();
 //}
 
-require_once __DIR__ . '/AppController4Test.php';
+require_once __DIR__.'/AppController4Test.php';
 
-function __($a)
-{
-	return $a;
-}
+function __($a) { return $a; }
 
-echo basename(__DIR__) . '/' . basename(__FILE__), ' done', BR;
+echo basename(__DIR__).'/'.basename(__FILE__), ' done', BR;

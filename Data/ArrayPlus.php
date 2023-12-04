@@ -725,7 +725,7 @@ class ArrayPlus extends ArrayObject implements Countable
 		foreach ($this as $key => $val) {
 			$prefixKey = $prefix ? $prefix . '.' . $key : $key;
 			if (is_array($val)) {
-				$plus = AP($val)->typoscript($prefixKey);
+				$plus = self::create($val)->typoscript($prefixKey);
 				$replace += $plus;
 			} else {
 				$replace[$prefixKey] = $val;
@@ -819,7 +819,7 @@ class ArrayPlus extends ArrayObject implements Countable
 	{
 		foreach ($ar2 as $key2 => $val2) {
 			if (isset($this[$key2]) && is_array($this[$key2])) {
-				$tmp = AP($this[$key2]);
+				$tmp = self::create($this[$key2]);
 				$tmp->merge_recursive_overwrite($val2);
 				$this[$key2] = $tmp->getData();
 			} else {
@@ -1289,13 +1289,17 @@ class ArrayPlus extends ArrayObject implements Countable
 			$this->setData($copy);
 		} else {
 			$pos = array_search($position, array_keys($this->getArrayCopy()));
+			if (false === $pos) {
+				throw new Exception('position ' . $position . ' not found');
+			}
 			$array = array_merge(
-				array_slice($this->getArrayCopy(), 0, $pos),
+				array_slice($this->getArrayCopy(), 0, $pos + 1),
 				$insert,
-				array_slice($this->getArrayCopy(), $pos)
+				array_slice($this->getArrayCopy(), $pos + 1)
 			);
 			$this->setData($array);
 		}
+		return $this;
 	}
 
 	public function without(array $keys)
@@ -1314,6 +1318,43 @@ class ArrayPlus extends ArrayObject implements Countable
 		return $this;
 	}
 
+	public function any(Closure $check)
+	{
+		foreach ($this->getData() as $el) {
+			$ok = $check($el);
+			if ($ok) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public function all(Closure $check)
+	{
+		foreach ($this->getData() as $el) {
+			$ok = $check($el);
+			if (!$ok) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public function none(Closure $check)
+	{
+		foreach ($this->getData() as $el) {
+			$ok = $check($el);
+			if ($ok) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public function toArray()
+	{
+		return $this->getData();
+	}
 }
 
 function AP($a = [])

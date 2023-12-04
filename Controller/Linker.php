@@ -212,21 +212,23 @@ class Linker
 				'action' => $action,
 			];
 		}
-		return $this->makeURL($params, $controller);
+		return $this->makeURL($params);
 	}
 
-	public function linkPage($className)
+	public function linkPage($className, array $params = [])
 	{
+		/** @var AppController $obj */
 		$obj = new $className();
 		$title = $obj->title;
 		$html = new HTML();
-		return $html->a($className, $title);
+		$href = $className::href($params);
+		return $html->a($href, $title);
 	}
 
 	public function makeActionURL($action = '', array $params = [], $path = '')
 	{
 		$urlParams = [
-				'c' => $path ?: get_class($this),
+				'c' => get_class($this),
 				'action' => $action,
 			] + $params;
 		$urlParams = array_filter($urlParams);

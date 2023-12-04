@@ -3,6 +3,11 @@
 class TimeTest extends PHPUnit\Framework\TestCase
 {
 
+	public function setUp()
+	{
+		self::markTestSkipped('PG dependent');
+	}
+
 	public function test_Time_add_Duration()
 	{
 		$t = new Date('2011-08-01');

@@ -87,7 +87,7 @@ class HTMLFormInline extends HTMLFormTable
 
 	public function showCell($fieldName, /*array*/ $desc)
 	{
-		$fieldValue = isset($desc['value']) ? $desc['value'] : null;
+		$fieldValue = $desc['value'] ?? null;
 		$fieldObj = $this->switchType($fieldName, $fieldValue, $desc);
 		$content[] = $fieldObj->getContent();
 		if (ifsetor($desc['label'])) {
@@ -122,7 +122,9 @@ class HTMLFormInline extends HTMLFormTable
 		];
 		$fields = [];
 		foreach ($this->desc as $field => $desc) {
-			if (is_integer($field)) continue;
+			if (is_int($field)) {
+				continue;
+			}
 			$type = ifsetor($desc['type']);
 			$sqlType = ifsetor($typeMap[$type], 'varchar');
 			$fields[] = $field . ' ' . $sqlType;

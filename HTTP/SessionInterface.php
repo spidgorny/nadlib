@@ -5,7 +5,7 @@ namespace nadlib\HTTP;
 interface SessionInterface
 {
 
-	public function get($key);
+	public function get($key, $default = null);
 
 	public function save($key, $val);
 

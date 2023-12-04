@@ -1,4 +1,4 @@
-
+parameters:
 	bootstrap: %currentWorkingDirectory%/init.php
 	excludes_analyse:
 #		- %currentWorkingDirectory%/vendor

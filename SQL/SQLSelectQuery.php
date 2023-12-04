@@ -122,17 +122,17 @@ class SQLSelectQuery extends SQLWherePart
 		$tok = strtok($sql, " \n\t");
 		while ($tok !== false) {
 			$tok = trim($tok);
-			if ($tok === '(') {
+			if ($tok == '(') {
 				$level++;
 				$res .= ' (' . '<br>' . str_repeat('&nbsp;', $level * 4);
-			} elseif ($tok === ')') {
+			} elseif ($tok == ')') {
 				if ($level > 0) {
 					$level--;
 				}
 				$res .= '<br>' . str_repeat('&nbsp;', $level * 4) . ') ';
-			} elseif ($tok && ($tok[0] === "'" || $tok[strlen($tok) - 1] === "'" || $tok === "'")) {
+			} elseif ($tok && ($tok[0] == "'" || $tok[strlen($tok) - 1] == "'" || $tok === "'")) {
 				$res .= ' ';
-				if ($tok[0] === "'" && !$open) {
+				if ($tok[0] == "'" && !$open) {
 					$res .= '<font color="green">';
 					$open = true;
 				}
@@ -145,7 +145,7 @@ class SQLSelectQuery extends SQLWherePart
 				$res .= ' <font color="red">' . $tok . '</font>';
 			} elseif (in_array(strtoupper($tok), $words)) {
 				$br = strlen($res) ? '<br>' : '';
-				$strange = $tok === 'SELECT' ? '' : ' ';
+				$strange = $tok == 'SELECT' ? '' : ' ';
 				$res .= (!in_array($tok, $breakAfter)
 					? ' ' . $br . str_repeat('&nbsp;', $level * 4)
 					: $strange);

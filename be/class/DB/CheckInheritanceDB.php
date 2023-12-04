@@ -17,7 +17,7 @@ class CheckInheritanceDB extends AppController
 		$table = [];
 		$folder = 'vendor/spidgorny/nadlib/DB/';
 		$files = glob($folder . '*.php');
-		if (class_exists('DBLayerDCI')) {
+		if (class_exists('dbLayerDCI')) {
 			$files[] = 'dbLayerDCI.php';
 		}
 		if (class_exists('dbLayerBijou')) {

@@ -24,7 +24,7 @@ class AjaxLogin extends AppControllerBE
 			target: \'#AjaxLogin\',
 			//url: \'buch.php\'
 			}); return false;"';
-	public $encloseTag = 'h3';
+	var $encloseTag = 'h3';
 	/**
 	 * Used for hashing password.
 	 * Better override.
@@ -49,7 +49,7 @@ class AjaxLogin extends AppControllerBE
 		parent::__construct();
 		$config = Config::getInstance();
 		$config->mergeConfig($this);
-		$action = $action ? $action : $this->request->getTrim('action');    // don't reverse this line as it will call mode=login twice
+		$action = $action ?: $this->request->getTrim('action');    // don't reverse this line as it will call mode=login twice
 		if ($action) {
 			$this->action = $action;
 			//debug($this->action);
@@ -77,7 +77,7 @@ class AjaxLogin extends AppControllerBE
 	{
 		$content = [];
 		if ($this->action) {
-			$content[] = $this->performAction();
+			$content[] = $this->performAction($this->detectAction());
 			/*			if ($this->mode != 'activate') { // activate is NOT to be processed with AJAX
 							header('Content-type: text/html; charset=ISO-8859-1');
 							echo $content;
@@ -243,7 +243,8 @@ class AjaxLogin extends AppControllerBE
 		if (!$desc) {
 			$desc = $this->getLoginDesc();
 		}
-		$f->showForm($desc);
+		$f->desc = $desc;
+		$f->showForm();
 		$f->hidden('action', 'login');
 		$f->text('<div style="float: right">
 			<a href="?action=forgotPassword" rel="forgotPassword">' . __('Forgot Password') . '</a>
@@ -288,6 +289,7 @@ class AjaxLogin extends AppControllerBE
 		} // otherwise it comes from validate and contains the form input already
 		//debug($desc);
 		$f->prefix('profile');
+		$f->desc = $desc;
 		$f->showForm($desc);
 		$f->prefix('');
 		$f->hidden('action', 'saveRegister');
@@ -468,7 +470,8 @@ class AjaxLogin extends AppControllerBE
 		} // otherwise it comes from validate and contains the form input already
 		//debug($desc);
 		$f->prefix('profile');
-		$f->showForm($desc);
+		$f->desc = $desc;
+		$f->showForm();
 		$f->prefix('');
 		$f->hidden('action', 'saveProfile');
 		$f->submit(__('Save'));
@@ -518,7 +521,8 @@ class AjaxLogin extends AppControllerBE
 			$desc = $this->getPasswordDesc();
 		} // otherwise it comes from validate and contains the form input already
 		//debug($desc);
-		$f->showForm($desc);
+		$f->desc = $desc;
+		$f->showForm();
 		$f->hidden('action', 'savePassword');
 		$f->submit(__('Change'));
 		return $f;

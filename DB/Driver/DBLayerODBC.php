@@ -3,6 +3,9 @@
 /**
  * Class dbLayerODBC
  * @mixin SQLBuilder
+ * @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+ * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+ * @method  runDeleteQuery($table, array $where)
  */
 class DBLayerODBC extends DBLayerBase implements DBInterface
 {
@@ -110,4 +113,15 @@ class DBLayerODBC extends DBLayerBase implements DBInterface
 		return 'ODBC error #' . odbc_error() . ': ' . odbc_errormsg();
 	}
 
+	public function getVersion()
+	{
+		// TODO: Implement getVersion() method.
+	}
+
+	public function __call($name, $arguments)
+	{
+		// TODO: Implement @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+		// TODO: Implement @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+		// TODO: Implement @method  runDeleteQuery($table, array $where)
+	}
 }

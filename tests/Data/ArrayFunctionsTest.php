@@ -33,4 +33,16 @@ class ArrayFunctionsTest extends PHPUnit\Framework\TestCase
 		], $unique);
 	}
 
+	function test_array_find()
+	{
+		$data = [
+			'asd',
+			'qwe',
+			'123',
+		];
+		$this->assertEquals('qwe', array_find(static function ($line) {
+			return str_startsWith($line, 'q');
+		}, $data));
+	}
+
 }

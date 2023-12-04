@@ -22,7 +22,8 @@ class AppControllerBE extends Controller
 	/**
 	 * @var string
 	 */
-	public $nadlibFromDocRoot;    // must be false at all times!
+	public $nadlibFromDocRoot;
+
 	public $layout = '<div class="col-md-9">|</div>';
 
 	public function __construct()

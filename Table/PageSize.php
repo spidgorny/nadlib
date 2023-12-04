@@ -35,6 +35,8 @@ class PageSize extends Controller
 	 */
 	public static $default = 20;
 
+	public $log = [];
+
 	/**
 	 * @param null $selected - default for this instance
 	 */

@@ -15,7 +15,7 @@ trait JsonController
 		$this->config->setUser($this->user);
 	}
 
-	public function isDevServer()
+	public function validateAuthorization($registeredApps)
 	{
 //		llog(__METHOD__, DEVELOPMENT, $_SERVER['HTTP_HOST'], gethostname());
 		return DEVELOPMENT &&
@@ -43,7 +43,7 @@ trait JsonController
 //		llog($authorization);
 		//debug($headers, $authorization);
 		invariant($authorization, 'No Authorization Header');
-		if (!in_array($authorization, $registeredApps, false)) {
+		if (!in_array($authorization, $registeredApps)) {
 			throw new LoginException('Authorization failed.', 401);
 		}
 	}
@@ -118,7 +118,8 @@ trait JsonController
 				'request' => $this->request->getAll(),
 				'headers' => getallheaders(),
 				'timestamp' => date('Y-m-d H:i:s'),
-				'back_trace' => debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)
+				'back_trace' => debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS),
+				'duration' => microtime(true) - $_REQUEST['REQUEST_TIME_FLOAT'],
 			] + $extraData);
 	}
 
@@ -126,13 +127,7 @@ trait JsonController
 	{
 		header('Content-Type: application/json');
 		$key['duration'] = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
-		$jsonOptions = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES;
-		/** @noinspection PhpElementIsNotAvailableInCurrentPhpVersionInspection */
-		if (is_numeric(JSON_UNESCAPED_LINE_TERMINATORS)) {
-			/** @noinspection PhpElementIsNotAvailableInCurrentPhpVersionInspection */
-			$jsonOptions |= JSON_UNESCAPED_LINE_TERMINATORS;
-		}
-		$response = json_encode($key, $jsonOptions);
+		$response = json_encode($key, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_LINE_TERMINATORS);
 //		error_log($response);
 		return $response;
 	}

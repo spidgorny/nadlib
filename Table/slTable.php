@@ -194,8 +194,8 @@ class slTable implements ToStringable
 			if ($thes) {
 				$thes = array_combine($thes, $thes);
 				foreach ($thes as $i => &$th) {
-					if (!strlen($i)
-						|| (strlen($i) && $i[strlen($i) - 1] !== '.')
+					if (is_string($i)&& (!strlen($i)
+						|| (strlen($i) && $i[strlen($i) - 1] !== '.'))
 					) {
 						$th = ['name' => $th];
 					} else {
@@ -257,7 +257,7 @@ class slTable implements ToStringable
 			}
 
 			$val = [
-				//0 => $key instanceof htmlString ? $key : htmlspecialchars($key),
+				//0 => $key instanceof HtmlString ? $key : htmlspecialchars($key),
 				0 => htmlspecialchars($key),
 				'' => $val,
 			];
@@ -445,6 +445,20 @@ class slTable implements ToStringable
 		}
 		//debug_pre_print_backtrace();
 		//debug($this->thes[$this->sortBy]);
+	}
+
+	public function getThesNames()
+	{
+		$names = [];
+		foreach ($this->thes as $field => $thv) {
+			if (is_array($thv)) {
+				$thvName = $thv['name'] ?? ($thv['label'] ?? '');
+			} else {
+				$thvName = $thv;
+			}
+			$names[$field] = $thvName;
+		}
+		return $names;
 	}
 
 	public function generateThead()
@@ -854,22 +868,6 @@ class slTable implements ToStringable
 			$xls[] = $line;
 		}
 		return $xls;
-	}
-
-	public function getThesNames()
-	{
-		$names = [];
-		foreach ($this->thes as $field => $thv) {
-			if (is_array($thv)) {
-				$thvName = isset($thv['name'])
-					? $thv['name']
-					: (isset($thv['label']) ? $thv['label'] : '');
-			} else {
-				$thvName = $thv;
-			}
-			$names[$field] = $thvName;
-		}
-		return $names;
 	}
 
 	public function autoFormat()

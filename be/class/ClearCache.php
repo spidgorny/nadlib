@@ -14,7 +14,7 @@ class ClearCache extends AppControllerBE
 
 	public function render()
 	{
-		$content = $this->performAction();
+		$content = $this->performAction($this->detectAction());
 		$files = $this->getFiles();
 		$content .= '<h1>Files in ' . $this->dir . ' (' . sizeof($files) . ')</h1>';
 		$s = new slTable($files, '', [

@@ -9,6 +9,8 @@
 class RunDispatcher extends AppControllerBE
 {
 
+	public static $public = true;
+
 	public $runner;
 
 	public $parallelism = 3;
@@ -29,22 +31,20 @@ class RunDispatcher extends AppControllerBE
 		while (true) {
 			$queue = $this->runner->getTaskQueue();
 			echo getmypid(),
-			TAB, 'Active processes: ', sizeof($this->processes),
+			TAB, 'Active processes: ', count($this->processes),
 			TAB, 'Max: ', $this->parallelism,
-			TAB, 'Queue: ', sizeof($queue), BR;
+			TAB, 'Queue: ', count($queue), BR;
 			$command = RunnerTask::getNext();  // without reserve()
 			if ($command) {
 				$command->release();  // we are not going to process it
 				$this->start($command);
-			} else {
-				//echo 'Nothing to do for '.TaylorProfiler::getElapsedTime().' :-(', BR;
 			}
 
 			// sleep at least once or more if too many processes
 			do {
 				sleep(1);
 				$this->checkLiveProcesses();
-			} while (sizeof($this->processes) >= $this->parallelism);
+			} while (count($this->processes) >= $this->parallelism);
 		}
 	}
 
@@ -71,7 +71,9 @@ class RunDispatcher extends AppControllerBE
 		return $cmd;
 	}
 
-	public function checkLiveProcesses()
+	public
+
+	function checkLiveProcesses()
 	{
 		echo 'Active Processes: ', TAB, 'max: ', $this->parallelism, BR;
 		/**
@@ -91,7 +93,7 @@ class RunDispatcher extends AppControllerBE
 				exec($cmd, $output);
 				//print_r($output);
 				//echo TAB, TAB, sizeof($output), BR;
-				if (sizeof($output) < 2) {    // otherwise min 4 lines
+				if (count($output) < 2) {    // otherwise min 4 lines
 					unset($this->processes[$p]);
 				}
 			}

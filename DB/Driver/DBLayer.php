@@ -6,14 +6,16 @@
  * @method  fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
  * @method  fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
  * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+ * @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+ * @method  runDeleteQuery($table, array $where)
  */
-class DBLayer extends DBLayerBase implements DBInterface
+class DBLayer extends DBLayerBase
 {
 
 	/**
 	 * @var resource
 	 */
-	public $connection = null;
+	public $connection = NULL;
 
 	public $LAST_PERFORM_RESULT;
 
@@ -120,9 +122,10 @@ class DBLayer extends DBLayerBase implements DBInterface
 	 */
 	public function perform($query, array $params = [])
 	{
-//		echo $query, BR;
+//		llog(str_replace("\n", " ",			str_replace("\t", " ", $query)));
 		$prof = new Profiler();
 
+		$this->reportIfLastQueryFailed();
 //		$this->reportIfLastQueryFailed();
 		$this->lastQuery = $query;
 		if (!$this->connection) {
@@ -571,6 +574,46 @@ class DBLayer extends DBLayerBase implements DBInterface
 	}
 
 	/**
+	 * @param mixed $value
+	 * @param null $key
+	 * @return string
+	 * @throws MustBeStringException
+	 */
+	public function quoteSQL($value, $key = null)
+	{
+		if ($value === null) {
+			return "NULL";
+		}
+
+		if ($value === false) {
+			return "'f'";
+		}
+
+		if ($value === true) {
+			return "'t'";
+		}
+
+		if (is_int($value)) {  // is_numeric - bad: operator does not exist: character varying = integer
+			return $value;
+		}
+
+		if (is_bool($value)) {
+			return $value ? "'t'" : "'f'";
+		}
+
+//		if ($value instanceof SQLParam) {
+//			return $value;
+//		}
+
+		if (is_scalar($value)) {
+			return "'" . $this->escape($value) . "'";
+		}
+
+		debug($key, $value);
+		throw new MustBeStringException('Must be string.');
+	}
+
+	/**
 	 * Called after dataSeek()
 	 * @param resource $res
 	 * @return array
@@ -593,15 +636,13 @@ class DBLayer extends DBLayerBase implements DBInterface
 	public function getAllRows($query)
 	{
 		$result = $this->perform($query);
-		$data = $this->fetchAll($result);
-		return $data;
+		return $this->fetchAll($result);
 	}
 
 	public function getFirstRow($query)
 	{
 		$result = $this->perform($query);
-		$row = pg_fetch_assoc($result);
-		return $row;
+		return pg_fetch_assoc($result);
 	}
 
 	public function getFirstValue($query)
@@ -663,46 +704,6 @@ order by a.attnum';
 		$comment = $assoc[$column];
 		//debug($query, $rows, $assoc, $comment);
 		return $comment;
-	}
-
-	/**
-	 * @param mixed $value
-	 * @param null $key
-	 * @return string
-	 * @throws MustBeStringException
-	 */
-	public function quoteSQL($value, $key = null)
-	{
-		if ($value === null) {
-			return "NULL";
-		}
-
-		if ($value === false) {
-			return "'f'";
-		}
-
-		if ($value === true) {
-			return "'t'";
-		}
-
-		if (is_int($value)) {  // is_numeric - bad: operator does not exist: character varying = integer
-			return $value;
-		}
-
-		if (is_bool($value)) {
-			return $value ? "'t'" : "'f'";
-		}
-
-//		if ($value instanceof SQLParam) {
-//			return $value;
-//		}
-
-		if (is_scalar($value)) {
-			return "'" . $this->escape($value) . "'";
-		}
-
-		debug($key, $value);
-		throw new MustBeStringException('Must be string.');
 	}
 
 	public function escape($str)
@@ -970,7 +971,7 @@ WHERE ccu.table_name='" . $table . "'");
 
 	public function isTransaction()
 	{
-		return pg_transaction_status($this->connection) == PGSQL_TRANSACTION_INTRANS;
+		return pg_transaction_status($this->connection) === PGSQL_TRANSACTION_INTRANS;
 	}
 
 	/**

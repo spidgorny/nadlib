@@ -3,6 +3,7 @@
 class CResolver implements ResolverInterface
 {
 
+	/** @var string */
 	public $slug;
 
 	public function __construct($slug)

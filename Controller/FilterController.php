@@ -47,6 +47,7 @@ class FilterController extends Controller
 		$f->setAllOptional();
 		$f->method('POST');
 		$f->defaultBR = true;
+//		llog($this->linker->linkVars);
 		$f->formHideArray($this->linker->linkVars);
 		$f->prefix('filter');
 		$f->showForm();
@@ -68,7 +69,9 @@ class FilterController extends Controller
 //		if (is_callable($this->injectFilterDesc)) {
 //			return call_user_func($this->injectFilterDesc);
 //		}
-		$fields = ifsetor($fields, ifsetor($this->model->thes));
+		$fields = ifsetor($fields,
+			$this->model ? ifsetor($this->model->thes) : null
+		);
 		$fields = is_array($fields) ? $fields : $this->fields;
 
 		//debug($this->filter);
@@ -94,7 +97,7 @@ class FilterController extends Controller
 	{
 		$autoClass = ucfirst(str_replace('id_', '', $key)) . 'Collection';
 		if (class_exists($autoClass) &&
-			in_array('HTMLFormCollection', class_implements($autoClass))
+			in_array(HTMLFormCollection::class, class_implements($autoClass), true)
 		) {
 			$k['type'] = new $autoClass();
 			$options = null;

@@ -1,6 +1,5 @@
 <?php
 
-use AppDev\DCI\AppController;
 use spidgorny\nadlib\HTTP\URL;
 
 /**

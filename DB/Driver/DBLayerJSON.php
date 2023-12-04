@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @method  runDeleteQuery($table, array $where)
+ */
 class DBLayerJSON extends DBLayerBase implements DBInterface
 {
 
@@ -135,4 +138,8 @@ class DBLayerJSON extends DBLayerBase implements DBInterface
 		return ['class' => get_class($this)];
 	}
 
+	public function getVersion()
+	{
+		// TODO: Implement getVersion() method.
+	}
 }

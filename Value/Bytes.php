@@ -28,7 +28,7 @@ class Bytes
 	public function __construct($bytes)
 	{
 		$iBytes = (string)(float)$bytes;
-		$sBytes = (string)$bytes;
+		$sBytes = $bytes;
 		//echo $bytes, TAB, $iBytes, TAB, $sBytes, BR, $sBytes === $iBytes, BR;
 		if ($sBytes === $iBytes) {
 			$this->value = $bytes;

@@ -68,9 +68,9 @@ class Uploader
 	 *        $f->hidden($name, $value);
 	 * }
 	 * }
-	 * @param string - input field name - usually 'file'
-	 * @param string $fieldName
+	 * @param  string - input field name - usually 'file'
 	 * @return HTMLForm
+	 * @param string $fieldName
 	 * @return HTMLForm
 	 */
 	public function getUploadForm($fieldName = 'file')
@@ -87,7 +87,7 @@ class Uploader
 	{
 		$tmpDir = ini_get('upload_tmp_dir') ?: sys_get_temp_dir();
 		if (is_writable($tmpDir)) {
-			$tmpDir .= ' [OK]';
+			$tmpDir .= ' [Writable]';
 		} else {
 			$tmpDir .= ' [Not writable]';
 		}
@@ -103,10 +103,6 @@ class Uploader
 		        <td title="upload_max_filesize: ' . $upload_max_filesize . '
 post_max_size: ' . $post_max_size . '">' .
 			min($upload_max_filesize, $post_max_size) . '</td></tr>
-
-		        <tr><td><nobr>Max amount:</nobr></td>
-		        <td title="max_file_uploads: ' . ini_get('max_file_uploads') . '">' .
-			ini_get('max_file_uploads') . '</td></tr>
 
 		        <tr><td><nobr>Free space:</nobr></td>
 		        <td>' .
@@ -131,7 +127,6 @@ post_max_size: ' . $post_max_size . '">' .
 		return [
 			'upload_max_filesize' => ini_get('upload_max_filesize'),
 			'post_max_size' => ini_get('post_max_size'),
-			'max_file_uploads' => ini_get('max_file_uploads'),
 			'disk_free_space' => round(disk_free_space('.') / 1024 / 1024) . 'MB',
 		];
 	}
@@ -194,7 +189,6 @@ post_max_size: ' . $post_max_size . '">' .
 		}
 		return $fileName;
 	}
-
 	/**
 	 * @param string|array $from - usually 'file' - the same name as in getUploadForm()
 	 * @param string $to - directory
@@ -301,9 +295,8 @@ post_max_size: ' . $post_max_size . '">' .
 			$uf['mime'] = $mime;
 			//debug($mime, $this->allowedMime);
 			return in_array($mime, $this->allowedMime);
-		} else {
-			return true;
 		}
+		return true;
 	}
 
 	/**
@@ -473,7 +466,7 @@ post_max_size: ' . $post_max_size . '">' .
 	{
 		$message = $this->errors[$code];
 		if ($code == 1) {
-			$message .= ' [' . ini_get('upload_max_filesize') . ']';
+			$message .= ' ['.ini_get('upload_max_filesize').']';
 		}
 		return $message;
 	}

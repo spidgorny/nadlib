@@ -24,7 +24,7 @@ class AlterTableCLI extends AlterTable
 		$action = $this->request->getTrim('action');
 		$action = $action ?: ifsetor($_SERVER['argv'][2]);
 		echo 'Action: ', $action, BR;
-		return $this->performAction();  // save, list, try
+		return $this->performAction($this->detectAction());  // save, list, try
 	}
 
 	public function saveAction()
@@ -101,6 +101,13 @@ class AlterTableCLI extends AlterTable
 			}
 		}
 		return $content;
+	}
+
+	public function listAction()
+	{
+		/** @var UL $ul */
+		$ul = $this->listFiles()[0];
+		$ul->cli();
 	}
 
 }

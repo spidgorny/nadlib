@@ -33,7 +33,8 @@ class Request
 		$this->url = new URL(
 			isset($_SERVER['SCRIPT_URL'])
 				? $_SERVER['SCRIPT_URL']
-				: (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null)
+				: (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null),
+			$this->data
 		);
 	}
 
@@ -148,7 +149,7 @@ class Request
 	public static function getDocumentRootByRequest()
 	{
 		$script = $_SERVER['SCRIPT_FILENAME'];
-		$request = dirname(ifsetor($_SERVER['REQUEST_URI'], ''));
+		$request = dirname(ifsetor($_SERVER['REQUEST_URI']));
 		//		exit();
 		if ($request && $request != '/' && strpos($script, $request) !== false) {
 			$docRootRaw = $_SERVER['DOCUMENT_ROOT'];
@@ -190,6 +191,8 @@ class Request
 		return $docRoot;
 	}
 
+	//
+
 	/**
 	 * Returns the full URL to the document root of the current site
 	 * @param bool $isUTF8
@@ -198,6 +201,7 @@ class Request
 	public static function getLocation($isUTF8 = false)
 	{
 		$docRoot = self::getDocRoot();
+//		llog($docRoot.'');
 		$host = self::getHost($isUTF8);
 		$url = Request::getRequestType() . '://' . $host . $docRoot;
 		$url = new URL($url);
@@ -240,7 +244,7 @@ class Request
 	 */
 	public static function getRequestType()
 	{
-		$HTTPS = ifsetor($_SERVER['HTTPS']);
+		$HTTPS = ifsetor($_SERVER['HTTPS'], getenv('HTTPS'));
 		$HTTP_X_FORWARDED_HOST = ifsetor($_SERVER['HTTP_X_FORWARDED_HOST']);
 		$HTTPS_SERVER = ifsetor($_SERVER['HTTPS_SERVER']);
 		$HTTP_X_FORWARDED_SSL = ifsetor($_SERVER['HTTP_X_FORWARDED_SSL']);
@@ -306,10 +310,12 @@ class Request
 	public static function isPHPUnit()
 	{
 		//debug($_SERVER); exit();
+		$phpunit = defined('PHPUnit');
 		$phar = !!ifsetor($_SERVER['IDE_PHPUNIT_PHPUNIT_PHAR']);
 		$loader = !!ifsetor($_SERVER['IDE_PHPUNIT_CUSTOM_LOADER']);
 		$phpStorm = basename($_SERVER['PHP_SELF']) == 'ide-phpunit.php';
-		return $phar || $loader || $phpStorm;
+		$phpStorm2 = basename($_SERVER['PHP_SELF']) == 'phpunit';
+		return $phar || $loader || $phpStorm || $phpStorm2 || $phpunit;
 	}
 
 	/**
@@ -396,7 +402,7 @@ class Request
 
 	public static function isHTTPS()
 	{
-		return self::getRequestType() === 'https';
+		return self::getRequestType() == 'https';
 	}
 
 	public static function isCalledScript($__FILE__)
@@ -512,6 +518,21 @@ class Request
 		return $value;
 	}
 
+	public function int($name)
+	{
+		return isset($this->data[$name]) ? intval($this->data[$name]) : 0;
+	}
+
+	public function getInt($name)
+	{
+		return $this->int($name);
+	}
+
+	public function getIntOrNULL($name)
+	{
+		return $this->is_set($name) ? $this->int($name) : null;
+	}
+
 	/**
 	 * Checks for keys, not values
 	 *
@@ -528,19 +549,9 @@ class Request
 		return $id;
 	}
 
-	public function getIntOrNULL($name)
-	{
-		return $this->is_set($name) ? $this->int($name) : null;
-	}
-
 	public function is_set($name)
 	{
 		return isset($this->data[$name]);
-	}
-
-	public function int($name)
-	{
-		return isset($this->data[$name]) ? intval($this->data[$name]) : 0;
 	}
 
 	public function getIntInException($name, array $assoc)
@@ -646,11 +657,6 @@ class Request
 		return $this->getInt($name);
 	}
 
-	public function getInt($name)
-	{
-		return $this->int($name);
-	}
-
 	/**
 	 * Will return Time object
 	 *
@@ -734,11 +740,10 @@ class Request
 	public function ifsetor($a, $default)
 	{
 		if ($this->is_set($a)) {
-			$value = $this->getTrim($a);
-			return $value;    // returns even if empty
-		} else {
-			return $default;
+			return $this->getTrim($a);    // returns even if empty
 		}
+
+		return $default;
 	}
 
 	public function setNewController($class)
@@ -786,16 +791,16 @@ class Request
 	{
 		if ($this->isCLI()) {
 			$resolver = new CLIResolver();
+			return $resolver->getController();
+		}
+
+		$c = $this->getTrim('c');
+		if ($c) {
+			$resolver = new CResolver($c);
 			$controller = $resolver->getController();
 		} else {
-			$c = $this->getTrim('c');
-			if ($c) {
-				$resolver = new CResolver($c);
-				$controller = $resolver->getController();
-			} else {
-				$resolver = new PathResolver();
-				$controller = $resolver->getController($returnDefault);
-			}
+			$resolver = new PathResolver();
+			$controller = $resolver->getController($returnDefault);
 		}   // cli
 		nodebug([
 			'result' => $controller,
@@ -849,8 +854,7 @@ class Request
 	public function redirectJS(
 		$controller, $delay = 0, $message =
 	'Redirecting to %1'
-	)
-	{
+	) {
 		echo __($message, '<a href="' . $controller . '">' . $controller . '</a>') . '
 			<script>
 				setTimeout(function () {
@@ -877,7 +881,10 @@ class Request
 		if (isset($headers['x-requested-with'])) {
 			$isXHR = strtolower($headers['x-requested-with']) === strtolower('XMLHttpRequest');
 		}
-		return $isXHR || $this->getBool('ajax');
+
+		$acceptJson = str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
+
+		return $this->getBool('ajax') || $isXHR || $acceptJson;
 	}
 
 	public function getBool($name)
@@ -894,6 +901,9 @@ class Request
 	{
 		$headers = function_exists('apache_request_headers')
 			? apache_request_headers() : [];
+//		array_map(static function ($x) {
+//			llog('header?', $x);
+//		}, array_keys($_SERVER));
 //		llog('getHeader', $headers);
 
 		$found = ifsetor($headers[$name]);
@@ -916,7 +926,7 @@ class Request
 
 	public function getJSONObject($name)
 	{
-		return json_decode($this->getTrim($name));
+		return json_decode($this->getTrim($name), false);
 	}
 
 	public function isSubmit()
@@ -967,31 +977,14 @@ class Request
 		}
 	}
 
-	public function getPathAfterDocRoot()
+	public function getPathAfterDocRoot($docRoot = null)
 	{
 		$al = AutoLoad::getInstance();
 
-		if (!$this->isWindows()) {    // linux
-			//debug(getcwd(), $al->documentRoot.'');
-			//			debug('cwd', $cwd);
-			$url = clone $al->documentRoot;
-			//			debug('documentRoot', $url);
-			$url->append($this->url->getPath());
-			$url->normalizeHomePage();
-
-			$cwd = new Path(getcwd());
-			$cwd->normalizeHomePage();
-
-			$path = new Path($url);
-			$path->remove($cwd);
-			$path->normalize();
-
-			//			debug($url.'', $cwd.'', $path.'');
-		} else {    // windows
-			$cwd = null;
-			$url = new Path('');
-			$url->append($this->url->getPath());
-			$path = new Path($url);
+		if ($this->isWindows()) {
+			$docRoot = new Path('');
+			$docRoot->append($this->url->getPath());
+			$path = new Path($docRoot);
 
 			//			debug($al->documentRoot);
 			if (false) {    // doesn't work in ORS
@@ -999,8 +992,21 @@ class Request
 			} elseif ($al->documentRoot instanceof Path) {        // works in ORS
 				$path->remove(clone $al->documentRoot);
 			}
-			//			debug($url.'', $path.'', $al->documentRoot.'');
 		}
+		//debug(getcwd(), $al->documentRoot.'');
+		//			debug('cwd', $cwd);
+		$docRoot = $docRoot ? new Path($docRoot) : clone $al->documentRoot;
+		//			debug('documentRoot', $docRoot);
+		$docRoot->append($this->url->getPath());
+		$docRoot->normalizeHomePage();
+
+		$cwd = new Path(getcwd());
+		$cwd->normalizeHomePage();
+
+		$path = new Path($docRoot);
+		$path->remove($cwd);
+		$path->normalize();
+
 		return $path;
 	}
 
@@ -1037,6 +1043,55 @@ class Request
 		return $path;
 	}
 
+	public function baseHrefFromServer()
+	{
+		$al = AutoLoad::getInstance();
+		$appRoot = $al->getAppRoot()->normalize()->realPath();
+		$path = new Path($_SERVER['SCRIPT_FILENAME']);
+		$path->trimIf($path->basename());
+//		llog('remove', $appRoot.'', 'from', $path.'');
+		$path->remove($appRoot);
+		$path->normalize();
+//		llog($path);
+//		debug($appRoot.'', $_SERVER['SCRIPT_FILENAME'], $path.'');
+		return $path;
+	}
+
+	public function baseHref()
+	{
+		$path = new Path($_SERVER['SCRIPT_FILENAME']);
+		$url = new URL($_SERVER['REQUEST_URI']);
+		$urlPath = $url->getPath();
+		$intersect = array_intersect($path->aPath, $urlPath->aPath);
+		llog($path . '', $urlPath . '', $intersect);
+		if (count($intersect)) {
+			return '/' . implode('/', $intersect) . '/xxx';
+		}
+		return '/';
+	}
+
+	public function getPathAfterAppRootByPath()
+	{
+		$al = AutoLoad::getInstance();
+		$docRoot = clone $al->documentRoot;
+		$docRoot->normalize()->realPath()->resolveLinks();
+
+		$path = $this->url->getPath();
+		$fullPath = clone $docRoot;
+		$fullPath->append($path);
+
+		//		d($docRoot.'', $path.'', $fullPath.'');
+		//		exit();
+		$fullPath->resolveLinksSimple();
+		//		$fullPath->onlyExisting();
+		//		d($fullPath.'');
+		$appRoot = $al->getAppRoot()->normalize()->realPath();
+		$fullPath->remove($appRoot);
+		//		$path->normalize();
+
+		return $fullPath;
+	}
+
 	public function setPath($path)
 	{
 		$this->url->setPath($path);
@@ -1071,7 +1126,7 @@ class Request
 			//debug($modules);
 			$mod_rewrite = in_array('mod_rewrite', $modules);
 		} else {
-			$mod_rewrite = getenv('HTTP_MOD_REWRITE') == 'On' ? true : false;
+			$mod_rewrite = getenv('HTTP_MOD_REWRITE') === 'On';
 		}
 		return $mod_rewrite;
 	}
@@ -1090,8 +1145,7 @@ class Request
 	{
 		$filename = $this->getTrim($name);
 		//echo getDebug(getcwd(), $filename, realpath($filename));
-		$filename = realpath($filename);
-		return $filename;
+		return realpath($filename);
 	}
 
 	/**
@@ -1103,8 +1157,7 @@ class Request
 	{
 		//filter_var($this->getTrim($name), ???)
 		$filename = $this->getTrim($name);
-		$filename = basename($filename);
-		return $filename;
+		return basename($filename);
 	}
 
 	public function importCLIparams($noopt = [])
@@ -1148,7 +1201,7 @@ class Request
 				}
 				// check if next parameter is a descriptor or a value
 				$nextparm = current($params);
-				if (!in_array($pname, $noopt) && $value === true && $nextparm !== false && $nextparm[0] != '-') {
+				if (!in_array($pname, $noopt) && $value === true && $nextparm !== false && $nextparm[0] !== '-') {
 					$value = next($params);
 				}
 				$result[$pname] = $value;
@@ -1275,54 +1328,35 @@ class Request
 		//debug($path);
 		if (strlen($path) > 1) {    // "/"
 			$levels = trimExplode('/', $path);
-			if ($levels && $levels[0] == 'index.php') {
+			if ($levels && $levels[0] === 'index.php') {
 				array_shift($levels);
 			}
 		} else {
 			$levels = [];
 		}
-		nodebug([
-			'cwd' => getcwd(),
-			//'url' => $url.'',
-			'path' => $path . '',
-			//'getURL()' => $path->getURL() . '',
-			'levels' => $levels]);
+//		llog([
+//			'cwd' => getcwd(),
+//			//'url' => $url.'',
+//			'path' => $path . '',
+//			//'getURL()' => $path->getURL() . '',
+//			'levels' => $levels]);
 		return $levels;
-	}
-
-	public function getPathAfterAppRootByPath()
-	{
-		$al = AutoLoad::getInstance();
-		$docRoot = clone $al->documentRoot;
-		$docRoot->normalize()->realPath()->resolveLinks();
-
-		$path = $this->url->getPath();
-		$fullPath = clone $docRoot;
-		$fullPath->append($path);
-
-		//		d($docRoot.'', $path.'', $fullPath.'');
-		//		exit();
-		$fullPath->resolveLinksSimple();
-		//		$fullPath->onlyExisting();
-		//		d($fullPath.'');
-		$appRoot = $al->getAppRoot()->normalize()->realPath();
-		$fullPath->remove($appRoot);
-		//		$path->normalize();
-
-		return $fullPath;
 	}
 
 	public function getPOST()
 	{
+		if (isset($HTTP_RAW_POST_DATA)) {
+			return $HTTP_RAW_POST_DATA;
+		}
+
 		return file_get_contents("php://input");
 	}
 
-	public function forceDownload($contentType, $filename, $disposition = 'attachment')
+	public function forceDownload($contentType, $filename)
 	{
 		header('Content-Type: ' . $contentType);
-		header("Content-Disposition: " . $disposition . "; filename=\"" . $filename . "\"");
+		header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
 	}
-
 	public function getKeys()
 	{
 		return array_keys($this->data);
@@ -1440,7 +1474,8 @@ class Request
 		} else {
 			$this->redirectJS($controller, DEVELOPMENT ? 10000 : 0);
 		}
-		if ($exit && !$this->isPHPUnit()) {
+		if ($exit && !self::isPHPUnit()) {
+			// to preserve the session
 			session_write_close();
 			exit();
 		}

@@ -118,4 +118,8 @@ class NoUser extends UserBase implements UserModelInterface
 		// do nothing, we failed to login with a session
 	}
 
+	public function getSetting($key)
+	{
+		return null;
+	}
 }
