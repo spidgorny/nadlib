@@ -10,9 +10,9 @@ if (!function_exists('debug')) {
 	/**
 	 * @param mixed,...$a
 	 */
-	function debug($a)
+	function debug(...$a)
 	{
-		$params = func_num_args() == 1 ? $a : func_get_args();
+		$params = func_num_args() === 1 ? $a : func_get_args();
 		if (class_exists(Debug::class)) {
 			$debug = Debug::getInstance();
 			$debug->debug($params);
@@ -78,7 +78,7 @@ if (!function_exists('d')) {
 	{
 	}
 
-	function getDebug()
+	function getDebug(...$a)
 	{
 		$params = func_get_args();
 		$debug = Debug::getInstance();

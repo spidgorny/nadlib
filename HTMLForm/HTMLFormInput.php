@@ -1,11 +1,11 @@
 <?php
 
 /**
- * @property mixed prefix
- * @property string label
- * @property string value
- * @property string type
- * @property string placeholder
+ * @property mixed $prefix
+ * @property string $label
+ * @property string $value
+ * @property string $type
+ * @property string $placeholder
  */
 class HTMLFormInput extends HTMLFormField
 {

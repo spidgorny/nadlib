@@ -93,10 +93,8 @@ abstract class Controller extends SimpleController
 	public function __construct()
 	{
 		parent::__construct();
-		if (!$this->config) {
-			if ($this->index) {
-				$this->config = $this->index->getConfig();
-			}
+		if (!$this->config && $this->index) {
+			$this->config = $this->index->getConfig();
 		}
 
 		if ($this->config) {
@@ -107,7 +105,7 @@ abstract class Controller extends SimpleController
 			$this->config->mergeConfig($this);
 		}
 
-		$this->linker = new Linker($this->request, $this);
+		$this->linker = new Linker($this->request);
 		$this->linker->useRouter = $this->request->apacheModuleRewrite();
 
 		if (!$this->linker->useRouter) {

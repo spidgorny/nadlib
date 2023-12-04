@@ -518,21 +518,6 @@ class Request
 		return $value;
 	}
 
-	public function int($name)
-	{
-		return isset($this->data[$name]) ? intval($this->data[$name]) : 0;
-	}
-
-	public function getInt($name)
-	{
-		return $this->int($name);
-	}
-
-	public function getIntOrNULL($name)
-	{
-		return $this->is_set($name) ? $this->int($name) : null;
-	}
-
 	/**
 	 * Checks for keys, not values
 	 *
@@ -549,9 +534,19 @@ class Request
 		return $id;
 	}
 
+	public function getIntOrNULL($name)
+	{
+		return $this->is_set($name) ? $this->int($name) : null;
+	}
+
 	public function is_set($name)
 	{
 		return isset($this->data[$name]);
+	}
+
+	public function int($name)
+	{
+		return isset($this->data[$name]) ? intval($this->data[$name]) : 0;
 	}
 
 	public function getIntInException($name, array $assoc)
@@ -655,6 +650,11 @@ class Request
 	public function getTimestamp($name)
 	{
 		return $this->getInt($name);
+	}
+
+	public function getInt($name)
+	{
+		return $this->int($name);
 	}
 
 	/**
@@ -1070,28 +1070,6 @@ class Request
 		return '/';
 	}
 
-	public function getPathAfterAppRootByPath()
-	{
-		$al = AutoLoad::getInstance();
-		$docRoot = clone $al->documentRoot;
-		$docRoot->normalize()->realPath()->resolveLinks();
-
-		$path = $this->url->getPath();
-		$fullPath = clone $docRoot;
-		$fullPath->append($path);
-
-		//		d($docRoot.'', $path.'', $fullPath.'');
-		//		exit();
-		$fullPath->resolveLinksSimple();
-		//		$fullPath->onlyExisting();
-		//		d($fullPath.'');
-		$appRoot = $al->getAppRoot()->normalize()->realPath();
-		$fullPath->remove($appRoot);
-		//		$path->normalize();
-
-		return $fullPath;
-	}
-
 	public function setPath($path)
 	{
 		$this->url->setPath($path);
@@ -1343,12 +1321,30 @@ class Request
 		return $levels;
 	}
 
+	public function getPathAfterAppRootByPath()
+	{
+		$al = AutoLoad::getInstance();
+		$docRoot = clone $al->documentRoot;
+		$docRoot->normalize()->realPath()->resolveLinks();
+
+		$path = $this->url->getPath();
+		$fullPath = clone $docRoot;
+		$fullPath->append($path);
+
+		//		d($docRoot.'', $path.'', $fullPath.'');
+		//		exit();
+		$fullPath->resolveLinksSimple();
+		//		$fullPath->onlyExisting();
+		//		d($fullPath.'');
+		$appRoot = $al->getAppRoot()->normalize()->realPath();
+		$fullPath->remove($appRoot);
+		//		$path->normalize();
+
+		return $fullPath;
+	}
+
 	public function getPOST()
 	{
-		if (isset($HTTP_RAW_POST_DATA)) {
-			return $HTTP_RAW_POST_DATA;
-		}
-
 		return file_get_contents("php://input");
 	}
 

@@ -38,6 +38,33 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 	}
 
 	/**
+	 * @param resource $res
+	 * @return array|false
+	 * @throws DatabaseException
+	 */
+	public function fetchAssoc($res)
+	{
+		//		debug(gettype2($res));
+		if ($res instanceof mysqli_result) {
+			$data = (array)$res->fetch_assoc();
+			//			debug(gettype2($res), $data);
+			return $data;
+		} elseif (is_string($res)) {
+			$res = $this->perform($res);
+			return $res->fetch_assoc();
+		} elseif ($res instanceof SQLSelectQuery) {
+			$res = $this->perform($res . '', $res->getParameters());
+			return $res->fetch_assoc();
+		} elseif ($res instanceof mysqli_stmt) {
+			$res->fetch();
+			return $this->columns;
+		} else {
+			debug(typ($res));
+			throw new InvalidArgumentException(__METHOD__);
+		}
+	}
+
+	/**
 	 * @param       $query
 	 * @param array $params
 	 * @return bool|mysqli_result
@@ -106,33 +133,6 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 			$refs[$key] = &$arr[$key];
 		}
 		return $refs;
-	}
-
-	/**
-	 * @param resource $res
-	 * @return array|false
-	 * @throws DatabaseException
-	 */
-	public function fetchAssoc($res)
-	{
-		//		debug(gettype2($res));
-		if ($res instanceof mysqli_result) {
-			$data = (array)$res->fetch_assoc();
-			//			debug(gettype2($res), $data);
-			return $data;
-		} elseif (is_string($res)) {
-			$res = $this->perform($res);
-			return $res->fetch_assoc();
-		} elseif ($res instanceof SQLSelectQuery) {
-			$res = $this->perform($res . '', $res->getParameters());
-			return $res->fetch_assoc();
-		} elseif ($res instanceof mysqli_stmt) {
-			$res->fetch();
-			return $this->columns;
-		} else {
-			debug(typ($res));
-			throw new InvalidArgumentException(__METHOD__);
-		}
 	}
 
 	public function affectedRows($res = null)
@@ -208,7 +208,7 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 		// TODO: Implement getVersion() method.
 	}
 
-	public function __call($name, $arguments)
+	public function __call($method, $params)
 	{
 		// TODO: Implement @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
 		// TODO: Implement @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')

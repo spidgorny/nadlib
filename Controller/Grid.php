@@ -56,9 +56,9 @@ abstract class Grid extends AppControllerBE
 	public function setFilter($cn = __CLASS__)
 	{
 		$this->filter = new Filter();
-		$action = $this->request->getTrim('action');
-		$this->log(__METHOD__, 'isSubmit', $this->request->isSubmit());
-		$this->log(__METHOD__, 'GET filter=', $this->request->getArray('filter'));
+//		$action = $this->request->getTrim('action');
+//		$this->log(__METHOD__, 'isSubmit', $this->request->isSubmit());
+//		$this->log(__METHOD__, 'GET filter=', $this->request->getArray('filter'));
 		if ($this->request->isSubmit() || $this->request->getArray('filter')) {
 			$this->filter->setRequest($this->request->getArray('filter'));
 		}
@@ -66,7 +66,7 @@ abstract class Grid extends AppControllerBE
 			$prefFilter = $this->user->getPref('Filter.' . $cn);
 //				debug($prefFilter);
 			if ($prefFilter) {
-				$this->log(__METHOD__, 'setPreferences', $prefFilter);
+//				$this->log(__METHOD__, 'setPreferences', $prefFilter);
 				$this->filter->setPreferences($prefFilter);
 			}
 		}
@@ -134,42 +134,6 @@ abstract class Grid extends AppControllerBE
 		if ($subname) {
 			$this->request->set($subname, $r->getAll());
 		}
-	}
-
-	/**
-	 * Only get filter if it's not need to be cleared
-	 * @param string $cn
-	 * @throws LoginException
-	 */
-	public function setFilter($cn = __CLASS__)
-	{
-		$this->filter = new Filter();
-//		$action = $this->request->getTrim('action');
-//		$this->log(__METHOD__, 'isSubmit', $this->request->isSubmit());
-//		$this->log(__METHOD__, 'GET filter=', $this->request->getArray('filter'));
-		if ($this->request->isSubmit() || $this->request->getArray('filter')) {
-			$this->filter->setRequest($this->request->getArray('filter'));
-		}
-		if (method_exists($this->user, 'getPref')) {
-			$prefFilter = $this->user->getPref('Filter.' . $cn);
-//				debug($prefFilter);
-			if ($prefFilter) {
-//				$this->log(__METHOD__, 'setPreferences', $prefFilter);
-				$this->filter->setPreferences($prefFilter);
-			}
-		}
-//			d($cn, $this->filter,
-//				array_keys($_SESSION), gettypes($_SESSION),
-//				$_SESSION
-//			);
-		//debug(get_class($this), 'Filter.'.$cn, $this->filter);
-		0 && debug([
-			'controller' => $this->request->getControllerString(),
-			'this' => get_class($this),
-			//'allowEdit' => $allowEdit,
-			'this->filter' => $this->filter,
-			'_REQUEST' => $_REQUEST,
-		]);
 	}
 
 	/**

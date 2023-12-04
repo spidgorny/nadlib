@@ -48,53 +48,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 
 	public static function pre($content, array $param = [])
 	{
-		$set = [];
-		foreach ($param as $key => $val) {
-			if (is_array($val) && $key === 'style') {
-				$style = ArrayPlus::create($val);
-				$style = $style->getHeaders('; ');
-				$val = $style;                        // for style="a: b; c: d"
-			} elseif (is_array($val)) {
-				if (ArrayPlus::isRecursive($val)) {
-					debug($val);
-				}
-				$val = implode(' ', $val);        // for class="a b c"
-			}
-			$set[] = $key . '="' . htmlspecialchars($val, ENT_QUOTES | PHP_QUERY_RFC3986) . '"';
-		}
-		return implode(' ', $set);
-	}
-
-	/**
-	 * jQuery style
-	 * @param string $name
-	 * @param null|string|mixed $value
-	 * @return mixed
-	 */
-	public function attr($name, $value = null)
-	{
-		if ($value) {
-			$this->attr[$name] = $value;
-			return $this;
-		}
-
-		return ifsetor($this->attr[$name]);
-	}
-
-	public function setAttr($name, $value)
-	{
-		$this->attr[$name] = $value;
-		return $this;
-	}
-
-	public function hasAttr($name)
-	{
-		return isset($this->attr[$name]);
-	}
-
-	public function getAttr($name)
-	{
-		return ifsetor($this->attr[$name]);
+		return new HTMLTag('pre', $param, $content);
 	}
 
 	/**
@@ -239,6 +193,27 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return new self('img', ['src' => $src] + $params);
 	}
 
+	/**
+	 * jQuery style
+	 * @param string $name
+	 * @param null|string|mixed $value
+	 * @return mixed
+	 */
+	public function attr($name, $value = null)
+	{
+		if ($value) {
+			$this->attr[$name] = $value;
+			return $this;
+		}
+
+		return ifsetor($this->attr[$name]);
+	}
+
+	public function hasAttr($name)
+	{
+		return isset($this->attr[$name]);
+	}
+
 	public function __toString()
 	{
 		try {
@@ -302,6 +277,17 @@ class HTMLTag implements ArrayAccess, ToStringable
 	public function offsetGet($offset)
 	{
 		return $this->getAttr($offset);
+	}
+
+	public function getAttr($name)
+	{
+		return ifsetor($this->attr[$name]);
+	}
+
+	public function setAttr($name, $value)
+	{
+		$this->attr[$name] = $value;
+		return $this;
 	}
 
 	public function offsetSet($offset, $value)

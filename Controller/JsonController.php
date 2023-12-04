@@ -15,14 +15,6 @@ trait JsonController
 		$this->config->setUser($this->user);
 	}
 
-	public function validateAuthorization($registeredApps)
-	{
-//		llog(__METHOD__, DEVELOPMENT, $_SERVER['HTTP_HOST'], gethostname());
-		return DEVELOPMENT &&
-			$_SERVER['HTTP_HOST'] === 'localhost:2000' &&
-			gethostname() === '761K7Y2';
-	}
-
 	/**
 	 * @param array $registeredApps
 	 * @throws LoginException
@@ -127,7 +119,7 @@ trait JsonController
 	{
 		header('Content-Type: application/json');
 		$key['duration'] = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
-		$response = json_encode($key, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_LINE_TERMINATORS);
+		$response = json_encode($key, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | /*JSON_UNESCAPED_LINE_TERMINATORS*/);
 //		error_log($response);
 		return $response;
 	}

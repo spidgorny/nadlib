@@ -334,36 +334,6 @@ class HTMLForm implements ToStringable
 	}
 
 	/**
-	 * @param string|string[] $name
-	 * @param array $aOptions
-	 * @param string|int|null $default
-	 * @param bool $autoSubmit
-	 * @param array|string $more
-	 * @param bool $multiple
-	 * @param array $desc
-	 *
-	 * @see renderSelectionOptions
-	 */
-	public function selection(
-		$name,
-		array $aOptions,
-		$default,
-		$autoSubmit = false,
-		array $more = [],
-		$multiple = false,
-		array $desc = []
-	) {
-		$sel = new HTMLFormSelection($name, $aOptions, $default);
-		$sel->autoSubmit = $autoSubmit;
-		$sel->more = is_string($more) ? HTMLTag::parseAttributes($more) : $more;
-		$sel->multiple = $multiple;
-		$sel->setDesc($desc);
-		//debug($name, $desc);
-		$sel->setForm($this);
-		$this->stdout .= $sel->render();
-	}
-
-	/**
 	 * Default value is no longer "today"
 	 *
 	 * @param $name
@@ -622,6 +592,36 @@ class HTMLForm implements ToStringable
 		);"', false, $desc);
 			$this->input($fieldName, $desc['value']);
 		}
+	}
+
+	/**
+	 * @param string|string[] $name
+	 * @param array $aOptions
+	 * @param string|int|null $default
+	 * @param bool $autoSubmit
+	 * @param array|string $more
+	 * @param bool $multiple
+	 * @param array $desc
+	 *
+	 * @see renderSelectionOptions
+	 */
+	public function selection(
+		$name,
+		array $aOptions,
+		$default,
+		$autoSubmit = false,
+		array $more = [],
+		$multiple = false,
+		array $desc = []
+	) {
+		$sel = new HTMLFormSelection($name, $aOptions, $default);
+		$sel->autoSubmit = $autoSubmit;
+		$sel->more = is_string($more) ? HTMLTag::parseAttributes($more) : $more;
+		$sel->multiple = $multiple;
+		$sel->setDesc($desc);
+		//debug($name, $desc);
+		$sel->setForm($this);
+		$this->stdout .= $sel->render();
 	}
 
 	/**
@@ -889,7 +889,7 @@ document.observe("dom:loaded", () => {
 
 	public function popupLink($self, $table, $titleColumn, $selected, $pid, $leaves, $id1, $id2, $functionName, $selectRoot)
 	{
-		$this->stdout .= str::ahref('<img src="skin/default/img/browsefolder.png">',
+		$this->stdout .= Str::ahref('<img src="skin/default/img/browsefolder.png">',
 			'bijouTreeSelect.php?self=' . $self . '&table=' . $table . '&titleColumn=' . $titleColumn .
 			'&pid=' . $pid . '&leaves=' . $leaves . '&selected=' . $selected . '&callback=' . $functionName .
 			'&selectRoot=' . $selectRoot, false, 'bijouTreeTarget');

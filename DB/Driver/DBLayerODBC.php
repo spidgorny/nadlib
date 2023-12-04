@@ -49,6 +49,11 @@ class DBLayerODBC extends DBLayerBase implements DBInterface
 		return $this->result;
 	}
 
+	public function lastError()
+	{
+		return 'ODBC error #' . odbc_error() . ': ' . odbc_errormsg();
+	}
+
 	public function numRows($res = null)
 	{
 		return odbc_num_rows($res);
@@ -103,14 +108,9 @@ class DBLayerODBC extends DBLayerBase implements DBInterface
 			}
 			//debug(__METHOD__, $this->cursor, $row);
 			return $row;
-		} else {
-			throw new Exception(__METHOD__);
 		}
-	}
 
-	public function lastError()
-	{
-		return 'ODBC error #' . odbc_error() . ': ' . odbc_errormsg();
+		throw new RuntimeException(__METHOD__);
 	}
 
 	public function getVersion()
@@ -118,7 +118,7 @@ class DBLayerODBC extends DBLayerBase implements DBInterface
 		// TODO: Implement getVersion() method.
 	}
 
-	public function __call($name, $arguments)
+	public function __call($method, array $params)
 	{
 		// TODO: Implement @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
 		// TODO: Implement @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
