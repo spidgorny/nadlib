@@ -232,11 +232,11 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 			case "selection":
 				$this->form->selection(
 					$fieldName,
-					null,
+					$desc['options'],
 					ifsetor($fieldValue, ifsetor($desc['default'])),
-					isset($desc['autosubmit']) ? $desc['autosubmit'] : null,
+					$desc['autosubmit'] ?? null,
 					[],    // more
-					isset($desc['multiple']) ? $desc['multiple'] : null,
+					$desc['multiple'] ?? null,
 					$desc->getArray()
 				);
 				break;
