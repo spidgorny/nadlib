@@ -60,19 +60,9 @@ class SQLWhereTest extends NadlibTestCase
 		]);
 	}
 
-	public function trim($sql)
+	public function setExpectedException($exceptionName, $exceptionMessage = '', $exceptionCode = null)
 	{
-		$sql = str_replace("\n", ' ', $sql);
-		$sql = str_replace("\t", ' ', $sql);
-		$sql = preg_replace('/ +/', ' ', $sql);
-		$sql = trim($sql);
-//		echo $sql, BR;
-		return $sql;
-	}
-
-	public function setExpectedException($exception)
-	{
-		$this->expectException($exception);
+		$this->expectException($exceptionName, $exceptionMessage, $exceptionCode);
 	}
 
 }

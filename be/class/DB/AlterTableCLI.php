@@ -36,13 +36,6 @@ class AlterTableCLI extends AlterTable
 		echo 'Size: ', filesize($this->jsonFile), BR;
 	}
 
-	public function listAction()
-	{
-		/** @var UL $ul */
-		$ul = $this->listFiles()[0];
-		$ul->cli();
-	}
-
 	public function tryAction()
 	{
 		$filename = $this->jsonFile;

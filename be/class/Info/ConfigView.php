@@ -3,15 +3,13 @@
 class ConfigView extends AppControllerBE
 {
 
-	var $file;
+	public $file;
 	protected $prefix = __CLASS__;
 	protected $typeMap = [
 		'string' => 'input',
 		'boolean' => 'checkbox',
 		'integer' => 'input',
 	];
-
-	public $file;
 
 	public function __construct()
 	{

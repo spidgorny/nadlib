@@ -21,20 +21,6 @@ class ServerStat extends AppControllerBE
 		$this->config = Config::getInstance();
 	}
 
-	public function render()
-	{
-		$this->index->addJS('be/js/main.js');
-		$content = $this->performAction();
-		if (!$content) {
-			$content = '<div
-				id="div_SystemInfo"
-				class="row updateHere"
-				src="?c=ServerStat&ajax=1&action=updateHere">' . $this->renderEverything() . '</div>';
-
-		}
-		return $content;
-	}
-
 	/**
 	 * AJAX
 	 * @return string
@@ -97,10 +83,9 @@ class ServerStat extends AppControllerBE
 		return $s;
 	}
 
-	function getBarURL($percent)
+	public function getBarURL($percent)
 	{
-		$content = AutoLoad::getInstance()->nadlibFromDocRoot . 'bar.php?rating=' . round($percent) . '&!border=0&height=25';
-		return $content;
+		return AutoLoad::getInstance()->nadlibFromDocRoot . 'bar.php?rating=' . round($percent) . '&!border=0&height=25';
 	}
 
 	public function getPerformanceInfo()
@@ -142,17 +127,16 @@ class ServerStat extends AppControllerBE
 		return $conf;
 	}
 
-	function getBarWith($value)
+	public function getBarWith($value)
 	{
 		return new HTMLTag('td', [
 			'style' => 'width: 100px; background: no-repeat url(' . $this->getBarURL($value) . ');',
 		], $value . ' %');
 	}
 
-	function getBar($percent)
+	public function getBar($percent)
 	{
-		$content = '<img src="' . $this->getBarURL($percent) . '" />';
-		return $content;
+		return '<img src="' . $this->getBarURL($percent) . '" />';
 	}
 
 	public function getServerInfo()
@@ -255,58 +239,6 @@ class ServerStat extends AppControllerBE
 		return $percentages;
 	}
 
-	public function getQueryLog()
-	{
-		$s = new slTable('dumpQueries', 'width="100%"');
-		$s->thes([
-			'query' => ['name' => 'Query', 'no_hsc' => true, 'colspan' => 7, 'new_tr' => true],
-			'function' => '<a href="javascript: void(0);" onclick="toggleRows(\'dumpQueries\');">Func.</a>',
-			'line' => '(l)',
-			//'results' => 'Rows',
-			'elapsed' => ['name' => '1st', 'decimals' => 3],
-			'count' => '#',
-			'total' => ['name' => $this->totalTime, 'decimals' => 3],
-			'percent' => '100%',
-		]);
-		$s->data = ifsetor($this->LOG, ifsetor($this->config->getDB()->getQueryLog()));
-		$s->isOddEven = true;
-		$s->more = 'class="nospacing"';
-		return $s;
-	}
-
-	public function format_uptime($seconds)
-	{
-		$secs = intval($seconds % 60);
-		$mins = intval($seconds / 60 % 60);
-		$hours = intval($seconds / 3600 % 24);
-		$days = intval($seconds / 86400);
-
-		$uptimeString = $days . "D ";
-		$uptimeString .= str_pad($hours, 2, '0', STR_PAD_LEFT) . ":";
-		$uptimeString .= str_pad($mins, 2, '0', STR_PAD_LEFT) . ":";
-		$uptimeString .= str_pad($secs, 2, '0', STR_PAD_LEFT);
-		return $uptimeString;
-	}
-
-	public function getBarURL($percent)
-	{
-		$content = AutoLoad::getInstance()->nadlibFromDocRoot . 'bar.php?rating=' . round($percent) . '&!border=0&height=25';
-		return $content;
-	}
-
-	public function getBar($percent)
-	{
-		$content = '<img src="' . $this->getBarURL($percent) . '" />';
-		return $content;
-	}
-
-	public function getBarWith($value)
-	{
-		return new HTMLTag('td', [
-			'style' => 'width: 100px; background: no-repeat url(' . $this->getBarURL($value) . ');',
-		], $value . ' %');
-	}
-
 	protected function getStat($_statPath = '/proc/stat')
 	{
 		$stat = @file_get_contents($_statPath);
@@ -365,20 +297,20 @@ class ServerStat extends AppControllerBE
 		return $uptimeString;
 	}
 
-	function getQueryLog()
+	public function getQueryLog()
 	{
 		$s = new slTable('dumpQueries', 'width="100%"');
 		$s->thes([
-			'query'    => ['name' => 'Query', 'no_hsc' => true, 'colspan' => 7, 'new_tr' => true],
+			'query' => ['name' => 'Query', 'no_hsc' => true, 'colspan' => 7, 'new_tr' => true],
 			'function' => '<a href="javascript: void(0);" onclick="toggleRows(\'dumpQueries\');">Func.</a>',
-			'line'     => '(l)',
+			'line' => '(l)',
 			//'results' => 'Rows',
-			'elapsed'  => ['name' => '1st', 'decimals' => 3],
-			'count'    => '#',
-			'total'    => ['name' => $this->totalTime, 'decimals' => 3],
-			'percent'  => '100%',
+			'elapsed' => ['name' => '1st', 'decimals' => 3],
+			'count' => '#',
+			'total' => ['name' => $this->totalTime, 'decimals' => 3],
+			'percent' => '100%',
 		]);
-		$s->data = ifsetor($this->LOG, ifsetor($this->config->getDB()->getQueryLog()));
+		$s->data = ifsetor($this->LOG, $this->config->getDB()->getQueryLog());
 		$s->isOddEven = true;
 		$s->more = 'class="nospacing"';
 		return $s;
@@ -407,13 +339,13 @@ class ServerStat extends AppControllerBE
 
 	public function __toString()
 	{
-		return $this->render();
+		return $this->s($this->render());
 	}
 
-	function render()
+	public function render()
 	{
 		$this->index->addJS('be/js/main.js');
-		$content = $this->performAction($this->detectAction());
+		$content = $this->performAction();
 		if (!$content) {
 			$content = '<div
 				id="div_SystemInfo"

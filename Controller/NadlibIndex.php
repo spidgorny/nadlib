@@ -104,17 +104,12 @@ class NadlibIndex
 		return $content;
 	}
 
-	public function initAction()
-	{
-		return 'initAction';
-	}
-
 	public function s($content)
 	{
 		return MergedContent::mergeStringArrayRecursive($content);
 	}
 
-	function initAction()
+	public function initAction()
 	{
 		return 'initAction';
 	}

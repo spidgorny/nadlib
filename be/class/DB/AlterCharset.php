@@ -42,13 +42,6 @@ class AlterCharset extends AppControllerBE
 		return $content;
 	}
 
-	public function alterTableCharsetAction()
-	{
-		$table = $this->request->getTrim('table');
-		$query = "ALTER TABLE " . $table . " DEFAULT COLLATE = '" . $this->desired . "'";
-		$this->db->perform($query);
-	}
-
 	public function renderTableColumns($table)
 	{
 		$badList = [];
@@ -110,11 +103,10 @@ class AlterCharset extends AppControllerBE
 		]);
 		//$s->generateThes();
 		//var_export($s->thes);
-		$content = $s;
-		return $content;
+		return $s;
 	}
 
-	function alterTableCharsetAction()
+	public function alterTableCharsetAction()
 	{
 		$table = $this->request->getTrim('table');
 		$query = "ALTER TABLE " . $table . " DEFAULT COLLATE = '" . $this->desired . "'";

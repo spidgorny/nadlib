@@ -148,22 +148,6 @@ class AlterIndex extends AppControllerBE
 		return $content;
 	}
 
-	public function convertFromOtherDB(array $desc)
-	{
-		if ($desc['tbl_name']) {    // SQLite
-			$desc['Table'] = $desc['tbl_name'];
-			unset($desc['tbl_name']);
-			$desc['Key_name'] = $desc['name'];
-			unset($desc['name']);
-			$desc['Index_type'] = $desc['type'];
-			unset($desc['type']);
-			unset($desc['rootpage']);
-			$desc['comment'] = $desc['sql'];
-			unset($desc['sql']);
-		}
-		return $desc;
-	}
-
 	/**
 	 * @param string $table
 	 * @param array $local
@@ -214,7 +198,7 @@ class AlterIndex extends AppControllerBE
 		return $indexCompare;
 	}
 
-	function convertFromOtherDB(array $desc)
+	public function convertFromOtherDB(array $desc)
 	{
 		if ($desc['tbl_name']) {    // SQLite
 			$desc['Table'] = $desc['tbl_name'];
