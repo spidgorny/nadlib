@@ -86,9 +86,9 @@ abstract class dbLayerBase implements DBInterface
 		}
 		if (method_exists($this->qb, $method)) {
 			return call_user_func_array([$this->qb, $method], $params);
-		} else {
-			throw new Exception($method . ' not found in ' . get_class($this) . ' and SQLBuilder');
 		}
+
+		throw new Exception($method . ' not found in ' . get_class($this) . ' and SQLBuilder');
 	}
 
 	function dataSeek($res, $i)

@@ -675,8 +675,7 @@ class SQLBuilder
 	{
 		$query = $this->getSelectQuery($table, $where, $order, $selectPlus);
 		$res = $this->db->perform($query);
-		$data = $this->db->fetchAssoc($res);
-		return $data;
+		return $this->db->fetchAssoc($res);
 	}
 
 	function runUpdateInsert($table, $set, $where)
@@ -703,8 +702,7 @@ class SQLBuilder
 	function fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = NULL)
 	{
 		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
-		$rows = $this->db->fetchAll($res, $key);
-		return $rows;
+		return $this->db->fetchAll($res, $key);
 	}
 
 	function getWhereString(array $where)
