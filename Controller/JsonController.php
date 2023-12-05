@@ -27,14 +27,13 @@ trait JsonController
 			return;
 		}
 
-		$headers = function_exists('apache_request_headers')
-			? apache_request_headers() : [];
-//		llog('apache_headers in JsonController for', get_class($this), $headers);
+		$headers = $this->request->getHeaders();
+		llog('apache_headers in JsonController for', get_class($this), $headers);
 
 		$authorization = $this->request->getHeader('Authorization');
 //		llog($authorization);
 		//debug($headers, $authorization);
-		invariant($authorization, 'No Authorization Header');
+		invariant($authorization, 'No Authorization Header', 401);
 		if (!in_array($authorization, $registeredApps)) {
 			throw new LoginException('Authorization failed.', 401);
 		}
@@ -119,7 +118,7 @@ trait JsonController
 	{
 		header('Content-Type: application/json');
 		$key['duration'] = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
-		$response = json_encode($key, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | /*JSON_UNESCAPED_LINE_TERMINATORS*/);
+		$response = json_encode($key, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES  /*JSON_UNESCAPED_LINE_TERMINATORS*/);
 //		error_log($response);
 		return $response;
 	}

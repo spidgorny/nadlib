@@ -854,7 +854,8 @@ class Request
 	public function redirectJS(
 		$controller, $delay = 0, $message =
 	'Redirecting to %1'
-	) {
+	)
+	{
 		echo __($message, '<a href="' . $controller . '">' . $controller . '</a>') . '
 			<script>
 				setTimeout(function () {
@@ -899,12 +900,7 @@ class Request
 
 	public function getHeader($name)
 	{
-		$headers = function_exists('apache_request_headers')
-			? apache_request_headers() : [];
-//		array_map(static function ($x) {
-//			llog('header?', $x);
-//		}, array_keys($_SERVER));
-//		llog('getHeader', $headers);
+		$headers = $this->getHeaders();
 
 		$found = ifsetor($headers[$name]);
 		if ($found) {
@@ -917,6 +913,24 @@ class Request
 			}
 		}
 		return null;
+	}
+
+	public function getHeaders()
+	{
+		if (function_exists('apache_request_headers')) {
+			return apache_request_headers();
+		}
+		if (function_exists('getallheaders')) {
+			return getallheaders();
+		}
+
+		return collect($_SERVER)->filter(static function ($val, $key) {
+			return str_startsWith($key, 'HTTP_');
+		})->mapWithKeys(static function ($val, $key) {
+			$newKey = strtolower($key);
+			$newKey = str_replace('_', '-', $newKey);
+			return [$newKey => $val];
+		})->toArray();
 	}
 
 	public function getJson($name, $array = true)
@@ -1353,18 +1367,19 @@ class Request
 		header('Content-Type: ' . $contentType);
 		header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
 	}
+
 	public function getKeys()
 	{
 		return array_keys($this->data);
 	}
+
+	/// disposition = inline
 
 	public function getGeoLocation()
 	{
 		$info = $this->getGeoIP();
 		return trimExplode(',', $info->loc);
 	}
-
-	/// disposition = inline
 
 	public function getGeoIP()
 	{
@@ -1598,7 +1613,7 @@ class Request
 
 	public function getJsonPost()
 	{
-		return json_decode($this->getRawPost());
+		return json_decode($this->getRawPost(), false);
 	}
 
 	public function getRawPost()
