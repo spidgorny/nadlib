@@ -16,10 +16,16 @@ interface IndexInterface
 
 	public function addJS($source);
 
+	public function addCSS($source);
+
 	public function message($text);
 
 	public function error($text);
 
 	public function success($text);
+
+	public function getController();
+
+	public function getMergedContent();
 
 }

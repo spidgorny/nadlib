@@ -23,16 +23,19 @@ abstract class SimpleController
 	 * @var Index|IndexInterface
 	 */
 	public $index;
+
 	/**
 	 * @var Request
 	 * @public for injecting something in PHPUnit
 	 */
 	public $request;
+
 	/**
 	 * Will be taken as a <title> of the HTML table
 	 * @var string
 	 */
 	public $title;
+
 	public $encloseTag = 'h2';
 
 	public $log = [];
@@ -56,6 +59,10 @@ abstract class SimpleController
 		self::$instance[get_class($this)] = $this;
 	}
 
+	/**
+	 * @return static
+	 * @throws Exception
+	 */
 	public static function getInstance()
 	{
 		$static = get_called_class();
@@ -196,7 +203,7 @@ abstract class SimpleController
 			'</' . $hTag . '>';
 	}
 
- /**
+	/**
 	 * Will call indexAction() method if no $action provided
 	 * @param $action
 	 * @return false|mixed|string

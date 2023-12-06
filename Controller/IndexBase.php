@@ -2,25 +2,29 @@
 
 use nadlib\HTML\Messages;
 use nadlib\HTTP\Session;
+use nadlib\IndexInterface;
 
-class IndexBase /*extends Controller*/
-{    // infinite loop
+class IndexBase implements IndexInterface
+{
 
 	/**
 	 * @var Index|IndexBE
 	 */
 	protected static $instance;
+
 	/**
 	 * @see Config for a public property
 	 * @var LocalLangDummy
 	 */
 	public $ll;
+
 	/**
 	 * For any error messages during initialization.
 	 *
 	 * @var Messages
 	 */
 	public $content;
+
 	/**
 	 * @var AppController|UserlessController
 	 */
@@ -186,7 +190,7 @@ class IndexBase /*extends Controller*/
 //		debug($_SERVER['HTTP_USER_AGENT'], $_SERVER['REMOTE_ADDR']);
 	}
 
- /**
+	/**
 	 * TODO: Remove the boolean parameter from getInstance()
 	 * TODO: And force to use makeInstance() in case it was true
 	 * @param Config|null $config
@@ -486,6 +490,7 @@ class IndexBase /*extends Controller*/
 		//$this->user->__destruct();
 //		}
 	}
+
 	public function message($text)
 	{
 		return $this->content->message($text);
@@ -733,4 +738,8 @@ class IndexBase /*extends Controller*/
 		return $this->config;
 	}
 
+	public function getMergedContent()
+	{
+		return $this->content;
+	}
 }
