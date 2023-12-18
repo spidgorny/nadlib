@@ -34,12 +34,6 @@ class IndexBase /*extends Controller*/
 	public $description = '';
 	public $keywords = '';
 	public $bodyClasses = [];
-
-	/**
-	 * @var Config
-	 */
-	protected $config;
-
 	var $csp = [
 		"default-src" => [
 			"'self'",
@@ -77,7 +71,10 @@ class IndexBase /*extends Controller*/
 		],
 	];
 	public $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error';
-
+	/**
+	 * @var Config
+	 */
+	protected $config;
 	/**
 	 * @var DbInterface
 	 */
@@ -138,55 +135,6 @@ class IndexBase /*extends Controller*/
 	}
 
 	/**
-	 * @throws AccessDeniedException
-	 */
-	public function initSession()
-	{
-//		debug('is session started', session_id(), session_status());
-		if (!Request::isCLI() && !Session::isActive() && !headers_sent()) {
-			ini_set('session.use_trans_sid', false);
-			ini_set('session.use_only_cookies', true);
-			ini_set('session.cookie_httponly', true);
-			ini_set('session.hash_bits_per_character', 6);
-			ini_set('session.hash_function', 'sha512');
-			llog('session_start in initSession');
-			$ok = session_start();
-			if (!$ok) {
-				throw new RuntimeException('session_start() failed');
-			}
-		}
-		if (!headers_sent()) {
-			header('X-Frame-Options: SAMEORIGIN');
-			header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
-			foreach ($this->csp as $key => &$val) {
-				$val = $key . ' ' . implode(' ', $val);
-			}
-			header('Content-Security-Policy: ' . implode('; ', $this->csp));
-			header('X-Content-Security-Policy: ' . implode('; ', $this->csp));
-		}
-		if (ifsetor($_SESSION['HTTP_USER_AGENT'])) {
-			if ($_SESSION['HTTP_USER_AGENT'] != $_SERVER['HTTP_USER_AGENT']) {
-				session_regenerate_id(true);
-				unset($_SESSION['HTTP_USER_AGENT']);
-				throw new AccessDeniedException('Session hijacking detected. Please try again');
-			}
-		} else {
-			$_SESSION['HTTP_USER_AGENT'] = ifsetor($_SERVER['HTTP_USER_AGENT']);
-		}
-		if (ifsetor($_SESSION['REMOTE_ADDR'])) {
-			if ($_SESSION['REMOTE_ADDR'] != $_SERVER['REMOTE_ADDR']) {
-				session_regenerate_id(true);
-				unset($_SESSION['REMOTE_ADDR']);
-				throw new AccessDeniedException('Session hijacking detected. Please try again.');
-			}
-		} else {
-			$_SESSION['REMOTE_ADDR'] = ifsetor($_SERVER['REMOTE_ADDR']);
-		}
-//		debug($_SESSION['HTTP_USER_AGENT'], $_SESSION['REMOTE_ADDR']);
-//		debug($_SERVER['HTTP_USER_AGENT'], $_SERVER['REMOTE_ADDR']);
-	}
-
- /**
 	 * TODO: Remove the boolean parameter from getInstance()
 	 * TODO: And force to use makeInstance() in case it was true
 	 * @param Config|null $config
@@ -242,12 +190,11 @@ class IndexBase /*extends Controller*/
 	public function initController()
 	{
 		// already created
-		// already created
 		if ($this->controller instanceof Controller) {
 			return;
 		}
 		$slug = $this->request->getControllerString();
-//		llog($slug);
+		llog('initController slug', $slug);
 		if (!$slug) {
 			throw new Exception404($slug);
 		}
@@ -259,6 +206,7 @@ class IndexBase /*extends Controller*/
 		TaylorProfiler::stop(__METHOD__);
 	}
 
+	
 	/**
 	 * Move it to the MRBS
 	 * @param string $action
@@ -345,6 +293,55 @@ class IndexBase /*extends Controller*/
 		return $content;
 	}
 
+	/**
+	 * @throws AccessDeniedException
+	 */
+	public function initSession()
+	{
+//		debug('is session started', session_id(), session_status());
+		if (!Request::isCLI() && !Session::isActive() && !headers_sent()) {
+			ini_set('session.use_trans_sid', false);
+			ini_set('session.use_only_cookies', true);
+			ini_set('session.cookie_httponly', true);
+			ini_set('session.hash_bits_per_character', 6);
+			ini_set('session.hash_function', 'sha512');
+			llog('session_start in initSession');
+			$ok = session_start();
+			if (!$ok) {
+				throw new RuntimeException('session_start() failed');
+			}
+		}
+		if (!headers_sent()) {
+			header('X-Frame-Options: SAMEORIGIN');
+			header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+			foreach ($this->csp as $key => &$val) {
+				$val = $key . ' ' . implode(' ', $val);
+			}
+			header('Content-Security-Policy: ' . implode('; ', $this->csp));
+			header('X-Content-Security-Policy: ' . implode('; ', $this->csp));
+		}
+		if (ifsetor($_SESSION['HTTP_USER_AGENT'])) {
+			if ($_SESSION['HTTP_USER_AGENT'] != $_SERVER['HTTP_USER_AGENT']) {
+				session_regenerate_id(true);
+				unset($_SESSION['HTTP_USER_AGENT']);
+				throw new AccessDeniedException('Session hijacking detected. Please try again');
+			}
+		} else {
+			$_SESSION['HTTP_USER_AGENT'] = ifsetor($_SERVER['HTTP_USER_AGENT']);
+		}
+		if (ifsetor($_SESSION['REMOTE_ADDR'])) {
+			if ($_SESSION['REMOTE_ADDR'] != $_SERVER['REMOTE_ADDR']) {
+				session_regenerate_id(true);
+				unset($_SESSION['REMOTE_ADDR']);
+				throw new AccessDeniedException('Session hijacking detected. Please try again.');
+			}
+		} else {
+			$_SESSION['REMOTE_ADDR'] = ifsetor($_SERVER['REMOTE_ADDR']);
+		}
+//		debug($_SESSION['HTTP_USER_AGENT'], $_SESSION['REMOTE_ADDR']);
+//		debug($_SERVER['HTTP_USER_AGENT'], $_SERVER['REMOTE_ADDR']);
+	}
+
 	public function renderController()
 	{
 		TaylorProfiler::start(__METHOD__);
@@ -396,7 +393,7 @@ class IndexBase /*extends Controller*/
 	 */
 	public function renderException(Exception $e, $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error')
 	{
-		if ($this->request->isCLI()) {
+		if (Request::isCLI()) {
 			echo get_class($e),
 			' #', $e->getCode(),
 			': ', $e->getMessage(), BR;
@@ -486,6 +483,7 @@ class IndexBase /*extends Controller*/
 		//$this->user->__destruct();
 //		}
 	}
+
 	public function message($text)
 	{
 		return $this->content->message($text);

@@ -607,13 +607,14 @@ class HTMLForm implements ToStringable
 	 */
 	public function selection(
 		$name,
-		array $aOptions,
-		$default,
+		array $aOptions = null,  // should allow null in case we load options from db
+		$default = null,
 		$autoSubmit = false,
 		array $more = [],
 		$multiple = false,
 		array $desc = []
-	) {
+	)
+	{
 		$sel = new HTMLFormSelection($name, $aOptions, $default);
 		$sel->autoSubmit = $autoSubmit;
 		$sel->more = is_string($more) ? HTMLTag::parseAttributes($more) : $more;

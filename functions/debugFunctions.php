@@ -329,13 +329,16 @@ if (!function_exists('d')) {
 }
 
 if (!function_exists('invariant')) {
-	function invariant($test, string $format_str = null, ...$args)
+	function invariant($test, $format_str = null, ...$args)
 	{
-		if (!$test) {
-			throw new RuntimeException($format_str ?? 'Invariant failed', ...$args);
+		if ($test) {
+			return;
 		}
+		if ($format_str instanceof Exception) {
+			throw $format_str;
+		}
+		throw new RuntimeException($format_str ?? 'Invariant failed', ...$args);
 	}
-
 }
 
 if (!function_exists('llog')) {

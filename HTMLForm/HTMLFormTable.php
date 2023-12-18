@@ -183,7 +183,7 @@ class HTMLFormTable extends HTMLForm
 		$this->stdout .= ifsetor($desc['beforeLabel']);
 		//debug($label);
 		assert(is_string($label));
-		$this->stdout .= '<label for="' . $elementID . '">' . $label . '</label>';
+		$this->stdout .= '<label for="' . $elementID . '" class="' . ($desc['labelClass']??'') . '">' . $label . '</label>';
 		if (!$withBR) {
 			$this->stdout .= '</td><td>';
 		}
@@ -405,9 +405,7 @@ class HTMLFormTable extends HTMLForm
 
 		// checkboxes are shown in front of the label
 		if ($type === 'checkbox') {
-			//$this->stdout .= $newContent;
-			$fieldObj['label'] = $newContent . ' '
-				. $fieldObj['label'];
+			$fieldObj['label'] = $newContent . ' ' . $fieldObj['label'];
 			$newContent = '';
 		}
 		$this->showLabel($fieldObj, $fieldName);
