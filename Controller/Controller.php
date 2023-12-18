@@ -237,7 +237,7 @@ abstract class Controller extends SimpleController
 	public function performAction($action = null)
 	{
 		$content = '';
-		if ($this->request->isCLI()) {
+		if (Request::isCLI()) {
 			//debug($_SERVER['argv']);
 			$reqAction = ifsetor($_SERVER['argv'][2]);    // it was 1
 		} else {
@@ -250,14 +250,15 @@ abstract class Controller extends SimpleController
 			$method .= 'Action';        // ZendFramework style
 //			debug($method, method_exists($this, $method));
 
-			if ($proxy = $this->request->getTrim('proxy')) {
+			$proxy = $this->request->getTrim('proxy');
+			if ($proxy) {
 				$proxy = new $proxy($this);
 			} else {
 				$proxy = $this;
 			}
 
 			if (method_exists($proxy, $method)) {
-				if ($this->request->isCLI()) {
+				if (Request::isCLI()) {
 					$assoc = array_slice(ifsetor($_SERVER['argv'], []), 3);
 					$content = call_user_func_array([$proxy, $method], $assoc);
 				} else {
@@ -279,7 +280,7 @@ abstract class Controller extends SimpleController
 
 	public function wrapInDiv($content, $className = '')
 	{
-		return ['<div class="'.$className.'">', $content, '</div>'];
+		return ['<div class="' . $className . '">', $content, '</div>'];
 	}
 
 	/**
@@ -395,7 +396,6 @@ abstract class Controller extends SimpleController
 		$content .= '</div>';
 		return $content;
 	}
-
 
 
 	public function sidebar()
