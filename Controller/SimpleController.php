@@ -23,16 +23,19 @@ abstract class SimpleController
 	 * @var Index|IndexInterface
 	 */
 	public $index;
+
 	/**
 	 * @var Request
 	 * @public for injecting something in PHPUnit
 	 */
 	public $request;
+
 	/**
 	 * Will be taken as a <title> of the HTML table
 	 * @var string
 	 */
 	public $title;
+
 	public $encloseTag = 'h2';
 
 	public $log = [];
