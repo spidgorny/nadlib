@@ -23,19 +23,16 @@ abstract class SimpleController
 	 * @var Index|IndexInterface
 	 */
 	public $index;
-
 	/**
 	 * @var Request
 	 * @public for injecting something in PHPUnit
 	 */
 	public $request;
-
 	/**
 	 * Will be taken as a <title> of the HTML table
 	 * @var string
 	 */
 	public $title;
-
 	public $encloseTag = 'h2';
 
 	public $log = [];
@@ -169,41 +166,6 @@ abstract class SimpleController
 	}
 
 	/**
-	 * Wraps the content in a div/section with a header.
-	 * The header is linkable.
-	 * @param string|array|ToStringable $content
-	 * @param string $caption
-	 * @param string $h
-	 * @param array $more
-	 * @return ToStringable
-	 * @throws Exception
-	 */
-	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
-	{
-		$h = $h ? $h : $this->encloseTag;
-		$content = $this->s($content);
-		if ($caption) {
-			$content = [
-				'caption' => $this->getCaption($caption, $h),
-				$content
-			];
-		}
-		$more['class'] = ifsetor($more['class'], 'padding clearfix');
-		$more['class'] .= ' ' . get_class($this);
-		//debug_pre_print_backtrace();
-		//$more['style'] = "position: relative;";	// project specific
-		$content = new HTMLTag('section', $more, $content, true);
-		return $content;
-	}
-
-	public function getCaption($caption, $hTag)
-	{
-		return '<' . $hTag . '>' .
-			$caption .
-			'</' . $hTag . '>';
-	}
-
-	/**
 	 * Will call indexAction() method if no $action provided
 	 * @param $action
 	 * @return false|mixed|string
@@ -250,14 +212,49 @@ abstract class SimpleController
 		return $reqAction;
 	}
 
-	public function __toString()
+	/**
+	 * Wraps the content in a div/section with a header.
+	 * The header is linkable.
+	 * @param string|array|ToStringable $content
+	 * @param string $caption
+	 * @param string $h
+	 * @param array $more
+	 * @return ToStringable
+	 * @throws Exception
+	 */
+	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
 	{
-		return $this->s($this->render());
+		$h = $h ? $h : $this->encloseTag;
+		$content = $this->s($content);
+		if ($caption) {
+			$content = [
+				'caption' => $this->getCaption($caption, $h),
+				$content
+			];
+		}
+		$more['class'] = ifsetor($more['class'], 'padding clearfix');
+		$more['class'] .= ' ' . get_class($this);
+		//debug_pre_print_backtrace();
+		//$more['style'] = "position: relative;";	// project specific
+		$content = new HTMLTag('section', $more, $content, true);
+		return $content;
 	}
 
 	public function s($something)
 	{
 		return MergedContent::mergeStringArrayRecursive($something);
+	}
+
+	public function getCaption($caption, $hTag)
+	{
+		return '<' . $hTag . '>' .
+			$caption .
+			'</' . $hTag . '>';
+	}
+
+	public function __toString()
+	{
+		return $this->s($this->render());
 	}
 
 	public function log($action, ...$data)
