@@ -19,16 +19,19 @@ class Collection implements IteratorAggregate, ToStringable
 	public $parentID = null;
 	public $thes = [];
 	public $titleColumn = 'title';
+
 	/**
 	 * Basic where SQL params to be included in every SQL by default
 	 * @var array
 	 */
 	public $where = [];
+
 	/**
 	 * for LEFT OUTER JOIN queries
 	 * @var string
 	 */
 	public $join = '';
+
 	/**
 	 * Initialize in postInit() to run paged SQL
 	 * initialize if necessary with = new Pager(); in postInit()
@@ -144,8 +147,7 @@ class Collection implements IteratorAggregate, ToStringable
 	public function __construct(
 		$pid = null, /*array/SQLWhere*/
 		$where = [], $order = '', DBInterface $db = null
-	)
-	{
+	) {
 		//$taylorKey = get_class($this).'::'.__FUNCTION__." ({$this->table})";
 		$taylorKey = Debug::getBackLog(5, 0, BR, false);
 		TaylorProfiler::start($taylorKey);
@@ -563,7 +565,7 @@ class Collection implements IteratorAggregate, ToStringable
 
 	public function getObjects()
 	{
-	  return collect($this->objectify());
+		return collect($this->objectify());
 	}
 
 	/**
