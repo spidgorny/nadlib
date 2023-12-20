@@ -3,8 +3,8 @@
 trait FieldAccessTrait
 {
 
-	public $id;
-	public $data;
+	public $id = null;
+	public $data = [];
 	protected $titleColumn = 'name';
 
 	public function getObjectInfo()
