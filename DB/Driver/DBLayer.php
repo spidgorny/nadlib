@@ -15,7 +15,7 @@ class DBLayer extends DBLayerBase
 	/**
 	 * @var resource
 	 */
-	public $connection = NULL;
+	public $connection = null;
 
 	public $LAST_PERFORM_RESULT;
 
@@ -199,6 +199,29 @@ class DBLayer extends DBLayerBase
 		return $this->LAST_PERFORM_RESULT;
 	}
 
+	public function reportIfLastQueryFailed()
+	{
+		if (false === $this->LAST_PERFORM_RESULT) {
+			$backtrace = array_map(function ($el) {
+				unset($el['object']);
+				unset($el['args']);
+				return $el;
+			}, $this->lastBacktrace);
+			$backtrace = array_map(function (array $el) {
+				return ifsetor($el['class']) . ifsetor($el['type']) . ifsetor($el['function']) .
+					' in ' . basename(ifsetor($el['file'])) . ':' . ifsetor($el['line']);
+			}, $backtrace);
+//			debug($this->lastQuery.'', pg_errormessage($this->connection));
+//			die(pg_errormessage($this->connection));
+			throw new DatabaseException(
+				'Last query has failed.' . PHP_EOL .
+				$this->lastQuery . PHP_EOL .
+				pg_errormessage($this->connection) . PHP_EOL .
+				implode(PHP_EOL, $backtrace)
+			);
+		}
+	}
+
 	public function getVersion()
 	{
 		$version = pg_version($this->connection);
@@ -242,6 +265,19 @@ class DBLayer extends DBLayerBase
 		return $res;
 	}
 
+	/**
+	 * http://www.postgresql.org/docs/9.3/static/datatype-money.html
+	 * @param string $source
+	 * @return float
+	 */
+	public static function getMoney($source = '$1,234.56')
+	{
+		$source = str_replace('$', '', $source);
+		$source = str_replace(',', '', $source);
+		$source = floatval($source);
+		return $source;
+	}
+
 	public function getConnection()
 	{
 		return $this->connection;
@@ -250,29 +286,6 @@ class DBLayer extends DBLayerBase
 	public function reconnect()
 	{
 		$this->connect($this->database, $this->user, $this->pass, $this->host);
-	}
-
-	public function reportIfLastQueryFailed()
-	{
-		if (false === $this->LAST_PERFORM_RESULT) {
-			$backtrace = array_map(function ($el) {
-				unset($el['object']);
-				unset($el['args']);
-				return $el;
-			}, $this->lastBacktrace);
-			$backtrace = array_map(function (array $el) {
-				return ifsetor($el['class']) . ifsetor($el['type']) . ifsetor($el['function']) .
-					' in ' . basename(ifsetor($el['file'])) . ':' . ifsetor($el['line']);
-			}, $backtrace);
-//			debug($this->lastQuery.'', pg_errormessage($this->connection));
-//			die(pg_errormessage($this->connection));
-			throw new DatabaseException(
-				'Last query has failed.' . PHP_EOL .
-				$this->lastQuery . PHP_EOL .
-				pg_errormessage($this->connection) . PHP_EOL .
-				implode(PHP_EOL, $backtrace)
-			);
-		}
 	}
 
 	public function performWithParams($query, $params)
@@ -358,15 +371,6 @@ class DBLayer extends DBLayerBase
 		exit();
 	}
 
-	public function getTableDataEx($table, $where = "", $what = "*")
-	{
-		$query = "select " . $what . " from $table";
-		if (!empty($where)) {
-			$query .= " where $where";
-		}
-		return $this->fetchAll($query);
-	}
-
 	/**
 	 * @param string $table
 	 * @param string $column
@@ -405,6 +409,15 @@ class DBLayer extends DBLayerBase
 	 * return $b;
 	 * }
 	 * /**/
+
+	public function getTableDataEx($table, $where = "", $what = "*")
+	{
+		$query = "select " . $what . " from $table";
+		if (!empty($where)) {
+			$query .= " where $where";
+		}
+		return $this->fetchAll($query);
+	}
 
 	/**
 	 * fetchAll() equivalent with $key and $val properties
@@ -574,46 +587,6 @@ class DBLayer extends DBLayerBase
 	}
 
 	/**
-	 * @param mixed $value
-	 * @param null $key
-	 * @return string
-	 * @throws MustBeStringException
-	 */
-	public function quoteSQL($value, $key = null)
-	{
-		if ($value === null) {
-			return "NULL";
-		}
-
-		if ($value === false) {
-			return "'f'";
-		}
-
-		if ($value === true) {
-			return "'t'";
-		}
-
-		if (is_int($value)) {  // is_numeric - bad: operator does not exist: character varying = integer
-			return $value;
-		}
-
-		if (is_bool($value)) {
-			return $value ? "'t'" : "'f'";
-		}
-
-//		if ($value instanceof SQLParam) {
-//			return $value;
-//		}
-
-		if (is_scalar($value)) {
-			return "'" . $this->escape($value) . "'";
-		}
-
-		debug($key, $value);
-		throw new MustBeStringException('Must be string.');
-	}
-
-	/**
 	 * Called after dataSeek()
 	 * @param resource $res
 	 * @return array
@@ -706,6 +679,46 @@ order by a.attnum';
 		return $comment;
 	}
 
+	/**
+	 * @param mixed $value
+	 * @param null $key
+	 * @return string
+	 * @throws MustBeStringException
+	 */
+	public function quoteSQL($value, $key = null)
+	{
+		if ($value === null) {
+			return "NULL";
+		}
+
+		if ($value === false) {
+			return "'f'";
+		}
+
+		if ($value === true) {
+			return "'t'";
+		}
+
+		if (is_int($value)) {  // is_numeric - bad: operator does not exist: character varying = integer
+			return $value;
+		}
+
+		if (is_bool($value)) {
+			return $value ? "'t'" : "'f'";
+		}
+
+//		if ($value instanceof SQLParam) {
+//			return $value;
+//		}
+
+		if (is_scalar($value)) {
+			return "'" . $this->escape($value) . "'";
+		}
+
+		debug($key, $value);
+		throw new MustBeStringException('Must be string.');
+	}
+
 	public function escape($str)
 	{
 		return pg_escape_string($str);
@@ -789,19 +802,6 @@ order by a.attnum';
 		}
 		$content = implode(' < ', $content);
 		return $content;
-	}
-
-	/**
-	 * http://www.postgresql.org/docs/9.3/static/datatype-money.html
-	 * @param string $source
-	 * @return float
-	 */
-	public function getMoney($source = '$1,234.56')
-	{
-		$source = str_replace('$', '', $source);
-		$source = str_replace(',', '', $source);
-		$source = floatval($source);
-		return $source;
 	}
 
 	/**
