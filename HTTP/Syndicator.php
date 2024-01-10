@@ -365,7 +365,7 @@ class Syndicator
 	public function getXML($recode)
 	{
 		TaylorProfiler::start(__METHOD__);
-		if (strlen($recode) && $recode{0} == '<') {
+		if ($recode != '' && $recode[0] === '<') {
 			$xml = new SimpleXMLElement($recode);
 			//$xml['xmlns'] = '';
 			$namespaces = $xml->getNamespaces(true);
