@@ -86,8 +86,7 @@ if (!function_exists('str_startsWith')) {
 			$is_string = is_string($str) || is_int($str);
 		}
 		if (!$is_string) {
-			debug('trimExplode', 'must be string', new HtmlString(typ($str)));
-//			debug_pre_print_backtrace();
+			throw new RuntimeException('trimExplode: must be string, but got ' . new HtmlString(typ($str)));
 		}
 		if ($max) {
 			$parts = explode($sep, $str, $max); // checked by isset so NULL makes it 0
@@ -166,7 +165,7 @@ if (!function_exists('str_startsWith')) {
 		$isAbs = $char0 === '/' || $char0 === '\\' || $char1 === ':';
 
 		$path = str_replace('\\', '/', $path);  // for trim
-		$parts = trimExplode('/', $path );
+		$parts = trimExplode('/', $path);
 		$parts = array_merge($parts, trimExplode('/', $plus));
 
 		$root = '';
@@ -279,7 +278,7 @@ if (!function_exists('str_startsWith')) {
 
 	function strip_namespace($className)
 	{
-			return last(trimExplode('\\', $className));
+		return last(trimExplode('\\', $className));
 	}
 
 }
