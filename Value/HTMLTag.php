@@ -2,7 +2,6 @@
 
 /**
  * General HTML Tag representation.
- * @method static pre(array $attr = [], ToStringable $content = '', bool $isHtml = false)
  */
 class HTMLTag implements ArrayAccess, ToStringable
 {
@@ -25,7 +24,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 		$key = $candidate;
 		$key = str_replace('<', 'lt', $key);
 		$key = str_replace('>', 'gt', $key);
-		if (strlen($key) && is_numeric($key[0])) {
+		if ($key !== '' && is_numeric($key[0])) {
 			$key = '_' . $key;
 		}
 		return $key;
@@ -33,6 +32,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 
 	public static function __callStatic(string $name, array $arguments)
 	{
+		llog('HTMLTag', $name, $arguments);
 		return new static($name, $arguments[0], $arguments[1], $arguments[2]);
 	}
 
@@ -60,7 +60,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 	public static function parse($str, $recursive = false)
 	{
 		$str = trim($str);
-		if (strlen($str) && $str[0] != '<') {
+		if ($str !== '' && $str[0] !== '<') {
 			return null;
 		}
 		preg_match('/^(<[^>]*>)(.*?)?(<\/[^>]*>)?$/m', $str, $matches);

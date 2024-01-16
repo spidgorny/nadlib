@@ -165,7 +165,7 @@ class NadlibDocumentation extends AppControllerBE
 			/** @var $file SplFileInfo */
 			if ($file->isDir()) {
 				$filename = $file->getFilename();
-				if ($filename{0} != '.') {
+				if ($filename[0] !== '.') {
 					$folders[$file->getPathname()] = $file->getFilename();
 				}
 			}

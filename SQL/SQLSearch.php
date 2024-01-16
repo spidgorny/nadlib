@@ -93,7 +93,7 @@ class SQLSearch extends SQLWherePart
 				//$query .= ' AS score_'.$i;
 			} else {
 				$tableID = $this->table . '.' . $this->idField;
-				if ($word{0} == '!') {
+				if ($word[0] === '!') {
 					$word = substr($word, 1);
 					$where[] = $tableID .
 						' NOT IN ( ' . $this->getSearchSubquery($word, $tableID) . ') ';
@@ -129,7 +129,7 @@ class SQLSearch extends SQLWherePart
 
 	function getSearchWhere($word, $prefix = '')
 	{
-		if ($word{0} == '!') {
+		if ($word[0] === '!') {
 			$like = 'NOT ' . $this->likeOperator;
 			$or = "\n\t\tAND";
 		} else {
@@ -149,7 +149,7 @@ class SQLSearch extends SQLWherePart
 
 		// test if it's a date
 		$date1 = strtotime($word);
-		if (strlen($word) == 10 && $date1 > 0 && in_array('ctime', $this->searchableFields)) {
+		if (strlen($word) === 10 && $date1 > 0 && in_array('ctime', $this->searchableFields)) {
 			$date2 = strtotime('+1 day', $date1);
 			$date1 = date('Y-m-d', $date1);
 			$date2 = date('Y-m-d', $date2);

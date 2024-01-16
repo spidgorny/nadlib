@@ -62,4 +62,14 @@ class HTMLTagTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals($str, $back);
 	}
 
+	public function test_pre()
+	{
+		$title = HTMLTag::pre(json_encode(
+			'something', JSON_PRETTY_PRINT
+		), ['style' => [
+			'white-space' => 'pre-wrap'
+		]]);
+		$this->assertEquals('<pre style="white-space: pre-wrap">&quot;something&quot;</pre>' . "\n", $title . '');
+	}
+
 }

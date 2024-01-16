@@ -314,12 +314,14 @@ class SimpleXLSX
 			$colLen = strlen($col);
 			$index = 0;
 
-			for ($i = $colLen - 1; $i >= 0; $i--)
-				$index += (ord($col{$i}) - 64) * pow(26, $colLen - $i - 1);
+			for ($i = $colLen - 1; $i >= 0; $i--) {
+				$index += (ord($col[$i]) - 64) * pow(26, $colLen - $i - 1);
+			}
 
 			return [$index - 1, $row - 1];
-		} else
-			throw new Exception("Invalid cell index.");
+		}
+
+		throw new Exception("Invalid cell index.");
 	}
 
 	public function value($cell)
