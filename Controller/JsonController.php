@@ -28,7 +28,7 @@ trait JsonController
 		}
 
 		$headers = $this->request->getHeaders();
-		llog('apache_headers in JsonController for', get_class($this), $headers);
+//		llog('apache_headers in JsonController for', get_class($this), $headers);
 
 		$authorization = $this->request->getHeader('Authorization');
 //		llog($authorization);

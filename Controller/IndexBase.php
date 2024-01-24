@@ -194,7 +194,7 @@ class IndexBase /*extends Controller*/
 			return;
 		}
 		$slug = $this->request->getControllerString();
-		llog('initController slug', $slug);
+//		llog('initController slug', $slug);
 		if (!$slug) {
 			throw new Exception404($slug);
 		}
