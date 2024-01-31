@@ -152,7 +152,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 	 * @param string $text
 	 * @return array
 	 */
-	public static function parseAttributes($text)
+	public static function parseAttributes(string $text)
 	{
 		if (is_array($text)) {
 			return $text;
@@ -247,12 +247,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 
 	public function __toString()
 	{
-		try {
-			return $this->render();
-		} catch (Exception $e) {
-			debug_pre_print_backtrace();
-			die($e->getMessage());
-		}
+		return $this->render();
 	}
 
 	public function render()

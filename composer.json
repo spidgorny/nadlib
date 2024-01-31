@@ -36,14 +36,11 @@
 		"roave/security-advisories": "dev-latest"
 	},
 	"scripts": {
-		"upgrade": "composer upgrade -W",
+		"upgrade:all": "composer upgrade -W",
 		"lint": "@php vendor/bin/parallel-lint . --exclude vendor",
 		"phpstan": "@php vendor/bin/phpstan analyze -l 1 --memory-limit 1G .",
-		"test": "phpunit tests",
-		"lint:l": "vendor/bin/parallel-lint .",
-		"stan": "vendor/bin/phpstan analyze -l 1 -c phpstan.neon --memory-limit 1G .",
-		"stan:w": "vendor\\bin\\phpstan analyze -l 1 -c phpstan.neon --memory-limit 1G .",
-		"lint:w": "vendor\\bin\\parallel-lint . --exclude vendor/phpunit --exclude vendor/sebastian --exclude vendor/symfony/polyfill-mbstring --exclude vendor/symfony/service-contracts"
+		"phpstan:2": "@php vendor/bin/phpstan analyze -l 2 --memory-limit 1G .",
+		"test": "@php vendor/bin/phpunit tests --bootstrap init.php"
 	},
 	"autoload": {
 		"classmap": [

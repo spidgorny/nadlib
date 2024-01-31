@@ -13,20 +13,16 @@ class MergedContent implements ArrayAccess
 {
 
 	public $content = [];
+	protected $combined = [];
 
 	public function __construct(array $parts = [])
 	{
 		$this->content = $parts;
 	}
 
-	protected static function walkMerge($value, $key, &$combined = '')
+	protected function walkMergeArray($value, $key)
 	{
-		$combined .= $value . "\n";
-	}
-
-	protected static function walkMergeArray($value, $key, &$combined)
-	{
-		$combined[] = $value;
+		$this->combined[] = $value;
 	}
 
 	public function __toString()
@@ -37,7 +33,7 @@ class MergedContent implements ArrayAccess
 
 	public function getContent()
 	{
-		return $this->mergeStringArrayRecursive($this->content);
+		return $this->mergeStringArrayRecursiveMethod($this->content);
 	}
 
 	/**
@@ -45,6 +41,14 @@ class MergedContent implements ArrayAccess
 	 * @return string
 	 */
 	public static function mergeStringArrayRecursive($render)
+	{
+		if (is_string($render)) {
+			return $render;
+		}
+		return (new static($render))->getContent();
+	}
+
+	public function mergeStringArrayRecursiveMethod($render)
 	{
 		TaylorProfiler::start(__METHOD__);
 		if (is_array($render)) {
@@ -58,7 +62,7 @@ class MergedContent implements ArrayAccess
 			//$combined = implode('', $combined);
 
 			$combinedA = new ArrayObject();
-			array_walk_recursive($render, [__CLASS__, 'walkMergeArray'], $combinedA);
+			array_walk_recursive($render, [$this, 'walkMergeArray'], $combinedA);
 			$arrayOfObjects = $combinedA->getArrayCopy();
 			$sureStrings = self::stringify($arrayOfObjects);
 			$combined = implode('', $sureStrings);

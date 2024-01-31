@@ -40,23 +40,17 @@ class LazyMemberIteratorTest extends PHPUnit\Framework\TestCase
 	{
 		$list = new ArrayIterator(range(0, 4));
 		$curM = $list->current();
-		$curF = current($list);
 		//debug($curF);
-		$this->assertEquals($curM, $curF);
+		$this->assertEquals(0, $curM);
 	}
 
 	public function test_current_function_this_list()
 	{
 		$this->list->rewind();
 		$curM = $this->list->current();
-		$curF = current($this->list);
 //		llog($this->list->getArrayCopy());
 //		llog($curM, $curF);
-		if (phpversion() >= '7.4') {
-			$this->assertEquals(false, $curF);
-		} else {
-			$this->assertEquals($curM, $curF);
-		}
+		$this->assertEquals(0, $curM);
 	}
 
 	/**

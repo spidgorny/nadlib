@@ -255,7 +255,7 @@ if (!function_exists('str_startsWith')) {
 			return strtolower($string);
 		}
 		$out = '';
-		$chars = preg_split('//u', $string, null, PREG_SPLIT_NO_EMPTY);
+		$chars = preg_split('//u', $string, -1, PREG_SPLIT_NO_EMPTY);
 		foreach ($chars as $i => $ch) {
 			if ($ch === ' ') {
 				if ($out[-1] !== '_') {

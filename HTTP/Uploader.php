@@ -52,7 +52,11 @@ class Uploader
 	{
 		$uploaded = !!$_FILES;
 		$firstFile = first($_FILES);
-		if (is_array(ifsetor($firstFile['name']))) {
+		if (!$firstFile) {
+			return false;
+		}
+		$uploadName = ifsetor($firstFile['name']);
+		if (is_array($uploadName)) {
 			$_FILES = $this->GetPostedFiles();
 		}
 		return $uploaded;

@@ -373,7 +373,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 				//$this->text(htmlspecialchars($desc['more']));
 //				debug($desc);
 				$more = ifsetor($desc['more']);
-				if (!is_array($more)) {
+				if ($more && !is_array($more)) {
 					$more = HTMLTag::parseAttributes($more);
 				}
 				if (ifsetor($desc['id'])) {

@@ -5,6 +5,7 @@ namespace nadlib\Controller;
 
 use ArrayIterator;
 use ArrayObject;
+use Iterator;
 use Traversable;
 
 class Filter extends ArrayObject
@@ -98,7 +99,7 @@ class Filter extends ArrayObject
 			$this->_default;
 	}
 
-	public function getIterator(): Traversable
+	public function getIterator(): Iterator
 	{
 		return new ArrayIterator($this->getArrayCopy());
 	}
