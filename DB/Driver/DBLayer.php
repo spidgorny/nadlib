@@ -721,7 +721,7 @@ order by a.attnum';
 
 	public function escape($str)
 	{
-		return pg_escape_string($str);
+		return pg_escape_string($this->connection, $str);
 	}
 
 	/**
@@ -752,9 +752,9 @@ order by a.attnum';
 	{
 		if (method_exists($this->getQb(), $method)) {
 			return call_user_func_array([$this->getQb(), $method], $params);
-		} else {
-			throw new Exception('Method ' . __CLASS__ . '::' . $method . ' doesn\'t exist.');
 		}
+
+		throw new Exception('Method ' . __CLASS__ . '::' . $method . ' doesn\'t exist.');
 	}
 
 	public function getQb()
@@ -942,7 +942,7 @@ WHERE ccu.table_name='" . $table . "'");
 		if (ctype_alpha($key)) {
 			$isFunc = function_exists('pg_escape_identifier');
 			if ($isFunc && $this->isConnected()) {
-				$key = pg_escape_identifier($key);
+				$key = pg_escape_identifier($this->connection, $key);
 			} else {
 				$key = '"' . $key . '"';
 			}
