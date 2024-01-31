@@ -14,7 +14,7 @@ class ULTest extends PHPUnit\Framework\TestCase
 	 */
 	protected $ul;
 
-	public function setUp()
+	public function setUp(): void
 	{
 		$this->ul = new UL([
 			'slawa' => 'Slawa',

@@ -24,8 +24,8 @@ class HTML
 	public function div($content, $class = '', array $more = [])
 	{
 		$more['class'] = ifsetor($more['class']) . ' ' . $class;
-		$more = HTMLTag::renderAttr($more);
-		return '<div ' . $more . '>' . $this->s($content) . '</div>';
+		$moreString = HTMLTag::renderAttr($more);
+		return '<div ' . $moreString . '>' . $this->s($content) . '</div>';
 	}
 
 	public function s($something)
@@ -36,8 +36,8 @@ class HTML
 	public function span($content, $class = '', array $more = [])
 	{
 		$more['class'] = ifsetor($more['class']) . ' ' . $class;
-		$more = HTMLTag::renderAttr($more);
-		return new HtmlString('<span ' . $more . '>' . $this->s($content) . '</span>');
+		$moreString = HTMLTag::renderAttr($more);
+		return new HtmlString('<span ' . $moreString . '>' . $this->s($content) . '</span>');
 	}
 
 	public function info($content)

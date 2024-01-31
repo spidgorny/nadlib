@@ -8,7 +8,7 @@ class ArrayPlusTest extends IteratorArrayAccessTest
 	 */
 	protected $ai;
 
-	public function setUp()
+	public function setUp(): void
 	{
 		$this->ai = new ArrayPlus([
 			0 => 'a',

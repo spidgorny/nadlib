@@ -15,7 +15,7 @@ class OODBaseTest extends TestCase
 
 	protected $sut;
 
-	public function setUp()
+	public function setUp(): void
 	{
 		self::markTestSkipped('PG dependent');
 		$this->sut = new SpecificOODBase();

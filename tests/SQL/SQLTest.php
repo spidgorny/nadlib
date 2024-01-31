@@ -8,7 +8,7 @@ class SQLTest extends PHPUnit\Framework\TestCase
 	 */
 	protected $db;
 
-	public function setUp()
+	public function setUp(): void
 	{
 		self::markTestSkipped('PG dependent');
 		$this->db = Config::getInstance()->getDB();
@@ -43,6 +43,11 @@ WHERE
 //		$this->assertEquals($expected, $query);
 	}
 
+	public function normalize($s)
+	{
+		return implode(PHP_EOL, trimExplode("\n", $s));
+	}
+
 	public function test_SQLNow_PG_insert_no_quote()
 	{
 		if ($this->db instanceof DBPlacebo) {
@@ -57,11 +62,6 @@ WHERE
 		$expected = "INSERT INTO \"asd\" (\"mtime\") VALUES (now())";
 		$expected = str_replace("\r", '', $expected);
 		$this->assertEquals($expected, $query);
-	}
-
-	public function normalize($s)
-	{
-		return implode(PHP_EOL, trimExplode("\n", $s));
 	}
 
 }

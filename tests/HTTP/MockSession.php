@@ -35,7 +35,7 @@ class MockSession implements SessionInterface
 		$this->data[$key] = $val;
 	}
 
-	public function get($key)
+	public function get($key, $default = null)
 	{
 		return ifsetor($this->data[$key]);
 	}

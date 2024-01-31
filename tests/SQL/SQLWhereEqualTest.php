@@ -13,7 +13,7 @@ class SQLWhereEqualTest extends PHPUnit\Framework\TestCase
 	/** @var DBInterface */
 	protected $db;
 
-	public function setUp()
+	public function setUp(): void
 	{
 		parent::setUp();
 		self::markTestSkipped('PG dependent');

@@ -119,19 +119,20 @@ class IndexBase /*extends Controller*/
 	}
 
 	/**
-	 * @return string
+	 * @return void
 	 */
 	public function setSecurityHeaders()
 	{
-		if (!headers_sent()) {
-			header('X-Frame-Options: SAMEORIGIN');
-			header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
-			foreach ($this->csp as $key => &$val) {
-				$val = $key . ' ' . implode(' ', $val);
-			}
-			header('Content-Security-Policy: ' . implode('; ', $this->csp));
-			header('X-Content-Security-Policy: ' . implode('; ', $this->csp));
+		if (headers_sent()) {
+			return;
 		}
+		header('X-Frame-Options: SAMEORIGIN');
+		header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+		foreach ($this->csp as $key => &$val) {
+			$val = $key . ' ' . implode(' ', $val);
+		}
+		header('Content-Security-Policy: ' . implode('; ', $this->csp));
+		header('X-Content-Security-Policy: ' . implode('; ', $this->csp));
 	}
 
 	/**
@@ -155,9 +156,7 @@ class IndexBase /*extends Controller*/
 	public static function getInstance($createNew = false, ConfigInterface $config = null)
 	{
 		TaylorProfiler::start(__METHOD__);
-		$instance = self::$instance
-			? self::$instance
-			: null;
+		$instance = self::$instance ?: null;
 		if (!$instance && $createNew) {
 			$static = get_called_class();
 			$instance = new $static($config);
@@ -206,7 +205,7 @@ class IndexBase /*extends Controller*/
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	
+
 	/**
 	 * Move it to the MRBS
 	 * @param string $action
@@ -311,15 +310,7 @@ class IndexBase /*extends Controller*/
 				throw new RuntimeException('session_start() failed');
 			}
 		}
-		if (!headers_sent()) {
-			header('X-Frame-Options: SAMEORIGIN');
-			header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
-			foreach ($this->csp as $key => &$val) {
-				$val = $key . ' ' . implode(' ', $val);
-			}
-			header('Content-Security-Policy: ' . implode('; ', $this->csp));
-			header('X-Content-Security-Policy: ' . implode('; ', $this->csp));
-		}
+		$this->setSecurityHeaders();
 		if (ifsetor($_SESSION['HTTP_USER_AGENT'])) {
 			if ($_SESSION['HTTP_USER_AGENT'] != $_SERVER['HTTP_USER_AGENT']) {
 				session_regenerate_id(true);

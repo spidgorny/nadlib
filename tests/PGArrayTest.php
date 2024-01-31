@@ -19,7 +19,7 @@ class PGArrayTest extends PHPUnit\Framework\TestCase
 	 */
 	protected $sut;
 
-	public function setUp()
+	public function setUp(): void
 	{
 		self::markTestSkipped('PG dependent');
 		$config = Config::getInstance();

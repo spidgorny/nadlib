@@ -14,7 +14,7 @@ class RequestTest extends PHPUnit\Framework\TestCase
 	 */
 	protected $r;
 
-	public function setUp()
+	public function setUp(): void
 	{
 		$this->r = Request::getInstance();
 	}

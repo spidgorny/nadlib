@@ -8,7 +8,7 @@ class ArrayIteratorPlusTest extends PHPUnit\Framework\TestCase
 	 */
 	protected $ai;
 
-	public function setUp()
+	public function setUp(): void
 	{
 		$this->ai = new ArrayIterator([
 			0 => 'a',

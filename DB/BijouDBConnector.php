@@ -296,7 +296,7 @@ class BijouDBConnector extends DBLayerBase
 		// TODO: Implement getVersion() method.
 	}
 
-	public function __call($method, $params)
+	public function __call($method, array $params)
 	{
 		// TODO: Implement @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
 		// TODO: Implement @method  runDeleteQuery($table, array $where)

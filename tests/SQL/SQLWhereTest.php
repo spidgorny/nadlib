@@ -12,7 +12,7 @@ class SQLWhereTest extends NadlibTestCase
 	/** @var DBInterface */
 	protected $db;
 
-	public function setUp()
+	public function setUp(): void
 	{
 		parent::setUp();
 		self::markTestSkipped('PG dependent');
@@ -60,9 +60,9 @@ class SQLWhereTest extends NadlibTestCase
 		]);
 	}
 
-	public function setExpectedException($exceptionName, $exceptionMessage = '', $exceptionCode = null)
+	public function setExpectedException($exceptionName)
 	{
-		$this->expectException($exceptionName, $exceptionMessage, $exceptionCode);
+		$this->expectException($exceptionName);
 	}
 
 }

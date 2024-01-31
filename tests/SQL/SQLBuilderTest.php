@@ -8,7 +8,7 @@ class SQLBuilderTest extends NadlibTestCase
 	 */
 	protected $db;
 
-	public function setUp()
+	public function setUp(): void
 	{
 		self::markTestSkipped('PG dependent');
 		$this->db = Config::getInstance()->getDB();

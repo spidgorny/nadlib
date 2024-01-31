@@ -46,7 +46,7 @@ class HTMLTagTest extends PHPUnit\Framework\TestCase
 		$tag = HTMLTag::parse($str, true);
 		$this->assertEquals('a', $tag->tag);
 		$this->assertEquals('http://asd.com/', $tag->attr['href']);
-		$this->assertInternalType('array', $tag->content);
+		$this->assertIsArray($tag->content);
 		//pre_print_r($tag);
 	}
 
@@ -56,7 +56,7 @@ class HTMLTagTest extends PHPUnit\Framework\TestCase
 		$tag = HTMLTag::parse($str, true);
 		$this->assertEquals('a', $tag->tag);
 		$this->assertEquals('http://asd.com/', $tag->attr['href']);
-		$this->assertInternalType('array', $tag->content);
+		$this->assertIsArray($tag->content);
 		$back = $tag->__toString();
 		//pre_print_r($str, $back);
 		$this->assertEquals($str, $back);

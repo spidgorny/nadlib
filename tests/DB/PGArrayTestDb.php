@@ -14,7 +14,7 @@ class PGArrayTestDb extends PHPUnit\Framework\TestCase
 	 */
 	public $db;
 
-	public function setUp()
+	public function setUp(): void
 	{
 		$this->db = Config::getInstance()->getDB();
 	}
