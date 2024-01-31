@@ -34,7 +34,7 @@ class FakeMailer implements MailerInterface
 		$failedRecipients = [];
 		$sent = $mailer->send($message, $failedRecipients);
 
-		return !empty($failedRecipients) ? $failedRecipients : $sent;
+		return count($failedRecipients) ? $failedRecipients : $sent;
 	}
 
 	public function getSwiftMessage($cc, $bcc, array $attachments, $additionalSenders)

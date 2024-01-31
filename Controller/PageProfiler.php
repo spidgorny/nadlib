@@ -13,6 +13,9 @@ class PageProfiler
 	 */
 	public $html;
 
+	/**
+	 * @phpstan-consistent-constructor
+	 */
 	public function __construct()
 	{
 		$this->request = Request::getInstance();

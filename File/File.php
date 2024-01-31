@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @phpstan-consistent-constructor
+ */
 class File
 {
 
@@ -36,6 +39,10 @@ class File
 	 */
 	public $relativeTo;
 
+	/**
+	 * @param $path
+	 * @param string|null $relativeTo
+	 */
 	public function __construct($path, string $relativeTo = null)
 	{
 		$this->relativeTo = $relativeTo;

@@ -161,8 +161,7 @@ class SQLBuilder
 	{
 		$query = $this->getSelectQuerySW($table, $where, $order, $addSelect);
 		//debug($query);
-		$res = $this->db->perform($query);
-		return $res;
+		return $this->db->perform($query);
 	}
 
 	public function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = '')
@@ -170,8 +169,7 @@ class SQLBuilder
 		$table1 = $this->getFirstWord($table);
 		$select = $addSelect ? $addSelect
 			: $this->quoteKey($table1) . ".*";
-		$q = SQLSelectQuery::getSelectQueryP($this->db, $table, $where, $order, $select);
-		return $q;
+		return $this->getSelectQuery($table, $where, $order, $select);
 	}
 
 	/**
@@ -218,7 +216,7 @@ class SQLBuilder
 
 	public function getSelectQuery($table, array $where = [], $order = '', $addSelect = null)
 	{
-		return SQLSelectQuery::getSelectQueryP($this->db, $table, $where, $order, $addSelect);
+		return new SQLSelectQuery($this->db, $table, $where, $order, $addSelect);
 	}
 
 	/**

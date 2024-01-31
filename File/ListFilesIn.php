@@ -35,7 +35,7 @@ class ListFilesIn extends ArrayObject
 	 * @param mixed $index
 	 * @return SplFileInfo[]
 	 */
-	public function offsetGet($index)
+	public function offsetGet(mixed $index): mixed
 	{
 		return parent::offsetGet($index);
 	}

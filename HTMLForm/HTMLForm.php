@@ -896,6 +896,7 @@ document.observe("dom:loaded", () => {
 			'bijouTreeSelect.php?self=' . $self . '&table=' . $table . '&titleColumn=' . $titleColumn .
 			'&pid=' . $pid . '&leaves=' . $leaves . '&selected=' . $selected . '&callback=' . $functionName .
 			'&selectRoot=' . $selectRoot);
+		$href = 'http://somewhere.com';
 		$this->stdout .= HTMLTag::a($href, '<img src="skin/default/img/browsefolder.png"/>',
 			false, 'bijouTreeTarget');
 		$this->stdout .= '<script>

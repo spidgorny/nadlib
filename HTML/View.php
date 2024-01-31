@@ -448,8 +448,7 @@ class View extends stdClass implements ToStringable
 		$config->set('HTML.TargetBlank', true);
 		$config->set('HTML.Nofollow', true);
 		$purifier = new HTMLPurifier($config);
-		$clean_html = $purifier->purify($comment);
-		return $clean_html;
+		return $purifier->purify($comment);
 	}
 
 	public function getEmbeddables($comment)
@@ -457,9 +456,8 @@ class View extends stdClass implements ToStringable
 		$content = '';
 		$links = $this->getLinks($comment);
 		foreach ($links as $link => $_) {
-			/** @noinspection PhpUndefinedNamespaceInspection */
-			$Essence = @Essence\Essence::instance();
-			$Media = $Essence->embed($link);
+			$Essence = new Essence\Essence();
+			$Media = $Essence->extract($link);
 
 			if ($Media) {
 				$content .= $Media->html;
@@ -474,7 +472,7 @@ class View extends stdClass implements ToStringable
 	 */
 	public function getLinks($comment)
 	{
-		return View::_autolink_find_URLS($comment);
+		return self::_autolink_find_URLS($comment);
 	}
 
 	public function s($a)
@@ -487,8 +485,7 @@ class View extends stdClass implements ToStringable
 
 	public static function markdown($text)
 	{
-		$my_html = Markdown::defaultTransform($text);
-		return $my_html;
+		return Markdown::defaultTransform($text);
 	}
 
 	/**

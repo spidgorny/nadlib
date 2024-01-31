@@ -47,7 +47,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 		$this->fieldName = $fieldName;
 	}
 
-	public function offsetExists($offset)
+	public function offsetExists($offset): bool
 	{
 		return isset($this->data[$offset]);
 	}
@@ -58,13 +58,13 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 	 * @param mixed $offset
 	 * @return mixed
 	 */
-	public function &offsetGet($offset)
+	public function &offsetGet($offset): mixed
 	{
 		$ref = $this->data[$offset] ?? null;
 		return $ref;
 	}
 
-	public function offsetSet($offset, $value)
+	public function offsetSet($offset, $value): void
 	{
 		if (is_null($offset)) {
 			$this->data[] = $value;
@@ -73,7 +73,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 		}
 	}
 
-	public function offsetUnset($offset)
+	public function offsetUnset($offset): void
 	{
 		unset($this->data[$offset]);
 	}
@@ -299,13 +299,6 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 				$this->form->submit($desc['value'], $more);
 				break;
 
-			case 'jqueryFileTree':
-				$tree = new JQueryFileTree($desc['tree']);
-				$tree->setField($fieldName);
-//				$tree->setForm($this);
-				$tree->form->prefix($this->form->getPrefix());
-				$this->form->stdout .= $tree->render();
-				break;
 			case 'captcha':
 				$this->form->captcha($fieldName, $fieldValue, $desc->getArray());
 				break;

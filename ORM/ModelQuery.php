@@ -35,7 +35,8 @@ class ModelQuery implements IteratorAggregate
 	public function getQuery(array $where = [], $orderBy = 'ORDER BY id DESC')
 	{
 		$this->where($where);
-		return SQLSelectQuery::getSelectQueryP($this->db, $this->table, $this->where, $orderBy);
+		$sql = $this->db->qb;
+		return $sql->getSelectQuery($this->db, $this->table, $this->where, $orderBy);
 	}
 
 	/**
@@ -46,8 +47,7 @@ class ModelQuery implements IteratorAggregate
 	public function queryData(array $where, $orderBy = 'ORDER BY id DESC')
 	{
 		$this->where($where);
-		$data = $this->db->fetchAllSelectQuery($this->itemInstance->table, $this->where, $orderBy);
-		return $data;
+		return $this->db->fetchAllSelectQuery($this->itemInstance->table, $this->where, $orderBy);
 	}
 
 	/**
@@ -75,7 +75,7 @@ class ModelQuery implements IteratorAggregate
 	/**
 	 * @return ArrayPlus|Traversable|Model[]
 	 */
-	public function getIterator()
+	public function getIterator(): Traversable
 	{
 		return $this->queryObjects();
 	}

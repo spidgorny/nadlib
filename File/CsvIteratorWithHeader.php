@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @phpstan-consistent-constructor
+ */
 class CsvIteratorWithHeader extends CsvIterator
 {
 
@@ -18,7 +21,7 @@ class CsvIteratorWithHeader extends CsvIterator
 		//print_r($this->columns);
 	}
 
-	public function current()
+	public function current(): mixed
 	{
 		parent::current();
 		//debug($this->columns, $this->currentElement);
@@ -31,23 +34,19 @@ class CsvIteratorWithHeader extends CsvIterator
 		return $this->currentElement;
 	}
 
-	public function next()
+	public function next(): void
 	{
-		$return = parent::next();
+		parent::next();
 		//debug($this->columns, $this->currentElement);
+		$return = $this->current();
 		if ($return !== false && $this->currentElement) {
 			if (sizeof($this->currentElement) == sizeof($this->columns)) {
 				$this->currentElement = array_combine($this->columns, $this->currentElement);
-				return $this->currentElement;
-			} else {
-				return false;
 			}
-		} else {
-			return false;
 		}
 	}
 
-	public function rewind()
+	public function rewind(): void
 	{
 		parent::rewind();
 		$this->next();    // skip header row again

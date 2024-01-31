@@ -15,6 +15,7 @@
  * - a collection of Models of the same type are represented by ArrayPlus
  * - don't put collection methods directly into the Model - try to use ArrayPlus
  * - or add Traits that deal with multiple rows
+ * @phpstan-consistent-constructor
  */
 class Model
 {
@@ -65,6 +66,10 @@ class Model
 		return $obj;
 	}
 
+	/**
+	 * @param DBInterface|null $db
+	 * @param array $data
+	 */
 	public function __construct(DBInterface $db = null, array $data = [])
 	{
 		if ($db) {

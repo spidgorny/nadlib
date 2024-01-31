@@ -5,6 +5,7 @@ require_once __DIR__ . '/TaylorProfiler.php';
 
 /**
  * Class Ticker
+ * @phpstan-consistent-constructor
  */
 class Ticker
 {

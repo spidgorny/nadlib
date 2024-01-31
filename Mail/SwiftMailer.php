@@ -52,7 +52,7 @@ class SwiftMailer implements MailerInterface
 		$failedRecipients = [];
 		$sent = $mailer->send($message, $failedRecipients);
 
-		return !empty($failedRecipients) ? $failedRecipients : $sent;
+		return count($failedRecipients) ? $failedRecipients : $sent;
 	}
 
 	/**

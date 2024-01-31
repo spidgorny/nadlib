@@ -1,6 +1,6 @@
 <?php
 
-class OODBaseArray extends OODBase implements ArrayAccess
+class OODBaseArray extends OODBase
 {
 
 	/**
@@ -15,7 +15,7 @@ class OODBaseArray extends OODBase implements ArrayAccess
 	 * The return value will be casted to boolean if non-boolean was returned.
 	 * @since 5.0.0
 	 */
-	public function offsetExists($offset)
+	public function offsetExists(mixed $offset): bool
 	{
 		return isset($this->data[$offset]);
 	}
@@ -29,7 +29,7 @@ class OODBaseArray extends OODBase implements ArrayAccess
 	 * @return mixed Can return all value types.
 	 * @since 5.0.0
 	 */
-	public function offsetGet($offset)
+	public function offsetGet(mixed $offset): mixed
 	{
 		return $this->get($offset);
 	}
@@ -46,7 +46,7 @@ class OODBaseArray extends OODBase implements ArrayAccess
 	 * @return void
 	 * @since 5.0.0
 	 */
-	public function offsetSet($offset, $value)
+	public function offsetSet(mixed $offset, mixed $value): void
 	{
 		$this->data[$offset] = $value;
 	}
@@ -60,7 +60,7 @@ class OODBaseArray extends OODBase implements ArrayAccess
 	 * @return void
 	 * @since 5.0.0
 	 */
-	public function offsetUnset($offset)
+	public function offsetUnset($offset): void
 	{
 		unset($this->data[$offset]);
 	}

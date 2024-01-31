@@ -565,7 +565,9 @@ class Collection implements IteratorAggregate, ToStringable
 
 	public function getObjects()
 	{
-		return collect($this->objectify());
+		return $this->objectify();
+		// what to composer request for this?
+//		return collect($this->objectify());
 	}
 
 	/**
@@ -846,7 +848,7 @@ class Collection implements IteratorAggregate, ToStringable
 	 * <b>Traversable</b>
 	 * @throws Exception
 	 */
-	public function getIterator()
+	public function getIterator(): Traversable
 	{
 		return new ArrayPlus($this->objectify($this->itemClassName, $this->objectifyByInstance));
 	}

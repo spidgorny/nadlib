@@ -44,9 +44,10 @@ ORDER BY c";
 		if ($this->db instanceof DBPlacebo) {
 			$this->markTestSkipped('DBPlacebo has different SQL');
 		}
-		$query = SQLSelectQuery::getSelectQueryP($this->db, 'table', [
+		$query = new SQLSelectQuery('*', 'table', [
 			'a' => new SQLLikeContains('b'),
-		], 'ORDER BY c');
+		], null, null, null, 'ORDER BY c');
+
 		$must = "SELECT \"table\".*
 FROM \"table\"
 WHERE

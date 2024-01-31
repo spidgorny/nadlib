@@ -7,11 +7,11 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . '../static.php';
 if (!function_exists('debug')) {
 
 	/**
-	 * @param mixed,...$a
+	 * @param mixed ...$params
 	 */
 	function debug(...$params)
 	{
-		$params = func_num_args() === 1 ? $a : func_get_args();
+		$params = func_num_args() === 1 ? $params[0] : func_get_args();
 		if (class_exists(Debug::class)) {
 			$debug = Debug::getInstance();
 			$debug->debug($params);

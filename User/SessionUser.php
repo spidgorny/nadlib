@@ -32,7 +32,7 @@ class SessionUser extends PlainSessionUser
 		}
 	}
 
-	public function checkPassword($sessionPassword)
+	public function checkPassword($login, $sessionPassword)
 	{
 		return false;
 	}

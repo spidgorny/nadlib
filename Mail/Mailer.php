@@ -29,6 +29,10 @@ class Mailer implements MailerInterface
 	 */
 	public $bodytext;
 
+	public $headers = [];
+
+	public $params = [];
+
 	/**
 	 * @return \SendGrid\Response
 	 */
@@ -82,4 +86,25 @@ class Mailer implements MailerInterface
 		return $res;
 	}
 
+	public function __construct($to, $subject, $body)
+	{
+		$this->to = $to;
+		$this->subject = $subject;
+		$this->bodytext = $body;
+	}
+
+	public function getPlainText()
+	{
+		return strip_tags($this->bodytext);
+	}
+
+	public function getSubject()
+	{
+		return $this->subject;
+	}
+
+	public function getBodyText()
+	{
+		return $this->bodytext;
+	}
 }

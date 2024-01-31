@@ -8,7 +8,7 @@ require_once __DIR__ . '/CachedGetInstance.php';
 /**
  * This class is the base class for all classes based on OOD. It contains only things general to all descendants.
  * It contains all the information from the database related to the project as well as methods to manipulate it.
- *
+ * @phpstan-consistent-constructor
  */
 abstract class OODBase implements ArrayAccess
 {
@@ -89,7 +89,6 @@ abstract class OODBase implements ArrayAccess
 	 *
 	 * @param int|array|SQLWhere|DBInterface $id - can be ID in the database or the whole records
 	 * as associative array
-	 *
 	 * @throws Exception
 	 */
 	public function __construct($id = null)
@@ -286,7 +285,6 @@ abstract class OODBase implements ArrayAccess
 				throw new Exception('__METHOD__ requires object specifier until PHP 5.3.');
 			}
 		}
-		// @phpstan-ignore-next-line
 		$obj = new $static();
 		$obj->findInDB($where);
 		if ($obj->id) {

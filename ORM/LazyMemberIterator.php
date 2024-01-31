@@ -45,7 +45,7 @@ class LazyMemberIterator extends IteratorIterator implements Countable
 	/**
 	 * @return mixed|null
 	 */
-	public function current()
+	public function current(): mixed
 	{
 		//echo __METHOD__, BR;
 		/** @var DatabaseResultIteratorAssoc $inner */
@@ -68,7 +68,7 @@ class LazyMemberIterator extends IteratorIterator implements Countable
 //		return !!$this->current();
 //	}
 //
-	public function count()
+	public function count(): int
 	{
 		//echo __METHOD__, BR;
 		/** @var DatabaseResultIteratorAssoc $iterator */
@@ -76,7 +76,7 @@ class LazyMemberIterator extends IteratorIterator implements Countable
 		return $iterator->count();
 	}
 
-	public function rewind()
+	public function rewind(): void
 	{
 		//echo __METHOD__, BR;
 		/** @var DatabaseResultIteratorAssoc $iterator */
@@ -84,7 +84,7 @@ class LazyMemberIterator extends IteratorIterator implements Countable
 		$iterator->rewind();
 	}
 
-	public function next()
+	public function next(): void
 	{
 		//echo __METHOD__, BR;
 		//return $this->getInnerIterator()->next();
@@ -95,7 +95,7 @@ class LazyMemberIterator extends IteratorIterator implements Countable
 	 * This was fucking missing(!) without any warnings
 	 * @return bool
 	 */
-	public function valid()
+	public function valid(): bool
 	{
 		/** @var DatabaseResultIteratorAssoc $iterator */
 		$iterator = $this->getInnerIterator();

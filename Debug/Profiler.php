@@ -12,6 +12,7 @@
  * $p2->stop();
  * sleep(1);
  * echo $p2->elapsed();
+ * @phpstan-consistent-constructor
  */
 class Profiler
 {

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @phpstan-consistent-constructor
+ */
 class Backtrace
 {
 

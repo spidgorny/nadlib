@@ -104,7 +104,7 @@ class CsvIterator implements Iterator, Countable
 	 *
 	 * @access public
 	 */
-	public function rewind()
+	public function rewind(): void
 	{
 		$this->rowCounter = 0;
 		// feof() is stuck in true after rewind somehow
@@ -119,12 +119,12 @@ class CsvIterator implements Iterator, Countable
 	}
 
 	/**
-	 * This method returns the current csv row as a 2 dimensional array
+	 * This method returns the current csv row as a 2-dimensional array
 	 *
 	 * @access public
-	 * @return array The current csv row as a 2 dimensional array
+	 * @return array The current csv row as a 2-dimensional array
 	 */
-	public function current()
+	public function current(): mixed
 	{
 		$this->read();
 		return $this->currentElement;
@@ -136,12 +136,12 @@ class CsvIterator implements Iterator, Countable
 	 * @access public
 	 * @return int The current row number
 	 */
-	public function key()
+	public function key(): mixed
 	{
 		return $this->rowCounter;
 	}
 
-	public function feof()
+	public function feof(): bool
 	{
 		return feof($this->filePointer);
 	}
@@ -151,14 +151,13 @@ class CsvIterator implements Iterator, Countable
 	 * @inheritdoc Returns the array value in the next place that's pointed to by the internal array pointer, or FALSE if there are no more elements.
 	 * @return array|bool Returns FALSE on EOF reached, VALUE otherwise.
 	 */
-	public function next()
+	public function next(): void
 	{
 		$this->rowCounter++;    // this make read() to read next row
 		$this->read();
 		if (!$this->currentElement) {
 			//debug($this->feof(), ftell($this->filePointer));
 		}
-		return $this->currentElement;
 	}
 
 	/**
@@ -167,7 +166,7 @@ class CsvIterator implements Iterator, Countable
 	 * @access public
 	 * @return bool If the next row is a valid row.
 	 */
-	public function valid()
+	public function valid(): bool
 	{
 		return !$this->feof();
 	}
@@ -203,7 +202,7 @@ class CsvIterator implements Iterator, Countable
 	 * The return value is cast to an integer.
 	 * @since 5.1.0
 	 */
-	public function count()
+	public function count(): int
 	{
 		if ($this->numRows) {
 			return $this->numRows;

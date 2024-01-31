@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @phpstan-consistent-constructor
+ */
 class SQLLike extends SQLWherePart
 {
 
@@ -23,6 +26,10 @@ class SQLLike extends SQLWherePart
 	 */
 	public $wrap = '|';
 
+	/**
+	 * @param $string
+	 * @param $caseInsensitive
+	 */
 	public function __construct($string, $caseInsensitive = true)
 	{
 		parent::__construct();

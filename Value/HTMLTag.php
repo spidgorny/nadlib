@@ -2,6 +2,7 @@
 
 /**
  * General HTML Tag representation.
+ * @phpstan-consistent-constructor
  */
 class HTMLTag implements ArrayAccess, ToStringable
 {

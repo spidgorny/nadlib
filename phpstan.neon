@@ -1,4 +1,5 @@
 parameters:
+	reportUnmatchedIgnoredErrors: false
 	bootstrapFiles:
 	     - %currentWorkingDirectory%/init.php
 	excludePaths:
@@ -43,3 +44,6 @@ parameters:
 		- '#Instantiated class sxml not found#'
 		- '#Call to static method getInstance\(\) on an unknown class Config#'
 		- '#has invalid type Config#'
+		- '#Instantiated class Swift_NullTransport not found#'
+		- '#unknown class Swift_Attachment#'
+		- '#Instantiated class User not found#'

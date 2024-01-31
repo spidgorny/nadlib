@@ -70,9 +70,8 @@ class HTMLProcessor
 		$content = '';
 		$links = $this->getLinks($comment);
 		foreach ($links as $link => $_) {
-			/** @noinspection PhpUndefinedNamespaceInspection */
-			$Essence = @Essence\Essence::instance();
-			$Media = $Essence->embed($link);
+			$Essence = new \Essence\Essence();
+			$Media = $Essence->extract($link);
 
 			if ($Media) {
 				$content .= $Media->html;

@@ -4,6 +4,7 @@ use spidgorny\nadlib\HTTP\URL;
 
 /**
  * Singleton
+ * @phpstan-consistent-constructor
  */
 class LocalLangDB extends LocalLang
 {
@@ -23,7 +24,6 @@ class LocalLangDB extends LocalLang
 
 	/**
 	 * @param $forceLang
-	 * @phpstan-consistent-constructor
 	 */
 	public function __construct($forceLang = null)
 	{

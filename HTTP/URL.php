@@ -752,21 +752,21 @@ class URL
 
 		$xipv6 = '(\[([a-fA-F\d.:]+)\])';
 
-		$xhost_name = '([a-zA-Z\d-.%]+)';
+		$xhost_name = '([a-zA-Z\d\-.%]+)';
 
 		$xhost = '(' . $xhost_name . '|' . $xipv4 . '|' . $xipv6 . ')';
 		$xport = '(\d*)';
 		$xauthority = '((' . $xuserinfo . '@)?' . $xhost .
 			'?(:' . $xport . ')?)';
 
-		$xslash_seg = '(/[' . $xpchar . ']*)';
-		$xpath_authabs = '((//' . $xauthority . ')((/[' . $xpchar . ']*)*))';
+		$xslash_seg = '(\/[' . $xpchar . ']*)';
+		$xpath_authabs = '((\/\/' . $xauthority . ')((\/[' . $xpchar . ']*)*))';
 		$xpath_rel = '([' . $xpchar . ']+' . $xslash_seg . '*)';
-		$xpath_abs = '(/(' . $xpath_rel . ')?)';
+		$xpath_abs = '(\/(' . $xpath_rel . ')?)';
 		$xapath = '(' . $xpath_authabs . '|' . $xpath_abs .
 			'|' . $xpath_rel . ')';
 
-		$xqueryfrag = '([' . $xpchar . '/?' . ']*)';
+		$xqueryfrag = '([' . $xpchar . '\/?' . ']*)';
 
 		$xurl = '^(' . $xscheme . ':)?' . $xapath . '?' .
 			'(\?' . $xqueryfrag . ')?(#' . $xqueryfrag . ')?$';
