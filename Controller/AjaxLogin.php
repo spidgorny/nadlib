@@ -290,7 +290,7 @@ class AjaxLogin extends AppControllerBE
 		//debug($desc);
 		$f->prefix('profile');
 		$f->desc = $desc;
-		$f->showForm($desc);
+		$f->showForm();
 		$f->prefix('');
 		$f->hidden('action', 'saveRegister');
 		$f->submit(__('Register'), [
