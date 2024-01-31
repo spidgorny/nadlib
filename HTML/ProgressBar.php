@@ -1,52 +1,46 @@
 <?php
 
-class ProgressBar {
+class ProgressBar
+{
 
-	var $percentDone = 0;
+	public $percentDone = 0;
 
-	var $pbid;
-	var $pbarid;
-	var $tbarid;
-	var $textid;
+	public $pbid;
+	public $pbarid;
+	public $tbarid;
+	public $textid;
 
-	var $decimals = 2;
-
-	protected $color = '#43b6df';
+	public $decimals = 2;
 	public $cliBR = "\r";
-
 	/**
 	 * @var bool
 	 */
-	var $cli = false;
-
+	public $cli = false;
 	/**
 	 * Must be false in order to user new ProgressBar(...) inside strings.
 	 * @var bool
 	 * Destructor will set the progress bar to 100%
 	 * if enabled.
 	 */
-	var $destruct100 = false;
-
+	public $destruct100 = false;
 	/**
 	 * Should be undefined so that it can be detected once and then stored.
 	 * Don't put default value here.
 	 * @var int
 	 */
-	var $cliWidth = NULL;
-
+	public $cliWidth = null;
 	/**
 	 * If supplied then use $pb->setIndex($i) to calculate percentage automatically
 	 * @var int
 	 */
 	public $count = 0;
-
 	/**
 	 * Force getCss() to NOT load from Index if Index exists
 	 * @var bool
 	 */
 	public $useIndexCss = true;
-
 	public $cssFile = 'ProgressBarSimple.css';
+	protected $color = '#43b6df';
 
 	/**
 	 * @ param #2 $color = '#43b6df'
@@ -76,6 +70,60 @@ class ProgressBar {
 		$this->textid = 'pb_text-' . $pbid;
 	}
 
+	public static function getImageWithText($p, $css = 'display: inline-block; width: 100%; text-align: center; white-space: nowrap;', $append = '')
+	{
+		return new HtmlString('<div style="' . $css . '">' .
+			number_format($p, 2) . '&nbsp;%&nbsp;
+			' . self::getImage($p, $append) . '
+		</div>');
+	}
+
+	public static function getImage($p, $append = '', $imgAttributes = [])
+	{
+		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
+		// absolute URL to work even before <base href> is defined
+		$prefix = Request::getInstance()->getLocation() . $prefix;
+		$imageURL = $prefix . 'bar.php?rating=' . round($p) . htmlspecialchars($append);
+		return '<img src="' . $imageURL . '"
+		style="vertical-align: middle;"
+		title="' . number_format($p, 2) . '%"
+		width="100"
+		height="15" ' . HTMLTag::renderAttr($imgAttributes) . '/>';
+	}
+
+	/**
+	 * Return only URL
+	 * @param        $p
+	 * @param string $append
+	 * @return string
+	 */
+	public static function getBar($p, $append = '')
+	{
+		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
+		if (!$prefix || $prefix == '/') {
+			$prefix = 'vendor/spidgorny/nadlib/';
+		}
+		$prefix = Request::getInstance()->getLocation() . $prefix;
+		return $prefix . 'bar.php?rating=' . round($p) . $append;
+	}
+
+	public static function getBackground($p, $width = '100px')
+	{
+		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
+		return '<div style="
+			display: inline-block;
+			width: ' . $width . ';
+			text-align: center;
+			wrap: nowrap;
+			background: url(' . $prefix . 'bar.php?rating=' . round($p) . '&height=14&width=' . intval($width) . ') no-repeat;">' . number_format($p, 2) . '%</div>';
+	}
+
+	public static function getCounter($r, $size)
+	{
+		$r = str_pad($r, strlen($size), ' ', STR_PAD_LEFT);
+		return '[' . $r . '/' . $size . ']';
+	}
+
 	public function render()
 	{
 		if (!$this->cli) {
@@ -99,7 +147,7 @@ class ProgressBar {
 	 * pre-compiles LESS inline
 	 * @return string
 	 */
-	function getCSS()
+	public function getCSS()
 	{
 		$less = AutoLoad::getInstance()->nadlibFromDocRoot . 'CSS/' . $this->cssFile;
 		$cssFile = str_replace('.less', '.css', $less);
@@ -122,12 +170,7 @@ class ProgressBar {
 		return '';
 	}
 
-	function __toString()
-	{
-		return $this->getContent();
-	}
-
-	function getContent()
+	public function getContent()
 	{
 		$percentDone = floatval($this->percentDone);
 		$percentDone = max(0, min(100, $percentDone));
@@ -147,22 +190,21 @@ class ProgressBar {
 		return $content;
 	}
 
-	function setProgressBarProgress($percentDone, $text = '', $after = '')
+	public static function flush($ob_flush = false)
 	{
-		$this->percentDone = $percentDone;
-		$text = $text
-			?: number_format($this->percentDone, $this->decimals, '.', '') . '%';
-		if ($this->cli) {
-			if (!Request::isCron()) {
-				// \r first to preserve errors
-				echo $this->cliBR . $text . "\t" . $this->getCLIbar() . ' ' . $after;
-			} // else nothing
-		} else {
-			$this->setProgressBarJS($percentDone, $text);
+		print str_pad('', intval(ini_get('output_buffering')), ' ') . "\n";
+		if ($ob_flush) {
+			ob_end_flush();
 		}
+		flush();
 	}
 
-	function setIndex($i, $always = false, $text = '', $after = '', $everyStep = 1000)
+	public function __toString()
+	{
+		return $this->getContent();
+	}
+
+	public function setIndex($i, $always = false, $text = '', $after = '', $everyStep = 1000)
 	{
 		static $last;
 		if (!$this->count) {
@@ -188,68 +230,113 @@ class ProgressBar {
 		return $percent;
 	}
 
-	static function flush($ob_flush = false)
+	public function setProgressBarProgress($percentDone, $text = '', $after = '')
 	{
-		print str_pad('', intval(ini_get('output_buffering')), ' ') . "\n";
-		if ($ob_flush) {
-			ob_end_flush();
+		$this->percentDone = $percentDone;
+		$text = $text
+			?: number_format($this->percentDone, $this->decimals, '.', '') . '%';
+		if ($this->cli) {
+			if (!Request::isCron()) {
+				// \r first to preserve errors
+				echo $this->cliBR . $text . "\t" . $this->getCLIbar() . ' ' . $after;
+			} // else nothing
+		} else {
+			$this->setProgressBarJS($percentDone, $text);
 		}
-		flush();
 	}
 
-	function __destruct()
+	public function getCLIbar()
+	{
+		$content = '';
+		if (!$this->cliWidth) {
+			$this->cliWidth = intval(round($this->getTerminalWidth() / 2));
+		}
+		if ($this->cliWidth > 0) {  // otherwise cronjob
+			$chars = round(abs($this->percentDone) / 100 * $this->cliWidth);
+			$chars = min($this->cliWidth, $chars);
+			$space = max(0, $this->cliWidth - $chars);
+			$content = '[' . str_repeat('#', $chars) . str_repeat(' ', $space) . ']';
+		}
+		return $content;
+	}
+
+	public function getTerminalWidth()
+	{
+		if (Request::isWindows()) {
+			$both = $this->getTerminalSizeOnWindows();
+			$width = $both['width'];
+		} elseif (!Request::isCron()) {
+			$both = $this->getTerminalSizeOnLinux();
+			$width = $both['width'];
+		} else {
+			$width = -1;        // cronjob
+		}
+		return $width;
+	}
+
+	/**
+	 * http://stackoverflow.com/questions/263890/how-do-i-find-the-width-height-of-a-terminal-window
+	 * @return array
+	 */
+	public function getTerminalSizeOnWindows()
+	{
+		$output = [];
+		$size = ['width' => 0, 'height' => 0];
+		exec('mode', $output);
+		foreach ($output as $line) {
+			$matches = [];
+			$w = preg_match('/^\s*columns\:?\s*(\d+)\s*$/i', $line, $matches);
+			if ($w) {
+				$size['width'] = intval($matches[1]);
+			} else {
+				$h = preg_match('/^\s*lines\:?\s*(\d+)\s*$/i', $line, $matches);
+				if ($h) {
+					$size['height'] = intval($matches[1]);
+				}
+			}
+			if ($size['width'] and $size['height']) {
+				break;
+			}
+		}
+		return $size;
+	}
+
+	public function getTerminalSizeOnLinux()
+	{
+		$size = array_combine(
+			['width', 'height'],
+			[exec('tput cols'), exec('tput lines')]
+		);
+		return $size;
+	}
+
+	/**
+	 * @param $percentDone
+	 * @param $text
+	 */
+	private function setProgressBarJS($percentDone, $text)
+	{
+		print('
+			<script type="text/javascript">
+			if (document.getElementById("' . $this->pbarid . '")) {
+				document.getElementById("' . $this->pbarid . '").style.width = "' . $percentDone . '%";' . "\n");
+		if ($percentDone == 100) {
+			print('document.getElementById("' . $this->tbarid . '").style.display = "none";' . "\n");
+		} else {
+			print('document.getElementById("' . $this->tbarid . '").style.width = "' . (100 - $percentDone) . '%";' . "\n");
+		}
+		if ($text) {
+			print('document.getElementById("' . $this->textid . '").innerHTML = "' . htmlspecialchars(str_replace("\n", '\n', $text)) . '";' . "\n");
+		}
+		print('}</script>' . "\n");
+		$this->flush();
+	}
+
+	public function __destruct()
 	{
 		if ($this->destruct100) {
 			$this->setProgressBarProgress(100);
 		}
-	}
-
-	static function getImageWithText($p, $css = 'display: inline-block; width: 100%; text-align: center; white-space: nowrap;', $append = '')
-	{
-		return new htmlString('<div style="' . $css . '">' .
-			number_format($p, 2) . '&nbsp;%&nbsp;
-			' . self::getImage($p, $append) . '
-		</div>');
-	}
-
-	static function getImage($p, $append = '', $imgAttributes = [])
-	{
-		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
-		// absolute URL to work even before <base href> is defined
-		$prefix = Request::getInstance()->getLocation() . $prefix;
-		$imageURL = $prefix . 'bar.php?rating=' . round($p) . htmlspecialchars($append);
-		return '<img src="' . $imageURL . '"
-		style="vertical-align: middle;"
-		title="' . number_format($p, 2) . '%"
-		width="100"
-		height="15" ' . HTMLTag::renderAttr($imgAttributes) . '/>';
-	}
-
-	/**
-	 * Return only URL
-	 * @param        $p
-	 * @param string $append
-	 * @return string
-	 */
-	static function getBar($p, $append = '')
-	{
-		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
-		if (!$prefix || $prefix == '/') {
-			$prefix = 'vendor/spidgorny/nadlib/';
-		}
-		$prefix = Request::getInstance()->getLocation() . $prefix;
-		return $prefix . 'bar.php?rating=' . round($p) . $append;
-	}
-
-	static function getBackground($p, $width = '100px')
-	{
-		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
-		return '<div style="
-			display: inline-block;
-			width: ' . $width . ';
-			text-align: center;
-			wrap: nowrap;
-			background: url(' . $prefix . 'bar.php?rating=' . round($p) . '&height=14&width=' . intval($width) . ') no-repeat;">' . number_format($p, 2) . '%</div>';
 	}
 
 	public function setTitle()
@@ -266,71 +353,6 @@ class ProgressBar {
 			var el = document.getElementById("' . $this->pbid . '");
 			el.parentNode.removeChild(el);
 		</script>';
-	}
-
-	function getCLIbar()
-	{
-		$content = '';
-		if (!$this->cliWidth) {
-			$this->cliWidth = intval(round($this->getTerminalWidth() / 2));
-		}
-		if ($this->cliWidth > 0) {  // otherwise cronjob
-			$chars = round(abs($this->percentDone) / 100 * $this->cliWidth);
-			$chars = min($this->cliWidth, $chars);
-			$space = max(0, $this->cliWidth - $chars);
-			$content = '[' . str_repeat('#', $chars) . str_repeat(' ', $space) . ']';
-		}
-		return $content;
-	}
-
-	function getTerminalWidth()
-	{
-		if (Request::isWindows()) {
-			$both = $this->getTerminalSizeOnWindows();
-			$width = $both['width'];
-		} else if (!Request::isCron()) {
-			$both = $this->getTerminalSizeOnLinux();
-			$width = $both['width'];
-		} else {
-			$width = -1;        // cronjob
-		}
-		return $width;
-	}
-
-	/**
-	 * http://stackoverflow.com/questions/263890/how-do-i-find-the-width-height-of-a-terminal-window
-	 * @return array
-	 */
-	function getTerminalSizeOnWindows()
-	{
-		$output = [];
-		$size = ['width' => 0, 'height' => 0];
-		exec('mode', $output);
-		foreach ($output as $line) {
-			$matches = [];
-			$w = preg_match('/^\s*columns\:?\s*(\d+)\s*$/i', $line, $matches);
-			if ($w) {
-				$size['width'] = intval($matches[1]);
-			} else {
-				$h = preg_match('/^\s*lines\:?\s*(\d+)\s*$/i', $line, $matches);
-				if ($h) {
-					$size['height'] = intval($matches[1]);
-				}
-			}
-			if ($size['width'] AND $size['height']) {
-				break;
-			}
-		}
-		return $size;
-	}
-
-	function getTerminalSizeOnLinux()
-	{
-		$size = array_combine(
-			['width', 'height'],
-			[exec('tput cols'), exec('tput lines')]
-		);
-		return $size;
 	}
 
 	public function startSSE($url)
@@ -362,37 +384,9 @@ class ProgressBar {
 		flush();
 	}
 
-	function done($content)
+	public function done($content)
 	{
 		echo 'data: ', json_encode(['complete' => $content]), "\n\n";
-	}
-
-	/**
-	 * @param $percentDone
-	 * @param $text
-	 */
-	private function setProgressBarJS($percentDone, $text)
-	{
-		print('
-			<script type="text/javascript">
-			if (document.getElementById("' . $this->pbarid . '")) {
-				document.getElementById("' . $this->pbarid . '").style.width = "' . $percentDone . '%";' . "\n");
-		if ($percentDone == 100) {
-			print('document.getElementById("' . $this->tbarid . '").style.display = "none";' . "\n");
-		} else {
-			print('document.getElementById("' . $this->tbarid . '").style.width = "' . (100 - $percentDone) . '%";' . "\n");
-		}
-		if ($text) {
-			print('document.getElementById("' . $this->textid . '").innerHTML = "' . htmlspecialchars(str_replace("\n", '\n', $text)) . '";' . "\n");
-		}
-		print('}</script>' . "\n");
-		$this->flush();
-	}
-
-	static function getCounter($r, $size)
-	{
-		$r = str_pad($r, strlen($size), ' ', STR_PAD_LEFT);
-		return '[' . $r . '/' . $size . ']';
 	}
 
 }

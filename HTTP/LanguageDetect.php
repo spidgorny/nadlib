@@ -1,10 +1,12 @@
 <?php
 
-class LanguageDetect {
+class LanguageDetect
+{
 
 	public $languages = [];
 
-	function __construct() {
+	public function __construct()
+	{
 		if (isset($_COOKIE['lang']) && $_COOKIE['lang']) {
 			$this->languages = [$_COOKIE['lang'] => $_COOKIE['lang']];
 		}
@@ -13,9 +15,10 @@ class LanguageDetect {
 		//debug($this->languages);// exit();
 	}
 
-	function getAcceptedLanguages () {
-        $languagesArr = [];
-		$rawAcceptedLanguagesArr = explode(',', isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : NULL);
+	public function getAcceptedLanguages()
+        {
+		$languagesArr = [];
+		$rawAcceptedLanguagesArr = explode(',', isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : null);
 
 		if ($rawAcceptedLanguagesArr) {
 			$acceptedLanguagesArr = [];
@@ -24,23 +27,23 @@ class LanguageDetect {
 					list ($languageCode, $quality) = explode(';', $languageAndQualityStr);
 				} else {
 					$languageCode = $languageAndQualityStr;
-					$quality = NULL;
+					$quality = null;
 				}
 				$acceptedLanguagesArr[$languageCode] = $quality ? (float)substr($quality, 2) : (float)1;
 			}
 
-	        // Now sort the accepted languages by their quality and create an array containing only the language codes in the correct order.
-	        if (is_array ($acceptedLanguagesArr)) {
-	            arsort ($acceptedLanguagesArr);
-	            $languageCodesArr = array_keys ($acceptedLanguagesArr);
-	            if (is_array($languageCodesArr)) {
-	                foreach ($languageCodesArr as $languageCode) {
-	                    $languagesArr[substr ($languageCode,0,2)] = substr ($languageCode,0,2);
-	                }
-	            }
-	        }
+			// Now sort the accepted languages by their quality and create an array containing only the language codes in the correct order.
+			if (is_array($acceptedLanguagesArr)) {
+				arsort($acceptedLanguagesArr);
+				$languageCodesArr = array_keys($acceptedLanguagesArr);
+				if (is_array($languageCodesArr)) {
+					foreach ($languageCodesArr as $languageCode) {
+						$languagesArr[substr($languageCode, 0, 2)] = substr($languageCode, 0, 2);
+					}
+				}
+			}
 		}
-        return $languagesArr;
-    }
+		return $languagesArr;
+	}
 
 }

@@ -18,7 +18,6 @@ class File
 	 * @var \League\Flysystem\Filesystem
 	 */
 	public $fly;
-
 	/**
 	 * @var array[
 	 * 'type'=>'file',
@@ -31,17 +30,23 @@ class File
 	 * 'filename'=>'asd',
 	 * ]
 	 */
-	public array $meta;
-
+	public $meta;
 	/**
 	 * @var string|null the path in the $name is relative to this
 	 */
-	public ?string $relativeTo;
+	public $relativeTo;
+
+	public function __construct($path, string $relativeTo = null)
+	{
+		$this->relativeTo = $relativeTo;
+		$this->dir = dirname($path) === '.' ? '' : dirname($path);
+		$this->name = basename($path);
+	}
 
 	public static function fromLocal($file, string $relativeTo = null)
 	{
 		if (!file_exists($file) && !is_dir($file)) {
-			throw new Exception('File ' . $file . ' does not exists');
+			throw new RuntimeException('File ' . $file . ' does not exists');
 		}
 		$file = new static($file, $relativeTo);
 		$file->isDir = is_dir($file);
@@ -62,41 +67,6 @@ class File
 		return $file;
 	}
 
-	public static function fromFly(League\Flysystem\Filesystem $fly, array $fileMeta)
-	{
-		$file = new static($fileMeta['path']);
-		$file->fly = $fly;
-		$file->meta = $fileMeta;
-		return $file;
-	}
-
-	public function __construct($path, string $relativeTo = null)
-	{
-		$this->relativeTo = $relativeTo;
-		$this->dir = dirname($path) === '.' ? '' : dirname($path);
-		$this->name = basename($path);
-	}
-
-	public function getDir()
-	{
-		return $this->dir;
-	}
-
-	public function getName()
-	{
-		return $this->name;
-	}
-
-	public function getExt()
-	{
-		return pathinfo($this->getName(), PATHINFO_EXTENSION);
-	}
-
-	public function getBasename()
-	{
-		return $this->name;
-	}
-
 	public function getPathname()
 	{
 		if ($this->dir) {
@@ -105,6 +75,34 @@ class File
 		$absolute = path_plus($this->relativeTo, $this->name);
 //		llog(__METHOD__, $this->relativeTo, $this->name, $absolute);
 		return $absolute;
+	}
+
+	public static function fromFly(League\Flysystem\Filesystem $fly, array $fileMeta)
+	{
+		$file = new static($fileMeta['path']);
+		$file->fly = $fly;
+		$file->meta = $fileMeta;
+		return $file;
+	}
+
+	public function getDir()
+	{
+		return $this->dir;
+	}
+
+	public function getExt()
+	{
+		return pathinfo($this->getName(), PATHINFO_EXTENSION);
+	}
+
+	public function getName()
+	{
+		return $this->name;
+	}
+
+	public function getBasename()
+	{
+		return $this->name;
 	}
 
 	public function md5()
@@ -118,14 +116,14 @@ class File
 		return $path->getURL();
 	}
 
-	public function size()
-	{
-		return filesize($this->getPathname());
-	}
-
 	public function getSize()
 	{
 		return $this->size();
+	}
+
+	public function size()
+	{
+		return filesize($this->getPathname());
 	}
 
 	public function time()

@@ -1,15 +1,18 @@
 <?php
 
-class OnlyTime extends Time {
+class OnlyTime extends Time
+{
 
-	function __construct($input = NULL, $relativeTo = NULL) {
+	public function __construct($input = null, $relativeTo = null)
+	{
 		parent::__construct($input, $relativeTo);
 		$this->modify('1970-01-01 H:i:s');
 		$this->updateDebug();
 		//debug($this);
 	}
 
-	function getMySQL() {
+	public function getMySQL()
+	{
 		return gmdate('H:i:s', $this->time);
 	}
 

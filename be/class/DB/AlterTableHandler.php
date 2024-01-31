@@ -6,21 +6,21 @@ class AlterTableHandler
 	/**
 	 * @var MySQL|DBLayerPDO
 	 */
-	var $db;
+	public $db;
 
-	function __construct($db)
+	public function __construct($db)
 	{
 		$this->db = $db;
 	}
 
-	function sameType($index1, $index2)
+	public function sameType($index1, $index2)
 	{
 		$t1 = $index1['Type'];
 		$t2 = $index2['Type'];
 		return $this->sameTypeString($t1, $t2);
 	}
 
-	function sameFieldType(TableField $index1, TableField $index2)
+	public function sameFieldType(TableField $index1, TableField $index2)
 	{
 		return $this->sameTypeString($index1->type, $index2->type);
 	}
@@ -31,7 +31,7 @@ class AlterTableHandler
 	 * @return bool
 	 * @todo compare using TableField
 	 */
-	function sameTypeString($t1, $t2)
+	public function sameTypeString($t1, $t2)
 	{
 		$int = ['int(11)', 'INTEGER', 'integer', 'tinyint(1)', 'int', 'tinyint(4)'];
 		$text = ['text', 'varchar(255)', 'tinytext'];

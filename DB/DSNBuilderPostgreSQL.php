@@ -3,13 +3,13 @@
 class DSNBuilderPostgreSQL extends DSNBuilder
 {
 
-	var $host;
-	var $user;
-	var $pass;
-	var $db;
-	var $port;
+	public $host;
+	public $user;
+	public $pass;
+	public $db;
+	public $port;
 
-	function __construct($host, $user, $pass, $db, $port = 5432)
+	public function __construct($host, $user, $pass, $db, $port = 5432)
 	{
 		$this->host = $host;
 		$this->user = $user;
@@ -18,7 +18,7 @@ class DSNBuilderPostgreSQL extends DSNBuilder
 		$this->port = $port;
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		$aDSN = [
 			'host' => $this->host,

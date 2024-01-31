@@ -128,26 +128,26 @@ class SimpleXLSX
 	/**
 	 * @var array
 	 */
-	var $datasec = [];
+	public $datasec = [];
 
-	function __construct($filename, $is_data = false, $debug = false)
+	public function __construct($filename, $is_data = false, $debug = false)
 	{
 		$this->debug = $debug;
 		$this->_unzip($filename, $is_data);
 		$this->_parse();
 	}
 
-	function sheets()
+	public function sheets()
 	{
 		return $this->sheets;
 	}
 
-	function sheetsCount()
+	public function sheetsCount()
 	{
 		return count($this->sheets);
 	}
 
-	function sheetName($worksheet_id)
+	public function sheetName($worksheet_id)
 	{
 
 		foreach ($this->workbook->sheets->sheet as $s) {
@@ -159,7 +159,7 @@ class SimpleXLSX
 		return false;
 	}
 
-	function sheetNames()
+	public function sheetNames()
 	{
 
 		$result = [];
@@ -172,7 +172,7 @@ class SimpleXLSX
 		return $result;
 	}
 
-	function worksheet($worksheet_id)
+	public function worksheet($worksheet_id)
 	{
 		if (isset($this->sheets[$worksheet_id])) {
 			$ws = $this->sheets[$worksheet_id];
@@ -191,7 +191,7 @@ class SimpleXLSX
 		}
 	}
 
-	function dimension($worksheet_id = 1)
+	public function dimension($worksheet_id = 1)
 	{
 
 		if (($ws = $this->worksheet($worksheet_id)) === false)
@@ -205,7 +205,7 @@ class SimpleXLSX
 				return [0, 0];
 			$index = $this->_columnIndex($d[1]);
 			return [$index[0] + 1, $index[1] + 1];
-		} else if (strlen($ref)) { // 0.6.8
+		} elseif (strlen($ref)) { // 0.6.8
 			$index = $this->_columnIndex($ref);
 			return [$index[0] + 1, $index[1] + 1];
 		} else
@@ -214,7 +214,7 @@ class SimpleXLSX
 	}
 
 	// sheets numeration: 1,2,3....
-	function rows($worksheet_id = 1)
+	public function rows($worksheet_id = 1)
 	{
 
 		if (($ws = $this->worksheet($worksheet_id)) === false)
@@ -242,7 +242,7 @@ class SimpleXLSX
 		return $rows;
 	}
 
-	function rowsEx($worksheet_id = 1)
+	public function rowsEx($worksheet_id = 1)
 	{
 
 		if (($ws = $this->worksheet($worksheet_id)) === false)
@@ -314,15 +314,17 @@ class SimpleXLSX
 			$colLen = strlen($col);
 			$index = 0;
 
-			for ($i = $colLen - 1; $i >= 0; $i--)
+			for ($i = $colLen - 1; $i >= 0; $i--) {
 				$index += (ord($col[$i]) - 64) * pow(26, $colLen - $i - 1);
+			}
 
 			return [$index - 1, $row - 1];
-		} else
-			throw new Exception("Invalid cell index.");
+		}
+
+		throw new Exception("Invalid cell index.");
 	}
 
-	function value($cell)
+	public function value($cell)
 	{
 		// Determine data type
 		$dataType = (string)$cell['t'];
@@ -343,7 +345,7 @@ class SimpleXLSX
 				$value = (string)$cell->v;
 				if ($value == '0') {
 					$value = false;
-				} else if ($value == '1') {
+				} elseif ($value == '1') {
 					$value = true;
 				} else {
 					$value = (bool)$cell->v;
@@ -380,17 +382,17 @@ class SimpleXLSX
 		return $value;
 	}
 
-	function href($cell)
+	public function href($cell)
 	{
 		return isset($this->hyperlinks[(string)$cell['r']]) ? $this->hyperlinks[(string)$cell['r']] : '';
 	}
 
-	function styles()
+	public function styles()
 	{
 		return $this->styles;
 	}
 
-	function _unzip($filename, $is_data = false)
+	public function _unzip($filename, $is_data = false)
 	{
 
 		// Clear current file
@@ -530,7 +532,7 @@ class SimpleXLSX
 							$aI['EM'] = "De-/Compression method {$aP['CM']} is not supported.";
 					}
 					if (!$aI['E']) {
-						if ($vZ === FALSE) {
+						if ($vZ === false) {
 							$aI['E'] = 2;
 							$aI['EM'] = 'Decompression of data failed.';
 						} else {
@@ -571,12 +573,12 @@ class SimpleXLSX
 		} // end for each entries
 	}
 
-	function getPackage()
+	public function getPackage()
 	{
 		return $this->package;
 	}
 
-	function entryExists($name)
+	public function entryExists($name)
 	{ // 0.6.6
 		$dir = dirname($name);
 		$name = basename($name);
@@ -586,7 +588,7 @@ class SimpleXLSX
 		return false;
 	}
 
-	function getEntryData($name)
+	public function getEntryData($name)
 	{
 		$dir = dirname($name);
 		$name = basename($name);
@@ -597,7 +599,7 @@ class SimpleXLSX
 		return false;
 	}
 
-	function getEntryXML($name)
+	public function getEntryXML($name)
 	{
 		if (($entry_xml = $this->getEntryData($name))
 			&& ($entry_xmlobj = simplexml_load_string($entry_xml)))
@@ -608,14 +610,14 @@ class SimpleXLSX
 		return false;
 	}
 
-	function unixstamp($excelDateTime)
+	public function unixstamp($excelDateTime)
 	{
 		$d = floor($excelDateTime); // seconds since 1900
 		$t = $excelDateTime - $d;
 		return ($d > 0) ? ($d - 25569) * 86400 + $t * 86400 : $t * 86400;
 	}
 
-	function error($set = false)
+	public function error($set = false)
 	{
 		if ($set) {
 			$this->error = $set;
@@ -626,12 +628,12 @@ class SimpleXLSX
 		}
 	}
 
-	function success()
+	public function success()
 	{
 		return !$this->error;
 	}
 
-	function _parse()
+	public function _parse()
 	{
 		// Document data holders
 		$this->sharedstrings = [];
@@ -671,7 +673,7 @@ class SimpleXLSX
 //										echo '<pre>'.htmlspecialchars( print_r( $sheet, true ) ).'</pre>';
 									}
 
-								} else if ($workbookRelation['Type'] == SimpleXLSX::SCHEMA_REL_SHAREDSTRINGS && $this->entryExists($path)) { // 0.6.6
+								} elseif ($workbookRelation['Type'] == SimpleXLSX::SCHEMA_REL_SHAREDSTRINGS && $this->entryExists($path)) { // 0.6.6
 
 //									echo 'sharedstrings<br />';
 
@@ -684,21 +686,21 @@ class SimpleXLSX
 											}
 										}
 									}
-								} else if ($workbookRelation['Type'] == SimpleXLSX::SCHEMA_REL_STYLES) {
+								} elseif ($workbookRelation['Type'] == SimpleXLSX::SCHEMA_REL_STYLES) {
 									$this->styles = $this->getEntryXML($path);
 
 									$nf = [];
-									if ($this->styles->numFmts->numFmt != NULL)
+									if ($this->styles->numFmts->numFmt != null)
 										foreach ($this->styles->numFmts->numFmt as $v)
 											$nf[(int)$v['numFmtId']] = (string)$v['formatCode'];
 
-									if ($this->styles->cellXfs->xf != NULL)
+									if ($this->styles->cellXfs->xf != null)
 										foreach ($this->styles->cellXfs->xf as $v) {
 											$v = (array)$v->attributes();
 											$v = $v['@attributes'];
 											if (isset($this->built_in_cell_formats[$v['numFmtId']]))
 												$v['format'] = $this->built_in_cell_formats[$v['numFmtId']];
-											else if (isset($nf[$v['numFmtId']]))
+											elseif (isset($nf[$v['numFmtId']]))
 												$v['format'] = $nf[$v['numFmtId']];
 											else
 												$v['format'] = '';

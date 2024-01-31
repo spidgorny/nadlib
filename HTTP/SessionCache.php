@@ -2,19 +2,20 @@
 
 use nadlib\HTTP\Session;
 
-class SessionCache {
+class SessionCache
+{
 
 	/**
 	 * @var Session
 	 */
 	protected $session;
 
-	function __construct($class)
+	public function __construct($class)
 	{
 		$this->session = new Session($class);
 	}
 
-	static function wrap($class, $method, $getter)
+	public static function wrap($class, $method, $getter)
 	{
 		$sc = new SessionCache($class);
 		$val = $sc->session->get($method);

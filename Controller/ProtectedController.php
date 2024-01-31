@@ -1,11 +1,13 @@
 <?php
 
-class ProtectedController extends AppController {
+class ProtectedController extends AppControllerBE
+{
 
-	function __construct() {
+	public function __construct()
+	{
 		parent::__construct();
 		if (!$this->user->id) {
-			throw new AccessDeniedException('Access Denied to '.get_class($this));
+			throw new AccessDeniedException('Access Denied to ' . get_class($this));
 		}
 	}
 

@@ -43,17 +43,17 @@ abstract class Controller extends SimpleController
 	use HTMLHelper;
 
 	/**
-	 * @var boolean
+	 * accessible without login
+	 * @var bool
+	 */
+	public static $public = false;
+
+	/**
+	 * @var bool
 	 * @use $this->preventDefault() to set
 	 * Check manually in render()
 	 */
 	public $noRender = false;
-
-	/**
-	 * @var MySQL|DBLayer|DBLayerMS|DBLayerPDO|DBLayerSQLite|DBLayerBase|DBInterface
-	 */
-	protected $db;
-
 	/**
 	 * Will be taken as a <title> of the HTML table
 	 * @var string
@@ -71,37 +71,30 @@ abstract class Controller extends SimpleController
 	 * @var string|Wrap
 	 */
 	public $layout;
-
-	/**
-	 * accessible without login
-	 * @var bool
-	 */
-	public static $public = false;
-
 	/**
 	 * @var Config
 	 */
 	public $config;
-
 	/**
 	 * Used by Collection to get the current sorting method.
 	 * Ugly, please reprogram.
 	 * @var
 	 */
 	public $sortBy;
-
 	/**
 	 * @var Linker
 	 */
 	public $linker;
+	/**
+	 * @var DBLayer|DBLayerPDO|DBLayerSQLite|DBLayerBase|DBInterface
+	 */
+	protected $db;
 
 	public function __construct()
 	{
 		parent::__construct();
-		if (!$this->config) {
-			if ($this->index) {
-				$this->config = $this->index->getConfig();
-			}
+		if (!$this->config && $this->index) {
+			$this->config = $this->index->getConfig();
 		}
 
 		if ($this->config) {
@@ -118,6 +111,24 @@ abstract class Controller extends SimpleController
 		if (!$this->linker->useRouter) {
 			$this->linker->linkVars['c'] = get_class($this);
 		}
+	}
+
+	public static function link($text = null, array $params = [])
+	{
+		/** @var Controller $self */
+		$self = static::class;
+		return new HTMLTag('a', [
+			'href' => $self::href($params)
+		], $text ?: $self);
+	}
+
+	public static function href(array $params = [])
+	{
+		$url = last(trimExplode('\\', static::class));
+		if ($params) {
+			$url .= '?' . http_build_query($params);
+		}
+		return $url;
 	}
 
 	public function __call($method, array $arguments)
@@ -150,9 +161,51 @@ abstract class Controller extends SimpleController
 
 	public function encloseIn($title, $content)
 	{
-		$title = $title instanceof htmlString ? $title : htmlspecialchars($title);
+		$title = $title instanceof HtmlString ? $title : htmlspecialchars($title);
 		$content = $this->s($content);
 		return '<fieldset><legend>' . $title . '</legend>' . $content . '</fieldset>';
+	}
+
+	/**
+	 * Wraps the content in a div/section with a header.
+	 * The header is linkable.
+	 * @param $content
+	 * @param string $caption
+	 * @param string|null $h
+	 * @param array $more
+	 * @return array|string|string[]
+	 */
+	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
+	{
+		$h = $h ?: $this->encloseTag;
+		$content = $this->s($content);
+		if ($caption) {
+			$content = [
+				'caption' => $this->getCaption($caption, $h),
+				$content
+			];
+		}
+		$more['class'] = ifsetor($more['class'], 'padding clearfix');
+		$more['class'] .= ' ' . get_class($this);
+		//debug_pre_print_backtrace();
+		//$more['style'] = "position: relative;";	// project specific
+		return new HTMLTag('section', $more, $content, true);
+	}
+
+	/**
+	 * @param string $caption
+	 * @param string $hTag
+	 * @return string
+	 * @throws Exception
+	 */
+	public function getCaption($caption, $hTag = 'h3')
+	{
+//		$al = AutoLoad::getInstance();
+		$slug = URL::friendlyURL($caption);
+		return '
+			<' . $hTag . ' id="' . $slug . '">' .
+			$caption .
+			'</' . $hTag . '>';
 	}
 
 	public function encloseInToggle($content, $title, $height = 'auto', $isOpen = null, $tag = 'h3')
@@ -163,7 +216,7 @@ abstract class Controller extends SimpleController
 			$this->index->addJQuery();
 			$this->index->addJS($nadlibPath . 'js/showHide.js');
 			$this->index->addJS($nadlibPath . 'js/encloseInToggle.js');
-			$id = uniqid();
+			$id = uniqid('', true);
 
 			$content = '<div class="encloseIn">
 				<' . $tag . '>
@@ -181,9 +234,52 @@ abstract class Controller extends SimpleController
 		return $content;
 	}
 
+	public function performAction($action = null)
+	{
+		$content = '';
+		if ($this->request->isCLI()) {
+			//debug($_SERVER['argv']);
+			$reqAction = ifsetor($_SERVER['argv'][2]);    // it was 1
+		} else {
+			$reqAction = $this->request->getTrim('action');
+		}
+//		debug($reqAction);
+		$method = $action
+			?: (!empty($reqAction) ? $reqAction : 'index');
+		if ($method) {
+			$method .= 'Action';        // ZendFramework style
+//			debug($method, method_exists($this, $method));
+
+			if ($proxy = $this->request->getTrim('proxy')) {
+				$proxy = new $proxy($this);
+			} else {
+				$proxy = $this;
+			}
+
+			if (method_exists($proxy, $method)) {
+				if ($this->request->isCLI()) {
+					$assoc = array_slice(ifsetor($_SERVER['argv'], []), 3);
+					$content = call_user_func_array([$proxy, $method], $assoc);
+				} else {
+					$caller = new MarshalParams($proxy);
+					$content = $caller->call($method);
+				}
+			} else {
+				// other classes except main controller may result in multiple messages
+//				Index::getInstance()->message('Action "'.$method.'" does not exist in class "'.get_class($this).'".');
+			}
+		}
+		return $content;
+	}
+
 	public function preventDefault()
 	{
 		$this->noRender = true;
+	}
+
+	public function wrapInDiv($content, $className = '')
+	{
+		return ['<div class="'.$className.'">', $content, '</div>'];
 	}
 
 	/**
@@ -211,12 +307,18 @@ abstract class Controller extends SimpleController
 		$content = '';
 		foreach ($elements as $html) {
 			$html = $this->s($html);
-			$content .= '<div class="flex-box">' . $html . '</div>';
+			$content .= '<div class="flex-box flex-equal">' . $html . '</div>';
 		}
-		$content = '<div class="display-box">' . $content . '</div>';
-		return $content;
+		return '<div class="display-box">' . $content . '</div>';
 	}
 
+	/**
+	 * Commented to allow get_class_methods() to return false
+	 * @return string
+	 */
+	//function getMenuSuffix() {
+	//	return '';
+	//}
 	public function inEqualColumnsHTML5()
 	{
 		$this->index->addCSS(AutoLoad::getInstance()->nadlibFromDocRoot . 'CSS/display-box.css');
@@ -247,6 +349,13 @@ abstract class Controller extends SimpleController
 		return $content;
 	}
 
+	/**
+	 * Commented to allow get_class_methods() to return false
+	 * @return string
+	 */
+	//function getMenuSuffix() {
+	//	return '';
+	//}
 	/**
 	 * Wraps all elements in <div class="column">|</div>
 	 * Use HTMLTag to do manual wrapping
@@ -287,13 +396,7 @@ abstract class Controller extends SimpleController
 		return $content;
 	}
 
-	/**
-	 * Commented to allow get_class_methods() to return false
-	 * @return string
-	 */
-	//function getMenuSuffix() {
-	//	return '';
-	//}
+
 
 	public function sidebar()
 	{
@@ -340,37 +443,16 @@ abstract class Controller extends SimpleController
 		$this->request->set('ajax', 1);
 	}
 
-	public static function link($text = null, array $params = [])
+	public function script($file)
 	{
-		return new HTMLTag('a', [
-			'href' => static::href($params)
-		], $text ?: static::class);
+		$mtime = filemtime($file);
+		$file .= '?' . $mtime;
+		return '<script src="' . $file . '" type="text/javascript"></script>';
 	}
 
-	public static function href(array $params = [])
+	public function log($action, ...$data)
 	{
-		$url = static::class;
-		if ($params) {
-			$url .= '?' . http_build_query($params);
-		}
-		return $url;
-	}
-
-	/**
-	 * @param string $caption
-	 * @param string $hTag
-	 * @return string
-	 * @throws Exception
-	 */
-	public function getCaption($caption, $hTag = 'h3')
-	{
-//		$al = AutoLoad::getInstance();
-		$slug = URL::friendlyURL($caption);
-		$content = '
-			<' . $hTag . ' id="' . $slug . '">' .
-			$caption .
-			'</' . $hTag . '>';
-		return $content;
+		$this->log[] = new LogEntry($action, $data);
 	}
 
 	/**

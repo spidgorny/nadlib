@@ -10,15 +10,17 @@ if (!defined('DEVELOPMENT')) {
  * Date: 23.11.2016
  * Time: 11:45
  */
-class ArrayFunctionsTest extends PHPUnit\Framework\TestCase {
+class ArrayFunctionsTest extends PHPUnit\Framework\TestCase
+{
 
-	function test_unique_multidim_array_thru() {
+	public function test_unique_multidim_array_thru()
+	{
 		$fixture = [
 			'a' => 'b',
 			'c' => 'b', // del
 			'e' => [
 				'a' => 'b',
-				'b' => 'b',	// del
+				'b' => 'b',  // del
 			],
 		];
 		$unique = unique_multidim_array_thru($fixture);
@@ -29,6 +31,18 @@ class ArrayFunctionsTest extends PHPUnit\Framework\TestCase {
 				'a' => 'b',
 			]
 		], $unique);
+	}
+
+	function test_array_find()
+	{
+		$data = [
+			'asd',
+			'qwe',
+			'123',
+		];
+		$this->assertEquals('qwe', array_find(static function ($line) {
+			return str_startsWith($line, 'q');
+		}, $data));
 	}
 
 }

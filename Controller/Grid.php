@@ -2,39 +2,34 @@
 
 use nadlib\Controller\Filter;
 
-abstract class Grid extends AppController
+abstract class Grid extends AppControllerBE
 {
-
-	/**
-	 * @var Collection
-	 */
-	protected $collection;
 
 	/**
 	 * @var OODBase
 	 */
 	public $model;
-
 	/**
 	 * @var Filter
 	 */
 	public $filter;
-
 	/**
 	 * Defines which columns are visible in a table
 	 * @var VisibleColumns
 	 */
 	public $columns;
-
 	/**
 	 * @var array ['sortBy'], ['sortOrder']
 	 */
 	public $sort = [];
-
 	/**
 	 * @var PageSize
 	 */
 	public $pageSize;
+	/**
+	 * @var Collection
+	 */
+	protected $collection;
 
 	public function __construct()
 	{
@@ -51,6 +46,42 @@ abstract class Grid extends AppController
 		if ($allowEdit) {
 			$this->setFilter($cn);
 		}
+	}
+
+	/**
+	 * Only get filter if it's not need to be cleared
+	 * @param string $cn
+	 * @throws LoginException
+	 */
+	public function setFilter($cn = __CLASS__)
+	{
+		$this->filter = new Filter();
+//		$action = $this->request->getTrim('action');
+//		$this->log(__METHOD__, 'isSubmit', $this->request->isSubmit());
+//		$this->log(__METHOD__, 'GET filter=', $this->request->getArray('filter'));
+		if ($this->request->isSubmit() || $this->request->getArray('filter')) {
+			$this->filter->setRequest($this->request->getArray('filter'));
+		}
+		if (method_exists($this->user, 'getPref')) {
+			$prefFilter = $this->user->getPref('Filter.' . $cn);
+//				debug($prefFilter);
+			if ($prefFilter) {
+//				$this->log(__METHOD__, 'setPreferences', $prefFilter);
+				$this->filter->setPreferences($prefFilter);
+			}
+		}
+//			d($cn, $this->filter,
+//				array_keys($_SESSION), gettypes($_SESSION),
+//				$_SESSION
+//			);
+		//debug(get_class($this), 'Filter.'.$cn, $this->filter);
+		0 && debug([
+			'controller' => $this->request->getControllerString(),
+			'this' => get_class($this),
+			//'allowEdit' => $allowEdit,
+			'this->filter' => $this->filter,
+			'_REQUEST' => $_REQUEST,
+		]);
 	}
 
 	public function initPageSize()
@@ -103,42 +134,6 @@ abstract class Grid extends AppController
 		if ($subname) {
 			$this->request->set($subname, $r->getAll());
 		}
-	}
-
-	/**
-	 * Only get filter if it's not need to be cleared
-	 * @param string $cn
-	 * @throws LoginException
-	 */
-	public function setFilter($cn = __CLASS__)
-	{
-		$this->filter = new Filter();
-//		$action = $this->request->getTrim('action');
-//		$this->log(__METHOD__, 'isSubmit', $this->request->isSubmit());
-//		$this->log(__METHOD__, 'GET filter=', $this->request->getArray('filter'));
-		if ($this->request->isSubmit() || $this->request->getArray('filter')) {
-			$this->filter->setRequest($this->request->getArray('filter'));
-		}
-		if (method_exists($this->user, 'getPref')) {
-			$prefFilter = $this->user->getPref('Filter.' . $cn);
-//				debug($prefFilter);
-			if ($prefFilter) {
-//				$this->log(__METHOD__, 'setPreferences', $prefFilter);
-				$this->filter->setPreferences($prefFilter);
-			}
-		}
-//			d($cn, $this->filter,
-//				array_keys($_SESSION), gettypes($_SESSION),
-//				$_SESSION
-//			);
-		//debug(get_class($this), 'Filter.'.$cn, $this->filter);
-		0 && debug([
-			'controller' => $this->request->getControllerString(),
-			'this' => get_class($this),
-			//'allowEdit' => $allowEdit,
-			'this->filter' => $this->filter,
-			'_REQUEST' => $_REQUEST,
-		]);
 	}
 
 	/**
@@ -263,7 +258,7 @@ abstract class Grid extends AppController
 
 	/**
 	 * @param string $cn
-	 * @param boolean $allowEdit
+	 * @param bool $allowEdit
 	 * @throws LoginException
 	 */
 	public function setColumns($cn, $allowEdit)

@@ -3,25 +3,13 @@
 /**
  * General HTML Tag representation.
  */
-
 class HTMLTag implements ArrayAccess, ToStringable
 {
 	public $tag;
 	public $attr = [];
 	public $content;
-	public $isHTML = FALSE;
+	public $isHTML = false;
 	public $closingTag = true;
-
-	public static function key($candidate)
-	{
-		$key = $candidate;
-		$key = str_replace('<', 'lt', $key);
-		$key = str_replace('>', 'gt', $key);
-		if (strlen($key) && is_numeric($key[0])) {
-			$key = '_' . $key;
-		}
-		return $key;
-	}
 
 	public function __construct($tag, array $attr = [], $content = '', $isHTML = false)
 	{
@@ -29,6 +17,23 @@ class HTMLTag implements ArrayAccess, ToStringable
 		$this->attr = $attr;
 		$this->content = $content;
 		$this->isHTML = $isHTML;
+	}
+
+	public static function key($candidate)
+	{
+		$key = $candidate;
+		$key = str_replace('<', 'lt', $key);
+		$key = str_replace('>', 'gt', $key);
+		if ($key !== '' && is_numeric($key[0])) {
+			$key = '_' . $key;
+		}
+		return $key;
+	}
+
+	public static function __callStatic(string $name, array $arguments)
+	{
+		llog('HTMLTag', $name, $arguments);
+		return new static($name, $arguments[0], $arguments[1], $arguments[2]);
 	}
 
 	public static function div($content, array $param = [])
@@ -41,40 +46,9 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return new HTMLTag('span', $param, $content);
 	}
 
-	public function __toString()
+	public static function pre($content, array $param = [])
 	{
-		try {
-			return $this->render();
-		} catch (Exception $e) {
-			debug_pre_print_backtrace();
-			die($e->getMessage());
-		}
-	}
-
-	public function render()
-	{
-		if (is_array($this->content) || $this->content instanceof MergedContent) {
-			$content = MergedContent::mergeStringArrayRecursive($this->content);
-		} else {
-			$content = ($this->isHTML
-				|| $this->content instanceof HTMLTag
-				|| $this->content instanceof htmlString)
-				? $this->content
-				: htmlspecialchars($this->content, ENT_QUOTES);
-		}
-		$attribs = $this->renderAttr($this->attr);
-		$xmlClose = $this->closingTag ? '' : '/';
-		$tag = '<' . trim($this->tag . ' ' . $attribs) . $xmlClose . '>';
-		$tag .= $content;
-		if ($this->closingTag) {
-			$tag .= '</' . $this->tag . '>' . "\n";
-		}
-		return $tag;
-	}
-
-	public function getContent()
-	{
-		return $this->content;
+		return new HTMLTag('pre', $param, $content);
 	}
 
 	public static function renderAttr(array $attr)
@@ -137,7 +111,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 	public static function parse($str, $recursive = false)
 	{
 		$str = trim($str);
-		if (strlen($str) && $str[0] != '<') {
+		if ($str !== '' && $str[0] !== '<') {
 			return null;
 		}
 		preg_match('/^(<[^>]*>)(.*?)?(<\/[^>]*>)?$/m', $str, $matches);
@@ -172,58 +146,9 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return $obj;
 	}
 
-	public static function parseDOM($html)
-	{
-		$content = [];
-		if (is_string($html)) {
-			$doc = new DOMDocument();
-			$doc->loadHTML($html);
-			$doc = $doc->getElementsByTagName('body')->item(0);
-		} elseif ($html instanceof DOMElement) {
-			$doc = $html;
-		} else {
-			debug($html);
-			return $content;
-		}
-		/** @var DOMElement $child */
-		foreach ($doc->childNodes as $child) {
-			//echo gettype2($child), BR;
-			if ($child instanceof DOMElement) {
-				$attributes = [];
-				foreach ($child->attributes as $attribute_name => $attribute_node) {
-					/** @var DOMNode $attribute_node */
-					echo $attribute_name, ': ', typ($attribute_node), BR;
-					$attributes[$attribute_name] = $attribute_node->nodeValue;
-				}
-
-				//$hasChildNodes = $child->hasChildNodes();	// incl Text
-				$hasChildNodes = 0;
-				foreach ($child->childNodes as $node) {
-					if (!($node instanceof DOMText)) {
-						$hasChildNodes++;
-					}
-				}
-
-				if ($hasChildNodes) {
-					$content[] = new HTMLTag(
-						$child->tagName,
-						$attributes,
-						self::parseDOM($child));
-				} else {
-					$content[] = new HTMLTag(
-						$child->tagName,
-						$attributes,
-						$child->textContent
-					);
-				}
-			}
-		}
-		return $content;
-	}
-
 	/**
 	 * https://gist.github.com/rodneyrehm/3070128
-	 * @param string|array $text
+	 * @param string $text
 	 * @return array
 	 */
 	public static function parseAttributes($text)
@@ -251,6 +176,110 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return $attributes;
 	}
 
+	public static function parseDOM($html)
+	{
+		$content = [];
+		if (is_string($html)) {
+			$doc = new DOMDocument();
+			$doc->loadHTML($html);
+			$doc = $doc->getElementsByTagName('body')->item(0);
+		} elseif ($html instanceof DOMElement) {
+			$doc = $html;
+		} else {
+			debug($html);
+			return $content;
+		}
+		/** @var DOMElement $child */
+		foreach ($doc->childNodes as $child) {
+			//echo gettype2($child), BR;
+			if ($child instanceof DOMElement) {
+				$attributes = [];
+				foreach ($child->attributes as $attribute_name => $attribute_node) {
+					/** @var DOMNode $attribute_node */
+					echo $attribute_name, ': ', typ($attribute_node), BR;
+					$attributes[$attribute_name] = $attribute_node->nodeValue;
+				}
+
+				//$hasChildNodes = $child->hasChildNodes();	// incl Text
+				$hasChildNodes = 0;
+				foreach ($child->childNodes as $node) {
+					if (!($node instanceof DomText)) {
+						$hasChildNodes++;
+					}
+				}
+
+				if ($hasChildNodes) {
+					$content[] = new HTMLTag(
+						$child->tagName,
+						$attributes,
+						self::parseDOM($child));
+				} else {
+					$content[] = new HTMLTag(
+						$child->tagName,
+						$attributes,
+						$child->textContent
+					);
+				}
+			}
+		}
+		return $content;
+	}
+
+	public static function __set_state(array $properties)
+	{
+		$a = new static($properties['tag']);
+		foreach ($properties as $key => $val) {
+			$a->$key = $val;
+		}
+		return $a;
+	}
+
+	public static function a($href, $name, array $more = [], $isHTML = false)
+	{
+		return new self('a', ['href' => $href] + $more, $name, $isHTML);
+	}
+
+	public static function img($src, array $params = [])
+	{
+		return new self('img', ['src' => $src] + $params);
+	}
+
+	public function __toString()
+	{
+		try {
+			return $this->render();
+		} catch (Exception $e) {
+			debug_pre_print_backtrace();
+			die($e->getMessage());
+		}
+	}
+
+	public function render()
+	{
+		if (is_array($this->content) || $this->content instanceof MergedContent) {
+			$content = MergedContent::mergeStringArrayRecursive($this->content);
+		} else {
+			$content = ($this->isHTML
+				|| $this->content instanceof HTMLTag
+				|| $this->content instanceof HtmlString)
+				? $this->content
+				: htmlspecialchars($this->content, ENT_QUOTES);
+		}
+		$attribs = $this->renderAttr($this->attr);
+		$xmlClose = $this->closingTag ? '' : '/';
+		$tag = '<' . trim($this->tag . ' ' . $attribs) . $xmlClose . '>';
+		$tag .= $content;
+		if ($this->closingTag) {
+			$tag .= '</' . $this->tag . '>' . "\n";
+		}
+		return $tag;
+	}
+
+	public function getContent()
+	{
+		return $this->content;
+	}
+
 	public function offsetExists(mixed $offset): bool
 	{
 		return isset($this->attr[$offset]);
@@ -271,15 +300,6 @@ class HTMLTag implements ArrayAccess, ToStringable
 		unset($this->attr[$offset]);
 	}
 
-	public static function __set_state(array $properties)
-	{
-		$a = new static($properties['tag']);
-		foreach ($properties as $key => $val) {
-			$a->$key = $val;
-		}
-		return $a;
-	}
-
 	public function getHash($length = null)
 	{
 		$hash = spl_object_hash($this);
@@ -288,16 +308,6 @@ class HTMLTag implements ArrayAccess, ToStringable
 			$hash = substr($hash, 0, $length);
 		}
 		return '#' . $hash;
-	}
-
-	public static function a($href, $name, array $more = [], $isHTML = false)
-	{
-		return new self('a', ['href' => $href] + $more, $name, $isHTML);
-	}
-
-	public static function img($src, array $params = [])
-	{
-		return new self('img', ['src' => $src] + $params);
 	}
 
 	public function cli()

@@ -2,13 +2,10 @@
 
 abstract class UserBase extends OODBase implements UserModelInterface
 {
-	public $table = 'user';
-
-	public $idField = 'id';
-
-	protected $prefs = [];
-
 	public static $instances = [];
+	public $table = 'user';
+	public $idField = 'id';
+	protected $prefs = [];
 
 	/**
 	 * $id is intentionally not = NULL in order to force using getInstance()
@@ -51,8 +48,7 @@ abstract class UserBase extends OODBase implements UserModelInterface
 	 *
 	 * @param string $login
 	 * @param string $password - plain text password (no, it's md5'ed already)
-	 *
-	 * @return boolean
+	 * @return bool
 	 * @throws Exception
 	 */
 	public function checkPassword($login, $password)
@@ -61,7 +57,7 @@ abstract class UserBase extends OODBase implements UserModelInterface
 		//debug($query);
 		$row = $this->db->fetchAssoc($query);
 		//debug(array($login, $password, $row['password']));
-		$ok = $row['password'] && $row['password'] == $password;
+		$ok = $row['password'] && $row['password'] === $password;
 		if ($ok) {
 			$this->init($row);
 		}
@@ -82,11 +78,11 @@ abstract class UserBase extends OODBase implements UserModelInterface
 		if ($data['email']) {
 			$this->findInDB(['email' => $data['email']]);
 			if ($this->id) {
-				throw new Exception('Such e-mail is already used. <a href="?c=ForgotPassword">Forgot password?</a>');
-			} else {
-				//$data['password'] = md5($data['password']);
-				$this->insertNoUserCheck($data);
+				throw new RuntimeException('Such e-mail is already used. <a href="?c=ForgotPassword">Forgot password?</a>');
 			}
+
+//$data['password'] = md5($data['password']);
+			$this->insertNoUserCheck($data);
 		} else {
 			$index = Index::getInstance();
 			debug(__METHOD__);
@@ -156,11 +152,10 @@ abstract class UserBase extends OODBase implements UserModelInterface
 
 	public function getHTML()
 	{
-		$content = '<div class="user">
+		return '<div class="user">
 			<img src="' . $this->getGravatarURL(24) . '" class="gravatar24">' .
 			$this->getName() .
 			'</div>';
-		return $content;
 	}
 
 	public function getGravatarURL($gravatarSize = 50)
@@ -171,6 +166,6 @@ abstract class UserBase extends OODBase implements UserModelInterface
 						ifsetor($this->data['email'])
 					)
 				)
-			) . '?s=' . intval($gravatarSize);
+			) . '?s=' . (int)$gravatarSize;
 	}
 }

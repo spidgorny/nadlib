@@ -1,3 +1,5 @@
 <?php
 
-class BadMethodCallException extends LogicException {}
+class BadMethodCallException extends BadFunctionCallException
+{
+}

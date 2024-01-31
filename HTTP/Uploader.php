@@ -1,5 +1,7 @@
 <?php
 
+use League\Flysystem\Filesystem;
+
 /**
  * Class Uploader
  * General validating uploader with error handling
@@ -114,7 +116,7 @@ post_max_size: ' . $post_max_size . '">' .
 				</td></tr>
 
 		        <tr><td><nobr>Temp folder:</nobr></td>
-		        <td>' . $tmpDir . '</td></tr>
+		        <td title="' . $tmpDir . '">' . basename($tmpDir) . '</td></tr>
 		    </table>
 		</div>
 		';
@@ -219,7 +221,7 @@ post_max_size: ' . $post_max_size . '">' .
 
 	/**
 	 * @param $from
-	 * @param \League\Flysystem\Filesystem $path
+	 * @param Filesystem $path
 	 * @param null $fileName
 	 * @return bool
 	 * @throws UploadException
@@ -293,9 +295,8 @@ post_max_size: ' . $post_max_size . '">' .
 			$uf['mime'] = $mime;
 			//debug($mime, $this->allowedMime);
 			return in_array($mime, $this->allowedMime);
-		} else {
-			return true;
 		}
+		return true;
 	}
 
 	/**

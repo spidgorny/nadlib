@@ -8,9 +8,9 @@
 
 namespace nadlib\Test;
 
-use OODBase;
+use PHPUnit\Framework\TestCase;
 
-class OODBaseTest extends \PHPUnit\Framework\TestCase
+class OODBaseTest extends TestCase
 {
 
 	protected $sut;
@@ -36,6 +36,7 @@ class OODBaseTest extends \PHPUnit\Framework\TestCase
 		];
 		foreach ($set as $source => $expected) {
 //			echo $source, ' => ', $expected, BR;
+			$this->sut->data[$source] = $source;
 			$this->assertEquals($expected, $this->sut->getBool($source));
 		}
 	}

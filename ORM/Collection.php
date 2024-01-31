@@ -12,34 +12,12 @@ class Collection implements IteratorAggregate, ToStringable
 {
 
 	/**
-	 * In case of MSSQL it needs to be set from outside
-	 * @var DBInterface
-	 * @protected because it's visible in debug
-	 * use injection if you need to modify it
-	 */
-	protected $db;
-
-	/**
 	 * @var string
 	 */
 	public $table = __CLASS__;
-
 	public $idField = 'uid';
-
 	public $parentID = null;
-
-	protected $parentField = 'pid';
-
-	/**
-	 * Retrieved rows from DB
-	 * Protected in order to force usage of getData()
-	 * @var ArrayPlus|null
-	 * @note should not be |array because it's used as ArrayPlus
-	 */
-	protected $data;
-
 	public $thes = [];
-
 	public $titleColumn = 'title';
 
 	/**
@@ -60,131 +38,104 @@ class Collection implements IteratorAggregate, ToStringable
 	 * @var Pager|null
 	 */
 	public $pager;
-
 	/**
 	 * @var PageSize
 	 */
 	public $pageSize;
-
-	/**
-	 * objectify() stores objects generated from $this->data here
-	 * array of objects converted from $this->data // convert to public
-	 * @var array
-	 */
-	protected $members = [];
-
 	/**
 	 * objectify() without parameters will try this class name
 	 * Default is NULL in order to check whether it's set or not.
 	 * @var string
 	 */
 	public $itemClassName;
-
 	/**
 	 * SQL part
 	 * @var string
 	 */
 	public $orderBy = "ORDER BY id";
-
 	/**
 	 * getQuery() stores the final query here for debug
 	 * is null until initialized
 	 * @var string|null
 	 */
 	public $query;
-
 	/**
 	 * Is NULL until it's set to 0 or more
-	 * @var integer Total amount of data retrieved (not limited by Pager)
+	 * @var int Total amount of data retrieved (not limited by Pager)
 	 */
 	public $count = null;
-
-	/**
-	 * Should it be here? Belongs to the controller?
-	 * @var Request
-	 */
-	protected $request;
-
 	/**
 	 * Lists columns for the SQL query
 	 * @var string
 	 * @default "DISTINCT table.*"
 	 */
 	public $select;
-
-	/**
-	 * @var Controller
-	 */
-	protected $controller;
-
 	public $doCache = true;
-
 	/**
 	 * @var array
 	 */
 	public $log = [];
-
 	/**
 	 * HTMLFormTable
 	 * @var array
 	 */
 	public $desc = [];
-
-	/**
-	 * @var CollectionView
-	 */
-	protected $view;
-
 	/**
 	 * @var callable
 	 */
 	public $prepareRenderRow;
-
-	/**
-	 * @var bool - if preprocessData() is called
-	 */
-	protected $processed = false;
-
 	/**
 	 * Gives warnings if 'id' column in the data is not set.
 	 * Potentially saves you from trouble futher down the processing.
 	 * @var bool
 	 */
 	public $allowMerge = false;
-
+	public $objectifyByInstance = false;
+	/**
+	 * In case of MSSQL it needs to be set from outside
+	 * @var DBInterface
+	 * @protected because it's visible in debug
+	 * use injection if you need to modify it
+	 */
+	protected $db;
+	protected $parentField = 'pid';
+	/**
+	 * Retrieved rows from DB
+	 * Protected in order to force usage of getData()
+	 * @var ArrayPlus|null
+	 * @note should not be |array because it's used as ArrayPlus
+	 */
+	protected $data;
+	/**
+	 * objectify() stores objects generated from $this->data here
+	 * array of objects converted from $this->data // convert to public
+	 * @var array
+	 */
+	protected $members = [];
+	/**
+	 * Should it be here? Belongs to the controller?
+	 * @var Request
+	 */
+	protected $request;
+	/**
+	 * @var Controller
+	 */
+	protected $controller;
+	/**
+	 * @var CollectionView
+	 */
+	protected $view;
+	/**
+	 * @var bool - if preprocessData() is called
+	 */
+	protected $processed = false;
 	/**
 	 * @var LoggerInterface
 	 */
 	protected $logger;
 
-	public $objectifyByInstance = false;
-
 	/**
-	 * @param DBInterface $db
-	 * @param string $table
-	 * @param array $where
-	 * @param string $orderBy
-	 * @return Collection
-	 * @throws Exception
-	 */
-	public static function createForTable(DBInterface $db, $table, array $where = [], $orderBy = '')
-	{
-		$c = new self();
-		$c->db = $db;
-		$c->table = $table;
-		$c->where = $where;
-		$c->orderBy = $orderBy;
-		/** @var DBLayerBase $db */
-		//$db = Config::getInstance()->getDB();
-		$firstWord = SQLBuilder::getFirstWord($c->table);
-		$firstWord = $db->quoteKey($firstWord);
-		$c->select = ' ' . $firstWord . '.*';
-		assert($db === $c->db);
-		return $c;
-	}
-
-	/**
-	 * @param integer /-1 $pid
+	 * @param int /-1 $pid
 	 *        if -1 - will not retrieve data from DB
 	 *        if 00 - will retrieve all data
 	 *        if >0 - will retrieve data where PID = $pid
@@ -261,6 +212,7 @@ class Collection implements IteratorAggregate, ToStringable
 
 	public function log($action, $data = [])
 	{
+//		llog($action, $data);
 		if ($this->logger) {
 			if (!is_array($data)) {
 				$data = ['data' => $data];
@@ -316,6 +268,32 @@ class Collection implements IteratorAggregate, ToStringable
 	}
 
 	/**
+	 * A function to fake the data as if it was retrieved from DB
+	 * @param $data array|ArrayPlus
+	 */
+	public function setData($data)
+	{
+		$this->log(get_class($this) . '::' . __FUNCTION__ . '(' . count($data) . ')');
+		$this->log(__METHOD__, ['from' => Debug::getCaller(2)]);
+		//debug_pre_print_backtrace();
+		//$this->log(__METHOD__, get_call_stack());
+		if ($data instanceof ArrayPlus) {
+			$this->data = $data;    // preserve sorting
+		} else {
+			$this->data = ArrayPlus::create((array)$data);
+		}
+		// PROBLEM! This is supposed to be the total amount
+		// Don't uncomment
+		//$this->count = count($this->data);
+		$this->count = __METHOD__;    // we need to disable getCount()
+
+		// this is needed to not retrieve the data again
+		// after it was set (see $this->getData()
+		// which is called in $this->render())
+		$this->query = $this->query ?: __METHOD__;
+	}
+
+	/**
 	 * id => -1 will prevent data retrieval
 	 * @throws DatabaseException
 	 * @throws MustBeStringException
@@ -341,40 +319,35 @@ class Collection implements IteratorAggregate, ToStringable
 		$this->log(__METHOD__, 'rows: ' . count($this->data));
 	}
 
-	public function getQueryWithLimit()
-	{
-		$cq = $this->getCollectionQuery();
-		return $cq->getQueryWithLimit();
-	}
-
 	/**
-	 * Don't update $this->query otherwise getData() will think we have
-	 * retrieved nothing.
-	 * Count can be a heavy operation, we should only query the count once.
-	 * But if the query changes, the count needs to be updated.
-	 * @return int
-	 * @throws DatabaseException
-	 * @throws MustBeStringException
+	 * @return CollectionQuery
 	 */
-	public function getCount()
+	public function getCollectionQuery(): CollectionQuery
 	{
-		$this->log(get_class($this) . '::' . __FUNCTION__, ['original', $this->count]);
-//		$this->log('this->query', $this->query.'');
-//		$this->log('getQueryWithLimit', $this->getQueryWithLimit().'');
-		$queryIsTheSame = ($this->query . '') === ($this->getQueryWithLimit() . '');
-		if ($this->count !== null && $queryIsTheSame) {
-			return intval($this->count);
+		static $cq = [];
+		$hash = implode(':', [
+			spl_object_hash($this),
+			spl_object_hash($this->db),
+			sha1(json_encode($this->table)),
+			sha1(json_encode($this->join)),
+			sha1(json_encode($this->where)),
+			sha1(json_encode($this->orderBy)),
+			sha1(json_encode($this->select)),
+			$this->pager ? spl_object_hash($this->pager) : '',
+		]);
+		$this->log(__METHOD__, substr(sha1($hash), 0, 6) . json_encode($this->where));
+		if (!ifsetor($cq[$hash])) {
+			$cq[$hash] = new CollectionQuery(
+				$this->db,
+				$this->table,
+				$this->join,
+				$this->where,
+				$this->orderBy,
+				$this->select,
+				$this->pager
+			);
 		}
-		$this->query = $this->getQueryWithLimit();     // will init pager
-		if ($this->pager && $this->pager->numberOfRecords) {
-			$this->count = $this->pager->numberOfRecords;
-		} else {
-			$cq = $this->getCollectionQuery();
-			$counter = new SQLCountQuery($cq);
-			$this->count = $counter->getCount();
-		}
-		$this->log(get_class($this) . '::' . __FUNCTION__, ['exit', $this->count]);
-		return intval($this->count);
+		return $cq[$hash];
 	}
 
 	/**
@@ -407,6 +380,42 @@ class Collection implements IteratorAggregate, ToStringable
 	}
 
 	/**
+	 * Don't update $this->query otherwise getData() will think we have
+	 * retrieved nothing.
+	 * Count can be a heavy operation, we should only query the count once.
+	 * But if the query changes, the count needs to be updated.
+	 * @return int
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
+	 */
+	public function getCount()
+	{
+		$this->log(get_class($this) . '::' . __FUNCTION__, ['original', $this->count]);
+//		$this->log('this->query', $this->query.'');
+//		$this->log('getQueryWithLimit', $this->getQueryWithLimit().'');
+		$queryIsTheSame = ($this->query . '') === ($this->getQueryWithLimit() . '');
+		if ($this->count !== null && $queryIsTheSame) {
+			return intval($this->count);
+		}
+		$this->query = $this->getQueryWithLimit();     // will init pager
+		if ($this->pager && $this->pager->numberOfRecords) {
+			$this->count = $this->pager->numberOfRecords;
+		} else {
+			$cq = $this->getCollectionQuery();
+			$counter = new SQLCountQuery($cq);
+			$this->count = $counter->getCount();
+		}
+		$this->log(get_class($this) . '::' . __FUNCTION__, ['exit', $this->count]);
+		return intval($this->count);
+	}
+
+	public function getQueryWithLimit()
+	{
+		$cq = $this->getCollectionQuery();
+		return $cq->getQueryWithLimit();
+	}
+
+	/**
 	 * Override me to make changes
 	 * @param array $row
 	 * @return array
@@ -416,14 +425,72 @@ class Collection implements IteratorAggregate, ToStringable
 		return $row;
 	}
 
+	public function translateThes()
+	{
+		if (is_array($this->thes)) {
+			foreach ($this->thes as &$trans) {
+				if (is_string($trans) && $trans) {
+					$trans = __($trans);
+				}
+			}
+		}
+		//debug_pre_print_backtrace();
+	}
+
 	/**
+	 * @param DBInterface $db
+	 * @param string $table
+	 * @param array $where
+	 * @param string $orderBy
+	 * @return Collection
 	 * @return string[] - returns the slTable if not using Pager
 	 * @throws Exception
 	 */
-	public function render()
+	public static function createForTable(DBInterface $db, $table, array $where = [], $orderBy = '')
 	{
-		$view = $this->getView();
-		return $view->renderTable();
+		$c = new self();
+		$c->db = $db;
+		$c->table = $table;
+		$c->where = $where;
+		$c->orderBy = $orderBy;
+		/** @var DBLayerBase $db */
+		//$db = Config::getInstance()->getDB();
+		$firstWord = SQLBuilder::getFirstWord($c->table);
+		$firstWord = $db->quoteKey($firstWord);
+		$c->select = ' ' . $firstWord . '.*';
+		assert($db === $c->db);
+		return $c;
+	}
+
+	public static function hydrate($source)
+	{
+		$class = $source->class;
+		/** @var Collection $object */
+		$object = new $class();
+		$object->count = $source->count;
+		$memberClass = $object->itemClassName;
+		foreach ($source->members as $id => $m) {
+			$child = new $memberClass();
+			$child->id = $id;
+			$child->data = (array)$m->data;
+			$object->members[$id] = $child;
+		}
+		return $object;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getOptions()
+	{
+		$options = [];
+		//debug(get_class($this), $this->table, $this->titleColumn, $this->getCount());
+		foreach ($this->getProcessedData() as $row) {
+			//if ( !in_array($row[$this->idField], $blackList) ) {
+			$options[$row[$this->idField]] = $row[$this->titleColumn];
+			//}
+		}
+		return $options;
 	}
 
 	public function getProcessedData()
@@ -442,32 +509,6 @@ class Collection implements IteratorAggregate, ToStringable
 		return $this->data;
 	}
 
-	/**
-	 * A function to fake the data as if it was retrieved from DB
-	 * @param $data array|ArrayPlus
-	 */
-	public function setData($data)
-	{
-		$this->log(get_class($this) . '::' . __FUNCTION__ . '(' . count($data) . ')');
-		$this->log(__METHOD__, ['from' => Debug::getCaller(2)]);
-		//debug_pre_print_backtrace();
-		//$this->log(__METHOD__, get_call_stack());
-		if ($data instanceof ArrayPlus) {
-			$this->data = $data;    // preserve sorting
-		} else {
-			$this->data = ArrayPlus::create((array)$data);
-		}
-		// PROBLEM! This is supposed to be the total amount
-		// Don't uncomment
-		//$this->count = count($this->data);
-		$this->count = __METHOD__;    // we need to disable getCount()
-
-		// this is needed to not retrieve the data again
-		// after it was set (see $this->getData()
-		// which is called in $this->render())
-		$this->query = $this->query ?: __METHOD__;
-	}
-
 	public function prepareRenderRow(array $row)
 	{
 		if (is_callable($this->prepareRenderRow)) {
@@ -475,21 +516,6 @@ class Collection implements IteratorAggregate, ToStringable
 			$row = $closure($row);
 		}
 		return $row;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getOptions()
-	{
-		$options = [];
-		//debug(get_class($this), $this->table, $this->titleColumn, $this->getCount());
-		foreach ($this->getProcessedData() as $row) {
-			//if ( !in_array($row[$this->idField], $blackList) ) {
-			$options[$row[$this->idField]] = $row[$this->titleColumn];
-			//}
-		}
-		return $options;
 	}
 
 	/**
@@ -506,6 +532,40 @@ class Collection implements IteratorAggregate, ToStringable
 			$options[$obj->id] = $obj->getNameLink();
 		}
 		return $options;
+	}
+
+	/**
+	 * Will detect double-call and do nothing.
+	 *
+	 * @param string $class - required, but is supplied by the subclasses
+	 * @param bool $byInstance - will call getInstance() instead of "new"
+	 * @return object[]|OODBase[]
+	 * @throws Exception
+	 */
+	public function objectify($class = null, $byInstance = false)
+	{
+		$class = $class ?: $this->itemClassName;
+		if ($this->members) {
+			return $this->members;
+		}
+
+		$this->log(__METHOD__, ['class' => $class, 'instance' => $byInstance]);
+		$this->members = [];   // somehow necessary
+		foreach ($this->getData() as $row) {
+			$key = $row[$this->idField];
+			if ($byInstance) {
+				//$this->members[$key] = call_user_func_array(array($class, 'getInstance'), array($row));
+				$this->members[$key] = call_user_func($class . '::getInstance', $row);
+			} else {
+				$this->members[$key] = new $class($row);
+			}
+		}
+		return $this->members;
+	}
+
+	public function getObjects()
+	{
+		return collect($this->objectify());
 	}
 
 	/**
@@ -552,17 +612,16 @@ class Collection implements IteratorAggregate, ToStringable
 			foreach ($this->getProcessedData() as $id => $row) {
 				if ($this->itemClassName) {
 					$list[$id] = $this->renderListItem($row);
-				} else
-					if ($this->thes) {
-						$row = $this->prepareRenderRow($row);   // add link
-						$item = '';
-						foreach ($this->thes as $key => $_) {
-							$item .= $row[$key] . ' ';
-						}
-						$list[$id] = $item;
-					} else {
-						$list[$id] = $row[$this->titleColumn];
+				} elseif ($this->thes) {
+					$row = $this->prepareRenderRow($row);   // add link
+					$item = '';
+					foreach ($this->thes as $key => $_) {
+						$item .= $row[$key] . ' ';
 					}
+					$list[$id] = $item;
+				} else {
+					$list[$id] = $row[$this->titleColumn];
+				}
 			}
 			return new UL($list);
 		}
@@ -596,6 +655,16 @@ class Collection implements IteratorAggregate, ToStringable
 		return $content;
 	}
 
+	/**
+	 * @return string - returns the slTable if not using Pager
+	 * @throws Exception
+	 */
+	public function render()
+	{
+		$view = $this->getView();
+		return $view->renderTable();
+	}
+
 	public function getView()
 	{
 		if (!$this->view) {
@@ -616,47 +685,7 @@ class Collection implements IteratorAggregate, ToStringable
 	 */
 	public function renderMembers()
 	{
-		$view = $this->getView();
-		return $view->renderMembers();
-	}
-
-	public function translateThes()
-	{
-		if (is_array($this->thes)) {
-			foreach ($this->thes as &$trans) {
-				if (is_string($trans) && $trans) {
-					$trans = __($trans);
-				}
-			}
-		}
-		//debug_pre_print_backtrace();
-	}
-
-	/**
-	 * Will detect double-call and do nothing.
-	 *
-	 * @param string $class - required, but is supplied by the subclasses
-	 * @param bool $byInstance - will call getInstance() instead of "new"
-	 * @return object[]|OODBase[]
-	 * @throws Exception
-	 */
-	public function objectify($class = null, $byInstance = false)
-	{
-		$class = $class ? $class : $this->itemClassName;
-		if (!$this->members) {
-			$this->log(__METHOD__, ['class' => $class, 'instance' => $byInstance]);
-			$this->members = [];   // somehow necessary
-			foreach ($this->getData() as $row) {
-				$key = $row[$this->idField];
-				if ($byInstance) {
-					//$this->members[$key] = call_user_func_array(array($class, 'getInstance'), array($row));
-					$this->members[$key] = call_user_func($class . '::getInstance', $row);
-				} else {
-					$this->members[$key] = new $class($row);
-				}
-			}
-		}
-		return $this->members;
+		return $this->getView()->renderMembers();
 	}
 
 	public function objectifyAsPlus()
@@ -784,6 +813,17 @@ class Collection implements IteratorAggregate, ToStringable
 	}
 
 	/**
+	 * Make sure we re-query data from DB
+	 */
+	public function reset()
+	{
+		$this->count = null;
+		$this->query = null;
+		$this->data = null;
+		$this->members = null;
+	}
+
+	/**
 	 * @param object $obj
 	 * @return bool
 	 * @throws Exception
@@ -820,7 +860,7 @@ class Collection implements IteratorAggregate, ToStringable
 	public function setMembers(array $countries)
 	{
 		$this->members = $countries;
-		$this->count = sizeof($this->members);
+		$this->count = count($this->members);
 		$this->query = __METHOD__;
 
 		$this->data = ArrayPlus::create();
@@ -829,31 +869,19 @@ class Collection implements IteratorAggregate, ToStringable
 		}
 	}
 
-	/**
-	 * Make sure we re-query data from DB
-	 */
-	public function reset()
-	{
-		$this->count = null;
-		$this->query = null;
-		$this->data = null;
-		$this->members = null;
-	}
-
-	public function getIDs()
-	{
-		return $this->getData()->getKeys()->getData();
-	}
-
 	public function first()
 	{
-		//debug($this->getQuery());
 		return first($this->objectify());
 	}
 
 	public function containsID($id)
 	{
 		return in_array($id, $this->getIDs());
+	}
+
+	public function getIDs()
+	{
+		return $this->getData()->getKeys()->getData();
 	}
 
 	public function containsName($name)
@@ -871,22 +899,6 @@ class Collection implements IteratorAggregate, ToStringable
 		$this->db = $ms;
 	}
 
-	public static function hydrate($source)
-	{
-		$class = $source->class;
-		/** @var Collection $object */
-		$object = new $class();
-		$object->count = $source->count;
-		$memberClass = $object->itemClassName;
-		foreach ($source->members as $id => $m) {
-			$child = new $memberClass();
-			$child->id = $id;
-			$child->data = (array)$m->data;
-			$object->members[$id] = $child;
-		}
-		return $object;
-	}
-
 	public function unobjectify()
 	{
 		foreach ($this->objectify() as $i => $el) {
@@ -894,45 +906,14 @@ class Collection implements IteratorAggregate, ToStringable
 		}
 	}
 
-	public function setLogger($log)
-	{
-		$this->logger = $log;
-	}
-
 	public function getLogger()
 	{
 		return $this->logger;
 	}
 
-	/**
-	 * @return CollectionQuery
-	 */
-	public function getCollectionQuery(): CollectionQuery
+	public function setLogger($log)
 	{
-		static $cq = [];
-		$hash = implode(':', [
-			spl_object_hash($this),
-			spl_object_hash($this->db),
-			sha1(json_encode($this->table)),
-			sha1(json_encode($this->join)),
-			sha1(json_encode($this->where)),
-			sha1(json_encode($this->orderBy)),
-			sha1(json_encode($this->select)),
-			$this->pager ? spl_object_hash($this->pager) : '',
-		]);
-		$this->log(__METHOD__, substr(sha1($hash), 0, 6) . json_encode($this->where));
-		if (!ifsetor($cq[$hash])) {
-			$cq[$hash] = new CollectionQuery(
-				$this->db,
-				$this->table,
-				$this->join,
-				$this->where,
-				$this->orderBy,
-				$this->select,
-				$this->pager
-			);
-		}
-		return $cq[$hash];
+		$this->logger = $log;
 	}
 
 }

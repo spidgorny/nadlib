@@ -1,36 +1,42 @@
 <?php
 
-class ClosureCache {
+class ClosureCache
+{
 
-	static $closures;
+	static public $closures;
 
 	/**
 	 * @var callable
 	 */
-	var $function;
+	public $function;
 
-	var $result;
+	public $result;
 
-	protected function __construct(callable $function) {
+	protected function __construct(callable $function)
+	{
 		$this->function = $function;
 	}
 
-	function get() {
+	public function get()
+	{
 		if (!$this->result) {
 			$this->result = call_user_func($this->function);
 		}
 		return $this->result;
 	}
 
-	function __toString() {
-		return $this->get().'';
+	public function __toString()
+	{
+		return $this->get() . '';
 	}
 
-	function __invoke() {
+	public function __invoke()
+	{
 		return $this->get();
 	}
 
-	static function getInstance($key, callable $function) {
+	public static function getInstance($key, callable $function)
+	{
 		$hash = md5(json_encode($key));
 		if (isset(self::$closures[$hash])) {
 			return self::$closures[$hash];

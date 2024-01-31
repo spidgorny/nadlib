@@ -12,12 +12,12 @@ use spidgorny\nadlib\HTTP\URL;
 class AlterCharset extends AppControllerBE
 {
 
-	var $desired = 'utf8_general_ci';
+	public $desired = 'utf8_general_ci';
 
-	function render()
+	public function render()
 	{
 		$this->index->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . '/js/keepScrollPosition.js');
-		$content = $this->performAction();
+		$content = $this->performAction($this->detectAction());
 		if (!is_object($this->db)) {
 			debug($this->db);
 			return 'No db object';
@@ -42,14 +42,7 @@ class AlterCharset extends AppControllerBE
 		return $content;
 	}
 
-	function alterTableCharsetAction()
-	{
-		$table = $this->request->getTrim('table');
-		$query = "ALTER TABLE " . $table . " DEFAULT COLLATE = '" . $this->desired . "'";
-		$this->db->perform($query);
-	}
-
-	function renderTableColumns($table)
+	public function renderTableColumns($table)
 	{
 		$badList = [];
 		$columns = $this->db->getTableColumns($table);
@@ -110,14 +103,20 @@ class AlterCharset extends AppControllerBE
 		]);
 		//$s->generateThes();
 		//var_export($s->thes);
-		$content = $s;
-		return $content;
+		return $s;
+	}
+
+	public function alterTableCharsetAction()
+	{
+		$table = $this->request->getTrim('table');
+		$query = "ALTER TABLE " . $table . " DEFAULT COLLATE = '" . $this->desired . "'";
+		$this->db->perform($query);
 	}
 
 	/**
 	 * Possibly dangerous if we don't recreate the complete column definition as it was
 	 */
-	function alterColumnCharsetAction()
+	public function alterColumnCharsetAction()
 	{
 		$table = $this->request->getTrim('table');
 		$column = $this->request->getTrim('column');

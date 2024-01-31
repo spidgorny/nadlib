@@ -10,7 +10,7 @@ abstract class LocalLang
 	 * actual messages
 	 * @var array
 	 */
-	var $ll = [];
+	public $ll = [];
 
 	protected $defaultLang = 'en';
 
@@ -81,7 +81,7 @@ abstract class LocalLang
 			if ($this->areThereTranslationsFor($lang)) {
 				//debug($lang.' - '.sizeof($this->ll));
 				$this->lang = $lang;
-				$replace = TRUE;
+				$replace = true;
 				break;
 			}
 		}
@@ -107,7 +107,7 @@ abstract class LocalLang
 		return isset($this->ll[$lang]);
 	}
 
-	public static function getInstance($forceLang = NULL, $filename = NULL)
+	public static function getInstance($forceLang = null, $filename = null)
 	{
 		if (!self::$instance) {
 			self::$instance = new static($forceLang, $filename);
@@ -178,7 +178,7 @@ abstract class LocalLang
 		return $trans;
 	}
 
-	public function getEditLinkMaybe($text, $id = NULL, $class = 'untranslatedMessage')
+	public function getEditLinkMaybe($text, $id = null, $class = 'untranslatedMessage')
 	{
 		if ($this->editMode && $id) {
 			$trans = '<span class="' . $class . ' clickTranslate" rel="' . htmlspecialchars($id) . '">' . $text . '</span>';
@@ -187,7 +187,7 @@ abstract class LocalLang
 			$index->addJQuery();
 			$index->addJS($al->nadlibFromDocRoot . 'js/clickTranslate.js');
 			$index->addCSS($al->nadlibFromDocRoot . 'CSS/clickTranslate.css');
-		} else if ($this->indicateUntranslated) {
+		} elseif ($this->indicateUntranslated) {
 			$trans = '<span class="untranslatedMessage">[' . $text . ']</span>';
 		} else {
 			$trans = $text;
@@ -195,7 +195,7 @@ abstract class LocalLang
 		return $trans;
 	}
 
-	public abstract function saveMissingMessage($text);
+	abstract public function saveMissingMessage($text);
 
 	public function M($text)
 	{

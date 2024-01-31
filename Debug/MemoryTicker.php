@@ -1,10 +1,11 @@
 <?php
 
-class MemoryTicker extends Ticker {
+class MemoryTicker extends Ticker
+{
 
-	var $isFirstTick = true;
+	public $isFirstTick = true;
 
-	function tick()
+	public function tick()
 	{
 		if ($this->isFirstTick) {
 			$this->isFirstTick = false;
@@ -12,7 +13,7 @@ class MemoryTicker extends Ticker {
 		}
 		$mem = TaylorProfiler::getMemUsage();
 		if ($mem - $this->prevMemory > 0.1) {
-			error_log('Memory: '.$mem);
+			error_log('Memory: ' . $mem);
 			ob_start();
 			debug_print_backtrace();
 			$bt = ob_get_clean();

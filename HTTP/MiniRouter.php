@@ -22,19 +22,19 @@ class MiniRouter
 		$requestURL = new URL($_SERVER['REQUEST_URI']);
 		//debug($requestURL, $requestURL->getPath().'', is_file($requestURL->getPath()));
 		$staticPath = $requestURL->getPath();
-		llog('BasePath: '.$this->basePath.'');
-		llog('StaticPath: '.$staticPath.'');
+		llog('BasePath: ' . $this->basePath . '');
+		llog('StaticPath: ' . $staticPath . '');
 		if ($this->basePath) {
 			$last = basename($this->basePath);
-			llog('Basename: '.basename($this->basePath));
+			llog('Basename: ' . basename($this->basePath));
 			$staticPath->remove($last);
 		}
-		llog('StaticPath: '.$staticPath.'');
+		llog('StaticPath: ' . $staticPath . '');
 		if ($staticPath == '/') {
-			return null;	// default index controller
+			return null;  // default index controller
 		} elseif ($staticPath) {
 			// vendor/spidgorny/nadlib/HTTP
-			$fullPath = realpath(__DIR__ . '/../../../../' .$staticPath);
+			$fullPath = realpath(__DIR__ . '/../../../../' . $staticPath);
 //			llog($fullPath);
 			if (is_file($fullPath)) {
 //				llog(['fullPath' => $fullPath]);
@@ -46,15 +46,15 @@ class MiniRouter
 				$first = first($parts);
 				if ($first && !class_exists($first)) {
 					http_response_code(404);
-					header('X-Path: '.$fullPath);
+					header('X-Path: ' . $fullPath);
 					//echo 'Class '.$first.' not found';
 					return;
 				} else {
-					return $first;	// the class from the URL
+					return $first;  // the class from the URL
 				}
 			}
 		}
-		return $staticPath;	// true means PHP
+		return $staticPath;  // true means PHP
 	}
 
 }

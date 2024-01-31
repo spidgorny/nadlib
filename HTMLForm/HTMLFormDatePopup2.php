@@ -1,6 +1,7 @@
 <?php
 
-class HTMLFormDatePopup2 extends HTMLFormType {
+class HTMLFormDatePopup2 extends HTMLFormType
+{
 	/**
 	 * @var $form HTMLForm
 	 */
@@ -9,7 +10,7 @@ class HTMLFormDatePopup2 extends HTMLFormType {
 	protected $name;
 
 	/**
-	 * @var integer timestamp
+	 * @var int timestamp
 	 */
 	public $value;
 
@@ -17,7 +18,7 @@ class HTMLFormDatePopup2 extends HTMLFormType {
 
 	public $id;
 
-	function __construct(HTMLForm $form, $name, $value, array $desc = [
+	public function __construct(HTMLForm $form, $name, $value, array $desc = [
 		'phpFormat' => 'Y-m-d',
 	])
 	{
@@ -30,7 +31,7 @@ class HTMLFormDatePopup2 extends HTMLFormType {
 		$this->id = uniqid();
 	}
 
-	function setValue($value)
+	public function setValue($value)
 	{
 		if ($value instanceof Time) {
 			$this->value = $value->getTimestamp();
@@ -39,7 +40,7 @@ class HTMLFormDatePopup2 extends HTMLFormType {
 			if (-1 != $parse) {
 				$this->value = $parse;
 			} else {
-				throw new InvalidArgumentException('['.$value.'] is a date?');
+				throw new InvalidArgumentException('[' . $value . '] is a date?');
 			}
 		} else {
 			$this->value = $value;
@@ -47,11 +48,11 @@ class HTMLFormDatePopup2 extends HTMLFormType {
 //		debug(__METHOD__, $value, $this->value);
 	}
 
-	function render()
+	public function render()
 	{
-		$fullname = $this->form->getName($this->name, '', TRUE);
+		$fullname = $this->form->getName($this->name, '', true);
 		$printValue = $this->value
-			? date($this->desc['phpFormat'] ?: 'Y-m-d',  $this->value)
+			? date($this->desc['phpFormat'] ?: 'Y-m-d', $this->value)
 			: '';
 		$Ymd = $this->value
 			? date('Ymd', $this->value)
@@ -81,7 +82,7 @@ class HTMLFormDatePopup2 extends HTMLFormType {
 		return $content;
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		return $this->render() . '';
 	}

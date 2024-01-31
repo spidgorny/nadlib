@@ -1,17 +1,15 @@
 <?php
 
-class Lesser extends Controller
+class Lesser extends AppControllerBE
 {
-
-	public $layout = 'none';
-
-	protected $output = 'cache/merge.css';
 
 	/**
 	 * No auth needed
 	 * @var bool
 	 */
 	public static $public = true;
+	public $layout = 'none';
+	protected $output = 'cache/merge.css';
 
 	public function __construct()
 	{
@@ -37,13 +35,13 @@ class Lesser extends Controller
 			echo '#mkdir(', $cacheDir, ');' . "\n";
 			$ok = mkdir($cacheDir);
 			if (!$ok) {
-				throw new Exception('Cache dir not existing, can not be created. ' . $cacheDir);
+				throw new RuntimeException('Cache dir not existing, can not be created. ' . $cacheDir);
 			}
 		}
 		@set_time_limit(30);  // compiling bootstrap
 	}
 
-	function render()
+	public function render()
 	{
 		session_write_close();
 		//$less->importDir[] = '../../';
@@ -64,7 +62,7 @@ class Lesser extends Controller
 
 			if (!headers_sent()) {
 				header("Date: " . gmdate("D, d M Y H:i:s", time()) . " GMT");
-				header("Last-Modified: " . gmdate("D, d M Y H:i:s", time()) . " GMT");;
+				header("Last-Modified: " . gmdate("D, d M Y H:i:s", time()) . " GMT");
 				header("Expires: " . gmdate("D, d M Y H:i:s", time() + 60 * 60 * 24) . " GMT");
 				header('Pragma: cache');
 				header_remove('Cache-control');

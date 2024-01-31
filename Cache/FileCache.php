@@ -10,7 +10,7 @@ class FileCache
 	protected $folder = 'cache/';
 	protected $age = 86400; //60*60*24;
 
-	function __construct($age = NULL, $folder = 'cache/')
+	public function __construct($age = NULL, $folder = 'cache/')
 	{
 		if ($age) {
 			$this->age = $age;
@@ -23,12 +23,12 @@ class FileCache
 		}
 	}
 
-	function map($key)
+	public function map($key)
 	{
 		return $this->folder . md5($key) . '.cache';
 	}
 
-	function hasKey($key)
+	public function hasKey($key)
 	{
 		$f = $this->map($key);
 		$has = file_exists($f) && (time() - filemtime($f) < $this->age);
@@ -38,7 +38,7 @@ class FileCache
 		return $has;
 	}
 
-	function set($key, $val)
+	public function set($key, $val)
 	{
 		if (is_array($val)) {
 			//print_r($key);
@@ -56,7 +56,7 @@ class FileCache
 		}
 	}
 
-	function get($key, $default = null)
+	public function get($key, $default = null)
 	{
 		if ($this->hasKey($key)) {
 			$string = file_get_contents($this->map($key));

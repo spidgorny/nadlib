@@ -3,14 +3,14 @@
 class LocalLangSerialize extends LocalLang
 {
 
-	function __construct($forceLang = NULL, $filename = null)
+	public function __construct($forceLang = null, $filename = null)
 	{
 		parent::__construct($forceLang);
 		$data = file_get_contents($filename);
 		$this->ll = unserialize($data);
 	}
 
-	function saveMissingMessage($text)
+	public function saveMissingMessage($text)
 	{
 		// TODO: Implement saveMissingMessage() method.
 	}

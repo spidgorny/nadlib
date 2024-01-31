@@ -183,7 +183,7 @@ class HTMLFormTable extends HTMLForm
 		$this->stdout .= ifsetor($desc['beforeLabel']);
 		//debug($label);
 		assert(is_string($label));
-		$this->stdout .= '<label for="' . $elementID . '">' . $label . '</label>';
+		$this->stdout .= '<label for="' . $elementID . '" class="' . ($desc['labelClass']??'') . '">' . $label . '</label>';
 		if (!$withBR) {
 			$this->stdout .= '</td><td>';
 		}
@@ -320,7 +320,10 @@ class HTMLFormTable extends HTMLForm
 	 */
 	public function showTR(array $prefix, $fieldDesc, $path)
 	{
-		$this->stdout .= "<tr " . self::getAttrHTML($fieldDesc['TRmore'] ?? null) . ">";
+		//debug($fieldDesc);
+		if (!isset($fieldDesc['horisontal']) || !$fieldDesc['horisontal']) {
+			$this->stdout .= "<tr " . $this->getAttrHTML(isset($fieldDesc['TRmore']) ? $fieldDesc['TRmore'] : null) . ">";
+		}
 
 		if (isset($fieldDesc['table'])) {
 			$this->stdout .= '<td class="table">';
@@ -402,9 +405,7 @@ class HTMLFormTable extends HTMLForm
 
 		// checkboxes are shown in front of the label
 		if ($type === 'checkbox') {
-			//$this->stdout .= $newContent;
-			$fieldObj['label'] = $newContent . ' '
-				. $fieldObj['label'];
+			$fieldObj['label'] = $newContent . ' ' . $fieldObj['label'];
 			$newContent = '';
 		}
 		$this->showLabel($fieldObj, $fieldName);
@@ -429,7 +430,7 @@ class HTMLFormTable extends HTMLForm
 		$this->stdout .= ifsetor($desc['afterLabel']);
 
 		if (ifsetor($desc['error'])) {
-			$this->stdout .= '<div id="errorContainer[' . $this->getName($fieldName, '', TRUE) . ']"
+			$this->stdout .= '<div id="errorContainer[' . $this->getName($fieldName, '', true) . ']"
 			class="error ui-state-error alert-error alert-danger">';
 			$this->stdout .= $desc['error'];
 			$this->stdout .= '</div>';
@@ -527,7 +528,7 @@ class HTMLFormTable extends HTMLForm
 	 *
 	 * @param array $desc - Structure of the HTMLFormTable
 	 * @param array $assoc - Values in one of the supported formats.
-	 * @param boolean    ??? what's for?
+	 * @param bool    ??? what's for?
 	 * @return    array    HTMLFormTable structure.
 	 */
 	protected function fillValues(array $desc, array $assoc = null, $forceInsert = false)

@@ -1,8 +1,9 @@
 <?php
 
 /**
- * @property mixed prefix
- * @property string label
+ * @property mixed $prefix
+ * @property string $label
+ * @property string $name
  */
 class HTMLFormLabelInput extends HTMLFormInput
 {

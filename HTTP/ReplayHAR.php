@@ -5,25 +5,25 @@ use spidgorny\nadlib\HTTP\URL;
 class ReplayHAR implements Iterator
 {
 
-	var $file;
+	public $file;
 
-	var $har;
+	public $har;
 
-	var $request;
+	public $request;
 
-	function __construct($file)
+	public function __construct($file)
 	{
 		$this->file = $file;
 		$this->readHAR();
 	}
 
-	function readHAR()
+	public function readHAR()
 	{
 		$this->har = json_decode(file_get_contents($this->file));
 		$this->current();
 	}
 
-	function getURL()
+	public function getURL()
 	{
 		if (!$this->request) {
 			$this->readHAR();
@@ -34,7 +34,7 @@ class ReplayHAR implements Iterator
 		return $url;
 	}
 
-	function getURLGet()
+	public function getURLGet()
 	{
 		$url = $this->getURL();
 		$urlget = $url->getURLGet();
@@ -85,7 +85,7 @@ class ReplayHAR implements Iterator
 	/**
 	 * Checks if current position is valid
 	 * @link http://php.net/manual/en/iterator.valid.php
-	 * @return boolean The return value will be casted to boolean and then evaluated.
+	 * @return bool The return value will be casted to boolean and then evaluated.
 	 * Returns true on success or false on failure.
 	 * @since 5.0.0
 	 */

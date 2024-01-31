@@ -33,7 +33,7 @@ class PageSize extends Controller
 	/**
 	 * @var int - default for all instances
 	 */
-	static public $default = 20;
+	public static $default = 20;
 
 	public $log = [];
 
@@ -82,7 +82,7 @@ class PageSize extends Controller
 
 	/**
 	 * Returns the $this->selected value making sure it's not too big
-	 * @return integer
+	 * @return int
 	 */
 	public function get()
 	{

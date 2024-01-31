@@ -5,18 +5,34 @@
  * This behaves like a string.
  * But you can also access parts of the string separately.
  * Useful when some HTML content is generated in different parts.
- * Sometime you need to output the whole content,
+ * Sometimes you need to output the whole content,
  * sometimes you only need a part of it.
  * @see http://php.net/manual/en/class.arrayaccess.php#113865
  */
 class MergedContent implements ArrayAccess
 {
 
-	var $content = [];
+	public $content = [];
 
 	public function __construct(array $parts = [])
 	{
 		$this->content = $parts;
+	}
+
+	protected static function walkMerge($value, $key, &$combined = '')
+	{
+		$combined .= $value . "\n";
+	}
+
+	protected static function walkMergeArray($value, $key, &$combined)
+	{
+		$combined[] = $value;
+	}
+
+	public function __toString()
+	{
+//		debug_pre_print_backtrace();
+		return $this->getContent();
 	}
 
 	public function getContent()
@@ -24,10 +40,56 @@ class MergedContent implements ArrayAccess
 		return $this->mergeStringArrayRecursive($this->content);
 	}
 
-	public function __toString()
+	/**
+	 * @param string|string[] $render
+	 * @return string
+	 */
+	public static function mergeStringArrayRecursive($render)
 	{
-//		debug_pre_print_backtrace();
-		return $this->getContent();
+		TaylorProfiler::start(__METHOD__);
+		if (is_array($render)) {
+			$combined = '';
+			/*array_walk_recursive($render,
+				array('IndexBase', 'walkMerge'),
+				$combined); // must have &
+			*/
+
+			//$combined = array_merge_recursive($render);
+			//$combined = implode('', $combined);
+
+			$combinedA = new ArrayObject();
+			array_walk_recursive($render, [__CLASS__, 'walkMergeArray'], $combinedA);
+			$arrayOfObjects = $combinedA->getArrayCopy();
+			$sureStrings = self::stringify($arrayOfObjects);
+			$combined = implode('', $sureStrings);
+			$render = $combined;
+		} elseif (is_object($render)) {
+			try {
+				$render = $render . '';
+			} catch (ErrorException $e) {
+				debug_pre_print_backtrace();
+//				debug('Object of class ', get_class($render), 'could not be converted to string');
+//				debug($render);
+				$render = '?[' . get_class($render) . ']?';
+			}
+		} else {
+			$render = $render . '';    // just in case
+		}
+		TaylorProfiler::stop(__METHOD__);
+		return $render;
+	}
+
+	public static function stringify(array $objects)
+	{
+		foreach ($objects as &$element) {
+//			$debug = '-= ' . typ($element) . ' =-' . BR;
+			//echo $debug;
+			//$content .= $debug;
+			$element = is_object($element)
+				? $element . ''
+				: $element;
+		}
+		return $objects;
 	}
 
 	public function offsetExists(mixed $offset): bool
@@ -97,7 +159,7 @@ class MergedContent implements ArrayAccess
 	 *
 	 * @param string $key An data key to check for
 	 * @access public
-	 * @return boolean
+	 * @return bool
 	 * @abstracting ArrayAccess
 	 */
 	public function __isset($key)
@@ -120,68 +182,6 @@ class MergedContent implements ArrayAccess
 	{
 		debug('clear');
 		$this->content = [];
-	}
-
-	/**
-	 * @param string|string[] $render
-	 * @return string
-	 */
-	static function mergeStringArrayRecursive($render)
-	{
-		TaylorProfiler::start(__METHOD__);
-		if (is_array($render)) {
-			$combined = '';
-			/*array_walk_recursive($render,
-				array('IndexBase', 'walkMerge'),
-				$combined); // must have &
-			*/
-
-			//$combined = array_merge_recursive($render);
-			//$combined = implode('', $combined);
-
-			$combinedA = new ArrayObject();
-			array_walk_recursive($render, [__CLASS__, 'walkMergeArray'], $combinedA);
-			$arrayOfObjects = $combinedA->getArrayCopy();
-			$sureStrings = self::stringify($arrayOfObjects);
-			$combined = implode('', $sureStrings);
-			$render = $combined;
-		} elseif (is_object($render)) {
-			try {
-				$render = $render . '';
-			} catch (ErrorException $e) {
-				debug_pre_print_backtrace();
-//				debug('Object of class ', get_class($render), 'could not be converted to string');
-//				debug($render);
-				$render = '?[' . get_class($render) . ']?';
-			}
-		} else {
-			$render = $render . '';    // just in case
-		}
-		TaylorProfiler::stop(__METHOD__);
-		return $render;
-	}
-
-	public static function stringify(array $objects)
-	{
-		foreach ($objects as &$element) {
-//			$debug = '-= ' . typ($element) . ' =-' . BR;
-			//echo $debug;
-			//$content .= $debug;
-			$element = is_object($element)
-				? $element . ''
-				: $element;
-		}
-		return $objects;
-	}
-
-	protected static function walkMerge($value, $key, &$combined = '')
-	{
-		$combined .= $value . "\n";
-	}
-
-	protected static function walkMergeArray($value, $key, $combined)
-	{
-		$combined[] = $value;
 	}
 
 }

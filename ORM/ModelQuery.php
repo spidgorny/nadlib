@@ -6,22 +6,22 @@ class ModelQuery implements IteratorAggregate
 	/**
 	 * @var DBInterface
 	 */
-	var $db;
+	public $db;
 
 	/**
 	 * @var Model
 	 */
-	var $itemInstance;
+	public $itemInstance;
 
 	/**
 	 * @var string
 	 */
-	var $itemClassName;
+	public $itemClassName;
 
 	/**
 	 * @var array
 	 */
-	var $where = [];
+	public $where = [];
 
 	public $table;
 
@@ -75,7 +75,7 @@ class ModelQuery implements IteratorAggregate
 	/**
 	 * @return ArrayPlus|Traversable|Model[]
 	 */
-	function getIterator()
+	public function getIterator()
 	{
 		return $this->queryObjects();
 	}

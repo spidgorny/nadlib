@@ -3,28 +3,26 @@
 class ConfigView extends AppControllerBE
 {
 
+	public $file;
 	protected $prefix = __CLASS__;
-
 	protected $typeMap = [
 		'string' => 'input',
 		'boolean' => 'checkbox',
 		'integer' => 'input',
 	];
 
-	var $file;
-
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 		$this->file = dirname(__FILE__) . '/../../../class/config.yaml';
 		$this->file = str_replace('\\', '/', $this->file);
 	}
 
-	function render()
+	public function render()
 	{
 		$content = '';
 		if (file_exists($this->file)) {
-			$this->performAction();
+			$this->performAction($this->detectAction());
 			$data = Spyc::YAMLLoad($this->file);
 			//$content = getDebug($data);
 
@@ -47,7 +45,7 @@ class ConfigView extends AppControllerBE
 		return $content;
 	}
 
-	function renderFormArray(HTMLFormTable $f, $class, array $data)
+	public function renderFormArray(HTMLFormTable $f, $class, array $data)
 	{
 		$f->fieldset($class);
 		$desc = [];
@@ -60,7 +58,7 @@ class ConfigView extends AppControllerBE
 					'set0' => true,
 					'optional' => true,
 				];
-			} else if (is_array($val)) {
+			} elseif (is_array($val)) {
 				/*$desc[$class.'['.$key.']'] = array(
 					'type' => 'html',
 					'code' => getDebug($val),

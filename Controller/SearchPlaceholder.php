@@ -1,9 +1,9 @@
 <?php
 
-class SearchPlaceholder extends AppController
+class SearchPlaceholder extends AppControllerBE
 {
 
-	var $ajaxLinks = [
+	public $ajaxLinks = [
 		'?c=SearchPlaceholder&action=sleep&time=1',
 		'?c=SearchPlaceholder&action=sleep&time=2',
 		'?c=SearchPlaceholder&action=sleep&time=3',
@@ -16,16 +16,16 @@ class SearchPlaceholder extends AppController
 		'?c=SearchPlaceholder&action=sleep&time=10',
 	];
 
-	function render()
+	public function render()
 	{
-		$content = $this->performAction();
+		$content = $this->performAction($this->detectAction());
 		if (!$content) {
 			$content .= $this->renderProgressBar();
 		}
 		return $content;
 	}
 
-	function renderProgressBar()
+	public function renderProgressBar()
 	{
 		$pb = new ProgressBar(1);
 		$pb->destruct100 = false;
@@ -44,7 +44,7 @@ class SearchPlaceholder extends AppController
 		return $content;
 	}
 
-	function sleepAction()
+	public function sleepAction()
 	{
 		sleep(1);
 		$time = $this->request->getInt('time');

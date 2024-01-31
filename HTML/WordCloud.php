@@ -25,8 +25,8 @@
 
 class WordCloud
 {
-	var $version = '2.0';
-	var $wordsArray = [];
+	public $version = '2.0';
+	public $wordsArray = [];
 	/**
 	 * @var array
 	 */

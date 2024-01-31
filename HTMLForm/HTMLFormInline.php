@@ -3,7 +3,7 @@
 class HTMLFormInline extends HTMLFormTable
 {
 
-	function s($content)
+	public function s($content)
 	{
 		return MergedContent::mergeStringArrayRecursive($content);
 	}
@@ -13,12 +13,12 @@ class HTMLFormInline extends HTMLFormTable
 		return htmlspecialchars($this->s($content));
 	}
 
-	function mainFormStart()
+	public function mainFormStart()
 	{
 		$this->stdout .= '';
 	}
 
-	function mainFormEnd()
+	public function mainFormEnd()
 	{
 		$this->stdout .= '';
 	}
@@ -92,8 +92,8 @@ class HTMLFormInline extends HTMLFormTable
 		$content[] = $fieldObj->getContent();
 		if (ifsetor($desc['label'])) {
 			$content = [
-				'<label>'.PHP_EOL.
-				'<span>'.$this->e($desc['label']).'</span>', PHP_EOL,
+				'<label>' . PHP_EOL .
+				'<span>' . $this->e($desc['label']) . '</span>', PHP_EOL,
 				$content,
 				'</label>',
 				PHP_EOL
@@ -127,9 +127,9 @@ class HTMLFormInline extends HTMLFormTable
 			}
 			$type = ifsetor($desc['type']);
 			$sqlType = ifsetor($typeMap[$type], 'varchar');
-			$fields[] = $field.' '.$sqlType;
+			$fields[] = $field . ' ' . $sqlType;
 		}
-		return 'CREATE TABLE '.$table.' ('.implode(','.PHP_EOL, $fields).')';
+		return 'CREATE TABLE ' . $table . ' (' . implode(',' . PHP_EOL, $fields) . ')';
 	}
 
 }

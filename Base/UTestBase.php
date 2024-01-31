@@ -4,7 +4,7 @@
  * Class uTestBase
  * PHPUnit alternative
  */
-class uTestBase extends AppControllerBE
+class UTestBase extends AppControllerBE
 {
 
 	protected $start;
@@ -14,7 +14,7 @@ class uTestBase extends AppControllerBE
 	 * @var array
 	 */
 	protected $stat = [
-		true  => 0,
+		true => 0,
 		false => 0,
 	];
 
@@ -53,18 +53,16 @@ class uTestBase extends AppControllerBE
 		}
 		$content .= '</table>';
 		//$content .= getDebug($this->stat);
-		$content = $this->encloseIn(new htmlString('&mu;Test'), $content);
+		$content = $this->encloseIn(new HtmlString('&mu;Test'), $content);
 		if ($GLOBALS['profiler']) {
 			$content .= $GLOBALS['profiler']->printTimers(1);
 		}
 		return $content;
 	}
 
-	public function get_var_dump($a)
+	public function assert($bool)
 	{
-		ob_start();
-		var_dump($a);
-		return ob_get_clean();
+		return $this->assertEqual($bool, true);
 	}
 
 	public function assertEqual($v1, $v2, $comment = '', $bool = null)
@@ -74,7 +72,7 @@ class uTestBase extends AppControllerBE
 		$i = 0;
 		$db = $dbt[$i];
 		$ignoreList = ['assert', 'assertEqual', 'assertNotEqual', 'assertTrue', 'assertGreaterThan'];
-		while (in_array($db['function'], $ignoreList)) {
+		while (in_array($db['function'], $ignoreList, true)) {
 			$db = $dbt[++$i];
 		}
 		//Debug::peek($db);
@@ -108,37 +106,37 @@ class uTestBase extends AppControllerBE
 		static $odd = 0;
 		if (Request::isCLI()) {
 			return $row;
-		} else {
-			$content = '<tr class="' . ($odd++ % 2 ? 'odd' : '') . '"><td>' . implode('</td><td>', $row) . '</td></tr>';
-			return $content;
 		}
+
+		return '<tr class="' . ($odd++ % 2 ? 'odd' : '') . '"><td>' . implode('</td><td>', $row) . '</td></tr>';
 	}
 
-	function assert($bool)
+	public function get_var_dump($a)
 	{
-		$content = $this->assertEqual($bool, true);
-		return $content;
+		ob_start();
+		var_dump($a);
+		return ob_get_clean();
 	}
 
-	function assertNotEqual($v1, $v2, $comment = null)
+	public function assertNotEqual($v1, $v2, $comment = null)
 	{
 		return $this->assertEqual($v1, $v2, $comment, $v1 !== $v2);
 	}
 
-	function test_OK()
+	public function test_OK()
 	{
 		return $this->assertEqual(1, 1, '1=1?');
 	}
 
-	function run()
+	public function run()
 	{
 		$tests = get_class_methods($this);
 		foreach ($tests as $function) {
-			if (substr($function, 0, 5) == 'test_') {
+			if (strpos($function, 'test_') === 0) {
 				echo '>> ', $function, BR;
 				$this->start = microtime(true);
 				ob_start();
-				$contentPlus = call_user_func([$this, $function]);
+				$contentPlus = $this->$function();
 				if ($contentPlus) {
 					echo '<< ', strip_tags(implode(TAB, $contentPlus)), BR;
 				}
@@ -151,7 +149,7 @@ class uTestBase extends AppControllerBE
 		}
 	}
 
-	function echoBQ($text)
+	public function echoBQ($text)
 	{
 		$lines = explode(PHP_EOL, $text);
 		foreach ($lines as &$line) {
@@ -160,14 +158,14 @@ class uTestBase extends AppControllerBE
 		}
 	}
 
-	function assertTrue($is)
-	{
-		return $this->assertEqual($is, $is);
-	}
-
-	function assertGreaterThan($must, $is)
+	public function assertGreaterThan($must, $is)
 	{
 		return $this->assertTrue($is >= $must);
+	}
+
+	public function assertTrue($is)
+	{
+		return $this->assertEqual($is, $is);
 	}
 
 }

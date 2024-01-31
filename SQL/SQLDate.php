@@ -1,21 +1,25 @@
 <?php
 
-class SQLDate extends Date {
+class SQLDate extends Date
+{
 
 	/**
 	 * @var Date
 	 */
 	protected $date;
 
-	function __construct(Date $d) {
+	public function __construct(Date $d)
+	{
 		$this->date = $d;
 	}
 
-	function __toString() {
+	public function __toString()
+	{
 		return $this->date->format('Y-m-d');
 	}
 
-	function debug() {
+	public function debug()
+	{
 		return $this->__toString();
 	}
 

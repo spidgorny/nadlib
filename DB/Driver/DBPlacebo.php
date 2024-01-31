@@ -40,21 +40,13 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 		return '';
 	}
 
-	public function fetchAll($res_or_query, $index_by_key = null)
-	{
-		$return = $this->returnNextTime;
-		//debug(__METHOD__, typ($this), $return);
-		$this->returnNextTime = [];
-		return $return;
-	}
-
 	public function __call($method, array $params)
 	{
 		if (method_exists($this->qb, $method)) {
 			return call_user_func_array([$this->qb, $method], $params);
 		} else {
-			debug(typ($this->qb));
-			throw new Exception($method . ' not found in dbPlacebo and SQLBuilder');
+//			debug(typ($this->qb));
+			throw new RuntimeException($method . ' not found in dbPlacebo and SQLBuilder');
 		}
 	}
 
@@ -152,6 +144,14 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 		$query = $this->qb->getSelectQuery($table, $where, $order, $selectPlus);
 		$this->lastQuery = $query;
 		return $query;
+	}
+
+	public function fetchAll($res_or_query, $index_by_key = null)
+	{
+		$return = $this->returnNextTime;
+		//debug(__METHOD__, typ($this), $return);
+		$this->returnNextTime = [];
+		return $return;
 	}
 
 	public function getSelectQuerySW($table, SQLWhere $where, $order = '', $selectPlus = '')

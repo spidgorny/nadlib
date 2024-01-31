@@ -1,6 +1,7 @@
 <?php
 
-class ErrorPage extends AppController {
+class ErrorPage extends AppControllerBE
+{
 
 	protected $http_status_codes = [
 		100 => "Continue",
@@ -46,7 +47,7 @@ class ErrorPage extends AppController {
 		420 => "Enhance Your Calm",
 		422 => "Unprocessable Entity",
 		423 => "Locked",
-		424 => "Failed Dependency, Method Failure",
+		424 => "Failed Dependency/Method Failure",
 		425 => "Unordered Collection",
 		426 => "Upgrade Required",
 		428 => "Precondition Required",
@@ -77,12 +78,12 @@ class ErrorPage extends AppController {
 		599 => "Network connect timeout error"
 	];
 
-	function render()
+	public function render()
 	{
 		//debug($_REQUEST);
 		$code = ifsetor($_REQUEST['code']);
-		return '<h3>HTTP Error #'.$code.'</h3>
- 		<p>'.ifsetor($this->http_status_codes[$code]).'</p>';
+		return '<h3>HTTP Error #' . $code . '</h3>
+ 		<p>' . ifsetor($this->http_status_codes[$code]) . '</p>';
 	}
 
 }

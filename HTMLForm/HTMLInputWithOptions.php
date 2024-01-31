@@ -30,12 +30,12 @@ class HTMLInputWithOptions implements HTMLFormFieldInterface
 	 */
 	public function render()
 	{
-		$content[] = '<input name="'.$this->field.'" 
-		list="'.$this->listName.'" 
-		value="'.htmlspecialchars($this->value).'">
-		<datalist id="'.$this->listName.'">';
+		$content[] = '<input name="' . $this->field . '" 
+		list="' . $this->listName . '" 
+		value="' . htmlspecialchars($this->value) . '">
+		<datalist id="' . $this->listName . '">';
 		foreach ($this->options as $option => $description) {
-			$content[] = '<option value="' . htmlspecialchars($option) . '">'.htmlspecialchars($description).'</option>';
+			$content[] = '<option value="' . htmlspecialchars($option) . '">' . htmlspecialchars($description) . '</option>';
 		}
 		$content[] = '</datalist>';
 		return $content;

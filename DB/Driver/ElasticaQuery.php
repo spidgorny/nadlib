@@ -1,66 +1,73 @@
 <?php
 
+use Elastica\Filter\BoolAnd;
+use Elastica\Query;
+use Elastica\Query\AbstractQuery;
+use Elastica\Query\MatchAll;
+use Elastica\Query\QueryString;
+use Elastica\Query\Term;
+
 class ElasticaQuery
 {
 
 	/**
 	 * @var Elastica\Client
 	 */
-	var $client;
+	public $client;
 
 	/**
 	 * @var string
 	 */
-	var $indexName;
+	public $indexName;
 
 	/**
 	 * @var Elastica\Query\MatchAll
 	 */
-	var $queryString;
+	public $queryString;
 
 	/**
 	 * @var Elastica\Filter\BoolAnd
 	 */
-	var $elasticaFilterAnd;
+	public $elasticaFilterAnd;
 
 	/**
 	 * @var Elastica\Query\Filtered
 	 */
-	var $filteredQuery;
+	public $filteredQuery;
 
 	/**
 	 * @var Elastica\Query
 	 */
-	var $elasticaQuery;
+	public $elasticaQuery;
 
 	/**
 	 * @var Pager
 	 */
-	var $pager;
+	public $pager;
 
 	/**
 	 * @var Elastica\Facet\Terms
 	 */
-	var $facets;
+	public $facets;
 
-	function __construct(DIContainer $di)
+	public function __construct(DIContainer $di)
 	{
 		$this->client = $di->client;
 		$this->indexName = $di->indexName;
 
-		$this->queryString = new \Elastica\Query\MatchAll();
+		$this->queryString = new MatchAll();
 
-		$this->elasticaFilterAnd = new \Elastica\Filter\BoolAnd();
+		$this->elasticaFilterAnd = new BoolAnd();
 
 		$this->filteredQuery = new Elastica\Query\Filtered(
 			$this->queryString,
 			$this->elasticaFilterAnd
 		);
 
-		$this->elasticaQuery = new \Elastica\Query();
+		$this->elasticaQuery = new Query();
 	}
 
-	function setOrderBy($orderBy)
+	public function setOrderBy($orderBy)
 	{
 		foreach ($orderBy as $by => $ascDesc) {
 			$this->elasticaQuery->setSort([
@@ -69,19 +76,19 @@ class ElasticaQuery
 		}
 	}
 
-	function setPager(Pager $pager)
+	public function setPager(Pager $pager)
 	{
 		$this->pager = $pager;
 		$this->elasticaQuery->setFrom($pager->getStart());
 		$this->elasticaQuery->setSize($pager->getLimit());
 	}
 
-	function setWhere(array $where)
+	public function setWhere(array $where)
 	{
 		foreach ($where as $field => $condition) {
 			$elasticaCondition = $this->switchCondition($field, $condition);
 			if ($elasticaCondition) {
-				if ($elasticaCondition instanceof \Elastica\Query\AbstractQuery) {
+				if ($elasticaCondition instanceof AbstractQuery) {
 					$elasticaQueryString = $elasticaCondition;
 				} else {
 					$this->elasticaFilterAnd->addFilter($elasticaCondition);
@@ -92,7 +99,7 @@ class ElasticaQuery
 		}
 	}
 
-	function fetchSelectQuery($type)
+	public function fetchSelectQuery($type)
 	{
 		/** @var Elastica\Query\Filtered $fq */
 		$this->filteredQuery->setQuery($this->queryString);
@@ -120,9 +127,9 @@ class ElasticaQuery
 	/**
 	 * @param string $field
 	 * @param mixed $condition
-	 * @return \Elastica\Query\AbstractQuery
+	 * @return AbstractQuery
 	 */
-	function switchCondition($field, $condition)
+	public function switchCondition($field, $condition)
 	{
 		$res = null;
 		$type = is_object($condition)
@@ -153,7 +160,7 @@ class ElasticaQuery
 				]);
 				break;
 			case 'SQLLike':
-				$res = new \Elastica\Query\QueryString();
+				$res = new QueryString();
 				$res->setDefaultOperator('AND');
 				$res->setQuery($condition->string);
 				break;
@@ -180,7 +187,7 @@ class ElasticaQuery
 		$row = null;
 		//$elasticaTerm  = new \Elastica\Filter\Term();
 		//$elasticaTerm->setTerm('_id', $id);
-		$elasticaQuery = new \Elastica\Query\Term();
+		$elasticaQuery = new Term();
 		$elasticaQuery->setTerm('_id', $id);
 		$search = new Elastica\Search($this->client);
 		$search->addIndex($this->indexName);

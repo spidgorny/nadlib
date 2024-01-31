@@ -86,8 +86,7 @@ if (!function_exists('str_startsWith')) {
 			$is_string = is_string($str) || is_int($str);
 		}
 		if (!$is_string) {
-			debug('trimExplode', 'must be string', new htmlString(typ($str)));
-//			debug_pre_print_backtrace();
+			throw new RuntimeException('trimExplode: must be string, but got ' . new HtmlString(typ($str)));
 		}
 		if ($max) {
 			$parts = explode($sep, $str, $max); // checked by isset so NULL makes it 0
@@ -97,7 +96,9 @@ if (!function_exists('str_startsWith')) {
 		$parts = array_map('trim', $parts);
 		$parts = array_filter($parts);
 		$parts = array_values($parts);
-		$parts = array_pad($parts, $max, null);
+		if ($max) {
+			$parts = array_pad($parts, $max, null);
+		}
 		return $parts;
 	}
 
@@ -151,23 +152,24 @@ if (!function_exists('str_startsWith')) {
 	 * @param null $plus2
 	 * @return string
 	 */
-		function path_plus($path, $plus, $plus2 = null)
+	function path_plus($path, $plus, $plus2 = null)
 	{
+//		llog('path_plus', $path, $plus);
 		$freq = array_count_values(str_split($path));
 		$separator = ifsetor($freq['/']) >= ifsetor($freq['\\']) ? '/' : '\\';
 //		llog($separator);
 
-        $char0 = isset($path[0]) ? $path[0] : null;
-        $char1 = isset($path[1]) ? $path[1] : null;
-        $isAbs = $char0 === '/' || $char0 === '\\' || $char1 === ':';
+		$char0 = isset($path[0]) ? $path[0] : null;
+		$char1 = isset($path[1]) ? $path[1] : null;
+		$isAbs = $char0 === '/' || $char0 === '\\' || $char1 === ':';
 
-		$path = str_replace('\\', '/', $path);	// for trim
+		$path = str_replace('\\', '/', $path);  // for trim
 		$parts = trimExplode('/', $path);
 		$parts = array_merge($parts, trimExplode('/', $plus));
 
 		$root = '';
 //		if (!Request::isWindows()) {
-		if ($separator == '/') {	// not windows separator
+		if ($separator == '/') {  // not windows separator
 			$root = ($isAbs ? $separator : '');
 		}
 		$string = $root . implode($separator, $parts);
@@ -271,6 +273,11 @@ if (!function_exists('str_startsWith')) {
 			}
 		}
 		return $out;
+	}
+
+	function strip_namespace($className)
+	{
+		return last(trimExplode('\\', $className));
 	}
 
 }

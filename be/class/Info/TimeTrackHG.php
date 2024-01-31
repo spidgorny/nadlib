@@ -3,7 +3,7 @@
 class TimeTrackHG extends AppControllerBE
 {
 
-	var $cacheFile;
+	public $cacheFile;
 
 	public function __construct()
 	{
@@ -13,7 +13,7 @@ class TimeTrackHG extends AppControllerBE
 
 	public function render()
 	{
-		$content[] = $this->performAction();
+		$content[] = $this->performAction($this->detectAction());
 		if (file_exists($this->cacheFile)) {
 			$times = file_get_contents($this->cacheFile);
 			$times = json_decode($times, true);
@@ -24,6 +24,44 @@ class TimeTrackHG extends AppControllerBE
 			$content[] = $this->listTimes($times);
 		}
 		return $content;
+	}
+
+	public function showTotal(array $times)
+	{
+		$ap = ArrayPlus::create($times);
+		$sum = $ap->column('time')->sum();
+		$percentage = 100;
+		$content[] = '<div class="">
+			<h3>Total</h3>
+			<h1>' . $sum . ' hours
+				<span class="small">' . $percentage . '%</span>
+			</h1>
+		</div>';
+		return $content;
+	}
+
+	public function showByWho(array $times)
+	{
+		$ap = ArrayPlus::create($times);
+		$groups = $ap->groupBy('who')->sumGroups('time');
+		$s = slTable::showAssoc($groups->getData());
+		$content[] = '<h3>Group by who</h3>';
+		$content[] = $s;
+		return $content;
+	}
+
+	public function listTimes(array $times)
+	{
+		foreach ($times as &$line) {
+			$line['what'] = preg_replace("/#(\w+)/", "<a href=\"\\1\">#\\1</a>", $line['what']);
+		}
+		$s = new slTable($times, 'class="table table=striped"');
+		$s->generateThes();
+		$s->thes['what'] = [
+			'name' => 'what',
+			'no_hsc' => true,
+		];
+		return $s;
 	}
 
 	public function sidebar()
@@ -93,44 +131,6 @@ class TimeTrackHG extends AppControllerBE
 			}
 		}
 		return $times;
-	}
-
-	public function listTimes(array $times)
-	{
-		foreach ($times as &$line) {
-			$line['what'] = preg_replace("/#(\w+)/", "<a href=\"\\1\">#\\1</a>", $line['what']);
-		}
-		$s = new slTable($times, 'class="table table=striped"');
-		$s->generateThes();
-		$s->thes['what'] = [
-			'name' => 'what',
-			'no_hsc' => true,
-		];
-		return $s;
-	}
-
-	public function showTotal(array $times)
-	{
-		$ap = ArrayPlus::create($times);
-		$sum = $ap->column('time')->sum();
-		$percentage = 100;
-		$content[] = '<div class="">
-			<h3>Total</h3>
-			<h1>' . $sum . ' hours
-				<span class="small">' . $percentage . '%</span>
-			</h1>
-		</div>';
-		return $content;
-	}
-
-	public function showByWho(array $times)
-	{
-		$ap = ArrayPlus::create($times);
-		$groups = $ap->groupBy('who')->sumGroups('time');
-		$s = slTable::showAssoc($groups->getData());
-		$content[] = '<h3>Group by who</h3>';
-		$content[] = $s;
-		return $content;
 	}
 
 }

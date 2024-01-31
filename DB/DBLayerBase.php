@@ -38,50 +38,37 @@ abstract class DBLayerBase implements DBInterface
 	 * @var resource
 	 */
 	public $connection;
-
 	/**
 	 * @var string
 	 */
 	public $lastQuery;
-
 	/**
 	 * @var int
 	 */
 	public $queryCount = 0;
-
 	/**
 	 * @var int Time in seconds
 	 */
 	public $queryTime = 0;
+	/**
+	 * @var string DB name (file name)
+	 */
+	public $database;
 
 	/**
 	 * set to NULL for disabling
 	 * @var QueryLog
 	 */
 	protected $queryLog;
-
 	/**
 	 * @var bool Allows logging every query to the error.log.
 	 * Helps to detect the reason for white screen problems.
 	 */
 	protected $logToLog = false;
 
-	/**
-	 * @var string DB name (file name)
-	 */
-	public $database;
-
 	public function setQB(SQLBuilder $qb = null)
 	{
 		$this->qb = $qb;
-	}
-
-	/**
-	 * @return string 'mysql', 'pg', 'ms'... PDO will override this
-	 */
-	public function getScheme()
-	{
-		return strtolower(str_replace('DBLayer', '', get_class($this)));
 	}
 
 	public function __call($method, array $params)
@@ -103,19 +90,16 @@ abstract class DBLayerBase implements DBInterface
 		if ($this->logToLog) {
 			$query = preg_replace('/\s+/', ' ',
 				str_replace("\n", ' ', $query));
+			/** @noinspection ForgottenDebugOutputInspection */
 			error_log('[' . get_class($this) . ']' . TAB .
-				'[' . $this->AFFECTED_ROWS . ' rows]' . TAB .
+				'[' . $this->affectedRows() . ' rows]' . TAB .
 				$query . ': ' . $this->queryTime);
 		}
 	}
 
-	public function dataSeek($res, $i)
+	public function affectedRows($res = null)
 	{
-	}
-
-	public function fetchAssocSeek($res)
-	{
-		return null;
+		return 0;
 	}
 
 	public function fetchPartition($res, $start, $limit)
@@ -138,25 +122,42 @@ abstract class DBLayerBase implements DBInterface
 		return $data;
 	}
 
+	/**
+	 * @return string 'mysql', 'pg', 'ms'... PDO will override this
+	 */
+	public function getScheme()
+	{
+		return strtolower(str_replace('DBLayer', '', get_class($this)));
+	}
+
+	public function numRows($res = null)
+	{
+		return 0;
+	}
+
+	public function dataSeek($res, $i)
+	{
+	}
+
+	public function fetchAssocSeek($res)
+	{
+		return null;
+	}
+
 	public function saveQueryLog($query, $time)
 	{
 		$this->queryCount++;
 		$this->queryTime += $time;
 	}
 
-	public function getReserved()
+	public function transaction()
 	{
-		return $this->reserved;
+		return $this->perform('BEGIN');
 	}
 
 	public function perform($query, array $params = [])
 	{
 		return null;
-	}
-
-	public function transaction()
-	{
-		return $this->perform('BEGIN');
 	}
 
 	public function commit()
@@ -167,16 +168,6 @@ abstract class DBLayerBase implements DBInterface
 	public function rollback()
 	{
 		return $this->perform('ROLLBACK');
-	}
-
-	public function numRows($res = null)
-	{
-		return 0;
-	}
-
-	public function affectedRows($res = null)
-	{
-		return 0;
 	}
 
 	public function getTables()
@@ -194,20 +185,6 @@ abstract class DBLayerBase implements DBInterface
 		// TODO: Implement free() method.
 	}
 
-	public function quoteKey($key)
-	{
-		$reserved = $this->getReserved();
-		if (in_array(strtoupper($key), $reserved)) {
-			$key = $this->db->quoteKey($key);
-		}
-		return $key;
-	}
-
-	public function escape($string)
-	{
-		throw new Exception('Implement ' . __METHOD__);
-	}
-
 	public function escapeBool($value)
 	{
 		return $value;
@@ -219,11 +196,6 @@ abstract class DBLayerBase implements DBInterface
 	}
 
 	public function getTablesEx()
-	{
-		return [];
-	}
-
-	public function getTableColumnsEx($table)
 	{
 		return [];
 	}
@@ -287,18 +259,18 @@ abstract class DBLayerBase implements DBInterface
 		return $c;
 	}
 
-	/**
-	 * @param string $table
-	 * @return TableField[]
-	 * @throws Exception
-	 */
-	public function getTableFields($table)
+	public function quoteKey($key)
 	{
-		$fields = $this->getTableColumnsEx($table);
-		foreach ($fields as $field => &$set) {
-			$set = TableField::init($set + ['pg_field' => $field]);
+		$reserved = $this->getReserved();
+		if (in_array(strtoupper($key), $reserved)) {
+			$key = $this->db->quoteKey($key);
 		}
-		return $fields;
+		return $key;
+	}
+
+	public function getReserved()
+	{
+		return $this->reserved;
 	}
 
 	public function getDSN()
@@ -332,9 +304,33 @@ abstract class DBLayerBase implements DBInterface
 		return $set;
 	}
 
+	/**
+	 * @param string $table
+	 * @return TableField[]
+	 * @throws Exception
+	 */
+	public function getTableFields($table)
+	{
+		$fields = $this->getTableColumnsEx($table);
+		foreach ($fields as $field => &$set) {
+			$set = TableField::init($set + ['pg_field' => $field]);
+		}
+		return $fields;
+	}
+
+	public function getTableColumnsEx($table)
+	{
+		return [];
+	}
+
 	public function quoteSQL($value, $key = null)
 	{
 		return "'" . $this->escape($value) . "'";
+	}
+
+	public function escape($string)
+	{
+		throw new Exception('Implement ' . __METHOD__);
 	}
 
 	public function getLastQuery()

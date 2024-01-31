@@ -1,6 +1,7 @@
 <?php
 
-class HTMLFormValidate {
+class HTMLFormValidate
+{
 
 	/**
 	 * Reference to the form object which contains the $desc as well as other vars
@@ -14,13 +15,13 @@ class HTMLFormValidate {
 	 */
 	protected $desc;
 
-	function __construct(HTMLFormTable $form)
+	public function __construct(HTMLFormTable $form)
 	{
 		$this->form = $form;
 		$this->desc = &$this->form->desc;
 	}
 
-	function validate()
+	public function validate()
 	{
 		$error = false;
 		foreach ($this->desc as $field => &$d) {
@@ -61,7 +62,7 @@ class HTMLFormValidate {
 		return !$error;
 	}
 
-	function validateField($field, array $d, $type, $isCheckbox)
+	public function validateField($field, array $d, $type, $isCheckbox)
 	{
 		$value = ifsetor($d['value']);
 		$label = ifsetor($d['label'], $field);
@@ -134,7 +135,7 @@ class HTMLFormValidate {
 		return $d;
 	}
 
-	function securePassword($value)
+	public function securePassword($value)
 	{
 		/*
 		* REGEX used for password strength check
@@ -147,7 +148,7 @@ class HTMLFormValidate {
 		return (preg_match($passwordRegex, $value));
 	}
 
-	function getDesc()
+	public function getDesc()
 	{
 		return $this->desc;
 	}
@@ -164,7 +165,7 @@ class HTMLFormValidate {
 	 * address format and the domain exists.
 	 * http://www.linuxjournal.com/article/9585?page=0,3
 	 */
-	static function validEmail($email)
+	public static function validEmail($email)
 	{
 		$isValid = true;
 		$atIndex = strrpos($email, "@");
@@ -178,24 +179,24 @@ class HTMLFormValidate {
 			if ($localLen < 1 || $localLen > 64) {
 				// local part length exceeded
 				$isValid = false;
-			} else if ($domainLen < 1 || $domainLen > 255) {
+			} elseif ($domainLen < 1 || $domainLen > 255) {
 				// domain part length exceeded
 				$isValid = false;
-			} else if ($local[0] == '.' || $local[$localLen - 1] == '.') {
+			} elseif ($local[0] == '.' || $local[$localLen - 1] == '.') {
 				// local part starts or ends with '.'
 				$isValid = false;
-			} else if (preg_match('/\\.\\./', $local)) {
+			} elseif (preg_match('/\\.\\./', $local)) {
 				// local part has two consecutive dots
 				$isValid = false;
-			} else if (!preg_match('/^[A-Za-z0-9\\-\\.]+$/', $domain)) {
+			} elseif (!preg_match('/^[A-Za-z0-9\\-\\.]+$/', $domain)) {
 				// character not valid in domain part
 				$isValid = false;
-			} else if (preg_match('/\\.\\./', $domain)) {
+			} elseif (preg_match('/\\.\\./', $domain)) {
 				// domain part has two consecutive dots
 				$isValid = false;
-			} else if
+			} elseif
 			(!preg_match('/^(\\\\.|[A-Za-z0-9!#%&`_=\\/$\'*+?^{}|~.-])+$/',
-				str_replace("\\\\", "", $local))) {
+					str_replace("\\\\", "", $local))) {
 				// character not valid in local part unless
 				// local part is quoted
 				if (!preg_match('/^"(\\\\"|[^"])+"$/',
@@ -211,7 +212,7 @@ class HTMLFormValidate {
 		return $isValid;
 	}
 
-	function getErrorList()
+	public function getErrorList()
 	{
 		$list = [];
 		foreach ($this->desc as $key => $desc) {

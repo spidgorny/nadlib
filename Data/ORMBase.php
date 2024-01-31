@@ -1,9 +1,11 @@
 <?php
 
-class ORMBase {
+class ORMBase
+{
 
-	function __construct($media) {
-		$base = NULL;
+	public function __construct($media)
+	{
+		$base = null;
 		if (is_object($media)) {
 			$base = get_object_vars($media);
 		} elseif (is_array($media)) {

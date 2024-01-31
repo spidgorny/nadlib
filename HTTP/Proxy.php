@@ -3,28 +3,27 @@
 namespace nadlib;
 
 use AsIs;
+use AsIsOp;
+use Config;
 use DBInterface;
+use Index;
+use OODBase;
 
-class Proxy extends \OODBase
+class Proxy extends OODBase
 {
 
-	public $table = 'proxy';
-
-	protected $titleColumn = 'proxy';
-
-	static $best = [];
-
+	public static $best = [];
 	protected static $maxFail = 15;
 	protected static $maxFailBest = 200;
-
+	public $table = 'proxy';
 	/**
 	 * @var DBInterface
 	 */
 	public $db;
-
 	public $ratio = 0;
+	protected $titleColumn = 'proxy';
 
-	function __construct($row = null)
+	public function __construct($row = null)
 	{
 		parent::__construct($row);
 		$this->db = \Config::getInstance()->getDB();
@@ -33,13 +32,13 @@ class Proxy extends \OODBase
 		}
 	}
 
-	static function getRandomOrBest($percentRandom = 50)
+	public static function getRandomOrBest($percentRandom = 50)
 	{
-		$proxy = NULL;
-		$db = \Config::getInstance()->getDB();
+		$proxy = null;
+		$db = Config::getInstance()->getDB();
 		/** @var AppController $c */
-		$c = \Index::getInstance()->controller;
-		if (rand(0, 100) < $percentRandom) { // 25%
+		$c = Index::getInstance()->controller;
+		if (random_int(0, 100) < $percentRandom) { // 25%
 			$row = $db->fetchSelectQuery('proxy', ['fail' => new AsIs('< ') . self::$maxFail],
 				'ORDER BY rand() LIMIT 1');
 			if ($row[0]) {
@@ -50,35 +49,19 @@ class Proxy extends \OODBase
 			}
 		} else {
 			$best = self::getBest();
-			$idx = rand(0, sizeof($best) - 1);
+			$idx = random_int(0, sizeof($best) - 1);
 			$proxy = new Proxy($best[$idx]);
 			$c->log('Best proxy (' . $idx . '): ' . $proxy . ' (ratio: ' . $proxy->ratio . ')', __METHOD__);
 		}
 		return $proxy;
 	}
 
-	function setProxy($proxy)
-	{
-		$this->data['proxy'] = $proxy;
-	}
-
-	function __toString()
-	{
-		return $this->data['proxy'] . '';
-	}
-
-	function getList()
-	{
-		$rows = $this->db->fetchSelectQuery('proxy', [], 'ORDER BY ok DESC, fail ASC LIMIT 100');
-		return $rows;
-	}
-
-	static function getBest($limit = 100)
+	public static function getBest($limit = 100)
 	{
 		if (!self::$best) {
-			$db = \Config::getInstance()->getDB();
+			$db = Config::getInstance()->getDB();
 			$rows = $db->fetchSelectQuery('proxy', [
-				'fail' => new \AsIsOp('< ' . self::$maxFailBest),
+				'fail' => new AsIsOp('< ' . self::$maxFailBest),
 				//'ok' => new AsIs('> 0'),
 			], '
 			/*ORDER BY ok DESC, fail ASC*/
@@ -93,31 +76,47 @@ class Proxy extends \OODBase
 	/**
 	 * @return array(342571/359601)
 	 */
-	static function getProxies()
+	public static function getProxies()
 	{
-		$db = \Config::getInstance()->getDB();
+		$db = Config::getInstance()->getDB();
 		$row = $db->fetchSelectQuery('proxy', [], '', 'count(*)');    // total
 		$p = new Proxy();
 		$okProxy = $p->getOKcount();
 		return [$okProxy, $row[0]['count(*)']];
 	}
 
-	function getOKcount()
+	public function getOKcount()
 	{
 		$rowOK = $this->db->fetchSelectQuery('proxy', [
-			'fail' => new \AsIsOp('< ' . self::$maxFail)
+			'fail' => new AsIsOp('< ' . self::$maxFail)
 		], '', 'count(*)');
 		return $rowOK[0]['count(*)'];
 	}
 
-	function fail()
+	public function setProxy($proxy)
+	{
+		$this->data['proxy'] = $proxy;
+	}
+
+	public function __toString()
+	{
+		return $this->data['proxy'] . '';
+	}
+
+	public function getList()
+	{
+		$rows = $this->db->fetchSelectQuery('proxy', [], 'ORDER BY ok DESC, fail ASC LIMIT 100');
+		return $rows;
+	}
+
+	public function fail()
 	{
 		if ($this->id) {
 			$this->update(['fail' => $this->data['fail'] + 1]);
 		}
 	}
 
-	function ok()
+	public function ok()
 	{
 		if ($this->id) {
 			$this->update(['ok' => $this->data['ok'] + 1]);

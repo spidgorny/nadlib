@@ -13,38 +13,38 @@ class Syndicator
 	/**
 	 * @var string
 	 */
-	var $url;
+	public $url;
 	/**
 	 * @var bool|int enabled or seconds for caching
 	 */
-	var $isCaching = FALSE;
+	public $isCaching = false;
 
 	/**
 	 * @var string
 	 */
-	var $html;
+	public $html;
 
-	var $tidy;
+	public $tidy;
 
 	/**
 	 * @var SimpleXMLElement
 	 */
-	var $xml;
+	public $xml;
 
 	/**
 	 * @var array
 	 */
 	public $json;
 
-	var $xpath;    // last used, for what?
+	public $xpath;    // last used, for what?
 
-	var $recodeUTF8;
+	public $recodeUTF8;
 
 	/**
 	 *
 	 * @var FileCache
 	 */
-	var $cache;
+	public $cache;
 
 	/**
 	 * @var Proxy|bool
@@ -105,38 +105,6 @@ class Syndicator
 		return $s;
 	}
 
-	/**
-	 * @param $url
-	 * @param bool $caching
-	 * @param string $recodeUTF8
-	 * @return Syndicator
-	 */
-	public static function readAndParseXML($url, $caching = true, $recodeUTF8 = 'utf-8')
-	{
-		$s = new self($url, $caching, $recodeUTF8);
-		$s->input = 'XML';
-		$s->html = $s->retrieveFile();
-		$s->xml = $s->processFile($s->html);
-		return $s;
-	}
-
-	/**
-	 * @param $url
-	 * @param bool $caching
-	 * @param string $recodeUTF8
-	 * @return Syndicator
-	 */
-	public static function readAndParseJSON($url, $caching = true, $recodeUTF8 = 'utf-8')
-	{
-		$s = new self($url, $caching, $recodeUTF8);
-		$s->input = 'JSON';
-		$s->html = $s->retrieveFile();
-		$s->log(__METHOD__, 'Downloaded');
-		$s->json = json_decode($s->html);
-		$s->log(__METHOD__, 'JSON decoded');
-		return $s;
-	}
-
 	public function retrieveFile($retries = 1)
 	{
 		TaylorProfiler::start(__METHOD__);
@@ -174,30 +142,48 @@ class Syndicator
 		return $html;
 	}
 
-	function proxyOK()
+	public function get($string)
 	{
-		if ($this->useProxy && $this->useProxy instanceof Proxy) {
-			$c = Controller::getInstance();
-			$c->log(__METHOD__, 'Using proxy: ' . $this->useProxy . ': OK');
-			$this->useProxy->ok();
+		$elements = $this->getElements($string);
+		//debug($string, $elements);
+		foreach ($elements as &$e) {
+			$e = trim($e);
+		}
+		$elements = array_filter($elements);
+		if (sizeof($elements) == 0) {
+			return null;
+		}
+
+		if (sizeof($elements) == 1) {
+			return first($elements);
+		} else {
+			return $elements;
 		}
 	}
 
-	function proxyFail()
+	/**
+	 * @param $xpath
+	 * @return null|SimpleXMLElement[]
+	 */
+	public function getElements($xpath)
 	{
-		if ($this->useProxy && $this->useProxy instanceof Proxy) {
-			$c = Controller::getInstance();
-			$c->log(__METHOD__, 'Using proxy: ' . $this->useProxy . ': OK');
-			$this->useProxy->fail();
+		TaylorProfiler::start(__METHOD__);
+		$target = null;
+		if ($this->xml) {
+			//debug($this->xml);
+			$this->xpath = $xpath;
+			$target = $this->xml->xpath($this->xpath);
 		}
+		TaylorProfiler::stop(__METHOD__);
+		return $target;
 	}
 
-	function log($method, $msg)
+	public function log($method, $msg)
 	{
 		$this->log[] = new LogEntry($method, $msg);
 	}
 
-	function downloadFile($href, $retries = 1)
+	public function downloadFile($href, $retries = 1)
 	{
 		if (str_startsWith($href, 'http')) {
 			$ug = new URLGet($href, $this);
@@ -209,12 +195,75 @@ class Syndicator
 		}
 	}
 
+	public function proxyOK()
+	{
+		if ($this->useProxy && $this->useProxy instanceof Proxy) {
+			$c = Controller::getInstance();
+			$c->log(__METHOD__, 'Using proxy: ' . $this->useProxy . ': OK');
+			$this->useProxy->ok();
+		}
+	}
+
+	public function proxyFail()
+	{
+		if ($this->useProxy && $this->useProxy instanceof Proxy) {
+			$c = Controller::getInstance();
+			$c->log(__METHOD__, 'Using proxy: ' . $this->useProxy . ': OK');
+			$this->useProxy->fail();
+		}
+	}
+
+	public function processFile($html)
+	{
+		TaylorProfiler::start(__METHOD__);
+		//debug(substr($html, 0, 1000));
+		if ($this->input == 'HTML' && $this->recodeUTF8 != 'pass') {
+			$html = html_entity_decode($html, ENT_COMPAT, $this->recodeUTF8 === true ? null : $this->recodeUTF8);
+		}
+
+		if ($this->recodeUTF8) {
+			$detect = mb_detect_encoding($html, $this->recodeUTF8 === true ? null : $this->recodeUTF8);
+			$this->log("mb_detect_encoding($this->recodeUTF8)", $detect);
+			if (!$detect) {
+				$detect = $this->detect_cyr_charset($html);
+				$this->log("detect_cyr_charset", $detect);
+			}
+			$utf8 = mb_convert_encoding($html, 'UTF-8', $this->recodeUTF8 === true ? 'Windows-1251' : $detect);
+			//$utf8 = str_replace(0x20, ' ', $utf8);
+		} else {
+			$utf8 = $html;
+		}
+		//$utf8 = str_replace('&#151;', '-', $utf8);
+		//debug(substr($utf8, 0, 1000));
+
+		// new
+		//$utf8 = $this->strip_html_tags($utf8);
+		//$utf8 = str_replace('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">', '', $utf8);
+		//debug($utf8);
+
+		$this->tidy = $this->tidy($utf8);
+		//$this->tidy = $utf8;
+		//debug(substr($tidy, 0, 1000));
+		//exit();
+		//$this->tidy = preg_replace('/<meta name="description"[^>]*>/', '', $this->tidy);
+
+		$recode = $this->recode($this->tidy);
+		//debug($recode, 'Recode');
+
+		//$recode = preg_replace('/<option value="0">.*?<\/option>/is', '', $recode);
+
+		$recode = str_replace('xmlns=', 'ns=', $recode);
+		$xml = $this->getXML($recode);
+		TaylorProfiler::stop(__METHOD__);
+		return $xml;
+	}
+
 	/**
 	 * http://code.google.com/p/php-excel-reader/issues/attachmentText?id=8&aid=2334947382699781699&name=val_patch.php&token=45f8ef6a787d2ab55cb821688e28142d
 	 * @param $str
 	 * @return mixed
 	 */
-	function detect_cyr_charset($str)
+	public function detect_cyr_charset($str)
 	{
 		$charsets = [
 			'koi8-r' => 0,
@@ -254,52 +303,7 @@ class Syndicator
 		return key($charsets);
 	}
 
-	function processFile($html)
-	{
-		TaylorProfiler::start(__METHOD__);
-		//debug(substr($html, 0, 1000));
-		if ($this->input == 'HTML' && $this->recodeUTF8 != 'pass') {
-			$html = html_entity_decode($html, ENT_COMPAT, $this->recodeUTF8 === TRUE ? NULL : $this->recodeUTF8);
-		}
-
-		if ($this->recodeUTF8) {
-			$detect = mb_detect_encoding($html, $this->recodeUTF8 === TRUE ? NULL : $this->recodeUTF8);
-			$this->log("mb_detect_encoding($this->recodeUTF8)", $detect);
-			if (!$detect) {
-				$detect = $this->detect_cyr_charset($html);
-				$this->log("detect_cyr_charset", $detect);
-			}
-			$utf8 = mb_convert_encoding($html, 'UTF-8', $this->recodeUTF8 === TRUE ? 'Windows-1251' : $detect);
-			//$utf8 = str_replace(0x20, ' ', $utf8);
-		} else {
-			$utf8 = $html;
-		}
-		//$utf8 = str_replace('&#151;', '-', $utf8);
-		//debug(substr($utf8, 0, 1000));
-
-		// new
-		//$utf8 = $this->strip_html_tags($utf8);
-		//$utf8 = str_replace('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">', '', $utf8);
-		//debug($utf8);
-
-		$this->tidy = $this->tidy($utf8);
-		//$this->tidy = $utf8;
-		//debug(substr($tidy, 0, 1000));
-		//exit();
-		//$this->tidy = preg_replace('/<meta name="description"[^>]*>/', '', $this->tidy);
-
-		$recode = $this->recode($this->tidy);
-		//debug($recode, 'Recode');
-
-		//$recode = preg_replace('/<option value="0">.*?<\/option>/is', '', $recode);
-
-		$recode = str_replace('xmlns=', 'ns=', $recode);
-		$xml = $this->getXML($recode);
-		TaylorProfiler::stop(__METHOD__);
-		return $xml;
-	}
-
-	function tidy($html)
+	public function tidy($html)
 	{
 		TaylorProfiler::start(__METHOD__);
 		$out = null;
@@ -319,7 +323,7 @@ class Syndicator
 					'output-encoding' => 'raw',
 
 				];
-				$tidy = new tidy;
+				$tidy = new tidy();
 				$tidy->parseString($html, $config);
 				$tidy->cleanRepair();
 				//$out = tidy_get_output($tidy);
@@ -337,7 +341,7 @@ class Syndicator
 		return $out;
 	}
 
-	function recode($xml)
+	public function recode($xml)
 	{
 		TaylorProfiler::start(__METHOD__);
 		//$enc = mb_detect_encoding($xml);
@@ -358,10 +362,10 @@ class Syndicator
 		return $xml;
 	}
 
-	function getXML($recode)
+	public function getXML($recode)
 	{
 		TaylorProfiler::start(__METHOD__);
-		if (strlen($recode) && $recode[0] == '<') {
+		if ($recode != '' && $recode[0] === '<') {
 			$xml = new SimpleXMLElement($recode);
 			//$xml['xmlns'] = '';
 			$namespaces = $xml->getNamespaces(true);
@@ -372,27 +376,42 @@ class Syndicator
 				break;
 			}
 		} else {
-			$xml = NULL;
+			$xml = null;
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $xml;
 	}
 
 	/**
-	 * @param $xpath
-	 * @return null|SimpleXMLElement[]
+	 * @param $url
+	 * @param bool $caching
+	 * @param string $recodeUTF8
+	 * @return Syndicator
 	 */
-	function getElements($xpath)
+	public static function readAndParseXML($url, $caching = true, $recodeUTF8 = 'utf-8')
 	{
-		TaylorProfiler::start(__METHOD__);
-		$target = NULL;
-		if ($this->xml) {
-			//debug($this->xml);
-			$this->xpath = $xpath;
-			$target = $this->xml->xpath($this->xpath);
-		}
-		TaylorProfiler::stop(__METHOD__);
-		return $target;
+		$s = new self($url, $caching, $recodeUTF8);
+		$s->input = 'XML';
+		$s->html = $s->retrieveFile();
+		$s->xml = $s->processFile($s->html);
+		return $s;
+	}
+
+	/**
+	 * @param $url
+	 * @param bool $caching
+	 * @param string $recodeUTF8
+	 * @return Syndicator
+	 */
+	public static function readAndParseJSON($url, $caching = true, $recodeUTF8 = 'utf-8')
+	{
+		$s = new self($url, $caching, $recodeUTF8);
+		$s->input = 'JSON';
+		$s->html = $s->retrieveFile();
+		$s->log(__METHOD__, 'Downloaded');
+		$s->json = json_decode($s->html);
+		$s->log(__METHOD__, 'JSON decoded');
+		return $s;
 	}
 
 	/**
@@ -400,10 +419,10 @@ class Syndicator
 	 * @param string $xpath
 	 * @return SimpleXMLElement
 	 */
-	function getElement($xpath)
+	public function getElement($xpath)
 	{
 		TaylorProfiler::start(__METHOD__);
-		$first = NULL;
+		$first = null;
 		$res = $this->getElements($xpath);
 		if ($res) {
 			reset($res);
@@ -413,7 +432,22 @@ class Syndicator
 		return $first;
 	}
 
-	function getDOM($xml)
+	/**
+	 * No XPATH
+	 *
+	 * @param string $xml
+	 * @return SimpleXMLElement
+	 */
+	public function getSXML($xml)
+	{
+		$xml_parser = new sxml();
+		$xml_parser->parse($xml);
+		$xml = $xml_parser->datas;
+		//debug($xml_parser);
+		return $xml;
+	}
+
+	public function getDOM($xml)
 	{
 		$dom = domxml_xmltree($xml);
 		return $dom;
@@ -424,7 +458,7 @@ class Syndicator
 	 * script code, and embedded objects.  Add line breaks around
 	 * block-level tags to prevent word joining after tag removal.
 	 */
-	function strip_html_tags($text)
+	public function strip_html_tags($text)
 	{
 		return preg_replace('/<script[^>]*?>.*?<\/script>/is', '', $text);
 		$text = preg_replace(
@@ -457,7 +491,7 @@ class Syndicator
 		return /*strip_tags*/ ($text);
 	}
 
-	function trimArray(array $elements)
+	public function trimArray(array $elements)
 	{
 		foreach ($elements as &$e) {
 			$e = trim(strip_tags($e));
@@ -465,42 +499,25 @@ class Syndicator
 		return $elements;
 	}
 
-	function css($selector)
+//	/**
+//	 * composer require symfony/css-selector
+//	 * @param $selector
+//	 * @return SimpleXMLElement
+//	 */
+//	function select($selector)
+//	{
+//		$converter = new CssSelectorConverter();
+//		$xpath = $converter->toXPath($selector);
+//		//debug($xpath);
+//		return $this->getElement($xpath);
+//	}
+
+	public function css($selector)
 	{
 //		CssSelector::enableHtmlExtension();
 //		$xpath = CssSelector::toXPath($selector);
 		//debug($xpath);
 //		return $this->getElements($xpath);
-	}
-
-	/**
-	 * composer require symfony/css-selector
-	 * @param $selector
-	 * @return SimpleXMLElement
-	 */
-	function select($selector)
-	{
-		$converter = new CssSelectorConverter();
-		$xpath = $converter->toXPath($selector);
-		//debug($xpath);
-		return $this->getElement($xpath);
-	}
-
-	public function get($string)
-	{
-		$elements = $this->getElements($string);
-		//debug($string, $elements);
-		foreach ($elements as &$e) {
-			$e = trim($e);
-		}
-		$elements = array_filter($elements);
-		if (sizeof($elements) == 0) {
-			return NULL;
-		} elseif (sizeof($elements) == 1) {
-			return first($elements);
-		} else {
-			return $elements;
-		}
 	}
 
 	public function getEncoding()

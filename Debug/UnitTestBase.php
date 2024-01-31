@@ -1,13 +1,14 @@
 <?php
 
-class UnitTestBase {
+class UnitTestBase
+{
 
-	function error($message)
+	public function error($message)
 	{
 		error_log($message);
 	}
 
-	function assertEquals($must, $is, $message = 'assertEquals')
+	public function assertEquals($must, $is, $message = 'assertEquals')
 	{
 		if ($must != $is) {
 			$this->error($message);
@@ -15,14 +16,14 @@ class UnitTestBase {
 		}
 	}
 
-	function assertCount($must, iterable $array, $message = 'assertCount')
+	public function assertCount($must, iterable $array, $message = 'assertCount')
 	{
 		if (count($array) != $must) {
 			$this->error($message);
 		}
 	}
 
-	function assertTrue($check, $message = 'assertTrue')
+	public function assertTrue($check, $message = 'assertTrue')
 	{
 		if (!$check) {
 			$this->error($message);

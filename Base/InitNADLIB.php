@@ -1,9 +1,11 @@
 <?php
 
+use Composer\Autoload\ClassLoader;
+
 class InitNADLIB
 {
 
-	var $useCookies = true;
+	public $useCookies = true;
 
 	/**
 	 * @var AutoLoad
@@ -12,10 +14,10 @@ class InitNADLIB
 
 	public $startTime;
 
-	var $endTime;
+	public $endTime;
 
 	/**
-	 * @var \Composer\Autoload\ClassLoader
+	 * @var ClassLoader
 	 */
 	public $composer;
 
@@ -79,26 +81,6 @@ class InitNADLIB
 		Request::removeCookiesFromRequest();
 		$this->endTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
 		return $this;
-	}
-
-	/**
-	 * Autoloading done by composer only
-	 */
-	public function initWithComposer()
-	{
-		$this->setDefaults();
-		$this->setErrorReporting();
-		$this->setCache();
-		Request::removeCookiesFromRequest();
-		$this->endTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
-	}
-
-	public function initWhoops()
-	{
-		$run = new Whoops\Run;
-		$handler = new Whoops\Handler\PrettyPageHandler;
-		$run->pushHandler($handler);
-		$run->register();
 	}
 
 	private function setDefaults()
@@ -185,12 +167,30 @@ border-radius: 5px;">');
 				header('Cache-Control: no-cache, no-store, max-age=0');
 				header('Expires: -1');
 			}
-		} else {
-			if (!Request::isCLI() && !headers_sent()) {
-				header('Cache-Control: no-cache, no-store, max-age=0');
-				header('Expires: -1');
-			}
+		} elseif (!Request::isCLI() && !headers_sent()) {
+			header('Cache-Control: no-cache, no-store, max-age=0');
+			header('Expires: -1');
 		}
+	}
+
+	/**
+	 * Autoloading done by composer only
+	 */
+	public function initWithComposer()
+	{
+		$this->setDefaults();
+		$this->setErrorReporting();
+		$this->setCache();
+		Request::removeCookiesFromRequest();
+		$this->endTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
+	}
+
+	public function initWhoops()
+	{
+		$run = new Whoops\Run();
+		$handler = new Whoops\Handler\PrettyPageHandler();
+		$run->pushHandler($handler);
+		$run->register();
 	}
 
 	private function setupComposer()

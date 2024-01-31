@@ -30,7 +30,10 @@ class RenderException
 
 		http_response_code($this->code ?: $e->getCode());
 		header('X-Exception:' . get_class($this->e));
-		header('X-Message:' . $this->e->getMessage());
+		$message = $this->e->getMessage();
+		$message = str_replace("\n", " ", $message);
+		$message = str_replace("\r", " ", $message);
+		header('X-Message:' . $message);
 
 		$accept = $_SERVER['HTTP_ACCEPT'];
 		header('X-Accept:' . $accept);
@@ -45,7 +48,7 @@ class RenderException
 		}
 
 		$message = $e->getMessage();
-		$message = ($message instanceof htmlString ||
+		$message = ($message instanceof HtmlString ||
 			$message[0] === '<')
 			? $message . ''
 			: htmlspecialchars($message);

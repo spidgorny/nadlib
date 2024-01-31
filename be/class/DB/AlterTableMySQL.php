@@ -8,7 +8,7 @@ class AlterTableMySQL extends AlterTableHandler implements AlterTableInterface
 	 * @param TableField[] $columns
 	 * @return string
 	 */
-	function getCreateQuery($table, array $columns)
+	public function getCreateQuery($table, array $columns)
 	{
 		$set = [];
 		foreach ($columns as $row) {
@@ -19,7 +19,7 @@ class AlterTableMySQL extends AlterTableHandler implements AlterTableInterface
 		return 'CREATE TABLE ' . $table . ' (' . implode(",\n", $set) . ');';
 	}
 
-	function getFieldParams(TableField $index)
+	public function getFieldParams(TableField $index)
 	{
 		$default = $index->default
 			? (in_array($index->default, $this->db->getReserved())
@@ -41,7 +41,7 @@ class AlterTableMySQL extends AlterTableHandler implements AlterTableInterface
 	 * @param TableField $index
 	 * @return string
 	 */
-	function getAlterQuery($table, $oldName, TableField $index)
+	public function getAlterQuery($table, $oldName, TableField $index)
 	{
 		$query = 'ALTER TABLE ' . $table . ' CHANGE ' . $oldName . ' ' . $index->field .
 			' ' . $index->type .
@@ -53,7 +53,7 @@ class AlterTableMySQL extends AlterTableHandler implements AlterTableInterface
 		return $query;
 	}
 
-	function getAddQuery($table, TableField $index)
+	public function getAddQuery($table, TableField $index)
 	{
 		$query = 'ALTER TABLE ' . $table . ' ADD COLUMN ' . $index->field .
 			' ' . $index->type .

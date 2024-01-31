@@ -7,60 +7,89 @@
  * - onSuccess();
  * - submitButton
  */
-abstract class HTMLFormProcessor extends AppController
+abstract class HTMLFormProcessor extends AppControllerBE
 {
-
-	/**
-	 * @var string
-	 */
-	protected $prefix = __CLASS__;
 
 	/**
 	 * @var array
 	 */
 	public $default = [];
-
+	public $ajax = true;
+	/**
+	 * For debugging
+	 * @var array
+	 */
+	public $method = [];
+	/**
+	 * @var string
+	 */
+	protected $prefix = __CLASS__;
 	/**
 	 * @var HTMLFormValidate
 	 */
 	protected $validator;
-
 	/**
 	 * Stored result of the validation. HTMLFormValidate doesn't cache the result
 	 * @var bool
 	 */
 	protected $validated = false;
-
-	public $ajax = true;
-
 	protected $submitButton = '';
-
 	/**
 	 * @var HTMLFormTable
 	 */
 	protected $form;
-
 	/**
 	 * Distinguishes initial display of the form (false) from after submit (true)
 	 * @var bool
 	 */
 	protected $submitted = false;
 
-	/**
-	 * For debugging
-	 * @var array
-	 */
-	public $method = [];
-
 	public function __construct(array $default = [])
 	{
 		parent::__construct();
 		$this->prefix = get_class($this);
-		$this->default = $default ? $default : $this->default;
+		$this->default = $default ?: $this->default;
 		assert($this->submitButton != '');
 		$this->submitButton = strip_tags(__($this->submitButton));
 		$this->submitted = $this->request->is_set($this->prefix);
 		//debug($this->prefix, $this->request->is_set($this->prefix));
+	}
+
+	public function __toString()
+	{
+		return '<div class="HTMLFormProcessor">' . $this->render() . '</div>';
+	}
+
+	/**
+	 * If inherited can be used as both string and HTMLFormTable
+	 * @return HTMLFormTable|string[]
+	 * @throws Exception
+	 */
+	public function render()
+	{
+		TaylorProfiler::start(__METHOD__);
+		$content = '';
+		if (!$this->form) {
+			$this->postInit();
+		}
+		//debug($this->validated);
+		//$errors = AP($this->desc)->column('error')->filter()->getData();
+		//debug($errors);
+		//debug($this->desc);
+		if ($this->validated) {
+			//$data = $this->form->getValues();	// doesn't work with multidimensional
+			$data = $this->request->getArray($this->prefix);
+			$content .= $this->s($this->onSuccess($data));
+		} else {
+			if ($this->submitted) {
+				$content .= '<div class="error alert alert-error ui-state-error padding">' .
+					__('The form is not complete. Please check the comments next to each field below.') . '</div>';
+			}
+			$content .= $this->s($this->showForm());
+		}
+		$content = $this->encloseInAA($content, $this->title);
+		TaylorProfiler::stop(__METHOD__);
+		return $content;
 	}
 
 	/**
@@ -105,39 +134,7 @@ abstract class HTMLFormProcessor extends AppController
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	public abstract function getDesc();
-
-	/**
-	 * If inherited can be used as both string and HTMLFormTable
-	 * @return HTMLFormTable|string[]
-	 * @throws Exception
-	 */
-	public function render()
-	{
-		TaylorProfiler::start(__METHOD__);
-		$content = '';
-		if (!$this->form) {
-			$this->postInit();
-		}
-		//debug($this->validated);
-		//$errors = AP($this->desc)->column('error')->filter()->getData();
-		//debug($errors);
-		//debug($this->desc);
-		if ($this->validated) {
-			//$data = $this->form->getValues();	// doesn't work with multidimensional
-			$data = $this->request->getArray($this->prefix);
-			$content .= $this->s($this->onSuccess($data));
-		} else {
-			if ($this->submitted) {
-				$content .= '<div class="error alert alert-error ui-state-error padding">' .
-					__('The form is not complete. Please check the comments next to each field below.') . '</div>';
-			}
-			$content .= $this->s($this->showForm());
-		}
-		$content = $this->encloseInAA($content, $this->title);
-		TaylorProfiler::stop(__METHOD__);
-		return $content;
-	}
+	abstract public function getDesc();
 
 	public function getForm(HTMLFormTable $preForm = null)
 	{
@@ -153,6 +150,8 @@ abstract class HTMLFormProcessor extends AppController
 		return $f;
 	}
 
+	abstract public function onSuccess(array $data);
+
 	public function showForm()
 	{
 		if (!$this->form) {
@@ -166,12 +165,5 @@ abstract class HTMLFormProcessor extends AppController
 		TaylorProfiler::stop(__METHOD__);
 		return $this->form->getContent();
 	}
-
-	public function __toString()
-	{
-		return '<div class="HTMLFormProcessor">' . $this->render() . '</div>';
-	}
-
-	public abstract function onSuccess(array $data);
 
 }

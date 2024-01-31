@@ -52,7 +52,7 @@ alert("xss");
 	public function test_double()
 	{
 		$c = new MockController();
-		$i = new MockIndex($c, Config::getInstance());
+		$i = new MockIndexDCI();
 		$v = new View(__DIR__ . '/template.phtml', $i);
 		$html = $v->render();
 		ini_set('xdebug.var_display_max_data', -1);

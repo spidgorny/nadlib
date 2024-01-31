@@ -2,17 +2,15 @@
 
 class CollectionQueryCache extends CollectionQuery
 {
-
 	public $count;
 	public $doCache = true;
 	public $data;
 
 	/**
 	 * Wrapper for retrieveDataFromDB() to store/retrieve data from the cache file
-	 * @param bool $allowMerge
 	 * @throws Exception
 	 */
-	public function retrieveDataFromCache($allowMerge = false)
+	public function retrieveDataFromCache()
 	{
 		if (!$this->data) {                                                    // memory cache
 			$this->query = $this->getQuery();

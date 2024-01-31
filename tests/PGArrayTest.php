@@ -110,14 +110,14 @@ line'])", $insert);
 	{
 		$pga = new PGArray($this->db);
 		$v1 = $pga->pg_array_parse('{{1,2},{3,4},{5}}');
-		$this->assertEquals([[1,2],[3,4],[5]], $v1);
+		$this->assertEquals([[1, 2], [3, 4], [5]], $v1);
 		$v2 = $pga->pg_array_parse('{dfasdf,"qw,,e{q\"we",\'qrer\'}');
 		$this->assertEquals([
 			0 => 'dfasdf',
-    		1 => 'qw,,e{q"we',
-    		2 => 'qrer',
+			1 => 'qw,,e{q"we',
+			2 => 'qrer',
 		], $v2);
-		$this->assertEquals(['',''], $pga->pg_array_parse('{,}'));
+		$this->assertEquals(['', ''], $pga->pg_array_parse('{,}'));
 		$this->assertEquals([], $pga->pg_array_parse('{}'));
 		$this->assertEquals(null, $pga->pg_array_parse('null'));
 		$this->assertEquals(null, $pga->pg_array_parse(''));
@@ -126,7 +126,7 @@ line'])", $insert);
 	public function test_upload_request()
 	{
 		$pga = new PGArray($this->db);
-		$res = $pga->getPGArray(file_get_contents(__DIR__.'/upload_request.json'));
+		$res = $pga->getPGArray(file_get_contents(__DIR__ . '/upload_request.json'));
 		$this->assertEquals([
 			'ORSVersion:1976781',
 			"LotcheckUploadRequestModel:{\"action\":\"sendRequest\",\"banner\":\"\",\"server\":\"UJI SILVER BULLET\",\"lotcheck_status\":\"Upload to test server\",\"template_id\":\"4\",\"temp_email_to\":\"epes@nintendo.de,sqc_DataUpload@hamster.nintendo.co.jp,ml_lotcheck_report_os@hamster.nintendo.co.jp,Hiroyuki.Okazaki@nintendo.de\",\"temp_email_cc\":\"howitta@nal.nintendo.com.au,Richard.Sheridan@nintendo.de,Hiroyuki.Uesugi@nintendo.de,eShop_NOE@nintendo.de,lotcheck@nintendo.de,ml-ncl-gsl-oem-lotcheck@nintendo.co.jp,ml-ncl-gsl-oem-order@nintendo.co.jp\",\"temp_email_bc\":\"\",\"temp_email_subject\":\"UPLOAD *Before Lotcheck* - 3DSWare - CN_BBEP_00.00.cia\",\"temp_email_message\":\"Dear all,\\r\\nplease be advised that the following files will be posted to our \\r\\ndirectory TESTSERVER on UJIs FTP-server.\\r\\n\\r\\nAdditional files: CN_BBEP00.zip\\n\\n\\nSystem: CTR\\/KTR\\nTitle: Pinball Breaker 2\\nFilename: CN_BBEP_00.00.cia\\nCRC: 941656BE\\n\\nSTATUS: Upload to test server\",\"queue\":\"Lotcheck\",\"queue_text\":\"Lotcheck\",\"btnSubmit\":\"Send Upload Request\",\"d\":null,\"attachments\":[\"CN_BBEP00.zip\"]}",

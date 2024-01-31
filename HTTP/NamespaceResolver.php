@@ -7,8 +7,7 @@ class NamespaceResolver implements ResolverInterface
 	 * @var Request
 	 */
 	public $request;
-
-	public $ns;
+	protected $ns;
 
 	public function __construct(array $tryNS = [])
 	{
@@ -39,17 +38,6 @@ class NamespaceResolver implements ResolverInterface
 		return $controller;
 	}
 
-	public function getDefault($returnDefault)
-	{
-		if ($returnDefault && class_exists('Config')) {
-			// not good as we never get 404
-			$controller = Config::getInstance()->defaultController;
-		} else {
-			$controller = null;
-		}
-		return $controller;
-	}
-
 	public function tryNamespaces($class)
 	{
 		$last = null;
@@ -61,6 +49,16 @@ class NamespaceResolver implements ResolverInterface
 			}
 		}
 		return $last;
+	}
+
+	public function getDefault($returnDefault)
+	{
+		if ($returnDefault && class_exists('Config')) {
+			// not good as we never get 404
+			return Config::getInstance()->defaultController;
+		}
+
+		return null;
 	}
 
 }

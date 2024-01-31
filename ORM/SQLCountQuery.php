@@ -35,7 +35,7 @@ class SQLCountQuery
 			$query = $this->cq->getQuery();
 			//debug('performing', $query);
 			if (is_string($query)) {
-				xdebug_break();
+				throw new RuntimeException(__METHOD__);
 			}
 			$res = $query->perform();
 			$count = $this->cq->db->numRows($res);
@@ -51,7 +51,7 @@ class SQLCountQuery
 		$countCollection->orderBy = '';
 		$countCollection->orderBy = str_replace('LIMIT 50', '', $countCollection->orderBy);
 		$countCollection->allowMerge = true;    // count() can = 0
-		$firstRow = $this->db->fetchAssoc($countCollection->getQueryWithLimit() . '');
+		$firstRow = $this->cq->db->fetchAssoc($countCollection->getQueryWithLimit() . '');
 		$count = first($firstRow);
 	}
 }

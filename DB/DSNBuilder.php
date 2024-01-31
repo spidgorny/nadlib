@@ -16,9 +16,9 @@ class DSNBuilder
 		return $builder;
 	}
 
-	function getDSN(array $params)
+	public function getDSN(array $params)
 	{
-		$url = http_build_query($params, NULL, ';', PHP_QUERY_RFC3986);
+		$url = http_build_query($params, null, ';', PHP_QUERY_RFC3986);
 		$url = str_replace('%20', ' ', $url);    // back convert
 		$url = urldecode($url);
 		return $url;

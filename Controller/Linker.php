@@ -26,6 +26,24 @@ class Linker
 	}
 
 	/**
+	 * Returns '<a href="$page?$params" $more">$text</a>
+	 * @param string $text
+	 * @param array $params
+	 * @param string $page
+	 * @param array $more
+	 * @param bool $isHTML
+	 * @return HTMLTag
+	 */
+	public function makeLink($text, array $params, $page = '', array $more = [], $isHTML = false)
+	{
+		//debug($text, $params, $page, $more, $isHTML);
+		$content = new HTMLTag('a', [
+				'href' => $this->makeURL($params, $page),
+			] + $more, $text, $isHTML);
+		return $content;
+	}
+
+	/**
 	 * @param array|string $params
 	 * @param null $prefix
 	 * @return URL
@@ -77,41 +95,6 @@ class Linker
 		return $url;
 	}
 
-	/**
-	 * Only appends $this->linkVars to the URL.
-	 * Use this one if your linkVars is defined.
-	 * @param array $params
-	 * @param string $page
-	 * @return URL
-	 */
-	public function makeRelURL(array $params = [], $page = null)
-	{
-		return $this->makeURL(
-			$params                           // 1st priority
-			+ (new URL())->getParams()            // 2nd priority
-			+ $this->linkVars,
-			$page
-		);                // 3rd priority
-	}
-
-	/**
-	 * Returns '<a href="$page?$params" $more">$text</a>
-	 * @param string $text
-	 * @param array $params
-	 * @param string $page
-	 * @param array $more
-	 * @param bool $isHTML
-	 * @return HTMLTag
-	 */
-	public function makeLink($text, array $params, $page = '', array $more = [], $isHTML = false)
-	{
-		//debug($text, $params, $page, $more, $isHTML);
-		$content = new HTMLTag('a', [
-				'href' => $this->makeURL($params, $page),
-			] + $more, $text, $isHTML);
-		return $content;
-	}
-
 	public function makeAjaxLink($text, array $params, $div, $jsPlus = '', $aMore = [], $prefix = '')
 	{
 		$url = $this->makeURL($params, $prefix);
@@ -126,10 +109,10 @@ class Linker
 	}
 
 	/**
-	 * @see makeRelURL
 	 * @param array $params
 	 * @return URL
 	 * @throws Exception
+	 * @see makeRelURL
 	 */
 	public function adjustURL(array $params)
 	{
@@ -153,9 +136,26 @@ class Linker
 	}
 
 	/**
+	 * Only appends $this->linkVars to the URL.
+	 * Use this one if your linkVars is defined.
+	 * @param array $params
+	 * @param string $page
+	 * @return URL
+	 */
+	public function makeRelURL(array $params = [], $page = null)
+	{
+		return $this->makeURL(
+			$params                           // 1st priority
+			+ (new URL())->getParams()            // 2nd priority
+			+ $this->linkVars,
+			$page
+		);                // 3rd priority
+	}
+
+	/**
 	 * There is no $formMore parameter because you get the whole form returned.
 	 * You can modify it after returning as you like.
-	 * @param string|htmlString $name - if object then will be used as is
+	 * @param string|HtmlString $name - if object then will be used as is
 	 * @param string|null $action
 	 * @param string $formAction
 	 * @param array $hidden
@@ -184,7 +184,7 @@ class Linker
 		if (!is_null($action)) {
 			$f->hidden('action', $action);
 		}
-		if ($name instanceof htmlString) {
+		if ($name instanceof HtmlString) {
 			$f->button($name, [
 					'type' => "submit",
 					'id' => 'button-action-' . $action,

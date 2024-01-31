@@ -1,11 +1,12 @@
 <?php
 
-class AnyPage /*extends AppController */{
+class AnyPage /*extends AppController */
+{
 
 	/**
 	 * @var Path
 	 */
-	var $folder;
+	public $folder;
 
 	/**
 	 * @var Request
@@ -19,12 +20,14 @@ class AnyPage /*extends AppController */{
 
 	public $layout = '';
 
-	function __construct($folder) {
+	public function __construct($folder)
+	{
 		$this->folder = new Path($folder);
 		$this->request = Request::getInstance();
 	}
 
-	function detect() {
+	public function detect()
+	{
 		$file = $this->request->getPathAfterDocRoot()->basename();
 		//debug($file);
 		$mask = cap($this->folder) . $file . '.*';
@@ -37,7 +40,8 @@ class AnyPage /*extends AppController */{
 		return false;
 	}
 
-	function render() {
+	public function render()
+	{
 		$this->request->set('ajax', true);
 		$v = new View($this->template, $this);
 		$v->baseHref = $this->request->getLocation();

@@ -48,7 +48,7 @@ class AlterIndex extends AppControllerBE
 		$content[] = 'DB: ' . $this->db->database . BR;
 		$content[] = 'File: ' . basename($this->jsonFile) . BR;
 		if ($this->db->database) {
-			$content[] = $this->getActionButton('Save DB Struct', 'saveStruct', NULL, [], 'btn btn-info');
+			$content[] = $this->getActionButton('Save DB Struct', 'saveStruct', null, [], 'btn btn-info');
 		}
 		return $content;
 	}
@@ -74,7 +74,7 @@ class AlterIndex extends AppControllerBE
 		return $content;
 	}
 
-	function saveStructAction()
+	public function saveStructAction()
 	{
 		$struct = $this->getDBStruct();
 		if (phpversion() > '5.4') {
@@ -87,7 +87,7 @@ class AlterIndex extends AppControllerBE
 		return 'Saved: ' . strlen($json) . '<br />';
 	}
 
-	function getDBStruct()
+	public function getDBStruct()
 	{
 		$result = [];
 		$tables = $this->db->getTables();
@@ -102,9 +102,9 @@ class AlterIndex extends AppControllerBE
 		return $result;
 	}
 
-	function render()
+	public function render()
 	{
-		$content[] = $this->performAction();
+		$content[] = $this->performAction($this->detectAction());
 		if ($this->jsonFile && is_readable($this->jsonFile)) {
 			$struct = file_get_contents($this->jsonFile);
 			$struct = json_decode($struct, true);
@@ -121,7 +121,7 @@ class AlterIndex extends AppControllerBE
 		return $content;
 	}
 
-	function renderTableStruct(array $struct, array $local)
+	public function renderTableStruct(array $struct, array $local)
 	{
 		$content = '';
 		foreach ($struct as $table => $desc) {
@@ -146,22 +146,6 @@ class AlterIndex extends AppControllerBE
 			]);
 		}
 		return $content;
-	}
-
-	function convertFromOtherDB(array $desc)
-	{
-		if ($desc['tbl_name']) {    // SQLite
-			$desc['Table'] = $desc['tbl_name'];
-			unset($desc['tbl_name']);
-			$desc['Key_name'] = $desc['name'];
-			unset($desc['name']);
-			$desc['Index_type'] = $desc['type'];
-			unset($desc['type']);
-			unset($desc['rootpage']);
-			$desc['comment'] = $desc['sql'];
-			unset($desc['sql']);
-		}
-		return $desc;
 	}
 
 	/**
@@ -212,6 +196,22 @@ class AlterIndex extends AppControllerBE
 			}
 		}
 		return $indexCompare;
+	}
+
+	public function convertFromOtherDB(array $desc)
+	{
+		if ($desc['tbl_name']) {    // SQLite
+			$desc['Table'] = $desc['tbl_name'];
+			unset($desc['tbl_name']);
+			$desc['Key_name'] = $desc['name'];
+			unset($desc['name']);
+			$desc['Index_type'] = $desc['type'];
+			unset($desc['type']);
+			unset($desc['rootpage']);
+			$desc['comment'] = $desc['sql'];
+			unset($desc['sql']);
+		}
+		return $desc;
 	}
 
 }

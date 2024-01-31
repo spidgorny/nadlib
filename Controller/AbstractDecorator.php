@@ -25,25 +25,25 @@
  * <code>
  * class ConcreteComponent
  * {
- * 	public $baz = 'baz';
- * 	public function foo()
- * 	{
- * 		echo "ConcreteComponent::foo()\n";
- * 	}
- * 	public function bar($x,$y)
- * 	{
- * 		echo "ConcreteComponent::bar($x,$y)\n";
- * 	}
+ *  public $baz = 'baz';
+ *  public function foo()
+ *  {
+ *    echo "ConcreteComponent::foo()\n";
+ *  }
+ *  public function bar($x,$y)
+ *  {
+ *    echo "ConcreteComponent::bar($x,$y)\n";
+ *  }
  * }
  *
  * class ConcreteDecorator extends AbstractDecorator
  * {
- * 	const COMPONENT_CLASS = 'ConcreteComponent';
- * 	public function foo()
- * 	{
- * 		parent::foo();
- * 		echo "ConcreteDecorator::foo()\n";
- * 	}
+ *  const COMPONENT_CLASS = 'ConcreteComponent';
+ *  public function foo()
+ *  {
+ *    parent::foo();
+ *    echo "ConcreteDecorator::foo()\n";
+ *  }
  * }
  *
  * $c = new ConcreteDecorator(new ConcreteComponent());
@@ -65,33 +65,33 @@
  * <code>
  * interface IConcreteComponent
  * {
- * 	public function foo();
- * 	public function bar($x,$y);
+ *  public function foo();
+ *  public function bar($x,$y);
  * }
  * class ConcreteComponent implements IConcreteComponent
  * {
- * 	public $baz = 'baz';
- * 	public function foo()
- * 	{
- * 		echo "ConcreteComponent::foo()\n";
- * 	}
- * 	public function bar($x,$y)
- * 	{
- * 		echo "ConcreteComponent::bar($x,$y)\n";
- * 	}
+ *  public $baz = 'baz';
+ *  public function foo()
+ *  {
+ *    echo "ConcreteComponent::foo()\n";
+ *  }
+ *  public function bar($x,$y)
+ *  {
+ *    echo "ConcreteComponent::bar($x,$y)\n";
+ *  }
  * }
  * class ConcreteDecorator extends AbstractDecorator implements IConcreteComponent
  * {
- * 	const COMPONENT_CLASS = 'ConcreteComponent';
- * 	public function foo()
- * 	{
- * 		parent::foo();
- * 		echo "ConcreteDecorator::foo()\n";
- * 	}
- * 	public function bar($x,$y)
- * 	{
- * 		return parent::bar($x,$y);
- * 	}
+ *  const COMPONENT_CLASS = 'ConcreteComponent';
+ *  public function foo()
+ *  {
+ *    parent::foo();
+ *    echo "ConcreteDecorator::foo()\n";
+ *  }
+ *  public function bar($x,$y)
+ *  {
+ *    return parent::bar($x,$y);
+ *  }
  * }
  * </code>
  *
@@ -124,24 +124,24 @@ abstract class AbstractDecorator
 	 *
 	 * Example:
 	 * <code>
-	 * 	class Component
-	 * 	{
-	 * 		...
-	 * 	}
-	 * 	class Decorator1 extends AbstractDecorator
-	 * 	{
-	 * 		...
-	 * 	}
-	 * 	class Decorator2 extends AbstractDecorator
-	 * 	{
-	 * 		...
-	 * 	}
-	 * 	$decoratedComponent = new Decorator1(new Decorator2(new Component()));
+	 *  class Component
+	 *  {
+	 *    ...
+	 *  }
+	 *  class Decorator1 extends AbstractDecorator
+	 *  {
+	 *    ...
+	 *  }
+	 *  class Decorator2 extends AbstractDecorator
+	 *  {
+	 *    ...
+	 *  }
+	 *  $decoratedComponent = new Decorator1(new Decorator2(new Component()));
 	 * </code>
 	 *
 	 * @param object $component Object of type COMPONENT_CLASS or according decorator
-	 * @see AbstractDecorator::COMPONENT_CLASS
 	 * @return void
+	 * @see AbstractDecorator::COMPONENT_CLASS
 	 */
 	public function __construct($component)
 	{
@@ -169,6 +169,7 @@ abstract class AbstractDecorator
 			__CLASS__, __FUNCTION__, $type, gettype($component)
 		));
 	}
+
 	/**
 	 * Magic method, grants access to the component's properties
 	 *
@@ -179,6 +180,7 @@ abstract class AbstractDecorator
 	{
 		return $this->component->$name;
 	}
+
 	/**
 	 * Magic method, grants access to the component's properties
 	 *
@@ -190,16 +192,18 @@ abstract class AbstractDecorator
 	{
 		$this->component->$name = $value;
 	}
+
 	/**
 	 * Magic method, grants access to the component's properties
 	 *
 	 * @param string $name
-	 * @return boolean
+	 * @return bool
 	 */
 	public function __isset($name)
 	{
 		return isset($this->component->$name);
 	}
+
 	/**
 	 * Magic method, grants access to the component's properties
 	 *
@@ -210,6 +214,7 @@ abstract class AbstractDecorator
 	{
 		unset($this->component->$name);
 	}
+
 	/**
 	 * Magic method, simulates the component's interface
 	 *
@@ -222,7 +227,7 @@ abstract class AbstractDecorator
 		if (method_exists($this->component, $name)) {
 			return call_user_func_array([$this->component, $name], $arguments);
 		} else {
-			throw new Exception('Method '.$name.' not found.');
+			throw new Exception('Method ' . $name . ' not found.');
 		}
 	}
 }

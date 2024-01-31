@@ -1,23 +1,20 @@
 <?php
 
-class MiniIndex extends AppController
+class MiniIndex extends AppControllerBE
 {
-
-	/**
-	 * @var Menu
-	 */
-	public $menu;
-
-	/**
-	 * @var AppController
-	 */
-	public $controller;
 
 	/**
 	 * @var MiniIndex
 	 */
 	protected static $instance;
-
+	/**
+	 * @var Menu
+	 */
+	public $menu;
+	/**
+	 * @var AppControllerBE
+	 */
+	public $controller;
 	public $header = [];
 	public $footer = [];
 
@@ -54,7 +51,7 @@ class MiniIndex extends AppController
 		return self::$instance;
 	}
 
-	function init()
+	public function init()
 	{
 		$this->controller = $this->request->getController();
 		//debug(get_class($this), spl_object_hash($this));
@@ -64,9 +61,9 @@ class MiniIndex extends AppController
 		}
 	}
 
-	function render()
+	public function render()
 	{
-		if ($this->controller->layout == 'none' || $this->request->isAjax()) {
+		if ($this->controller->layout === 'none' || $this->request->isAjax()) {
 			$content = $this->renderController();
 		} else {
 			$v = new View('template.phtml', $this);
@@ -79,7 +76,7 @@ class MiniIndex extends AppController
 		return $content;
 	}
 
-	function renderController()
+	public function renderController()
 	{
 		$content = '';
 		if ($this->controller) {
@@ -95,17 +92,31 @@ class MiniIndex extends AppController
 		return $content;
 	}
 
-	function message($text)
-	{
-		return '<div class="message">' . $text . '</div>';
-	}
-
-	function error($text)
+	public function error($text)
 	{
 		return '<div class="ui-state-error alert alert-error alert-danger padding">' . $text . '</div>';
 	}
 
-	function addJQuery()
+	public function showSidebar()
+	{
+		if (method_exists($this->controller, 'sidebar')) {
+			return $this->controller->sidebar();
+		}
+	}
+
+	public function message($text)
+	{
+		return '<div class="message">' . $text . '</div>';
+	}
+
+	public function addJQueryUI()
+	{
+		$this->addJQuery();
+		$this->footer['jqueryui.js'] = '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>';
+		$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/base/jquery-ui.css');
+	}
+
+	public function addJQuery()
 	{
 		$this->footer['jquery.js'] = '
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
@@ -113,40 +124,24 @@ class MiniIndex extends AppController
 		';
 	}
 
-	function addJQueryUI()
-	{
-		$this->addJQuery();
-		$this->footer['jqueryui.js'] = '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>';
-		$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/base/jquery-ui.css');
-	}
-
-	function addJS($source)
-	{
-		$this->footer[$source] = '<script src="' . $source . '"></script>';
-	}
-
-	function addCSS($source)
+	public function addCSS($source)
 	{
 		$this->header[$source] = '<link rel="stylesheet" type="text/css" href="' . $source . '" />';
 	}
 
-	function showSidebar()
+public function addJS($source)
 	{
-		$content = '';
-		if (method_exists($this->controller, 'sidebar')) {
-			$content = $this->controller->sidebar();
-		}
-		return $content;
+		$this->footer[$source] = '<script src="' . $source . '"></script>';
 	}
 
-	function renderProfiler()
+	public function renderProfiler()
 	{
 		$profiler = $GLOBALS['profiler'];
 		/** @var $profiler TaylorProfiler */
 		if ($profiler) {
 			$content = $profiler->renderFloat();
 			$content .= $profiler->printTimers(true);
-		} else if (DEVELOPMENT) {
+		} elseif (DEVELOPMENT) {
 			$content = TaylorProfiler::renderFloat();
 		}
 		return $content;

@@ -7,7 +7,7 @@
 class CsvIterator implements Iterator, Countable
 {
 
-	var $filename;
+	public $filename;
 
 	const ROW_SIZE = 4194304; // 4096*1024;
 
@@ -27,7 +27,7 @@ class CsvIterator implements Iterator, Countable
 	protected $currentElement = null;
 
 	/**
-	 * @var integer - cached amount of rows in a file
+	 * @var int - cached amount of rows in a file
 	 */
 	protected $numRows;
 
@@ -66,7 +66,7 @@ class CsvIterator implements Iterator, Countable
 	public function __construct($filename, $delimiter = ',')
 	{
 		$this->filename = $filename;
-		ini_set('auto_detect_line_endings', TRUE);
+		ini_set('auto_detect_line_endings', true);
 		$this->delimiter = $delimiter;
 		try {
 			$this->filePointer = $this->fopen_utf8($filename, 'r');
@@ -149,7 +149,7 @@ class CsvIterator implements Iterator, Countable
 	/**
 	 * @access public
 	 * @inheritdoc Returns the array value in the next place that's pointed to by the internal array pointer, or FALSE if there are no more elements.
-	 * @return array|boolean Returns FALSE on EOF reached, VALUE otherwise.
+	 * @return array|bool Returns FALSE on EOF reached, VALUE otherwise.
 	 */
 	public function next()
 	{
@@ -165,7 +165,7 @@ class CsvIterator implements Iterator, Countable
 	 * This method checks if the next row is a valid row.
 	 *
 	 * @access public
-	 * @return boolean If the next row is a valid row.
+	 * @return bool If the next row is a valid row.
 	 */
 	public function valid()
 	{
@@ -176,7 +176,7 @@ class CsvIterator implements Iterator, Countable
 	 * If called multiple times should return the same value
 	 * until next() is called
 	 */
-	function read()
+	public function read()
 	{
 		//debug_pre_print_backtrace();
 		if ($this->rowCounter != $this->lastRead) {

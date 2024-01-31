@@ -3,7 +3,7 @@
 class SysInfo extends AppController
 {
 
-	function render()
+	public function render()
 	{
 		$a = [];
 		$a['phpVersion'] = phpversion();

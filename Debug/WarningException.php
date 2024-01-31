@@ -1,5 +1,6 @@
 <?php
 
-class WarningException extends Exception {
+class WarningException extends Exception
+{
 
 }

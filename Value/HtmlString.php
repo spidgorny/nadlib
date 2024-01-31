@@ -1,25 +1,22 @@
 <?php
 
 /**
- * Use $content instanceof htmlString ? $content : htmlspecialchars($content);
+ * Use $content instanceof HtmlString ? $content : htmlspecialchars($content);
  * Update: use htmlString:hsc($content)
  */
-class htmlString implements ToStringable
+class HtmlString implements ToStringable
 {
+	use DirectDataAccess;
 
 	protected $value = '';
 
-	public function __construct($input)
+	public function __construct($input, array $props = [])
 	{
 		if (is_array($input)) {
 			$input = implode(PHP_EOL, $input);
 		}
 		$this->value = $input . '';
-	}
-
-	public function __toString()
-	{
-		return $this->value . '';
+		$this->data = $props;
 	}
 
 	/**
@@ -29,23 +26,17 @@ class htmlString implements ToStringable
 	 */
 	public static function hsc($string)
 	{
-		if ($string instanceof htmlString) {
+		if ($string instanceof self) {
 			return $string;
-		} else {
-			return htmlspecialchars($string);
 		}
+
+		return htmlspecialchars($string);
 	}
 
 	public function replace($one, $two)
 	{
-		$new = new htmlString(
+		return new HtmlString(
 			str_replace($one, $two, $this->value));
-		return $new;
-	}
-
-	public function render()
-	{
-		return $this->__toString();
 	}
 
 	public function cli()
@@ -53,4 +44,13 @@ class htmlString implements ToStringable
 		return trim(strip_tags($this->render()));
 	}
 
+	public function render()
+	{
+		return $this->__toString();
+	}
+
+	public function __toString()
+	{
+		return $this->value . '';
+	}
 }

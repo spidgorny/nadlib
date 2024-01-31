@@ -3,7 +3,7 @@
 class ErrorLog extends AppControllerBE
 {
 
-	var $file = '/var/log/apache2/error.log';
+	public $file = '/var/log/apache2/error.log';
 
 	public function render()
 	{

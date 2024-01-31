@@ -20,7 +20,7 @@ class ContentEditable
 	 */
 	public $content;
 
-	function __construct($file)
+	public function __construct($file)
 	{
 		$this->file = $file;
 		$files = glob('pages/' . $this->file . '.*');
@@ -32,7 +32,7 @@ class ContentEditable
 		//echo __METHOD__.': '.$this->content.'<br />'."\n";
 	}
 
-	function getHeader()
+	public function getHeader()
 	{
 		$index = Index::getInstance();
 		$index->addJQuery();
@@ -46,19 +46,19 @@ class ContentEditable
 		$index->addJS("vendor/spidgorny/nadlib/js/contentEditable.js");
 	}
 
-	function store()
+	public function store()
 	{
 		$html = html_entity_decode($this->content);
 		file_put_contents($this->filename, $html);
 		//echo __METHOD__.': '.$this->content.'<br />'."\n";
 	}
 
-	function __destruct()
+	public function __destruct()
 	{
 		//$this->store();
 	}
 
-	function __toString()
+	public function __toString()
 	{
 		$ext = pathinfo($this->filename, PATHINFO_EXTENSION);
 		switch ($ext) {
@@ -84,7 +84,7 @@ class ContentEditable
 	 * @return string
 	 * @throws Exception
 	 */
-	function render($saveURL)
+	public function render($saveURL)
 	{
 		$content = '<div class="editable" data-save-url="' . $saveURL . urlencode($this->file) . '">' .
 			$this->__toString() .

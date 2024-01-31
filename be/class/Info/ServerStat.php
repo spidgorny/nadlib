@@ -2,17 +2,17 @@
 
 class ServerStat extends AppControllerBE
 {
-	var $start_time;
-	var $LOG = [];
-	var $COUNTQUERIES = 0;
-	var $totalTime;
+	public $start_time;
+	public $LOG = [];
+	public $COUNTQUERIES = 0;
+	public $totalTime;
 
 	/**
 	 * @var Config
 	 */
-	var $config;
+	public $config;
 
-	function __construct($start_time = null, $LOG = [], $COUNTQUERIES = 0)
+	public function __construct($start_time = null, $LOG = [], $COUNTQUERIES = 0)
 	{
 		parent::__construct();
 		$this->start_time = $start_time ? $start_time : $_SERVER['REQUEST_TIME'];
@@ -21,32 +21,18 @@ class ServerStat extends AppControllerBE
 		$this->config = Config::getInstance();
 	}
 
-	function render()
-	{
-		$this->index->addJS('be/js/main.js');
-		$content = $this->performAction();
-		if (!$content) {
-			$content = '<div
-				id="div_SystemInfo"
-				class="row updateHere"
-				src="?c=ServerStat&ajax=1&action=updateHere">' . $this->renderEverything() . '</div>';
-
-		}
-		return $content;
-	}
-
 	/**
 	 * AJAX
 	 * @return string
 	 */
-	function updateHereAction()
+	public function updateHereAction()
 	{
 		$content = $this->renderEverything();
 		$content .= '<script> updateHere(); </script>';
 		return $content;
 	}
 
-	function renderEverything()
+	public function renderEverything()
 	{
 		$content = '<div class="col-md-5">';
 		$content .= '<fieldset><legend>PHP Info</legend>' . $this->getPHPInfo() . '</fieldset>';
@@ -65,7 +51,7 @@ class ServerStat extends AppControllerBE
 		return $content;
 	}
 
-	function getPHPInfo()
+	public function getPHPInfo()
 	{
 		$useMem = memory_get_usage();
 		$allMem = intval(ini_get('memory_limit')) * 1024 * 1024;
@@ -97,7 +83,12 @@ class ServerStat extends AppControllerBE
 		return $s;
 	}
 
-	function getPerformanceInfo()
+	public function getBarURL($percent)
+	{
+		return AutoLoad::getInstance()->nadlibFromDocRoot . 'bar.php?rating=' . round($percent) . '&!border=0&height=25';
+	}
+
+	public function getPerformanceInfo()
 	{
 		$this->LOG = is_array($this->LOG) ? $this->LOG : [];
 
@@ -136,7 +127,19 @@ class ServerStat extends AppControllerBE
 		return $conf;
 	}
 
-	function getServerInfo()
+	public function getBarWith($value)
+	{
+		return new HTMLTag('td', [
+			'style' => 'width: 100px; background: no-repeat url(' . $this->getBarURL($value) . ');',
+		], $value . ' %');
+	}
+
+	public function getBar($percent)
+	{
+		return '<img src="' . $this->getBarURL($percent) . '" />';
+	}
+
+	public function getServerInfo()
 	{
 		$conf = [];
 		$total = @disk_total_space('/');
@@ -209,105 +212,6 @@ class ServerStat extends AppControllerBE
 		return $s;
 	}
 
-	function getQueryLog()
-	{
-		$s = new slTable('dumpQueries', 'width="100%"');
-		$s->thes([
-			'query'    => ['name' => 'Query', 'no_hsc' => true, 'colspan' => 7, 'new_tr' => true],
-			'function' => '<a href="javascript: void(0);" onclick="toggleRows(\'dumpQueries\');">Func.</a>',
-			'line'     => '(l)',
-			//'results' => 'Rows',
-			'elapsed'  => ['name' => '1st', 'decimals' => 3],
-			'count'    => '#',
-			'total'    => ['name' => $this->totalTime, 'decimals' => 3],
-			'percent'  => '100%',
-		]);
-		$s->data = ifsetor($this->LOG, ifsetor($this->config->getDB()->getQueryLog()));
-		$s->isOddEven = true;
-		$s->more = 'class="nospacing"';
-		return $s;
-	}
-
-	function format_uptime($seconds)
-	{
-		$secs = intval($seconds % 60);
-		$mins = intval($seconds / 60 % 60);
-		$hours = intval($seconds / 3600 % 24);
-		$days = intval($seconds / 86400);
-
-		$uptimeString = $days . "D ";
-		$uptimeString .= str_pad($hours, 2, '0', STR_PAD_LEFT) . ":";
-		$uptimeString .= str_pad($mins, 2, '0', STR_PAD_LEFT) . ":";
-		$uptimeString .= str_pad($secs, 2, '0', STR_PAD_LEFT);
-		return $uptimeString;
-	}
-
-	function getBarURL($percent)
-	{
-		$content = AutoLoad::getInstance()->nadlibFromDocRoot . 'bar.php?rating=' . round($percent) . '&!border=0&height=25';
-		return $content;
-	}
-
-	function getBar($percent)
-	{
-		$content = '<img src="' . $this->getBarURL($percent) . '" />';
-		return $content;
-	}
-
-	function getBarWith($value)
-	{
-		return new HTMLTag('td', [
-			'style' => 'width: 100px; background: no-repeat url(' . $this->getBarURL($value) . ');',
-		], $value . ' %');
-	}
-
-	protected function getStat($_statPath = '/proc/stat')
-	{
-		$stat = @file_get_contents($_statPath);
-
-		if (substr($stat, 0, 3) == 'cpu') {
-			$parts = explode(" ", preg_replace("!cpu +!", "", $stat));
-		} else {
-			return false;
-		}
-
-		$return = [];
-		$return['user'] = $parts[0];
-		$return['nice'] = $parts[1];
-		$return['system'] = $parts[2];
-		$return['idle'] = $parts[3];
-		return $return;
-	}
-
-	function getRAMInfo()
-	{
-		$meminfo = "/proc/meminfo";
-		if (@file_exists($meminfo)) {
-			$mem = file_get_contents($meminfo);
-			$totalp = 0;
-			if (preg_match('/MemTotal\:\s+(\d+) kB/', $mem, $matches)) {
-				$totalp = $matches[1];
-			}
-			unset($matches);
-
-			$freep = 0;
-			if (preg_match('/MemFree\:\s+(\d+) kB/', $mem, $matches)) {
-				$freep = $matches[1];
-			}
-			$freiq = $freep;
-			$insgesamtq = $totalp;
-			$belegtq = $insgesamtq - $freiq;
-			$prozent_belegtq = 100 * $belegtq / $insgesamtq;
-		}
-		$res = [
-			'total'   => ifsetor($totalp),
-			'used'    => ifsetor($belegtq),
-			'free'    => ifsetor($freiq),
-			'percent' => ifsetor($prozent_belegtq),
-		];
-		return $res;
-	}
-
 	function getCpuUsage($_statPath = '/proc/stat')
 	{
 		TaylorProfiler::start(__METHOD__);
@@ -336,7 +240,87 @@ class ServerStat extends AppControllerBE
 		return $percentages;
 	}
 
-	function sortLog($a, $b)
+	protected function getStat($_statPath = '/proc/stat')
+	{
+		$stat = @file_get_contents($_statPath);
+
+		if (substr($stat, 0, 3) == 'cpu') {
+			$parts = explode(" ", preg_replace("!cpu +!", "", $stat));
+		} else {
+			return false;
+		}
+
+		$return = [];
+		$return['user'] = $parts[0];
+		$return['nice'] = $parts[1];
+		$return['system'] = $parts[2];
+		$return['idle'] = $parts[3];
+		return $return;
+	}
+
+	public function getRAMInfo()
+	{
+		$meminfo = "/proc/meminfo";
+		if (@file_exists($meminfo)) {
+			$mem = file_get_contents($meminfo);
+			$totalp = 0;
+			if (preg_match('/MemTotal\:\s+(\d+) kB/', $mem, $matches)) {
+				$totalp = $matches[1];
+			}
+			unset($matches);
+
+			$freep = 0;
+			if (preg_match('/MemFree\:\s+(\d+) kB/', $mem, $matches)) {
+				$freep = $matches[1];
+			}
+			$freiq = $freep;
+			$insgesamtq = $totalp;
+			$belegtq = $insgesamtq - $freiq;
+			$prozent_belegtq = 100 * $belegtq / $insgesamtq;
+		}
+		$res = [
+			'total' => ifsetor($totalp),
+			'used' => ifsetor($belegtq),
+			'free' => ifsetor($freiq),
+			'percent' => ifsetor($prozent_belegtq),
+		];
+		return $res;
+	}
+
+	public function format_uptime($seconds)
+	{
+		$secs = intval($seconds % 60);
+		$mins = intval($seconds / 60 % 60);
+		$hours = intval($seconds / 3600 % 24);
+		$days = intval($seconds / 86400);
+
+		$uptimeString = $days . "D ";
+		$uptimeString .= str_pad($hours, 2, '0', STR_PAD_LEFT) . ":";
+		$uptimeString .= str_pad($mins, 2, '0', STR_PAD_LEFT) . ":";
+		$uptimeString .= str_pad($secs, 2, '0', STR_PAD_LEFT);
+		return $uptimeString;
+	}
+
+	public function getQueryLog()
+	{
+		$s = new slTable('dumpQueries', 'width="100%"');
+		$s->thes([
+			'query' => ['name' => 'Query', 'no_hsc' => true, 'colspan' => 7, 'new_tr' => true],
+			'function' => '<a href="javascript: void(0);" onclick="toggleRows(\'dumpQueries\');">Func.</a>',
+			'line' => '(l)',
+			//'results' => 'Rows',
+			'elapsed' => ['name' => '1st', 'decimals' => 3],
+			'count' => '#',
+			'total' => ['name' => $this->totalTime, 'decimals' => 3],
+			'percent' => '100%',
+		]);
+		$s->data = ifsetor($this->LOG, $this->config->getDB()->getQueryLog());
+		$s->isOddEven = true;
+		$s->more = 'class="nospacing"';
+		return $s;
+	}
+
+	public function sortLog($a, $b)
 	{
 		$a = $a['total'];
 		$b = $b['total'];
@@ -357,9 +341,23 @@ class ServerStat extends AppControllerBE
 		}
 	}
 
-	function __toString()
+	public function __toString()
 	{
-		return $this->render();
+		return $this->s($this->render());
+	}
+
+	public function render()
+	{
+		$this->index->addJS('be/js/main.js');
+		$content = $this->performAction();
+		if (!$content) {
+			$content = '<div
+				id="div_SystemInfo"
+				class="row updateHere"
+				src="?c=ServerStat&ajax=1&action=updateHere">' . $this->renderEverything() . '</div>';
+
+		}
+		return $content;
 	}
 
 }

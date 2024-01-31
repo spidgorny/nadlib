@@ -3,7 +3,7 @@
 class SessionView extends AppControllerBE
 {
 
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 		ksort($_SESSION);
@@ -11,9 +11,9 @@ class SessionView extends AppControllerBE
 		$this->index->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . 'js/keepScrollPosition.js');
 	}
 
-	function render()
+	public function render()
 	{
-		$this->performAction();
+		$this->performAction($this->detectAction());
 		$content = '';
 		foreach ($_SESSION as $key => $val) {
 			$content .= '<h4>
@@ -31,7 +31,7 @@ class SessionView extends AppControllerBE
 		return $content;
 	}
 
-	function delAction()
+	public function delAction()
 	{
 		$del = $this->request->getTrim('del');
 		unset($_SESSION[$del]);
@@ -40,7 +40,7 @@ class SessionView extends AppControllerBE
 		$this->request->redirect('?c=' . $this->request->getRefererController());
 	}
 
-	function sidebar()
+	public function sidebar()
 	{
 		$keys = array_keys($_SESSION);
 		foreach ($keys as &$key) {

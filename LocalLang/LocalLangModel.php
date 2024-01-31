@@ -2,8 +2,8 @@
 
 class LocalLangModel extends OODBase
 {
-	var $table = 'app_interface';
-	var $idField = 'id';
+	public $table = 'app_interface';
+	public $idField = 'id';
 
 	public function getValue()
 	{

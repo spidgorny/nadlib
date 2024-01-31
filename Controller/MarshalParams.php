@@ -105,10 +105,10 @@ class MarshalParams
 			// e.g. Config->getSymfony\\Contracts\\Cache\\CacheInterface
 			//llog($param->getName(), $typeGenerator);
 			if (method_exists($container, $typeGenerator)) {
-				$value = call_user_func([$container, $typeGenerator]);
+				$value = $container->$typeGenerator();
 			} else {
 				// build the dependency
-				$value = self::makeInstanceWithInjection($typeClass);
+				$value = $this->makeInstanceWithInjection($typeClass);
 			}
 		} elseif (is_array($container)) {
 			$injector = ifsetor($container[$typeClass]);

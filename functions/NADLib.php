@@ -4,8 +4,8 @@ class NADLib
 {
 
 	/**
-	 * @return string first 7 chars of md5(spl_object_hash())
 	 * @param object $o
+	 * @return string first 7 chars of md5(spl_object_hash())
 	 */
 	public static function hash($o)
 	{

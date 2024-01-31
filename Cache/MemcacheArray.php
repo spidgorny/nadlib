@@ -52,13 +52,13 @@ class MemcacheArray implements ArrayAccess
 	 * Useful to debug cache issues.
 	 * @var bool
 	 */
-	static $debug = false;
+	static public $debug = false;
 
 	/**
 	 * @param string $file - filename inside /cache/ folder
 	 * @param int $expire - seconds to keep the cache active
 	 */
-	function __construct($file, $expire = 0)
+	public function __construct($file, $expire = 0)
 	{
 		TaylorProfiler::start(__METHOD__ . ' (' . $file . ')');
 		//debug(__METHOD__.' ('.$file.')');
@@ -81,7 +81,7 @@ class MemcacheArray implements ArrayAccess
 	 * Saving always means that the expiry date is renewed upon each read
 	 * Modified to save only on changed data
 	 */
-	function __destruct()
+	public function __destruct()
 	{
 		TaylorProfiler::start(__METHOD__);
 		if ($this->onDestruct) {
@@ -92,7 +92,7 @@ class MemcacheArray implements ArrayAccess
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	function save()
+	public function save()
 	{
 		if (false) {
 			print_r($this->file);
@@ -109,7 +109,7 @@ class MemcacheArray implements ArrayAccess
 		}
 	}
 
-	function clearCache()
+	public function clearCache()
 	{
 		TaylorProfiler::start(__METHOD__);
 		$prev = sizeof(self::$instances);
@@ -126,14 +126,14 @@ class MemcacheArray implements ArrayAccess
 		$this->data[$offset] = $value;
 	}
 
-	function exists($key)
+	public function exists($key)
 	{
 		return isset($this->data[$key]);
 	}
 
-	function get($key)
+	public function get($key)
 	{
-		return isset($this->data[$key]) ? $this->data[$key] : NULL;
+		return isset($this->data[$key]) ? $this->data[$key] : null;
 	}
 
 	/**
@@ -141,7 +141,7 @@ class MemcacheArray implements ArrayAccess
 	 * @param string $key
 	 * @param mixed $value
 	 */
-	function set($key, $value)
+	public function set($key, $value)
 	{
 		$this->data[$key] = $value;
 	}
@@ -161,7 +161,7 @@ class MemcacheArray implements ArrayAccess
 		return isset($this->data[$offset]) ? $this->data[$offset] : null;
 	}
 
-	static function getInstance($file, $expire = 0)
+	public static function getInstance($file, $expire = 0)
 	{
 		if (self::$debug) {
 			//echo __METHOD__.'('.$file.')'.BR;
@@ -171,7 +171,7 @@ class MemcacheArray implements ArrayAccess
 			: (self::$instances[$file] = new self($file, $expire));
 	}
 
-	static function unsetInstance($file)
+	public static function unsetInstance($file)
 	{
 		if (ifsetor(self::$instances[$file])) {
 			if (ifsetor(self::$instances[$file]->fc)) {
@@ -182,7 +182,7 @@ class MemcacheArray implements ArrayAccess
 		unset(self::$instances[$file]);
 	}
 
-	static function enableDebug()
+	public static function enableDebug()
 	{
 		self::$debug = true;
 	}

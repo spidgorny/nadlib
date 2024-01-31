@@ -12,7 +12,7 @@ class PlainSessionUser extends UserBase implements UserModelInterface
 	/**
 	 * @var PlainSessionUser
 	 */
-	static protected $instance;
+	protected static $instance;
 
 	/**
 	 * @var Session
@@ -48,6 +48,7 @@ class PlainSessionUser extends UserBase implements UserModelInterface
 	public function setPref($name, $value)
 	{
 		$this->session->save($name, $value);
+		return $value;
 	}
 
 	public function getAllPrefs()
@@ -57,11 +58,11 @@ class PlainSessionUser extends UserBase implements UserModelInterface
 
 	public function isAuth()
 	{
-		if (phpversion() >= 5.4) {
-			return session_status() == PHP_SESSION_ACTIVE;    // PHP 5.4
-		} else {
-			return true;
+		if (PHP_VERSION >= 5.4) {
+			return session_status() === PHP_SESSION_ACTIVE;    // PHP 5.4
 		}
+
+		return true;
 	}
 
 	public function __toString()

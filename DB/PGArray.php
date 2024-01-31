@@ -4,19 +4,17 @@ class PGArray extends AsIs
 {
 
 	/**
+	 * @var array
+	 */
+	public $data;
+	/**
 	 * @var DBLayer
 	 */
 	protected $db;
-
 	/**
 	 * @var bool
 	 */
 	protected $standard_conforming_strings;
-
-	/**
-	 * @var array
-	 */
-	public $data;
 
 	public function __construct(DBInterface $db, array $data = null)
 	{
@@ -45,7 +43,7 @@ class PGArray extends AsIs
 		$props = get_object_vars($this);
 		unset($props['db']);
 		$props = array_keys($props);
-		return $props;
+		return array_keys($props);
 	}
 
 	/**
@@ -63,6 +61,37 @@ class PGArray extends AsIs
 	public function encodeInString()
 	{
 		return $this->setPGArray($this->data);
+	}
+
+	/**
+	 * @param array $data
+	 * @param string $type "::integer[]"
+	 * @return AsIs
+	 */
+	public function setPGArray(array $data, $type = '')
+	{
+		foreach ($data as &$el) {
+			if (is_array($el)) {
+				$el = $this->setPGArray($el);
+			} else {
+				$el = pg_escape_string($el);
+//				$el = addslashes($el);
+
+				if ($this->standard_conforming_strings) {
+					//$el = addslashes($el); // changed after postgres version updated to 9.4
+					//$el = str_replace('\\', '\\\\', $el);
+					$el = str_replace("'", "''", $el);
+					$el = "'" . $el . "'";
+				} else {
+					$el = str_replace('"', '\\"', $el);
+					$el = '"' . $el . '"';
+				}
+			}
+		}
+		//$result = '{'.implode(',', $data).'}';
+		$result = new AsIs('ARRAY[' . implode(',', $data) . ']' . $type);
+		//debug($result.'', $this->standard_conforming_strings, $el, $data);
+		return $result;
 	}
 
 	/**
@@ -100,8 +129,8 @@ class PGArray extends AsIs
 	/**
 	 * Slawa's own recursive approach. Not working 100%. See mTest from ORS.
 	 * @param string $input
-	 * @internal param string $dbarr
 	 * @return array
+	 * @internal param string $dbarr
 	 */
 	public function getPGArray($input)
 	{
@@ -119,10 +148,10 @@ class PGArray extends AsIs
 				// JSON inside
 				$jsonStart = strpos($input, '{');
 				$jsonEnd = strpos($input, '}');
-				$json = substr($input, $jsonStart, $jsonEnd-$jsonStart+1);
-				$input = substr($input, 0, $jsonStart).
-					'*!*JSON*!*'.
-					substr($input, $jsonEnd+1);
+				$json = substr($input, $jsonStart, $jsonEnd - $jsonStart + 1);
+				$input = substr($input, 0, $jsonStart) .
+					'*!*JSON*!*' .
+					substr($input, $jsonEnd + 1);
 				$parts = $this->str_getcsv($input, ',', '"');
 //				ini_set('xdebug.var_display_max_data', 9999);
 //				debug($input, $parts, $json);
@@ -139,37 +168,11 @@ class PGArray extends AsIs
 		}
 	}
 
-	public static function str_getcsv($input, $delimiter = ',', $enclosure = '"', $escape = '\\', $eol = null)
-	{
-		$temp = fopen("php://memory", "rw");
-		fwrite($temp, $input);
-		fseek($temp, 0);
-		$r = [];
-		while (($data = fgetcsv($temp, 4096, $delimiter, $enclosure, $escape)) !== false) {
-//			$data = array_map('stripcslashes', $data);
-			$data = array_map(function ($str) {
-				// exactly opposite to setPGArray()
-				$str = str_replace('\"', '"', $str);
-				// this is needed because even with
-				// $standard_conforming_strings = on
-				// PostgreSQL is escaping backslashes
-				// inside arrays (not in normal strings)
-				// select 'a
-				// b', ARRAY['slawa', '{"a":"multi\nline"}']
-				$str = str_replace('\\\\', '\\', $str);
-				return $str;
-			}, $data);
-			$r[] = $data;
-		}
-		fclose($temp);
-		return ifsetor($r[0]);
-	}
-
 	/**
 	 * Change a db array into a PHP array
 	 * @param string $input
-	 * @internal param String $arr representing the DB array
 	 * @return A PHP array
+	 * @internal param String $arr representing the DB array
 	 */
 	/*	function getPGArray($dbarr) {
 			// Take off the first and last characters (the braces)
@@ -211,6 +214,60 @@ class PGArray extends AsIs
 			return $elements;
 		}
 	*/
+	public static function str_getcsv($input, $delimiter = ',', $enclosure = '"', $escape = '\\', $eol = null)
+	{
+		$temp = fopen("php://memory", "rw");
+		fwrite($temp, $input);
+		fseek($temp, 0);
+		$r = [];
+		while (($data = fgetcsv($temp, 4096, $delimiter, $enclosure, $escape)) !== false) {
+//			$data = array_map('stripcslashes', $data);
+			$data = array_map(function ($str) {
+				// exactly opposite to setPGArray()
+				$str = str_replace('\"', '"', $str);
+				// this is needed because even with
+				// $standard_conforming_strings = on
+				// PostgreSQL is escaping backslashes
+				// inside arrays (not in normal strings)
+				// select 'a
+				// b', ARRAY['slawa', '{"a":"multi\nline"}']
+				$str = str_replace('\\\\', '\\', $str);
+				return $str;
+			}, $data);
+			$r[] = $data;
+		}
+		fclose($temp);
+		return ifsetor($r[0]);
+	}
+
+	/*	public function getPGArray($text) {
+			$this->pg_array_parse($text, $output);
+			return $output;
+		}
+
+		private function pg_array_parse( $text, &$output, $limit = false, $offset = 1 ) {
+			if( false === $limit )
+			{
+				$limit = strlen( $text )-1;
+				$output = array();
+			}
+			if( '{}' != $text )
+				do
+				{
+					if( '{' != $text{$offset} )
+					{
+						preg_match( "/(\\{?\"([^\"\\\\]|\\\\.)*\"|[^,{}]+)+([,}]+)/", $text, $match, 0, $offset );
+						$offset += strlen( $match[0] );
+						$output[] = ( '"' != $match[1]{0} ? $match[1] : stripcslashes( substr( $match[1], 1, -1 ) ) );
+						if( '},' == $match[3] ) return $offset;
+					}
+					else  $offset = $this->pg_array_parse( $text, $output, $limit, $offset+1 );
+				}
+				while( $limit > $offset );
+		}
+	*/
+
+
 	public function getPGArray1D($input)
 	{
 		$pgArray = substr(substr(trim($input), 1), 0, -1);
@@ -241,112 +298,9 @@ class PGArray extends AsIs
 		return $out;
 	}
 
-	/*	public function getPGArray($text) {
-			$this->pg_array_parse($text, $output);
-			return $output;
-		}
-
-		private function pg_array_parse( $text, &$output, $limit = false, $offset = 1 ) {
-			if( false === $limit )
-			{
-				$limit = strlen( $text )-1;
-				$output = array();
-			}
-			if( '{}' != $text )
-				do
-				{
-					if( '{' != $text{$offset} )
-					{
-						preg_match( "/(\\{?\"([^\"\\\\]|\\\\.)*\"|[^,{}]+)+([,}]+)/", $text, $match, 0, $offset );
-						$offset += strlen( $match[0] );
-						$output[] = ( '"' != $match[1]{0} ? $match[1] : stripcslashes( substr( $match[1], 1, -1 ) ) );
-						if( '},' == $match[3] ) return $offset;
-					}
-					else  $offset = $this->pg_array_parse( $text, $output, $limit, $offset+1 );
-				}
-				while( $limit > $offset );
-		}
-	*/
-
-	/**
-	 * @param array $data
-	 * @return AsIs
-	 */
-	public function setPGArray(array $data)
-	{
-		foreach ($data as &$el) {
-			if (is_array($el)) {
-				$el = $this->setPGArray($el);
-			} else {
-				$el = pg_escape_string($el);
-//				$el = addslashes($el);
-
-				if ($this->standard_conforming_strings) {
-					//$el = addslashes($el); // changed after postgres version updated to 9.4
-					//$el = str_replace('\\', '\\\\', $el);
-					$el = str_replace("'", "''", $el);
-					$el = "'" . $el . "'";
-				} else {
-					$el = str_replace('"', '\\"', $el);
-					$el = '"' . $el . '"';
-				}
-			}
-		}
-		//$result = '{'.implode(',', $data).'}';
-		$result = new AsIs('ARRAY[' . implode(',', $data) . ']');
-		//debug($result.'', $this->standard_conforming_strings, $el, $data);
-		return $result;
-	}
-
 	public function __toString2()
 	{
 		return $this->setPGArray($this->data);
-	}
-
-	/**
-	 * https://stackoverflow.com/questions/3068683/convert-postgresql-array-to-php-array
-	 * @param $s
-	 * @param int $start
-	 * @param null $end
-	 * @return array|null
-	 */
-	public function pg_array_parse($s, $start = 0, &$end = null)
-	{
-		if (empty($s) || $s[0] != '{') {
-			return null;
-		}
-		$return = [];
-		$string = false;
-		$quote='';
-		$len = strlen($s);
-		$v = '';
-		for ($i = $start + 1; $i < $len; $i++) {
-			$ch = $s[$i];
-
-			if (!$string && $ch == '}') {
-				if ($v !== '' || !empty($return)) {
-					$return[] = $v;
-				}
-				$end = $i;
-				break;
-			} elseif (!$string && $ch == '{') {
-				$v = $this->pg_array_parse($s, $i, $i);
-			} elseif (!$string && $ch == ',') {
-				$return[] = $v;
-				$v = '';
-			} elseif (!$string && ($ch == '"' || $ch == "'")) {
-				$string = true;
-				$quote = $ch;
-			} elseif ($string && $ch == $quote && $s[$i - 1] == "\\") {
-				$v = substr($v, 0, -1) . $ch;
-			} elseif ($string && $ch == $quote && $s[$i - 1] != "\\") {
-				$string = false;
-			} else {
-				$v .= $ch;
-			}
-		}
-
-		return $return;
 	}
 
 	public function getPGArrayFromJSON_bad($s)
@@ -392,6 +346,52 @@ class PGArray extends AsIs
 		return $deepDataMerged;
 	}
 
+	/**
+	 * https://stackoverflow.com/questions/3068683/convert-postgresql-array-to-php-array
+	 * @param $s
+	 * @param int $start
+	 * @param null $end
+	 * @return array|null
+	 */
+	public function pg_array_parse($s, $start = 0, &$end = null)
+	{
+		if (empty($s) || $s[0] != '{') {
+			return null;
+		}
+		$return = [];
+		$string = false;
+		$quote = '';
+		$len = strlen($s);
+		$v = '';
+		for ($i = $start + 1; $i < $len; $i++) {
+			$ch = $s[$i];
+
+			if (!$string && $ch == '}') {
+				if ($v !== '' || !empty($return)) {
+					$return[] = $v;
+				}
+				$end = $i;
+				break;
+			} elseif (!$string && $ch == '{') {
+				$v = $this->pg_array_parse($s, $i, $i);
+			} elseif (!$string && $ch == ',') {
+				$return[] = $v;
+				$v = '';
+			} elseif (!$string && ($ch == '"' || $ch == "'")) {
+				$string = true;
+				$quote = $ch;
+			} elseif ($string && $ch == $quote && $s[$i - 1] == "\\") {
+				$v = substr($v, 0, -1) . $ch;
+			} elseif ($string && $ch == $quote && $s[$i - 1] != "\\") {
+				$string = false;
+			} else {
+				$v .= $ch;
+			}
+		}
+
+		return $return;
+	}
+
 	public function getPGArrayFromJSON($s)
 	{
 		$result = [];
@@ -421,7 +421,7 @@ class PGArray extends AsIs
 
 	public function unnest($sElements)
 	{
-		$rows = $this->db->fetchAll("SELECT unnest('".pg_escape_string($sElements)."'::text[])");
+		$rows = $this->db->fetchAll("SELECT unnest('" . pg_escape_string($sElements) . "'::text[])");
 //		$rows = $this->db->fetchAll("SELECT unnest(string_to_array('".pg_escape_string($sElements)."'::text, ','))");
 		return $rows;
 	}

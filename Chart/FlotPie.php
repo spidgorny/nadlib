@@ -1,11 +1,22 @@
 <?php
 
+use spidgorny\nadlib\HTTP\URL;
+
 /**
  * Class Flot - is drawing a flot chart.
  */
-class FlotPie extends AppController
+class FlotPie extends AppControllerBE
 {
 
+	/**
+	 * Raw data single table
+	 * @var array
+	 */
+	public $data;
+	/**
+	 * @var string
+	 */
+	public $flotPath = 'components/flot/flot/';
 	protected $colors = [
 		'#edc240',
 		'#afd8f8',
@@ -19,32 +30,22 @@ class FlotPie extends AppController
 	];
 
 	/**
-	 * Raw data single table
-	 * @var array
-	 */
-	public $data;
-
-	/**
-	 * @var string
-	 */
-	var $flotPath = 'components/flot/flot/';
-
-	/**
 	 * @param array $data - source data
 	 */
-	function __construct(array $data)
+	public function __construct(array $data)
 	{
+		parent::__construct();
 		$this->data = $data;
 	}
 
-	function render()
+	public function render()
 	{
 		$content = '';
 		$content .= $this->showChart('chart1');
 		return $content;
 	}
 
-	function showChart($divID)
+	public function showChart($divID)
 	{
 		Index::getInstance()->addJQuery();
 		Index::getInstance()->footer['flot'] = '

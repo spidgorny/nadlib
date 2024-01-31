@@ -8,7 +8,7 @@ class CollectionViewMock
 	/**
 	 * @var Collection
 	 */
-	var $collection;
+	public $collection;
 
 	public function __construct(Collection $col)
 	{

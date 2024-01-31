@@ -7,7 +7,7 @@ class MemcacheFile implements MemcacheInterface
 	 * Can be set statically in the bootstrap to influence all instances
 	 * @var string
 	 */
-	static $defaultFolder = 'cache/';
+	static public $defaultFolder = 'cache/';
 
 	/**
 	 * @used in ClearCache
@@ -20,7 +20,7 @@ class MemcacheFile implements MemcacheInterface
 	public $expire = 0;
 
 	/**
-	 * If you define $key and $expire in the constructor
+	 * If you define $folder and $expire in the constructor
 	 * you don't need to define it in each method below.
 	 * Otherwise, please specify.
 	 * @param string $folder
@@ -28,6 +28,9 @@ class MemcacheFile implements MemcacheInterface
 	 */
 	public function __construct($folder = null, $expire = 0)
 	{
+		if (MemcacheArray::$debug) {
+			echo __METHOD__ . BR;
+		}
 		$this->folder = $folder ?: self::$defaultFolder;
 		if (!Path::isItAbsolute($this->folder)) {
 			// if relative, add current app
@@ -39,7 +42,7 @@ class MemcacheFile implements MemcacheInterface
 
 		$finalCachePath = realpath($sub . $this->folder);
 		if (!file_exists($finalCachePath) && !is_dir($finalCachePath)) {
-			debug([
+			llog([
 				'unable to access cache folder',
 				'env(storage)' => getenv('storage'),
 				'cwd' => getcwd(),
@@ -51,14 +54,40 @@ class MemcacheFile implements MemcacheInterface
 				'folder' => $this->folder,
 				'finalCachePath' => $finalCachePath,
 			]);
-			die(__METHOD__);
-		} else {
-			$this->folder = cap($finalCachePath);    // important as we concat
+			throw new Exception(__METHOD__ . ' cache folder missing');
 		}
+
+		$this->folder = cap($finalCachePath);    // important as we concat
 
 		if ($expire) {
 			$this->expire = $expire;
 		}
+	}
+
+	/**
+	 * @param null $key - can be NULL to be used from the constructor
+	 * @param int $expire
+	 * @return mixed|null|string
+	 */
+	public function get($key = null, $expire = 0)
+	{
+		TaylorProfiler::start(__METHOD__);
+		$val = null;
+		$key = $key ?: $this->key;
+		$expire = $expire ?: $this->expire;
+		$file = $this->map($key);
+		//debug($file);
+		if ($this->isValid($key, $expire)) {
+			$val = @file_get_contents($file);
+			if ($val) {
+				$try = @unserialize($val);
+				if ($try !== false) {
+					$val = $try;
+				}
+			}
+		}
+		TaylorProfiler::stop(__METHOD__);
+		return $val;
 	}
 
 	public function map($key)
@@ -72,6 +101,24 @@ class MemcacheFile implements MemcacheInterface
 		}
 		$file = $this->folder . $key . '.cache'; // str_replace('(', '-', str_replace(')', '-', $key))
 		return $file;
+	}
+
+	public function isValid($key = null, $expire = 0)
+	{
+		$key = $key ?: $this->key;
+		$expire = $expire ?: $this->expire;
+		$file = $this->map($key);
+		$mtime = @filemtime($file);
+		$bigger = ($mtime > (time() - $expire));
+		if ($this->key === 'OvertimeChart::getStatsCached') {
+//			debug($this->key, $file, $mtime, $expire, $bigger);
+		}
+		return /*!$expire ||*/ $bigger;
+	}
+
+	public function setValue($value)
+	{
+		$this->set($this->key, $value);
 	}
 
 	/**
@@ -93,64 +140,19 @@ class MemcacheFile implements MemcacheInterface
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	public function isValid($key = NULL, $expire = 0)
-	{
-		$key = $key ?: $this->key;
-		$expire = $expire ?: $this->expire;
-		$file = $this->map($key);
-		$mtime = @filemtime($file);
-		$bigger = ($mtime > (time() - $expire));
-		if ($this->key == 'OvertimeChart::getStatsCached') {
-//			debug($this->key, $file, $mtime, $expire, $bigger);
-		}
-		return /*!$expire ||*/ $bigger;
-	}
-
-	/**
-	 * @param null $key - can be NULL to be used from the constructor
-	 * @param int $expire
-	 * @return mixed|null|string
-	 */
-	public function get($key = NULL, $expire = 0)
-	{
-		TaylorProfiler::start(__METHOD__);
-		$val = NULL;
-		$key = $key ?: $this->key;
-		$expire = $expire ?: $this->expire;
-		$file = $this->map($key);
-		//debug($file);
-		if ($this->isValid($key, $expire)) {
-			$val = @file_get_contents($file);
-			if ($val) {
-				$try = @unserialize($val);
-				if ($try !== false) {
-					$val = $try;
-				}
-			}
-		}
-		TaylorProfiler::stop(__METHOD__);
-		return $val;
-	}
-
-	public function setValue($value)
-	{
-		$this->set($this->key, $value);
-	}
-
 	public function clearCache($key = null)
 	{
 		$file = $this->map($key ?: $this->key);
 		if (file_exists($file)) {
 			//echo '<font color="green">Deleting '.$file.'</font>', BR;
 			unlink($file);
-		} else {
-			//echo '<font color="orange">Cache file'.$file.' does not exist.</font>', BR;
 		}
 	}
 
 	/**
 	 * @param string $key
 	 * @return Duration
+	 * @throws Exception
 	 */
 	public function getAge($key)
 	{

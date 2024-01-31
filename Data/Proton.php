@@ -3,9 +3,9 @@
 class Proton
 {
 
-	var $base = 'http://photon.komoot.de/api/?q=';
+	public $base = 'http://photon.komoot.de/api/?q=';
 
-	function get($q)
+	public function get($q)
 	{
 		$gz = new GuzzleHttp\Client();
 		$response = $gz->get($this->base . urlencode($q));
@@ -14,7 +14,7 @@ class Proton
 		return $features;
 	}
 
-	function getCities($q)
+	public function getCities($q)
 	{
 		$set = [];
 		$results = $this->get($q);
@@ -33,7 +33,7 @@ class Proton
 	public function getFirst($location)
 	{
 		$results = $this->get($location);
-		return $results->features ? first($results->features) : NULL;
+		return $results->features ? first($results->features) : null;
 	}
 
 }

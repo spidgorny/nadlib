@@ -1,25 +1,32 @@
 <?php
 
-class SQLQuery extends \PHPSQLParser\PHPSQLParser {
+use PHPSQLParser\PHPSQLCreator;
+use PHPSQLParser\PHPSQLParser;
+
+class SQLQuery extends PHPSQLParser
+{
 
 	public $parsed;
 
-	public function __construct($sql = false, $calcPositions = false) {
-		if ($sql instanceof SQLQuery) {
+	public function __construct($sql = false, $calcPositions = false)
+	{
+		if ($sql instanceof self) {
 			$this->parsed = $sql->parsed;
 		} else {
 			parent::__construct($sql, $calcPositions);
 		}
 	}
 
-	function __toString() {
+	public function __toString()
+	{
 		return $this->getQuery();
 	}
 
-	function getQuery() {
-		$psc = new PHPSQLParser\PHPSQLCreator($this->parsed);
-		$query = $psc->created.'';
-		$query = str_replace([
+	public function getQuery(): string
+	{
+		$psc = new PHPSQLCreator($this->parsed);
+		$query = $psc->created . '';
+		return str_replace([
 			'SELECT',
 			'FROM',
 			'WHERE',
@@ -36,18 +43,18 @@ class SQLQuery extends \PHPSQLParser\PHPSQLParser {
 			"\nORDER",
 			"\nLIMIT",
 		], $query);
-		return $query;
 	}
 
-	public function appendCalcRows() {
+	public function appendCalcRows()
+	{
 		//debug($sql->parsed['SELECT']);
 		array_unshift($this->parsed['SELECT'], [
 			'expr_type' => 'reserved',
 			'base_expr' => 'SQL_CALC_FOUND_ROWS',
-			'delim'     => ' ',
+			'delim' => ' ',
 		]);
 		//debug($sql->parsed);
-		if ($this->parsed['ORDER'] && $this->parsed['ORDER'][0]['base_expr'] != 'FIELD') {
+		if ($this->parsed['ORDER'] && $this->parsed['ORDER'][0]['base_expr'] !== 'FIELD') {
 			$this->parsed['ORDER'][0]['expr_type'] = 'colref';
 		}
 		//debug($sql->parsed);

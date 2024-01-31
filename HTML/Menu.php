@@ -128,6 +128,17 @@ class Menu /*extends Controller*/
 		} else {
 			$this->current = $this->request->getControllerString();
 		}
+		00 && debug([
+			'cwd' => getcwd(),
+			'docRoot' => $this->request->getDocumentRoot() . '',
+			'getPathAfterDocRoot' => $this->request->getPathAfterDocRoot() . '',
+			'useRouter' => $this->useRouter(),
+			'useControllerSlug' => $this->useControllerSlug,
+			'rootPath' => $rootPath,
+			'getControllerString' => $this->request->getControllerString(),
+			'level' => $level,
+			'current' => $this->current
+		]);
 	}
 
 	public function setControllerVarName($c)
@@ -543,7 +554,7 @@ class Menu /*extends Controller*/
 	{
 		foreach ($this->items as $class => $_) {
 			try {
-				new $class;
+				new $class();
 			} catch (Exception $e) {
 				unset($this->items[$class]);
 			}

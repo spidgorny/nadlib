@@ -5,7 +5,7 @@ jQuery(document).ready(function () {
 	var tp = $('.floatTimeContainer table tbody tr:last');
 	if (tp) {
 		if (!!(window.performance && window.performance.timing)) {
-			setTimeout(function() {
+			setTimeout(function () {
 				var timing = window.performance.timing;
 				var userTime = timing.loadEventEnd - timing.navigationStart;
 				var dns = timing.domainLookupEnd - timing.domainLookupStart;

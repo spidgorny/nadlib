@@ -5,25 +5,17 @@ class CollectionQuery
 
 	/** @var DBInterface */
 	public $db;
-
+	public $log = [];
 	protected $table;
-
 	protected $join;
-
 	protected $where;
-
 	protected $orderBy;
-
 	protected $select;
-
 	protected $query;
-
 	/**
 	 * @var Pager
 	 */
 	protected $pager;
-
-	public $log = [];
 
 	/**
 	 * @param DBInterface $db
@@ -34,7 +26,7 @@ class CollectionQuery
 	 * @param $select
 	 * @param Pager|null $pager
 	 */
-	public function __construct(DBInterface $db, $table, $join, $where, $orderBy, $select, Pager $pager = null)
+	public function __construct(DBInterface $db, $table, $join, array $where, $orderBy, $select, Pager $pager = null)
 	{
 		$this->db = $db;
 		$this->table = $table;
@@ -43,6 +35,28 @@ class CollectionQuery
 		$this->orderBy = $orderBy;
 		$this->select = $select;
 		$this->pager = $pager;
+	}
+
+	public function retrieveData()
+	{
+		//debug(__METHOD__, $allowMerge, $preprocess);
+		$isMySQL = PHP_VERSION > 5.3 && (
+			(($this->db instanceof DBLayerPDO)
+				&& $this->db->isMySQL())
+			);
+		if ($isMySQL) {
+			$cq = new CollectionQueryMySQL($this->db,
+				$this->table,
+				$this->join,
+				$this->where,
+				$this->orderBy,
+				$this->select,
+				$this->pager);
+			$data = $cq->retrieveDataFromMySQL();
+		} else {
+			$data = $this->retrieveDataFromDB();
+		}
+		return $data;
 	}
 
 	/**
@@ -111,23 +125,6 @@ class CollectionQuery
 		return $query;
 	}
 
-	public function retrieveData()
-	{
-		//debug(__METHOD__, $allowMerge, $preprocess);
-		$isMySQL = phpversion() > 5.3 && (
-				$this->db instanceof MySQL
-				|| ($this->db instanceof DBLayerPDO
-					&& $this->db->isMySQL())
-			);
-		if ($isMySQL) {
-			$cq = new CollectionQueryMySQL($this->db, $this->table, $this->join, $this->where, $this->orderBy, $this->select, $this->pager);
-			$data = $cq->retrieveDataFromMySQL();
-		} else {
-			$data = $this->retrieveDataFromDB();
-		}
-		return $data;
-	}
-
 	/**
 	 * @return array
 	 * @throws Exception
@@ -139,7 +136,7 @@ class CollectionQuery
 //		$this->log(__METHOD__, Debug::getBackLog(25, 0, null, false));
 
 		$this->query = $this->getQueryWithLimit();
-		$this->log(__METHOD__, $this->query . '');
+//		$this->log(__METHOD__, str_replace("\n", " ", str_replace("\t", " ", $this->query . '')));
 
 		// in most cases we don't need to rasterize the query to SQL
 		$most_cases = true;
@@ -162,6 +159,7 @@ class CollectionQuery
 
 	protected function log($action, ...$something)
 	{
+		llog($action, $something);
 		$logEntry = new LogEntry($action, $something);
 		$this->log[] = $logEntry;
 //		llog($logEntry);
