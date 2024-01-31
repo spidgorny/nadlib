@@ -5,6 +5,7 @@ namespace nadlib\Controller;
 
 use ArrayIterator;
 use ArrayObject;
+use Traversable;
 
 class Filter extends ArrayObject
 {
@@ -57,32 +58,38 @@ class Filter extends ArrayObject
 		$this->offsetSet($index, $newval);
 	}
 
-	public function offsetSet($index, $newval)
+	public function offsetSet($index, $newval): void
 	{
 //		debug(__METHOD__, $index, $newval);
 		$this->_set[$index] = $newval;
 	}
 
-	public function offsetGet($index)
+	public function offsetGet($index): mixed
 	{
 		if (isset($this->_set[$index])) {
 			return $this->_set[$index];
-		} elseif (isset($this->_request[$index])) {
+		}
+
+		if (isset($this->_request[$index])) {
 			return $this->_request[$index];
-		} elseif (isset($this->_preferences[$index])) {
+		}
+
+		if (isset($this->_preferences[$index])) {
 			return $this->_preferences[$index];
-		} elseif (isset($this->_default[$index])) {
+		}
+
+		if (isset($this->_default[$index])) {
 			return $this->_default[$index];
 		}
 		return null;
 	}
 
-	public function offsetExists($index)
+	public function offsetExists($index): bool
 	{
 		return $this->offsetGet($index) != '';
 	}
 
-	public function getArrayCopy()
+	public function getArrayCopy(): array
 	{
 		// first array has priority (only append new)
 		return $this->_set +
@@ -91,7 +98,7 @@ class Filter extends ArrayObject
 			$this->_default;
 	}
 
-	public function getIterator()
+	public function getIterator(): Traversable
 	{
 		return new ArrayIterator($this->getArrayCopy());
 	}
@@ -114,7 +121,7 @@ class Filter extends ArrayObject
 		];
 	}
 
-	public function __debugInfo()
+	public function __debugInfo(): array
 	{
 		return $this->getDebug();
 	}

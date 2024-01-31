@@ -93,7 +93,7 @@ class DatabaseResultIterator implements Iterator, Countable
 		//$this->rewind();
 	}
 
-	public function count()
+	public function count(): int
 	{
 		$this->log(__METHOD__);
 		if (!is_null($this->rows)) {
@@ -104,7 +104,7 @@ class DatabaseResultIterator implements Iterator, Countable
 		return $numRows;
 	}
 
-	public function rewind()
+	public function rewind():void
 	{
 		$this->log(__METHOD__);
 		if ($this->count()) {
@@ -114,18 +114,18 @@ class DatabaseResultIterator implements Iterator, Countable
 		}
 	}
 
-	public function current()
+	public function current(): mixed
 	{
 		$this->log(__METHOD__);
 		return $this->row;
 	}
 
-	public function key()
+	public function key(): mixed
 	{
 		return $this->key;
 	}
 
-	public function next()
+	public function next(): void
 	{
 		$this->log(__METHOD__);
 		$this->row = $this->retrieveRow();
@@ -147,7 +147,7 @@ class DatabaseResultIterator implements Iterator, Countable
 		return $row;
 	}
 
-	public function valid()
+	public function valid(): bool
 	{
 		$this->log(__METHOD__);
 		return $this->row !== null && $this->row !== false;

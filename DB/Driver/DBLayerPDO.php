@@ -485,4 +485,9 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		return $info;
 	}
 
+	public function getDriver()
+	{
+		return 'mysql';	// maybe?
+	}
+
 }

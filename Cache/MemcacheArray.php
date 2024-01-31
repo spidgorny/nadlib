@@ -121,19 +121,19 @@ class MemcacheArray implements ArrayAccess
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	public function offsetSet($offset, $value)
+	public function offsetSet($offset, $value): void
 	{
 		$this->data[$offset] = $value;
 	}
 
-	public function exists($key)
+	public function exists($key): bool
 	{
 		return isset($this->data[$key]);
 	}
 
 	public function get($key)
 	{
-		return isset($this->data[$key]) ? $this->data[$key] : null;
+		return $this->data[$key] ?? null;
 	}
 
 	/**
@@ -141,24 +141,24 @@ class MemcacheArray implements ArrayAccess
 	 * @param string $key
 	 * @param mixed $value
 	 */
-	public function set($key, $value)
+	public function set($key, $value): void
 	{
 		$this->data[$key] = $value;
 	}
 
-	public function offsetExists($offset)
+	public function offsetExists($offset): bool
 	{
 		return isset($this->data[$offset]);
 	}
 
-	public function offsetUnset($offset)
+	public function offsetUnset($offset): void
 	{
 		unset($this->data[$offset]);
 	}
 
-	public function offsetGet($offset)
+	public function offsetGet($offset): mixed
 	{
-		return isset($this->data[$offset]) ? $this->data[$offset] : null;
+		return $this->data[$offset] ?? null;
 	}
 
 	public static function getInstance($file, $expire = 0)
@@ -166,9 +166,7 @@ class MemcacheArray implements ArrayAccess
 		if (self::$debug) {
 			//echo __METHOD__.'('.$file.')'.BR;
 		}
-		return isset(self::$instances[$file])
-			? self::$instances[$file]
-			: (self::$instances[$file] = new self($file, $expire));
+		return self::$instances[$file] ?? (self::$instances[$file] = new self($file, $expire));
 	}
 
 	public static function unsetInstance($file)

@@ -510,7 +510,7 @@ class ArrayPlus extends ArrayObject implements Countable
 		return current($var);
 	}
 
-	public function count()
+	public function count(): int
 	{
 		return parent::count();
 	}

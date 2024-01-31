@@ -21,6 +21,10 @@ class LocalLangDB extends LocalLang
 	 */
 	protected $rows = [];
 
+	/**
+	 * @param $forceLang
+	 * @phpstan-consistent-constructor
+	 */
 	public function __construct($forceLang = null)
 	{
 		parent::__construct($forceLang);

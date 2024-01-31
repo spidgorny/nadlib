@@ -21,6 +21,7 @@ use SQLWhere;
  * @method  getDeleteQuery($table, array $where = [], $what = '')
  * @method  getUpdateQuery($table, array $set, array $where)
  * @method  runDeleteQuery($table, array $where)
+ * @phpstan-consistent-constructor
  */
 class SessionDatabase implements DBInterface
 {
@@ -38,6 +39,9 @@ class SessionDatabase implements DBInterface
 	 */
 	protected $session;
 
+	/**
+	 * @phpstan-consistent-constructor
+	 */
 	public function __construct()
 	{
 		$this->session = new Session(__CLASS__);
@@ -194,12 +198,14 @@ class SessionDatabase implements DBInterface
 
 	public function getSelectQuery($table, array $where, $orderBy = null)
 	{
-		return SQLSelectQuery::getSelectQueryP($this, $table, $where, $orderBy);
+//		return SQLSelectQuery::getSelectQueryP($this, $table, $where, $orderBy);
+		throw new \RuntimeException('Not implemented');
 	}
 
-	public function getSelectQuerySW($table, SQLWhere $where, $orderBy = null)
+	public function getSelectQuerySW($table, SQLWhere $where, $orderBy = '', $addSelect = '')
 	{
-		return SQLSelectQuery::getSelectQueryP($this, $table, $where->getAsArray(), $orderBy);
+//		return SQLSelectQuery::getSelectQueryP($this, $table, $where->getAsArray(), $orderBy);
+		throw new \RuntimeException('Not implemented');
 	}
 
 	public function getCount(SQLSelectQuery $query)

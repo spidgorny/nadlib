@@ -43,6 +43,7 @@ abstract class LocalLang
 	/**
 	 * Will detect the language by the cookie or browser sniffing
 	 * @param string $forceLang
+	 * @phpstan-consistent-constructor
 	 */
 	public function __construct($forceLang = null)
 	{

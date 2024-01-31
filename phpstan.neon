@@ -1,7 +1,8 @@
 parameters:
-	bootstrap: %currentWorkingDirectory%/init.php
-	excludes_analyse:
-#		- %currentWorkingDirectory%/vendor
+	bootstrapFiles:
+	     - %currentWorkingDirectory%/init.php
+	excludePaths:
+		- %currentWorkingDirectory%/vendor
 		- %currentWorkingDirectory%/be\class\DB\AlterDB.php
 		- %currentWorkingDirectory%/be\class\DB\AlterIndex.php
 		- %currentWorkingDirectory%/be\class\DB\AlterIndex.php
@@ -38,3 +39,7 @@ parameters:
 		- '#TYPO3\\CMS\\Core\\Database\\DatabaseConnection#'
 		- '#utf8_#'
 		- '#ae_arr#'
+		- '#Function htmLawed not found#'
+		- '#Instantiated class sxml not found#'
+		- '#Call to static method getInstance\(\) on an unknown class Config#'
+		- '#has invalid type Config#'

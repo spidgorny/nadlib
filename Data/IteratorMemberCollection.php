@@ -9,33 +9,33 @@ abstract class IteratorMemberCollection extends CollectionMock implements Iterat
 		//$this->objectify();   // may cause data retrieval without $where
 	}
 
-	public function rewind()
+	public function rewind(): void
 	{
 		$this->objectify();
 		reset($this->members);
 	}
 
-	public function current()
+	public function current(): mixed
 	{
 		return current($this->members);
 	}
 
-	public function key()
+	public function key(): mixed
 	{
 		return key($this->members);
 	}
 
-	public function next()
+	public function next(): void
 	{
-		return next($this->members);
+		next($this->members);
 	}
 
-	public function valid()
+	public function valid(): bool
 	{
 		return $this->key() !== null;
 	}
 
-	public function count()
+	public function count(): int
 	{
 		$this->objectify();
 		return sizeof($this->members);

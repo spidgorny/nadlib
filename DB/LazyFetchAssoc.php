@@ -39,23 +39,23 @@ class LazyFetchAssoc implements ArrayAccess
 		$this->db = $GLOBALS['db'];
 	}
 
-	public function offsetSet($offset, $value)
+	public function offsetSet(mixed $offset, mixed $value): void
 	{
 		throw new Exception('Read-only!');
 	}
 
-	public function offsetExists($offset)
+	public function offsetExists(mixed $offset): bool
 	{
 		$this->offsetGet($offset);
 		return isset($this->data[$offset]);
 	}
 
-	public function offsetUnset($offset)
+	public function offsetUnset(mixed $offset): void
 	{
 		unset($this->data[$offset]);
 	}
 
-	public function offsetGet($offset)
+	public function offsetGet(mixed $offset): mixed
 	{
 		if (!isset($this->data[$offset])) {
 			$this->data[$offset] = $this->fetch($offset);
@@ -65,8 +65,7 @@ class LazyFetchAssoc implements ArrayAccess
 
 	protected function fetch($id)
 	{
-		$row = $this->db->fetchSelectQuery($this->table, [$this->idField => $id]);
-		return $row;
+		return $this->db->fetchSelectQuery($this->table, [$this->idField => $id]);
 	}
 
 }

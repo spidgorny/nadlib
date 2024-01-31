@@ -536,7 +536,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * </code>
 	 * @return int
 	 */
-	public function count()
+	public function count(): int
 	{
 		return $this->getLength();
 	}
@@ -545,7 +545,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * Returns the current element.
 	 * @return String
 	 */
-	public function current()
+	public function current(): mixed
 	{
 		return $this->charAt($this->_index);
 	}
@@ -581,7 +581,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 		return ($this->lastIndexOf($substr) === $this->getLength() - $substr->getLength());
 	}
 
-	public function length()
+	public function length(): int
 	{
 		return count($this->_string);
 	}
@@ -810,7 +810,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * Return the key of the current element.
 	 * @return int
 	 */
-	public function key()
+	public function key(): mixed
 	{
 		return $this->_index;
 	}
@@ -844,7 +844,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	/**
 	 * Move forward to next element.
 	 */
-	public function next()
+	public function next(): void
 	{
 		++$this->_index;
 	}
@@ -861,7 +861,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * @param int $offset character index, counting from zero.
 	 * @return bool
 	 */
-	public function offsetExists($offset)
+	public function offsetExists(mixed $offset): bool
 	{
 		return ($offset >= 0 && $offset < $this->getLength());
 	}
@@ -879,7 +879,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * @return String
 	 * @uses String::charAt
 	 */
-	public function offsetGet($offset)
+	public function offsetGet(mixed $offset): mixed
 	{
 		return $this->charAt($offset);
 	}
@@ -890,7 +890,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * @param string $value
 	 * @throws BadMethodCallException
 	 */
-	public function offsetSet($offset, $value)
+	public function offsetSet(mixed $offset, mixed $value): void
 	{
 		throw new BadMethodCallException();
 	}
@@ -901,7 +901,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * @param string $value
 	 * @throws BadMethodCallException
 	 */
-	public function offsetUnset($offset)
+	public function offsetUnset($offset): void
 	{
 		throw new BadMethodCallException();
 	}
@@ -1003,7 +1003,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	/**
 	 * Rewind the Iterator to the first element.
 	 */
-	public function rewind()
+	public function rewind(): void
 	{
 		$this->_index = 0;
 	}
@@ -1355,7 +1355,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * Checks if current position is valid.
 	 * @return bool
 	 */
-	public function valid()
+	public function valid(): bool
 	{
 		return ($this->_index >= 0 && $this->_index < $this->getLength());
 	}
