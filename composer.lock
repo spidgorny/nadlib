@@ -4,11 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "463016e1d3230c4f2fa65a769a086683",
+    "content-hash": "ddc74ee400c0d9f7e5dd2abaa0ec798d",
     "packages": [
         {
             "name": "danielstjules/stringy",
-            "version": "dev-master",
+            "version": "3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/danielstjules/Stringy.git",
@@ -27,7 +27,6 @@
             "require-dev": {
                 "phpunit/phpunit": "~4.0"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "files": [
@@ -68,78 +67,31 @@
             "time": "2017-06-12T01:10:27+00:00"
         },
         {
-            "name": "essence/dom",
-            "version": "1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/essence/dom.git",
-                "reference": "e5776d2286f4ccbd048d160c28ac77ccc6d68f3a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/essence/dom/zipball/e5776d2286f4ccbd048d160c28ac77ccc6d68f3a",
-                "reference": "e5776d2286f4ccbd048d160c28ac77ccc6d68f3a",
-                "shasum": ""
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Essence\\Dom\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Félix Girault",
-                    "email": "felix.girault@gmail.com",
-                    "homepage": "http://www.felix-girault.fr",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Essence's DOM parser.",
-            "homepage": "http://github.com/essence/dom",
-            "keywords": [
-                "dom",
-                "parser"
-            ],
-            "support": {
-                "issues": "https://github.com/essence/dom/issues",
-                "source": "https://github.com/essence/dom/tree/1.0.0"
-            },
-            "time": "2015-07-23T20:33:17+00:00"
-        },
-        {
             "name": "essence/essence",
-            "version": "dev-master",
+            "version": "2.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/essence/essence.git",
-                "reference": "81e889a87603840dadd04b317a51487df1d45933"
+                "reference": "ed08afc5c2936c4d03f8c58dc54d5aff752cb9fd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/essence/essence/zipball/81e889a87603840dadd04b317a51487df1d45933",
-                "reference": "81e889a87603840dadd04b317a51487df1d45933",
+                "url": "https://api.github.com/repos/essence/essence/zipball/ed08afc5c2936c4d03f8c58dc54d5aff752cb9fd",
+                "reference": "ed08afc5c2936c4d03f8c58dc54d5aff752cb9fd",
                 "shasum": ""
             },
             "require": {
-                "essence/dom": "~1.0.0",
-                "essence/http": "~1.0.0",
-                "fg/parkour": "~1.1.0",
-                "php": ">=5.5.0"
+                "ext-curl": "*",
+                "php": ">=5.4.0"
             },
             "suggest": {
-                "ext-curl": "*"
+                "felixgirault/essence-interfaces": "Allows better integration with different frameworks."
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Essence\\": "lib/Essence"
-                }
+                "files": [
+                    "lib/bootstrap.php"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -153,8 +105,8 @@
                     "role": "Developer"
                 }
             ],
-            "description": "Extracts information about medias on the web, like youtube videos, twitter statuses or blog articles.",
-            "homepage": "http://github.com/essence/essence",
+            "description": "Extracts informations about medias on the web, like youtube videos, twitter statuses or blog articles.",
+            "homepage": "http://github.com/felixgirault/essence",
             "keywords": [
                 "embed",
                 "media",
@@ -163,60 +115,13 @@
             ],
             "support": {
                 "issues": "https://github.com/essence/essence/issues",
-                "source": "https://github.com/essence/essence/tree/3.5.4"
+                "source": "https://github.com/essence/essence/tree/2.0"
             },
-            "time": "2021-01-21T09:58:10+00:00"
-        },
-        {
-            "name": "essence/http",
-            "version": "1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/essence/http.git",
-                "reference": "ce0e52e0c0f2ed894ce2922ab2fd598dcaac91d2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/essence/http/zipball/ce0e52e0c0f2ed894ce2922ab2fd598dcaac91d2",
-                "reference": "ce0e52e0c0f2ed894ce2922ab2fd598dcaac91d2",
-                "shasum": ""
-            },
-            "suggest": {
-                "ext-curl": "*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Essence\\Http\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Félix Girault",
-                    "email": "felix.girault@gmail.com",
-                    "homepage": "http://www.felix-girault.fr",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Essence's HTTP client.",
-            "homepage": "http://github.com/essence/http",
-            "keywords": [
-                "client",
-                "http"
-            ],
-            "support": {
-                "issues": "https://github.com/essence/http/issues",
-                "source": "https://github.com/essence/http/tree/1.0.0"
-            },
-            "time": "2015-07-23T20:33:50+00:00"
+            "time": "2016-08-17T15:19:50+00:00"
         },
         {
             "name": "ezyang/htmlpurifier",
-            "version": "dev-master",
+            "version": "v4.17.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ezyang/htmlpurifier.git",
@@ -241,7 +146,6 @@
                 "ext-iconv": "Converts text to and from non-UTF-8 encodings",
                 "ext-tidy": "Used for pretty-printing HTML"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "files": [
@@ -275,57 +179,6 @@
                 "source": "https://github.com/ezyang/htmlpurifier/tree/v4.17.0"
             },
             "time": "2023-11-17T15:01:25+00:00"
-        },
-        {
-            "name": "fg/parkour",
-            "version": "1.1.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/felixgirault/parkour.git",
-                "reference": "f837eb640fc4aac81b11fe50d2fa04fb4ec71496"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/felixgirault/parkour/zipball/f837eb640fc4aac81b11fe50d2fa04fb4ec71496",
-                "reference": "f837eb640fc4aac81b11fe50d2fa04fb4ec71496",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.5.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "4.3.*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Parkour\\": "lib"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-2-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Félix Girault",
-                    "email": "felix.girault@gmail.com",
-                    "homepage": "http://www.felix-girault.fr",
-                    "role": "Developer"
-                }
-            ],
-            "description": "A collection of utilities to manipulate arrays.",
-            "homepage": "http://github.com/felixgirault/parkour",
-            "keywords": [
-                "array",
-                "manipulation",
-                "traversing"
-            ],
-            "support": {
-                "issues": "https://github.com/felixgirault/parkour/issues",
-                "source": "https://github.com/felixgirault/parkour/tree/1.1.1"
-            },
-            "time": "2015-10-03T10:39:22+00:00"
         },
         {
             "name": "greenlion/php-sql-parser",
@@ -3247,12 +3100,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "b1ef8f464be59fa15bf9b4956be3e17a75c4dd03"
+                "reference": "e3b3cce1f2454ee4575500e084211b11efdaf64b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/b1ef8f464be59fa15bf9b4956be3e17a75c4dd03",
-                "reference": "b1ef8f464be59fa15bf9b4956be3e17a75c4dd03",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/e3b3cce1f2454ee4575500e084211b11efdaf64b",
+                "reference": "e3b3cce1f2454ee4575500e084211b11efdaf64b",
                 "shasum": ""
             },
             "conflict": {
@@ -3454,7 +3307,7 @@
                 "gos/web-socket-bundle": "<1.10.4|>=2,<2.6.1|>=3,<3.3",
                 "gree/jose": "<2.2.1",
                 "gregwar/rst": "<1.0.3",
-                "grumpydictator/firefly-iii": "<6.1.1",
+                "grumpydictator/firefly-iii": "<6.1.7",
                 "gugoan/economizzer": "<=0.9.0.0-beta1",
                 "guzzlehttp/guzzle": "<6.5.8|>=7,<7.4.5",
                 "guzzlehttp/psr7": "<1.9.1|>=2,<2.4.5",
@@ -3971,7 +3824,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-01-31T12:06:01+00:00"
+            "time": "2024-01-31T19:04:19+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
@@ -5672,10 +5525,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "essence/essence": 20,
-        "ezyang/htmlpurifier": 20,
-        "predis/predis": 20,
-        "squizlabs/php_codesniffer": 20,
+        "illuminate/collections": 20,
         "phpspec/phpspec": 20,
         "phpstan/phpstan": 20,
         "roave/security-advisories": 20

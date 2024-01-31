@@ -8,6 +8,7 @@
  * Sometimes you need to output the whole content,
  * sometimes you only need a part of it.
  * @see http://php.net/manual/en/class.arrayaccess.php#113865
+ * @phpstan-consistent-constructor
  */
 class MergedContent implements ArrayAccess
 {

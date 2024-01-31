@@ -1,5 +1,7 @@
 <?php
 
+use Essence\Essence;
+
 /**
  * composer require ezyang/htmlpurifier
  */
@@ -70,7 +72,7 @@ class HTMLProcessor
 		$content = '';
 		$links = $this->getLinks($comment);
 		foreach ($links as $link => $_) {
-			$Essence = new \Essence\Essence();
+			$Essence = Essence::instance();
 			$Media = $Essence->extract($link);
 
 			if ($Media) {

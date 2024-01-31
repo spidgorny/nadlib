@@ -456,7 +456,7 @@ class View extends stdClass implements ToStringable
 		$content = '';
 		$links = $this->getLinks($comment);
 		foreach ($links as $link => $_) {
-			$Essence = new Essence\Essence();
+			$Essence = Essence\Essence::instance();
 			$Media = $Essence->extract($link);
 
 			if ($Media) {
