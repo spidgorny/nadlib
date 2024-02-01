@@ -349,7 +349,7 @@ class slTable implements ToStringable
 	public function setSortBy($by = null, $or = null)
 	{
 		if (is_array($by)) {
-			list($by, $or) = $by;
+			[$by, $or] = $by;
 		}
 
 		// sortBy for th linking and sorting below
@@ -370,7 +370,7 @@ class slTable implements ToStringable
 			$t = $this->generation;
 			$t->table([
 					'id' => $this->ID,
-				] + HTMLTag::parseAttributes($this->more));
+				] + $this->more);
 
 			$this->generateThead();
 			$this->generation->text('<tbody>');
@@ -445,20 +445,6 @@ class slTable implements ToStringable
 		}
 		//debug_pre_print_backtrace();
 		//debug($this->thes[$this->sortBy]);
-	}
-
-	public function getThesNames()
-	{
-		$names = [];
-		foreach ($this->thes as $field => $thv) {
-			if (is_array($thv)) {
-				$thvName = $thv['name'] ?? ($thv['label'] ?? '');
-			} else {
-				$thvName = $thv;
-			}
-			$names[$field] = $thvName;
-		}
-		return $names;
 	}
 
 	public function generateThead()
@@ -747,10 +733,6 @@ class slTable implements ToStringable
 		}
 	}
 
-	/*
-	 * @throws Exception
-	 */
-
 	public function addRowWithMore($row)
 	{
 		$this->addRow();
@@ -759,7 +741,9 @@ class slTable implements ToStringable
 		}
 	}
 
-	/// https://stackoverflow.com/questions/21104373/tostring-must-not-throw-an-exception-error-when-using-string/26006176
+	/*
+	 * @throws Exception
+	 */
 
 	/**
 	 * @deprecated - use addRowData
@@ -769,6 +753,8 @@ class slTable implements ToStringable
 		$this->iRow++;
 		$this->iCol = 0;
 	}
+
+	/// https://stackoverflow.com/questions/21104373/tostring-must-not-throw-an-exception-error-when-using-string/26006176
 
 	public function addVal($col, $val)
 	{
@@ -818,12 +804,6 @@ class slTable implements ToStringable
 		return $footer;
 	}
 
-	protected function getColumnTotalTime($data, $col)
-	{
-		$total = 0;
-		return $total;
-	}
-
 	protected function is_time($val)
 	{
 		$parts = explode(':', $val);
@@ -832,6 +812,12 @@ class slTable implements ToStringable
 			&& is_numeric($parts[1])
 			&& strlen($parts[0]) == 2
 			&& strlen($parts[1]) == 2);
+	}
+
+	protected function getColumnTotalTime($data, $col)
+	{
+		$total = 0;
+		return $total;
 	}
 
 	public function download($filename)
@@ -864,6 +850,20 @@ class slTable implements ToStringable
 			$xls[] = $line;
 		}
 		return $xls;
+	}
+
+	public function getThesNames()
+	{
+		$names = [];
+		foreach ($this->thes as $field => $thv) {
+			if (is_array($thv)) {
+				$thvName = $thv['name'] ?? ($thv['label'] ?? '');
+			} else {
+				$thvName = $thv;
+			}
+			$names[$field] = $thvName;
+		}
+		return $names;
 	}
 
 	public function autoFormat()
