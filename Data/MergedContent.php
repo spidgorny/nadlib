@@ -20,33 +20,34 @@ class MergedContent implements ArrayAccess
 	{
 		$this->content = $parts;
 	}
-
-	protected function walkMergeArray($value, $key)
+	
+	/**
+	 * @param string|string[]|mixed $render
+	 * @return string
+	 */
+	public static function mergeStringArrayRecursive($render)
 	{
-		$this->combined[] = $value;
-	}
+		if (!$render) {
+			return $render;
+		}
+		if (is_string($render)) {
+			return $render;
+		}
 
-	public function __toString()
-	{
-//		debug_pre_print_backtrace();
-		return $this->getContent();
+		if ($render instanceof self) {
+			return $render->getContent();
+		}
+
+		if (is_object($render)) {
+			return $render;
+		}
+
+		return (new static($render))->getContent();
 	}
 
 	public function getContent()
 	{
 		return $this->mergeStringArrayRecursiveMethod($this->content);
-	}
-
-	/**
-	 * @param string|string[] $render
-	 * @return string
-	 */
-	public static function mergeStringArrayRecursive($render)
-	{
-		if (is_string($render)) {
-			return $render;
-		}
-		return (new static($render))->getContent();
 	}
 
 	public function mergeStringArrayRecursiveMethod($render)
@@ -62,9 +63,8 @@ class MergedContent implements ArrayAccess
 			//$combined = array_merge_recursive($render);
 			//$combined = implode('', $combined);
 
-			$combinedA = new ArrayObject();
-			array_walk_recursive($render, [$this, 'walkMergeArray'], $combinedA);
-			$arrayOfObjects = $combinedA->getArrayCopy();
+			array_walk_recursive($render, [$this, 'walkMergeArray']);
+			$arrayOfObjects = $this->combined;
 			$sureStrings = self::stringify($arrayOfObjects);
 			$combined = implode('', $sureStrings);
 			$render = $combined;
@@ -95,6 +95,12 @@ class MergedContent implements ArrayAccess
 				: $element;
 		}
 		return $objects;
+	}
+
+	public function __toString()
+	{
+//		debug_pre_print_backtrace();
+		return $this->getContent();
 	}
 
 	public function offsetExists(mixed $offset): bool
@@ -187,6 +193,11 @@ class MergedContent implements ArrayAccess
 	{
 		debug('clear');
 		$this->content = [];
+	}
+
+	protected function walkMergeArray($value, $key)
+	{
+		$this->combined[] = $value;
 	}
 
 }

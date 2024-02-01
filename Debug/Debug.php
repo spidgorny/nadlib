@@ -3,25 +3,21 @@
 class Debug
 {
 
-	public $index;
-
 	/**
 	 * @var Debug
 	 */
 	protected static $instance;
-
+	public $index;
 	/**
 	 * no debug unless $_COOKIE['debug']
 	 * @var string
 	 */
 	public $renderer = 'HTML';
-
+	public $name;
 	/**
 	 * @var Request
 	 */
 	protected $request;
-
-	public $name;
 
 	/**
 	 * @param Index|IndexBE $index
@@ -56,6 +52,15 @@ class Debug
 		$this->request = Request::getInstance();
 	}
 
+	public static function getInstance()
+	{
+		if (!self::$instance) {
+			$index = class_exists('Index', false) ? Index::getInstance() : null;
+			self::$instance = new self($index);
+		}
+		return self::$instance;
+	}
+
 	public function detectRenderer()
 	{
 		return DebugCLI::canCLI()
@@ -74,13 +79,15 @@ class Debug
 			);
 	}
 
-	public static function getInstance()
+	public function canDebugster()
 	{
-		if (!self::$instance) {
-			$index = class_exists('Index', false) ? Index::getInstance() : null;
-			self::$instance = new self($index);
-		}
-		return self::$instance;
+		return false;
+	}
+
+	public function canHTML()
+	{
+//		pre_print_r(__METHOD__, $_COOKIE);
+		return ifsetor($_COOKIE['debug']);
 	}
 
 	public static function shallow($coming)
@@ -124,70 +131,6 @@ class Debug
 	}
 
 	/**
-	 * Main entry point.
-	 * @param mixed $params
-	 * @return string
-	 */
-	public function debug($params)
-	{
-		$content = '';
-		if ($this->renderer) {
-			$method = 'debugWith' . $this->renderer;
-			if (method_exists($this, $method)) {
-				$content = $this->$method($params);
-			} elseif (class_exists($this->renderer)) {
-				$dgger = new $this->renderer($this);
-				$content = $dgger->debug($params);
-				echo $content;
-			} else {
-				pre_print_r($params);
-				debug_pre_print_backtrace();
-			}
-		} else {
-			// don't show anything to the users who are not DEVELOPMENT
-			//pre_print_r($params);
-			//debug_pre_print_backtrace();
-		}
-		return $content;
-	}
-
-	public function canHTML()
-	{
-//		pre_print_r(__METHOD__, $_COOKIE);
-		return ifsetor($_COOKIE['debug']);
-	}
-
-	/**
-	 * @param mixed $params - any type
-	 */
-	public function debugWithHTML($params)
-	{
-		if (!class_exists('DebugHTML')) {
-			debug_pre_print_backtrace();
-		}
-		$debugHTML = new DebugHTML($this);
-		$content = call_user_func([$debugHTML, 'render'], $params);
-		if (!is_null($content)) {
-			print($content);
-		}
-		if (ob_get_level() == 0) {
-			flush();
-		}
-	}
-
-	public static function getSimpleTrace($db = null)
-	{
-		$db = $db ? $db : debug_backtrace();
-		foreach ($db as &$row) {
-			$file = ifsetor($row['file']);
-			$row['file'] = basename(dirname($file)) . '/' . basename($file);
-			$row['object'] = (isset($row['object']) && is_object($row['object'])) ? get_class($row['object']) : null;
-			$row['args'] = sizeof($row['args']);
-		}
-		return $db;
-	}
-
-	/**
 	 * @param array $db
 	 * @return string
 	 */
@@ -211,6 +154,18 @@ class Debug
 			$trace = 'No self-trace in slTable';
 		}
 		return $trace;
+	}
+
+	public static function getSimpleTrace($db = null)
+	{
+		$db = $db ? $db : debug_backtrace();
+		foreach ($db as &$row) {
+			$file = ifsetor($row['file']);
+			$row['file'] = basename(dirname($file)) . '/' . basename($file);
+			$row['object'] = (isset($row['object']) && is_object($row['object'])) ? get_class($row['object']) : null;
+			$row['args'] = sizeof($row['args']);
+		}
+		return $db;
 	}
 
 	/**
@@ -343,7 +298,7 @@ class Debug
 			} else {
 				$object = '';
 			}
-			$file = basename(ifsetor($debugLine['file']));
+			$file = basename($debugLine['file'] ?? '');
 			$file = str_replace('class.', '', $file);
 			$file = str_replace('.php', '', $file);
 			$nextFunc = ifsetor($debug[$i + 1]['function']);
@@ -389,38 +344,6 @@ class Debug
 		}
 //		debug(array_sum($size), $size);
 		return array_sum($size);
-	}
-
-	public function canDebugster()
-	{
-		return false;
-	}
-
-	/**
-	 * @param mixed ..$debugAccess
-	 * @throws Exception
-	 */
-	public function consoleLog($debugAccess)
-	{
-		if ($this->request->isAjax()) {
-			return;
-		}
-		if (func_num_args() > 1) {
-			$debugAccess = func_get_args();
-		}
-		$json = json_encode($debugAccess);
-		$script = '<script type="text/javascript">
-		setTimeout(function () {
-			var json = ' . $json . ';
-			console.log(json);
-		}, 1);
-		</script>';
-		if (false && class_exists('Index', false)) {
-			$index = Index::getInstance();
-			$index->footer[] = $script;
-		} else {
-			echo $script;
-		}
 	}
 
 	public static function peek($row)
@@ -556,6 +479,79 @@ class Debug
 			error_log(' * ' . $key . ': [' . trim(strip_tags(typ($var))) . ']');
 		}
 		error_log('-----');
+	}
+
+	/**
+	 * Main entry point.
+	 * @param mixed $params
+	 * @return string
+	 */
+	public function debug($params)
+	{
+		$content = '';
+		if ($this->renderer) {
+			$method = 'debugWith' . $this->renderer;
+			if (method_exists($this, $method)) {
+				$content = $this->$method($params);
+			} elseif (class_exists($this->renderer)) {
+				$dgger = new $this->renderer($this);
+				$content = $dgger->debug($params);
+				echo $content;
+			} else {
+				pre_print_r($params);
+				debug_pre_print_backtrace();
+			}
+		} else {
+			// don't show anything to the users who are not DEVELOPMENT
+			//pre_print_r($params);
+			//debug_pre_print_backtrace();
+		}
+		return $content;
+	}
+
+	/**
+	 * @param mixed $params - any type
+	 */
+	public function debugWithHTML($params)
+	{
+		if (!class_exists('DebugHTML')) {
+			debug_pre_print_backtrace();
+		}
+		$debugHTML = new DebugHTML($this);
+		$content = call_user_func([$debugHTML, 'render'], $params);
+		if (!is_null($content)) {
+			print($content);
+		}
+		if (ob_get_level() == 0) {
+			flush();
+		}
+	}
+
+	/**
+	 * @param mixed ..$debugAccess
+	 * @throws Exception
+	 */
+	public function consoleLog($debugAccess)
+	{
+		if ($this->request->isAjax()) {
+			return;
+		}
+		if (func_num_args() > 1) {
+			$debugAccess = func_get_args();
+		}
+		$json = json_encode($debugAccess);
+		$script = '<script type="text/javascript">
+		setTimeout(function () {
+			var json = ' . $json . ';
+			console.log(json);
+		}, 1);
+		</script>';
+		if (false && class_exists('Index', false)) {
+			$index = Index::getInstance();
+			$index->footer[] = $script;
+		} else {
+			echo $script;
+		}
 	}
 
 }

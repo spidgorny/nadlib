@@ -12,12 +12,17 @@ class MemCacheRedis implements MemcacheInterface
 
 	public function get($key)
 	{
-		return json_decode($this->predis->get($key), false, 512 /*JSON_THROW_ON_ERROR*/);
+		$value = $this->predis->get($key);
+		try {
+			return json_decode($value, false, 512, JSON_THROW_ON_ERROR);
+		} catch(Exception $e) {
+			return $value;
+		}
 	}
 
 	public function set($key, $val)
 	{
-		return $this->predis->set(json_encode($key), $val);
+		return $this->predis->set($key, json_encode($val, JSON_THROW_ON_ERROR));
 	}
 
 	public function isValid($key = null, $expire = 0)

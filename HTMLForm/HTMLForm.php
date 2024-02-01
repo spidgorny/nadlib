@@ -454,9 +454,9 @@ class HTMLForm implements ToStringable
 
 	public function textarea($name, $value = null, $more = '')
 	{
-		$more = is_array($more) ? HTMLForm::getAttrHTML($more) : $more;
+		$more = is_array($more) ? self::getAttrHTML($more) : $more;
 		$this->stdout .= "<textarea " . $this->getName($name) . " {$more}>" .
-			htmlspecialchars($value) .
+			htmlspecialchars($value ?? '') .
 			"</textarea>";
 	}
 

@@ -114,7 +114,7 @@ class SQLSearch extends SQLWherePart
 		$select = new SQLSelect($select ? $select : 'DISTINCT *');
 		$from = new SQLFrom($table);
 		$where = new SQLWhere([]);
-		$query = new SQLSelectQuery($select, $from, $where,
+		$query = new SQLSelectQuery($this->db, $select, $from, $where,
 			null, null, null, new SQLOrder('id'));
 		//$query->setJoin(new SQLJoin("LEFT OUTER JOIN tag ON (tag.id_score = ".$this->table.".id)"));
 

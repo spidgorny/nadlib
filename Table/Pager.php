@@ -5,13 +5,12 @@ use spidgorny\nadlib\HTTP\URL;
 class Pager
 {
 
-	public $id;
-
 	/**
 	 * Say yes, if you have PaginationControl CSS included in the header
 	 * @var bool
 	 */
 	public static $cssOutput = false;
+	public $id;
 	/**
 	 * Total amount of rows in database (with WHERE)
 	 * Originally null to detect if setNumberOfRecords was called
@@ -248,7 +247,7 @@ class Pager
 			$subQuery = new SQLSubquery($queryWithoutOrder, 'counted');
 			$subQuery->parameters = $parameters;
 
-			$query = new SQLSelectQuery(
+			$query = new SQLSelectQuery($this->db,
 				new SQLSelect('count(*) AS count'),
 				$subQuery
 			);
@@ -447,11 +446,11 @@ class Pager
 		if ($k == $this->currentPage) {
 			$content = '<li class="active"><a href="' . $link . '"
 				class="active"
-				title="' . htmlspecialchars(ifsetor($this->pageTitles[$k]), ENT_QUOTES) . '"
+				title="' . htmlspecialchars(ifsetor($this->pageTitles[$k], ''), ENT_QUOTES) . '"
 				>' . $text . '</a></li>';
 		} else {
 			$content = '<li><a href="' . $link . '"
-			title="' . htmlspecialchars(ifsetor($this->pageTitles[$k]), ENT_QUOTES) . '"
+			title="' . htmlspecialchars(ifsetor($this->pageTitles[$k], ''), ENT_QUOTES) . '"
 			>' . $text . '</a></li>';
 		}
 		return $content;

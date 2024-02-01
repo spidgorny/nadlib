@@ -42,24 +42,11 @@ class HTMLFormTable extends HTMLForm
 	 * @var array
 	 */
 	public $desc;
-
-	/**
-	 * @var
-	 */
-	protected $mainForm;
-
-	/**
-	 * @var Request
-	 */
-	protected $request;
-
 	public $noStarUseBold;
-
 	/**
 	 * @var HTMLFormValidate
 	 */
 	public $validator;
-
 	/**
 	 * Is needed in case validation is made before checking if it's valid.
 	 * It's set in HTMLFormTable::validate();
@@ -67,6 +54,14 @@ class HTMLFormTable extends HTMLForm
 	 * @var bool
 	 */
 	public $isValid = false;
+	/**
+	 * @var
+	 */
+	protected $mainForm;
+	/**
+	 * @var Request
+	 */
+	protected $request;
 
 	/**
 	 * HTMLFormTable constructor.
@@ -151,52 +146,11 @@ class HTMLFormTable extends HTMLForm
 		}
 	}
 
-	public function showLabel(HTMLFormField $desc, $fieldName)
+	public static function getQuickForm(array $desc)
 	{
-		//debug($desc->getArray());
-		$elementID = $desc->elementID;
-		$withBR = (ifsetor($desc['br']) === null && $this->defaultBR) || $desc['br'];
-		if (!isset($desc['label'])) {
-			return;
-		}
-		$label = $desc['label'];
-		if (!$withBR) {
-			if (!$desc->isCheckbox()) {
-				$label .= $label ? ':&nbsp;' : '';  // don't append to "submit"
-			}
-			if ($desc->isObligatory()) {
-				if ($this->noStarUseBold) {
-					$label = '<b title="Obligatory">' . $label . '</b>';
-				} else {
-					$label .= '<span class="htmlFormTableStar">*</span>';
-				}
-			} else {
-				if ($this->noStarUseBold) {
-					$label = '<span title="Optional">' . $label . '</span>';
-				}
-			}
-			$label .= ifsetor($desc['explanationgif']);
-			$label .= $this->debug
-				? '<br><font color="gray">' . $this->getName($fieldName, '', true) . '</font>'
-				: '';
-		}
-		$this->stdout .= ifsetor($desc['beforeLabel']);
-		//debug($label);
-		assert(is_string($label));
-		$this->stdout .= '<label for="' . $elementID . '" class="' . ($desc['labelClass']??'') . '">' . $label . '</label>';
-		if (!$withBR) {
-			$this->stdout .= '</td><td>';
-		}
-	}
-
-	public function mainFormStart()
-	{
-		$this->stdout .= '<table class="htmlFormDiv"><tr><td>' . "\n";
-	}
-
-	public function mainFormEnd()
-	{
-		$this->stdout .= "</td></tr></table>\n";
+		$f = new self($desc);
+		$f->showForm();
+		return $f->getBuffer();
 	}
 
 	/**
@@ -208,7 +162,7 @@ class HTMLFormTable extends HTMLForm
 	public function showForm($prefix = [], $mainForm = true, $append = '')
 	{
 //		echo json_encode(array_keys($this->desc)), BR;
-		$this->tableMore['class'] .= $this->defaultBR ? ' defaultBR' : '';
+		$this->tableMore['class'] = ($this->tableMore['class'] ?? '') . $this->defaultBR ? ' defaultBR' : '';
 		$this->stdout .= $this->getForm($this->desc, $prefix, $mainForm, $append);
 		return $this;
 	}
@@ -345,6 +299,24 @@ class HTMLFormTable extends HTMLForm
 		$this->stdout .= "</tr>\n";
 	}
 
+	public static function sliceFromTill(array $desc, $from, $till = null)
+	{
+		$desc2 = [];
+		$copy = false;
+		foreach ($desc as $key => $val) {
+			if (!$copy) {
+				$copy = $key === $from;
+			}
+			if ($copy) {
+				$desc2[$key] = $val;
+			}
+			if ($key === $till) {
+				break;
+			}
+		}
+		return $desc2;
+	}
+
 	public function showRow($fieldName, array $desc2)
 	{
 		//foreach ($desc as $fieldName2 => $desc2) {
@@ -356,6 +328,11 @@ class HTMLFormTable extends HTMLForm
 		$this->mainFormEnd();
 		//}
 		//}
+	}
+
+	public function mainFormStart()
+	{
+		$this->stdout .= '<table class="htmlFormDiv"><tr><td>' . "\n";
 	}
 
 	/**
@@ -468,6 +445,49 @@ class HTMLFormTable extends HTMLForm
 		return $field;
 	}
 
+	public function showLabel(HTMLFormField $desc, $fieldName)
+	{
+		//debug($desc->getArray());
+		$elementID = $desc->elementID;
+		$withBR = (ifsetor($desc['br']) === null && $this->defaultBR) || $desc['br'];
+		if (!isset($desc['label'])) {
+			return;
+		}
+		$label = $desc['label'];
+		if (!$withBR) {
+			if (!$desc->isCheckbox()) {
+				$label .= $label ? ':&nbsp;' : '';  // don't append to "submit"
+			}
+			if ($desc->isObligatory()) {
+				if ($this->noStarUseBold) {
+					$label = '<b title="Obligatory">' . $label . '</b>';
+				} else {
+					$label .= '<span class="htmlFormTableStar">*</span>';
+				}
+			} else {
+				if ($this->noStarUseBold) {
+					$label = '<span title="Optional">' . $label . '</span>';
+				}
+			}
+			$label .= ifsetor($desc['explanationgif']);
+			$label .= $this->debug
+				? '<br><font color="gray">' . $this->getName($fieldName, '', true) . '</font>'
+				: '';
+		}
+		$this->stdout .= ifsetor($desc['beforeLabel']);
+		//debug($label);
+		assert(is_string($label));
+		$this->stdout .= '<label for="' . $elementID . '" class="' . ($desc['labelClass']??'') . '">' . $label . '</label>';
+		if (!$withBR) {
+			$this->stdout .= '</td><td>';
+		}
+	}
+
+	public function mainFormEnd()
+	{
+		$this->stdout .= "</td></tr></table>\n";
+	}
+
 	/**
 	 * Deprecated. Used to retrieve name/values pairs from the array with $this->withValues = FALSE.
 	 *
@@ -518,6 +538,17 @@ class HTMLFormTable extends HTMLForm
 			}
 		}
 		return $form;
+	}
+
+	/**
+	 * @param array $assoc
+	 * @param bool $forceInsert
+	 * @return array
+	 */
+	public function fill(array $assoc, $forceInsert = false)
+	{
+		$this->desc = $this->fillValues($this->desc, $assoc, $forceInsert);
+		return $this->desc;
 	}
 
 	/**
@@ -590,30 +621,12 @@ class HTMLFormTable extends HTMLForm
 	}
 
 	/**
-	 * @param array $assoc
-	 * @param bool $forceInsert
-	 * @return array
-	 */
-	public function fill(array $assoc, $forceInsert = false)
-	{
-		$this->desc = $this->fillValues($this->desc, $assoc, $forceInsert);
-		return $this->desc;
-	}
-
-	/**
 	 * Correct function to use outside if the desc is assigned already
 	 * @param array $assoc
 	 */
 	public function fillDesc(array $assoc)
 	{
 		$this->desc = $this->fillValues($this->desc, $assoc);
-	}
-
-	public static function getQuickForm(array $desc)
-	{
-		$f = new self($desc);
-		$f->showForm();
-		return $f->getBuffer();
 	}
 
 	public function getSingle($fieldName, array $desc)
@@ -701,24 +714,6 @@ class HTMLFormTable extends HTMLForm
 				$row['type']->setValue(null);
 			}
 		}
-	}
-
-	public static function sliceFromTill(array $desc, $from, $till = null)
-	{
-		$desc2 = [];
-		$copy = false;
-		foreach ($desc as $key => $val) {
-			if (!$copy) {
-				$copy = $key === $from;
-			}
-			if ($copy) {
-				$desc2[$key] = $val;
-			}
-			if ($key === $till) {
-				break;
-			}
-		}
-		return $desc2;
 	}
 
 	public function undo()

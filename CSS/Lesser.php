@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * composer require ca-dsgn/lessphp
+ */
 class Lesser extends AppControllerBE
 {
 

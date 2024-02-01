@@ -44,7 +44,7 @@ ORDER BY c";
 		if ($this->db instanceof DBPlacebo) {
 			$this->markTestSkipped('DBPlacebo has different SQL');
 		}
-		$query = new SQLSelectQuery('*', 'table', [
+		$query = new SQLSelectQuery($this->db, '*', 'table', [
 			'a' => new SQLLikeContains('b'),
 		], null, null, null, 'ORDER BY c');
 

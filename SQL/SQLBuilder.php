@@ -167,9 +167,13 @@ class SQLBuilder
 	public function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = '')
 	{
 		$table1 = $this->getFirstWord($table);
-		$select = $addSelect ? $addSelect
-			: $this->quoteKey($table1) . ".*";
+		$select = $addSelect ?: $this->quoteKey($table1) . ".*";
 		return $this->getSelectQuery($table, $where, $order, $select);
+	}
+
+	public function getSelectQuery($table, $where = [], $order = '', $addSelect = null)
+	{
+		return new SQLSelectQuery($this->db, new SQLSelect($addSelect ?? '*'), new SQLFrom($table), $where instanceof SQLWhere ? $where : new SQLWhere($where), null, null, null, new SQLOrder($order), null);
 	}
 
 	/**
@@ -212,11 +216,6 @@ class SQLBuilder
 		//debug($query);
 		$res = $this->db->perform($query);
 		return $res;
-	}
-
-	public function getSelectQuery($table, array $where = [], $order = '', $addSelect = null)
-	{
-		return new SQLSelectQuery($this->db, $table, $where, $order, $addSelect);
 	}
 
 	/**
@@ -339,23 +338,6 @@ class SQLBuilder
 	}
 
 	/**
-	 * Quotes the complete array if necessary.
-	 *
-	 * @param array $a
-	 * @return array
-	 * @throws MustBeStringException
-	 */
-	public function quoteValues(array $a)
-	{
-		//		debug(__METHOD__, $a);
-		$c = [];
-		foreach ($a as $key => $b) {
-			$c[] = $this->quoteSQL($b, $key);
-		}
-		return $c;
-	}
-
-	/**
 	 * @param string $table Table name
 	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
 	 * @param array $where
@@ -375,6 +357,23 @@ class SQLBuilder
 			$q .= "VALUES ({$values})";
 		}
 		return $q;
+	}
+
+	/**
+	 * Quotes the complete array if necessary.
+	 *
+	 * @param array $a
+	 * @return array
+	 * @throws MustBeStringException
+	 */
+	public function quoteValues(array $a)
+	{
+		//		debug(__METHOD__, $a);
+		$c = [];
+		foreach ($a as $key => $b) {
+			$c[] = $this->quoteSQL($b, $key);
+		}
+		return $c;
 	}
 
 	/**
@@ -732,7 +731,7 @@ class SQLBuilder
 
 		$subQuery = new SQLSubquery($queryWithoutOrder, 'counted');
 		$subQuery->setParameters($query->getParameters());
-		$query = new SQLSelectQuery(
+		$query = new SQLSelectQuery($this->db,
 			new SQLSelect('count(*) AS count'),
 			$subQuery
 		);

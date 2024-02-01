@@ -834,7 +834,8 @@ class Request
 	public function redirectJS(
 		$controller, $delay = 0, $message =
 	'Redirecting to %1'
-	) {
+	)
+	{
 		echo __($message, '<a href="' . $controller . '">' . $controller . '</a>') . '
 			<script>
 				setTimeout(function () {
@@ -1181,7 +1182,7 @@ class Request
 					$pname = substr($pname, 1);
 					if (strpos($p, '=') !== false) {
 						// value specified inline (--<param>=<value>)
-						list($pname, $value) = explode('=', substr($p, 2), 2);
+						[$pname, $value] = explode('=', substr($p, 2), 2);
 					}
 				}
 				// check if next parameter is a descriptor or a value
@@ -1319,12 +1320,12 @@ class Request
 		} else {
 			$levels = [];
 		}
-		llog([
-			'cwd' => getcwd(),
-			//'url' => $url.'',
-			'path' => $path . '',
-			//'getURL()' => $path->getURL() . '',
-			'levels' => $levels]);
+//		llog([
+//			'cwd' => getcwd(),
+//			//'url' => $url.'',
+//			'path' => $path . '',
+//			//'getURL()' => $path->getURL() . '',
+//			'levels' => $levels]);
 		return $levels;
 	}
 
@@ -1395,7 +1396,7 @@ class Request
 		return $json;
 	}
 
-		/**
+	/**
 	 * Returns raw data, don't use or use with care
 	 * @param $key
 	 * @return mixed
