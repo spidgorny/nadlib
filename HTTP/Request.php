@@ -1170,7 +1170,7 @@ class Request
 	public function parseParameters($noopt = [])
 	{
 		$result = [];
-		$params = isset($_SERVER['argv']) ? $_SERVER['argv'] : [];
+		$params = $_SERVER['argv'] ?? [];
 		// could use getopt() here (since PHP 5.3.0), but it doesn't work reliably
 		reset($params);
 		foreach ($params as $tmp => $p) {
@@ -1180,7 +1180,7 @@ class Request
 				if ($pname[0] === '-') {
 					// long-opt (--<param>)
 					$pname = substr($pname, 1);
-					if (strpos($p, '=') !== false) {
+					if (str_contains($p, '=')) {
 						// value specified inline (--<param>=<value>)
 						[$pname, $value] = explode('=', substr($p, 2), 2);
 					}

@@ -30,11 +30,6 @@ class DBLayer extends DBLayerBase
 
 	public $AFFECTED_ROWS = null;
 	/**
-	 * @var MemcacheArray
-	 */
-	protected $mcaTableColumns;
-
-	/**
 	 * @var string
 	 */
 	public $lastQuery;
@@ -47,7 +42,10 @@ class DBLayer extends DBLayerBase
 	];
 	public $dbName;
 	public $host;
-
+	/**
+	 * @var MemcacheArray
+	 */
+	protected $mcaTableColumns;
 	/**
 	 * Transaction count because three are no nested transactions
 	 * @var int
@@ -621,28 +619,7 @@ class DBLayer extends DBLayerBase
 	{
 		$result = $this->perform($query);
 		$row = pg_fetch_row($result);
-		$value = $row[0];
-		return $value;
-	}
-
-	public function numRows($query = null)
-	{
-		if (is_string($query)) {
-			$query = $this->perform($query);
-		}
-		return pg_num_rows($query);
-	}
-
-	public function getLastInsertID($res = null, $table = 'not required since 8.1')
-	{
-		$pgv = pg_version();
-		if ($pgv['server'] >= 8.1) {
-			return $this->lastval();
-		}
-
-		$oid = pg_last_oid($res);
-		$row = $this->fetchOneSelectQuery('id', $table, "oid = '" . $oid . "'");
-		return $row['id'];
+		return $row[0];
 	}
 
 	/**
@@ -656,12 +633,26 @@ class DBLayer extends DBLayerBase
 		return $this->getLastInsertID($res, $table);
 	}
 
+	public function getLastInsertID($res = null, $table = 'not required since 8.1')
+	{
+		$pgv = pg_version();
+		llog('pg_version', (int)$pgv['server']);
+		if ((int)$pgv['server'] >= 8.1) {
+			return $this->lastval();
+		}
+
+		$oid = pg_last_oid($res);
+		$row = $this->fetchOneSelectQuery($table, "oid = '" . $oid . "'");
+		return $row['id'];
+	}
+
 	protected function lastval()
 	{
 		$res = $this->perform('SELECT LASTVAL() AS lastval');
 		$row = $this->fetchAssoc($res);
 		return $row['lastval'];
 	}
+
 
 	public function getComment($table, $column)
 	{
@@ -965,6 +956,14 @@ WHERE ccu.table_name='" . $table . "'");
 	{
 		return !!$this->connection
 			&& pg_connection_status($this->connection) === PGSQL_CONNECTION_OK;
+	}
+
+	public function numRows($query = null)
+	{
+		if (is_string($query)) {
+			$query = $this->perform($query);
+		}
+		return pg_num_rows($query);
 	}
 
 	public function isTransaction()

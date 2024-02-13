@@ -36,7 +36,7 @@ class MessageQueue extends OODBase
 		parent::__construct();
 
 		if (empty($type)) {
-			throw new Exception('Type not set!');
+			throw new RuntimeException('Type not set!');
 		}
 
 		$this->type = $type;
@@ -57,7 +57,7 @@ class MessageQueue extends OODBase
 		$newTaskOK = $this->fetchNextTask($this->type);
 		if ($newTaskOK) {
 			// Set the status to "IN PROGRESS"
-			$this->setStatus(MessageQueue::STATUS_IN_PROGRESS);
+			$this->setStatus(self::STATUS_IN_PROGRESS);
 			$this->db->commit();
 			// set task data retrieved from DB
 			$this->setTaskData($this->data['data']);
@@ -76,23 +76,12 @@ class MessageQueue extends OODBase
 				$obj = false;
 			}
 			return $obj;
-		} else {
-			$this->db->commit();    // tried to get new task
 		}
+
+		$this->db->commit();    // tried to get new task
 
 		// if there is no next task return false
 		return null;
-	}
-
-	/**
-	 * Get class name for given type
-	 *
-	 * @param string $type
-	 * @return string
-	 */
-	private function getClassName($type)
-	{
-		return $type;
 	}
 
 	/**
@@ -119,6 +108,37 @@ class MessageQueue extends OODBase
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * Sets status of current task
+	 *
+	 * @param string $status MessageQueue::STATUS_*
+	 * @return void
+	 */
+	public function setStatus($status)
+	{
+		$data = [
+			'status' => $status
+		];
+		$this->update($data);
+	}
+
+	public function update(array $data)
+	{
+		$data['mtime'] = new SQLNow();
+		return parent::update($data);
+	}
+
+	/**
+	 * Get class name for given type
+	 *
+	 * @param string $type
+	 * @return string
+	 */
+	private function getClassName($type)
+	{
+		return $type;
 	}
 
 	public function count()
@@ -148,21 +168,7 @@ class MessageQueue extends OODBase
 	 */
 	public function setTaskData($data)
 	{
-		$this->taskData = json_decode($data, true);
-	}
-
-	/**
-	 * Sets status of current task
-	 *
-	 * @param string $status MessageQueue::STATUS_*
-	 * @return void
-	 */
-	public function setStatus($status)
-	{
-		$data = [
-			'status' => $status
-		];
-		$this->update($data);
+		$this->taskData = json_decode($data, true, 512, JSON_THROW_ON_ERROR);
 	}
 
 	/**
@@ -178,7 +184,7 @@ class MessageQueue extends OODBase
 			'ctime' => new SQLNow(),
 			'type' => $this->type,
 			'status' => self::STATUS_NEW,
-			'data' => json_encode($taskData)
+			'data' => json_encode($taskData, JSON_THROW_ON_ERROR)
 		];
 
 		if (!empty($userId)) {
@@ -190,12 +196,6 @@ class MessageQueue extends OODBase
 	public function getStatus()
 	{
 		return $this->data['status'];
-	}
-
-	public function update(array $data)
-	{
-		$data['mtime'] = new SQLNow();
-		return parent::update($data);
 	}
 
 }

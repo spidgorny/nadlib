@@ -65,7 +65,7 @@ abstract class OODBase implements ArrayAccess
 	public $forceInit;
 
 	/**
-	 * @var DBLayerBase|DBInterface|SQLBuilder|DBLayerPDO
+	 * @var DBLayerBase|DBInterface|SQLBuilder|DBLayerPDO|DBLayer
 	 * public to allow unset($o->db); before debugging
 	 */
 	protected $db;
@@ -568,16 +568,14 @@ abstract class OODBase implements ArrayAccess
 		// even if you provide your own
 		if (is_array($this->idField)) {
 			$id = $this->db->lastInsertID($res, $this->table);
+		} elseif (ifsetor($data[$this->idField])) {
+			$id = $data[$this->idField];
 		} else {
-			if (ifsetor($data[$this->idField])) {
-				$id = $data[$this->idField];
-			} else {
-				$id = $this->db->lastInsertID($res, $this->table);
-			}
+			$id = $this->db->lastInsertID($res, $this->table);
 		}
 
 		if ($id) {
-			$this->init($id ? $id : $this->id);
+			$this->init($id ?: $this->id);
 		} else {
 			//debug($this->lastQuery, $this->db->lastQuery);
 			$errorMessage = 'OODBase for ' . $this->table . ' no insert id after insert. ';
