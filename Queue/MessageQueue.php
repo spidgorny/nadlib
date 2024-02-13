@@ -190,6 +190,7 @@ class MessageQueue extends OODBase
 		if (!empty($userId)) {
 			$data['cuser'] = $userId;
 		}
+
 		return $this->insert($data);
 	}
 

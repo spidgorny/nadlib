@@ -641,6 +641,7 @@ class DBLayer extends DBLayerBase
 			return $this->lastval();
 		}
 
+
 		$oid = pg_last_oid($res);
 		$row = $this->fetchOneSelectQuery($table, "oid = '" . $oid . "'");
 		return $row['id'];

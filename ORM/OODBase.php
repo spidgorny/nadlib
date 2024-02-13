@@ -573,6 +573,7 @@ abstract class OODBase implements ArrayAccess
 		} else {
 			$id = $this->db->lastInsertID($res, $this->table);
 		}
+		
 
 		if ($id) {
 			$this->init($id ?: $this->id);
