@@ -15,13 +15,16 @@ class Linker
 
 	public $linkVars = [];
 
+	public $controllerName;
+
 	/**
 	 * @var Request
 	 */
 	public $request;
 
-	public function __construct(Request $request)
+	public function __construct($controllerName, Request $request)
 	{
+		$this->controllerName = $controllerName;
 		$this->request = $request;
 	}
 
@@ -117,7 +120,7 @@ class Linker
 	public function adjustURL(array $params)
 	{
 		return URL::getCurrent()->addParams([
-				'c' => get_class(Index::getInstance()->controller),
+				'c' => $this->controllerName,
 			] + $params);
 	}
 
@@ -202,7 +205,7 @@ class Linker
 	public function linkToAction($action = '', array $params = [], $controller = null)
 	{
 		if (!$controller) {
-			$controller = get_class($this);
+			$controller = $this->controllerName;
 		}
 		$params = [
 				'c' => $controller,
@@ -228,7 +231,7 @@ class Linker
 	public function makeActionURL($action = '', array $params = [], $path = '')
 	{
 		$urlParams = [
-				'c' => get_class($this),
+				'c' => $this->controllerName,
 				'action' => $action,
 			] + $params;
 		$urlParams = array_filter($urlParams);
