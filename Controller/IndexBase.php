@@ -439,7 +439,6 @@ class IndexBase implements IndexInterface
 //		llog('$this->request->isAjax()', $this->request->isAjax());
 //		llog('$this->request->isCLI()', $this->request->isCLI());
 		if (!$this->request->isAjax() && !$this->request->isCLI()) {
-			llog('renderTemplate', strlen($this->s($content)));
 			// display Exception
 			$view = $this->renderTemplate($content);
 //			llog('type', gettype($view));
@@ -455,7 +454,6 @@ class IndexBase implements IndexInterface
 //		llog('contentOut', strlen($contentOut));
 		return $contentOut;
 	}
-
 
 	public function renderTemplate($content)
 	{
