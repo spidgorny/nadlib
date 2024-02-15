@@ -287,4 +287,9 @@ class ConfigBase implements ConfigInterface
 	{
 		$this->user = $user;
 	}
+
+	public function getDefaultController()
+	{
+		return 'HomePage';
+	}
 }
