@@ -2,7 +2,6 @@
 
 interface ConfigInterface
 {
-	// empty for the time being
 
 	public function getUser();
 
@@ -13,5 +12,7 @@ interface ConfigInterface
 	public function mergeConfig($obj);
 
 	public function getLL();
+
+	public function getDefaultController();
 
 }

@@ -169,7 +169,7 @@ class IndexBE extends IndexBase
 			$loginForm = new LoginForm();
 			$loginForm->withRegister = false;
 			$content = $loginForm->layout->wrap(
-				$this->content .
+				$this->content->__toString() .
 				$loginForm->render()
 			);
 			$this->content->clear();

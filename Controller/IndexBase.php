@@ -102,12 +102,7 @@ class IndexBase implements IndexInterface
 		TaylorProfiler::start(__METHOD__);
 		//parent::__construct();
 		$this->config = $config;
-		$this->db = $this->config->getDB();
 
-		// copy/paste this to class Index if your project requires login
-		// you need a session if you want to try2login()
-//		$this->initSession();
-//		$this->user = $this->config->getUser();
 
 		$this->ll = $this->config->getLL();
 
@@ -124,6 +119,7 @@ class IndexBase implements IndexInterface
 //		];
 		TaylorProfiler::stop(__METHOD__);
 	}
+
 
 	/**
 	 * @return string
@@ -158,8 +154,6 @@ class IndexBase implements IndexInterface
 			if (!$ok) {
 				throw new RuntimeException('session_start() failed');
 			}
-		}
-		if (!headers_sent()) {
 			header('X-Frame-Options: SAMEORIGIN');
 			header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
 			foreach ($this->csp as $key => &$val) {
@@ -178,7 +172,7 @@ class IndexBase implements IndexInterface
 			$_SESSION['HTTP_USER_AGENT'] = ifsetor($_SERVER['HTTP_USER_AGENT']);
 		}
 		if (ifsetor($_SESSION['REMOTE_ADDR'])) {
-			if ($_SESSION['REMOTE_ADDR'] != $_SERVER['REMOTE_ADDR']) {
+			if ($_SESSION['REMOTE_ADDR'] !== $_SERVER['REMOTE_ADDR']) {
 				session_regenerate_id(true);
 				unset($_SESSION['REMOTE_ADDR']);
 				throw new AccessDeniedException('Session hijacking detected. Please try again.');
@@ -211,9 +205,7 @@ class IndexBase implements IndexInterface
 	public static function getInstance($createNew = false, ConfigInterface $config = null)
 	{
 		TaylorProfiler::start(__METHOD__);
-		$instance = self::$instance
-			? self::$instance
-			: null;
+		$instance = self::$instance ?: null;
 		if (!$instance && $createNew) {
 			$static = get_called_class();
 			$instance = new $static($config);
@@ -246,7 +238,6 @@ class IndexBase implements IndexInterface
 	public function initController()
 	{
 		// already created
-		// already created
 		if ($this->controller instanceof Controller) {
 			return;
 		}
@@ -270,6 +261,7 @@ class IndexBase implements IndexInterface
 	 */
 	public function log($action, $data)
 	{
+		llog($action, $data);
 		//debug($action, $bookingID);
 		/*$this->db->runInsertQuery('log', array(
 			'who' => $this->user->id,
@@ -329,6 +321,11 @@ class IndexBase implements IndexInterface
 		try {
 			// only use session if not run from command line
 			$this->initSession();
+
+			$this->db = $this->config->getDB();
+			// copy/paste this to class Index if your project requires login
+			// you need a session if you want to try2login()
+//		$this->user = $this->config->getUser();
 
 			$this->initController();
 			if ($this->controller instanceof Controller) {
@@ -439,10 +436,13 @@ class IndexBase implements IndexInterface
 	public function renderTemplateIfNotAjax($content)
 	{
 		$contentOut = '';
+//		llog('$this->request->isAjax()', $this->request->isAjax());
+//		llog('$this->request->isCLI()', $this->request->isCLI());
 		if (!$this->request->isAjax() && !$this->request->isCLI()) {
+			llog('renderTemplate', strlen($this->s($content)));
 			// display Exception
 			$view = $this->renderTemplate($content);
-			//echo gettype2($view), BR;
+//			llog('type', gettype($view));
 			if ($view instanceof View) {
 				$contentOut = $view->render();
 			} else {
@@ -452,15 +452,18 @@ class IndexBase implements IndexInterface
 			//$contentOut .= $this->content;    // NO! it's JSON (maybe)
 			$contentOut .= $this->s($content);
 		}
+//		llog('contentOut', strlen($contentOut));
 		return $contentOut;
 	}
+
 
 	public function renderTemplate($content)
 	{
 		TaylorProfiler::start(__METHOD__);
 		$contentOut = '';
 		// this is already output
-		$contentOut .= $this->content->getContent();
+//		llog('renderTemplate->content', $this->content);
+		$contentOut .= $this->s($this->content);
 		// clear for the next output. May affect saveMessages()
 //		$this->content->clear();
 		$contentOut .= $this->s($content);
@@ -469,7 +472,7 @@ class IndexBase implements IndexInterface
 		$v->content = $contentOut;
 		$v->title = $this->controller ? strip_tags(ifsetor($this->controller->title)) : null;
 		$v->sidebar = $this->sidebar;
-		$v->baseHref = $this->request->getLocation();
+		$v->baseHref = Request::getLocation();
 		//$lf = new LoginForm('inlineForm');	// too specific - in subclass
 		//$v->loginForm = $lf->dispatchAjax();
 		TaylorProfiler::stop(__METHOD__);
@@ -479,8 +482,7 @@ class IndexBase implements IndexInterface
 	public function renderProfiler()
 	{
 		$pp = new PageProfiler();
-		$content = $pp->render();
-		return $content;
+		return $pp->render();
 	}
 
 	public function __destruct()

@@ -48,10 +48,9 @@ class RenderException
 		}
 
 		$message = $e->getMessage();
-		$message = ($message instanceof HtmlString ||
-			$message[0] === '<')
+		$message = ($message instanceof HtmlString ||	$message[0] === '<')
 			? $message . ''
-			: htmlspecialchars($message);
+			: ($message);
 		$content = '<div class="' . $wrapClass . '">
 				' . get_class($e) .
 			($e->getCode() ? ' (' . $e->getCode() . ')' : '') . BR .
