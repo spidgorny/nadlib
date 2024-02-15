@@ -30,8 +30,8 @@ class AppControllerBE extends Controller
 	{
 		parent::__construct();
 		if (!static::$public) {
-			if (!$this->user) {
-				throw new AccessDeniedException(
+			if (!$this->user||!$this->user->isAuth()) {
+				throw new LoginException(
 					__('Access denied to page %1. No user.',
 						get_class($this)));
 			}
@@ -64,8 +64,7 @@ class AppControllerBE extends Controller
 
 	public function makeURL(array $params = [], $prefix = '?')
 	{
-		$url = parent::makeURL($params, $this->nadlibFromDocRoot . 'be/?');
-		return $url;
+		return parent::makeURL($params, $this->nadlibFromDocRoot . 'be/?');
 	}
 
 }
