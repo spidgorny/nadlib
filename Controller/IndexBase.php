@@ -436,10 +436,13 @@ class IndexBase implements IndexInterface
 	public function renderTemplateIfNotAjax($content)
 	{
 		$contentOut = '';
+//		llog('$this->request->isAjax()', $this->request->isAjax());
+//		llog('$this->request->isCLI()', $this->request->isCLI());
 		if (!$this->request->isAjax() && !$this->request->isCLI()) {
+			llog('renderTemplate', strlen($this->s($content)));
 			// display Exception
 			$view = $this->renderTemplate($content);
-			//echo gettype2($view), BR;
+//			llog('type', gettype($view));
 			if ($view instanceof View) {
 				$contentOut = $view->render();
 			} else {
@@ -449,15 +452,18 @@ class IndexBase implements IndexInterface
 			//$contentOut .= $this->content;    // NO! it's JSON (maybe)
 			$contentOut .= $this->s($content);
 		}
+//		llog('contentOut', strlen($contentOut));
 		return $contentOut;
 	}
+
 
 	public function renderTemplate($content)
 	{
 		TaylorProfiler::start(__METHOD__);
 		$contentOut = '';
 		// this is already output
-		$contentOut .= $this->content->getContent();
+//		llog('renderTemplate->content', $this->content);
+		$contentOut .= $this->s($this->content);
 		// clear for the next output. May affect saveMessages()
 //		$this->content->clear();
 		$contentOut .= $this->s($content);
@@ -466,7 +472,7 @@ class IndexBase implements IndexInterface
 		$v->content = $contentOut;
 		$v->title = $this->controller ? strip_tags(ifsetor($this->controller->title)) : null;
 		$v->sidebar = $this->sidebar;
-		$v->baseHref = $this->request->getLocation();
+		$v->baseHref = Request::getLocation();
 		//$lf = new LoginForm('inlineForm');	// too specific - in subclass
 		//$v->loginForm = $lf->dispatchAjax();
 		TaylorProfiler::stop(__METHOD__);
@@ -476,8 +482,7 @@ class IndexBase implements IndexInterface
 	public function renderProfiler()
 	{
 		$pp = new PageProfiler();
-		$content = $pp->render();
-		return $content;
+		return $pp->render();
 	}
 
 	public function __destruct()
