@@ -295,7 +295,7 @@ class ArrayPlus extends ArrayObject implements Countable
 		return $content;
 	}
 
-	public function ksort()
+	public function ksort(int $flags = SORT_REGULAR)
 	{
 		$arrayCopy = $this->getArrayCopy();
 		ksort($arrayCopy);
@@ -657,10 +657,10 @@ class ArrayPlus extends ArrayObject implements Countable
 			* for recursive call
 			*/
 			return array_map([$this, __FUNCTION__], $d);
-		} else {
-			// Return array
-			return $d;
 		}
+
+// Return array
+		return $d;
 	}
 
 	/**
@@ -673,7 +673,7 @@ class ArrayPlus extends ArrayObject implements Countable
 	 */
 	public function linearize(array $data = null)
 	{
-		$data = $data ? $data : $this;
+		$data = $data ?: $this;
 		$linear = [];
 		foreach ($data as $key => $val) {
 			if (is_array($val) && $val) {
