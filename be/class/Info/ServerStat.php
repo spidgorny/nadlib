@@ -38,7 +38,7 @@ class ServerStat extends AppControllerBE
 		$content .= '<fieldset><legend>PHP Info</legend>' . $this->getPHPInfo() . '</fieldset>';
 
 		$s = slTable::showAssoc($this->getPerformanceInfo());
-		$s->more = 'class="table table-striped table-condensed"';
+		$s->more = ['class' => "table table-striped table-condensed"];
 		$content .= '<fieldset><legend>Performance</legend>' . $s . '</fieldset>';
 
 		$content .= '</div><div class="col-md-5">';
@@ -79,7 +79,7 @@ class ServerStat extends AppControllerBE
 			$conf['Sess. size'] = @filesize($sessionFile);
 		}
 		$s = slTable::showAssoc($conf);
-		$s->more = 'class="table table-striped table-condensed"';
+		$s->more = ['class' => "table table-striped table-condensed"];
 		return $s;
 	}
 
@@ -208,7 +208,7 @@ class ServerStat extends AppControllerBE
 			'param' => '',
 			'value' => '',
 		]);
-		$s->more = 'class="table table-striped table-condensed"';
+		$s->more = ['class' => "table table-striped table-condensed"];
 		return $s;
 	}
 
@@ -316,7 +316,7 @@ class ServerStat extends AppControllerBE
 		]);
 		$s->data = ifsetor($this->LOG, $this->config->getDB()->getQueryLog());
 		$s->isOddEven = true;
-		$s->more = 'class="nospacing"';
+		$s->more = ['class' => "nospacing"];
 		return $s;
 	}
 

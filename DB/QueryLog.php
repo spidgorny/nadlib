@@ -111,7 +111,7 @@ class QueryLog
 			'percent' => '100%']);
 		$s->data = $log;
 		$s->isOddEven = true;
-		$s->more = 'class="nospacing"';
+		$s->more = ['class' => "nospacing"];
 		$content = $s->getContent();
 		return $content;
 	}

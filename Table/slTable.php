@@ -369,8 +369,8 @@ class slTable implements ToStringable
 
 			$t = $this->generation;
 			$t->table([
-					'id' => $this->ID,
-				] + $this->more);
+				'id' => $this->ID,
+			] + $this->more);
 
 			$this->generateThead();
 			$this->generation->text('<tbody>');
