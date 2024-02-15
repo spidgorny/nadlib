@@ -122,7 +122,7 @@ class IndexBase implements IndexInterface
 
 
 	/**
-	 * @return string
+	 * @return void
 	 */
 	public function setSecurityHeaders()
 	{
