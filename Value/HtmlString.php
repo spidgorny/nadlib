@@ -20,7 +20,7 @@ class HtmlString implements ToStringable
 	}
 
 	/**
-	 * htmlspecialchars which knows about htmlString()
+	 * htmlspecialchars which knows about HtmlString()
 	 * @param string $string
 	 * @return string|htmlString
 	 */

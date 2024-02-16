@@ -136,6 +136,7 @@ public function addJS($source)
 
 	public function renderProfiler()
 	{
+		$content = '';
 		$profiler = $GLOBALS['profiler'];
 		/** @var $profiler TaylorProfiler */
 		if ($profiler) {
