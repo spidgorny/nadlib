@@ -6,6 +6,8 @@
 class Lesser extends AppControllerBE
 {
 
+	public static $cacheFolder;
+
 	/**
 	 * No auth needed
 	 * @var bool

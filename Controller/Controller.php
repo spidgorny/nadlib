@@ -93,17 +93,17 @@ abstract class Controller extends SimpleController
 	public function __construct()
 	{
 		parent::__construct();
-		if (!$this->config && $this->index) {
-			$this->config = $this->index->getConfig();
-		}
-
-		if ($this->config) {
-			// move this into AppController
-			// some projects don't need DB or User
-//			$this->db = $this->config->getDB();
-//			$this->user = $this->config->getUser();
-			$this->config->mergeConfig($this);
-		}
+//		if (!$this->config && $this->index) {
+//			$this->config = $this->index->getConfig();
+//		}
+//
+//		if ($this->config) {
+//			// move this into AppController
+//			// some projects don't need DB or User
+////			$this->db = $this->config->getDB();
+////			$this->user = $this->config->getUser();
+//			$this->config->mergeConfig($this);
+//		}
 
 		$this->linker = new Linker(get_class($this), $this->request);
 		$this->linker->useRouter = $this->request->apacheModuleRewrite();

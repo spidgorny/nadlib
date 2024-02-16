@@ -3,6 +3,8 @@
 class ProgressBar
 {
 
+	public static $prefix;
+
 	public $percentDone = 0;
 
 	public $pbid;

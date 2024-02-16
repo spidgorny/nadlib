@@ -30,7 +30,7 @@ class MergedContent implements ArrayAccess
 		if (!$render) {
 			return $render;
 		}
-		if (is_string($render)) {
+		if (is_string($render) || is_scalar($render)) {
 			return $render;
 		}
 

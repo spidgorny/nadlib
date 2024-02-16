@@ -173,7 +173,13 @@ class SQLBuilder
 
 	public function getSelectQuery($table, $where = [], $order = '', $addSelect = null)
 	{
-		return new SQLSelectQuery($this->db, new SQLSelect($addSelect ?? '*'), new SQLFrom($table), $where instanceof SQLWhere ? $where : new SQLWhere($where), null, null, null, new SQLOrder($order), null);
+		$sqlWhere = $where instanceof SQLWhere ? $where : new SQLWhere($where);
+		$orderBy = str_startsWith($order, 'ORDER') ? new SQLOrder($order) : null;
+		$limit = str_startsWith($order, 'LIMIT') ? new SQLLimit(
+			str_replace('LIMIT', '', $order)
+		) : null;
+
+		return new SQLSelectQuery($this->db, new SQLSelect($addSelect ?? '*'), new SQLFrom($table), $sqlWhere, null, null, null, $orderBy, $limit);
 	}
 
 	/**
@@ -716,7 +722,7 @@ class SQLBuilder
 		}
 		$row = $this->fetchAssoc($result);
 		while ($row != false && $row != null) {
-			list($key, $val) = array_values($row);
+			[$key, $val] = array_values($row);
 			$data[$key] = $val;
 
 			$row = $this->fetchAssoc($result);
