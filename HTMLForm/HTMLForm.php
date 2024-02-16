@@ -814,7 +814,7 @@ document.observe("dom:loaded", () => {
 	 *
 	 * @see set()
 	 */
-	public function checkarray(array $name, array $options, array $selected, $more = '', $height = 'auto', $width = 350)
+	public function checkarray(array $name, array $options, array $selected, $more = [], $height = 'auto', $width = 350)
 	{
 		TaylorProfiler::start(__METHOD__);
 		$selected = array_keys($selected);
@@ -829,9 +829,8 @@ document.observe("dom:loaded", () => {
 			$checked = (!is_array($selected) && $selected == $value) ||
 				(is_array($selected) && in_array($value, $selected));
 			$this->stdout .= '<label class="checkline_' . ($checked ? 'active' : 'normal') . '" style="white-space: nowrap;">';
-			$moreStr = (is_array($more) ? $this->getAttrHTML($more) : $more);
-			$moreStr = str_replace(urlencode("###KEY###"), $value, $moreStr);
-			$this->check($newName, $value, $checked, $moreStr);
+			$more = collect($more)->map(fn ($val) => str_replace(urlencode("###KEY###"), $value, $val))->toArray();
+			$this->check($newName, $value, $checked, $more);
 			$this->text('<span title="id=' . $value . '">' . (is_array($row) ? implode(', ', $row) : $row) . '</span>');
 			$this->stdout .= '</label> ';
 		}
