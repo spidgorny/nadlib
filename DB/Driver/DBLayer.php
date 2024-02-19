@@ -668,12 +668,12 @@ class DBLayer extends DBLayerBase
 	public function getLastInsertID($res = null, $table = 'not required since 8.1')
 	{
 		$pgv = pg_version();
-		if ($pgv['server'] >= 8.1) {
+		if ((float)$pgv['server'] >= 8.1) {
 			return $this->lastval();
 		}
 
 		$oid = pg_last_oid($res);
-		$row = $this->fetchOneSelectQuery('id', $table, "oid = '" . $oid . "'");
+		$row = $this->fetchOneSelectQuery($table, "oid = '" . $oid . "'");
 		return $row['id'];
 	}
 

@@ -212,8 +212,7 @@ class SQLBuilder
 	{
 		$query = $this->getSelectQuery($table, $where, $order, $addSelect);
 		//debug($query);
-		$res = $this->db->perform($query);
-		return $res;
+		return $this->db->perform($query);
 	}
 
 	public function getSelectQuery($table, array $where = [], $order = '', $addSelect = null)
@@ -651,8 +650,7 @@ class SQLBuilder
 		if ($this->logToLog) {
 			llog('$res', $res);
 		}
-		$data = $this->db->fetchAssoc($res);
-		return $data;
+		return $this->db->fetchAssoc($res);
 	}
 
 	public function runUpdateInsert($table, $set, $where)
