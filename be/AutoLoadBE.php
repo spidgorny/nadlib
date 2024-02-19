@@ -19,12 +19,8 @@ class AutoLoadBE extends AutoLoad
 				session_start();
 
 				if (isset($_SESSION[__CLASS__])) {
-					$folders = isset($_SESSION[__CLASS__]['folders'])
-						? $_SESSION[__CLASS__]['folders']
-						: [];
-					$this->classFileMap = isset($_SESSION[__CLASS__]['classFileMap'])
-						? $_SESSION[__CLASS__]['classFileMap']
-						: [];
+					$folders = $_SESSION[__CLASS__]['folders'] ?? [];
+					$this->classFileMap = $_SESSION[__CLASS__]['classFileMap'] ?? [];
 				}
 			}
 		}
