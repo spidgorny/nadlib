@@ -650,8 +650,7 @@ class DBLayer extends DBLayerBase
 	{
 		$result = $this->perform($query);
 		$row = pg_fetch_row($result);
-		$value = $row[0];
-		return $value;
+		return $row[0];
 	}
 
 	/**

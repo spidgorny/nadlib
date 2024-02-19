@@ -54,6 +54,7 @@ abstract class Controller extends SimpleController
 	 * Check manually in render()
 	 */
 	public $noRender = false;
+
 	/**
 	 * Will be taken as a <title> of the HTML table
 	 * @var string
@@ -71,20 +72,24 @@ abstract class Controller extends SimpleController
 	 * @var string|Wrap
 	 */
 	public $layout;
+
 	/**
 	 * @var Config
 	 */
 	public $config;
+
 	/**
 	 * Used by Collection to get the current sorting method.
 	 * Ugly, please reprogram.
 	 * @var
 	 */
 	public $sortBy;
+
 	/**
 	 * @var Linker
 	 */
 	public $linker;
+
 	/**
 	 * @var DBLayer|DBLayerPDO|DBLayerSQLite|DBLayerBase|DBInterface
 	 */

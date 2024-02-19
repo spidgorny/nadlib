@@ -2,30 +2,35 @@
 
 use nadlib\Controller\Filter;
 
-abstract class Grid extends AppControllerBE
+abstract class Grid extends Controller
 {
 
 	/**
 	 * @var OODBase
 	 */
 	public $model;
+
 	/**
 	 * @var Filter
 	 */
 	public $filter;
+
 	/**
 	 * Defines which columns are visible in a table
 	 * @var VisibleColumns
 	 */
 	public $columns;
+
 	/**
 	 * @var array ['sortBy'], ['sortOrder']
 	 */
 	public $sort = [];
+
 	/**
 	 * @var PageSize
 	 */
 	public $pageSize;
+
 	/**
 	 * @var Collection
 	 */

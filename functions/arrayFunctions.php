@@ -225,3 +225,29 @@ function array_find(callable $callback, array $array) {
 		}
 	}
 }
+
+if (!function_exists('array_flatten')) {
+	/**
+	 * Convert a multi-dimensional array into a single-dimensional array.
+	 * @param array $array The multi-dimensional array.
+	 * @return array
+	 * @author Sean Cannon, LitmusBox.com | seanc@litmusbox.com
+	 * @see https://gist.github.com/SeanCannon/6585889
+	 * @noinspection SlowArrayOperationsInLoopInspection
+	 */
+	function array_flatten($array)
+	{
+		if (!is_array($array)) {
+			return [];
+		}
+		$result = [];
+		foreach ($array as $key => $value) {
+			if (is_array($value)) {
+				$result = array_merge($result, array_flatten($value));
+			} else {
+				$result = array_merge($result, [$key => $value]);
+			}
+		}
+		return $result;
+	}
+}

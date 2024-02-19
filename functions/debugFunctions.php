@@ -183,33 +183,34 @@ if (!function_exists('d')) {
 
 	function debug_pre_print_backtrace()
 	{
-		if (DEVELOPMENT) {
-			require_once __DIR__ . '/../HTTP/Request.php';
-			if (!Request::isCLI()) {
-				print '<pre style="
-				white-space: pre-wrap;
-				background: #eeeeee;
-				border-radius: 5px;
-				padding: 0.5em;
-				">';
-			}
-			ob_start();
-			if (PHP_VERSION >= '5.3.6') {
-				/** @noinspection ForgottenDebugOutputInspection */
-				debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-			} else {
-				/** @noinspection ForgottenDebugOutputInspection */
-				debug_print_backtrace();
-			}
-			$content = ob_get_clean();
-			$content = str_replace(dirname(getcwd()), '', $content);
-			$search = 'C:\\Users\\' . getenv('USERNAME') .
-				'\\AppData\\Roaming\\Composer\\vendor\\phpunit\\phpunit\\src\\';
-			$content = str_replace($search, '', $content);
-			echo $content;
-			if (!Request::isCLI()) {
-				print '</pre>';
-			}
+		if (!DEVELOPMENT) {
+			return;
+		}
+		require_once __DIR__ . '/../HTTP/Request.php';
+		if (!Request::isCLI()) {
+			print '<pre style="
+			white-space: pre-wrap;
+			background: #eeeeee;
+			border-radius: 5px;
+			padding: 0.5em;
+			">';
+		}
+		ob_start();
+		if (PHP_VERSION >= '5.3.6') {
+			/** @noinspection ForgottenDebugOutputInspection */
+			debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		} else {
+			/** @noinspection ForgottenDebugOutputInspection */
+			debug_print_backtrace();
+		}
+		$content = ob_get_clean();
+		$content = str_replace(dirname(getcwd()), '', $content);
+		$search = 'C:\\Users\\' . getenv('USERNAME') .
+			'\\AppData\\Roaming\\Composer\\vendor\\phpunit\\phpunit\\src\\';
+		$content = str_replace($search, '', $content);
+		echo $content;
+		if (!Request::isCLI()) {
+			print '</pre>';
 		}
 	}
 

@@ -36,6 +36,7 @@ class AppControllerBE extends Controller
 						get_class($this)));
 			}
 			if (!$this->user->isAdmin()) {
+				debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 				throw new AccessDeniedException(__('Access denied to page %1. User is not admin.', get_class($this)));
 			}
 		}

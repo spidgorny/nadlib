@@ -41,39 +41,25 @@ class MergedContent implements ArrayAccess
 	}
 
 	/**
-	 * @param string|string[] $render
+	 * @param string|string[]|object $render
 	 * @return string
 	 */
 	public static function mergeStringArrayRecursive($render)
 	{
 		TaylorProfiler::start(__METHOD__);
 		if (is_array($render)) {
-			$combined = '';
-			/*array_walk_recursive($render,
-				array('IndexBase', 'walkMerge'),
-				$combined); // must have &
-			*/
-
-			//$combined = array_merge_recursive($render);
-			//$combined = implode('', $combined);
-
-			$combinedA = new ArrayObject();
-			array_walk_recursive($render, [__CLASS__, 'walkMergeArray'], $combinedA);
-			$arrayOfObjects = $combinedA->getArrayCopy();
+			$arrayOfObjects = array_flatten($render);
 			$sureStrings = self::stringify($arrayOfObjects);
 			$combined = implode('', $sureStrings);
 			$render = $combined;
 		} elseif (is_object($render)) {
 			try {
-				$render = $render . '';
+				$render .= '';
 			} catch (ErrorException $e) {
-				debug_pre_print_backtrace();
-//				debug('Object of class ', get_class($render), 'could not be converted to string');
-//				debug($render);
 				$render = '?[' . get_class($render) . ']?';
 			}
 		} else {
-			$render = $render . '';    // just in case
+			$render .= '';    // just in case
 		}
 		TaylorProfiler::stop(__METHOD__);
 		return $render;
