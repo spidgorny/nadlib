@@ -78,17 +78,17 @@ class MergedContent implements ArrayAccess
 		return $objects;
 	}
 
-	public function offsetExists($offset)
+	public function offsetExists($offset): bool
 	{
 		return isset($this->content[$offset]);
 	}
 
-	public function offsetGet($offset)
+	public function offsetGet($offset): mixed
 	{
 		return $this->content[$offset];
 	}
 
-	public function offsetSet($offset, $value)
+	public function offsetSet($offset, $value): void
 	{
 		//debug('offsetSet', $offset);
 		if (is_null($offset)) {
@@ -111,7 +111,7 @@ class MergedContent implements ArrayAccess
 		$this->content[$key][] = $value;
 	}
 
-	public function offsetUnset($offset)
+	public function offsetUnset($offset): void
 	{
 		unset($this->content[$offset]);
 	}

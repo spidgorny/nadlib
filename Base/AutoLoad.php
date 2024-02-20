@@ -274,13 +274,15 @@ class AutoLoad
 
 	public function getFileFromMap($class)
 	{
-		$file = isset($this->classFileMap[$class])
-			? $this->classFileMap[$class] : null;
+		$file = $this->classFileMap[$class] ?? null;
 
 		//echo $class.' ['.$file.'] '.(file_exists($file) ? "YES" : "NO").'<br />'."\n";
 
 		//pre_print_r($class, $file, $file2);
-		if ($file && file_exists($file)) {
+		if (!$file) {
+			return null;
+		}
+		if (file_exists($file)) {
 			$this->stat['loadFile1']++;
 		} else {
 			$file2 = str_replace('class.', '', $file);
@@ -307,7 +309,9 @@ class AutoLoad
 	public function dumpCSS()
 	{
 		static $once = 0;
-		if (Request::isCLI()) return;
+		if (Request::isCLI()) {
+			return;
+		}
 		echo '<style>
 			.debug.error {
 				background: lightpink;

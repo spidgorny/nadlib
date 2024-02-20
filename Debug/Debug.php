@@ -347,7 +347,7 @@ class Debug
 			} else {
 				$object = '';
 			}
-			$file = basename(ifsetor($debugLine['file']));
+			$file = basename(ifsetor($debugLine['file'], ''));
 			$file = str_replace('class.', '', $file);
 			$file = str_replace('.php', '', $file);
 			$nextFunc = ifsetor($debug[$i + 1]['function']);
