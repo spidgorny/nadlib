@@ -54,7 +54,7 @@ class MemcacheFile implements MemcacheInterface
 				'folder' => $this->folder,
 				'finalCachePath' => $finalCachePath,
 			]);
-			throw new Exception(__METHOD__ . ' cache folder missing');
+			throw new RuntimeException(__METHOD__ . " cache folder missing [{$finalCachePath}].");
 		}
 
 		$this->folder = cap($finalCachePath);    // important as we concat
