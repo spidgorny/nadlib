@@ -269,12 +269,12 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return $this->content;
 	}
 
-	public function offsetExists($offset)
+	public function offsetExists(mixed $offset): bool
 	{
 		return isset($this->attr[$offset]);
 	}
 
-	public function offsetGet($offset)
+	public function offsetGet(mixed $offset): mixed
 	{
 		return $this->getAttr($offset);
 	}
@@ -290,12 +290,12 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return $this;
 	}
 
-	public function offsetSet($offset, $value)
+	public function offsetSet(mixed $offset, mixed $value): void
 	{
 		$this->setAttr($offset, $value);
 	}
 
-	public function offsetUnset($offset)
+	public function offsetUnset(mixed $offset): void
 	{
 		unset($this->attr[$offset]);
 	}
