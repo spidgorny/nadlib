@@ -288,8 +288,7 @@ class URL
 	public function getExtension()
 	{
 		$basename = $this->getBasename();
-		$ext = pathinfo($basename, PATHINFO_EXTENSION);
-		return $ext;
+		return pathinfo($basename, PATHINFO_EXTENSION);
 	}
 
 	/**
@@ -299,8 +298,7 @@ class URL
 	public function getExtensionLC()
 	{
 		$ext = $this->getExtension();
-		$ext = mb_strtolower($ext);
-		return $ext;
+		return mb_strtolower($ext);
 	}
 
 	public function setDocumentRoot($root)
@@ -312,7 +310,7 @@ class URL
 
 	public function setFragment($name)
 	{
-		if ($name[0] == '#') {
+		if ($name[0] === '#') {
 			$name = substr($name, 1);
 		}
 		$this->components['fragment'] = $name;
@@ -321,7 +319,7 @@ class URL
 
 	public function buildQuery()
 	{
-		$queryString = http_build_query($this->params, '_');
+		$queryString = http_build_query($this->params, '_', '&', PHP_QUERY_RFC3986);
 		$queryString = str_replace('#', '%23', $queryString);
 		//parse_str($queryString, $queryStringTest);
 		//debug($this->params, $queryStringTest);
@@ -346,17 +344,17 @@ class URL
 		}
 
 		$uri = isset($parsed['scheme'])
-			? $parsed['scheme'] . ':' . ((strtolower($parsed['scheme']) == 'mailto') ? '' : '//')
+			? $parsed['scheme'] . ':' . ((strtolower($parsed['scheme']) === 'mailto') ? '' : '//')
 			: '';
 		$uri .= isset($parsed['user'])
 			? $parsed['user'] . (isset($parsed['pass']) ? ':' . $parsed['pass'] : '') . '@'
 			: '';
 
-		$uri .= isset($parsed['host']) ? $parsed['host'] : '';
+		$uri .= $parsed['host'] ?? '';
 		$uri .= isset($parsed['port']) ? ':' . $parsed['port'] : '';
 
 		if (isset($parsed['path'])) {
-			$uri .= (substr($parsed['path'], 0, 1) == '/') ?
+			$uri .= (str_starts_with($parsed['path'], '/')) ?
 				$parsed['path'] : ((!empty($uri) ? '/' : '') . $parsed['path']);
 		}
 
@@ -378,9 +376,12 @@ class URL
 //				$url .= $this->components['path'];
 //			}
 			$url .= $this->path . '';
-			if (ifsetor($this->components['query'])) {
-				$url .= '?' . $this->components['query'];
+
+			$builtQuery = $this->buildQuery();
+			if ($builtQuery) {
+				$url .= '?' . $builtQuery;
 			}
+
 			if (ifsetor($this->components['fragment'])) {
 				$url .= '#' . $this->components['fragment'];
 			}
@@ -391,7 +392,7 @@ class URL
 
 	public function getRequest()
 	{
-		$r = new Request($this->params ? $this->params : []);
+		$r = new Request($this->params ?: []);
 		$r->url = $this;
 		return $r;
 	}

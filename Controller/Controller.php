@@ -111,7 +111,9 @@ abstract class Controller extends SimpleController
 		}
 
 		$this->linker = new Linker($this->request);
-		$this->linker->useRouter = $this->request->apacheModuleRewrite();
+//		$this->linker->useRouter = $this->request->apacheModuleRewrite();
+//		llog('Controller', 'useRouter', $this->linker->useRouter);
+		$this->linker->useRouter = getenv('LINKER_USE_ROUTER');
 
 		if (!$this->linker->useRouter) {
 			$this->linker->linkVars['c'] = get_class($this);
