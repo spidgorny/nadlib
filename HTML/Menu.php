@@ -319,7 +319,7 @@ class Menu /*extends Controller*/
 			$content .= $this->renderLevel($itemsOnLevel, $rootPath, $this->level);
 		} else {
 			$items = $this->items instanceof ArrayPlus ? $this->items->getData() : $this->items;
-			$content .= $this->renderLevel($items, array(), 0);
+			$content .= $this->renderLevel($items, [], 0);
 		}
 		return $content;
 	}
@@ -344,6 +344,7 @@ class Menu /*extends Controller*/
 				try {
 					//$o = new $class();							// BAD instantiating
 					//if (method_exists($o, 'getMenuSuffix')) {
+//					llog($class);
 					$methods = get_class_methods($class);
 					//if ($class == 'AssignHardware') debug($class, $methods, in_array('getMenuSuffix', $methods));
 					if ($methods && in_array('getMenuSuffix', $methods, true)) {
@@ -438,10 +439,9 @@ class Menu /*extends Controller*/
 	{
 		$content = $this->renderLevelItems($items, $root, $level, $ulClass);
 		//debug($this->current);
-		$content = '<' . $this->menuTag .
+		return '<' . $this->menuTag .
 			' class="' . ($ulClass ?: $this->ulClass) . '">' . PHP_EOL .
 			$content . '</' . $this->menuTag . '>';
-		return $content;
 	}
 
 	/**
@@ -571,9 +571,9 @@ class Menu /*extends Controller*/
 		$ul->after = '</ol>';
 		if ($ul->links) {
 			return $ul;
-		} else {
-			return null;
 		}
+
+		return null;
 	}
 
 	/**

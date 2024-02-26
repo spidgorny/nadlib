@@ -29,7 +29,7 @@ class Recursive
 
 	public function __toString()
 	{
-		return strip_tags(strval($this->value));
+		return strip_tags($this->value);
 	}
 
 	public function getChildren()
@@ -96,8 +96,6 @@ class Recursive
 			if (!is_null($res)) {
 				list($val, $key) = $res;
 				$new[$key] = $val;
-			} else {
-				// unset
 			}
 			unset($el);
 		}
