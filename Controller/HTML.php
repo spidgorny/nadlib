@@ -50,6 +50,11 @@ class HTML
 		return '<div class="alert alert-danger">' . $this->s($content) . '</div>';
 	}
 
+	public function warning($content)
+	{
+		return '<div class="alert alert-warning">' . $this->s($content) . '</div>';
+	}
+
 	public function success($content)
 	{
 		return '<div class="alert alert-success">' . $this->s($content) . '</div>';
