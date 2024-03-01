@@ -308,10 +308,10 @@ class slTable implements ToStringable
 		if (is_array($type)) {
 			$type = ifsetor($type['type']);
 		}
-		if ($type == 'date') {
+		if ($type === 'date') {
 			$aa = strtotime($aa);
 			$bb = strtotime($bb);
-		} elseif ($type == 'int') {
+		} elseif ($type === 'int') {
 			$aa = intval(strip_tags($aa));
 			$bb = intval(strip_tags($bb));
 		} else {
@@ -320,22 +320,22 @@ class slTable implements ToStringable
 			$bb = strip_tags($bb);
 			if (!$so) {
 				return strcmp($aa, $bb);
-			} else {
-				return strcmp($bb, $aa);
 			}
+
+			return strcmp($bb, $aa);
 		}
 
 		//debug($by, $so, $aa, $bb);
 		// $aa && $bb are known
 		if ($aa == $bb) {
 			return 0;
-		} else {
-			if (!$so) {
-				return $aa > $bb ? +1 : -1;
-			} else {
-				return $aa < $bb ? +1 : -1;
-			}
 		}
+
+		if (!$so) {
+			return $aa > $bb ? +1 : -1;
+		}
+
+		return $aa < $bb ? +1 : -1;
 	}
 
 	/**
@@ -384,7 +384,7 @@ class slTable implements ToStringable
 			foreach ($data as $key => $row) { // (almost $this->data)
 				if (!is_array($row)) {
 					debug($key, $row);
-					throw new Exception('slTable row is not an array');
+					throw new RuntimeException('slTable row is not an array');
 				}
 				++$i;
 				$class = $this->getRowClass($row, $i, $key);
@@ -463,17 +463,11 @@ class slTable implements ToStringable
 				if (!is_array($thv)) {
 					$thv = ['name' => $thv];
 				}
-				$thvName = isset($thv['name'])
-					? $thv['name']
-					: (isset($thv['label']) ? $thv['label'] : null);
-				$thMore[$thk] = isset($thv['thmore'])
-					? $thv['thmore']
-					: (isset($thv['more']) ? $thv['more'] : null);
-
+				$thvName = $thv['name'] ?? ($thv['label'] ?? null);
+				$thMore[$thk] = $thv['thmore'] ?? ($thv['more'] ?? null);
 
 				// gives <tr with properties from column keys>
 				$this->thesMore[HTMLTag::key($thk)] = ifsetor($thv['thmore']);
-
 
 				if (!is_array($thMore)) {
 					$thMore = ['' => $thMore];
@@ -490,7 +484,7 @@ class slTable implements ToStringable
 						&& ifsetor($thv['sortable']) !== false
 					) {
 						$sortField = ifsetor($thv['dbField'], $thk);    // set to null - don't sort
-						$sortOrder = $this->sortBy == $sortField
+						$sortOrder = $this->sortBy === $sortField
 							? !$this->sortOrder
 							: $this->sortOrder;
 						$link = $this->sortLinkPrefix->forceParams([
@@ -514,10 +508,13 @@ class slTable implements ToStringable
 			}
 		}
 
+		// vendor does not sync
+		llog('$thes2', $thes2);
+
 		$this->generation->content['thead'] = [];
 		$this->generation->content['thead']['colgroup'] = $this->getColGroup($thes);
 		$this->generation->addTHead('<thead>');
-		//debug($thes, $this->sortable, $thes2, implode('', $thes2));
+		llog($thes, $this->sortable, $thes2, implode('', $thes2));
 		if (implode('', $thes2)) { // don't display empty
 //			debug($thMore, $this->thesMore);
 			$this->generation->thes($thes2, $thMore, $this->thesMore);

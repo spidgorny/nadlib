@@ -365,13 +365,13 @@ if (!function_exists('llog')) {
 		$type = null;
 		if (count($vars) === 1) {
 			$type = gettype(first($vars));
-			$output = json_encode(first($vars), $jsonOptions);
+			$output = json_encode(first($vars), JSON_THROW_ON_ERROR | $jsonOptions);
 		} else {
 			$type = 'multi';
-			$output = json_encode($vars, $jsonOptions);
+			$output = json_encode($vars, JSON_THROW_ON_ERROR | $jsonOptions);
 		}
 		if (strlen($output) > 80) {
-			$output = json_encode(count($vars) === 1 ? first($vars) : $vars, $jsonOptions | JSON_PRETTY_PRINT);
+			$output = json_encode(count($vars) === 1 ? first($vars) : $vars, JSON_THROW_ON_ERROR | $jsonOptions | JSON_PRETTY_PRINT);
 		}
 		/** @noinspection ForgottenDebugOutputInspection */
 		error_log("{$caller} [{$type}] {$output}");

@@ -54,15 +54,6 @@ class MergedContent implements ArrayAccess
 	{
 		TaylorProfiler::start(__METHOD__);
 		if (is_array($render)) {
-			$combined = '';
-			/*array_walk_recursive($render,
-				array('IndexBase', 'walkMerge'),
-				$combined); // must have &
-			*/
-
-			//$combined = array_merge_recursive($render);
-			//$combined = implode('', $combined);
-
 			array_walk_recursive($render, [$this, 'walkMergeArray']);
 			$arrayOfObjects = $this->combined;
 			$sureStrings = self::stringify($arrayOfObjects);
