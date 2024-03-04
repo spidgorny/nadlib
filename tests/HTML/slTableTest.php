@@ -115,4 +115,19 @@ class slTableTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals(null, $s->sortBy);
 	}
 
+	public function test_has_header()
+	{
+		$s = new slTable([
+			['a' => 1],
+		]);
+//		$s->generateThes();	//  fill $s->thes
+//		$s->generateThead();
+//		llog('thes', $s->thes);
+//		llog('gen', $s->generation);
+
+		$html = $s->getContent();
+//		echo(tidy_repair_string($html, ['indent' => true]));
+		$this->assertStringContainsString('<th>a</th>', $html);
+	}
+
 }

@@ -35,7 +35,7 @@ class HTMLTableBuf extends MergedContent
 
 	public function tr(array $more = [])
 	{
-		$this->addSub('tbody', "<tr " . HTMLTag::renderAttr($more) . ">\n");
+		$this->addSub('tbody', new HTMLTag('tr', $more) . "\n");
 	}
 
 	public function tre()
@@ -45,17 +45,12 @@ class HTMLTableBuf extends MergedContent
 
 	public function ftr(array $more = [])
 	{
-		$this->addSub('tfoot', "<tr " . HTMLTag::renderAttr($more) . ">\n");
+		$this->addSub('tfoot', new HTMLTag('tr', $more) . "\n");
 	}
 
 	public function ftre()
 	{
 		$this->addSub('tfoot', "</tr>\n");
-	}
-
-	public function th(array $more = [])
-	{
-		$this->addSub('thead', "<th " . HTMLTag::renderAttr($more) . ">\n");
 	}
 
 	public function the()
@@ -107,23 +102,22 @@ class HTMLTableBuf extends MergedContent
 			if ($caption instanceof HTMLTag) {
 				$this->thead[] = $caption;
 			} else {
-				if (is_string($thMore[$i])) {
-					debug($i, $thMore[$i]);
-				}
-				$more = isset($thMore[$i]) ? HTMLTag::renderAttr($thMore[$i]) : '';
-				if (is_array($more)) {
-					$more = HTMLTag::renderAttr($more);
-				}
-				$this->thead[] = '<th' . rtrim(' ' . $more) . '>' . $caption . '</th>' . "\n";
+				$more = $thMore[$i] ?? [];
+				$this->th($more, $caption);
 			}
 		}
 		$this->htre();
-		//debug($this);
+//		llog('thead after thes', $this->thead);
 	}
 
 	public function htr(array $more = [])
 	{
-		$this->addSub('thead', "<tr " . HTMLTag::renderAttr($more) . ">\n");
+		$this->addSub('thead', new HTMLTag('tr', $more) . "\n");
+	}
+
+	public function th(array $more = [], $content = '')
+	{
+		$this->addSub('thead', new HTMLTag('th', $more, $content) . "\n");
 	}
 
 	public function htre()
@@ -162,6 +156,23 @@ class HTMLTableBuf extends MergedContent
 	public function offsetGet(mixed $offset): mixed
 	{
 		return ifsetor($this->content[$offset], []);
+	}
+
+	public function reset()
+	{
+		$this['table'] = [];
+		$this['thead'] = [];
+		$this['tbody'] = [];
+	}
+
+	public function __debugInfo()
+	{
+		return [
+			'table' => $this['table'],
+			'thead' => $this['thead'],
+			'tbody' => $this['tbody'],
+			'content' => $this->content,
+		];
 	}
 
 }

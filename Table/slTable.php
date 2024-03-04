@@ -225,7 +225,7 @@ class slTable implements ToStringable
 				if (is_object($val)) {
 					$val = get_object_vars($val);
 				}
-				$val = slTable::showAssoc($val, $isRecursive, $showNumericKeys, $no_hsc);
+				$val = self::showAssoc($val, $isRecursive, $showNumericKeys, $no_hsc);
 				$val = new HtmlString($val);    // to prevent hsc later
 			}
 			if (!$showNumericKeys && is_numeric($key)) {
@@ -262,11 +262,10 @@ class slTable implements ToStringable
 				'' => $val,
 			];
 		}
-		$s = new self($assoc, 'class="visual nospacing table table-striped"', [
+		return new self($assoc, 'class="visual nospacing table table-striped"', [
 			0 => '',
 			'' => ['no_hsc' => $no_hsc],
 		]);
-		return $s;
 	}
 
 	public function addRowData($row)
@@ -467,7 +466,8 @@ class slTable implements ToStringable
 				$thMore[$thk] = $thv['thmore'] ?? ($thv['more'] ?? null);
 
 				// gives <tr with properties from column keys>
-				$this->thesMore[HTMLTag::key($thk)] = ifsetor($thv['thmore']);
+				// this is problematic as it will create html props for all column params
+//				$this->thesMore[HTMLTag::key($thk)] = ifsetor($thv['thmore']);
 
 				if (!is_array($thMore)) {
 					$thMore = ['' => $thMore];
@@ -493,7 +493,7 @@ class slTable implements ToStringable
 								'sortOrder' => $sortOrder,
 							],
 						]);
-						$thes2[$thk] = '<a href="' . $link . '">' . $thvName . '</a>';
+						$thes2[$thk] = new HtmlString('<a href="' . $link . '">' . $thvName . '</a>');
 					} else {
 						$thes2[$thk] = $thvName;
 					}
@@ -501,20 +501,24 @@ class slTable implements ToStringable
 					if (is_array($thv) && isset($thv['clickSort']) && $thv['clickSort']) {
 						$link = URL::getCurrent();
 						$link->setParam($thv['clickSort'], $thk);
-						$thvName = '<a href="' . $link . '">' . $thvName . '</a>';
+						$thvName = new HtmlString('<a href="' . $link . '">' . $thvName . '</a>');
 					}
 					$thes2[$thk] = $thvName;
 				}
 			}
 		}
 
+//		llog($this->generation->__debugInfo());
 		// vendor does not sync
-		llog('$thes2', $thes2);
+//		llog('$thes2', $thes2);
+//		llog('thmore', $thMore);
+//		llog('$this->thesMore', $this->thesMore);
 
-		$this->generation->content['thead'] = [];
-		$this->generation->content['thead']['colgroup'] = $this->getColGroup($thes);
+		$this->generation->content['thead'] = [
+			'colgroup' => $this->getColGroup($thes),
+		];
 		$this->generation->addTHead('<thead>');
-		llog($thes, $this->sortable, $thes2, implode('', $thes2));
+//		llog('genthes', $thes, $this->sortable, $thes2, implode('', $thes2));
 		if (implode('', $thes2)) { // don't display empty
 //			debug($thMore, $this->thesMore);
 			$this->generation->thes($thes2, $thMore, $this->thesMore);
@@ -644,29 +648,10 @@ class slTable implements ToStringable
 	public function getContent($caller = '')
 	{
 		if (!$this->generation->isDone()) {
+			$this->generation->reset();
 			$this->generate($caller);
 		}
-		if ($this->isCLI) {
-			$content = $this->getCLITable();
-		} else {
-			$content = $this->generation->getContent();
-		}
-		return $content;
-	}
-
-	/**
-	 * Separation by "\t" is too stupid. We count how many chars are there in each column
-	 * and then pad it accordingly
-	 * @param bool $cutTooLong
-	 * @param bool $useAvg
-	 * @return string
-	 */
-	public function getCLITable($cutTooLong = false, $useAvg = false)
-	{
-		$this->generateThes();
-		$ct = new CLITable($this->data, $this->thes);
-		$ct->footer = $this->footer;
-		return $ct->render($cutTooLong, $useAvg);
+		return $this->generation->getContent();
 	}
 
 	/**
@@ -728,6 +713,21 @@ class slTable implements ToStringable
 			$this->generation->ftre();
 			$this->generation->tfoot('</tfoot>');
 		}
+	}
+
+	/**
+	 * Separation by "\t" is too stupid. We count how many chars are there in each column
+	 * and then pad it accordingly
+	 * @param bool $cutTooLong
+	 * @param bool $useAvg
+	 * @return string
+	 */
+	public function getCLITable($cutTooLong = false, $useAvg = false)
+	{
+		$this->generateThes();
+		$ct = new CLITable($this->data, $this->thes);
+		$ct->footer = $this->footer;
+		return $ct->render($cutTooLong, $useAvg);
 	}
 
 	public function addRowWithMore($row)
