@@ -13,9 +13,9 @@ class StringTemplate
 	public function __construct($file, $self = null)
 	{
 		$this->filename = $file;
-		$filepath = 'template/' . $file;
+		$filepath = Path::isItAbsolute($file) ? $file : 'template/' . $file;
 		if (!file_exists($filepath)) {
-			throw new Exception($filepath . ' does not exist.');
+			throw new RuntimeException($filepath . ' does not exist.');
 		}
 		$this->content = file_get_contents($filepath);
 		$this->caller = $self;
@@ -45,14 +45,14 @@ class StringTemplate
 		return implode("\n", $this->lines);
 	}
 
-	public function render()
-	{
-		return eval("return<<<END\n" . $this->content . "\nEND;\n"); // space is important
-	}
-
 	public function __toString()
 	{
 		return $this->render();
+	}
+
+	public function render()
+	{
+		return eval("return<<<END\n" . $this->content . "\nEND;\n"); // space is important
 	}
 
 	public function __call($func, array $args)
