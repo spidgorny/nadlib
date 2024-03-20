@@ -171,12 +171,27 @@ class SQLBuilder
 		return $this->getSelectQuery($table, $where, $order, $select);
 	}
 
-	public function getSelectQuery($table, $where = [], $order = '', $addSelect = null)
+	public function getSelectQuery($table, $where = [], $orderAndLimit = '', $addSelect = null)
 	{
 		$sqlWhere = $where instanceof SQLWhere ? $where : new SQLWhere($where);
+		if (strpos($orderAndLimit, 'LIMIT') > 0) {  // ORDER BY xxx LIMIT yyy
+			[$order, $limit] = explode('LIMIT', $orderAndLimit);
+			$limit = 'LIMIT ' . $limit;	// fix after split
+		} elseif (str_startsWith($orderAndLimit, 'ORDER')) {
+			$order = $orderAndLimit;
+			$limit = null;
+		} elseif (str_startsWith($orderAndLimit, 'LIMIT')) {
+			$order = null;
+			$limit = $orderAndLimit;
+		} else {
+			$order = null;
+			$limit = null;
+		}
+//		llog($orderAndLimit, '=>', $order, $limit);
+
 		$orderBy = str_startsWith($order, 'ORDER') ? new SQLOrder($order) : null;
-		$limit = str_startsWith($order, 'LIMIT') ? new SQLLimit(
-			str_replace('LIMIT', '', $order)
+		$limit = str_startsWith($limit, 'LIMIT') ? new SQLLimit(
+			str_replace('LIMIT', '', $limit)
 		) : null;
 
 		return new SQLSelectQuery($this->db, new SQLSelect($addSelect ?? '*'), new SQLFrom($table), $sqlWhere, null, null, null, $orderBy, $limit);
@@ -220,8 +235,7 @@ class SQLBuilder
 	{
 		$query = $this->getSelectQuery($table, $where, $order, $addSelect);
 		//debug($query);
-		$res = $this->db->perform($query);
-		return $res;
+		return $this->db->perform($query);
 	}
 
 	/**

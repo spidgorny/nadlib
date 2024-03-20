@@ -350,30 +350,31 @@ if (!function_exists('llog')) {
 		}
 
 		$vars = array_map(static function ($el) {
-		if (is_object($el)) {
-			if (!($el instanceof stdClass)) {
-				if (method_exists($el, '__toString')) {
-					return $el->__toString();
+			if (is_object($el)) {
+				if (!($el instanceof stdClass)) {
+					if (method_exists($el, '__toString')) {
+						return $el->__toString();
+					}
+					return typ($el, true, true);
+					// or trim(strip_tags(typ($el)));
 				}
-				return typ($el, true, true);
-				// or trim(strip_tags(typ($el)));
-			}
 			}
 			return $el;
 		}, $vars);
 
 		$type = null;
 		if (count($vars) === 1) {
-			$type = gettype(first($vars));
+			$type = '[' . gettype(first($vars)) . ']';
 			$output = json_encode(first($vars), JSON_THROW_ON_ERROR | $jsonOptions);
 		} else {
-			$type = 'multi';
+			$type = '';
 			$output = json_encode($vars, JSON_THROW_ON_ERROR | $jsonOptions);
 		}
 		if (strlen($output) > 80) {
 			$output = json_encode(count($vars) === 1 ? first($vars) : $vars, JSON_THROW_ON_ERROR | $jsonOptions | JSON_PRETTY_PRINT);
 		}
 		/** @noinspection ForgottenDebugOutputInspection */
-		error_log("{$caller} [{$type}] {$output}");
+		$runtime = number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 3);
+		error_log("[${runtime}] {$caller} {$type} {$output}");
 	}
 }
