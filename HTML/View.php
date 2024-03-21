@@ -1,8 +1,8 @@
 <?php
 
+use Bavix\AdvancedHtmlDom\AdvancedHtmlDom;
 use Michelf\Markdown;
 use spidgorny\nadlib\HTTP\URL;
-use Bavix\AdvancedHtmlDom\AdvancedHtmlDom;
 
 class View extends stdClass implements ToStringable
 {
@@ -11,46 +11,37 @@ class View extends stdClass implements ToStringable
 	//use ViewPHP7;
 
 	/**
-	 * @var string
-	 */
-	protected $file;
-
-	/**
 	 * @var stdClass
 	 */
 	public $caller;
-
-	/**
-	 * @var LocalLang
-	 */
-	protected $ll;
-
-	/**
-	 * @var Request
-	 */
-	protected $request;
-
-	protected $parts = [];
-
-	protected $folder;
-
 	/**
 	 * @var Index
 	 */
 	public $index;
-
 	/**
 	 * Store something here and then @use $this->data('asd') to access it with escaping
 	 * @var array
 	 */
 	public $data = [];
-
 	/**
 	 * @var AppController
 	 */
 	public $controller;
-
 	public $processed;
+	/**
+	 * @var string
+	 */
+	protected $file;
+	/**
+	 * @var LocalLang
+	 */
+	protected $ll;
+	/**
+	 * @var Request
+	 */
+	protected $request;
+	protected $parts = [];
+	protected $folder;
 
 	public function __construct($file, $copyObject = null)
 	{
@@ -94,73 +85,23 @@ class View extends stdClass implements ToStringable
 
 	/*	Add as many public properties as you like and use them in the PHTML file. */
 
-	public function getFile()
+	public static function bar($percent, array $params = [], $attr = [])
 	{
-		$path = new Path($this->file);
-//		debug($path, $path->isAbsolute());
-		$file = $path->isAbsolute()
-			? $this->file
-			: $this->folder . $this->file;
-		//debug(dirname($this->file), $this->folder, $this->file, $file, filesize($file));
-		return $file;
+		$percent = round($percent);
+		$src = AutoLoad::getInstance()->nadlibFromDocRoot . 'bar.php?' . http_build_query($params + [
+					'rating' => $percent,
+					'color' => '6DC5B4',
+				]);
+		$attr += [
+			'src' => $src,
+			'alt' => $percent . '%',
+		];
+		return new HTMLTag('img', $attr, null);
 	}
 
-	public function getContent($file, array $variables = [])
+	public static function markdown($text)
 	{
-		ob_start();
-
-		extract($variables, EXTR_OVERWRITE);
-
-		//debug($file);
-		/** @noinspection PhpIncludeInspection */
-		$content = require($file);
-
-		if (!$content || $content === 1) {
-			$content = ob_get_clean();
-		} else {
-			ob_end_clean();
-		}
-
-		return $this->s($content);
-	}
-
-	public function render(array $variables = [])
-	{
-		$key = __METHOD__ . ' (' . basename($this->file) . ')';
-		TaylorProfiler::start($key);
-
-		if (!$this->processed) {
-			$file = $this->getFile();
-			$content = $this->getContent($file, $variables);
-
-			// Locallang replacement
-			$content = $this->localize($content);
-
-			if (DEVELOPMENT) {
-				// not allowed in MRBS as some templates return OBJECT(!)
-//				$content = '<div style="border: solid 1px red;">'.$file.'<br />'.$content.'</div>';
-				$content .= '<!-- View template: ' . $this->file . ' -->' . "\n";
-			}
-			$this->processed = $content;
-		}
-		TaylorProfiler::stop($key);
-		return $this->processed;
-	}
-
-	public function localize($content)
-	{
-		preg_match_all('/__([^ _\n\r]+?)__/', $content, $matches1);
-		preg_match_all('/__\{([^\n\r}]+?)\}__/', $content, $matches2);
-//		debug($matches1, $matches2); die;
-		$localizeList = array_merge($matches1[1], $matches2[1]);
-		foreach ($localizeList as $ll) {
-			if ($ll) {
-				//debug('__' . $ll . '__', __($ll));
-				$content = str_replace('__' . $ll . '__', __($ll), $content);
-				$content = str_replace('__{' . $ll . '}__', __($ll), $content);
-			}
-		}
-		return $content;
+		return Markdown::defaultTransform($text);
 	}
 
 	/**
@@ -224,6 +165,16 @@ class View extends stdClass implements ToStringable
 		$this->parts = explode($sep, $content);
 	}
 
+	public function getFile()
+	{
+		$path = new Path($this->file);
+//		debug($path, $path->isAbsolute());
+		//debug(dirname($this->file), $this->folder, $this->file, $file, filesize($file));
+		return $path->isAbsolute()
+			? $this->file
+			: $this->folder . $this->file;
+	}
+
 	/**
 	 * http://www.php.net/manual/en/function.eval.php#88820
 	 *
@@ -236,21 +187,6 @@ class View extends stdClass implements ToStringable
 		return eval('?>' . $this->parts[$i]);
 	}
 
-	/**
-	 * Uses htmlspecialchars()
-	 * @param string $str
-	 * @return string
-	 */
-	public function escape($str)
-	{
-		return htmlspecialchars($str, ENT_QUOTES);
-	}
-
-	public function e($str)
-	{
-		return $this->escape($str);
-	}
-
 	public function data($key)
 	{
 		if ($this->caller != null) {
@@ -259,20 +195,19 @@ class View extends stdClass implements ToStringable
 		return null;
 	}
 
-	/**
-	 * Using this often leads to error
-	 * Method View::__toString() must not throw an exception
-	 * which prevents seeing the trace of where the problem happened.
-	 * Please call ->render() everywhere manually.
-	 */
-	public function __toString()
+	public function e($str)
 	{
-		if (DEVELOPMENT) {
-			debug('Do not call View::__toString() as it will prevent you from obtaining a valid backtrace in case of an error.', $this->file, $this->caller ? get_class($this->caller) : null);
-			debug_pre_print_backtrace();
-		}
-//		return $this->render().'';
-		return get_class($this) . '@' . spl_object_hash($this);
+		return $this->escape($str);
+	}
+
+	/**
+	 * Uses htmlspecialchars()
+	 * @param string $str
+	 * @return string
+	 */
+	public function escape($str)
+	{
+		return htmlspecialchars($str, ENT_QUOTES);
 	}
 
 	/**
@@ -285,13 +220,6 @@ class View extends stdClass implements ToStringable
 		return $this->getController()->makeURL($params);
 	}
 
-	public function ahref($text, $href)
-	{
-		return new HTMLTag('a', [
-			'href' => $href,
-		], $text);
-	}
-
 	public function getController()
 	{
 		if (!$this->controller) {
@@ -300,20 +228,29 @@ class View extends stdClass implements ToStringable
 		return $this->controller;
 	}
 
+	public function ahref($text, $href)
+	{
+		return new HTMLTag('a', [
+			'href' => $href,
+		], $text);
+	}
+
 	public function __call($func, array $args)
 	{
 		$method = [$this->caller, $func];
 		if (!is_callable($method) || !method_exists($this->caller, $func)) {
 			//$method = array($this->caller, end(explode('::', $func)));
-			$methodName = get_class($this->caller) . '::' . $func;
-			throw new Exception('View: Method ' . $func . ' (' . $methodName . ') doesn\'t exists.');
+			$methodName = is_object($this->caller) ? get_class($this->caller) . '::' . $func : $func;
+			throw new RuntimeException('View: Method ' . $func . ' (' . $methodName . ') doesn\'t exists.');
 		}
 		return call_user_func_array($method, $args);
 	}
 
 	public function &__get($var)
 	{
-		return $this->caller->$var;
+		if ($this->caller !== null) {
+			return $this->caller->$var;
+		}
 	}
 
 	public function __set($var, $val)
@@ -326,7 +263,9 @@ class View extends stdClass implements ToStringable
 
 	public function __isset($name)
 	{
-		return $this->caller->$name;
+		if ($this->caller !== null) {
+			return $this->caller->$name;
+		}
 	}
 
 	/**
@@ -392,11 +331,6 @@ class View extends stdClass implements ToStringable
 		return $text;
 	}
 
-	public function money($val)
-	{
-		return number_format(floatval($val), 2, '.', '');
-	}
-
 	public function euro($val, $noCent = false)
 	{
 		$money = $this->money($val) . '&nbsp;&euro;';
@@ -406,18 +340,9 @@ class View extends stdClass implements ToStringable
 		return $money;
 	}
 
-	public static function bar($percent, array $params = [], $attr = [])
+	public function money($val)
 	{
-		$percent = round($percent);
-		$src = AutoLoad::getInstance()->nadlibFromDocRoot . 'bar.php?' . http_build_query($params + [
-					'rating' => $percent,
-					'color' => '6DC5B4',
-				]);
-		$attr += [
-			'src' => $src,
-			'alt' => $percent . '%',
-		];
-		return new HTMLTag('img', $attr, null);
+		return number_format(floatval($val), 2, '.', '');
 	}
 
 	public function purifyLinkify($comment)
@@ -475,19 +400,6 @@ class View extends stdClass implements ToStringable
 		return self::_autolink_find_URLS($comment);
 	}
 
-	public function s($a)
-	{
-//		echo typ($a), BR;
-//		debug_pre_print_backtrace();
-//		echo '<hr />';
-		return MergedContent::mergeStringArrayRecursive($a);
-	}
-
-	public static function markdown($text)
-	{
-		return Markdown::defaultTransform($text);
-	}
-
 	/**
 	 * @param array $some
 	 */
@@ -509,6 +421,33 @@ class View extends stdClass implements ToStringable
 		);
 	}
 
+	public function getContent($file, array $variables = [])
+	{
+		ob_start();
+
+		extract($variables, EXTR_OVERWRITE);
+
+		//debug($file);
+		/** @noinspection PhpIncludeInspection */
+		$content = require($file);
+
+		if (!$content || $content === 1) {
+			$content = ob_get_clean();
+		} else {
+			ob_end_clean();
+		}
+
+		return $this->s($content);
+	}
+
+	public function s($a)
+	{
+//		echo typ($a), BR;
+//		debug_pre_print_backtrace();
+//		echo '<hr />';
+		return MergedContent::mergeStringArrayRecursive($a);
+	}
+
 	public function curly()
 	{
 		$file = $this->getFile();
@@ -527,6 +466,13 @@ class View extends stdClass implements ToStringable
 		$this->processed = $html;
 	}
 
+	public function withoutScripts()
+	{
+		$scripts = $this->extractScripts();
+		$this->index->footer[basename($this->file)] = $scripts;
+		return $this;
+	}
+
 	/**
 	 * composer require hrmatching/advanced_html_dom
 	 */
@@ -540,11 +486,59 @@ class View extends stdClass implements ToStringable
 		return $scripts->__toString();
 	}
 
-	public function withoutScripts()
+	public function render(array $variables = [])
 	{
-		$scripts = $this->extractScripts();
-		$this->index->footer[basename($this->file)] = $scripts;
-		return $this;
+		$key = __METHOD__ . ' (' . basename($this->file) . ')';
+		TaylorProfiler::start($key);
+
+		if (!$this->processed) {
+			$file = $this->getFile();
+			$content = $this->getContent($file, $variables);
+
+			// Locallang replacement
+			$content = $this->localize($content);
+
+			if (DEVELOPMENT) {
+				// not allowed in MRBS as some templates return OBJECT(!)
+//				$content = '<div style="border: solid 1px red;">'.$file.'<br />'.$content.'</div>';
+				$content .= '<!-- View template: ' . $this->file . ' -->' . "\n";
+			}
+			$this->processed = $content;
+		}
+		TaylorProfiler::stop($key);
+		return $this->processed;
+	}
+
+	public function localize($content)
+	{
+		preg_match_all('/__([^ _\n\r]+?)__/', $content, $matches1);
+		preg_match_all('/__\{([^\n\r}]+?)\}__/', $content, $matches2);
+//		debug($matches1, $matches2); die;
+		$localizeList = array_merge($matches1[1], $matches2[1]);
+		foreach ($localizeList as $ll) {
+			if ($ll) {
+				//debug('__' . $ll . '__', __($ll));
+				$content = str_replace('__' . $ll . '__', __($ll), $content);
+				$content = str_replace('__{' . $ll . '}__', __($ll), $content);
+			}
+		}
+		return $content;
+	}
+
+	/**
+	 * Using this often leads to error
+	 * Method View::__toString() must not throw an exception
+	 * which prevents seeing the trace of where the problem happened.
+	 * Please call ->render() everywhere manually.
+	 */
+	public function __toString()
+	{
+		if (DEVELOPMENT) {
+			debug('Do not call View::__toString() as it will prevent you from obtaining a valid backtrace in case of an error.', $this->file, $this->caller ? get_class($this->caller) : null);
+			debug_pre_print_backtrace();
+		}
+//		return $this->render().'';
+		return get_class($this) . '@' . spl_object_hash($this);
 	}
 
 	public function extractImages()
