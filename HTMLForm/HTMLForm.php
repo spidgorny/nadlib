@@ -552,15 +552,14 @@ class HTMLForm implements ToStringable
 		$this->stdout .= "<button $more>$innerHTML</button>\n";
 	}
 
-	public function image($value = null, $more = "", $desc = [])
+	public function image($value = null, $more = [], $desc = [])
 	{
-		$more = is_array($more) ? HTMLTag::renderAttr($more) : $more;
+		$sMore = HTMLTag::renderAttr($more);
 		$value = htmlspecialchars($value, ENT_QUOTES);
 		$this->stdout .= "<input type=image
-		" . $this->getName('imgSubmit') . "
 		src=" . $desc['src'] . "
 		class='submitbutton' " .
-			($value ? "value=\"$value\"" : "") . " $more>\n";
+			($value ? "value=\"$value\"" : "") . " $sMore>\n";
 	}
 
 	public function reset($value = null, $more = "")
