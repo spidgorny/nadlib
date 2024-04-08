@@ -85,11 +85,11 @@ class Date extends Time
 
 	/**
 	 * @param string $format d.m.Y
-	 * @return htmlString
+	 * @return HtmlString
 	 */
 	function html($format = 'd.m.Y')
 	{
-		return new htmlString('<time datetime="' . $this->getISO() . '">' . $this->format($format) . '</time>');
+		return new HtmlString('<time datetime="' . $this->getISO() . '">' . $this->format($format) . '</time>');
 	}
 
 	function days()

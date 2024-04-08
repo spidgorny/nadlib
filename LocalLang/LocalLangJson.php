@@ -55,7 +55,7 @@ class LocalLangJson extends LocalLangDummy {
 
 	function getEditLinkMaybe($text, $id = NULL, $class = 'untranslatedMessage') {
 		if ($this->indicateUntranslated) {
-			$trans = new htmlString('<span class="untranslatedMessage">['.htmlspecialchars($text).']</span>');
+			$trans = new HtmlString('<span class="untranslatedMessage">['.htmlspecialchars($text).']</span>');
 		} else {
 			$trans = $text;
 		}

@@ -189,7 +189,7 @@ class LocalLangDB extends LocalLang
 		foreach ($langs as &$lang) {
 			$rows = $this->readDB($lang);
 			$lang = [
-				'img' => new htmlString('<img src="img/' . $lang . '.gif" width="20" height="12" />'),
+				'img' => new HtmlString('<img src="img/' . $lang . '.gif" width="20" height="12" />'),
 				'lang' => $lang,
 				'rows' => sizeof($rows),
 				'percent' => number_format(sizeof($rows) / $countEN * 100, 0) . '%',

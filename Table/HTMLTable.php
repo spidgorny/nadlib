@@ -63,7 +63,7 @@ class HTMLTable
 		foreach ($this->thes as $key => $_) {
 			$cell = ifsetor($row[$key]);
 			if ($cell instanceof HTMLTag) {
-			} elseif ($cell instanceof htmlString) {
+			} elseif ($cell instanceof HtmlString) {
 			} else {
 				$cell = htmlspecialchars($cell);
 			}

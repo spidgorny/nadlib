@@ -321,7 +321,7 @@ class slTableValue
 					$out = $val->render();
 				} else {
 					//t3lib_div::debug($k);
-					if (isset($k['hsc']) && $k['hsc'] && !($val instanceof htmlString)) {
+					if (isset($k['hsc']) && $k['hsc'] && !($val instanceof HtmlString)) {
 						$val = htmlspecialchars($val);
 					}
 					if (ifsetor($k['explode'])) {
@@ -333,7 +333,7 @@ class slTableValue
 					}
 					if (isset($k['no_hsc']) && $k['no_hsc']) {
 						$out = $val;
-					} elseif ($val instanceof htmlString) {
+					} elseif ($val instanceof HtmlString) {
 						$out = $val . '';
 					} elseif ($val instanceof HTMLTag) {
 						$out = $val . '';

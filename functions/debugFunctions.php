@@ -295,7 +295,7 @@ if (!function_exists('d')) {
 
 	/**
 	 * @param array|mixed $something
-	 * @return array|htmlString
+	 * @return array|HtmlString
 	 */
 	function gettypes($something)
 	{

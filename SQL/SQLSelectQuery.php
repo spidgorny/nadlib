@@ -233,7 +233,7 @@ FROM {$this->from}
 		$res = trim($res);
 		$res = str_replace('(<br><br>)', '()', $res);
 		$res = str_replace('(<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>)', '()', $res);
-		return new htmlString($res);
+		return new HtmlString($res);
 	}
 
 	public function getParameters()

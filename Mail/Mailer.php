@@ -181,7 +181,7 @@ class Mailer implements MailerInterface
 		$assoc['to'] = $this->to;
 		$assoc['subject'] = $this->getSubject();
 		$assoc['isHTML'] = self::isHTML($this->bodytext);
-		$assoc['headers'] = new htmlString(implode('<br />', $this->headers));
+		$assoc['headers'] = new HtmlString(implode('<br />', $this->headers));
 		$assoc['params'] = implode(' ', $this->params);
 		$assoc['bodyText'] = nl2br($this->getBodyText());
 		return slTable::showAssoc($assoc);

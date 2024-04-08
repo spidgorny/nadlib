@@ -170,7 +170,7 @@ class DebugHTML
 				//	$a = $a->getName();	-- not enough info
 			} elseif (method_exists($a, '__debugInfo')) {
 				$a = $a->__debugInfo();
-			} elseif ($a instanceof htmlString) {
+			} elseif ($a instanceof HtmlString) {
 				$a = $a; // will take care below
 			} elseif ($a instanceof SimpleXMLElement) {
 				$a = 'XML[' . $a->asXML() . ']';
@@ -202,7 +202,7 @@ class DebugHTML
 			}
 			$content .= '</table>';
 		} elseif (is_object($a)) {
-			if ($a instanceof htmlString) {
+			if ($a instanceof HtmlString) {
 				$content = 'html[' . $a . ']';
 			} else {
 				$content = '<pre style="font-size: 12px; white-space: pre-wrap">' .

@@ -14,7 +14,7 @@ class HTML
 
 	/**
 	 * @param string|URL $href
-	 * @param string|htmlString|HTMLTag $text
+	 * @param string|HtmlString|HTMLTag $text
 	 * @param bool $isHTML
 	 * @param array $more
 	 * @return HTMLTag
@@ -37,7 +37,7 @@ class HTML
 	{
 		$more['class'] = ifsetor($more['class']) . ' ' . $class;
 		$more = HTMLTag::renderAttr($more);
-		return new htmlString('<span ' . $more . '>' . $this->s($content) . '</span>');
+		return new HtmlString('<span ' . $more . '>' . $this->s($content) . '</span>');
 	}
 
 	public function info($content)
@@ -123,7 +123,7 @@ class HTML
 		if ($content instanceof HTMLTag) {
 			return $content;
 		}
-		if ($content instanceof htmlString) {
+		if ($content instanceof HtmlString) {
 			return $content;
 		}
 		if (is_array($content)) {

@@ -758,13 +758,13 @@ class slTable implements ToStringable
 					$val = get_object_vars($val);
 				}
 				$val = slTable::showAssoc($val, $isRecursive, $showNumericKeys, $no_hsc);
-				$val = new htmlString($val);    // to prevent hsc later
+				$val = new HtmlString($val);    // to prevent hsc later
 			}
 			if (!$showNumericKeys && is_numeric($key)) {
 				$key = '';
 			}
 
-			if ($val instanceof htmlString || $val instanceof HTMLTag) {
+			if ($val instanceof HtmlString || $val instanceof HTMLTag) {
 				//debug($val);
 				//$val = $val;
 			} elseif (is_array($val)) {
@@ -777,7 +777,7 @@ class slTable implements ToStringable
 						$val = '[' . get_class($val) . ']';
 					} elseif (mb_strpos($val, "\n") !== false) {
 						$val = htmlspecialchars($val);
-						$val = new htmlString('<pre style="white-space: pre-wrap;">' . htmlspecialchars($val) . '</pre>');
+						$val = new HtmlString('<pre style="white-space: pre-wrap;">' . htmlspecialchars($val) . '</pre>');
 					} else {
 						$val = htmlspecialchars($val, ENT_NOQUOTES);
 					}

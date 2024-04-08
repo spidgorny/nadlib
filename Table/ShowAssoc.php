@@ -48,7 +48,7 @@ class ShowAssoc {
 			$class = $desc['reference'];
 			$obj = $class::tryGetInstance($val);
 			if (method_exists($obj, 'getNameLink')) {
-				$val = new htmlString($obj->getNameLink());
+				$val = new HtmlString($obj->getNameLink());
 			} elseif (method_exists($obj, 'getName')) {
 				$val = $obj->getName();
 			} else {

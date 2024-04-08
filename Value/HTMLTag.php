@@ -58,7 +58,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 		} else {
 			$content = ($this->isHTML
 				|| $this->content instanceof HTMLTag
-				|| $this->content instanceof htmlString)
+				|| $this->content instanceof HtmlString)
 				? $this->content
 				: htmlspecialchars($this->content, ENT_QUOTES);
 		}

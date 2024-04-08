@@ -40,7 +40,7 @@ class DebugCLI
 		echo '⎯⎯⎯⎯⎯⎯⎯⎯⎯ ¯\_(ツ)_/¯ ' . $this->helper->name . BR .
 			implode(BR, $trace) . "\n";
 
-		if ($args instanceof htmlString) {
+		if ($args instanceof HtmlString) {
 			$args = strip_tags($args);
 		}
 

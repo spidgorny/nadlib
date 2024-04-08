@@ -150,7 +150,7 @@ abstract class Controller extends SimpleController
 
 	public function encloseInFieldset($title, $content)
 	{
-		$title = $title instanceof htmlString ? $title : htmlspecialchars($title);
+		$title = $title instanceof HtmlString ? $title : htmlspecialchars($title);
 		$content = $this->s($content);
 		return '<fieldset><legend>' . $title . '</legend>' . $content . '</fieldset>';
 	}

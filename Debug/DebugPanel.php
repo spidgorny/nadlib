@@ -46,10 +46,10 @@ class DebugPanel {
 		}
 		if (is_array($content)) {
 			$this->content = $this->viewArray($content);
-		} else if (is_object($content) && !($content instanceof htmlString)) {
+		} else if (is_object($content) && !($content instanceof HtmlString)) {
 			$this->content = $this->viewArray(get_object_vars($content));
 		} else {
-			$this->content = $content instanceof htmlString ? $content : htmlspecialchars($content);
+			$this->content = $content instanceof HtmlString ? $content : htmlspecialchars($content);
 		}
 	}
 

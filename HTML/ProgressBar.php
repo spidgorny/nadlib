@@ -206,7 +206,7 @@ class ProgressBar {
 
 	static function getImageWithText($p, $css = 'display: inline-block; width: 100%; text-align: center; white-space: nowrap;', $append = '')
 	{
-		return new htmlString('<div style="' . $css . '">' .
+		return new HtmlString('<div style="' . $css . '">' .
 			number_format($p, 2) . '&nbsp;%&nbsp;
 			' . self::getImage($p, $append) . '
 		</div>');

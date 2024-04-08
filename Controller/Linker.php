@@ -155,7 +155,7 @@ class Linker
 	/**
 	 * There is no $formMore parameter because you get the whole form returned.
 	 * You can modify it after returning as you like.
-	 * @param string|htmlString $name - if object then will be used as is
+	 * @param string|HtmlString $name - if object then will be used as is
 	 * @param string|null $action
 	 * @param string $formAction
 	 * @param array $hidden
@@ -184,7 +184,7 @@ class Linker
 		if (!is_null($action)) {
 			$f->hidden('action', $action);
 		}
-		if ($name instanceof htmlString) {
+		if ($name instanceof HtmlString) {
 			$f->button($name, [
 					'type' => "submit",
 					'id' => 'button-action-' . $action,

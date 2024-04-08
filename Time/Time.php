@@ -338,11 +338,11 @@ class Time
 	/**
 	 * <span class="time">in 10 hours</span>
 	 *
-	 * @return htmlString
+	 * @return HtmlString
 	 */
 	public function render()
 	{
-		return new htmlString('<time datetime="' . $this->getDateTime() . '"
+		return new HtmlString('<time datetime="' . $this->getDateTime() . '"
 			class="time" title="' . $this->getDateTime() . '">' . $this->in() . '</span>');
 	}
 
@@ -711,17 +711,17 @@ class Time
 
 	public function getHTMLDate()
 	{
-		return new htmlString('<time datetime="' . $this->getISODateTime() . '">' . $this->getHumanDate() . '</time>');
+		return new HtmlString('<time datetime="' . $this->getISODateTime() . '">' . $this->getHumanDate() . '</time>');
 	}
 
 	public function getHTMLTime()
 	{
-		return new htmlString('<time datetime="' . $this->getISODateTime() . '">' . $this->getHumanTime() . '</time>');
+		return new HtmlString('<time datetime="' . $this->getISODateTime() . '">' . $this->getHumanTime() . '</time>');
 	}
 
 	public function getHTMLTimeGMT()
 	{
-		return new htmlString('<time datetime="' . $this->getISODateTime() . '">' . $this->getHumanTimeGMT() . '</time>');
+		return new HtmlString('<time datetime="' . $this->getISODateTime() . '">' . $this->getHumanTimeGMT() . '</time>');
 	}
 
 	public function setFormat($string)

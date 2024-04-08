@@ -12,7 +12,7 @@ trait HTMLHelper
 
 	/**
 	 * @param string|URL $href
-	 * @param string|htmlString $text
+	 * @param string|HtmlString $text
 	 * @param bool $isHTML
 	 * @param array $more
 	 * @return HTMLTag

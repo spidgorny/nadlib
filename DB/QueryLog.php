@@ -84,10 +84,10 @@ class QueryLog {
 				$row['query'] = substr($row['query'], 0, 100);
 			}
 			if ($row['results'] >= 1000) {
-				$row['results'] = new htmlString('<font color="red">'.$row['results'].'</font>');
+				$row['results'] = new HtmlString('<font color="red">'.$row['results'].'</font>');
 			}
 			if ($row['count'] >= 3) {
-				$row['count'] = new htmlString('<font color="red">'.$row['count'].'</font>');
+				$row['count'] = new HtmlString('<font color="red">'.$row['count'].'</font>');
 			}
 		}
 		$s = new slTable(NULL, 'width="100%" class="table"');

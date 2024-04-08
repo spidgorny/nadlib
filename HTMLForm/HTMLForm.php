@@ -160,7 +160,7 @@ class HTMLForm implements ToStringable
 		$attrs['class'] = trim($type . ' ' . $extraClass . ' ' . ifsetor($more['class']));
 		$attrs['name'] = $this->getName($name, $namePlus, true);
 		if ($value || $value === 0) {
-			$isHTML = $value instanceof htmlString;
+			$isHTML = $value instanceof HtmlString;
 			//debug($value, $isHTML);
 			if (!$isHTML) {
 				//$value = htmlspecialchars($value, ENT_QUOTES);
@@ -314,7 +314,7 @@ class HTMLForm implements ToStringable
 
 	public function hsc($label)
 	{
-		if ($label instanceof htmlString) {
+		if ($label instanceof HtmlString) {
 			return $label;
 		} else {
 			return htmlspecialchars($label, ENT_QUOTES);
@@ -839,7 +839,7 @@ document.observe("dom:loaded", () => {
 			$checked = (!is_array($selected) && $selected == $value) ||
 				(is_array($selected) && in_array($value, $selected));
 			$this->stdout .= '<div class="checkline_' . ($checked ? 'active' : 'normal') . '">';
-			$this->radioLabel($name, $value, $checked, new htmlString('<span title="id=' . $value . '">' . (is_array($row) ? implode(', ', $row) : $row) . '</span>'));
+			$this->radioLabel($name, $value, $checked, new HtmlString('<span title="id=' . $value . '">' . (is_array($row) ? implode(', ', $row) : $row) . '</span>'));
 			$this->stdout .= '</div>';
 		}
 		$this->stdout .= '</div>';
