@@ -245,7 +245,7 @@ class ArrayPlus extends ArrayObject implements Countable
 		return $content;
 	}
 
-	public function ksort()
+	public function ksort(int $flags = SORT_REGULAR)
 	{
 		ksort($this->getArrayCopy());
 		return $this;

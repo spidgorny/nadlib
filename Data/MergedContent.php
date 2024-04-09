@@ -47,7 +47,7 @@ class MergedContent implements ArrayAccess
 	static function mergeStringArrayRecursive($render)
 	{
 		TaylorProfiler::start(__METHOD__);
-		llog('mergeStringArrayRecursive', gettype($render));
+//		llog('mergeStringArrayRecursive', gettype($render));
 		if (is_array($render)) {
 			$arrayOfObjects = array_flatten($render);
 			$sureStrings = self::stringify($arrayOfObjects);

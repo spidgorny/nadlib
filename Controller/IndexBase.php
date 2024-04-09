@@ -345,10 +345,10 @@ class IndexBase /*extends Controller*/
 				return $el[0] !== '-';    // --options
 			}
 		);
-		llog('notOptions', $notOptions);
+//		llog('notOptions', $notOptions);
 		// $notOptions[0] is the controller
 		$method = ifsetor($notOptions[1], 'render');
-		llog('method', $method);
+//		llog('method', $method);
 		if ($method && method_exists($this->controller, $method)) {
 			//echo 'Method: ', $method, BR;
 			//$params = array_slice($_SERVER['argv'], 3);
@@ -361,7 +361,6 @@ class IndexBase /*extends Controller*/
 				new InvalidArgumentException('Method ' . $method . ' is not callable on ' . get_class($this->controller))
 			);
 		}
-		llog('renderController', $content);
 		$content = $this->s($content);
 		$this->sidebar = $this->showSidebar();
 		if ($this->controller->layout instanceof Wrap
@@ -377,7 +376,7 @@ class IndexBase /*extends Controller*/
 	public function renderTemplateIfNotAjax($content)
 	{
 		$contentOut = '';
-		llog('renderTemplateIfNotAjax', gettype($content));
+//		llog('renderTemplateIfNotAjax', gettype($content));
 		if (!$this->request->isAjax() && !Request::isCLI()) {
 			// display Exception
 			$view = $this->renderTemplate($content);

@@ -212,7 +212,6 @@ abstract class SimpleController
 	{
 		$content = '';
 		$method = $action	?: $this->detectAction();
-		llog('performAction', $action, $method);
 		if ($method) {
 			$method .= 'Action';        // ZendFramework style
 			//			debug($method, method_exists($this, $method));
@@ -245,10 +244,12 @@ abstract class SimpleController
 	{
 		if (Request::isCLI()) {
 			//debug($_SERVER['argv']);
+			llog('iscli', true);
 			return ifsetor($_SERVER['argv'][2]);    // it was 1
 		}
 
-		return $this->request->getTrim('action') ?? 'index';
+		$action = $this->request->getTrim('action');
+		return $action ?: 'index';
 	}
 
 	public function s($something)
