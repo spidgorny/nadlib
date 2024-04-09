@@ -4,7 +4,7 @@
  * Class uTestBase
  * PHPUnit alternative
  */
-class uTestBase extends AppControllerBE
+class UTestBase extends AppControllerBE
 {
 
 	protected $start;

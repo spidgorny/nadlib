@@ -10,7 +10,7 @@ trait CachedGetInstance
 
 	/**
 	 * @param int $id
-	 * @return self|$this|static
+	 * @return static
 	 * @throws Exception
 	 */
 	public static function getInstance($id)
@@ -21,7 +21,7 @@ trait CachedGetInstance
 	/**
 	 * // TODO: initialization by array should search in $instances as well
 	 * @param $id |array int
-	 * @return $this
+	 * @return static
 	 * @throws Exception
 	 */
 	public static function getInstanceByID($id)
