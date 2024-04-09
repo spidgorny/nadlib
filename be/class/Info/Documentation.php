@@ -78,7 +78,7 @@ class Documentation extends AppControllerBE
 					'c' => __CLASS__,
 					'folder' => $path,
 				]),
-				'class' => $this->folder == $path ? 'bold' : '',
+				'class' => $this->folder === $path ? 'bold' : '',
 			], $file);
 		}
 		$content .= '<ul><li>' . implode('</li><li>', $folders) . '</li></ul>';
@@ -93,7 +93,7 @@ class Documentation extends AppControllerBE
 			/** @var $file SplFileInfo */
 			if ($file->isDir()) {
 				$filename = $file->getFilename();
-				if ($filename{0} != '.') {
+				if ($filename[0] !== '.') {
 					$folders[$file->getPathname()] = $file->getFilename();
 				}
 			}
