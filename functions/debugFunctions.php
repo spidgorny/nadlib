@@ -295,20 +295,19 @@ if (!function_exists('d')) {
 
 	/**
 	 * @param array|mixed $something
-	 * @return array|HtmlString
+	 * @return array|HtmlString|HTMLTag|string
 	 */
 	function gettypes($something)
 	{
 		if (is_array($something)) {
 			$types = [];
 			foreach ($something as $key => $element) {
-				$types[$key] = strip_tags(typ($element));
+				$types[$key] = trim(strip_tags(typ($element)));
 			}
 			return $types;
-		} else {
-			return typ($something);
 		}
-		//return json_encode($types, JSON_PRETTY_PRINT);
+
+		return typ($something);
 	}
 
 }

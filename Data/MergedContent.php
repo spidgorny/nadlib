@@ -47,19 +47,9 @@ class MergedContent implements ArrayAccess
 	static function mergeStringArrayRecursive($render)
 	{
 		TaylorProfiler::start(__METHOD__);
+		llog('mergeStringArrayRecursive', gettype($render));
 		if (is_array($render)) {
-			$combined = '';
-			/*array_walk_recursive($render,
-				array('IndexBase', 'walkMerge'),
-				$combined); // must have &
-			*/
-
-			//$combined = array_merge_recursive($render);
-			//$combined = implode('', $combined);
-
-			$combinedA = new ArrayObject();
-			array_walk_recursive($render, [__CLASS__, 'walkMergeArray'], $combinedA);
-			$arrayOfObjects = $combinedA->getArrayCopy();
+			$arrayOfObjects = array_flatten($render);
 			$sureStrings = self::stringify($arrayOfObjects);
 			$combined = implode('', $sureStrings);
 			$render = $combined;

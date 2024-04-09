@@ -121,7 +121,7 @@ abstract class SimpleController
 
 	public function render()
 	{
-		$content[] = $this->performAction();
+		$content[__METHOD__] = $this->performAction();
 		return $content;
 	}
 
@@ -212,6 +212,7 @@ abstract class SimpleController
 	{
 		$content = '';
 		$method = $action	?: $this->detectAction();
+		llog('performAction', $action, $method);
 		if ($method) {
 			$method .= 'Action';        // ZendFramework style
 			//			debug($method, method_exists($this, $method));
@@ -232,6 +233,7 @@ abstract class SimpleController
 					$content = $caller->call($method);
 				}
 			} else {
+				llog($method, 'does not exist in', get_class($this));
 				// other classes except main controller may result in multiple messages
 //				Index::getInstance()->message('Action "'.$method.'" does not exist in class "'.get_class($this).'".');
 			}

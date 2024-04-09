@@ -15,7 +15,7 @@ class LanguageDetect {
 
 	function getAcceptedLanguages () {
         $languagesArr = [];
-		$rawAcceptedLanguagesArr = explode(',', isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : NULL);
+		$rawAcceptedLanguagesArr = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '');
 
 		if ($rawAcceptedLanguagesArr) {
 			$acceptedLanguagesArr = [];

@@ -22,7 +22,7 @@ class UTestBase extends AppControllerBE
 	{
 		$this->index->bodyClasses[] = 'fullScreen';
 		$content = '<style>
-	body, td {
+	body, tdt {
 		/*font-size: 9pt;*/
 	}
 </style>';

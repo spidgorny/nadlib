@@ -9,7 +9,7 @@
  * @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
  * @method  runDeleteQuery($table, array $where)
  */
-class DBLayer extends DBLayerBase implements DBInterface
+class DBLayer extends DBLayerBase
 {
 
 	/**
@@ -98,7 +98,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 
 	public function getVersion()
 	{
-		$version = pg_version();
+		$version = pg_version($this->connection);
 		return $version['server'];
 	}
 
@@ -136,14 +136,14 @@ class DBLayer extends DBLayerBase implements DBInterface
 			$this->host = $host;
 		}
 		$string = "host={$this->host} dbname={$this->database} user={$this->user} password={$this->pass}";
-//		debug($string);
+//		llog($string);
 		$this->connection = pg_connect($string);
 		if (!$this->connection) {
-			throw new Exception("No PostgreSQL connection to $host. " . json_encode(error_get_last()));
+			throw new DatabaseException("No PostgreSQL connection to $host. " . json_encode(error_get_last()));
 			//printbr('Error: '.pg_errormessage());	// Warning: pg_errormessage(): No PostgreSQL link opened yet
-		} else {
-			$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
 		}
+
+		$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
 		//print(pg_client_encoding($this->connection));
 		return true;
 	}
@@ -151,12 +151,12 @@ class DBLayer extends DBLayerBase implements DBInterface
 	public function reportIfLastQueryFailed()
 	{
 		if (false === $this->LAST_PERFORM_RESULT) {
-			$backtrace = array_map(function ($el) {
+			$backtrace = array_map(static function ($el) {
 				unset($el['object']);
 				unset($el['args']);
 				return $el;
 			}, $this->lastBacktrace);
-			$backtrace = array_map(function (array $el) {
+			$backtrace = array_map(static function (array $el) {
 				return ifsetor($el['class']) . ifsetor($el['type']) . ifsetor($el['function']) .
 					' in ' . basename(ifsetor($el['file'])) . ':' . ifsetor($el['line']);
 			}, $backtrace);
@@ -184,11 +184,9 @@ class DBLayer extends DBLayerBase implements DBInterface
 		$prof = new Profiler();
 
 		$this->reportIfLastQueryFailed();
-//		$this->reportIfLastQueryFailed();
 		$this->lastQuery = $query;
-		if (!is_resource($this->connection)) {
-			debug('no connection', $this->connection, $query . '');
-			throw new DatabaseException('No connection');
+		if (!$this->connection) {
+			throw new DatabaseException('No connection in ' . __METHOD__);
 		}
 
 		if ($query instanceof SQLSelectQuery) {
@@ -214,7 +212,7 @@ class DBLayer extends DBLayerBase implements DBInterface
 			}
 			$this->queryTime = $prof->elapsed();
 			if ($this->logToLog) {
-				error_log($query . '' . ' => ' . $this->LAST_PERFORM_RESULT);
+				llog($query . '' . ' => ' . $this->LAST_PERFORM_RESULT);
 			}
 		} catch (Exception $e) {
 			//debug($e->getMessage(), $query);

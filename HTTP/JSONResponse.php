@@ -19,6 +19,7 @@ class JSONResponse
 
 	public function __toString()
 	{
+		llog('JSONResponse::__toString', $this->json, $this->httpCode);
 		http_response_code($this->httpCode);
 		Request::getInstance()->set('ajax', true);
 		$options = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES;
