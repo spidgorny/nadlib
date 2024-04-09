@@ -37,9 +37,7 @@ trait CachedGetInstance
 				: NULL,
 		));*/
 		if (is_scalar($id)) {
-			$inst = isset(static::$instances[$static][$id])
-				? static::$instances[$static][$id]
-				: null;
+			$inst = static::$instances[$static][$id] ?? null;
 			if (!$inst) {
 				//debug('new ', get_called_class(), $id, array_keys(self::$instances));
 				/** @var OODBase $inst */
