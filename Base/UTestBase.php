@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class uTestBase
+ * Class UTestBase
  * PHPUnit alternative
  */
 class UTestBase extends AppControllerBE
