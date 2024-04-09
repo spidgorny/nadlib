@@ -129,7 +129,7 @@ class SQLSearch extends SQLWherePart
 
 	function getSearchWhere($word, $prefix = '')
 	{
-		if ($word{0} == '!') {
+		if ($word[0] === '!') {
 			$like = 'NOT ' . $this->likeOperator;
 			$or = "\n\t\tAND";
 		} else {
