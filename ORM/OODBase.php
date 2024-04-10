@@ -763,11 +763,11 @@ abstract class OODBase
 		$collection = get_class($this) . 'Collection';
 		if (class_exists($collection)) {
 			return new $collection($this->id, $where);
-		} else {
-			$iterator = new DatabaseResultIteratorAssoc($this->db, $this->idField);
-			$iterator->perform($this->db->getSelectQuery($this->table, $where));
-			return $iterator;
 		}
+
+		$iterator = new DatabaseResultIteratorAssoc($this->db, $this->idField);
+		$iterator->perform($this->db->getSelectQuery($this->table, $where));
+		return $iterator;
 	}
 
 	public function getJson()

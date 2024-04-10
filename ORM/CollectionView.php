@@ -59,7 +59,7 @@ class CollectionView
 			 * @var OODBase $obj
 			 */
 			foreach ($this->collection->objectify() as $key => $obj) {
-				//debug($i++, (strlen($content)/1024/1024).'M');
+				/**  */
 				if (is_object($obj)) {
 					$content[] = $obj->render();
 					$content[] = "\n";

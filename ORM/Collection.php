@@ -643,7 +643,7 @@ class Collection implements IteratorAggregate, ToStringable
 	 */
 	public function objectify($class = null, $byInstance = false)
 	{
-		$class = $class ? $class : $this->itemClassName;
+		$class = $class ?: $this->itemClassName;
 		if (!$this->members) {
 			$this->log(__METHOD__, ['class' => $class, 'instance' => $byInstance]);
 			$this->members = [];   // somehow necessary

@@ -55,8 +55,6 @@ class DBLayer extends DBLayerBase
 		'SELECT', 'LIKE', 'TO',
 	];
 
-	public $dbName;
-
 	protected $user;
 
 	protected $pass;
