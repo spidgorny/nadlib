@@ -10,7 +10,6 @@ class SQLBuilderTest extends NadlibTestCase
 
 	public function setUp(): void
 	{
-		self::markTestSkipped('PG dependent');
 		$this->db = Config::getInstance()->getDB();
 	}
 
@@ -44,11 +43,11 @@ ORDER BY c";
 		if ($this->db instanceof DBPlacebo) {
 			$this->markTestSkipped('DBPlacebo has different SQL');
 		}
-		$query = new SQLSelectQuery($this->db, '*', 'table', [
+		$query = new SQLSelectQuery($this->db, new SQLSelect('*'), new SQLFrom('table'), new SQLWhere([
 			'a' => new SQLLikeContains('b'),
-		], null, null, null, 'ORDER BY c');
+		]), null, null, null, new SQLOrder('ORDER BY c'));
 
-		$must = "SELECT \"table\".*
+		$must = "SELECT *
 FROM \"table\"
 WHERE
 \"a\" ILIKE '%' || $1 || '%'
@@ -100,6 +99,15 @@ AND something else');
 		$pdo->setQB(new SQLBuilder($pdo));
 		$room = SQLBuilder::getFirstWord('room');
 		$this->assertEquals('room', $room);
+	}
+
+	public function testGroupBy()
+	{
+		$qb = new SQLBuilder($this->db);
+		$query = $qb->getSelectQuery('table', [
+			'a' => 'b',
+		], 'GROUP BY c');
+		$this->assertEquals("SELECT*FROM\"table\"WHERE\"a\"='b'GROUPBYc", $this->implodeSQL($query));
 	}
 
 }

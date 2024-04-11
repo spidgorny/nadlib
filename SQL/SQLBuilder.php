@@ -190,11 +190,12 @@ class SQLBuilder
 //		llog($orderAndLimit, '=>', $order, $limit);
 
 		$orderBy = str_startsWith($order, 'ORDER') ? new SQLOrder($order) : null;
-		$limit = str_startsWith($limit, 'LIMIT') ? new SQLLimit(
+		$limitBy = str_startsWith($limit, 'LIMIT') ? new SQLLimit(
 			str_replace('LIMIT', '', $limit)
 		) : null;
+		$groupBy = str_startsWith($orderAndLimit, 'GROUP') ? new SQLGroup($orderAndLimit) : null;
 
-		return new SQLSelectQuery($this->db, new SQLSelect($addSelect ?? '*'), new SQLFrom($table), $sqlWhere, null, null, null, $orderBy, $limit);
+		return new SQLSelectQuery($this->db, new SQLSelect($addSelect ?? '*'), new SQLFrom($table), $sqlWhere, null, $groupBy, null, $orderBy, $limitBy);
 	}
 
 	/**
