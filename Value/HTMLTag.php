@@ -300,7 +300,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return new self('img', ['src' => $src] + $params);
 	}
 
-	public static function pre(array $params, $content)
+	public static function pre($content, array $params = [])
 	{
 		return new self('pre', $params, $content);
 	}
