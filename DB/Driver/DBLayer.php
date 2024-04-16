@@ -80,7 +80,6 @@ class DBLayer extends DBLayerBase
 		$this->host = $host;
 		if ($dbName) {
 			$this->connect($dbName, $user, $pass, $host);
-//			debug(pg_version()); exit();
 
 			if ($this->getVersion() >= 8.4) {
 				$query = "select * from pg_get_keywords() WHERE catcode IN ('R', 'T')";
