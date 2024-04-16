@@ -3,14 +3,14 @@
 class File
 {
 
-	public bool $isDir;
+	public $isDir;
 
 	/**
 	 * @var string this is a relative path (can be absolute as well)
 	 */
-	protected string $name;
+	protected $name;
 
-	public SplFileInfo $spl;
+	public $spl;
 
 	/**
 	 * @var \League\Flysystem\Filesystem
@@ -29,12 +29,12 @@ class File
 	 * 'filename'=>'asd',
 	 * ]
 	 */
-	public array $meta;
+	public $meta;
 
 	/**
 	 * @var string|null the path in the $name is relative to this
 	 */
-	public ?string $relativeTo;
+	public $relativeTo;
 
 	public static function fromLocal($file, string $relativeTo = null)
 	{

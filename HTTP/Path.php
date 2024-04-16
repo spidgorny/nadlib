@@ -331,6 +331,10 @@ class Path
 		foreach ($this->aPath as $i => $part) {
 			$assembled = '/' . implode('/', array_slice($this->aPath, 0, $i));
 			//			debug($assembled, is_link($assembled));
+			if (ini_get('open_basedir')) {
+				return $this;
+			}
+
 			if (@is_link($assembled)) {
 				$this->sPath = readlink($assembled);
 				$this->explode();
@@ -347,6 +351,9 @@ class Path
 			$assembled = '/' .
 				implode('/', array_slice($this->aPath, 0, $i));
 			//			debug($assembled, is_link($assembled));
+			if (ini_get('open_basedir')) {
+				continue;
+			}
 			if (@is_link($assembled)) {
 				$this->aPath[$i - 1] = trim(readlink($assembled), '/');
 			}
