@@ -158,7 +158,7 @@ abstract class Controller extends SimpleController
 	public function wrapInDiv($content, $className = '')
 	{
 		$content = $this->s($content);
-		return new HTMLTag('div', ['class' => $className], $content);
+		return new HTMLTag('div', ['class' => $className], $content, true);
 	}
 
 	public function encloseInToggle($content, $title, $height = 'auto', $isOpen = null, $tag = 'h3')

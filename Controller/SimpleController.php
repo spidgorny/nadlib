@@ -190,8 +190,6 @@ abstract class SimpleController
 		}
 		$more['class'] = ifsetor($more['class'], 'padding clearfix');
 		$more['class'] .= ' ' . get_class($this);
-		//debug_pre_print_backtrace();
-		//$more['style'] = "position: relative;";	// project specific
 		return new HTMLTag('section', $more, $content, true);
 	}
 

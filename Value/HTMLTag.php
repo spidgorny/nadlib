@@ -62,7 +62,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 				? $this->content
 				: htmlspecialchars($this->content, ENT_QUOTES);
 		}
-		$attribs = $this->renderAttr($this->attr);
+		$attribs = self::renderAttr($this->attr);
 		$xmlClose = $this->closingTag ? '' : '/';
 		$tag = '<' . trim($this->tag . ' ' . $attribs) . $xmlClose . '>';
 		$tag .= $content;
