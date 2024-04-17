@@ -230,7 +230,7 @@ abstract class SimpleController
 					$content = $caller->call($method);
 				}
 			} else {
-				llog($method, 'does not exist in', get_class($this));
+//				llog($method, 'does not exist in', get_class($this));
 				// other classes except main controller may result in multiple messages
 //				Index::getInstance()->message('Action "'.$method.'" does not exist in class "'.get_class($this).'".');
 			}
