@@ -793,7 +793,8 @@ class Request
 			$resolver = new PathResolver();
 			$controller = $resolver->getController($returnDefault);
 		}   // cli
-		nodebug([
+		llog([
+			'getControllerString',
 			'result' => $controller,
 			'c' => $this->getTrim('c'),
 			//'levels' => $this->getURLLevels(),
