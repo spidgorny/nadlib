@@ -19,7 +19,6 @@ class JSONResponse
 
 	public function __toString()
 	{
-		llog('JSONResponse::__toString', $this->json, $this->httpCode);
 		http_response_code($this->httpCode);
 		Request::getInstance()->set('ajax', true);
 		$options = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES;
@@ -39,6 +38,7 @@ class JSONResponse
 		$json = json_encode($json + [
 			'duration' => $duration,
 		], $options) . '';
+		llog('JSONResponse::__toString', substr($json, 0, 100), $this->httpCode);
 		header('Content-Type: application/json');
 		return $json;
 	}
