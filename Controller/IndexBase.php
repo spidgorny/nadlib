@@ -17,7 +17,7 @@ class IndexBase /*extends Controller*/
 	public $ll;
 
 	/**
-	 * @var EPESUserInterface
+	 * @var UserModelInterface
 	 * @public for template.phtml
 	 */
 	protected $user;
