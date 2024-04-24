@@ -17,7 +17,7 @@ class IndexBase /*extends Controller*/
 	public $ll;
 
 	/**
-	 * @var User|LoginUser
+	 * @var UserModelInterface
 	 * @public for template.phtml
 	 */
 	protected $user;
@@ -58,7 +58,7 @@ class IndexBase /*extends Controller*/
 	public $bodyClasses = [];
 
 	/**
-	 * @var Config
+	 * @var ConfigInterface
 	 */
 	protected $config;
 
@@ -729,9 +729,6 @@ class IndexBase /*extends Controller*/
 		$this->bodyClasses[$name] = $name;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function setSecurityHeaders()
 	{
 		if (!headers_sent()) {

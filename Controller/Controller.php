@@ -299,6 +299,9 @@ abstract class Controller extends SimpleController
 	//	return '';
 	//}
 
+	/**
+	 * @return string|string[]|HTMLForm|ToStringable
+	 */
 	public function sidebar()
 	{
 		return '';

@@ -164,6 +164,11 @@ class ConfigBase implements ConfigInterface
 		return $this;
 	}
 
+	public function getDefaultController(): string
+	{
+		return $this->defaultController;
+	}
+
 	public function getDB()
 	{
 		//debug_pre_print_backtrace();

@@ -4,6 +4,8 @@ interface ConfigInterface
 {
 	// empty for the time being
 
+	public function getDefaultController(): string;
+
 	public function getUser();
 
 	public function setUser(UserModelInterface $user);
