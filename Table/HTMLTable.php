@@ -6,7 +6,6 @@
  * Time: 00:17
  * This is like slTable but without the legacy code
  */
-
 class HTMLTable
 {
 
