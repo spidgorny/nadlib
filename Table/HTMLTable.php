@@ -11,8 +11,8 @@ class HTMLTable
 {
 
 	public $data = [];
-
 	public $thes = [];
+	public $attributes = [];
 
 	/**
 	 * HTMLTable constructor.
@@ -20,10 +20,11 @@ class HTMLTable
 	 * @param array|object|null $res
 	 * @param array $thes
 	 */
-	public function __construct(array $res, array $thes = [])
+	public function __construct(array $res, array $thes = [], array $attributes = [])
 	{
 		$this->data = $res;
 		$this->thes = $thes;
+		$this->attributes = $attributes;
 	}
 
 	public function __toString()
@@ -42,7 +43,8 @@ class HTMLTable
 
 	public function table()
 	{
-		$content['table'] = '<table>';
+		$attributes = HTMLTag::renderAttr($this->attributes);
+		$content['table'] = "<table $attributes>";
 		$content['thead'] = '<thead><tr>';
 		foreach ((array)$this->thes as $key => $_) {
 			$content['th.' . $key] = '<th>' . htmlspecialchars($key) . '</th>';
