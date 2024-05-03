@@ -375,6 +375,6 @@ if (!function_exists('llog')) {
 		}
 		/** @noinspection ForgottenDebugOutputInspection */
 		$runtime = number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 3);
-		error_log("[${runtime}] {$caller} {$type} {$output}");
+		error_log("[{$runtime}] {$caller} {$type} {$output}");
 	}
 }
