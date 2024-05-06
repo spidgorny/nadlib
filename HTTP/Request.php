@@ -718,7 +718,7 @@ class Request
 	public function getCoalesce($a, $value)
 	{
 		$a = $this->getTrim($a);
-		return $a ? $a : $value;
+		return $a ?: $value;
 	}
 
 	/**
@@ -730,11 +730,10 @@ class Request
 	public function ifsetor($a, $default)
 	{
 		if ($this->is_set($a)) {
-			$value = $this->getTrim($a);
-			return $value;    // returns even if empty
-		} else {
-			return $default;
+			return $this->getTrim($a);    // returns even if empty
 		}
+
+		return $default;
 	}
 
 	public function setNewController($class)
@@ -780,7 +779,7 @@ class Request
 
 	public function getControllerString($returnDefault = true)
 	{
-		if ($this->isCLI()) {
+		if (self::isCLI()) {
 			$resolver = new CLIResolver();
 			return $resolver->getController();
 		}
@@ -793,15 +792,15 @@ class Request
 			$resolver = new PathResolver();
 			$controller = $resolver->getController($returnDefault);
 		}   // cli
-		llog([
-			'getControllerString',
-			'result' => $controller,
-			'c' => $this->getTrim('c'),
-			//'levels' => $this->getURLLevels(),
-			'default' => class_exists('Config')
-				? Config::getInstance()->defaultController
-				: null,
-			'data' => $this->data]);
+//		llog([
+//			'getControllerString',
+//			'result' => $controller,
+//			'c' => $this->getTrim('c'),
+//			//'levels' => $this->getURLLevels(),
+//			'default' => class_exists('Config')
+//				? Config::getInstance()->defaultController
+//				: null,
+//			'data' => $this->data]);
 		return $controller;
 	}
 
@@ -822,7 +821,7 @@ class Request
 			if (class_exists($c)) {
 				$ret = new $c();
 			} elseif ($c) {
-				throw new Exception('Class ' . $c . ' can\'t be found.');
+				throw new \RuntimeException('Class ' . $c . ' can\'t be found.');
 			}
 		}
 		return $ret;
@@ -833,7 +832,7 @@ class Request
 		if (str_startsWith($relative, 'http')) {
 			$link = $relative;
 		} else {
-			$link = $this->getLocation() . $relative;
+			$link = self::getLocation() . $relative;
 		}
 		if (!headers_sent()) {
 			header('X-Redirect: ' . $link);    // to be handled by AJAX callback
