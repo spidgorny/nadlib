@@ -40,7 +40,7 @@ class CLIUser implements UserModelInterface
 
 	public function can($acl)
 	{
-		// TODO: Implement can() method.
+		return false;
 	}
 
 	public function getID()

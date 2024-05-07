@@ -9,9 +9,9 @@
 class HTMLFormTest extends PHPUnit\Framework\TestCase
 {
 
-	public function __construct($name = null, array $data = [], $dataName = '')
+	public function __construct($name = null)
 	{
-		parent::__construct($name, $data, $dataName);
+		parent::__construct($name);
 		@define('BR', Request::isWindows()
 			? "\r\n" : "\n");
 	}

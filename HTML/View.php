@@ -266,6 +266,7 @@ class View extends stdClass implements ToStringable
 		if ($this->caller !== null) {
 			return $this->caller->$name;
 		}
+		return false;
 	}
 
 	/**

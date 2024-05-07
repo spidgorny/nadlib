@@ -861,53 +861,6 @@ document.observe("dom:loaded", () => {
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	/**
-	 * Displays a disabled form input field with the name of the tree node and a hidden field with it's ID.
-	 * There is a button that opens a pop-up with the tree where it's possible to select another node.
-	 * $desc must have the following defined:
-	 * $desc['self'], $desc['table'], $desc['titleColumn'], $desc['pid'], $desc['leaves']
-	 *
-	 * @param string $name
-	 * @param int $valueID
-	 * @param string $valueName
-	 * @param array $desc
-	 */
-	public function popuptree($name, $valueID, $valueName, $desc)
-	{
-		$id1 = 'popuptree' . uniqid('', true);
-		$id2 = 'popuptree' . uniqid('', true);
-		$functionName = 'accept_' . $desc['table'] . '_' . $desc['titleColumn'] . '_' . (++$GLOBALS['popuptreeCall']);
-		$this->hidden($name, $valueID, 'style="width: 5em" readonly id="' . $id1 . '"'); // hidden
-		$this->text(NL);
-		$this->input('dummy', $valueName, [
-			'style' => "width: 30em",
-			'readonly' => 'readonly',
-			'id' => $id2
-		]);
-		$this->text(NL);
-		$this->popupLink($desc['self'], $desc['table'], $desc['titleColumn'], $valueID, $desc['pid'], $desc['leaves'], $id1, $id2, $functionName, $desc['selectRoot']);
-	}
-
-	public function popupLink($self, $table, $titleColumn, $selected, $pid, $leaves, $id1, $id2, $functionName, $selectRoot)
-	{
-		$this->stdout .= Str::ahref('<img src="skin/default/img/browsefolder.png">',
-			'bijouTreeSelect.php?self=' . $self . '&table=' . $table . '&titleColumn=' . $titleColumn .
-			'&pid=' . $pid . '&leaves=' . $leaves . '&selected=' . $selected . '&callback=' . $functionName .
-			'&selectRoot=' . $selectRoot);
-		$href = 'http://somewhere.com';
-		$this->stdout .= HTMLTag::a($href, '<img src="skin/default/img/browsefolder.png"/>',
-			false, 'bijouTreeTarget');
-		$this->stdout .= '<script>
-			function ' . $functionName . '(val1, val2) {
-				//alert(val1+" "+val2);
-				var obj = document.getElementById("' . $id1 . '");
-				obj.value = val1;
-				var obj = document.getElementById("' . $id2 . '");
-				obj.value = val2;
-			}
-		</script>';
-	}
-
 	public function __toString()
 	{
 		return $this->getContent();
