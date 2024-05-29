@@ -378,6 +378,7 @@ abstract class OODBase implements ArrayAccess
 		$collection = Collection::createForTable($db, $blanc->table, $where, $orderBy);
 		$collection->idField = $blanc->idField;
 		$collection->itemClassName = static::class;
+//		llog('collection', $collection);
 		return $collection;
 	}
 
