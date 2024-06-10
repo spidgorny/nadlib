@@ -130,4 +130,16 @@ class slTableTest extends PHPUnit\Framework\TestCase
 		$this->assertStringContainsString('<th>a</th>', $html);
 	}
 
+	public function test_td_class()
+	{
+		$s = new slTable([
+			['a' => 1, '###TD_CLASS###' => 'asd'],
+		]);
+		$s->ID = '8ebde336af5b22305e70fccf9607caa4';
+		$html = $s->getContent();
+//		llog($html);
+		$this->assertEquals(2, substr_count($html, '<tr'));
+		$this->assertEquals(2, substr_count($html, '</tr'));
+	}
+
 }

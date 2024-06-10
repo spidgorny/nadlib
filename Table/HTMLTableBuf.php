@@ -35,7 +35,7 @@ class HTMLTableBuf extends MergedContent
 
 	public function tr(array $more = [])
 	{
-		$this->addSub('tbody', new HTMLTag('tr', $more) . "\n");
+		$this->addSub('tbody', "<tr " . HTMLTag::renderAttr($more) . ">\n");
 	}
 
 	public function tre()
@@ -45,7 +45,7 @@ class HTMLTableBuf extends MergedContent
 
 	public function ftr(array $more = [])
 	{
-		$this->addSub('tfoot', new HTMLTag('tr', $more) . "\n");
+		$this->addSub('tfoot', "<tr " . HTMLTag::renderAttr($more) . ">\n");
 	}
 
 	public function ftre()
@@ -112,7 +112,7 @@ class HTMLTableBuf extends MergedContent
 
 	public function htr(array $more = [])
 	{
-		$this->addSub('thead', new HTMLTag('tr', $more) . "\n");
+		$this->addSub('thead', "<tr " . HTMLTag::renderAttr($more) . ">\n");
 	}
 
 	public function th(array $more = [], $content = '')
