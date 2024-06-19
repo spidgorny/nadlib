@@ -122,67 +122,43 @@ class DBLayer extends DBLayerBase
 	 */
 	public function perform($query, array $params = [])
 	{
-//		llog(str_replace("\n", " ",			str_replace("\t", " ", $query)));
 		$prof = new Profiler();
 
-		$this->reportIfLastQueryFailed();
 //		$this->reportIfLastQueryFailed();
 		$this->lastQuery = $query;
 		if (!$this->connection) {
-//			debug('no connection', $this->connection, $query . '');
-			throw new DatabaseException('No connection');
+			throw new DatabaseException('No connection', 0, null, $query);
 		}
 
 		if ($query instanceof SQLSelectQuery) {
 			$params = $query->getParameters();
 			$query = $query->__toString();
-//			debug($query, $params);
 		}
 
-		try {
-			if ($params) {
-				$ok = pg_prepare($this->connection, '', $query);
-				if (!is_resource($ok)) {
-					throw new DatabaseException($query . ' can not be prepared');
-				}
-				$this->LAST_PERFORM_RESULT = pg_execute($this->connection, '', $params);
-			} else {
-				$this->LAST_PERFORM_RESULT = pg_query($this->connection, $query);
-				$lastError = pg_last_error($this->connection);
-				if ($lastError) {
-					// setQuery will be called in the catch below
-					throw new DatabaseException($lastError);
-				}
+		if ($params) {
+			$ok = pg_prepare($this->connection, '', $query);
+			if (!$ok) {
+				throw new DatabaseException('Query can not be prepared because: ' . pg_last_error($this->connection), 1, null, $query);
 			}
-			$this->queryTime = $prof->elapsed();
-			if ($this->logToLog) {
-				error_log($query . '' . ' => ' . $this->LAST_PERFORM_RESULT);
+			$this->LAST_PERFORM_RESULT = pg_execute($this->connection, '', $params);
+		} else {
+			$this->LAST_PERFORM_RESULT = pg_query($this->connection, $query);
+			$lastError = pg_last_error($this->connection);
+			if ($lastError) {
+				// setQuery will be called in the catch below
+				throw new DatabaseException($lastError, 2, null, $query);
 			}
-		} catch (Exception $e) {
-			//debug($e->getMessage(), $query);
-			$errorMessage = is_resource($this->LAST_PERFORM_RESULT)
-				? pg_result_error($this->LAST_PERFORM_RESULT)
-				: '';
-			$e = new DatabaseException(
-				'[' . $e->getCode() . '] ' . $e->getMessage() . BR .
-				//pg_errormessage($this->connection).BR.
-				'Error' . $errorMessage . BR .
-				$query,
-				$e->getCode()
-			);
-			$e->setQuery($query);
-			throw $e;
+		}
+		$this->queryTime = $prof->elapsed();
+		if ($this->logToLog) {
+			error_log($query . '' . ' => ' . $this->LAST_PERFORM_RESULT);
 		}
 
 		if (!$this->LAST_PERFORM_RESULT) {
 			//debug_pre_print_backtrace();
 			//debug($query);
 			//debug($this->queryLog->queryLog);
-			$e = new DatabaseException(
-				pg_errormessage($this->connection) .
-				'Query: ' . $query
-			);
-			$e->setQuery($query);
+			$e = new DatabaseException(pg_errormessage($this->connection), 3, null, $query);
 			throw $e;
 		}
 

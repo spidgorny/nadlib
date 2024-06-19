@@ -48,28 +48,34 @@ class RenderException
 		}
 
 		$message = $e->getMessage();
-		$message = ($message instanceof HtmlString ||
-			$message[0] === '<')
+		$message = ($message instanceof HtmlString ||	$message[0] === '<')
 			? $message . ''
 			: htmlspecialchars($message);
 		$content = '<div class="' . $wrapClass . '">
-				' . get_class($e) .
+				[' . get_class($e) . ']'.
 			($e->getCode() ? ' (' . $e->getCode() . ')' : '') . BR .
 			nl2br($message);
-		if (DEVELOPMENT || 0) {
+
+		if (DEVELOPMENT) {
 			$content .= BR . '<hr />' . '<div style="text-align: left">' .
-				nl2br($e->getTraceAsString()) . '</div>';
-			//$content .= getDebug($e);
+				nl2br(htmlspecialchars($e->getTraceAsString())) . '</div>';
 		}
-		$content .= '</div>';
+
 		if ($e instanceof LoginException) {
 			// catch this exception in your app Index class, it can't know what to do with all different apps
 			//$lf = new LoginForm();
 			//$content .= $lf;
-		} elseif ($e instanceof Exception404) {
+		}
+
+		if ($e instanceof Exception404) {
 			$e->sendHeader();
 		}
 
+		if ($e instanceof DatabaseException) {
+			$content .= '<p>Query: ' . htmlspecialchars($e->getQuery()) . '</p>';
+		}
+
+		$content .= '</div>';
 		return $content;
 	}
 }
