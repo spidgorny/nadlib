@@ -26,7 +26,6 @@ class ConfigBase implements ConfigInterface
 	public $timeLimit = 10;
 
 	/**
-	 *
 	 * @var DBInterface
 	 */
 	protected $db;
