@@ -162,7 +162,7 @@ class Localize extends AppControllerBE
 				}
 
 				$table[$key][$lang] = new HTMLTag('td', [
-					'id' => $dbID ? $dbID : json_encode([$lobj->lang, $key]),
+					'id' => $dbID ?: json_encode([$lobj->lang, $key]),
 					'lang' => $lobj->lang,
 					'class' => 'inlineEdit ' . $colorCode,
 				],
@@ -234,7 +234,7 @@ class Localize extends AppControllerBE
 			$row = $this->db->fetchOneSelectQuery($this->table, ['id' => $rel]);
 		} else {
 			//$code = $this->request->getTrim('code');
-			list($lang, $code) = json_decode($rel, 1);
+			[$lang, $code] = json_decode($rel, 1);
 			$res = $this->db->runSelectQuery($this->table, [
 				'code' => $code,
 				'lang' => $lang,

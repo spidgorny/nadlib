@@ -213,7 +213,6 @@ abstract class OODBase implements ArrayAccess
 	 * But it's rarely called directly.
 	 * @param array $where
 	 * @param string $orderByLimit
-	 *
 	 * @param null $selectPlus
 	 * @return array of the found record
 	 * @throws Exception
@@ -574,7 +573,7 @@ abstract class OODBase implements ArrayAccess
 		} else {
 			$id = $this->db->lastInsertID($res, $this->table);
 		}
-		
+
 
 		if ($id) {
 			$this->init($id ?: $this->id);

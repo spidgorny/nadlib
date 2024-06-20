@@ -14,8 +14,8 @@ class DigestAuth
 	// maryna.sigayeva@web.de
 	public function run()
 	{
-		$digestString = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] : $_SERVER['HTTP_AUTORIZATION'];
-		$digestString = $digestString ? $digestString : $_SERVER['PHP_AUTH_DIGEST'];
+		$digestString = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?: $_SERVER['HTTP_AUTORIZATION'];
+		$digestString = $digestString ?: $_SERVER['PHP_AUTH_DIGEST'];
 		if (empty($digestString)) {
 			$this->headers();
 			//debug($digestString);
@@ -74,7 +74,7 @@ class DigestAuth
 		preg_match_all('@(' . $keys . ')=(?:([\'"])([^\2]+?)\2|([^\s,]+))@', $txt, $matches, PREG_SET_ORDER);
 
 		foreach ($matches as $m) {
-			$data[$m[1]] = $m[3] ? $m[3] : $m[4];
+			$data[$m[1]] = $m[3] ?: $m[4];
 			unset($needed_parts[$m[1]]);
 		}
 

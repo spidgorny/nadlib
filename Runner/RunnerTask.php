@@ -205,7 +205,7 @@ class RunnerTask
 	{
 		$command = json_decode($this->get('command'));
 		$class = $this->obj ? get_class($this->obj) : $command[0];
-		$method = $this->method ? $this->method : $command[1];
+		$method = $this->method ?: $command[1];
 		return $class . ' -> ' . $method;
 	}
 

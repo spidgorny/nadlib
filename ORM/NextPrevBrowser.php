@@ -70,7 +70,7 @@ class NextPrevBrowser
 
 		$central = ($this->data instanceof ArrayPlus)
 			? $this->data->getData()
-			: ($this->data ? $this->data : [])  // NOT NULL
+			: ($this->data ?: [])  // NOT NULL
 		;
 
 //		llog($model->id,

@@ -76,7 +76,7 @@ class CollectionMM extends Collection
 	public function objectify($class = '', $byInstance = false)
 	{
 		$this->members = [];   // somehow necessary
-		$class = $class ? $class : $this->itemClassName;
+		$class = $class ?: $this->itemClassName;
 		if (!$this->members) {
 			foreach ($this->getData() as $row) {
 				$key = $row[$this->idField];

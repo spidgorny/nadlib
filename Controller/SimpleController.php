@@ -215,7 +215,7 @@ abstract class SimpleController
 	 */
 	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
 	{
-		$h = $h ? $h : $this->encloseTag;
+		$h = $h ?: $this->encloseTag;
 		$content = $this->s($content);
 		if ($caption) {
 			$content = [

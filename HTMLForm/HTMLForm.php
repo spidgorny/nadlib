@@ -388,7 +388,7 @@ class HTMLForm implements ToStringable
 	 */
 	public function datepopup($name, $value = null, $type = "input", $activator = null, $id = null, $params = [])
 	{
-		$id = $id ? $id : uniqid('datepopup', true);
+		$id = $id ?: uniqid('datepopup', true);
 		$fullname = $this->getName($name, '', true);
 		if (is_numeric($value)) {
 			$value = $value > 0 ? date('Y-m-d', $value) : '';
@@ -398,7 +398,7 @@ class HTMLForm implements ToStringable
 			name="' . $fullname . '"
 			id="id_field_' . $id . '"
 			value="' . $value . '" />
-			' . ($activator ? $activator : '<button type="button"
+			' . ($activator ?: '<button type="button"
 			 id="id_button_' . $id . '"
 			 style="width: auto">...</button>');
 
@@ -828,7 +828,7 @@ document.observe("dom:loaded", () => {
 			$checked = (!is_array($selected) && $selected == $value) ||
 				(is_array($selected) && in_array($value, $selected));
 			$this->stdout .= '<label class="checkline_' . ($checked ? 'active' : 'normal') . '" style="white-space: nowrap;">';
-			$more = collect($more)->map(fn ($val) => str_replace(urlencode("###KEY###"), $value, $val))->toArray();
+			$more = collect($more)->map(fn($val) => str_replace(urlencode("###KEY###"), $value, $val))->toArray();
 			$this->check($newName, $value, $checked, $more);
 			$this->text('<span title="id=' . $value . '">' . (is_array($row) ? implode(', ', $row) : $row) . '</span>');
 			$this->stdout .= '</label> ';

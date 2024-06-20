@@ -155,7 +155,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 				$type->setValue($desc['value']);
 			}
 			if (ifsetor($desc['jsParams'])) {
-				$type->jsParams = $desc['jsParams'] ? $desc['jsParams'] : [];
+				$type->jsParams = $desc['jsParams'] ?: [];
 			}
 			$type->desc = $desc;
 			$index = Index::getInstance();
@@ -281,7 +281,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 				$this->form->text($desc['code']);
 				break;
 
-				case 'tree':
+			case 'tree':
 				$this->form->tree($fieldName, $desc['tree'], $fieldValue);
 				break;
 
@@ -295,7 +295,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 				$more = (is_array(ifsetor($desc->data['more']))
 						? $desc->data['more'] : []) + [
 						'id' => $desc->data['id']
-						];
+					];
 				$this->form->submit($desc['value'], $more);
 				break;
 

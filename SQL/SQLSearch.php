@@ -111,7 +111,7 @@ class SQLSearch extends SQLWherePart
 	public function getSearchSubquery($word, $select = null)
 	{
 		$table = $this->table;
-		$select = new SQLSelect($select ? $select : 'DISTINCT *');
+		$select = new SQLSelect($select ?: 'DISTINCT *');
 		$from = new SQLFrom($table);
 		$where = new SQLWhere([]);
 		$query = new SQLSelectQuery($this->db, $select, $from, $where,

@@ -103,7 +103,7 @@ class SQLBuilder
 		} else {
 			$from = $table; // not quoted
 		}
-		$select = $addSelect ? $addSelect : $this->quoteKey($table1) . ".*";
+		$select = $addSelect ?: $this->quoteKey($table1) . ".*";
 		$q = "SELECT $select\nFROM " . $from;
 		$set = $this->quoteWhere($where);
 		if (sizeof($set)) {
@@ -176,7 +176,7 @@ class SQLBuilder
 		$sqlWhere = $where instanceof SQLWhere ? $where : new SQLWhere($where);
 		if (strpos($orderAndLimit, 'LIMIT') > 0) {  // ORDER BY xxx LIMIT yyy
 			[$order, $limit] = explode('LIMIT', $orderAndLimit);
-			$limit = 'LIMIT ' . $limit;	// fix after split
+			$limit = 'LIMIT ' . $limit;  // fix after split
 		} elseif (str_startsWith($orderAndLimit, 'ORDER')) {
 			$order = $orderAndLimit;
 			$limit = null;

@@ -33,9 +33,7 @@ class Request
 	{
 		$this->data = !is_null($array) ? $array : $_REQUEST;
 		$this->url = new URL(
-			isset($_SERVER['SCRIPT_URL'])
-				? $_SERVER['SCRIPT_URL']
-				: (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null),
+			$_SERVER['SCRIPT_URL'] ?? ($_SERVER['REQUEST_URI'] ?? null),
 			$this->data
 		);
 	}
@@ -59,7 +57,7 @@ class Request
 			'PHP_SELF' => $_SERVER['PHP_SELF'],
 			'cwd' => getcwd(),
 			'url' => self::getLocation() . '',
-			'server' => array_filter($_SERVER, function ($el) {
+			'server' => array_filter($_SERVER, static function ($el) {
 				return is_string($el) && strpos($el, '/') !== false;
 			}),
 		]);
@@ -67,12 +65,9 @@ class Request
 
 	public static function getPort()
 	{
-		$host = isset($_SERVER['HTTP_X_FORWARDED_HOST'])
-			? $_SERVER['HTTP_X_FORWARDED_HOST']
-			: (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : null);
+		$host = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? ($_SERVER['HTTP_HOST'] ?? null);
 		$host = trimExplode(':', $host);    // localhost:8081
-		$port = $host[1];
-		return $port;
+		return $host[1];
 	}
 
 	public static function removeCookiesFromRequest()
@@ -89,8 +84,7 @@ class Request
 
 	public static function isCURL()
 	{
-		$isCURL = str_contains(ifsetor($_SERVER['HTTP_USER_AGENT']), 'curl');
-		return $isCURL;
+		return str_contains(ifsetor($_SERVER['HTTP_USER_AGENT']), 'curl');
 	}
 
 	/**
@@ -141,8 +135,7 @@ class Request
 		$pos = strpos($script, '/public_html');
 		if ($pos !== false) {
 			$docRoot = substr(dirname($script), $pos);
-			$docRoot = str_replace('public_html', '~depidsvy', $docRoot);
-			return $docRoot;
+			return str_replace('public_html', '~depidsvy', $docRoot);
 		}
 
 		return dirname($_SERVER['PHP_SELF']);
@@ -302,8 +295,7 @@ class Request
 	{
 		$value = $this->getString($name);
 		$value = strip_tags($value);
-		$value = trim($value);
-		return $value;
+		return trim($value);
 	}
 
 	/**
@@ -516,7 +508,7 @@ class Request
 	public function getCoalesce($a, $value)
 	{
 		$a = $this->getTrim($a);
-		return $a ? $a : $value;
+		return $a ?: $value;
 	}
 
 	/**
@@ -528,8 +520,7 @@ class Request
 	public function ifsetor($a, $default)
 	{
 		if ($this->is_set($a)) {
-			$value = $this->getTrim($a);
-			return $value;    // returns even if empty
+			return $this->getTrim($a);    // returns even if empty
 		} else {
 			return $default;
 		}
@@ -725,9 +716,8 @@ class Request
 
 		//debug_pre_print_backtrace();
 		require_once __DIR__ . '/Path.php'; // needed if called early
-		$docRoot = new Path($docRoot);
 		//pre_print_r($docRoot, $docRoot.'');
-		return $docRoot;
+		return new Path($docRoot);
 	}
 
 	/**
@@ -785,9 +775,7 @@ class Request
 		}
 		$host = ifsetor($_SERVER['HTTP_X_ORIGINAL_HOST']);
 		if (!$host) {
-			$host = isset($_SERVER['HTTP_X_FORWARDED_HOST'])
-				? $_SERVER['HTTP_X_FORWARDED_HOST']
-				: (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : null);
+			$host = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? ($_SERVER['HTTP_HOST'] ?? null);
 		}
 		if (function_exists('idn_to_utf8') && $isUTF8) {
 			if (phpversion() >= 7.3) {
@@ -815,20 +803,18 @@ class Request
 		$HTTP_X_FORWARDED_PROTO = ifsetor($_SERVER['HTTP_X_FORWARDED_PROTO']);
 		$HTTP_X_FORWARDED_BY = ifsetor($_SERVER['HTTP_X_FORWARDED_BY']);
 		$HTTP_X_FORWARDED_SERVER = ifsetor($_SERVER['HTTP_X_FORWARDED_SERVER']);
-		$request_type =
-			((($HTTPS) && (strtolower($HTTPS) == 'on' || $HTTPS == '1'))) ||
-			(($HTTP_X_FORWARDED_BY) && strpos(strtoupper($HTTP_X_FORWARDED_BY), 'SSL') !== false) ||
-			(($HTTP_X_FORWARDED_HOST) && (strpos(strtoupper($HTTP_X_FORWARDED_HOST), 'SSL') !== false)) ||
-			(($HTTP_X_FORWARDED_HOST && $HTTPS_SERVER) && (strpos(strtoupper($HTTP_X_FORWARDED_HOST), str_replace('https://', '', $HTTPS_SERVER)) !== false)) ||
-			(isset($_SERVER['SCRIPT_URI']) && strtolower(substr($_SERVER['SCRIPT_URI'], 0, 6)) == 'https:') ||
-			(($HTTP_X_FORWARDED_SSL) && ($HTTP_X_FORWARDED_SSL == '1' || strtolower($HTTP_X_FORWARDED_SSL) == 'on')) ||
-			(($HTTP_X_FORWARDED_PROTO) && (strtolower($HTTP_X_FORWARDED_PROTO) == 'ssl' || strtolower($HTTP_X_FORWARDED_PROTO) == 'https')) ||
-			(isset($_SERVER['HTTP_SSLSESSIONID']) && $_SERVER['HTTP_SSLSESSIONID'] != '') ||
-			(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443') ||
-			ifsetor($_SERVER['FAKE_HTTPS'])
-			|| (str_startsWith($HTTP_X_FORWARDED_SERVER, 'sslproxy'))    // BlueMix
-				? 'https' : 'http';
-		return $request_type;
+		return ((($HTTPS) && (strtolower($HTTPS) == 'on' || $HTTPS == '1'))) ||
+		(($HTTP_X_FORWARDED_BY) && strpos(strtoupper($HTTP_X_FORWARDED_BY), 'SSL') !== false) ||
+		(($HTTP_X_FORWARDED_HOST) && (strpos(strtoupper($HTTP_X_FORWARDED_HOST), 'SSL') !== false)) ||
+		(($HTTP_X_FORWARDED_HOST && $HTTPS_SERVER) && (strpos(strtoupper($HTTP_X_FORWARDED_HOST), str_replace('https://', '', $HTTPS_SERVER)) !== false)) ||
+		(isset($_SERVER['SCRIPT_URI']) && strtolower(substr($_SERVER['SCRIPT_URI'], 0, 6)) == 'https:') ||
+		(($HTTP_X_FORWARDED_SSL) && ($HTTP_X_FORWARDED_SSL == '1' || strtolower($HTTP_X_FORWARDED_SSL) == 'on')) ||
+		(($HTTP_X_FORWARDED_PROTO) && (strtolower($HTTP_X_FORWARDED_PROTO) == 'ssl' || strtolower($HTTP_X_FORWARDED_PROTO) == 'https')) ||
+		(isset($_SERVER['HTTP_SSLSESSIONID']) && $_SERVER['HTTP_SSLSESSIONID'] != '') ||
+		(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443') ||
+		ifsetor($_SERVER['FAKE_HTTPS'])
+		|| (str_startsWith($HTTP_X_FORWARDED_SERVER, 'sslproxy'))    // BlueMix
+			? 'https' : 'http';
 	}
 
 	public function redirectJS(
@@ -948,8 +934,7 @@ class Request
 	public function getDateFromY_M_D($name)
 	{
 		$date = $this->getTrim($name);
-		$date = strtotime($date);
-		return $date;
+		return strtotime($date);
 	}
 
 	public function getMethod()
@@ -1129,8 +1114,7 @@ class Request
 	{
 		$filename = $this->getTrim($name);
 		//echo getDebug(getcwd(), $filename, realpath($filename));
-		$filename = realpath($filename);
-		return $filename;
+		return realpath($filename);
 	}
 
 	/**
@@ -1142,8 +1126,7 @@ class Request
 	{
 		//filter_var($this->getTrim($name), ???)
 		$filename = $this->getTrim($name);
-		$filename = basename($filename);
-		return $filename;
+		return basename($filename);
 	}
 
 	public function importCLIparams($noopt = [])
@@ -1218,8 +1201,7 @@ class Request
 	public function getIntArray($name)
 	{
 		$array = $this->getArray($name);
-		$array = array_map('intval', $array);
-		return $array;
+		return array_map('intval', $array);
 	}
 
 	public function getFields(array $desc)
@@ -1565,7 +1547,7 @@ class Request
 
 	public function getHidden(array $limit = [])
 	{
-		$hidden = array_reduce(array_keys($this->data), function ($total, $key) {
+		return array_reduce(array_keys($this->data), function ($total, $key) {
 			$item = $this->data[$key];
 			if (is_array($item)) {
 				$item = $this->getSubRequest($key)->getHidden();
@@ -1576,7 +1558,6 @@ class Request
 			}
 			return array_merge($total, $item);
 		}, []);
-		return $hidden;
 	}
 
 	public function json(array $data)
@@ -1603,18 +1584,29 @@ class Request
 		return $path[$level] ?? null;
 	}
 
+	/**
+	 * @throws JsonException
+	 */
 	public function getJsonPost()
 	{
-		return json_decode($this->getRawPost());
+		return json_decode($this->getRawPost(), false, 512, JSON_THROW_ON_ERROR);
 	}
 
 	public function getRawPost()
 	{
 		if (defined('STDIN')) {
-			$post = stream_get_contents(STDIN);
-		} else {
-			$post = file_get_contents('php://input');
+			return stream_get_contents(STDIN);
 		}
-		return $post;
+
+		return file_get_contents('php://input');
+	}
+
+	public function showStackTraceAsHeaders(array $bt, $prefix = 'Redirect-From-')
+	{
+		foreach ($bt as $i => $line) {
+			$ii = str_pad($i, 2, '0', STR_PAD_LEFT);
+			header($prefix . $ii . ': ' . $line);
+		}
+
 	}
 }

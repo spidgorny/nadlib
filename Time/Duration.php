@@ -81,7 +81,7 @@ class Duration extends Time
 			$content[] = $m . 'm';
 		}
 		$content = implode('&nbsp;', $content);
-		$content = $content ? $content : '-';
+		$content = $content ?: '-';
 		return $content;
 	}
 

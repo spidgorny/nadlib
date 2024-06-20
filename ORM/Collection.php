@@ -147,7 +147,8 @@ class Collection implements IteratorAggregate, ToStringable
 	public function __construct(
 		$pid = null, /*array/SQLWhere*/
 		$where = [], $order = '', DBInterface $db = null
-	) {
+	)
+	{
 		//$taylorKey = get_class($this).'::'.__FUNCTION__." ({$this->table})";
 		$taylorKey = Debug::getBackLog(5, 0, BR, false);
 		TaylorProfiler::start($taylorKey);
@@ -176,7 +177,7 @@ class Collection implements IteratorAggregate, ToStringable
 		}
 
 		//debug($this->where);
-		$this->orderBy = $order ? $order : $this->orderBy;
+		$this->orderBy = $order ?: $this->orderBy;
 		$this->request = Request::getInstance();
 		$this->postInit();
 

@@ -144,9 +144,7 @@ class FilterController extends Controller
 	{
 		if ($this->model instanceof OODBase) {
 			$res = $this->db->getTableOptions(
-				$this->model->table
-					? $this->model->table
-					: $this->collection->table,
+				$this->model->table ?: $this->collection->table,
 				$key, [], 'ORDER BY ' . $key, $key);    // NOT 'id' (DISTINCT!)
 
 			if ($count) {
@@ -181,7 +179,7 @@ class FilterController extends Controller
 //			debug($key, $val);
 			if ($val) {
 				$type = ifsetor($this->desc[$key]['type']);
-				list($field, $parameter) = $this->getFilterWherePair($key, $val, $type);
+				[$field, $parameter] = $this->getFilterWherePair($key, $val, $type);
 				$where[$field] = $parameter;
 			}
 		}

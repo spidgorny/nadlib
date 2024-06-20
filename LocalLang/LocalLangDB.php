@@ -188,7 +188,7 @@ class LocalLangDB extends LocalLang
 	public function getLangStats()
 	{
 		$en = $this->readDB('en');
-		$countEN = sizeof($en) ? sizeof($en) : 1;
+		$countEN = sizeof($en) ?: 1;
 		$langs = array_combine($this->possibleLangs, $this->possibleLangs);
 		foreach ($langs as &$lang) {
 			$rows = $this->readDB($lang);

@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software                  *
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
  * \********************************************************************************/
-
 /// Enable multiple timers to aid profiling of performance over sections of code
 
 class TaylorProfiler
@@ -197,7 +196,7 @@ class TaylorProfiler
 
 	public static function addMemoryMap($obj)
 	{
-		self::$sos = self::$sos ? self::$sos : new SplObjectStorage();
+		self::$sos = self::$sos ?: new SplObjectStorage();
 		self::$sos->attach($obj);
 	}
 
@@ -219,7 +218,7 @@ class TaylorProfiler
 	public static function getElapsedTimeString()
 	{
 		$totalTime = self::getElapsedTime();
-		list($seconds, $ms) = explode('.', $totalTime);
+		[$seconds, $ms] = explode('.', $totalTime);
 		$totalTime = gmdate('H:i:s', $seconds) . '.' . $ms;
 		return $totalTime;
 	}
@@ -233,9 +232,7 @@ class TaylorProfiler
 		if ($profiler) {
 			$since = $profiler->initTime;
 		} else {
-			$since = $_SERVER['REQUEST_TIME_FLOAT']
-				? $_SERVER['REQUEST_TIME_FLOAT']
-				: $_SERVER['REQUEST_TIME'];
+			$since = $_SERVER['REQUEST_TIME_FLOAT'] ?: $_SERVER['REQUEST_TIME'];
 		}
 		$oaTime = microtime(true) - $since;
 		return number_format($oaTime, 3, '.', '');
@@ -281,7 +278,7 @@ class TaylorProfiler
 	public static function getTimeUsage()
 	{
 		static $max;
-		$max = $max ? $max : intval(ini_get('max_execution_time'));
+		$max = $max ?: intval(ini_get('max_execution_time'));
 		$cur = microtime(true) - $_SERVER['REQUEST_TIME'];
 		return number_format($cur / $max, 3, '.', '');
 	}
@@ -441,9 +438,7 @@ class TaylorProfiler
 			];
 
 			if (isset($_SERVER['REQUEST_TIME_FLOAT'])) {
-				$requestTime = $_SERVER['REQUEST_TIME_FLOAT']
-					? $_SERVER['REQUEST_TIME_FLOAT']
-					: $_SERVER['REQUEST_TIME'];
+				$requestTime = $_SERVER['REQUEST_TIME_FLOAT'] ?: $_SERVER['REQUEST_TIME'];
 				$startup = $this->initTime - $requestTime;
 				$together['Startup'] = [
 					'desc' => 'Startup (REQUEST_TIME_FLOAT) (' . $this->initTime . '-' . $requestTime . ')',

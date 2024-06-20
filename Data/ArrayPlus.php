@@ -253,7 +253,7 @@ class ArrayPlus extends ArrayObject implements Countable
 		return $this;
 	}
 
-	#[\ReturnTypeWillChange]
+	#[ReturnTypeWillChange]
 	public function append(mixed $value, $key = null)
 	{
 		if (!is_null($key)) {
@@ -675,7 +675,7 @@ class ArrayPlus extends ArrayObject implements Countable
 	 */
 	public function linearize(array $data = null)
 	{
-		$data = $data ? $data : $this;
+		$data = $data ?: $this;
 		$linear = [];
 		foreach ($data as $key => $val) {
 			if (is_array($val) && $val) {

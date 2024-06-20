@@ -15,7 +15,7 @@ class ServerStat extends AppControllerBE
 	public function __construct($start_time = null, $LOG = [], $COUNTQUERIES = 0)
 	{
 		parent::__construct();
-		$this->start_time = $start_time ? $start_time : $_SERVER['REQUEST_TIME'];
+		$this->start_time = $start_time ?: $_SERVER['REQUEST_TIME'];
 		$this->LOG = $LOG;
 		$this->COUNTQUERIES = $COUNTQUERIES;
 		$this->config = Config::getInstance();
@@ -73,7 +73,7 @@ class ServerStat extends AppControllerBE
 		$conf['Mem. peak'] = number_format(memory_get_usage() / 1024 / 1024, 3, '.', '') . ' MB';
 		if (session_id()) {
 			$sessionPath = ini_get('session.save_path');
-			$sessionPath = $sessionPath ? $sessionPath : '/tmp';
+			$sessionPath = $sessionPath ?: '/tmp';
 			$sessionFile = $sessionPath . '/sess_' . session_id();
 			//$conf[] = array('param' => 'Session File',		'value' => $sessionFile);
 			$conf['Sess. size'] = @filesize($sessionFile);

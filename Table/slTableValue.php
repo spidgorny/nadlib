@@ -99,7 +99,7 @@ class slTableValue
 							$options = $this->db->fetchSelectQuery($k['from'], [$id => $val], '', $k['from'] . '.*, ' . $what);
 							//debug($options, $k); exit();
 							$whatAs = trimExplode('AS', $what);
-							$whatAs = $whatAs[1] ? $whatAs[1] : $what;
+							$whatAs = $whatAs[1] ?: $what;
 							$options = ArrayPlus::create($options)
 								->IDalize($id, true)
 								->column($whatAs)

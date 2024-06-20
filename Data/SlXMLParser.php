@@ -122,7 +122,7 @@ class slXMLParser
 								//debug(array('original' => $temp, 'plus' => $plus, 'result' => $res[$arr['tag']]));
 							}
 						} else {
-							$res[$arr['tag']] = $plus ? $plus : [];
+							$res[$arr['tag']] = $plus ?: [];
 						}
 					}
 				} elseif ($i != 'tag' && $i != 'value') { // not numbers are attributes

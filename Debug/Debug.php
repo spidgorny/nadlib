@@ -158,7 +158,7 @@ class Debug
 
 	public static function getSimpleTrace($db = null)
 	{
-		$db = $db ? $db : debug_backtrace();
+		$db = $db ?: debug_backtrace();
 		foreach ($db as &$row) {
 			$file = ifsetor($row['file']);
 			$row['file'] = basename(dirname($file)) . '/' . basename($file);

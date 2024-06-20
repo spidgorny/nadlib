@@ -97,7 +97,7 @@ class AjaxLogin extends AppControllerBE
 	public function performAction($action = null)
 	{
 		$content = [];
-		$action = $action ? $action : $this->action;
+		$action = $action ?: $this->action;
 		if ($action) {
 			if (in_array($action, $this->allowedActions) || $this->user->isAuth()) {
 				try {

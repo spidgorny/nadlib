@@ -230,11 +230,11 @@ class URL
 	public function getPath()
 	{
 		$path = $this->path;
-		if (!$path instanceof \Path) {
+		if (!$path instanceof Path) {
 			debug(gettype($path), get_class($path), get_object_vars($path));
 			debug_pre_print_backtrace();
 		}
-		assert($path instanceof \Path);
+		assert($path instanceof Path);
 		if ($this->documentRoot !== '/') {
 			//$path = str_replace($this->documentRoot, '', $path);	// WHY???
 		}
@@ -391,7 +391,7 @@ class URL
 
 	public function getRequest()
 	{
-		$r = new Request($this->params ? $this->params : []);
+		$r = new Request($this->params ?: []);
 		$r->url = $this;
 		return $r;
 	}

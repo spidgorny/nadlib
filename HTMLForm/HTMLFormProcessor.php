@@ -139,7 +139,7 @@ abstract class HTMLFormProcessor extends AppControllerBE
 	public function getForm(HTMLFormTable $preForm = null)
 	{
 		TaylorProfiler::start(__METHOD__);
-		$f = $preForm ? $preForm : $this->form;
+		$f = $preForm ?: $this->form;
 		if ($this->ajax) {
 			$f->formMore['onsubmit'] = "return ajaxSubmitForm(this);";
 		}
