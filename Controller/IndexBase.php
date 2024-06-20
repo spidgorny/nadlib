@@ -427,7 +427,7 @@ class IndexBase /*extends Controller*/
 	 */
 	public function renderException(Exception $e)
 	{
-		llog(__METHOD__, get_class($e), $e->getMessage());
+		llog(__METHOD__, get_class($e), $e->getMessage(), explode(PHP_EOL, $e->getTraceAsString()));
 		if ($this->request->isCLI()) {
 			echo get_class($e),
 			' #', $e->getCode(),

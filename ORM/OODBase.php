@@ -229,7 +229,7 @@ abstract class OODBase
 	public function insert(array $data)
 	{
 		TaylorProfiler::start(__METHOD__);
-		$this->log(get_called_class() . '::' . __FUNCTION__, $data);
+		$this->log(static::class . '::' . __FUNCTION__, $data);
 		//$data['ctime'] = new SQLNow();
 		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
@@ -251,7 +251,7 @@ abstract class OODBase
 		}
 
 		if ($id) {
-			$this->init($id ? $id : $this->id);
+			$this->init($id ?: $this->id);
 		} else {
 			//debug($this->lastQuery, $this->db->lastQuery);
 			$errorMessage = 'OODBase for ' . $this->table . ' no insert id after insert. ';

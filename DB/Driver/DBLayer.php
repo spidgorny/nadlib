@@ -664,16 +664,14 @@ class DBLayer extends DBLayerBase
 	public function getFirstRow($query)
 	{
 		$result = $this->perform($query);
-		$row = pg_fetch_assoc($result);
-		return $row;
+		return pg_fetch_assoc($result);
 	}
 
 	public function getFirstValue($query)
 	{
 		$result = $this->perform($query);
 		$row = pg_fetch_row($result);
-		$value = $row[0];
-		return $value;
+		return $row[0];
 	}
 
 	public function numRows($query = null)
@@ -687,13 +685,15 @@ class DBLayer extends DBLayerBase
 	public function getLastInsertID($res = null, $table = 'not required since 8.1')
 	{
 		$pgv = pg_version();
-		if ($pgv['server'] >= 8.1) {
-			$id = $this->lastval();
-		} else {
-			$oid = pg_last_oid($res);
-			$id = $this->sqlFind('id', $table, "oid = '" . $oid . "'");
+//		llog('pg_version', $pgv);
+		if ((float)$pgv['server'] >= 8.1) {
+			return $this->lastval();
 		}
-		return $id;
+
+		throw new RuntimeException('Upgrade PostgreSQL to 8.1 or higher');
+//		$oid = pg_last_oid($res);
+//		$id = $this->sqlFind('id', $table, "oid = '" . $oid . "'");
+//		return $id;
 	}
 
 	/**
@@ -711,8 +711,7 @@ class DBLayer extends DBLayerBase
 	{
 		$res = $this->perform('SELECT LASTVAL() AS lastval');
 		$row = $this->fetchAssoc($res);
-		$lv = $row['lastval'];
-		return $lv;
+		return $row['lastval'];
 	}
 
 	public function getComment($table, $column)
