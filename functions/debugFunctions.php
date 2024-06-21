@@ -335,7 +335,7 @@ if (!function_exists('invariant')) {
 		if ($format_str instanceof Exception) {
 			throw $format_str;
 		}
-		throw new RuntimeException($format_str ?? 'Invariant failed', ...$args);
+		throw new RuntimeException($format_str ? vsprintf($format_str, $args) : 'Invariant failed');
 	}
 }
 
