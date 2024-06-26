@@ -360,7 +360,7 @@ class IndexBase /*extends Controller*/
 		TaylorProfiler::start(__METHOD__);
 		$content = '';
 		$method = PHP_SAPI === 'cli' ? $this->getMethodFromCli() : $this->getMethodFromWeb();
-		llog('method', $method);
+//		llog('method', $method);
 		if ($method && method_exists($this->controller, $method)) {
 			//echo 'Method: ', $method, BR;
 			//$params = array_slice($_SERVER['argv'], 3);

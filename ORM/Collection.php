@@ -196,7 +196,8 @@ class Collection implements IteratorAggregate, ToStringable
 	public function __construct(
 		$pid = null, /*array/SQLWhere*/
 		$where = [], $order = '', DBInterface $db = null
-	) {
+	)
+	{
 		//$taylorKey = get_class($this).'::'.__FUNCTION__." ({$this->table})";
 		$taylorKey = Debug::getBackLog(5, 0, BR, false);
 		TaylorProfiler::start($taylorKey);
@@ -324,22 +325,25 @@ class Collection implements IteratorAggregate, ToStringable
 	 */
 	public function retrieveData()
 	{
-		$this->log(get_class($this) . '::' . __FUNCTION__, [
+		$method = get_class($this) . '::' . __FUNCTION__;
+		$this->log($method, [
 			'allowMerge' => $this->allowMerge,
+			'collection Where' => json_encode($this->where, JSON_THROW_ON_ERROR)
 		]);
-		$this->log(__METHOD__, 'collection Where' . json_encode($this->where));
 		$cq = $this->getCollectionQuery();
 		$data = $cq->retrieveData();
 		$this->log = array_merge($this->log, $cq->log);
 
-		$this->log(__METHOD__, 'rows: ' . count($data));
-		$this->log(__METHOD__, 'idealize by ' . $this->idField);
+		$this->log($method, [
+			'rows' => count($data),
+			'idealize by' => $this->idField
+		]);
 //		debug_pre_print_backtrace();
 //		debug(get_class($this->db), $isMySQL, $this->query, $data, $this->log);
 		$this->data = ArrayPlus::create($data);
 		//$this->log(__METHOD__, $this->data->pluck('id'));
 		$this->data->IDalize($this->idField, $this->allowMerge);
-		$this->log(__METHOD__, 'rows: ' . count($this->data));
+		$this->log($method, ['rows after idealize' => count($this->data)]);
 	}
 
 	public function getQueryWithLimit()
@@ -364,7 +368,7 @@ class Collection implements IteratorAggregate, ToStringable
 //		$this->log('getQueryWithLimit', $this->getQueryWithLimit().'');
 		$queryIsTheSame = ($this->query . '') === ($this->getQueryWithLimit() . '');
 		if ($this->count !== null && $queryIsTheSame) {
-			return intval($this->count);
+			return (int)$this->count;
 		}
 		$this->query = $this->getQueryWithLimit();     // will init pager
 		if ($this->pager && $this->pager->numberOfRecords) {
@@ -375,7 +379,7 @@ class Collection implements IteratorAggregate, ToStringable
 			$this->count = $counter->getCount();
 		}
 		$this->log(get_class($this) . '::' . __FUNCTION__, ['exit', $this->count]);
-		return intval($this->count);
+		return (int)$this->count;
 	}
 
 	/**
@@ -387,9 +391,12 @@ class Collection implements IteratorAggregate, ToStringable
 	 */
 	public function preprocessData()
 	{
+		if ($this->processed) {
+			return $this->data;
+		}
 		$profiler = get_class($this) . '::' . __FUNCTION__ . " ({$this->table}): " . $this->getCount();
 		TaylorProfiler::start($profiler);
-		$this->log(get_class($this) . '::' . __FUNCTION__ . '()');
+//		$this->log(get_class($this) . '::' . __FUNCTION__ . '()');
 		if (!$this->processed) {
 			$count = $this->getCount();
 			// Iterator by reference
@@ -398,11 +405,11 @@ class Collection implements IteratorAggregate, ToStringable
 				$row = $this->preprocessRow($row);
 			}
 			$this->data->setData($data);
-			$this->log(__METHOD__, 'rows: ' . count($this->data));
+//			$this->log(__METHOD__, 'rows: ' . count($this->data));
 			$this->processed = true;
 			$this->count = $count;
 		}
-		$this->log(get_class($this) . '::' . __FUNCTION__ . '() done');
+//		$this->log(get_class($this) . '::' . __FUNCTION__ . '() done');
 		TaylorProfiler::stop($profiler);
 		return $this->data;    // return something else if you augment $this->data
 	}
@@ -429,17 +436,21 @@ class Collection implements IteratorAggregate, ToStringable
 
 	public function getProcessedData()
 	{
+		llog('$this->processed', $this->processed);
 		if ($this->processed) {
 			return $this->data;
 		}
 
+		llog('$this->data', (bool)$this->data);
 		if ($this->data) {
 			$this->preprocessData();
 			return $this->data;
 		}
 
 		$this->getData();
+		llog('count($this->data) after getData', count($this->data));
 		$this->preprocessData();
+		llog('count($this->data) after processing', count($this->data));
 		return $this->data;
 	}
 
@@ -549,25 +560,27 @@ class Collection implements IteratorAggregate, ToStringable
 	public function renderList()
 	{
 		$list = [];
-		if ($this->getCount()) {
-			foreach ($this->getProcessedData() as $id => $row) {
-				if ($this->itemClassName) {
-					$list[$id] = $this->renderListItem($row);
-				} else
-					if ($this->thes) {
-						$row = $this->prepareRenderRow($row);   // add link
-						$item = '';
-						foreach ($this->thes as $key => $_) {
-							$item .= $row[$key] . ' ';
-						}
-						$list[$id] = $item;
-					} else {
-						$list[$id] = $row[$this->titleColumn];
-					}
-			}
-			return new UL($list);
+		if (!$this->getCount()) {
+			return null;
 		}
-		return null;
+
+		llog('$this->getProcessedData()', $this->getProcessedData()->count());
+		foreach ($this->getProcessedData() as $id => $row) {
+			if ($this->itemClassName) {
+				$list[$id] = $this->renderListItem($row);
+			} else
+				if ($this->thes) {
+					$row = $this->prepareRenderRow($row);   // add link
+					$item = '';
+					foreach ($this->thes as $key => $_) {
+						$item .= $row[$key] . ' ';
+					}
+					$list[$id] = $item;
+				} else {
+					$list[$id] = $row[$this->titleColumn];
+				}
+		}
+		return new UL($list);
 	}
 
 	public function renderListItem(array $row)
@@ -921,7 +934,7 @@ class Collection implements IteratorAggregate, ToStringable
 			sha1(json_encode($this->select)),
 			$this->pager ? spl_object_hash($this->pager) : '',
 		]);
-		$this->log(__METHOD__, substr(sha1($hash), 0, 6) . json_encode($this->where));
+		$this->log(__METHOD__, substr(sha1($hash), 0, 6) . json_encode($this->where, JSON_THROW_ON_ERROR));
 		if (!ifsetor($cq[$hash])) {
 			$cq[$hash] = new CollectionQuery(
 				$this->db,
