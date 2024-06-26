@@ -329,10 +329,9 @@ class IndexBase /*extends Controller*/
 		return $content;
 	}
 
-	public function renderController()
+	public function getMethodFromCli()
 	{
-		TaylorProfiler::start(__METHOD__);
-		$content = '';
+		llog('argv', $_SERVER['argv']);
 		$notOptions = array_filter(
 			array_slice(
 				ifsetor($_SERVER['argv'], []),
@@ -345,10 +344,23 @@ class IndexBase /*extends Controller*/
 				return $el[0] !== '-';    // --options
 			}
 		);
-//		llog('notOptions', $notOptions);
+		llog('notOptions', $notOptions);
 		// $notOptions[0] is the controller
-		$method = ifsetor($notOptions[1], 'render');
-//		llog('method', $method);
+		return ifsetor($notOptions[1], 'render');
+	}
+
+	public function getMethodFromWeb()
+	{
+		$method = ifsetor($_REQUEST['action']);
+		return $method ? $method . 'Action' : 'render';
+	}
+
+	public function renderController()
+	{
+		TaylorProfiler::start(__METHOD__);
+		$content = '';
+		$method = PHP_SAPI === 'cli' ? $this->getMethodFromCli() : $this->getMethodFromWeb();
+		llog('method', $method);
 		if ($method && method_exists($this->controller, $method)) {
 			//echo 'Method: ', $method, BR;
 			//$params = array_slice($_SERVER['argv'], 3);
@@ -358,7 +370,7 @@ class IndexBase /*extends Controller*/
 			//$content = $this->controller->$method();
 		} elseif (!is_numeric($method)) {    // this is a parameter
 			$content = $this->renderException(
-				new InvalidArgumentException('Method ' . $method . ' is not callable on ' . get_class($this->controller))
+				new InvalidArgumentException('Method [' . $method . '] is not callable on ' . get_class($this->controller))
 			);
 		}
 		$content = $this->s($content);

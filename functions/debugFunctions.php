@@ -100,10 +100,10 @@ if (!function_exists('d')) {
 	{
 		if (PHP_SAPI !== 'cli') {
 			echo '<pre class="pre_print_r" style="white-space: pre-wrap;">';
-			print_r(func_num_args() === 1 ? $a : func_get_args());
+			print_r(func_num_args() === 1 ? $a[0] : func_get_args());
 			echo '</pre>';
 		} else {
-			print_r(func_num_args() === 1 ? $a : func_get_args());
+			print_r(func_num_args() === 1 ? $a[0] : func_get_args());
 			echo PHP_EOL;
 		}
 	}
