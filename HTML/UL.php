@@ -61,8 +61,7 @@ class UL implements ToStringable
 	public function render()
 	{
 		$out = $this->withoutUL();
-		$content = $this->before . implode("\n", $out) . $this->after;
-		return $content;
+		return $this->before . implode("\n", $out) . $this->after;
 	}
 
 	public function withoutUL()

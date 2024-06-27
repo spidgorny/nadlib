@@ -226,11 +226,11 @@ abstract class SimpleController
 			}
 		}
 
-		llog('SimpleController->performAction', [
-			'class' => get_class($this),
-			'action' => $method,
-			'exists' => method_exists($proxy, $method)
-		]);
+//		llog('SimpleController->performAction', [
+//			'class' => get_class($this),
+//			'action' => $method,
+//			'exists' => method_exists($proxy, $method)
+//		]);
 		if (!method_exists($proxy, $method)) {
 //				llog($method, 'does not exist in', get_class($this));
 			// other classes except main controller may result in multiple messages

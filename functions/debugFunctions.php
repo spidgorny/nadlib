@@ -319,7 +319,10 @@ function invariant($value, $message = null)
 	}
 }
 
-function llog(...$vars)
+/**
+ * @throws JsonException
+ */
+function llog(...$args)
 {
 	$caller = Debug::getCaller();
 	$jsonOptions = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
@@ -333,23 +336,24 @@ function llog(...$vars)
 			return trim(strip_tags(typ($el)));
 		}
 		return $el;
-	}, $vars);
+	}, $args);
 
 	if (count($vars) === 1) {
 		$output = json_encode([
-			'type' => gettype(first($vars)),
+			'type' => get_debug_type(first($args)),
 			'value' => first($vars)
-		], $jsonOptions);
+		], JSON_THROW_ON_ERROR | $jsonOptions);
 	} else {
-		$output = json_encode($vars, $jsonOptions);
+		$output = json_encode($vars, JSON_THROW_ON_ERROR | $jsonOptions);
 	}
 	if (strlen($output) > 80) {
 		$output = json_encode(count($vars) === 1
 			? [
-				'type' => gettype(first($vars)),
+				'type' => get_debug_type(first($args)),
 				'value' => first($vars)
-			] : $vars, $jsonOptions | JSON_PRETTY_PRINT);
+			] : $vars, JSON_THROW_ON_ERROR | $jsonOptions | JSON_PRETTY_PRINT);
 	}
 
+	/** @noinspection ForgottenDebugOutputInspection */
 	error_log($caller . ' ' . $output);
 }
