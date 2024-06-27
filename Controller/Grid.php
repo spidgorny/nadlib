@@ -11,7 +11,7 @@ abstract class Grid extends AppController
 	protected $collection;
 
 	/**
-	 * @var OODBase
+	 * @var OODBase|null
 	 */
 	public $model;
 

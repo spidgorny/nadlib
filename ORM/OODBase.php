@@ -7,7 +7,7 @@ require_once __DIR__ . '/CachedGetInstance.php';
 
 /**
  * This class is the base class for all classes based on OOD. It contains only things general to all descendants.
- * It contain all the information from the database related to the project as well as methods to manipulate it.
+ * It contains all the information from the database related to the project as well as methods to manipulate it.
  *
  */
 abstract class OODBase
@@ -272,57 +272,12 @@ abstract class OODBase
 	 * Updates current record ($this->id)
 	 *
 	 * @param array $data
-	 * @return resource result from the runUpdateQuery
+	 * @return PDOStatement|false result from the runUpdateQuery
 	 * @throws Exception
 	 */
 	public function update(array $data)
 	{
-		if ($this->id) {
-			TaylorProfiler::start(__METHOD__);
-			$action = get_called_class() . '::' . __FUNCTION__ . '(id: ' . json_encode($this->id) . ')';
-			$this->log($action, $data);
-			$where = [];
-			if (is_array($this->idField)) {
-				foreach ($this->idField as $field) {
-					$where[$field] = $this->data[$field];
-				}
-			} else {
-				$where[$this->idField] = $this->id;
-			}
-
-			if (!$this->db) {
-				debug_pre_print_backtrace();
-				debug(gettypes(get_object_vars($this)));
-			}
-
-			$query = $this->db->getUpdateQuery($this->table, $data, $where);
-			//debug($query);
-			//echo $query, BR;
-			$this->lastQuery = $query;
-			$res = $this->db->perform($query);
-			//debug($query, $res, $this->db->lastQuery, $this->id);
-			$this->lastQuery = $this->db->lastQuery;    // save before commit
-			// If the input arrays have the same string keys,
-			// then the later value for that key will overwrite the previous one.
-			//$this->data = array_merge($this->data, $data);
-
-			// may lead to infinite loop
-			//$this->init($this->id);
-			// will call init($fromFindInDB = true)
-			if (is_array($this->idField)) {
-				if (is_array($this->id)) {
-					$this->findInDB($this->id);
-				} else {
-					debug_pre_print_backtrace();
-					throw new RuntimeException(__METHOD__ . ':' . __LINE__);
-				}
-			} else {
-				$this->findInDB([
-					$this->idField => $this->id,
-				]);
-			}
-			TaylorProfiler::stop(__METHOD__);
-		} else {
+		if (!$this->id) {
 			//$this->db->rollback();
 			debug_pre_print_backtrace();
 			$msg = __(
@@ -330,8 +285,53 @@ abstract class OODBase
 				$this->table,
 				$this->idField
 			);
-			throw new Exception($msg);
+			throw new DatabaseException($msg);
 		}
+
+		TaylorProfiler::start(__METHOD__);
+		$action = static::class . '::' . __FUNCTION__ . '(id: ' . json_encode($this->id, JSON_THROW_ON_ERROR) . ')';
+		$this->log($action, $data);
+		$where = [];
+		if (is_array($this->idField)) {
+			foreach ($this->idField as $field) {
+				$where[$field] = $this->data[$field];
+			}
+		} else {
+			$where[$this->idField] = $this->id;
+		}
+
+		if (!$this->db) {
+			debug_pre_print_backtrace();
+			debug(gettypes(get_object_vars($this)));
+		}
+
+		$query = $this->db->getUpdateQuery($this->table, $data, $where);
+		//debug($query);
+		//echo $query, BR;
+		$this->lastQuery = $query;
+		$res = $this->db->perform($query);
+		//debug($query, $res, $this->db->lastQuery, $this->id);
+		$this->lastQuery = $this->db->lastQuery;    // save before commit
+		// If the input arrays have the same string keys,
+		// then the later value for that key will overwrite the previous one.
+		//$this->data = array_merge($this->data, $data);
+
+		// may lead to infinite loop
+		//$this->init($this->id);
+		// will call init($fromFindInDB = true)
+		if (is_array($this->idField)) {
+			if (is_array($this->id)) {
+				$this->findInDB($this->id);
+			} else {
+				debug_pre_print_backtrace();
+				throw new RuntimeException(__METHOD__ . ':' . __LINE__);
+			}
+		} else {
+			$this->findInDB([
+				$this->idField => $this->id,
+			]);
+		}
+		TaylorProfiler::stop(__METHOD__);
 		return $res;
 	}
 
@@ -502,7 +502,8 @@ abstract class OODBase
 		array $where = [],
 		array $insert = [],
 		array $update = []
-	) {
+	)
+	{
 		TaylorProfiler::start(__METHOD__);
 		//echo get_class($this), '::', __FUNCTION__, ' begin', BR;
 		$this->db->transaction();
@@ -590,8 +591,9 @@ abstract class OODBase
 		array $thes = [
 			'id' => 'ID',
 			'name' => 'Name'
-		], $title = null
-	) {
+		],    $title = null
+	)
+	{
 		$ss = new ShowAssoc($this->data);
 		$ss->setThes($thes);
 		$ss->setTitle($title ?: get_class($this));
@@ -893,12 +895,12 @@ abstract class OODBase
 			return $value;
 		}
 
-		if (is_integer($value)) {
+		if (is_int($value)) {
 			return $value !== 0;
 		}
 
 		if (is_numeric($value)) {
-			return intval($value) !== 0;
+			return (int)$value !== 0;
 		}
 
 		if (is_string($value)) {
@@ -961,4 +963,5 @@ abstract class OODBase
 		unset($obj->class);    // special case, see above
 		return $obj;
 	}
+
 }

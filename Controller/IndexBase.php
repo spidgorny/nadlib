@@ -62,7 +62,7 @@ class IndexBase /*extends Controller*/
 	 */
 	protected $config;
 
-	var $csp = [
+	public $csp = [
 		"default-src" => [
 			"'self'",
 			"'unsafe-inline'",
@@ -355,13 +355,20 @@ class IndexBase /*extends Controller*/
 		return $method ? $method . 'Action' : 'render';
 	}
 
+	/**
+	 * @throws ReflectionException
+	 */
 	public function renderController()
 	{
 		TaylorProfiler::start(__METHOD__);
 		$content = '';
 		$method = PHP_SAPI === 'cli' ? $this->getMethodFromCli() : $this->getMethodFromWeb();
 //		llog('method', $method);
-		if ($method && method_exists($this->controller, $method)) {
+
+		// delegate the decision which action to call to the controller
+		if ($method && method_exists($this->controller, 'performAction')) {
+			$content = $this->controller->performAction($method);
+		} elseif ($method && method_exists($this->controller, $method)) {
 			//echo 'Method: ', $method, BR;
 			//$params = array_slice($_SERVER['argv'], 3);
 			//debug($this->request->getAll());
@@ -370,7 +377,8 @@ class IndexBase /*extends Controller*/
 			//$content = $this->controller->$method();
 		} elseif (!is_numeric($method)) {    // this is a parameter
 			$content = $this->renderException(
-				new InvalidArgumentException('Method [' . $method . '] is not callable on ' . get_class($this->controller))
+				new InvalidArgumentException('Method [' . $method . '] is not callable on ' .
+					get_class($this->controller))
 			);
 		}
 		$content = $this->s($content);
