@@ -362,13 +362,19 @@ class IndexBase /*extends Controller*/
 	{
 		TaylorProfiler::start(__METHOD__);
 		$content = '';
-		$method = PHP_SAPI === 'cli' ? $this->getMethodFromCli() : $this->getMethodFromWeb();
+		$method = PHP_SAPI === 'cli'
+			? $this->getMethodFromCli()
+//			: $this->getMethodFromWeb();
+			: 'render';  // controller's render() should deal with performAction
 //		llog('method', $method);
 
 		// delegate the decision which action to call to the controller
-		if ($method && method_exists($this->controller, 'performAction')) {
-			$content = $this->controller->performAction($method);
-		} elseif ($method && method_exists($this->controller, $method)) {
+		// this makes render() function not working
+//		if ($method && method_exists($this->controller, 'performAction')) {
+//			$content = $this->controller->performAction($method);
+//		} else
+
+		if ($method && method_exists($this->controller, $method)) {
 			//echo 'Method: ', $method, BR;
 			//$params = array_slice($_SERVER['argv'], 3);
 			//debug($this->request->getAll());
