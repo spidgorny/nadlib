@@ -356,10 +356,10 @@ class Request
 			$docRoot = substr(dirname($script), $pos);
 			$docRoot = str_replace('public_html', '~depidsvy', $docRoot);
 			return $docRoot;
-		} else {
-			$docRoot = dirname($_SERVER['PHP_SELF']);
-			return $docRoot;
 		}
+
+		$docRoot = dirname($_SERVER['PHP_SELF']);
+		return $docRoot;
 	}
 
 	public static function getDocumentRootByIsDir()
@@ -381,9 +381,9 @@ class Request
 	{
 		if ($path[strlen($path) - 1] == '/') {
 			return substr($path, 0, -1);
-		} else {
-			return dirname($path);
 		}
+
+		return dirname($path);
 	}
 
 	public static function firstExistingDir($path)
@@ -392,7 +392,9 @@ class Request
 		//		error_log($check);
 		if (is_dir($check)) {
 			return cap(rtrim($path, '\\'), '/');
-		} elseif ($path) {
+		}
+
+		if ($path) {
 			//echo $path, BR;
 			return self::firstExistingDir(self::dir_of_file($path));
 		} else {
@@ -409,9 +411,9 @@ class Request
 	{
 		if (ifsetor($_SERVER['SCRIPT_FILENAME'])) {
 			return $__FILE__ == $_SERVER['SCRIPT_FILENAME'];
-		} else {
-			throw new Exception(__METHOD__);
 		}
+
+		throw new Exception(__METHOD__);
 	}
 
 	public static function isLocalhost()
@@ -845,7 +847,8 @@ class Request
 	public function redirectJS(
 		$controller, $delay = 0, $message =
 	'Redirecting to %1'
-	) {
+	)
+	{
 		echo __($message, '<a href="' . $controller . '">' . $controller . '</a>') . '
 			<script>
 				setTimeout(function () {
@@ -1326,9 +1329,9 @@ class Request
 	{
 		if (isset($HTTP_RAW_POST_DATA)) {
 			return $HTTP_RAW_POST_DATA;
-		} else {
-			return file_get_contents("php://input");
 		}
+
+		return file_get_contents("php://input");
 	}
 
 	public function forceDownload($contentType, $filename)
@@ -1445,6 +1448,7 @@ class Request
 					header('Redirect-From-' . $ii . ': ' . $line);
 				}
 
+				header('X-Memory: ' . memory_get_usage() . '/' . memory_get_peak_usage());
 				header('Location: ' . $controller);
 			}
 			echo '<meta http-equiv="refresh" content="0; url=' . $controller . '">';
@@ -1467,14 +1471,14 @@ class Request
 			$absURL->makeAbsolute();
 			//debug($absURL.'', $to.''); exit();
 			return $absURL . '' != $to . '';
-		} else {
-			return true;
 		}
+
+		return true;
 	}
 
 	public function isGET()
 	{
-		return ifsetor($_SERVER['REQUEST_METHOD'], 'GET') == 'GET';
+		return ifsetor($_SERVER['REQUEST_METHOD'], 'GET') === 'GET';
 	}
 
 	/**
