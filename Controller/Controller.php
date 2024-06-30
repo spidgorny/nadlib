@@ -234,44 +234,6 @@ abstract class Controller extends SimpleController
 		return $content;
 	}
 
-	public function performAction($action = null)
-	{
-		$content = '';
-		if ($this->request->isCLI()) {
-			//debug($_SERVER['argv']);
-			$reqAction = ifsetor($_SERVER['argv'][2]);    // it was 1
-		} else {
-			$reqAction = $this->request->getTrim('action');
-		}
-//		debug($reqAction);
-		$method = $action
-			?: (!empty($reqAction) ? $reqAction : 'index');
-		if ($method) {
-			$method .= 'Action';        // ZendFramework style
-//			debug($method, method_exists($this, $method));
-
-			if ($proxy = $this->request->getTrim('proxy')) {
-				$proxy = new $proxy($this);
-			} else {
-				$proxy = $this;
-			}
-
-			if (method_exists($proxy, $method)) {
-				if ($this->request->isCLI()) {
-					$assoc = array_slice(ifsetor($_SERVER['argv'], []), 3);
-					$content = call_user_func_array([$proxy, $method], $assoc);
-				} else {
-					$caller = new MarshalParams($proxy);
-					$content = $caller->call($method);
-				}
-			} else {
-				// other classes except main controller may result in multiple messages
-//				Index::getInstance()->message('Action "'.$method.'" does not exist in class "'.get_class($this).'".');
-			}
-		}
-		return $content;
-	}
-
 	public function preventDefault()
 	{
 		$this->noRender = true;

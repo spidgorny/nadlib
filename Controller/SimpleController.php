@@ -152,42 +152,57 @@ abstract class SimpleController
 
 	public function render()
 	{
-		$content[] = $this->performAction();
-		return $content;
+		return $this->performAction();
 	}
 
 	/**
 	 * Will call indexAction() method if no $action provided
-	 * @param $action
+	 * @param string|null $action
 	 * @return false|mixed|string
 	 * @throws ReflectionException
 	 */
 	public function performAction($action = null)
 	{
 		$content = '';
-		$method = $action ?? $this->detectAction();
-		if ($method) {
-			$method .= 'Action';        // ZendFramework style
-			//			debug($method, method_exists($this, $method));
+		$method = $action ?: $this->detectAction();
+		if (!$method) {
+			return $content;
+		}
 
-			$proxy = $this->request->getTrim('proxy');
-			if ($proxy) {
-				$proxy = new $proxy($this);
-			} else {
-				$proxy = $this;
-			}
+		$method .= 'Action';        // ZendFramework style
+		//			debug($method, method_exists($this, $method));
 
-			// other classes except main controller may result in multiple messages
-			if (method_exists($proxy, $method)) {
-				if (Request::isCLI()) {
-					$assoc = array_slice(ifsetor($_SERVER['argv'], []), 3);
-					$content = call_user_func_array([$proxy, $method], $assoc);
-				} else {
-					$caller = new MarshalParams($proxy);
-					$content = $caller->call($method);
-				}
+		$proxy = $this;
+		// used to call an $action on PrepareGive, PrepareBurn instead of direct PrepareRequest class
+		$proxyClassName = $this->request->getTrim('proxy');
+		if ($proxyClassName) {
+			if (get_class($this) === $this->request->getTrim('proxyOf')) {
+				$proxy = new $proxyClassName($this);
 			}
 		}
+
+//		llog('SimpleController->performAction', [
+//			'class' => get_class($this),
+//			'proxy' => get_class($proxy),
+//			'action' => $action,
+//			'method' => $method,
+//			'exists' => method_exists($proxy, $method)
+//		]);
+		if (!method_exists($proxy, $method)) {
+//				llog($method, 'does not exist in', get_class($this));
+			// other classes except main controller may result in multiple messages
+//				Index::getInstance()->message('Action "'.$method.'" does not exist in class "'.get_class($this).'".');
+			return $content;
+		}
+
+		if (Request::isCLI()) {
+			$assoc = array_slice(ifsetor($_SERVER['argv'], []), 3);
+			$content = call_user_func_array([$proxy, $method], $assoc);
+		} else {
+			$caller = new MarshalParams($proxy);
+			$content = $caller->call($method);
+		}
+
 		return $content;
 	}
 
@@ -195,12 +210,13 @@ abstract class SimpleController
 	{
 		if (Request::isCLI()) {
 			//debug($_SERVER['argv']);
-			$reqAction = ifsetor($_SERVER['argv'][2]);    // it was 1
-		} else {
-			$reqAction = $this->request->getTrim('action');
+			llog('iscli', true);
+			return ifsetor($_SERVER['argv'][2]);    // it was 1
 		}
-		//		debug($reqAction);
-		return $reqAction;
+
+		$action = $this->request->getTrim('action');
+		$secondSlug = $this->request->getNameless(1);
+		return $action ?: $secondSlug ?: 'index';
 	}
 
 	/**
