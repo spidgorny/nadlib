@@ -27,6 +27,7 @@ class JSONResponse
 		}
 		$duration = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
 
+		llog('this->json', $this->json);
 		if (is_object($this->json)) {
 			$json = get_object_vars($this->json);
 		} else {
@@ -38,6 +39,7 @@ class JSONResponse
 		$json = json_encode($json + [
 					'duration' => $duration,
 				], $options) . '';
+		llog($json);
 		header('Content-Type: application/json');
 		return $json;
 	}

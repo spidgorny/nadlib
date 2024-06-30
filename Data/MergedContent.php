@@ -39,7 +39,7 @@ class MergedContent implements ArrayAccess
 		}
 
 		if (is_object($render)) {
-			return $render;
+			return $render->__toString();
 		}
 
 		return (new static($render))->getContent();
@@ -52,7 +52,7 @@ class MergedContent implements ArrayAccess
 
 	public function mergeStringArrayRecursiveMethod($render)
 	{
-		TaylorProfiler::start(__METHOD__);
+		llog(__METHOD__, $render);
 		if (is_array($render)) {
 			array_walk_recursive($render, [$this, 'walkMergeArray']);
 			$arrayOfObjects = $this->combined;
@@ -71,7 +71,6 @@ class MergedContent implements ArrayAccess
 		} else {
 			$render = $render . '';    // just in case
 		}
-		TaylorProfiler::stop(__METHOD__);
 		return $render;
 	}
 
