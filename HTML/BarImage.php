@@ -69,7 +69,7 @@ class BarImage
 
 	public function drawRating($rating)
 	{
-		$ratingbar = ($rating / 100) * ($this->width - 5);
+		$ratingbar = (int)(($rating / 100) * ($this->width - 5));
 		$barDX = 2;
 		$image = imagecreate($this->width, $this->height);
 
