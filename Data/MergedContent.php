@@ -52,7 +52,6 @@ class MergedContent implements ArrayAccess
 
 	public function mergeStringArrayRecursiveMethod($render)
 	{
-		llog(__METHOD__, $render);
 		if (is_array($render)) {
 			array_walk_recursive($render, [$this, 'walkMergeArray']);
 			$arrayOfObjects = $this->combined;
