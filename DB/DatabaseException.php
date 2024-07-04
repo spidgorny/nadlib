@@ -3,14 +3,14 @@
 class DatabaseException extends Exception
 {
 
-	var $query;
+	public $query;
 
-	function setQuery($q)
+	public function setQuery($q)
 	{
 		$this->query = $q;
 	}
 
-	function getQuery()
+	public function getQuery()
 	{
 		return $this->query;
 	}

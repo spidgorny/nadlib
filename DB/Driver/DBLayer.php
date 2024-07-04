@@ -195,7 +195,7 @@ class DBLayer extends DBLayerBase
 		try {
 			if ($params) {
 				$ok = pg_prepare($this->connection, '', $query);
-				if (!is_resource($ok)) {
+				if (!$ok) {
 					throw new DatabaseException($query . ' can not be prepared');
 				}
 				$this->LAST_PERFORM_RESULT = pg_execute($this->connection, '', $params);
@@ -217,11 +217,7 @@ class DBLayer extends DBLayerBase
 				? pg_result_error($this->LAST_PERFORM_RESULT)
 				: '';
 			$e = new DatabaseException(
-				'[' . $e->getCode() . '] ' . $e->getMessage() . BR .
-				//pg_errormessage($this->connection).BR.
-				'Error' . $errorMessage . BR .
-				$query,
-				$e->getCode()
+				get_class($e) .' [' . $e->getCode() . '] ' . $e->getMessage()
 			);
 			$e->setQuery($query);
 			throw $e;
