@@ -21,19 +21,8 @@ class File
 	 * @var \League\Flysystem\Filesystem
 	 */
 	public $fly;
-	/**
-	 * @var array[
-	 * 'type'=>'file',
-	 * 'path'=>'asd.ext',
-	 * 'timestamp'=>1234567890
-	 * 'size'=>1234,
-	 * 'dirname'=>string,
-	 * 'basename'=>string,
-	 * 'extension'=>'ext',
-	 * 'filename'=>'asd',
-	 * ]
-	 */
-	public $meta;
+
+	public \League\Flysystem\FileAttributes $meta;
 	/**
 	 * @var string|null the path in the $name is relative to this
 	 */
@@ -84,9 +73,9 @@ class File
 		return $absolute;
 	}
 
-	public static function fromFly(League\Flysystem\Filesystem $fly, array $fileMeta)
+	public static function fromFly(League\Flysystem\Filesystem $fly, \League\Flysystem\FileAttributes $fileMeta)
 	{
-		$file = new static($fileMeta['path']);
+		$file = new static($fileMeta->path());
 		$file->fly = $fly;
 		$file->meta = $fileMeta;
 		return $file;
@@ -130,11 +119,17 @@ class File
 
 	public function size()
 	{
+		if ($this->meta) {
+			return $this->meta->fileSize();
+		}
 		return filesize($this->getPathname());
 	}
 
 	public function time()
 	{
+		if ($this->meta) {
+			return $this->meta->lastModified();
+		}
 		return filemtime($this->getPathname());
 	}
 

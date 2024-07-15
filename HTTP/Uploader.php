@@ -474,4 +474,36 @@ post_max_size: ' . $post_max_size . '">' .
 		return $message;
 	}
 
+	/**
+	 * @see https://www.php.net/manual/en/reserved.variables.files.php
+	 * @return Array<{name: string, type: string, tmp_name: string; error: number; size: number}>
+	 */
+	public function incoming_files()
+	{
+		$files = $_FILES;
+		$files2 = [];
+		foreach ($files as $input => $infoArr) {
+			$filesByInput = [];
+			if (is_array($infoArr['name'])) {
+				foreach ($infoArr as $key => $valueArr) {
+					foreach ($valueArr as $i => $value) {
+						$filesByInput[$i][$key] = $value;
+					}
+				}
+				$files2 = array_merge($files2, $filesByInput);
+			} else {
+				$files2 = $infoArr;
+			}
+		}
+
+		$files3 = [];
+		foreach ($files2 as $file) { // let's filter empty & errors
+			if (!$file['error']) {
+				$files3[] = (object)$file;
+			}
+		}
+		return $files3;
+	}
+
+
 }

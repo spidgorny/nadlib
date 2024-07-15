@@ -231,7 +231,7 @@ class Linker
 	public function makeActionURL($action = '', array $params = [], $path = '')
 	{
 		$urlParams = [
-				'c' => $this->controllerName,
+				'c' => $params['c'] ?? $this->controllerName,
 				'action' => $action,
 			] + $params;
 		$urlParams = array_filter($urlParams);
