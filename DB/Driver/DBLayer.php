@@ -180,7 +180,6 @@ class DBLayer extends DBLayerBase
 //		llog(str_replace("\n", " ",			str_replace("\t", " ", $query)));
 		$prof = new Profiler();
 
-		$this->reportIfLastQueryFailed();
 		$this->lastQuery = $query;
 		if (!$this->connection) {
 			throw new DatabaseException('No connection in ' . __METHOD__);
@@ -211,11 +210,12 @@ class DBLayer extends DBLayerBase
 			if ($this->logToLog) {
 				llog($query . '' . ' => ' . $this->LAST_PERFORM_RESULT);
 			}
+//			$this->reportIfLastQueryFailed();
 		} catch (Exception $e) {
 			//debug($e->getMessage(), $query);
-			$errorMessage = is_resource($this->LAST_PERFORM_RESULT)
-				? pg_result_error($this->LAST_PERFORM_RESULT)
-				: '';
+//			$errorMessage = is_resource($this->LAST_PERFORM_RESULT)
+//				? pg_result_error($this->LAST_PERFORM_RESULT)
+//				: '';
 			$e = new DatabaseException(
 				get_class($e) .' [' . $e->getCode() . '] ' . $e->getMessage()
 			);
@@ -257,11 +257,11 @@ class DBLayer extends DBLayerBase
 			debug($query);
 			debug_pre_print_backtrace();
 			throw new Exception(pg_errormessage($this->connection) . BR . $query);
-		} else {
-			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
-			if ($this->queryLog) {
-				$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS);
-			}
+		}
+
+		$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
+		if ($this->queryLog) {
+			$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS);
 		}
 		$this->queryCount++;
 		return $this->LAST_PERFORM_RESULT;
@@ -280,16 +280,15 @@ class DBLayer extends DBLayerBase
 		$meta = pg_meta_data($this->connection, $table);
 		if (is_array($meta)) {
 			return array_keys($meta);
-		} else {
-			error("Table not found: <strong>$table</strong>");
-			exit();
 		}
+
+		error("Table not found: <strong>$table</strong>");
+		exit();
 	}
 
 	public function getTableColumnsEx($table)
 	{
-		$meta = pg_meta_data($this->connection, $table);
-		return $meta;
+		return pg_meta_data($this->connection, $table);
 	}
 
 	public function getTableColumnsCached($table)
@@ -335,10 +334,10 @@ class DBLayer extends DBLayerBase
 				$return[$col] = $m['type'];
 			}
 			return $return;
-		} else {
-			error("Table not found: <strong>$table</strong>");
-			exit();
 		}
+
+		error("Table not found: <strong>$table</strong>");
+		exit();
 	}
 
 	public function getTableDataEx($table, $where = "", $what = "*")
@@ -347,8 +346,7 @@ class DBLayer extends DBLayerBase
 		if (!empty($where)) {
 			$query .= " where $where";
 		}
-		$result = $this->fetchAll($query);
-		return $result;
+		return $this->fetchAll($query);
 	}
 
 	/**
@@ -653,8 +651,7 @@ class DBLayer extends DBLayerBase
 	public function getAllRows($query)
 	{
 		$result = $this->perform($query);
-		$data = $this->fetchAll($result);
-		return $data;
+		return $this->fetchAll($result);
 	}
 
 	public function getFirstRow($query)
@@ -766,9 +763,9 @@ order by a.attnum';
 	{
 		if (method_exists($this->getQb(), $method)) {
 			return call_user_func_array([$this->getQb(), $method], $params);
-		} else {
-			throw new Exception('Method ' . __CLASS__ . '::' . $method . ' doesn\'t exist.');
 		}
+
+		throw new Exception('Method ' . __CLASS__ . '::' . $method . ' doesn\'t exist.');
 	}
 
 	/**
@@ -960,23 +957,23 @@ WHERE ccu.table_name='" . $table . "'");
 			$q = $this->getReplaceQuery($table, $columns);
 			die($q);
 			return $this->perform($q);
-		} else {
+		}
+
 //			debug($this->isTransaction());
-			//$this->transaction();
+		//$this->transaction();
 //			debug($this->isTransaction());
-			$key_key = array_combine($primaryKeys, $primaryKeys);
-			$where = array_intersect_key($columns, $key_key);
-			$find = $this->runSelectQuery($table, $where);
-			$rows = $this->numRows($find);
+		$key_key = array_combine($primaryKeys, $primaryKeys);
+		$where = array_intersect_key($columns, $key_key);
+		$find = $this->runSelectQuery($table, $where);
+		$rows = $this->numRows($find);
 //			debug($rows, $table, $columns, $where);
 //			exit;
-			if ($rows) {
-				$this->runUpdateQuery($table, $columns, $where);
-			} else {
-				$this->runInsertQuery($table, $columns);
-			}
-			//return $this->commit();
+		if ($rows) {
+			$this->runUpdateQuery($table, $columns, $where);
+		} else {
+			$this->runInsertQuery($table, $columns);
 		}
+		//return $this->commit();
 	}
 
 	public function isTransaction()
