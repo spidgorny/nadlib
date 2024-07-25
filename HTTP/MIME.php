@@ -24,20 +24,23 @@ class MIME
 	 */
 	function get_mime_type($filename)
 	{
-		if (class_exists('finfo')) {
-			$fi = new finfo();
-			$mime = $fi->file($filename, FILEINFO_MIME_TYPE);
-			$this->mimeMethod = 'finfo';
-		} elseif (function_exists('finfo_open')) {
-			$fi = finfo_open(FILEINFO_MIME_TYPE);
-			$mime = finfo_file($fi, $filename);
-			$this->mimeMethod = 'finfo_open';
-		} elseif (function_exists('mime_content_type')) {
-			$mime = mime_content_type($filename);
-			$this->mimeMethod = 'mime_content_type';
-		} else {
-			$mime = $this->get_mime_type_system($filename);
-			$this->mimeMethod = 'get_mime_type_system';
+		$mime = null;
+		if (is_file($filename)) {
+			if (class_exists('finfo')) {
+				$fi = new finfo();
+				$mime = $fi->file($filename, FILEINFO_MIME_TYPE);
+				$this->mimeMethod = 'finfo';
+			} elseif (function_exists('finfo_open')) {
+				$fi = finfo_open(FILEINFO_MIME_TYPE);
+				$mime = finfo_file($fi, $filename);
+				$this->mimeMethod = 'finfo_open';
+			} elseif (function_exists('mime_content_type')) {
+				$mime = mime_content_type($filename);
+				$this->mimeMethod = 'mime_content_type';
+			} else {
+				$mime = $this->get_mime_type_system($filename);
+				$this->mimeMethod = 'get_mime_type_system';
+			}
 		}
 
 		if (!$mime) {

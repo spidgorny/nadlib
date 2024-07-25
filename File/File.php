@@ -1,5 +1,7 @@
 <?php
 
+use League\Flysystem\StorageAttributes;
+
 class File
 {
 
@@ -118,6 +120,10 @@ class File
 
 	public function size()
 	{
+		if ($this->fly) {
+//			llog('meta', $this->meta);
+			return $this->meta[StorageAttributes::ATTRIBUTE_FILE_SIZE];
+		}
 		return filesize($this->getPathname());
 	}
 
