@@ -85,3 +85,11 @@ if (!function_exists('get_overriden_methods')) {
 	}
 
 }
+
+// From Laravel https://github.com/illuminate/support/blob/master/helpers.php#L82
+function strip_namespace($class)
+{
+	$class = is_object($class) ? get_class($class) : $class;
+
+	return basename(str_replace('\\', '/', $class));
+}
