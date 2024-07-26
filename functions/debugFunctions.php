@@ -319,6 +319,10 @@ function invariant($value, $message = null)
 	}
 }
 
+if (!defined('JSON_THROW_ON_ERROR')) {
+	define('JSON_THROW_ON_ERROR', 4194304);
+}
+
 /**
  * @throws JsonException
  */
