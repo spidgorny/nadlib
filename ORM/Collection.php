@@ -436,21 +436,21 @@ class Collection implements IteratorAggregate, ToStringable
 
 	public function getProcessedData()
 	{
-		llog('$this->processed', $this->processed);
+//		llog(get_class($this), Debug::getCaller(5));
 		if ($this->processed) {
 			return $this->data;
 		}
 
-		llog('$this->data', (bool)$this->data);
+//		llog('$this->data', (bool)$this->data);
 		if ($this->data) {
 			$this->preprocessData();
 			return $this->data;
 		}
 
 		$this->getData();
-		llog('count($this->data) after getData', count($this->data));
+//		llog('count($this->data) after getData', count($this->data));
 		$this->preprocessData();
-		llog('count($this->data) after processing', count($this->data));
+//		llog('count($this->data) after processing', count($this->data));
 		return $this->data;
 	}
 
