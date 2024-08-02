@@ -132,7 +132,7 @@ class Pager
 	}
 
 	/**
-	 * @param User|LoginUser $user
+	 * @param UserModelInterface $user
 	 */
 	public function setUser($user)
 	{
