@@ -361,7 +361,10 @@ class Pager
 		$pages = $this->getPagesAround($this->currentPage, $maxpage);
 		//debug($pages, $maxpage);
 		if ($this->currentPage > 0) {
-			$link = $this->url->setParam('Pager_' . $this->prefix, ['page' => $this->currentPage - 1]);
+			$link = $this->url->setParam('Pager_' . $this->prefix, [
+				'page' => $this->currentPage - 1,
+				'pageSize' => $this->getPageSize(),
+			]);
 			$link = $link->setParam('pageSize', $this->pageSize->get());
 			$content .= '<li><a href="' . $link . '" rel="prev">&lt;</a></li>';
 		} else {
@@ -377,7 +380,10 @@ class Pager
 			}
 		}
 		if ($this->currentPage < $maxpage) {
-			$link = $this->url->setParam('Pager_' . $this->prefix, ['page' => $this->currentPage + 1]);
+			$link = $this->url->setParam('Pager_' . $this->prefix, [
+				'page' => $this->currentPage + 1,
+				'pageSize' => $this->getPageSize(),
+			]);
 			$content .= '<li><a href="' . $link . '" rel="next">&gt;</a></li>' . "\n";
 		} else {
 			$content .= '<li class="disabled"><span class="disabled">&rarr;</span></li>' . "\n";
@@ -442,7 +448,10 @@ class Pager
 
 	public function getSinglePageLink($k, $text)
 	{
-		$link = $this->url->setParam('Pager_' . $this->prefix, ['page' => $k]);
+		$link = $this->url->setParam('Pager_' . $this->prefix, [
+			'page' => $k,
+			'pageSize' => $this->getPageSize(),
+		]);
 		if ($k == $this->currentPage) {
 			$content = '<li class="active"><a href="' . $link . '"
 				class="active"
