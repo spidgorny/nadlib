@@ -74,7 +74,7 @@ if (!function_exists('str_startsWith')) {
 	 * Does string splitting with cleanup.
 	 * Added array_pad() to prevent list() complaining about undefined index
 	 * @param string $sep
-	 * @param string $str
+	 * @param string|object $str
 	 * @param int $max
 	 * @return array
 	 */
@@ -103,7 +103,7 @@ if (!function_exists('str_startsWith')) {
 	}
 
 	/**
-	 * Replaces "\t" tabs in non breaking spaces so they can be displayed in html
+	 * Replaces "\t" tabs in non-breaking spaces, so they can be displayed in html
 	 *
 	 * @param string $text
 	 * @param int $tabDepth

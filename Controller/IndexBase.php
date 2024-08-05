@@ -90,7 +90,7 @@ class IndexBase /*extends Controller*/
 	 */
 	protected $request;
 
-	public function __construct(ConfigInterface $config)
+	public function __construct(ConfigInterface $config = null)
 	{
 		TaylorProfiler::start(__METHOD__);
 		//parent::__construct();

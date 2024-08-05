@@ -512,7 +512,9 @@ class URL
 					$padLength = (count($relPath) + $remaining - 1) * -1;
 					$relPath = array_pad($relPath, $padLength, '..');
 					break;
-				} elseif (is_array($relPath) && isset($relPath[0])) {
+				}
+
+				if (is_array($relPath) && isset($relPath[0])) {
 					$relPath[0] = './' . $relPath[0];
 				}
 			}
@@ -527,15 +529,13 @@ class URL
 		// Pedram: we have to use __FILE__ constant in order to be able to execute phpUnit tests within PHPStorm
 		// C:\Users\DEJOKMAJ\AppData\Local\Temp\ide-phpunit.php
 		if (Request::isCLI()) {
-			$scriptWithPath = isset($_SERVER['SCRIPT_FILENAME'])
-				? $_SERVER['SCRIPT_FILENAME']
-				: $_SERVER['PHP_SELF']; // can be relative!!!
+			$scriptWithPath = $_SERVER['SCRIPT_FILENAME'] ?? $_SERVER['PHP_SELF']; // can be relative!!!
 
 			//debug($scriptWithPath);
 			// this below may not work since __FILE__ is class.URL.php and not index.php
 			// but this our last chance for CLI/Cron
 			if (!$scriptWithPath || !Path::isItAbsolute($scriptWithPath)) {    // relative not OK
-				if (basename(__FILE__) == __FILE__) {    // index.php
+				if (basename(__FILE__) === __FILE__) {    // index.php
 					$scriptWithPath = getcwd() . '/' . __FILE__;
 				} else {
 					$scriptWithPath = __FILE__;
