@@ -35,26 +35,34 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 
 	protected $host, $user, $password, $db;
 
-	public function __construct($db = null, $host = null,
-															$user = null, $password = null,
-															$scheme = 'mysql', $driver = null,
-															$port = 3306)
+	public static function fromParams($db = null, $host = null,
+																		$user = null, $password = null,
+																		$scheme = 'mysql', $driver = null,
+																		$port = 3306)
 	{
+		$instance = new self();
 		if ($user) {
-			$this->host = $host;
-			$this->user = $user;
-			$this->password = $password;
-			$this->db = $db;
-			$this->connect($user, $password,
+			$instance->host = $host;
+			$instance->user = $user;
+			$instance->password = $password;
+			$instance->db = $db;
+			$instance->connect($user, $password,
 				$scheme, $driver,
 				$host, $db, $port);
 		}
 
 		if (DEVELOPMENT) {
-			$this->queryLog = new QueryLog();
+			$instance->queryLog = new QueryLog();
 		}
 		//$this->setQB(); // must be injected outside (inf loop)
-//		debug_pre_print_backtrace();
+		return $instance;
+	}
+
+	public static function fromPDO(PDO $pdo)
+	{
+		$instance = new self();
+		$instance->connection = $pdo;
+		return $instance;
 	}
 
 	/**
@@ -274,9 +282,12 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 
 	public function getScheme()
 	{
-		$scheme = parse_url($this->dsn);
-		$scheme = $scheme['scheme'];
-		return $scheme;
+		if ($this->dsn) {
+			$scheme = parse_url($this->dsn);
+			return $scheme['scheme'];
+		}
+
+		return $this->connection->getAttribute(PDO::ATTR_DRIVER_NAME);
 	}
 
 	public function fetchAll($stringOrRes, $key = null)
@@ -372,8 +383,14 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 
 	public function quoteKey($key)
 	{
-		$driver = $this->getDriver();
-		return $driver->quoteKey($key);
+		$withQuotes = $this->connection->quote($key);
+		return substr($withQuotes, 1, -1);
+	}
+
+	public function escape($key)
+	{
+		$withQuotes = $this->connection->quote($key);
+		return substr($withQuotes, 1, -1);
 	}
 
 	public function uncompress($value)
@@ -487,7 +504,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 
 	public function getDriver()
 	{
-		return 'mysql';	// maybe?
+		return 'mysql';  // maybe?
 	}
 
 }
