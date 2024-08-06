@@ -8,7 +8,7 @@
 		"components/modernizr": "dev-master",
 		"mustangostang/spyc": "dev-master",
 		"soundintheory/php-sql-parser": "*",
-		"GerHobbelt/HTMLawed": "dev-master",
+		"gerhobbelt/htmlawed": "dev-master",
 		"leafo/lessphp": "0.4.0",
 	    "danielstjules/stringy": ">=1.5.1",
         "phpauth/phpauth": "v1.1"
