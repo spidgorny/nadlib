@@ -7,8 +7,8 @@
 		"components/modernizr": "dev-master",
 		"mustangostang/spyc": "dev-master",
 		"flot/flot": "dev-master",
-		"php-sql-parser": "dev-master",
-		"GerHobbelt/HTMLawed": "dev-master",
+		"greenlion/php-sql-parser": "dev-master",
+		"gerhobbelt/htmlawed": "dev-master",
 		"leafo/lessphp": "0.4.0"
 	},
 	"require-dev": {
@@ -22,25 +22,6 @@
 		"fabpot/twittee": "dev-master",
 		"sharom/twitter-bootstrap": "dev-master"
     },
-	"_autoloadddd": {
-		"_classmap_": ["./", "be/", "Cache/", "Controller/", "CSS/", "Data/", "DB/", "Debug/", "HTML/", "HTMLForm/", "HTTP/", "LocalLang/", "ORM/", "SQL/", "Time/", "User/"],
-		"_files": [
-			"init.php"
-		],
-		"files": [
-			"vendor/GerHobbelt/HTMLawed/htmLawed.php",
-			"vendor/php-sql-parser/src/PHPSQLParser.php"
-		],
-		"psr-0": {
-			"htmLawed": "vendor/GerHobbelt/HTMLawed/"
-		}
-	},
-	"repositories_bak": [
-		{
-		"type": "vcs",
-		"url": "https://github.com/michelf/php-markdown/"
-		}
-	],
 	"repositories": [
 		{
 			"type": "package",
