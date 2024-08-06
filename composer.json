@@ -7,7 +7,7 @@
 		"components/bootstrap": "dev-master",
 		"components/modernizr": "dev-master",
 		"mustangostang/spyc": "dev-master",
-		"greenlion/php-sql-Parser": "*",
+		"greenlion/php-sql-parser": "*",
 		"htmlawed/htmlawed": "dev-master",
 		"leafo/lessphp": "0.4.0",
 	    "danielstjules/stringy": ">=1.5.1",
