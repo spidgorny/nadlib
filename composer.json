@@ -4,7 +4,7 @@
 	"require": {
 		"php": ">=5.3.8",
 		"michelf/php-markdown": "~1.4",
-		"greenlion/php-sql-Parser": "*",
+		"greenlion/php-sql-parser": "*",
 		"leafo/lessphp": "0.4.0",
 		"danielstjules/stringy": ">=1.5.1",
 		"phpauth/phpauth": "v1.1"
