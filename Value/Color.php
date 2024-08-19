@@ -49,11 +49,10 @@ class Color
 
 	/**
 	 * http://stackoverflow.com/questions/5199783/help-needed-with-php-function-brightness-making-rgb-colors-darker-brighter
-	 * @param string $colourstr
 	 * @param int $steps
 	 * @return string
 	 */
-	public function alter_brightness($colourstr, $steps)
+	public function alter_brightness($steps)
 	{
 		$r = max(0, min(255, $this->r + $steps));
 		$g = max(0, min(255, $this->g + $steps));
