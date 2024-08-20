@@ -376,7 +376,7 @@ if (!function_exists('llog')) {
 		/** @noinspection ForgottenDebugOutputInspection */
 		$runtime = number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 3);
 
-		$url = ifsetor($_SERVER['REQUEST_URI']);
+		$url = trimExplode('?', ifsetor($_SERVER['REQUEST_URI'], ''))[0];
 		error_log("{$url} [{$runtime}] {$caller} {$type} {$output}");
 	}
 }
