@@ -356,11 +356,15 @@ abstract class Controller extends SimpleController
 
 	public static function href(array $params = [])
 	{
-		$url = static::class;
-		if ($params) {
-			$url .= '?' . http_build_query($params);
+		return static::class . static::buildQuery($params);
+	}
+
+	public static function buildQuery(array $params = [])
+	{
+		if (!$params) {
+			return '';
 		}
-		return $url;
+		return '?' . http_build_query($params);
 	}
 
 	/**

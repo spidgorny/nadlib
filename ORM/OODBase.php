@@ -123,7 +123,7 @@ abstract class OODBase
 				}
 				//debug(get_class($this), $this->table, gettype2($this->db));
 			} else {
-				$this->db = isset($GLOBALS['db']) ? $GLOBALS['db'] : null;
+				$this->db = $GLOBALS['db'] ?? null;
 			}
 		}
 	}
