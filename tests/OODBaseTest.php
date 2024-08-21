@@ -15,7 +15,7 @@ class OODBaseTest extends \PHPUnit\Framework\TestCase
 
 	protected $sut;
 
-	public function setUp()
+	public function setUp(): void
 	{
 		self::markTestSkipped('PG dependent');
 		$this->sut = new SpecificOODBase();
@@ -36,7 +36,7 @@ class OODBaseTest extends \PHPUnit\Framework\TestCase
 		];
 		foreach ($set as $source => $expected) {
 //			echo $source, ' => ', $expected, BR;
-			$this->assertEquals($expected, $this->sut->getBool($source));
+			$this->assertEquals($expected, OODBase::getBool($source));
 		}
 	}
 

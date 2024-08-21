@@ -888,9 +888,13 @@ abstract class OODBase
 		return (int)$this->id;
 	}
 
-	public function getBool($value)
+	public function getBoolField(string $fieldName)
 	{
-		//debug($value, $this->lastSelectQuery);
+		return self::getBool($this->data[$fieldName] ?? null);
+	}
+
+	public static function getBool($value)
+	{
 		if (is_bool($value)) {
 			return $value;
 		}
