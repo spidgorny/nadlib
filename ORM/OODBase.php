@@ -14,6 +14,7 @@ abstract class OODBase
 {
 
 	use CachedGetInstance;
+	use MagicDataProps;
 
 	/**
 	 * @var DBLayerBase|DBInterface|SQLBuilder|DBLayerPDO

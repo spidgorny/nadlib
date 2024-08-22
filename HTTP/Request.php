@@ -562,7 +562,7 @@ class Request
 
 	public function getFloat($name)
 	{
-		return floatval($this->data[$name]);
+		return (float)$this->data[$name];
 	}
 
 	/**

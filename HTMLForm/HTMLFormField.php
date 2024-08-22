@@ -8,6 +8,8 @@
  */
 class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 {
+	use MagicDataProps;
+	use ArrayAccessData;
 
 	/**
 	 * All different desc parameters for the form element.
@@ -40,42 +42,6 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 			$this->setField($fieldName);
 		}
 		$this->form = new HTMLForm();
-	}
-
-	public function offsetExists($offset)
-	{
-		return isset($this->data[$offset]);
-	}
-
-	/**
-	 * ifsetor() here will not work:
-	 * Only variable references should be returned by reference
-	 * @param mixed $offset
-	 * @return mixed
-	 */
-	public function &offsetGet($offset)
-	{
-		$ref = $this->data[$offset] ?? null;
-		return $ref;
-	}
-
-	public function offsetSet($offset, $value)
-	{
-		if (is_null($offset)) {
-			$this->data[] = $value;
-		} else {
-			$this->data[$offset] = $value;
-		}
-	}
-
-	public function offsetUnset($offset)
-	{
-		unset($this->data[$offset]);
-	}
-
-	public function __get($name)
-	{
-		return ifsetor($this->data[$name], null);
 	}
 
 	public function getArray()
@@ -281,7 +247,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 				$this->form->text($desc['code']);
 				break;
 
-				case 'tree':
+			case 'tree':
 				$this->form->tree($fieldName, $desc['tree'], $fieldValue);
 				break;
 
@@ -295,7 +261,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 				$more = (is_array(ifsetor($desc->data['more']))
 						? $desc->data['more'] : []) + [
 						'id' => $desc->data['id']
-						];
+					];
 				$this->form->submit($desc['value'], $more);
 				break;
 
