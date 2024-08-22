@@ -323,41 +323,43 @@ if (!defined('JSON_THROW_ON_ERROR')) {
 	define('JSON_THROW_ON_ERROR', 4194304);
 }
 
-/**
- * @throws JsonException
- */
-function llog(...$args)
-{
-	$caller = Debug::getCaller();
-	$jsonOptions = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
+if (!function_exists('llog')) {
+	/**
+	 * @throws JsonException
+	 */
+	function llog(...$args)
+	{
+		$caller = Debug::getCaller();
+		$jsonOptions = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
 
-	if (defined('JSON_UNESCAPED_LINE_TERMINATORS')) {
-		$jsonOptions |= JSON_UNESCAPED_LINE_TERMINATORS;
-	}
-
-	$vars = array_map(static function ($el) {
-		if (is_object($el) && !($el instanceof stdClass)) {
-			return trim(strip_tags(typ($el)));
+		if (defined('JSON_UNESCAPED_LINE_TERMINATORS')) {
+			$jsonOptions |= JSON_UNESCAPED_LINE_TERMINATORS;
 		}
-		return $el;
-	}, $args);
 
-	if (count($vars) === 1) {
-		$output = json_encode([
-			'type' => get_debug_type(first($args)),
-			'value' => first($vars)
-		], JSON_THROW_ON_ERROR | $jsonOptions);
-	} else {
-		$output = json_encode($vars, JSON_THROW_ON_ERROR | $jsonOptions);
-	}
-	if (strlen($output) > 80) {
-		$output = json_encode(count($vars) === 1
-			? [
+		$vars = array_map(static function ($el) {
+			if (is_object($el) && !($el instanceof stdClass)) {
+				return trim(strip_tags(typ($el)));
+			}
+			return $el;
+		}, $args);
+
+		if (count($vars) === 1) {
+			$output = json_encode([
 				'type' => get_debug_type(first($args)),
 				'value' => first($vars)
-			] : $vars, JSON_THROW_ON_ERROR | $jsonOptions | JSON_PRETTY_PRINT);
-	}
+			], JSON_THROW_ON_ERROR | $jsonOptions);
+		} else {
+			$output = json_encode($vars, JSON_THROW_ON_ERROR | $jsonOptions);
+		}
+		if (strlen($output) > 80) {
+			$output = json_encode(count($vars) === 1
+				? [
+					'type' => get_debug_type(first($args)),
+					'value' => first($vars)
+				] : $vars, JSON_THROW_ON_ERROR | $jsonOptions | JSON_PRETTY_PRINT);
+		}
 
-	/** @noinspection ForgottenDebugOutputInspection */
-	error_log($caller . ' ' . $output);
+		/** @noinspection ForgottenDebugOutputInspection */
+		error_log($caller . ' ' . $output);
+	}
 }
