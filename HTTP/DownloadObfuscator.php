@@ -71,7 +71,7 @@ class DownloadObfuscator
 	public function checkHash($check)
 	{
 		//debug($this->getHash(), $check);
-		return $this->getHash() == $check;
+		return $this->getHash() === $check;
 	}
 
 	/**
