@@ -27,7 +27,6 @@ class Path
 		$this->isAbsolute = $this->isAbsolute();
 		$this->explode();
 		$this->implode();   // to prevent '//'
-		llog('Path', $this->sPath, $this->aPath);
 	}
 
 	public static function isItAbsolute($sPath)
@@ -106,7 +105,6 @@ class Path
 	 */
 	public function append(Path $plus)
 	{
-		llog('append', 'aPath', $plus->aPath);
 		foreach ($plus->aPath as $name) {
 			if ($name === '.') {
 				continue;
@@ -121,7 +119,6 @@ class Path
 		$this->isDir = $plus->isDir;
 		$this->isFile = $plus->isFile;
 		$this->implode();
-		llog('after implode', $this->sPath);
 		return $this;
 	}
 

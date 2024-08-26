@@ -1056,7 +1056,6 @@ class URL
 	public function appendString(string $path)
 	{
 		$this->path->appendString($path);
-		llog('after append in URL', $this->path->__toString());
 		return $this;
 	}
 
