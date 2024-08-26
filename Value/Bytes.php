@@ -21,6 +21,11 @@ class Bytes
 		return new self($bytes);
 	}
 
+	public static function fromString(string $size)
+	{
+		return new self(self::return_bytes($size));
+	}
+
 	/**
 	 * Bytes constructor.
 	 * @param string $bytes 10MB, 1.5GB
