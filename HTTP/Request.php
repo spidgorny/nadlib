@@ -538,7 +538,7 @@ class Request
 
 	public function int($name)
 	{
-		return isset($this->data[$name]) ? intval($this->data[$name]) : 0;
+		return isset($this->data[$name]) ? (int)$this->data[$name] : 0;
 	}
 
 	public function getIntInException($name, array $assoc)
@@ -1510,12 +1510,11 @@ class Request
 
 	public function getBrowserIP()
 	{
-		$ip = $_SERVER['HTTP_CLIENT_IP']
-			? $_SERVER['HTTP_CLIENT_IP']
-			: ($_SERVER['HTTP_X_FORWARDED_FOR']
-				? $_SERVER['HTTP_X_FORWARDED_FOR']
-				: $_SERVER['REMOTE_ADDR']);
-		return $ip;
+		if ($_SERVER['HTTP_CLIENT_IP']) {
+			return $_SERVER['HTTP_CLIENT_IP'];
+		}
+
+		return $_SERVER['HTTP_X_FORWARDED_FOR'] ?: $_SERVER['REMOTE_ADDR'];
 	}
 
 	public function getIDrequired()

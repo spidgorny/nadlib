@@ -920,6 +920,7 @@ class Collection implements IteratorAggregate, ToStringable
 
 	/**
 	 * @return CollectionQuery
+	 * @throws JsonException
 	 */
 	public function getCollectionQuery(): CollectionQuery
 	{
@@ -927,11 +928,11 @@ class Collection implements IteratorAggregate, ToStringable
 		$hash = implode(':', [
 			spl_object_hash($this),
 			spl_object_hash($this->db),
-			sha1(json_encode($this->table)),
-			sha1(json_encode($this->join)),
-			sha1(json_encode($this->where)),
-			sha1(json_encode($this->orderBy)),
-			sha1(json_encode($this->select)),
+			sha1(json_encode($this->table, JSON_THROW_ON_ERROR)),
+			sha1(json_encode($this->join, JSON_THROW_ON_ERROR)),
+			sha1(json_encode($this->where, JSON_THROW_ON_ERROR)),
+			sha1(json_encode($this->orderBy, JSON_THROW_ON_ERROR)),
+			sha1(json_encode($this->select, JSON_THROW_ON_ERROR)),
 			$this->pager ? spl_object_hash($this->pager) : '',
 		]);
 		$this->log(__METHOD__, substr(sha1($hash), 0, 6) . json_encode($this->where, JSON_THROW_ON_ERROR));

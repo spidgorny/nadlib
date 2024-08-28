@@ -119,8 +119,7 @@ class View extends stdClass implements ToStringable
 			ob_end_clean();
 		}
 
-		$content = $this->s($content);
-		return $content;
+		return $this->s($content);
 	}
 
 	public function render(array $variables = [])
