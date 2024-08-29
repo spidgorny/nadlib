@@ -205,18 +205,18 @@ abstract class SimpleController
 	 * @param string|null $action
 	 * @return false|mixed|string
 	 * @throws ReflectionException
+	 * @throws Exception404
 	 */
 	public function performAction($action = null)
 	{
-		$content = '';
 		$method = $action ?: $this->detectAction();
 		if (!$method) {
-			return $content;
+			throw new Exception404('No action provided');
 		}
 
 		$method .= 'Action';        // ZendFramework style
 		if ($method !== 'updateNotificationCounterAction') {
-			llog(get_class($this), $method, method_exists($this, $method));
+//			llog(get_class($this), $method, method_exists($this, $method));
 		}
 
 		$proxy = $this;
@@ -234,10 +234,10 @@ abstract class SimpleController
 //			'exists' => method_exists($proxy, $method)
 //		]);
 		if (!method_exists($proxy, $method)) {
-//				llog($method, 'does not exist in', get_class($this));
+			llog($method, 'does not exist in', get_class($this));
 			// other classes except main controller may result in multiple messages
 //				Index::getInstance()->message('Action "'.$method.'" does not exist in class "'.get_class($this).'".');
-			return $content;
+			throw new Exception404('Action "' . $method . '" does not exist in class "' . get_class($this) . '".');
 		}
 
 		if (Request::isCLI()) {
