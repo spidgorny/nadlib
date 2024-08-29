@@ -109,7 +109,7 @@ class Request
 		// PHP Warning:  strpos(): Empty needle in /var/www/html/vendor/spidgorny/nadlib/HTTP/class.Request.php on line 706
 
 		$docRoot = self::getDocumentRootByRequest();
-		if (!$docRoot || ('/' == $docRoot)) {
+		if (!$docRoot || ('/' === $docRoot)) {
 			$docRoot = self::getDocumentRootByDocRoot();
 		}
 
@@ -128,7 +128,7 @@ class Request
 		require_once __DIR__ . '/Path.php'; // needed if called early
 		$docRoot = new Path($docRoot);
 		//pre_print_r($docRoot, $docRoot.'');
-		return $docRoot;
+		return new Path($docRoot);
 	}
 
 	/**
@@ -139,7 +139,7 @@ class Request
 		$script = $_SERVER['SCRIPT_FILENAME'];
 		$request = dirname(ifsetor($_SERVER['REQUEST_URI'], ''));
 		//		exit();
-		if ($request && $request != '/' && strpos($script, $request) !== false) {
+		if ($request && $request !== '/' && strpos($script, $request) !== false) {
 			$docRootRaw = $_SERVER['DOCUMENT_ROOT'];
 			$docRoot = str_replace($docRootRaw, '', dirname($script)) . '/';    // dirname() removes slash
 		} else {
@@ -192,8 +192,7 @@ class Request
 //		llog($docRoot.'');
 		$host = self::getHost($isUTF8);
 		$url = Request::getRequestType() . '://' . $host . $docRoot;
-		$url = new URL($url);
-		return $url;
+		return new URL($url);
 	}
 
 	public static function getHost($isUTF8 = false)
@@ -203,9 +202,7 @@ class Request
 		}
 		$host = ifsetor($_SERVER['HTTP_X_ORIGINAL_HOST']);
 		if (!$host) {
-			$host = isset($_SERVER['HTTP_X_FORWARDED_HOST'])
-				? $_SERVER['HTTP_X_FORWARDED_HOST']
-				: (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : null);
+			$host = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? ($_SERVER['HTTP_HOST'] ?? null);
 		}
 		if (function_exists('idn_to_utf8') && $isUTF8) {
 			if (phpversion() >= 7.3) {
@@ -239,20 +236,18 @@ class Request
 		$HTTP_X_FORWARDED_PROTO = ifsetor($_SERVER['HTTP_X_FORWARDED_PROTO']);
 		$HTTP_X_FORWARDED_BY = ifsetor($_SERVER['HTTP_X_FORWARDED_BY']);
 		$HTTP_X_FORWARDED_SERVER = ifsetor($_SERVER['HTTP_X_FORWARDED_SERVER']);
-		$request_type =
-			((($HTTPS) && (strtolower($HTTPS) == 'on' || $HTTPS == '1'))) ||
-			(($HTTP_X_FORWARDED_BY) && strpos(strtoupper($HTTP_X_FORWARDED_BY), 'SSL') !== false) ||
-			(($HTTP_X_FORWARDED_HOST) && (strpos(strtoupper($HTTP_X_FORWARDED_HOST), 'SSL') !== false)) ||
-			(($HTTP_X_FORWARDED_HOST && $HTTPS_SERVER) && (strpos(strtoupper($HTTP_X_FORWARDED_HOST), str_replace('https://', '', $HTTPS_SERVER)) !== false)) ||
-			(isset($_SERVER['SCRIPT_URI']) && strtolower(substr($_SERVER['SCRIPT_URI'], 0, 6)) == 'https:') ||
-			(($HTTP_X_FORWARDED_SSL) && ($HTTP_X_FORWARDED_SSL == '1' || strtolower($HTTP_X_FORWARDED_SSL) == 'on')) ||
-			(($HTTP_X_FORWARDED_PROTO) && (strtolower($HTTP_X_FORWARDED_PROTO) == 'ssl' || strtolower($HTTP_X_FORWARDED_PROTO) == 'https')) ||
-			(isset($_SERVER['HTTP_SSLSESSIONID']) && $_SERVER['HTTP_SSLSESSIONID'] != '') ||
-			(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443') ||
-			ifsetor($_SERVER['FAKE_HTTPS'])
-			|| (str_startsWith($HTTP_X_FORWARDED_SERVER, 'sslproxy'))    // BlueMix
-				? 'https' : 'http';
-		return $request_type;
+		return ((($HTTPS) && (strtolower($HTTPS) == 'on' || $HTTPS == '1'))) ||
+		(($HTTP_X_FORWARDED_BY) && strpos(strtoupper($HTTP_X_FORWARDED_BY), 'SSL') !== false) ||
+		(($HTTP_X_FORWARDED_HOST) && (strpos(strtoupper($HTTP_X_FORWARDED_HOST), 'SSL') !== false)) ||
+		(($HTTP_X_FORWARDED_HOST && $HTTPS_SERVER) && (strpos(strtoupper($HTTP_X_FORWARDED_HOST), str_replace('https://', '', $HTTPS_SERVER)) !== false)) ||
+		(isset($_SERVER['SCRIPT_URI']) && strtolower(substr($_SERVER['SCRIPT_URI'], 0, 6)) == 'https:') ||
+		(($HTTP_X_FORWARDED_SSL) && ($HTTP_X_FORWARDED_SSL == '1' || strtolower($HTTP_X_FORWARDED_SSL) == 'on')) ||
+		(($HTTP_X_FORWARDED_PROTO) && (strtolower($HTTP_X_FORWARDED_PROTO) == 'ssl' || strtolower($HTTP_X_FORWARDED_PROTO) == 'https')) ||
+		(isset($_SERVER['HTTP_SSLSESSIONID']) && $_SERVER['HTTP_SSLSESSIONID'] != '') ||
+		(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443') ||
+		ifsetor($_SERVER['FAKE_HTTPS'])
+		|| (str_startsWith($HTTP_X_FORWARDED_SERVER, 'sslproxy'))    // BlueMix
+			? 'https' : 'http';
 	}
 
 	public static function getPort()
@@ -789,17 +784,11 @@ class Request
 		return $controller;
 	}
 
-	public static function isCLI()
-	{
-		//return isset($_SERVER['argc']);
-		return php_sapi_name() == 'cli';
-	}
-
 	/**
 	 * Will require modifications when realurl is in place
 	 *
 	 * @return SimpleController|Controller
-	 * @throws Exception
+	 * `   * @throws Exception
 	 */
 	public function getController()
 	{
@@ -818,14 +807,6 @@ class Request
 		return $ret;
 	}
 
-	public static function getInstance($cons = null)
-	{
-		if (!static::$instance) {
-			static::$instance = new static($cons);
-		}
-		return static::$instance;
-	}
-
 	public function redirectFromAjax($relative)
 	{
 		if (str_startsWith($relative, 'http')) {
@@ -839,176 +820,6 @@ class Request
 		}
 
 		$this->redirectJS($link);
-	}
-
-	/**
-	 * Returns the full URL to the document root of the current site
-	 * @param bool $isUTF8
-	 * @return URL
-	 */
-	public static function getLocation($isUTF8 = false)
-	{
-		$docRoot = self::getDocRoot();
-//		llog($docRoot.'');
-		$host = self::getHost($isUTF8);
-		$url = Request::getRequestType() . '://' . $host . $docRoot;
-		return new URL($url);
-	}
-
-	/**
-	 * @return Path
-	 */
-	public static function getDocRoot()
-	{
-		$docRoot = null;
-		if (class_exists('Config')) {
-			$c = Config::getInstance();
-			$docRoot = $c->documentRoot;
-		}
-		if (!$docRoot) {
-			$docRoot = self::getDocumentRoot();
-		}
-		//pre_print_r($docRoot);
-
-		if (!str_startsWith($docRoot, '/')) {
-			$docRoot = '/' . $docRoot;
-		}
-
-		if (!($docRoot instanceof Path)) {
-			$docRoot = new Path($docRoot);
-		}
-
-		return $docRoot;
-	}
-
-	/**
-	 * [DOCUMENT_ROOT]      => U:/web
-	 * [SCRIPT_FILENAME]    => C:/Users/DEPIDSVY/NetBeansProjects/merged/index.php
-	 * [PHP_SELF]           => /merged/index.php
-	 * [cwd]                => C:\Users\DEPIDSVY\NetBeansProjects\merged
-	 * @return Path
-	 */
-	public static function getDocumentRoot()
-	{
-		// PHP Warning:  strpos(): Empty needle in /var/www/html/vendor/spidgorny/nadlib/HTTP/class.Request.php on line 706
-
-		$docRoot = self::getDocumentRootByRequest();
-		if (!$docRoot || ('/' === $docRoot)) {
-			$docRoot = self::getDocumentRootByDocRoot();
-		}
-
-		// this is not working right
-		//		if (!$docRoot || ('/' == $docRoot)) {
-		//			$docRoot = self::getDocumentRootByScript();
-		//		}
-
-		//		$before = $docRoot;
-		//$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
-		$docRoot = cap($docRoot, '/');
-		//debug($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $before, AutoLoad::getInstance()->nadlibFromDocRoot.'be', $docRoot);
-		//print '<pre>'; print_r(array($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $before, $docRoot)); print '</pre>';
-
-		//debug_pre_print_backtrace();
-		require_once __DIR__ . '/Path.php'; // needed if called early
-		//pre_print_r($docRoot, $docRoot.'');
-		return new Path($docRoot);
-	}
-
-	/**
-	 * Works well with RewriteRule
-	 */
-	public static function getDocumentRootByRequest()
-	{
-		$script = $_SERVER['SCRIPT_FILENAME'];
-		$request = dirname(ifsetor($_SERVER['REQUEST_URI'], ''));
-		//		exit();
-		if ($request && $request !== '/' && strpos($script, $request) !== false) {
-			$docRootRaw = $_SERVER['DOCUMENT_ROOT'];
-			$docRoot = str_replace($docRootRaw, '', dirname($script)) . '/';    // dirname() removes slash
-		} else {
-			$docRoot = '/';
-		}
-		//		pre_print_r($script, $request, strpos($script, $request), $docRoot);
-		return $docRoot;
-	}
-
-	public static function getDocumentRootByDocRoot()
-	{
-		$docRoot = null;
-		$script = $_SERVER['SCRIPT_FILENAME'];
-		$docRootRaw = ifsetor($_SERVER['DOCUMENT_ROOT']);
-		if (!empty($docRootRaw)) {
-			$beginTheSame = str_startsWith($script, $docRootRaw);
-			$contains = strpos($script, $docRootRaw) !== false;
-		} else {
-			$beginTheSame = false;
-			$contains = false;
-		}
-		if ($docRootRaw
-			&& $beginTheSame
-			&& $contains
-		) {
-			$docRoot = str_replace($docRootRaw, '', dirname($script) . '/');    // slash is important
-			//pre_print_r($docRoot);
-		}
-		0 && pre_print_r([
-			'script' => $script,
-			'docRootRaw' => $docRootRaw,
-			'beginTheSame' => $beginTheSame,
-			'contains' => $contains,
-			'replaceFrom' => dirname($script),
-			'docRoot' => $docRoot,
-		]);
-		return $docRoot;
-	}
-
-	public static function getHost($isUTF8 = false)
-	{
-		if (self::isCLI()) {
-			return gethostname();
-		}
-		$host = ifsetor($_SERVER['HTTP_X_ORIGINAL_HOST']);
-		if (!$host) {
-			$host = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? ($_SERVER['HTTP_HOST'] ?? null);
-		}
-		if (function_exists('idn_to_utf8') && $isUTF8) {
-			if (phpversion() >= 7.3) {
-				$try = idn_to_utf8($host, 0, defined('INTL_IDNA_VARIANT_UTS46') ? INTL_IDNA_VARIANT_UTS46 : 1);
-			} else {
-				$try = idn_to_utf8($host);
-			}
-			//debug($host, $try);
-			if ($try) {
-				$host = $try;
-			}
-		}
-		return $host;
-	}
-
-	/**
-	 * http://www.zen-cart.com/forum/showthread.php?t=164174
-	 */
-	public static function getRequestType()
-	{
-		$HTTPS = ifsetor($_SERVER['HTTPS'], getenv('HTTPS'));
-		$HTTP_X_FORWARDED_HOST = ifsetor($_SERVER['HTTP_X_FORWARDED_HOST']);
-		$HTTPS_SERVER = ifsetor($_SERVER['HTTPS_SERVER']);
-		$HTTP_X_FORWARDED_SSL = ifsetor($_SERVER['HTTP_X_FORWARDED_SSL']);
-		$HTTP_X_FORWARDED_PROTO = ifsetor($_SERVER['HTTP_X_FORWARDED_PROTO']);
-		$HTTP_X_FORWARDED_BY = ifsetor($_SERVER['HTTP_X_FORWARDED_BY']);
-		$HTTP_X_FORWARDED_SERVER = ifsetor($_SERVER['HTTP_X_FORWARDED_SERVER']);
-		return ((($HTTPS) && (strtolower($HTTPS) == 'on' || $HTTPS == '1'))) ||
-		(($HTTP_X_FORWARDED_BY) && strpos(strtoupper($HTTP_X_FORWARDED_BY), 'SSL') !== false) ||
-		(($HTTP_X_FORWARDED_HOST) && (strpos(strtoupper($HTTP_X_FORWARDED_HOST), 'SSL') !== false)) ||
-		(($HTTP_X_FORWARDED_HOST && $HTTPS_SERVER) && (strpos(strtoupper($HTTP_X_FORWARDED_HOST), str_replace('https://', '', $HTTPS_SERVER)) !== false)) ||
-		(isset($_SERVER['SCRIPT_URI']) && strtolower(substr($_SERVER['SCRIPT_URI'], 0, 6)) == 'https:') ||
-		(($HTTP_X_FORWARDED_SSL) && ($HTTP_X_FORWARDED_SSL == '1' || strtolower($HTTP_X_FORWARDED_SSL) == 'on')) ||
-		(($HTTP_X_FORWARDED_PROTO) && (strtolower($HTTP_X_FORWARDED_PROTO) == 'ssl' || strtolower($HTTP_X_FORWARDED_PROTO) == 'https')) ||
-		(isset($_SERVER['HTTP_SSLSESSIONID']) && $_SERVER['HTTP_SSLSESSIONID'] != '') ||
-		(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443') ||
-		ifsetor($_SERVER['FAKE_HTTPS'])
-		|| (str_startsWith($HTTP_X_FORWARDED_SERVER, 'sslproxy'))    // BlueMix
-			? 'https' : 'http';
 	}
 
 	public function redirectJS(
@@ -1107,7 +918,7 @@ class Request
 
 	public function isPOST()
 	{
-		return ifsetor($_SERVER['REQUEST_METHOD']) == 'POST';
+		return ifsetor($_SERVER['REQUEST_METHOD']) === 'POST';
 	}
 
 	public function getDateFromYMD($name)
@@ -1496,14 +1307,14 @@ class Request
 		} else {
 			$levels = [];
 		}
-		if (false) {
-			llog([
-				'cwd' => getcwd(),
-				//'url' => $url.'',
-				'path' => $path . '',
-				//'getURL()' => $path->getURL() . '',
-				'levels' => $levels]);
-		}
+//		if (false) {
+//			llog([
+//				'cwd' => getcwd(),
+//				//'url' => $url.'',
+//				'path' => $path . '',
+//				//'getURL()' => $path->getURL() . '',
+//				'levels' => $levels]);
+//		}
 		return $levels;
 	}
 

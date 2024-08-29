@@ -84,19 +84,11 @@ class IndexBase /*extends Controller*/
 		],
 	];
 	public $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error';
-	/**
-	 * @var Config
-	 */
-	protected $config;
+
 	/**
 	 * @var DbInterface
 	 */
 	protected $db;
-	/**
-	 * @var User|LoginUser
-	 * @public for template.phtml
-	 */
-	protected $user;
 
 	/**
 	 * @var Request
@@ -504,37 +496,7 @@ class IndexBase /*extends Controller*/
 	public function renderProfiler()
 	{
 		$pp = new PageProfiler();
-		$content = $pp->render();
-		return $content;
-	}
-
-	public function s($content)
-	{
-		return MergedContent::mergeStringArrayRecursive($content);
-	}
-
-	/**
-	 * Does not catch LoginException - show your login form in Index
-	 * @param Exception $e
-	 * @param string $wrapClass
-	 * @return string
-	 */
-	public function renderException(Exception $e)
-	{
-		llog(__METHOD__, get_class($e), $e->getMessage(), explode(PHP_EOL, $e->getTraceAsString()));
-		if ($this->request->isCLI()) {
-			echo get_class($e),
-			' #', $e->getCode(),
-			': ', $e->getMessage(), BR;
-			echo $e->getTraceAsString(), BR;
-			$content = '';
-		}
-		http_response_code($e->getCode());
-		if ($this->controller) {
-			$this->controller->title = get_class($this->controller);
-		}
-		$re = new RenderException($e);
-		return $re->render($this->wrapClass);
+		return $pp->render();
 	}
 
 	public function __destruct()
@@ -595,14 +557,14 @@ class IndexBase /*extends Controller*/
 			if ($jQueryPath->exists()) {
 				$this->addJS($jQueryPath->relativeFromAppRoot()->getUncapped());
 				return $this;
-			} else {
-				$jQueryPath = clone $al->componentsPath;
-				$jQueryPath->appendString('jquery-ui/jquery-ui.js');
-				$jQueryPath->setAsFile();
-				if ($jQueryPath->exists()) {
-					$this->addJS($jQueryPath->relativeFromAppRoot()->getUncapped());
-					return $this;
-				}
+			}
+
+			$jQueryPath = clone $al->componentsPath;
+			$jQueryPath->appendString('jquery-ui/jquery-ui.js');
+			$jQueryPath->setAsFile();
+			if ($jQueryPath->exists()) {
+				$this->addJS($jQueryPath->relativeFromAppRoot()->getUncapped());
+				return $this;
 			}
 		}
 
@@ -745,27 +707,6 @@ class IndexBase /*extends Controller*/
 		return $source;
 	}
 
-	public function showSidebar()
-	{
-		TaylorProfiler::start(__METHOD__);
-		$content = '';
-		if (method_exists($this->controller, 'sidebar')) {
-			try {
-				$content = $this->controller->sidebar();
-				$content = $this->s($content);
-			} catch (Exception $e) {
-				// no sidebar
-			}
-		}
-		TaylorProfiler::stop(__METHOD__);
-		return $content;
-	}
-
-	public function renderProfiler()
-	{
-		$pp = new PageProfiler();
-		return $pp->render();
-	}
 
 	public function implodeCSS()
 	{
@@ -805,19 +746,6 @@ class IndexBase /*extends Controller*/
 	public function addBodyClass($name)
 	{
 		$this->bodyClasses[$name] = $name;
-	}
-
-	public function setSecurityHeaders()
-	{
-		if (!headers_sent()) {
-			header('X-Frame-Options: SAMEORIGIN');
-			header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
-			foreach ($this->csp as $key => &$val) {
-				$val = $key . ' ' . implode(' ', $val);
-			}
-			header('Content-Security-Policy: ' . implode('; ', $this->csp));
-			header('X-Content-Security-Policy: ' . implode('; ', $this->csp));
-		}
 	}
 
 	/// to avoid Config::getInstance() if Index has a valid config

@@ -40,9 +40,7 @@ class ArrayFunctionsTest extends PHPUnit\Framework\TestCase
 			'qwe',
 			'123',
 		];
-		$this->assertEquals('qwe', array_find(static function ($line) {
-			return str_startsWith($line, 'q');
-		}, $data));
+		$this->assertEquals('qwe', array_find_fast(static fn($line) => str_startsWith($line, 'q'), $data));
 	}
 
 }
