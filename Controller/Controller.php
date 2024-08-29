@@ -159,11 +159,17 @@ abstract class Controller extends SimpleController
 		return $table;
 	}
 
-	public function encloseIn($title, $content)
+	public function encloseInFieldset($title, $content)
 	{
 		$title = $title instanceof HtmlString ? $title : htmlspecialchars($title);
 		$content = $this->s($content);
 		return '<fieldset><legend>' . $title . '</legend>' . $content . '</fieldset>';
+	}
+
+	public function wrapInDiv($content, $className = '')
+	{
+		$content = $this->s($content);
+		return new HTMLTag('div', ['class' => $className], $content, true);
 	}
 
 	/**
@@ -239,11 +245,6 @@ abstract class Controller extends SimpleController
 		$this->noRender = true;
 	}
 
-	public function wrapInDiv($content, $className = '')
-	{
-		return ['<div class="'.$className.'">', $content, '</div>'];
-	}
-
 	/**
 	 * Uses float: left;
 	 * @params array[string]
@@ -290,8 +291,7 @@ abstract class Controller extends SimpleController
 			$html = $this->s($html);
 			$content .= '<div class="flex-box flex-equal">' . $html . '</div>';
 		}
-		$content = '<div class="display-box equal">' . $content . '</div>';
-		return $content;
+		return '<div class="display-box equal">' . $content . '</div>';
 	}
 
 	public function encloseInTableHTML3(array $cells, array $more = [], array $colMore = [])
@@ -360,6 +360,9 @@ abstract class Controller extends SimpleController
 
 
 
+	/**
+	 * @return string|string[]|HTMLForm|ToStringable
+	 */
 	public function sidebar()
 	{
 		return '';
@@ -412,9 +415,38 @@ abstract class Controller extends SimpleController
 		return '<script src="' . $file . '" type="text/javascript"></script>';
 	}
 
+	public static function href(array $params = [])
+	{
+		return static::class . static::buildQuery($params);
+	}
+
+	public static function buildQuery(array $params = [])
+	{
+		if (!$params) {
+			return '';
+		}
+		return '?' . http_build_query($params);
+	}
+
 	public function log($action, ...$data)
 	{
 		$this->log[] = new LogEntry($action, $data);
+	}
+
+	/**
+	 * @param string $caption
+	 * @param string $hTag
+	 * @return string
+	 * @throws Exception
+	 */
+	public function getCaption($caption, $hTag = 'h3')
+	{
+//		$al = AutoLoad::getInstance();
+		$slug = URL::friendlyURL($caption);
+		return '
+			<' . $hTag . ' id="' . $slug . '">' .
+			$caption .
+			'</' . $hTag . '>';
 	}
 
 	/**
@@ -432,11 +464,10 @@ abstract class Controller extends SimpleController
 		$link = '<a class="header-link" href="#' . $slug . '">
 				<i class="fa fa-link"></i>
 			</a>';
-		$content = '<a name="' . URL::friendlyURL($caption) . '"></a>
+		return '<a name="' . URL::friendlyURL($caption) . '"></a>
 			<' . $h . ' id="' . $slug . '">' .
 			$link . $caption .
 			'</' . $h . '>';
-		return $content;
 	}
 
 	public function makeNewOf($className, $id)

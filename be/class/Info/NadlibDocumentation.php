@@ -150,7 +150,7 @@ class NadlibDocumentation extends AppControllerBE
 					'c' => __CLASS__,
 					'folder' => $path,
 				]),
-				'class' => $this->folder == $path ? 'bold' : '',
+				'class' => $this->folder === $path ? 'bold' : '',
 			], $file);
 		}
 		$content .= '<ul><li>' . implode('</li><li>', $folders) . '</li></ul>';

@@ -32,7 +32,7 @@ class Path
 	public static function isItAbsolute($sPath)
 	{
 		return str_startsWith($sPath, '/')        // Linux
-			|| (isset($sPath[1]) && $sPath[1] == ':');    // Windows c:
+			|| (isset($sPath[1]) && $sPath[1] === ':');    // Windows c:
 	}
 
 	public function isAbsolute()
@@ -46,8 +46,7 @@ class Path
 	 */
 	public static function make($sPath)
 	{
-		$new = new self($sPath);
-		return $new;
+		return new self($sPath);
 	}
 
 	/**
@@ -83,7 +82,7 @@ class Path
 	 */
 	public function isWindows()
 	{
-		return (isset($this->aPath[0][1]) && $this->aPath[0][1] == ':');
+		return (isset($this->aPath[0][1]) && $this->aPath[0][1] === ':');
 	}
 
 	public function __toString()
@@ -106,9 +105,6 @@ class Path
 	 */
 	public function append(Path $plus)
 	{
-		if (defined('DEVELOPMENT') && DEVELOPMENT) {
-			//debug($this->aPath, $plus->aPath);
-		}
 		foreach ($plus->aPath as $name) {
 			if ($name === '.') {
 				continue;
@@ -130,7 +126,7 @@ class Path
 	 * @param string $plus
 	 * @return $this
 	 */
-	public function appendString($plus)
+	public function appendString(string $plus)
 	{
 		$pPlus = new Path($plus);
 		$this->append($pPlus);
@@ -331,6 +327,10 @@ class Path
 		foreach ($this->aPath as $i => $part) {
 			$assembled = '/' . implode('/', array_slice($this->aPath, 0, $i));
 			//			debug($assembled, is_link($assembled));
+			if (ini_get('open_basedir')) {
+				return $this;
+			}
+
 			if (@is_link($assembled)) {
 				$this->sPath = readlink($assembled);
 				$this->explode();
@@ -347,6 +347,9 @@ class Path
 			$assembled = '/' .
 				implode('/', array_slice($this->aPath, 0, $i));
 			//			debug($assembled, is_link($assembled));
+			if (ini_get('open_basedir')) {
+				continue;
+			}
 			if (@is_link($assembled)) {
 				$this->aPath[$i - 1] = trim(readlink($assembled), '/');
 			}
@@ -580,8 +583,7 @@ class Path
 		$basenames = array_map(function ($file) {
 			return basename($file);
 		}, $files);
-		$files = array_combine($basenames, $files);
-		return $files;
+		return array_combine($basenames, $files);
 	}
 
 	public function hasFile($file)
@@ -618,7 +620,7 @@ class Path
 		//debug(__METHOD__, $this->sPath, $this->aPath);
 		$this->resolveLinks();        // important to avoid differences
 		foreach ($this->aPath as $i => $el) {
-			if ($el[0] == '~') {
+			if ($el[0] === '~') {
 				$username = str_replace('~', '', $el);
 				array_splice($this->aPath, $i, 1, [$username, 'public_html']);
 				//				debug($el, $username, $this->aPath);

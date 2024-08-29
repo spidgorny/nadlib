@@ -125,6 +125,29 @@ class CollectionQuery
 		return $query;
 	}
 
+	public function retrieveData()
+	{
+		//debug(__METHOD__, $allowMerge, $preprocess);
+		$isMySQL = (float)PHP_VERSION > 5.3 && (
+				$this->db instanceof MySQL
+				|| ($this->db instanceof DBLayerPDO
+					&& $this->db->isMySQL())
+			);
+		if ($isMySQL) {
+			$cq = new CollectionQueryMySQL($this->db,
+				$this->table,
+				$this->join,
+				$this->where,
+				$this->orderBy,
+				$this->select,
+				$this->pager);
+			$data = $cq->retrieveDataFromMySQL();
+		} else {
+			$data = $this->retrieveDataFromDB();
+		}
+		return $data;
+	}
+
 	/**
 	 * @return array
 	 * @throws Exception
@@ -136,7 +159,9 @@ class CollectionQuery
 //		$this->log(__METHOD__, Debug::getBackLog(25, 0, null, false));
 
 		$this->query = $this->getQueryWithLimit();
-//		$this->log(__METHOD__, str_replace("\n", " ", str_replace("\t", " ", $this->query . '')));
+//		$this->log($taylorKey, [
+//			'query' => str_replace("\n", " ", str_replace("\t", " ", $this->query . ''))
+//		]);
 
 		// in most cases we don't need to rasterize the query to SQL
 		$most_cases = true;
@@ -153,6 +178,9 @@ class CollectionQuery
 		}
 		// fetchAll does implement free()
 //		$this->db->free($res);
+//		$this->log($taylorKey, [
+//			'fetched fetchAll rows' => count($data),
+//		]);
 		TaylorProfiler::stop($taylorKey);
 		return $data;
 	}

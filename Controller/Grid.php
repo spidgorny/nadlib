@@ -6,7 +6,7 @@ abstract class Grid extends AppControllerBE
 {
 
 	/**
-	 * @var OODBase
+	 * @var OODBase|null
 	 */
 	public $model;
 	/**

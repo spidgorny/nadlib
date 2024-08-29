@@ -71,13 +71,13 @@ if (!function_exists('d')) {
 	}
 
 	/**
-	 * @param ...$ignored
+	 * @param ...$a
 	 */
-	function nodebug(...$ignored)
+	function nodebug(...$a)
 	{
 	}
 
-	function getDebug(...$params)
+	function getDebug(...$a)
 	{
 		$debug = Debug::getInstance();
 		$dh = new DebugHTML($debug);
@@ -108,7 +108,7 @@ if (!function_exists('d')) {
 		}
 	}
 
-	function get_print_r($a)
+	function get_print_r(...$a)
 	{
 		return '<pre class="pre_print_r" style="white-space: pre-wrap;">' .
 			print_r($a, true) .
@@ -124,7 +124,7 @@ if (!function_exists('d')) {
 		echo '</pre>';
 	}
 
-	function debug_once()
+	function debug_once(...$a)
 	{
 		static $used = null;
 		if (is_null($used)) {
@@ -142,7 +142,7 @@ if (!function_exists('d')) {
 		}
 	}
 
-	function debug_size($a)
+	function debug_size(...$a)
 	{
 		if (is_object($a)) {
 			$vals = get_object_vars($a);
@@ -309,21 +309,21 @@ if (!function_exists('d')) {
 
 	/**
 	 * @param array|mixed $something
-	 * @return array|HtmlString
+	 * @return array|HtmlString|HTMLTag|string
 	 */
 	function gettypes($something)
 	{
 		if (is_array($something)) {
 			$types = [];
 			foreach ($something as $key => $element) {
-				$types[$key] = strip_tags(typ($element));
+				$types[$key] = trim(strip_tags(typ($element)));
 			}
 			return $types;
 		}
 
 		return typ($something);
-		//return json_encode($types, JSON_PRETTY_PRINT);
 	}
+
 }
 
 if (!function_exists('invariant')) {
@@ -339,8 +339,15 @@ if (!function_exists('invariant')) {
 	}
 }
 
+if (!defined('JSON_THROW_ON_ERROR')) {
+	define('JSON_THROW_ON_ERROR', 4194304);
+}
+
 if (!function_exists('llog')) {
-	function llog(...$vars)
+	/**
+	 * @throws JsonException
+	 */
+	function llog(...$args)
 	{
 		$caller = Debug::getCaller();
 		$jsonOptions = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
@@ -360,19 +367,26 @@ if (!function_exists('llog')) {
 				}
 			}
 			return $el;
-		}, $vars);
+		}, $args);
 
 		$type = null;
 		if (count($vars) === 1) {
-			$type = '[' . gettype(first($vars)) . ']';
-			$output = json_encode(first($vars), JSON_THROW_ON_ERROR | $jsonOptions);
+			$output = json_encode([
+				'type' => get_debug_type(first($args)),
+				'value' => first($vars)
+			], JSON_THROW_ON_ERROR | $jsonOptions);
 		} else {
 			$type = '';
 			$output = json_encode($vars, JSON_THROW_ON_ERROR | $jsonOptions);
 		}
 		if (strlen($output) > 80) {
-			$output = json_encode(count($vars) === 1 ? first($vars) : $vars, JSON_THROW_ON_ERROR | $jsonOptions | JSON_PRETTY_PRINT);
+			$output = json_encode(count($vars) === 1
+				? [
+					'type' => get_debug_type(first($args)),
+					'value' => first($vars)
+				] : $vars, JSON_THROW_ON_ERROR | $jsonOptions | JSON_PRETTY_PRINT);
 		}
+
 		/** @noinspection ForgottenDebugOutputInspection */
 		$runtime = number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 3);
 

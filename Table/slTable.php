@@ -813,8 +813,53 @@ class slTable implements ToStringable
 
 	protected function getColumnTotalTime($data, $col)
 	{
-		$total = 0;
-		return $total;
+		foreach ($assoc as $key => &$val) {
+			if ($isRecursive && (is_array($val) || is_object($val))) {
+				if (is_object($val)) {
+					$val = get_object_vars($val);
+				}
+				$val = slTable::showAssoc($val, $isRecursive, $showNumericKeys, $no_hsc);
+				$val = new HtmlString($val);    // to prevent hsc later
+			}
+			if (!$showNumericKeys && is_numeric($key)) {
+				$key = '';
+			}
+
+			if ($val instanceof HtmlString || $val instanceof HTMLTag) {
+				//debug($val);
+				//$val = $val;
+			} elseif (is_array($val)) {
+				//debug($key, $val);
+				//throw new InvalidArgumentException('slTable array instead of scalar');
+				//return '['.implode(', ', $val).']';
+			} else {
+				if (!$no_hsc) {
+					if (is_object($val)) {
+						$val = '[' . get_class($val) . ']';
+					} elseif (mb_strpos($val, "\n") !== false) {
+						$val = htmlspecialchars($val);
+						$val = new HtmlString('<pre style="white-space: pre-wrap;">' . htmlspecialchars($val) . '</pre>');
+					} else {
+						$val = htmlspecialchars($val, ENT_NOQUOTES);
+					}
+					$no_hsc = true;
+				} else {
+					// will be done by slTable
+					//$val = htmlspecialchars($val);
+				}
+			}
+
+			$val = [
+				//0 => $key instanceof htmlString ? $key : htmlspecialchars($key),
+				0 => htmlspecialchars($key),
+				'' => $val,
+			];
+		}
+		$s = new self($assoc, 'class="visual nospacing table table-striped"', [
+			0 => '',
+			'' => ['no_hsc' => $no_hsc],
+		]);
+		return $s;
 	}
 
 	public function download($filename)

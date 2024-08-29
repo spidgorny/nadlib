@@ -20,7 +20,7 @@ class MergedContent implements ArrayAccess
 	{
 		$this->content = $parts;
 	}
-	
+
 	/**
 	 * @param string|string[]|mixed $render
 	 * @return string
@@ -47,14 +47,15 @@ class MergedContent implements ArrayAccess
 
 	public function getContent()
 	{
+		TaylorProfiler::start(__METHOD__);
+//		llog('mergeStringArrayRecursive', gettype($render));
 		return $this->mergeStringArrayRecursiveMethod($this->content);
 	}
 
 	public function mergeStringArrayRecursiveMethod($render)
 	{
 		if (is_array($render)) {
-			array_walk_recursive($render, [$this, 'walkMergeArray']);
-			$arrayOfObjects = $this->combined;
+			$arrayOfObjects = array_flatten($render);
 			$sureStrings = self::stringify($arrayOfObjects);
 			$combined = implode('', $sureStrings);
 			$render = $combined;

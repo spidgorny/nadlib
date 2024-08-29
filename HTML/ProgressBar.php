@@ -234,17 +234,10 @@ class ProgressBar
 
 	public function setProgressBarProgress($percentDone, $text = '', $after = '')
 	{
-		$this->percentDone = $percentDone;
-		$text = $text
-			?: number_format($this->percentDone, $this->decimals, '.', '') . '%';
-		if ($this->cli) {
-			if (!Request::isCron()) {
-				// \r first to preserve errors
-				echo $this->cliBR . $text . "\t" . $this->getCLIbar() . ' ' . $after;
-			} // else nothing
-		} else {
-			$this->setProgressBarJS($percentDone, $text);
-		}
+		return new HtmlString('<div style="' . $css . '">' .
+			number_format($p, 2) . '&nbsp;%&nbsp;
+			' . self::getImage($p, $append) . '
+		</div>');
 	}
 
 	public function getCLIbar()

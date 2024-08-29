@@ -38,6 +38,7 @@ class JSONResponse
 		$json = json_encode($json + [
 					'duration' => $duration,
 				], $options) . '';
+		llog('JSONResponse::__toString', substr($json, 0, 100), $this->httpCode);
 		header('Content-Type: application/json');
 		return $json;
 	}

@@ -65,14 +65,14 @@ class ExplainQuery extends AppControllerBE
 			$content .= $this->result;
 		}
 
-		$content = $this->encloseIn($this->title = 'Explain Query', $content);
+		$content = $this->encloseInFieldset($this->title = 'Explain Query', $content);
 		return $content;
 	}
 
 	public function sidebar()
 	{
 		$content = new slTable($this->profile);
-		$content = $this->encloseIn('Time: ' . $this->time, $content);
+		$content = $this->encloseInFieldset('Time: '.$this->time, $content);
 		return $content;
 	}
 

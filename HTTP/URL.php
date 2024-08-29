@@ -64,6 +64,11 @@ class URL
 	 */
 	public $proxy;
 
+	public static function from($url = null, array $params = [])
+	{
+		return new self($url, $params);
+	}
+
 	/**
 	 * @param string $url - if not specified then the current page URL is reconstructed
 	 * @param array $params
@@ -288,8 +293,7 @@ class URL
 	public function getExtension()
 	{
 		$basename = $this->getBasename();
-		$ext = pathinfo($basename, PATHINFO_EXTENSION);
-		return $ext;
+		return pathinfo($basename, PATHINFO_EXTENSION);
 	}
 
 	/**
@@ -299,8 +303,7 @@ class URL
 	public function getExtensionLC()
 	{
 		$ext = $this->getExtension();
-		$ext = mb_strtolower($ext);
-		return $ext;
+		return mb_strtolower($ext);
 	}
 
 	public function setDocumentRoot($root)
@@ -312,7 +315,7 @@ class URL
 
 	public function setFragment($name)
 	{
-		if ($name[0] == '#') {
+		if ($name[0] === '#') {
 			$name = substr($name, 1);
 		}
 		$this->components['fragment'] = $name;
@@ -333,57 +336,59 @@ class URL
 	 *
 	 * @param null $parsed
 	 * @return string
+	 * @throws \Exception
 	 */
 	public function buildURL($parsed = null)
 	{
 		if (!$parsed) {
 			// to make sure manual manipulations are not possible (although it's already protected?)
 			$this->components['query'] = $this->buildQuery();
+			$this->components['path'] = $this->path->__toString();
 			$parsed = $this->components;
 		}
-		if (!is_array($parsed)) {
-			return false;
-		}
+		invariant(is_array($parsed), 'Parsed URL must be an array');
 
 		$uri = isset($parsed['scheme'])
-			? $parsed['scheme'] . ':' . ((strtolower($parsed['scheme']) == 'mailto') ? '' : '//')
+			? $parsed['scheme'] . ':' . ((strtolower($parsed['scheme']) === 'mailto') ? '' : '//')
 			: '';
 		$uri .= isset($parsed['user'])
 			? $parsed['user'] . (isset($parsed['pass']) ? ':' . $parsed['pass'] : '') . '@'
 			: '';
 
-		$uri .= isset($parsed['host']) ? $parsed['host'] : '';
+		$uri .= $parsed['host'] ?? '';
 		$uri .= isset($parsed['port']) ? ':' . $parsed['port'] : '';
 
 		if (isset($parsed['path'])) {
-			$uri .= (substr($parsed['path'], 0, 1) == '/') ?
+			$uri .= (str_starts_with($parsed['path'], '/')) ?
 				$parsed['path'] : ((!empty($uri) ? '/' : '') . $parsed['path']);
 		}
 
-		$uri .= /*isset*/
-			($parsed['query']) ? '?' . $parsed['query'] : '';
+		$uri .= $parsed['query'] ? '?' . $parsed['query'] : '';
 		$uri .= isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
 
 		return $uri;
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	public function __toString()
 	{
 		if (ifsetor($this->components['host'])) {
-			$url = $this->buildURL();
-		} else {
-			$url = '';
+			return $this->buildURL();
+		}
+
+		$url = '';
 //			if (ifsetor($this->components['path'])
 //				&& $this->components['path'] != '/') {
 //				$url .= $this->components['path'];
 //			}
-			$url .= $this->path . '';
-			if (ifsetor($this->components['query'])) {
-				$url .= '?' . $this->components['query'];
-			}
-			if (ifsetor($this->components['fragment'])) {
-				$url .= '#' . $this->components['fragment'];
-			}
+		$url .= $this->path . '';
+		if (ifsetor($this->components['query'])) {
+			$url .= '?' . $this->components['query'];
+		}
+		if (ifsetor($this->components['fragment'])) {
+			$url .= '#' . $this->components['fragment'];
 		}
 		//debug($this->components, $url);
 		return $url . '';
@@ -1047,4 +1052,16 @@ class URL
 		}
 		return $this;
 	}
+
+	public function appendString(string $path)
+	{
+		$this->path->appendString($path);
+		return $this;
+	}
+
+	public function toString()
+	{
+		return $this->__toString();
+	}
+
 }

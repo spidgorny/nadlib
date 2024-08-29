@@ -13,7 +13,7 @@ class QueryLog
 	 */
 	public $queryLog = [];
 
-	public function log($query, $diffTime, $results = null, $ok = null)
+	public function log($query, $diffTime, int $results = null, $ok = null)
 	{
 		$key = md5(trim($query));
 //		debug(__METHOD__, $query, $diffTime, $key, array_keys($this->queryLog));
@@ -27,7 +27,7 @@ class QueryLog
 			'sumtime' => ifsetor($old['sumtime']) + $diffTime,
 			'times' => ifsetor($old['times']) + 1,
 			'results' => $results,
-			'ok' => $ok ? 'ok' : 'false',
+			'ok' => $ok instanceof PgSql\Result ? get_class($ok) : $ok,
 		];
 //		debug($key, $this->queryLog);
 	}

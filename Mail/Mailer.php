@@ -58,6 +58,39 @@ class Mailer implements MailerInterface
 		return $mail;
 	}
 
+	public function attach($name, $mime, $content)
+	{
+		$this->attachments[] = [
+			'name' => $name,
+			'mime' => $mime,
+			'content' => $content,
+		];
+	}
+
+	public function getSubject()
+	{
+		$subject = '=?utf-8?B?' . base64_encode($this->subject) . '?=';
+		return $subject;
+	}
+
+	public function getBodyText()
+	{
+		$bodyText = str_replace("\n.", "\n..", $this->bodytext);
+		return $bodyText;
+	}
+
+	public function debug()
+	{
+		$assoc = [];
+		$assoc['to'] = $this->to;
+		$assoc['subject'] = $this->getSubject();
+		$assoc['isHTML'] = self::isHTML($this->bodytext);
+		$assoc['headers'] = new HtmlString(implode('<br />', $this->headers));
+		$assoc['params'] = implode(' ', $this->params);
+		$assoc['bodyText'] = nl2br($this->getBodyText());
+		return slTable::showAssoc($assoc);
+	}
+
 	/**
 	 * @return bool
 	 * @throws MailerException

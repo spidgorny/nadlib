@@ -72,7 +72,6 @@ class DBLayer extends DBLayerBase
 		$this->host = $host;
 		if ($dbName) {
 			$this->connect($dbName, $user, $pass, $host);
-//			debug(pg_version()); exit();
 
 			if ($this->getVersion() >= 8.4) {
 				$query = "select * from pg_get_keywords() WHERE catcode IN ('R', 'T')";
@@ -84,6 +83,31 @@ class DBLayer extends DBLayerBase
 		if (DEVELOPMENT) {
 			$this->queryLog = new QueryLog();
 		}
+	}
+
+	public function getVersion()
+	{
+		$version = pg_version($this->connection);
+		return $version['server'];
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isConnected()
+	{
+		return !!$this->connection
+			&& pg_connection_status($this->connection) === PGSQL_CONNECTION_OK;
+	}
+
+	public function getConnection()
+	{
+		return $this->connection;
+	}
+
+	public function reconnect()
+	{
+		$this->connect($this->database, $this->user, $this->pass, $this->host);
 	}
 
 	public function connect($database = null, $user = null, $pass = null, $host = null)
@@ -101,10 +125,10 @@ class DBLayer extends DBLayerBase
 			$this->host = $host;
 		}
 		$string = "host={$this->host} dbname={$this->database} user={$this->user} password={$this->pass}";
-//		debug($string);
+//		llog($string);
 		$this->connection = pg_connect($string);
 		if (!$this->connection) {
-			throw new Exception("No PostgreSQL connection to $host. " . json_encode(error_get_last()));
+			throw new DatabaseException("No PostgreSQL connection to $host. " . json_encode(error_get_last()));
 			//printbr('Error: '.pg_errormessage());	// Warning: pg_errormessage(): No PostgreSQL link opened yet
 		}
 
@@ -151,8 +175,10 @@ class DBLayer extends DBLayerBase
 		}
 		$this->queryTime = $prof->elapsed();
 		if ($this->logToLog) {
-			error_log($query . '' . ' => ' . $this->LAST_PERFORM_RESULT);
+				llog($query . '' . ' => ' . $this->LAST_PERFORM_RESULT);
 		}
+//			$this->reportIfLastQueryFailed();
+
 
 		if (!$this->LAST_PERFORM_RESULT) {
 			//debug_pre_print_backtrace();
@@ -273,11 +299,11 @@ class DBLayer extends DBLayerBase
 			debug($query);
 			debug_pre_print_backtrace();
 			throw new Exception(pg_errormessage($this->connection) . BR . $query);
-		} else {
-			$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
-			if ($this->queryLog) {
-				$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS);
-			}
+		}
+
+		$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
+		if ($this->queryLog) {
+			$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS);
 		}
 		$this->queryCount++;
 		return $this->LAST_PERFORM_RESULT;
@@ -296,15 +322,14 @@ class DBLayer extends DBLayerBase
 		$meta = pg_meta_data($this->connection, $table);
 		if (is_array($meta)) {
 			return array_keys($meta);
-		} else {
-			throw new Exception("Table not found: <strong>$table</strong>");
 		}
+
+		throw new Exception("Table not found: <strong>$table</strong>");
 	}
 
 	public function getTableColumnsEx($table)
 	{
-		$meta = pg_meta_data($this->connection, $table);
-		return $meta;
+		return pg_meta_data($this->connection, $table);
 	}
 
 	public function getTableColumnsCached($table)
@@ -340,8 +365,16 @@ class DBLayer extends DBLayerBase
 			}
 			return $return;
 		}
-
 		throw new Exception("Table not found: <strong>$table</strong>");
+	}
+
+	public function getTableDataEx($table, $where = "", $what = "*")
+	{
+		$query = "select " . $what . " from $table";
+		if (!empty($where)) {
+			$query .= " where $where";
+		}
+		return $this->fetchAll($query);
 	}
 
 	/**
@@ -596,6 +629,28 @@ class DBLayer extends DBLayerBase
 		$result = $this->perform($query);
 		$row = pg_fetch_row($result);
 		return $row[0];
+	}
+
+	public function numRows($query = null)
+	{
+		if (is_string($query)) {
+			$query = $this->perform($query);
+		}
+		return pg_num_rows($query);
+	}
+
+	public function getLastInsertID($res = null, $table = 'not required since 8.1')
+	{
+		$pgv = pg_version();
+//		llog('pg_version', $pgv);
+		if ((float)$pgv['server'] >= 8.1) {
+			return $this->lastval();
+		}
+
+		throw new RuntimeException('Upgrade PostgreSQL to 8.1 or higher');
+//		$oid = pg_last_oid($res);
+//		$id = $this->sqlFind('id', $table, "oid = '" . $oid . "'");
+//		return $id;
 	}
 
 	/**
@@ -864,23 +919,23 @@ WHERE ccu.table_name='" . $table . "'");
 			$q = $this->getReplaceQuery($table, $columns);
 			die($q);
 			return $this->perform($q);
-		} else {
+		}
+
 //			debug($this->isTransaction());
-			//$this->transaction();
+		//$this->transaction();
 //			debug($this->isTransaction());
-			$key_key = array_combine($primaryKeys, $primaryKeys);
-			$where = array_intersect_key($columns, $key_key);
-			$find = $this->runSelectQuery($table, $where);
-			$rows = $this->numRows($find);
+		$key_key = array_combine($primaryKeys, $primaryKeys);
+		$where = array_intersect_key($columns, $key_key);
+		$find = $this->runSelectQuery($table, $where);
+		$rows = $this->numRows($find);
 //			debug($rows, $table, $columns, $where);
 //			exit;
-			if ($rows) {
+		if ($rows) {
 				return $this->runUpdateQuery($table, $columns, $where);
-			} else {
+		} else {
 				return $this->runInsertQuery($table, $columns);
-			}
-			//return $this->commit();
 		}
+		//return $this->commit();
 	}
 
 	/**

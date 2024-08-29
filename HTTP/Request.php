@@ -63,6 +63,198 @@ class Request
 		]);
 	}
 
+	/**
+	 * @return Path
+	 */
+	public static function getDocRoot()
+	{
+		$docRoot = null;
+		if (class_exists('Config')) {
+			$c = Config::getInstance();
+			$docRoot = $c->documentRoot;
+		}
+		if (!$docRoot) {
+			$docRoot = self::getDocumentRoot();
+		}
+		//pre_print_r($docRoot);
+
+		if (!str_startsWith($docRoot, '/')) {
+			$docRoot = '/' . $docRoot;
+		}
+
+		if (!($docRoot instanceof Path)) {
+			$docRoot = new Path($docRoot);
+		}
+
+		return $docRoot;
+	}
+
+	public static function getInstance($cons = null)
+	{
+		if (!static::$instance) {
+			static::$instance = new static($cons);
+		}
+		return static::$instance;
+	}
+
+	/**
+	 * [DOCUMENT_ROOT]      => U:/web
+	 * [SCRIPT_FILENAME]    => C:/Users/DEPIDSVY/NetBeansProjects/merged/index.php
+	 * [PHP_SELF]           => /merged/index.php
+	 * [cwd]                => C:\Users\DEPIDSVY\NetBeansProjects\merged
+	 * @return Path
+	 */
+	public static function getDocumentRoot()
+	{
+		// PHP Warning:  strpos(): Empty needle in /var/www/html/vendor/spidgorny/nadlib/HTTP/class.Request.php on line 706
+
+		$docRoot = self::getDocumentRootByRequest();
+		if (!$docRoot || ('/' == $docRoot)) {
+			$docRoot = self::getDocumentRootByDocRoot();
+		}
+
+		// this is not working right
+		//		if (!$docRoot || ('/' == $docRoot)) {
+		//			$docRoot = self::getDocumentRootByScript();
+		//		}
+
+		//		$before = $docRoot;
+		//$docRoot = str_replace(AutoLoad::getInstance()->nadlibFromDocRoot.'be', '', $docRoot);	// remove vendor/spidgorny/nadlib/be
+		$docRoot = cap($docRoot, '/');
+		//debug($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $before, AutoLoad::getInstance()->nadlibFromDocRoot.'be', $docRoot);
+		//print '<pre>'; print_r(array($_SERVER['DOCUMENT_ROOT'], dirname($_SERVER['SCRIPT_FILENAME']), $before, $docRoot)); print '</pre>';
+
+		//debug_pre_print_backtrace();
+		require_once __DIR__ . '/Path.php'; // needed if called early
+		$docRoot = new Path($docRoot);
+		//pre_print_r($docRoot, $docRoot.'');
+		return $docRoot;
+	}
+
+	/**
+	 * Works well with RewriteRule
+	 */
+	public static function getDocumentRootByRequest()
+	{
+		$script = $_SERVER['SCRIPT_FILENAME'];
+		$request = dirname(ifsetor($_SERVER['REQUEST_URI'], ''));
+		//		exit();
+		if ($request && $request != '/' && strpos($script, $request) !== false) {
+			$docRootRaw = $_SERVER['DOCUMENT_ROOT'];
+			$docRoot = str_replace($docRootRaw, '', dirname($script)) . '/';    // dirname() removes slash
+		} else {
+			$docRoot = '/';
+		}
+		//		pre_print_r($script, $request, strpos($script, $request), $docRoot);
+		return $docRoot;
+	}
+
+	public static function getDocumentRootByDocRoot()
+	{
+		$docRoot = null;
+		$script = $_SERVER['SCRIPT_FILENAME'];
+		$docRootRaw = ifsetor($_SERVER['DOCUMENT_ROOT']);
+		if (!empty($docRootRaw)) {
+			$beginTheSame = str_startsWith($script, $docRootRaw);
+			$contains = strpos($script, $docRootRaw) !== false;
+		} else {
+			$beginTheSame = false;
+			$contains = false;
+		}
+		if ($docRootRaw
+			&& $beginTheSame
+			&& $contains
+		) {
+			$docRoot = str_replace($docRootRaw, '', dirname($script) . '/');    // slash is important
+			//pre_print_r($docRoot);
+		}
+		0 && pre_print_r([
+			'script' => $script,
+			'docRootRaw' => $docRootRaw,
+			'beginTheSame' => $beginTheSame,
+			'contains' => $contains,
+			'replaceFrom' => dirname($script),
+			'docRoot' => $docRoot,
+		]);
+		return $docRoot;
+	}
+
+	//
+
+	/**
+	 * Returns the full URL to the document root of the current site
+	 * @param bool $isUTF8
+	 * @return URL
+	 */
+	public static function getLocation($isUTF8 = false)
+	{
+		$docRoot = self::getDocRoot();
+//		llog($docRoot.'');
+		$host = self::getHost($isUTF8);
+		$url = Request::getRequestType() . '://' . $host . $docRoot;
+		$url = new URL($url);
+		return $url;
+	}
+
+	public static function getHost($isUTF8 = false)
+	{
+		if (self::isCLI()) {
+			return gethostname();
+		}
+		$host = ifsetor($_SERVER['HTTP_X_ORIGINAL_HOST']);
+		if (!$host) {
+			$host = isset($_SERVER['HTTP_X_FORWARDED_HOST'])
+				? $_SERVER['HTTP_X_FORWARDED_HOST']
+				: (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : null);
+		}
+		if (function_exists('idn_to_utf8') && $isUTF8) {
+			if (phpversion() >= 7.3) {
+				$try = idn_to_utf8($host, 0, defined('INTL_IDNA_VARIANT_UTS46') ? INTL_IDNA_VARIANT_UTS46 : 1);
+			} else {
+				$try = idn_to_utf8($host);
+			}
+			//debug($host, $try);
+			if ($try) {
+				$host = $try;
+			}
+		}
+		return $host;
+	}
+
+	public static function isCLI()
+	{
+		//return isset($_SERVER['argc']);
+		return php_sapi_name() == 'cli';
+	}
+
+	/**
+	 * http://www.zen-cart.com/forum/showthread.php?t=164174
+	 */
+	public static function getRequestType()
+	{
+		$HTTPS = ifsetor($_SERVER['HTTPS'], getenv('HTTPS'));
+		$HTTP_X_FORWARDED_HOST = ifsetor($_SERVER['HTTP_X_FORWARDED_HOST']);
+		$HTTPS_SERVER = ifsetor($_SERVER['HTTPS_SERVER']);
+		$HTTP_X_FORWARDED_SSL = ifsetor($_SERVER['HTTP_X_FORWARDED_SSL']);
+		$HTTP_X_FORWARDED_PROTO = ifsetor($_SERVER['HTTP_X_FORWARDED_PROTO']);
+		$HTTP_X_FORWARDED_BY = ifsetor($_SERVER['HTTP_X_FORWARDED_BY']);
+		$HTTP_X_FORWARDED_SERVER = ifsetor($_SERVER['HTTP_X_FORWARDED_SERVER']);
+		$request_type =
+			((($HTTPS) && (strtolower($HTTPS) == 'on' || $HTTPS == '1'))) ||
+			(($HTTP_X_FORWARDED_BY) && strpos(strtoupper($HTTP_X_FORWARDED_BY), 'SSL') !== false) ||
+			(($HTTP_X_FORWARDED_HOST) && (strpos(strtoupper($HTTP_X_FORWARDED_HOST), 'SSL') !== false)) ||
+			(($HTTP_X_FORWARDED_HOST && $HTTPS_SERVER) && (strpos(strtoupper($HTTP_X_FORWARDED_HOST), str_replace('https://', '', $HTTPS_SERVER)) !== false)) ||
+			(isset($_SERVER['SCRIPT_URI']) && strtolower(substr($_SERVER['SCRIPT_URI'], 0, 6)) == 'https:') ||
+			(($HTTP_X_FORWARDED_SSL) && ($HTTP_X_FORWARDED_SSL == '1' || strtolower($HTTP_X_FORWARDED_SSL) == 'on')) ||
+			(($HTTP_X_FORWARDED_PROTO) && (strtolower($HTTP_X_FORWARDED_PROTO) == 'ssl' || strtolower($HTTP_X_FORWARDED_PROTO) == 'https')) ||
+			(isset($_SERVER['HTTP_SSLSESSIONID']) && $_SERVER['HTTP_SSLSESSIONID'] != '') ||
+			(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443') ||
+			ifsetor($_SERVER['FAKE_HTTPS'])
+			|| (str_startsWith($HTTP_X_FORWARDED_SERVER, 'sslproxy'))    // BlueMix
+				? 'https' : 'http';
+		return $request_type;
+	}
+
 	public static function getPort()
 	{
 		$host = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? ($_SERVER['HTTP_HOST'] ?? null);
@@ -135,10 +327,12 @@ class Request
 		$pos = strpos($script, '/public_html');
 		if ($pos !== false) {
 			$docRoot = substr(dirname($script), $pos);
-			return str_replace('public_html', '~depidsvy', $docRoot);
+			$docRoot = str_replace('public_html', '~depidsvy', $docRoot);
+			return $docRoot;
 		}
 
-		return dirname($_SERVER['PHP_SELF']);
+		$docRoot = dirname($_SERVER['PHP_SELF']);
+		return $docRoot;
 	}
 
 	public static function getDocumentRootByIsDir()
@@ -190,9 +384,9 @@ class Request
 	{
 		if (ifsetor($_SERVER['SCRIPT_FILENAME'])) {
 			return $__FILE__ == $_SERVER['SCRIPT_FILENAME'];
-		} else {
-			throw new Exception(__METHOD__);
 		}
+
+		throw new Exception(__METHOD__);
 	}
 
 	public static function isLocalhost()
@@ -326,7 +520,7 @@ class Request
 
 	public function int($name)
 	{
-		return isset($this->data[$name]) ? intval($this->data[$name]) : 0;
+		return isset($this->data[$name]) ? (int)$this->data[$name] : 0;
 	}
 
 	public function getIntInException($name, array $assoc)
@@ -350,7 +544,7 @@ class Request
 
 	public function getFloat($name)
 	{
-		return floatval($this->data[$name]);
+		return (float)$this->data[$name];
 	}
 
 	/**
@@ -521,9 +715,8 @@ class Request
 	{
 		if ($this->is_set($a)) {
 			return $this->getTrim($a);    // returns even if empty
-		} else {
-			return $default;
 		}
+		return $default;
 	}
 
 	public function setNewController($class)
@@ -571,7 +764,7 @@ class Request
 
 	public function getControllerString($returnDefault = true)
 	{
-		if ($this->isCLI()) {
+		if (self::isCLI()) {
 			$resolver = new CLIResolver();
 			return $resolver->getController();
 		}
@@ -584,14 +777,15 @@ class Request
 			$resolver = new PathResolver();
 			$controller = $resolver->getController($returnDefault);
 		}   // cli
-		nodebug([
-			'result' => $controller,
-			'c' => $this->getTrim('c'),
-			//'levels' => $this->getURLLevels(),
-			'default' => class_exists('Config')
-				? Config::getInstance()->defaultController
-				: null,
-			'data' => $this->data]);
+//		llog([
+//			'getControllerString',
+//			'result' => $controller,
+//			'c' => $this->getTrim('c'),
+//			//'levels' => $this->getURLLevels(),
+//			'default' => class_exists('Config')
+//				? Config::getInstance()->defaultController
+//				: null,
+//			'data' => $this->data]);
 		return $controller;
 	}
 
@@ -618,7 +812,7 @@ class Request
 			if (class_exists($c)) {
 				$ret = new $c();
 			} elseif ($c) {
-				throw new Exception('Class ' . $c . ' can\'t be found.');
+				throw new \RuntimeException('Class ' . $c . ' can\'t be found.');
 			}
 		}
 		return $ret;
@@ -637,7 +831,7 @@ class Request
 		if (str_startsWith($relative, 'http')) {
 			$link = $relative;
 		} else {
-			$link = $this->getLocation() . $relative;
+			$link = self::getLocation() . $relative;
 		}
 		if (!headers_sent()) {
 			header('X-Redirect: ' . $link);    // to be handled by AJAX callback
@@ -1302,12 +1496,14 @@ class Request
 		} else {
 			$levels = [];
 		}
-//		llog([
-//			'cwd' => getcwd(),
-//			//'url' => $url.'',
-//			'path' => $path . '',
-//			//'getURL()' => $path->getURL() . '',
-//			'levels' => $levels]);
+		if (false) {
+			llog([
+				'cwd' => getcwd(),
+				//'url' => $url.'',
+				'path' => $path . '',
+				//'getURL()' => $path->getURL() . '',
+				'levels' => $levels]);
+		}
 		return $levels;
 	}
 
@@ -1335,6 +1531,10 @@ class Request
 
 	public function getPOST()
 	{
+		if (isset($HTTP_RAW_POST_DATA)) {
+			return $HTTP_RAW_POST_DATA;
+		}
+
 		return file_get_contents("php://input");
 	}
 
@@ -1452,6 +1652,7 @@ class Request
 					header('Redirect-From-' . $ii . ': ' . $line);
 				}
 
+				header('X-Memory: ' . memory_get_usage() . '/' . memory_get_peak_usage());
 				header('Location: ' . $controller);
 			}
 			echo '<meta http-equiv="refresh" content="0; url=' . $controller . '">';
@@ -1474,14 +1675,14 @@ class Request
 			$absURL->makeAbsolute();
 			//debug($absURL.'', $to.''); exit();
 			return $absURL . '' != $to . '';
-		} else {
-			return true;
 		}
+
+		return true;
 	}
 
 	public function isGET()
 	{
-		return ifsetor($_SERVER['REQUEST_METHOD'], 'GET') == 'GET';
+		return ifsetor($_SERVER['REQUEST_METHOD'], 'GET') === 'GET';
 	}
 
 	/**
@@ -1513,7 +1714,11 @@ class Request
 
 	public function getBrowserIP()
 	{
-		return $_SERVER['REMOTE_ADDR'];
+		if ($_SERVER['HTTP_CLIENT_IP']) {
+			return $_SERVER['HTTP_CLIENT_IP'];
+		}
+
+		return $_SERVER['HTTP_X_FORWARDED_FOR'] ?: $_SERVER['REMOTE_ADDR'];
 	}
 
 	public function getIDrequired()

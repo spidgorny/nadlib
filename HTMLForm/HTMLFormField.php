@@ -8,6 +8,8 @@
  */
 class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 {
+	use MagicDataProps;
+	use ArrayAccessData;
 
 	/**
 	 * All different desc parameters for the form element.
@@ -47,53 +49,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 		$this->fieldName = $fieldName;
 	}
 
-	public function offsetExists($offset): bool
-	{
-		return isset($this->data[$offset]);
-	}
-
-	/**
-	 * ifsetor() here will not work:
-	 * Only variable references should be returned by reference
-	 * @param mixed $offset
-	 * @return mixed
-	 */
-	public function &offsetGet($offset): mixed
-	{
-		$ref = $this->data[$offset] ?? null;
-		return $ref;
-	}
-
-	public function offsetSet($offset, $value): void
-	{
-		if (is_null($offset)) {
-			$this->data[] = $value;
-		} else {
-			$this->data[$offset] = $value;
-		}
-	}
-
-	public function offsetUnset($offset): void
-	{
-		unset($this->data[$offset]);
-	}
-
-	public function __get($name)
-	{
-		return ifsetor($this->data[$name], null);
-	}
-
-	public function __isset($name)
-	{
-		return ifsetor($this->data[$name], null);
-	}
-
-	public function __set($name, $value)
-	{
-		$this->data[$name] = $value;
-	}
-
-	public function isOptional()
+	public function getArray()
 	{
 		return !$this->isObligatory();
 	}

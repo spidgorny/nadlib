@@ -118,6 +118,20 @@ class HTML
 		return $html;
 	}
 
+	public function e($content)
+	{
+		if ($content instanceof HTMLTag) {
+			return $content;
+		}
+		if ($content instanceof HtmlString) {
+			return $content;
+		}
+		if (is_array($content)) {
+			$content = MergedContent::mergeStringArrayRecursive($content);
+		}
+		return htmlspecialchars($content, ENT_QUOTES);
+	}
+
 	public function script($file)
 	{
 		$mtime = filemtime($file);

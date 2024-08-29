@@ -71,7 +71,7 @@ class DownloadObfuscator
 	public function checkHash($check)
 	{
 		//debug($this->getHash(), $check);
-		return $this->getHash() == $check;
+		return $this->getHash() === $check;
 	}
 
 	/**
@@ -104,17 +104,22 @@ class DownloadObfuscator
 		//debug($file, $exists, glob(dirname($file).'/*')); exit();
 		if ($exists) {
 			//if ($GLOBALS['TSFE']->fe_user->user['uid']) {
-			// urlencode makes is ugly
-			header('Content-Disposition: attachment; filename="' ./*urlencode*/
-				(basename($file)) . '"');
-			header('Content-type: application/force-download');
-			header('Content-type: application/octet-stream');
-			//header('Content-type: application/x-msdownload'); // Excel?!?
+			$this->forceDownload($file);
 			readfile($file);
 			exit();
 		} else {
 			throw new Exception(__('File does not exist.'));
 		}
+	}
+
+	public function forceDownload($file)
+	{
+		// urlencode makes is ugly
+		header('Content-Disposition: attachment; filename="' ./*urlencode*/
+			(basename($file)) . '"');
+		header('Content-type: application/force-download');
+		header('Content-type: application/octet-stream');
+		//header('Content-type: application/x-msdownload'); // Excel?!?
 	}
 
 }

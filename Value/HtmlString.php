@@ -22,7 +22,7 @@ class HtmlString implements ToStringable
 	/**
 	 * htmlspecialchars which knows about HtmlString()
 	 * @param string $string
-	 * @return string|htmlString
+	 * @return string|HtmlString
 	 */
 	public static function hsc($string)
 	{
@@ -35,7 +35,7 @@ class HtmlString implements ToStringable
 
 	public function replace($one, $two)
 	{
-		return new HtmlString(
+		$new = new HtmlString(
 			str_replace($one, $two, $this->value));
 	}
 

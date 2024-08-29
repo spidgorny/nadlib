@@ -10,18 +10,18 @@ trait CachedGetInstance
 
 	/**
 	 * @param int $id
-	 * @return self|$this|static
+	 * @return static
 	 * @throws Exception
 	 */
 	public static function getInstance($id)
 	{
-		return static::getInstanceByID($id);
+		return self::getInstanceByID($id);
 	}
 
 	/**
 	 * // TODO: initialization by array should search in $instances as well
 	 * @param $id |array int
-	 * @return $this
+	 * @return static
 	 * @throws Exception
 	 */
 	public static function getInstanceByID($id)
@@ -38,7 +38,7 @@ trait CachedGetInstance
 				: NULL,
 		));*/
 		if (is_scalar($id)) {
-			$inst = self::$instances[$static][$id] ?? null;
+			$inst = static::$instances[$static][$id] ?? null;
 			if (!$inst) {
 				//debug('new ', get_called_class(), $id, array_keys(self::$instances));
 				// don't put anything else here
@@ -65,8 +65,7 @@ trait CachedGetInstance
 		} elseif (is_null($id)) {
 			$inst = new $static();
 		} else {
-			debug($id);
-			throw new InvalidArgumentException($static . '->' . __METHOD__);
+			throw new InvalidArgumentException($static . '->' . __METHOD__ . ' id='.$id);
 		}
 		return $inst;
 	}

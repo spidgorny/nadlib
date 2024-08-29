@@ -97,8 +97,7 @@ if (!function_exists('first')) {
 			}
 		}
 
-		$matriz = unique_multidim_array($matriz);
-		return $matriz;
+		return unique_multidim_array($matriz);
 	}
 
 	/**
@@ -144,8 +143,7 @@ if (!function_exists('first')) {
 		$temp = array_map($callback, $keys, $array);    // return ['key', 'value']
 		$keys = array_column($temp, 0);
 		$values = array_column($temp, 1);
-		$result = array_combine($keys, $values);
-		return $result;
+		return array_combine($keys, $values);
 	}
 
 	function array_widths(array $arr)
@@ -195,9 +193,7 @@ function arrayToObject($array)
 	$json = json_encode($array);
 
 	// The we convert the json string to a stdClass()
-	$object = json_decode($json);
-
-	return $object;
+	return json_decode($json, false);
 }
 
 
@@ -217,6 +213,35 @@ function objectToArray($object)
 	return json_decode($json, true);
 }
 
+function array_find($array, $callback)
+{
+	return current(array_filter($array, $callback));
+}
+
+if (!function_exists('array_flatten')) {
+	/**
+	 * Convert a multi-dimensional array into a single-dimensional array.
+	 * @param array $array The multi-dimensional array.
+	 * @return array
+	 * @author Sean Cannon, LitmusBox.com | seanc@litmusbox.com
+	 * @see https://gist.github.com/SeanCannon/6585889
+	 * @noinspection SlowArrayOperationsInLoopInspection
+	 */
+	function array_flatten($array)
+	{
+		if (!is_array($array)) {
+			return [];
+		}
+		$result = [];
+		foreach ($array as $key => $value) {
+			if (is_array($value)) {
+				$result = array_merge($result, array_flatten($value));
+			} else {
+				$result = array_merge($result, [$key => $value]);
+			}
+		}
+		return $result;
+	}
 // https://www.reddit.com/r/PHPhelp/comments/7987wv/is_there_a_php_equivalent_of_javascripts_arrayfind/
 function array_find(callable $callback, array $array) {
 	foreach ($array as $key => $value) {

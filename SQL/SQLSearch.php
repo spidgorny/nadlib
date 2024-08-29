@@ -60,8 +60,7 @@ class SQLSearch extends SQLWherePart
 		$words = array_filter($words);
 		$words = array_unique($words);
 		//$words = $this->combineSplitTags($words);
-		$words = array_values($words);
-		return $words;
+		return array_values($words);
 	}
 
 	public function __toString()

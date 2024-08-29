@@ -1,21 +1,23 @@
 <?php
 
+use League\Flysystem\StorageAttributes;
+
 /**
  * @phpstan-consistent-constructor
  */
 class File
 {
 
-	public bool $isDir;
+	public $isDir;
 
 	public string $dir;
 
 	/**
 	 * @var string this is a relative path (can be absolute as well)
 	 */
-	protected string $name;
+	protected $name;
 
-	public SplFileInfo $spl;
+	public $spl;
 
 	/**
 	 * @var \League\Flysystem\Filesystem
@@ -23,6 +25,7 @@ class File
 	public $fly;
 
 	public \League\Flysystem\FileAttributes $meta;
+
 	/**
 	 * @var string|null the path in the $name is relative to this
 	 */

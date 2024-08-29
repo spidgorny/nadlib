@@ -15,6 +15,13 @@ class IndexBase /*extends Controller*/
 	 * @var LocalLangDummy
 	 */
 	public $ll;
+
+	/**
+	 * @var UserModelInterface
+	 * @public for template.phtml
+	 */
+	protected $user;
+
 	/**
 	 * For any error messages during initialization.
 	 *
@@ -34,7 +41,13 @@ class IndexBase /*extends Controller*/
 	public $description = '';
 	public $keywords = '';
 	public $bodyClasses = [];
-	var $csp = [
+
+	/**
+	 * @var ConfigInterface
+	 */
+	protected $config;
+
+	public $csp = [
 		"default-src" => [
 			"'self'",
 			"'unsafe-inline'",
@@ -231,7 +244,7 @@ class IndexBase /*extends Controller*/
 	{
 		$slugParts = explode('/', $class);
 		$class = end($slugParts);    // again, because __autoload needs the full path
-//		debug(__METHOD__, $slugParts, $class, class_exists($class));
+//		llog(__METHOD__, $slugParts, $class, class_exists($class));
 		if (class_exists($class)) {
 			$this->controller = $this->makeController($class);
 			return $this->controller;
@@ -288,7 +301,7 @@ class IndexBase /*extends Controller*/
 
 		$content = $this->renderTemplateIfNotAjax($content);
 		TaylorProfiler::stop(__METHOD__);
-		$content .= $this->renderProfiler();
+		$content .= $this->s($this->renderProfiler());
 		return $content;
 	}
 
@@ -333,10 +346,9 @@ class IndexBase /*extends Controller*/
 //		debug($_SERVER['HTTP_USER_AGENT'], $_SERVER['REMOTE_ADDR']);
 	}
 
-	public function renderController()
+	public function getMethodFromCli()
 	{
-		TaylorProfiler::start(__METHOD__);
-		$content = '';
+		llog('argv', $_SERVER['argv']);
 		$notOptions = array_filter(
 			array_slice(
 				ifsetor($_SERVER['argv'], []),
@@ -349,9 +361,36 @@ class IndexBase /*extends Controller*/
 				return $el[0] !== '-';    // --options
 			}
 		);
-//		debug($notOptions); exit;
+		llog('notOptions', $notOptions);
 		// $notOptions[0] is the controller
-		$method = ifsetor($notOptions[1], 'render');
+		return ifsetor($notOptions[1], 'render');
+	}
+
+	public function getMethodFromWeb()
+	{
+		$method = ifsetor($_REQUEST['action']);
+		return $method ? $method . 'Action' : 'render';
+	}
+
+	/**
+	 * @throws ReflectionException
+	 */
+	public function renderController()
+	{
+		TaylorProfiler::start(__METHOD__);
+		$content = '';
+		$method = PHP_SAPI === 'cli'
+			? $this->getMethodFromCli()
+//			: $this->getMethodFromWeb();
+			: 'render';  // controller's render() should deal with performAction
+//		llog('method', $method);
+
+		// delegate the decision which action to call to the controller
+		// this makes render() function not working
+//		if ($method && method_exists($this->controller, 'performAction')) {
+//			$content = $this->controller->performAction($method);
+//		} else
+
 		if ($method && method_exists($this->controller, $method)) {
 			//echo 'Method: ', $method, BR;
 			//$params = array_slice($_SERVER['argv'], 3);
@@ -361,7 +400,8 @@ class IndexBase /*extends Controller*/
 			//$content = $this->controller->$method();
 		} elseif (!is_numeric($method)) {    // this is a parameter
 			$content = $this->renderException(
-				new InvalidArgumentException('Method ' . $method . ' is not callable on ' . get_class($this->controller))
+				new InvalidArgumentException('Method [' . $method . '] is not callable on ' .
+					get_class($this->controller))
 			);
 		}
 		$content = $this->s($content);
@@ -423,6 +463,7 @@ class IndexBase /*extends Controller*/
 	public function renderTemplateIfNotAjax($content)
 	{
 		$contentOut = '';
+//		llog('renderTemplateIfNotAjax', gettype($content));
 		if (!$this->request->isAjax() && !$this->request->isCLI()) {
 			// display Exception
 			$view = $this->renderTemplate($content);
@@ -465,6 +506,35 @@ class IndexBase /*extends Controller*/
 		$pp = new PageProfiler();
 		$content = $pp->render();
 		return $content;
+	}
+
+	public function s($content)
+	{
+		return MergedContent::mergeStringArrayRecursive($content);
+	}
+
+	/**
+	 * Does not catch LoginException - show your login form in Index
+	 * @param Exception $e
+	 * @param string $wrapClass
+	 * @return string
+	 */
+	public function renderException(Exception $e)
+	{
+		llog(__METHOD__, get_class($e), $e->getMessage(), explode(PHP_EOL, $e->getTraceAsString()));
+		if ($this->request->isCLI()) {
+			echo get_class($e),
+			' #', $e->getCode(),
+			': ', $e->getMessage(), BR;
+			echo $e->getTraceAsString(), BR;
+			$content = '';
+		}
+		http_response_code($e->getCode());
+		if ($this->controller) {
+			$this->controller->title = get_class($this->controller);
+		}
+		$re = new RenderException($e);
+		return $re->render($this->wrapClass);
 	}
 
 	public function __destruct()
@@ -675,6 +745,28 @@ class IndexBase /*extends Controller*/
 		return $source;
 	}
 
+	public function showSidebar()
+	{
+		TaylorProfiler::start(__METHOD__);
+		$content = '';
+		if (method_exists($this->controller, 'sidebar')) {
+			try {
+				$content = $this->controller->sidebar();
+				$content = $this->s($content);
+			} catch (Exception $e) {
+				// no sidebar
+			}
+		}
+		TaylorProfiler::stop(__METHOD__);
+		return $content;
+	}
+
+	public function renderProfiler()
+	{
+		$pp = new PageProfiler();
+		return $pp->render();
+	}
+
 	public function implodeCSS()
 	{
 		$content = [];
@@ -715,6 +807,20 @@ class IndexBase /*extends Controller*/
 		$this->bodyClasses[$name] = $name;
 	}
 
+	public function setSecurityHeaders()
+	{
+		if (!headers_sent()) {
+			header('X-Frame-Options: SAMEORIGIN');
+			header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+			foreach ($this->csp as $key => &$val) {
+				$val = $key . ' ' . implode(' ', $val);
+			}
+			header('Content-Security-Policy: ' . implode('; ', $this->csp));
+			header('X-Content-Security-Policy: ' . implode('; ', $this->csp));
+		}
+	}
+
+	/// to avoid Config::getInstance() if Index has a valid config
 	public function getConfig()
 	{
 		return $this->config;

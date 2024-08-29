@@ -20,7 +20,10 @@ class GroupSwitch extends Controller
 		//debug($this->user->data);
 		$content = '';
 		if ($this->canSwitchGroup()) {
-			$this->performAction($this->detectAction());
+//			$this->performAction($this->detectAction());	// this leads to issues in PrepareGive
+			if ($this->detectAction() === 'setGroup') {
+				return $this->setGroupAction();
+			}
 			$this->groups = $this->fetchGroups();
 			$content = $this->renderGroups();
 		}
@@ -50,8 +53,7 @@ class GroupSwitch extends Controller
 			}
 			$items[] = $el;
 		}
-		$content = implode(' | ', $items);
-		return $content;
+		return implode(' | ', $items);
 	}
 
 	public function isCurrentGroup($groupID)

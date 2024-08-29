@@ -321,7 +321,7 @@ class SimpleXLSX
 			return [$index - 1, $row - 1];
 		}
 
-		throw new Exception("Invalid cell index.");
+		throw new RuntimeException("Invalid cell index.");
 	}
 
 	public function value($cell)

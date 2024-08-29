@@ -47,11 +47,13 @@ class SQLWherePart
 	{
 		//debug(__METHOD__, gettype2($db));
 		$this->db = $db;
+		return $this;
 	}
 
 	public function injectField($field)
 	{
 		$this->field = $field;
+		return $this;
 	}
 
 	public function debug()

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class uTestBase
+ * Class UTestBase
  * PHPUnit alternative
  */
 class UTestBase extends AppControllerBE
@@ -22,7 +22,7 @@ class UTestBase extends AppControllerBE
 	{
 //		$this->index->bodyClasses[] = 'fullScreen';
 		$content = '<style>
-	body, td {
+	body, tdt {
 		/*font-size: 9pt;*/
 	}
 </style>';
@@ -53,7 +53,7 @@ class UTestBase extends AppControllerBE
 		}
 		$content .= '</table>';
 		//$content .= getDebug($this->stat);
-		$content = $this->encloseIn(new HtmlString('&mu;Test'), $content);
+		$content = $this->encloseInFieldset(new HtmlString('&mu;Test'), $content);
 		if ($GLOBALS['profiler']) {
 			$content .= $GLOBALS['profiler']->printTimers(1);
 		}

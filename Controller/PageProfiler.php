@@ -77,8 +77,7 @@ class PageProfiler
 		$url->clearParams();
 		$fullURL = $this->request->getLocation() . $url;
 		$urlText = $this->request->getLocation() . ' ' . $url;
-		$content = '<a href="' . $fullURL . '">' . $urlText . '</a>' . BR;
-		return $content;
+		return '<a href="' . $fullURL . '">' . $urlText . '</a>' . BR;
 	}
 
 	/**

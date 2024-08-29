@@ -17,7 +17,7 @@ if (!function_exists('str_startsWith')) {
 			$needle = [$needle];
 		}
 		foreach ($needle as $need) {
-			if (strpos($haystack, $need) === 0) {
+			if (strpos($haystack ?? '', $need) === 0) {
 				return true;
 			}
 		}
@@ -159,8 +159,8 @@ if (!function_exists('str_startsWith')) {
 		$separator = ifsetor($freq['/']) >= ifsetor($freq['\\']) ? '/' : '\\';
 //		llog($separator);
 
-		$char0 = isset($path[0]) ? $path[0] : null;
-		$char1 = isset($path[1]) ? $path[1] : null;
+		$char0 = $path[0] ?? null;
+		$char1 = $path[1] ?? null;
 		$isAbs = $char0 === '/' || $char0 === '\\' || $char1 === ':';
 
 		$path = str_replace('\\', '/', $path);  // for trim
@@ -168,9 +168,12 @@ if (!function_exists('str_startsWith')) {
 		$parts = array_merge($parts, trimExplode('/', $plus));
 
 		$root = '';
-//		if (!Request::isWindows()) {
-		if ($separator == '/') {  // not windows separator
-			$root = ($isAbs ? $separator : '');
+		if (!Request::isWindows()) {
+			if ($separator === '/') {  // not windows separator
+				$root = ($isAbs ? $separator : '');
+			}
+		} elseif ($isAbs) {
+			$root = $char1 === ':' ? ''/*$char0 . $char1*/ : '/';
 		}
 		$string = $root . implode($separator, $parts);
 
@@ -201,7 +204,7 @@ if (!function_exists('str_startsWith')) {
 			}
 		}
 		foreach ($end as $e) {
-			if ($value[strlen($value) - 1] == $e) {
+			if ($value[strlen($value) - 1] === $e) {
 				$value = trim($value, $e);
 			}
 		}
@@ -251,7 +254,7 @@ if (!function_exists('str_startsWith')) {
 	 */
 	function toDatabaseKey($string)
 	{
-		if (strtoupper($string) == $string) {
+		if (strtoupper($string) === $string) {
 			return strtolower($string);
 		}
 		$out = '';

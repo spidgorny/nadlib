@@ -28,7 +28,6 @@ class ConfigBase implements ConfigInterface
 	public $timeLimit = 10;
 
 	/**
-	 *
 	 * @var DBInterface
 	 */
 	protected $db;
@@ -165,6 +164,11 @@ class ConfigBase implements ConfigInterface
 		// init user here as he needs to access Config::getInstance()
 		$this->user = null;
 		return $this;
+	}
+
+	public function getDefaultController(): string
+	{
+		return $this->defaultController;
 	}
 
 	public function getDB()

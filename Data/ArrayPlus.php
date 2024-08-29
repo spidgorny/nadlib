@@ -218,13 +218,13 @@ class ArrayPlus extends ArrayObject implements Countable
 			$keyValue = $row[$key];
 			if (!$keyValue && !$allowMerge) {
 				$error = __METHOD__ . '#' . __LINE__ . ' You may need to specify $this->idField in your model.';
-				debug([
-					'error' => $error,
-					'key' => $key,
-					'row' => $row,
-					'data' => $this->getData(),
-				]);
-				throw new Exception($error);
+//				debug([
+//					'error' => $error,
+//					'key' => $key,
+//					'row' => $row,
+//					'data' => $this->getData(),
+//				]);
+				throw new RuntimeException($error);
 			}
 			$data[$keyValue] = $row;
 		}

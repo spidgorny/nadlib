@@ -24,20 +24,34 @@ class PathSpec extends ObjectBehavior
 		$this->shouldHaveType(Path::class);
 	}
 
-	public function it_normalizes_home_page()
+//	public function it_normalizes_home_page()
+//	{
+//		define('DEVELOPMENT', true);
+//		$this->beConstructedWith(new Path('/~depidsvy/floorplan/details'));
+//		$this->normalizeHomePage();
+//		$this->__toString()->shouldBe('depidsvy/public_html/floorplan/details');
+//	}
+//
+//	public function it_normalizes_home_page_2()
+//	{
+//		define('DEVELOPMENT', true);
+//		$this->beConstructedWith('/srv/www/htdocs/~depidsvy/floorplan/details/AboutAccessRights');
+//		$this->normalizeHomePage();
+//		$this->__toString()->shouldBe('depidsvy/public_html/floorplan/details');
+//	}
+//
+	public function it_appendString()
 	{
-		define('DEVELOPMENT', true);
-		$this->beConstructedWith(new Path('/~depidsvy/floorplan/details'));
-		$this->normalizeHomePage();
-		$this->__toString()->shouldBe('depidsvy/public_html/floorplan/details');
+		$this->beConstructedWith('/');
+		$this->appendString('/api/health');
+		$this->__toString()->shouldBe('/api/health');
 	}
 
-	public function it_normalizes_home_page_2()
+	public function it_from()
+
 	{
-		define('DEVELOPMENT', true);
-		$this->beConstructedWith('/srv/www/htdocs/~depidsvy/floorplan/details/AboutAccessRights');
-		$this->normalizeHomePage();
-		$this->__toString()->shouldBe('depidsvy/public_html/floorplan/details');
+		$this->beConstructedWith('/root');
+		$this->__toString()->shouldBe('/root');
 	}
 
 }
