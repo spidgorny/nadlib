@@ -113,26 +113,6 @@ abstract class SimpleController
 		})->get();
 	}
 
-	public static function getInstance()
-	{
-		$static = get_called_class();
-		//if ($static == 'Controller') throw new Exception('Unable to create Controller instance');
-		$isset = isset(self::$instance[$static]);
-		//debug(array_keys(self::$instance), $static, $isset);
-		if ($isset) {
-			$result = self::$instance[$static];
-		} else {
-			$index = Index::getInstance();
-			if ($index->controller instanceof $static) {
-				$result = $index->getController();
-			} else {
-				$result = new $static;
-			}
-		}
-		//debug($isset, get_class($index), get_class($result));
-		return $result;
-	}
-
 	/*function redirect($url) {
 		if (DEVELOPMENT) {
 			return '<script>
@@ -189,27 +169,25 @@ abstract class SimpleController
 			: $content;
 	}
 
-	public function render()
-	{
-		return $this->performAction();
-	}
-
 	/**
 	 * Will call indexAction() method if no $action provided
 	 * @param string|null $action
 	 * @return false|mixed|string
 	 * @throws ReflectionException
+	 * @throws Exception404
 	 */
 	public function performAction($action = null)
 	{
 		$content = '';
 		$method = $action ?: $this->detectAction();
 		if (!$method) {
-			return $content;
+			throw new Exception404('No action provided');
 		}
 
 		$method .= 'Action';        // ZendFramework style
-		//			debug($method, method_exists($this, $method));
+		if ($method !== 'updateNotificationCounterAction') {
+//			llog(get_class($this), $method, method_exists($this, $method));
+		}
 
 		$proxy = $this;
 		// used to call an $action on PrepareGive, PrepareBurn instead of direct PrepareRequest class
@@ -228,10 +206,10 @@ abstract class SimpleController
 //			'exists' => method_exists($proxy, $method)
 //		]);
 		if (!method_exists($proxy, $method)) {
-//				llog($method, 'does not exist in', get_class($this));
+			llog($method, 'does not exist in', get_class($this));
 			// other classes except main controller may result in multiple messages
 //				Index::getInstance()->message('Action "'.$method.'" does not exist in class "'.get_class($this).'".');
-			return $content;
+			throw new Exception404('Action "' . $method . '" does not exist in class "' . get_class($this) . '".');
 		}
 
 		if (Request::isCLI()) {
@@ -293,78 +271,6 @@ abstract class SimpleController
 		return '<' . $hTag . '>' .
 			$caption .
 			'</' . $hTag . '>';
-	}
-
-	public function __toString()
-	{
-		return $this->s($this->render());
-	}
-
-	/**
-	 * Will call indexAction() method if no $action provided
-	 * @param string|null $action
-	 * @return false|mixed|string
-	 * @throws ReflectionException
-	 * @throws Exception404
-	 */
-	public function performAction($action = null)
-	{
-		$method = $action ?: $this->detectAction();
-		if (!$method) {
-			throw new Exception404('No action provided');
-		}
-
-		$method .= 'Action';        // ZendFramework style
-		if ($method !== 'updateNotificationCounterAction') {
-//			llog(get_class($this), $method, method_exists($this, $method));
-		}
-
-		$proxy = $this;
-		// used to call an $action on PrepareGive, PrepareBurn instead of direct PrepareRequest class
-		$proxyClassName = $this->request->getTrim('proxy');
-		if ($proxyClassName) {
-			if (get_class($this) === $this->request->getTrim('proxyOf')) {
-				$proxy = new $proxyClassName($this);
-			}
-		}
-
-//		llog('SimpleController->performAction', [
-//			'class' => get_class($this),
-//			'action' => $method,
-//			'exists' => method_exists($proxy, $method)
-//		]);
-		if (!method_exists($proxy, $method)) {
-			llog($method, 'does not exist in', get_class($this));
-			// other classes except main controller may result in multiple messages
-//				Index::getInstance()->message('Action "'.$method.'" does not exist in class "'.get_class($this).'".');
-			throw new Exception404('Action "' . $method . '" does not exist in class "' . get_class($this) . '".');
-		}
-
-		if (Request::isCLI()) {
-			$assoc = array_slice(ifsetor($_SERVER['argv'], []), 3);
-			$content = call_user_func_array([$proxy, $method], $assoc);
-		} else {
-			$caller = new MarshalParams($proxy);
-			$content = $caller->call($method);
-		}
-		return $content;
-	}
-
-	public function detectAction()
-	{
-		if (Request::isCLI()) {
-			//debug($_SERVER['argv']);
-			llog('iscli', true);
-			return ifsetor($_SERVER['argv'][2]);    // it was 1
-		}
-
-		$action = $this->request->getTrim('action');
-		return $action ?: 'index';
-	}
-
-	public function s($something)
-	{
-		return MergedContent::mergeStringArrayRecursive($something);
 	}
 
 	public function log($action, ...$data)

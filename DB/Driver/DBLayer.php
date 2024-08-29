@@ -175,7 +175,7 @@ class DBLayer extends DBLayerBase
 		}
 		$this->queryTime = $prof->elapsed();
 		if ($this->logToLog) {
-				llog($query . '' . ' => ' . $this->LAST_PERFORM_RESULT);
+			llog($query . '' . ' => ' . $this->LAST_PERFORM_RESULT);
 		}
 //			$this->reportIfLastQueryFailed();
 
@@ -222,12 +222,6 @@ class DBLayer extends DBLayerBase
 				implode(PHP_EOL, $backtrace)
 			);
 		}
-	}
-
-	public function getVersion()
-	{
-		$version = pg_version($this->connection);
-		return $version['server'];
 	}
 
 	/**
@@ -278,16 +272,6 @@ class DBLayer extends DBLayerBase
 		$source = str_replace(',', '', $source);
 		$source = floatval($source);
 		return $source;
-	}
-
-	public function getConnection()
-	{
-		return $this->connection;
-	}
-
-	public function reconnect()
-	{
-		$this->connect($this->database, $this->user, $this->pass, $this->host);
 	}
 
 	public function performWithParams($query, $params)
@@ -416,14 +400,6 @@ class DBLayer extends DBLayerBase
 	 * }
 	 * /**/
 
-	public function getTableDataEx($table, $where = "", $what = "*")
-	{
-		$query = "select " . $what . " from $table";
-		if (!empty($where)) {
-			$query .= " where $where";
-		}
-		return $this->fetchAll($query);
-	}
 
 	/**
 	 * fetchAll() equivalent with $key and $val properties
@@ -641,7 +617,7 @@ class DBLayer extends DBLayerBase
 
 	public function getLastInsertID($res = null, $table = 'not required since 8.1')
 	{
-		$pgv = pg_version();
+		$pgv = pg_version($this->getConnection());
 //		llog('pg_version', $pgv);
 		if ((float)$pgv['server'] >= 8.1) {
 			return $this->lastval();
@@ -662,20 +638,6 @@ class DBLayer extends DBLayerBase
 	public function lastInsertID($res, $table = null)
 	{
 		return $this->getLastInsertID($res, $table);
-	}
-
-	public function getLastInsertID($res = null, $table = 'not required since 8.1')
-	{
-		$pgv = pg_version();
-		llog('pg_version', (int)$pgv['server']);
-		if ((int)$pgv['server'] >= 8.1) {
-			return $this->lastval();
-		}
-
-
-		$oid = pg_last_oid($res);
-		$row = $this->fetchOneSelectQuery($table, "oid = '" . $oid . "'");
-		return $row['id'];
 	}
 
 	protected function lastval()
@@ -931,9 +893,9 @@ WHERE ccu.table_name='" . $table . "'");
 //			debug($rows, $table, $columns, $where);
 //			exit;
 		if ($rows) {
-				return $this->runUpdateQuery($table, $columns, $where);
+			return $this->runUpdateQuery($table, $columns, $where);
 		} else {
-				return $this->runInsertQuery($table, $columns);
+			return $this->runInsertQuery($table, $columns);
 		}
 		//return $this->commit();
 	}
@@ -981,22 +943,6 @@ WHERE ccu.table_name='" . $table . "'");
 		return $key;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isConnected()
-	{
-		return !!$this->connection
-			&& pg_connection_status($this->connection) === PGSQL_CONNECTION_OK;
-	}
-
-	public function numRows($query = null)
-	{
-		if (is_string($query)) {
-			$query = $this->perform($query);
-		}
-		return pg_num_rows($query);
-	}
 
 	public function isTransaction()
 	{

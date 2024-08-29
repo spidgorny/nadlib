@@ -150,20 +150,6 @@ class HTML
 		return '<pre ' . $more . '>' . $this->e($this->s($text)) . '</pre>';
 	}
 
-	public function e($content)
-	{
-		if ($content instanceof HTMLTag) {
-			return $content;
-		}
-		if ($content instanceof HtmlString) {
-			return $content;
-		}
-		if (is_array($content)) {
-			$content = MergedContent::mergeStringArrayRecursive($content);
-		}
-		return htmlspecialchars($content, ENT_QUOTES);
-	}
-
 	public function strong($text)
 	{
 		return '<strong>' . $this->e($this->s($text)) . '</strong>';

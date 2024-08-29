@@ -122,15 +122,6 @@ abstract class Controller extends SimpleController
 		], $text ?: $self);
 	}
 
-	public static function href(array $params = [])
-	{
-		$url = last(trimExplode('\\', static::class));
-		if ($params) {
-			$url .= '?' . http_build_query($params);
-		}
-		return $url;
-	}
-
 	public function __call($method, array $arguments)
 	{
 		if (method_exists($this->linker, $method)) {
@@ -359,7 +350,6 @@ abstract class Controller extends SimpleController
 	}
 
 
-
 	/**
 	 * @return string|string[]|HTMLForm|ToStringable
 	 */
@@ -417,7 +407,7 @@ abstract class Controller extends SimpleController
 
 	public static function href(array $params = [])
 	{
-		return static::class . static::buildQuery($params);
+		return stripNamespace(static::class) . static::buildQuery($params);
 	}
 
 	public static function buildQuery(array $params = [])
@@ -431,22 +421,6 @@ abstract class Controller extends SimpleController
 	public function log($action, ...$data)
 	{
 		$this->log[] = new LogEntry($action, $data);
-	}
-
-	/**
-	 * @param string $caption
-	 * @param string $hTag
-	 * @return string
-	 * @throws Exception
-	 */
-	public function getCaption($caption, $hTag = 'h3')
-	{
-//		$al = AutoLoad::getInstance();
-		$slug = URL::friendlyURL($caption);
-		return '
-			<' . $hTag . ' id="' . $slug . '">' .
-			$caption .
-			'</' . $hTag . '>';
 	}
 
 	/**
