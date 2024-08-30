@@ -647,19 +647,19 @@ class Collection implements IteratorAggregate, ToStringable
 		foreach ($this->getProcessedData() as $id => $row) {
 			if ($this->itemClassName) {
 				$list[$id] = $this->renderListItem($row);
-				} elseif ($this->thes) {
-					$row = $this->prepareRenderRow($row);   // add link
-					$item = '';
-					foreach ($this->thes as $key => $_) {
-						$item .= $row[$key] . ' ';
-					}
-					$list[$id] = $item;
-				} else {
-					$list[$id] = $row[$this->titleColumn];
+			} elseif ($this->thes) {
+				$row = $this->prepareRenderRow($row);   // add link
+				$item = '';
+				foreach ($this->thes as $key => $_) {
+					$item .= $row[$key] . ' ';
 				}
+				$list[$id] = $item;
+			} else {
+				$list[$id] = $row[$this->titleColumn];
 			}
-			return new UL($list);
 		}
+		return new UL($list);
+	}
 
 	public function renderListItem(array $row)
 	{
@@ -721,44 +721,6 @@ class Collection implements IteratorAggregate, ToStringable
 		return $this->getView()->renderMembers();
 	}
 
-	public function translateThes()
-	{
-		if (is_array($this->thes)) {
-			foreach ($this->thes as &$trans) {
-				if (is_string($trans) && $trans) {
-					$trans = __($trans);
-				}
-			}
-		}
-		//debug_pre_print_backtrace();
-	}
-
-	/**
-	 * Will detect double-call and do nothing.
-	 *
-	 * @param string $class - required, but is supplied by the subclasses
-	 * @param bool $byInstance - will call getInstance() instead of "new"
-	 * @return object[]|OODBase[]
-	 * @throws Exception
-	 */
-	public function objectify($class = null, $byInstance = false)
-	{
-		$class = $class ?: $this->itemClassName;
-		if (!$this->members) {
-			$this->log(__METHOD__, ['class' => $class, 'instance' => $byInstance]);
-			$this->members = [];   // somehow necessary
-			foreach ($this->getData() as $row) {
-				$key = $row[$this->idField];
-				if ($byInstance) {
-					//$this->members[$key] = call_user_func_array(array($class, 'getInstance'), array($row));
-					$this->members[$key] = call_user_func($class . '::getInstance', $row);
-				} else {
-					$this->members[$key] = new $class($row);
-				}
-			}
-		}
-		return $this->members;
-	}
 
 	public function objectifyAsPlus()
 	{
@@ -988,36 +950,5 @@ class Collection implements IteratorAggregate, ToStringable
 		$this->logger = $log;
 	}
 
-	/**
-	 * @return CollectionQuery
-	 * @throws JsonException
-	 */
-	public function getCollectionQuery(): CollectionQuery
-	{
-		static $cq = [];
-		$hash = implode(':', [
-			spl_object_hash($this),
-			spl_object_hash($this->db),
-			sha1(json_encode($this->table, JSON_THROW_ON_ERROR)),
-			sha1(json_encode($this->join, JSON_THROW_ON_ERROR)),
-			sha1(json_encode($this->where, JSON_THROW_ON_ERROR)),
-			sha1(json_encode($this->orderBy, JSON_THROW_ON_ERROR)),
-			sha1(json_encode($this->select, JSON_THROW_ON_ERROR)),
-			$this->pager ? spl_object_hash($this->pager) : '',
-		]);
-		$this->log(__METHOD__, substr(sha1($hash), 0, 6) . json_encode($this->where, JSON_THROW_ON_ERROR));
-		if (!ifsetor($cq[$hash])) {
-			$cq[$hash] = new CollectionQuery(
-				$this->db,
-				$this->table,
-				$this->join,
-				$this->where,
-				$this->orderBy,
-				$this->select,
-				$this->pager
-			);
-		}
-		return $cq[$hash];
-	}
 
 }

@@ -47,9 +47,9 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return new HTMLTag('span', $param, $content);
 	}
 
-	public static function pre($content, array $param = [])
+	public static function pre($content, array $params = [])
 	{
-		return new HTMLTag('pre', $param, $content);
+		return new self('pre', $params, $content);
 	}
 
 	public function render()
@@ -276,32 +276,6 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return $this->render();
 	}
 
-	public function render()
-	{
-		if (is_array($this->content) || $this->content instanceof MergedContent) {
-			$content = MergedContent::mergeStringArrayRecursive($this->content);
-		} else {
-			$content = ($this->isHTML
-				|| $this->content instanceof HTMLTag
-				|| $this->content instanceof HtmlString)
-				? $this->content
-				: htmlspecialchars($this->content, ENT_QUOTES);
-		}
-		$attribs = $this->renderAttr($this->attr);
-		$xmlClose = $this->closingTag ? '' : '/';
-		$tag = '<' . trim($this->tag . ' ' . $attribs) . $xmlClose . '>';
-		$tag .= $content;
-		if ($this->closingTag) {
-			$tag .= '</' . $this->tag . '>' . "\n";
-		}
-		return $tag;
-	}
-
-	public function getContent()
-	{
-		return $this->content;
-	}
-
 	public function offsetExists(mixed $offset): bool
 	{
 		return isset($this->attr[$offset]);
@@ -330,21 +304,6 @@ class HTMLTag implements ArrayAccess, ToStringable
 			$hash = substr($hash, 0, $length);
 		}
 		return '#' . $hash;
-	}
-
-	public static function a($href, $name, array $more = [], $isHTML = false)
-	{
-		return new self('a', ['href' => $href] + $more, $name, $isHTML);
-	}
-
-	public static function img($src, array $params = [])
-	{
-		return new self('img', ['src' => $src] + $params);
-	}
-
-	public static function pre($content, array $params = [])
-	{
-		return new self('pre', $params, $content);
 	}
 
 	public function cli()

@@ -131,13 +131,4 @@ class Mailer implements MailerInterface
 		return strip_tags($this->bodytext);
 	}
 
-	public function getSubject()
-	{
-		return $this->subject;
-	}
-
-	public function getBodyText()
-	{
-		return $this->bodytext;
-	}
 }

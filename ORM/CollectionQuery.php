@@ -125,29 +125,6 @@ class CollectionQuery
 		return $query;
 	}
 
-	public function retrieveData()
-	{
-		//debug(__METHOD__, $allowMerge, $preprocess);
-		$isMySQL = (float)PHP_VERSION > 5.3 && (
-				$this->db instanceof MySQL
-				|| ($this->db instanceof DBLayerPDO
-					&& $this->db->isMySQL())
-			);
-		if ($isMySQL) {
-			$cq = new CollectionQueryMySQL($this->db,
-				$this->table,
-				$this->join,
-				$this->where,
-				$this->orderBy,
-				$this->select,
-				$this->pager);
-			$data = $cq->retrieveDataFromMySQL();
-		} else {
-			$data = $this->retrieveDataFromDB();
-		}
-		return $data;
-	}
-
 	/**
 	 * @return array
 	 * @throws Exception

@@ -129,20 +129,6 @@ class View extends stdClass implements ToStringable
 		return new HTMLTag('img', $attr, null);
 	}
 
-	public function render(array $variables = [])
-	{
-		$percent = round($percent);
-		$src = AutoLoad::getInstance()->nadlibFromDocRoot . 'bar.php?' . http_build_query($params + [
-					'rating' => $percent,
-					'color' => '6DC5B4',
-				]);
-		$attr += [
-			'src' => $src,
-			'alt' => $percent . '%',
-		];
-		return new HTMLTag('img', $attr, null);
-	}
-
 	public static function markdown($text)
 	{
 		return Markdown::defaultTransform($text);
@@ -207,16 +193,6 @@ class View extends stdClass implements ToStringable
 		$file = $this->getFile();
 		$content = file_get_contents($file);
 		$this->parts = explode($sep, $content);
-	}
-
-	public function getFile()
-	{
-		$path = new Path($this->file);
-//		debug($path, $path->isAbsolute());
-		//debug(dirname($this->file), $this->folder, $this->file, $file, filesize($file));
-		return $path->isAbsolute()
-			? $this->file
-			: $this->folder . $this->file;
 	}
 
 	/**
@@ -464,25 +440,6 @@ class View extends stdClass implements ToStringable
 			array_values($map),
 			$content
 		);
-	}
-
-	public function getContent($file, array $variables = [])
-	{
-		ob_start();
-
-		extract($variables, EXTR_OVERWRITE);
-
-		//debug($file);
-		/** @noinspection PhpIncludeInspection */
-		$content = require($file);
-
-		if (!$content || $content === 1) {
-			$content = ob_get_clean();
-		} else {
-			ob_end_clean();
-		}
-
-		return $this->s($content);
 	}
 
 	public function s($a)

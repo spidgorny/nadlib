@@ -49,9 +49,14 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 		$this->fieldName = $fieldName;
 	}
 
-	public function getArray()
+	public function isOptional()
 	{
 		return !$this->isObligatory();
+	}
+
+	public function getArray()
+	{
+		return $this->data;
 	}
 
 	public function isObligatory()
@@ -360,11 +365,6 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 				//debug($desc, $desc->isObligatory(), $desc->getTypeString());
 				break;
 		}
-	}
-
-	public function getArray()
-	{
-		return $this->data;
 	}
 
 	public function getContent()

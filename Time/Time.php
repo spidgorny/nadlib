@@ -332,17 +332,6 @@ class Time
 	}
 
 	/**
-	 * <span class="time">in 10 hours</span>
-	 *
-	 * @return HtmlString
-	 */
-	public function render()
-	{
-		return new HtmlString('<time datetime="' . $this->getDateTime() . '"
-			class="time" title="' . $this->getDateTime() . '">' . $this->in() . '</span>');
-	}
-
-	/**
 	 * Displays start of an hour with larger font
 	 *
 	 * @return string

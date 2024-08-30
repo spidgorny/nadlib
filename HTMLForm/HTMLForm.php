@@ -223,38 +223,6 @@ class HTMLForm implements ToStringable
 		return $this->getName($name, '', false);
 	}
 
-	/**
-	 * @param string $type
-	 * @param string $name
-	 * @param null $value
-	 * @param array $more - may be array
-	 * @param string $extraClass
-	 * @param string $namePlus
-	 *
-	 * @return string
-	 */
-	public function getInput($type, $name, $value = null, array $more = [], $extraClass = '', $namePlus = '')
-	{
-//		debug($type, $name, $value, $more, $extraClass, $namePlus);
-		$attrs = [];
-		$attrs['type'] = $type;
-		$attrs['class'] = trim($type . ' ' . $extraClass . ' ' . ifsetor($more['class']));
-		$attrs['name'] = $this->getName($name, $namePlus, true);
-		if ($value || $value === 0) {
-			$isHTML = $value instanceof HtmlString;
-			//debug($value, $isHTML);
-			if (!$isHTML) {
-				//$value = htmlspecialchars($value, ENT_QUOTES);
-				// escaped by HTMLTag::renderAttr
-			} else {
-				$value = str_replace('"', '&quot;', $value);
-			}
-			$attrs['value'] = $value;
-		}
-		$attrs += $more;
-		$a = "<input " . $this->getAttrHTML($attrs) . " />\n";
-		return $a;
-	}
 
 	/**
 	 * @param string $name
@@ -307,19 +275,6 @@ class HTMLForm implements ToStringable
 		$this->stdout .= MergedContent::mergeStringArrayRecursive($a);
 	}
 
-	/**
-	 * @param string $name
-	 * @param string $value
-	 * @param array $more - may be array
-	 * @param string $type
-	 * @param string $extraClass
-	 */
-	public function input($name, $value = "", array $more = [], $type = 'text', $extraClass = '')
-	{
-		//$value = htmlspecialchars($value, ENT_QUOTES);
-		//$this->stdout .= '<input type="'.$type.'" '.$this->getName($name).' '.$more.' value="'.$value.'" />'."\n";
-		$this->stdout .= $this->getInput($type, $name, $value, $more, $extraClass);
-	}
 
 	public function password($name, $value = "", array $desc = [])
 	{
@@ -541,17 +496,6 @@ class HTMLForm implements ToStringable
 		$field->setForm($this);
 		$this->add($field);
 		return $this;
-	}
-
-	public function add(HTMLFormFieldInterface $field)
-	{
-		$field->setForm($this);
-		$this->stdout .= $this->s($field->render());
-	}
-
-	public function s($content)
-	{
-		return MergedContent::mergeStringArrayRecursive($content);
 	}
 
 	/**
@@ -810,15 +754,6 @@ class HTMLForm implements ToStringable
 			id="' . $id . '"
 			' . (is_array($more) ? $this->getAttrHTML($more) : $more) . '> ';
 		$this->stdout .= $this->hsc($label) . "</label>";
-	}
-
-	public function hsc($label)
-	{
-		if ($label instanceof HtmlString) {
-			return $label;
-		} else {
-			return htmlspecialchars($label, ENT_QUOTES);
-		}
 	}
 
 	public function jsCal2($fieldName, $fieldValue, $location = 'js/JSCal2/')
