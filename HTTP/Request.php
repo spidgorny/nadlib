@@ -632,6 +632,7 @@ class Request
 	 * @param string $name
 	 * @param null $rel
 	 * @return Time
+	 * @throws Exception
 	 */
 	public function getTime($name, $rel = null)
 	{
@@ -1543,7 +1544,10 @@ class Request
 
 	public function getID()
 	{
-		//		debug($this->getNamelessID(), $this->getInt('id'), $this->getURLLevels());
+//		llog(
+//			['nameless id' => $this->getNamelessID(),
+//				'int id' => $this->getInt('id'),
+//				'levels' => $this->getURLLevels()]);
 		$last = sizeof($this->getURLLevels()) - 1;
 		return $this->getNamelessID()
 			?: $this->getInt('id')
@@ -1624,5 +1628,11 @@ class Request
 			header($prefix . $ii . ': ' . $line);
 		}
 
+	}
+
+	public function getLastNameless()
+	{
+		$levels = $this->getURLLevels();
+		return end($levels);
 	}
 }

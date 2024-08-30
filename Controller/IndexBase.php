@@ -454,20 +454,20 @@ class IndexBase /*extends Controller*/
 
 	public function renderTemplateIfNotAjax($content)
 	{
-		$contentOut = '';
+		$contentOut = [];
 //		llog('renderTemplateIfNotAjax', gettype($content));
-		if (!$this->request->isAjax() && !$this->request->isCLI()) {
+		if (!$this->request->isAjax() && !Request::isCLI()) {
 			// display Exception
 			$view = $this->renderTemplate($content);
 			//echo gettype2($view), BR;
 			if ($view instanceof View) {
-				$contentOut = $view->render();
+				$contentOut[] = $view->render();
 			} else {
-				$contentOut = $view;
+				$contentOut[] = $view;
 			}
 		} else {
 			//$contentOut .= $this->content;    // NO! it's JSON (maybe)
-			$contentOut .= $this->s($content);
+			$contentOut[] = $this->s($content);
 		}
 		return $contentOut;
 	}

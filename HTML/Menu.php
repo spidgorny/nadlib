@@ -571,9 +571,9 @@ class Menu /*extends Controller*/
 		$ul->after = '</ol>';
 		if ($ul->links) {
 			return $ul;
-		} else {
-			return null;
 		}
+
+		return null;
 	}
 
 	/**
@@ -583,9 +583,7 @@ class Menu /*extends Controller*/
 	{
 		if (class_exists('Config')) {
 			$config = Config::getInstance();
-			$useRouter = isset($config->config['Controller'])
-				? ifsetor($config->config['Controller']['useRouter'])
-				: ($this->request->apacheModuleRewrite() && class_exists('Router'));
+			$useRouter = $config->config['Controller']['useRouter'] ?? ($this->request->apacheModuleRewrite() && class_exists('Router'));
 		} else {
 			$useRouter = $this->useRecursiveURL;
 		}

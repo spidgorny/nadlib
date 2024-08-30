@@ -226,14 +226,21 @@ abstract class SimpleController
 	public function detectAction()
 	{
 		if (Request::isCLI()) {
-			//debug($_SERVER['argv']);
-			llog('iscli', true);
-			return ifsetor($_SERVER['argv'][2]);    // it was 1
+			// php(0) index.php(0) controller(1) action(2)
+			return ifsetor($_SERVER['argv'][2]);
 		}
 
 		$action = $this->request->getTrim('action');
-		$secondSlug = $this->request->getNameless(1);
-		return $action ?: $secondSlug ?: 'index';
+		if ($action) {
+			return $action;
+		}
+		if (count($this->request->getURLLevels()) >= 2) {
+			$secondSlug = $this->request->getLastNameless();
+			if (method_exists($this, $secondSlug . 'Action')) {
+				return $secondSlug;
+			}
+		}
+		return 'index';
 	}
 
 	/**

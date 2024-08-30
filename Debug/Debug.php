@@ -539,7 +539,7 @@ class Debug
 		if (func_num_args() > 1) {
 			$debugAccess = func_get_args();
 		}
-		$json = json_encode($debugAccess);
+		$json = json_encode($debugAccess, JSON_THROW_ON_ERROR);
 		$script = '<script type="text/javascript">
 		setTimeout(function () {
 			var json = ' . $json . ';

@@ -3,7 +3,7 @@
 class AppControllerBE extends Controller
 {
 
-/**
+	/**
 	 * Protect from unauthorized access
 	 * @var bool
 	 */
@@ -26,6 +26,9 @@ class AppControllerBE extends Controller
 
 	public $layout = '<div class="col-md-9">|</div>';
 
+	/**
+	 * @throws AccessDeniedException
+	 */
 	public function __construct()
 	{
 		parent::__construct();
@@ -56,16 +59,16 @@ class AppControllerBE extends Controller
 	public function log($class, ...$message)
 	{
 		//echo $class, ' ', print_r($message, true), BR;
-		Debug::getInstance()->consoleLog([
-			'class' => $class,
-			'message' => $message
-		]);
+//		Debug::getInstance()->consoleLog([
+//			'class' => $class,
+//			'message' => $message
+//		]);
+		llog($class, ...$message);
 	}
 
 	public function makeURL(array $params = [], $prefix = '?')
 	{
-		$url = parent::makeURL($params, $this->nadlibFromDocRoot . 'be/?');
-		return $url;
+		return parent::makeURL($params, $this->nadlibFromDocRoot . 'be/?');
 	}
 
 }

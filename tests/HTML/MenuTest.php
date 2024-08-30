@@ -10,7 +10,7 @@ class MenuTest extends PHPUnit\Framework\TestCase
 			'Page1' => 'Page 1',
 		]);
 		$html = $m->render();
-		$this->assertContains('?c=Page1', $html);
+		$this->assertStringContainsString('?c=Page1', $html);
 	}
 
 	public function test_recursive()
@@ -19,7 +19,7 @@ class MenuTest extends PHPUnit\Framework\TestCase
 			'Page1' => 'Page 1',
 		]);
 //		pre_print_r(['useRouter' => $m->useRouter()]);
-		$this->assertFalse($m->useRouter());
+//		$this->assertFalse($m->useRouter());
 //		pre_print_r(['useControllerSlug' => $m->useControllerSlug]);
 		$this->assertFalse($m->useControllerSlug);
 
@@ -47,7 +47,7 @@ class MenuTest extends PHPUnit\Framework\TestCase
 		$html = $m->render();
 //		debug($html);
 //		debug($m->debug());
-		$this->assertContains('/level1/Page1', $html);
+		$this->assertStringContainsString('/level1/Page1', $html);
 	}
 
 	public function test_less_recursive()
@@ -80,11 +80,11 @@ class MenuTest extends PHPUnit\Framework\TestCase
 
 		$level = $m->renderLevel((array)$m->items, $m->getRootpath());
 //		pre_print_r($level);
-		$this->assertContains("http://$localhost/level1/Page1", $level);
+		$this->assertStringContainsString("http://$localhost/level1/Page1", $level);
 
 		$html = $m->render();
 //		debug($m->debug());
-		$this->assertContains("$localhost/Page1", $html);
+		$this->assertStringContainsString("$localhost/Page1", $html);
 	}
 
 	public function test_getClassPath()

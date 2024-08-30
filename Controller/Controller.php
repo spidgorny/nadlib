@@ -54,16 +54,19 @@ abstract class Controller extends SimpleController
 	 * Check manually in render()
 	 */
 	public $noRender = false;
+
 	/**
 	 * Will be taken as a <title> of the HTML table
 	 * @var string
 	 */
 	public $title;
 
+
 	/**
 	 * @var UserModelInterface
 	 */
 	public $user;
+
 
 	/**
 	 * Allows selecting fullScreen layout of the template
@@ -71,20 +74,24 @@ abstract class Controller extends SimpleController
 	 * @var string|Wrap
 	 */
 	public $layout;
+
 	/**
 	 * @var Config
 	 */
 	public $config;
+
 	/**
 	 * Used by Collection to get the current sorting method.
 	 * Ugly, please reprogram.
 	 * @var
 	 */
 	public $sortBy;
+
 	/**
 	 * @var Linker
 	 */
 	public $linker;
+
 	/**
 	 * @var DBLayer|DBLayerPDO|DBLayerSQLite|DBLayerBase|DBInterface
 	 */
@@ -348,7 +355,6 @@ abstract class Controller extends SimpleController
 		$content .= '</div>';
 		return $content;
 	}
-
 
 	/**
 	 * @return string|string[]|HTMLForm|ToStringable
