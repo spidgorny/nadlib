@@ -310,10 +310,11 @@ class Collection implements IteratorAggregate, ToStringable
 		$data = $cq->retrieveData();
 		$this->log = array_merge($this->log, $cq->log);
 
-		llog($method, [
-			'rows' => count($data),
-			'idealize by' => $this->idField
-		]);
+//		llog($method, [
+//			'rows' => count($data),
+//			'idealize by' => $this->idField, //'data' => $data,
+//			'idList' => collect($data)->pluck($this->idField)->toArray(),
+//		]);
 //		debug_pre_print_backtrace();
 //		debug(get_class($this->db), $isMySQL, $this->query, $data, $this->log);
 		$this->data = ArrayPlus::create($data);

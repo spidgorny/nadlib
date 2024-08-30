@@ -113,15 +113,14 @@ class AccessRights implements AccessRightsInterface
 	 * @return AccessRightModel[]|ArrayPlus
 	 * @throws Exception
 	 */
-	public function getAllRights($wherePlus = 'WHERE 1 = 1', $className = null)
+	public function getAllRights($wherePlus = [], $className = null)
 	{
-		$accessRights = $this->db->fetchAll("
-		SELECT * FROM {$this->accessTable}
-		$wherePlus 
-		ORDER BY name");
+		$accessRights = $this->db->fetchAllSelectQuery($this->accessTable, $wherePlus, "ORDER BY name");
 		$accessRights = new ArrayPlus($accessRights);
 		$accessRights = $accessRights->IDalize('id');
-		$accessRights = $accessRights->convertTo($className);
+		if ($className) {
+			$accessRights = $accessRights->convertTo($className);
+		}
 		return $accessRights;
 	}
 

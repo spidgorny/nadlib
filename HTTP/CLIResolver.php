@@ -12,10 +12,8 @@ class CLIResolver implements ResolverInterface
 		unset($argv[0]);  // path to the index.php file
 //		pre_print_r($_SERVER['argv'], $argv);
 		$controller = count($argv) ? first($argv) : null;
-		if (DEVELOPMENT && $controller) {
-//			echo 'ArgV: ', implode(' ', $_SERVER['argv']);
-//			echo 'Controller: ' . $controller, BR;
-		}
+//		llog('ArgV', implode(' ', $_SERVER['argv']));
+//		llog('Controller: ' . $controller);
 		$request->setArray($request->parseParameters());
 		return $controller;
 	}

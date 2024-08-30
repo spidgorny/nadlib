@@ -2,7 +2,7 @@
 
 use nadlib\Controller\Filter;
 
-abstract class Grid extends AppControllerBE
+abstract class Grid extends AppController
 {
 
 	/**

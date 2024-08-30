@@ -756,8 +756,6 @@ class Request
 		return $return;
 	}
 
-	//
-
 	public function getControllerString($returnDefault = true)
 	{
 		if (self::isCLI()) {
@@ -768,11 +766,11 @@ class Request
 		$c = $this->getTrim('c');
 		if ($c) {
 			$resolver = new CResolver($c);
-			$controller = $resolver->getController();
-		} else {
-			$resolver = new PathResolver();
-			$controller = $resolver->getController($returnDefault);
-		}   // cli
+			return $resolver->getController();
+		}
+
+		$resolver = new PathResolver();
+		$controller = $resolver->getController($returnDefault);   // cli
 //		llog([
 //			'getControllerString',
 //			'result' => $controller,
@@ -1609,7 +1607,11 @@ class Request
 	 */
 	public function getJsonPost()
 	{
-		return json_decode($this->getRawPost(), false, 512, JSON_THROW_ON_ERROR);
+		$postData = $this->getRawPost();
+		if (!$postData) {
+			return $postData;
+		}
+		return json_decode($postData, false, 512, JSON_THROW_ON_ERROR);
 	}
 
 	public function getRawPost()
