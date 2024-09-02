@@ -48,17 +48,19 @@ class RenderException
 		}
 
 		$message = $e->getMessage();
-		$message = ($message instanceof HtmlString ||	$message[0] === '<')
+		$message = ($message instanceof HtmlString || $message[0] === '<')
 			? $message . ''
 			: htmlspecialchars($message);
 		$content = '<div class="' . $wrapClass . '">
-				[' . get_class($e) . ']'.
-			($e->getCode() ? ' (' . $e->getCode() . ')' : '') . BR .
-			nl2br($message);
+				<h1>' . get_class($e) .
+			($e->getCode() ? ' (Code: ' . $e->getCode() . ')' : '') . '</h1>' .
+			'<h3>' . nl2br($message) . '</h3>';
 
 		if (DEVELOPMENT) {
-			$content .= BR . '<hr />' . '<div style="text-align: left">' .
-				nl2br(htmlspecialchars($e->getTraceAsString())) . '</div>';
+			$content .= 'In ' . $e->getFile() . ' on line ' . $e->getLine() . '<br/>';
+			$content .= $e->getPrevious() ? 'Previous: ' . $e->getPrevious()->getMessage() . '<br/>' : '';
+			$content .= '<hr class="my-3"/>' . '<pre style="text-align: left; white-space: pre-wrap;">' .
+				htmlspecialchars($e->getTraceAsString()) . '</pre>';
 		}
 
 		if ($e instanceof LoginException) {
