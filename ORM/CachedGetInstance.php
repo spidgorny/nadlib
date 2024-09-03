@@ -65,7 +65,7 @@ trait CachedGetInstance
 		} elseif (is_null($id)) {
 			$inst = new $static();
 		} else {
-			throw new InvalidArgumentException($static . '->' . __METHOD__ . ' id='.$id);
+			throw new InvalidArgumentException($static . '->' . __METHOD__ . ' id=' . $id);
 		}
 		return $inst;
 	}
@@ -181,7 +181,7 @@ trait CachedGetInstance
 	/**
 	 * Is cached in instances
 	 * @param string $name
-	 * @param null $field
+	 * @param string|null $field
 	 * @return self|static
 	 * @throws Exception
 	 */

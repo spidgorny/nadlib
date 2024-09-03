@@ -109,7 +109,7 @@ class AccessRights implements AccessRightsInterface
 	}
 
 	/**
-	 * @param string $wherePlus
+	 * @param array $wherePlus
 	 * @return AccessRightModel[]|ArrayPlus
 	 * @throws Exception
 	 */

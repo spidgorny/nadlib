@@ -28,7 +28,7 @@ class Time
 	/**
 	 * Append GMT for Greenwich
 	 * @param string $input
-	 * @param null $relativeTo
+	 * @param int $relativeTo
 	 * @throws Exception
 	 */
 	public function __construct($input = null, $relativeTo = null)
@@ -97,11 +97,11 @@ class Time
 	}
 
 	/**
-	 * @param null $input
+	 * @param string|null $input
 	 * @param null $relativeTo
 	 * @return static
 	 */
-	public static function make($input = null, $relativeTo = null)
+	public static function make(string $input = null, $relativeTo = null)
 	{
 		$self = get_called_class();
 		return new $self($input, $relativeTo);

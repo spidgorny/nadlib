@@ -33,6 +33,10 @@ class Duration extends Time
 		'second' => 1
 	];
 
+	/**
+	 * @param string|Time $input
+	 * @throws Exception
+	 */
 	public function __construct($input = null)
 	{
 		if ($input instanceof Time) {

@@ -30,7 +30,6 @@ use spidgorny\nadlib\HTTP\URL;
  * @method img($src, array $attr = [])
  * @method e($content)
  * @method pre($content)
- *
  * @method makeLink($text, array $params, $page = '', array $more = [], $isHTML = false)
  * @method makeURL(array $params = [], $prefix = null)
  * @method makeRelURL(array $params = [], $page = null)

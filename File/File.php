@@ -1,5 +1,7 @@
 <?php
 
+use League\Flysystem\FileAttributes;
+use League\Flysystem\Filesystem;
 use League\Flysystem\StorageAttributes;
 
 /**
@@ -20,11 +22,11 @@ class File
 	public $spl;
 
 	/**
-	 * @var \League\Flysystem\Filesystem
+	 * @var Filesystem
 	 */
 	public $fly;
 
-	public \League\Flysystem\FileAttributes $meta;
+	public FileAttributes $meta;
 
 	/**
 	 * @var string|null the path in the $name is relative to this
@@ -76,7 +78,7 @@ class File
 		return $absolute;
 	}
 
-	public static function fromFly(League\Flysystem\Filesystem $fly, \League\Flysystem\FileAttributes $fileMeta)
+	public static function fromFly(Filesystem $fly, FileAttributes $fileMeta)
 	{
 		$file = new static($fileMeta->path());
 		$file->fly = $fly;

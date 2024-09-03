@@ -28,7 +28,7 @@ class Bytes
 
 	/**
 	 * Bytes constructor.
-	 * @param string $bytes 10MB, 1.5GB
+	 * @param string|int $bytes 10MB, 1.5GB
 	 */
 	public function __construct($bytes)
 	{
