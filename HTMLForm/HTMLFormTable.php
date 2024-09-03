@@ -161,8 +161,7 @@ class HTMLFormTable extends HTMLForm
 	 */
 	public function showForm($prefix = [], $mainForm = true, $append = '')
 	{
-//		echo json_encode(array_keys($this->desc)), BR;
-		$this->tableMore['class'] = ($this->tableMore['class'] ?? '') . $this->defaultBR ? ' defaultBR' : '';
+		$this->tableMore['class'] = collect(trimExplode(' ', $this->tableMore['class'] ?? ''))->add($this->defaultBR ? 'defaultBR' : '')->join(' ');
 		$this->stdout .= $this->getForm($this->desc, $prefix, $mainForm, $append);
 		return $this;
 	}
@@ -477,7 +476,7 @@ class HTMLFormTable extends HTMLForm
 		$this->stdout .= ifsetor($desc['beforeLabel']);
 		//debug($label);
 		assert(is_string($label));
-		$this->stdout .= '<label for="' . $elementID . '" class="' . ($desc['labelClass']??'') . '">' . $label . '</label>';
+		$this->stdout .= '<label for="' . $elementID . '" class="' . ($desc['labelClass'] ?? '') . '">' . $label . '</label>';
 		if (!$withBR) {
 			$this->stdout .= '</td><td>';
 		}
