@@ -204,9 +204,7 @@ trait CachedGetInstance
 				new SQLWhereEqual('trim(' . $field . ')', $name),
 			]);
 		} elseif ($field instanceof AsIs) {
-			$c->findInDBsetInstance([
-				$field
-			]);
+			$c->findInDBsetInstance([$field]);
 		} else {
 			throw new RuntimeException(__METHOD__);
 		}
