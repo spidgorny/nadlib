@@ -829,7 +829,7 @@ class Request
 		echo __($message, '<a href="' . $controller . '">' . $controller . '</a>') . '
 			<script>
 				setTimeout(function () {
-					document.location = "' . $controller . '";
+					window.top.location.href = "' . $controller . '";
 				}, ' . $delay . ');
 			</script>';
 	}
