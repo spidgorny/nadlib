@@ -38,9 +38,9 @@ class SQLWherePart
 				[$this->field => $this->sql]
 			);
 			return implode('', $part1);
-		} else {
-			return $this->sql . '';
 		}
+
+		return $this->sql . '';
 	}
 
 	public function injectDB(DBInterface $db)

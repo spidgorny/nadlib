@@ -195,7 +195,16 @@ class SQLBuilder
 		) : null;
 		$groupBy = str_startsWith($orderAndLimit, 'GROUP') ? new SQLGroup($orderAndLimit) : null;
 
-		return new SQLSelectQuery($this->db, new SQLSelect($addSelect ?? '*'), new SQLFrom($table), $sqlWhere, null, $groupBy, null, $orderBy, $limitBy);
+		return new SQLSelectQuery(
+			$this->db,
+			new SQLSelect($addSelect ?? '*'),
+			new SQLFrom($table),
+			$sqlWhere,
+			null,
+			$groupBy,
+			null,
+			$orderBy,
+			$limitBy);
 	}
 
 	/**
@@ -609,11 +618,11 @@ class SQLBuilder
 
 		// $prefix.'*, is not selected as DISTINCT will not work
 
-		//debug('Query', $query.''); exit();
+//		llog('Query', $query . '');
 		$res = $this->perform($query);
 		$data = $this->fetchAll($res, 'id_field');
 		$keys = array_keys($data);
-		$values = array_map(function ($arr) {
+		$values = array_map(static function ($arr) {
 			return $arr["title"];
 		}, $data);
 		//d($keys, $values);
@@ -643,20 +652,25 @@ class SQLBuilder
 				$f->setResult($query);
 			}
 			return $f;
-		} elseif ($this->db instanceof DBLayerPDO) {
-			$res = $this->db->perform($query);
-			return $res;
-		} elseif (is_string($query)) {
+		}
+
+		if ($this->db instanceof DBLayerPDO) {
+			return $this->db->perform($query);
+		}
+
+		if (is_string($query)) {
 			$f = new DatabaseResultIteratorAssoc($this->db);
 			$f->perform($query);
 			return $f;
-		} elseif (is_resource($query)) {
+		}
+
+		if (is_resource($query)) {
 			$f = new DatabaseResultIteratorAssoc($this->db);
 			$f->setResult($query);
 			return $f;
-		} else {
-			throw new InvalidArgumentException(__METHOD__ . ' __/(:-)\__ ' . $query);
 		}
+
+		throw new InvalidArgumentException(__METHOD__ . ' __/(:-)\__ ' . $query);
 	}
 
 	public function fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
@@ -669,8 +683,7 @@ class SQLBuilder
 		if ($this->logToLog) {
 			llog('$res', $res);
 		}
-		$data = $this->db->fetchAssoc($res);
-		return $data;
+		return $this->db->fetchAssoc($res);
 	}
 
 	public function runUpdateInsert($table, $set, $where)

@@ -58,6 +58,7 @@ class SQLSelectQuery extends SQLWherePart
 	 */
 	public function __construct(DBInterface $db, $select = null, $from = null, $where = null, $join = null, $group = null, $having = null, $order = null, $limit = null)
 	{
+		parent::__construct();
 		$this->db = $db;
 		if ($select) {
 			$this->setSelect($select);
@@ -381,5 +382,5 @@ FROM {$this->from}
 	{
 		$this->select = $select;
 	}
-	
+
 }

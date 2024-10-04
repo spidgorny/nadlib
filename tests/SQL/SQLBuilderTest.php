@@ -110,4 +110,13 @@ AND something else');
 		$this->assertEquals("SELECT*FROM\"table\"WHERE\"a\"='b'GROUPBYc", $this->implodeSQL($query));
 	}
 
+	public function testTableOptions()
+	{
+		$qb = new SQLBuilder($this->db);
+		$options = $qb->getTableOptions('version', 'versionname', [
+			'relproject' => $_SESSION['sesProject'],
+		], 'ORDER BY date desc');
+		llog($options);
+	}
+
 }
