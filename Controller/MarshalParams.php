@@ -161,27 +161,28 @@ class MarshalParams
 		return $content;
 	}
 
+	/**
+	 * @throws ReflectionException
+	 */
 	public function getParameterByReflection(ReflectionParameter $param)
 	{
 		$name = $param->getName();
-		if ($param->isArray()) {
-			$return = $this->request->getArray($name);
-		} else {
-			$return = $this->request->getTrim($name);
-			$paramClassRef = $param->getClass();
-			//debug($param->getPosition(), $paramClassRef, $paramClassRef->getName());
-			if ($paramClassRef && class_exists($paramClassRef->getName())) {
-				$paramClass = $paramClassRef->getName();
+		if ($param->getType()?->getName() === 'array') {
+			return $this->request->getArray($name);
+		}
+
+		$return = $this->request->getTrim($name);
+		$paramClassRef = $param->getType() && !$param->getType()->isBuiltin() ? new ReflectionClass($param->getType()->getName()) : null;
+		//debug($param->getPosition(), $paramClassRef, $paramClassRef->getName());
+		if ($paramClassRef && class_exists($paramClassRef->getName())) {
+			$paramClass = $paramClassRef->getName();
 //				debug($param->getPosition(), $paramClass,
 //				method_exists($paramClass, 'getInstance'));
-				if (method_exists($paramClass, 'getInstance')) {
-					$obj = $paramClass::getInstance($return);
-					$return = $obj;
-				} else {
-					$obj = new $paramClass(/*$assoc[$name]*/);
-					$return = $obj;
-				}
+			if (method_exists($paramClass, 'getInstance')) {
+				return $paramClass::getInstance($return);
 			}
+
+			return new $paramClass(/*$assoc[$name]*/);
 		}
 		return $return;
 	}

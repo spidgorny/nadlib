@@ -223,8 +223,7 @@ abstract class Grid extends AppController
 
 	public function sidebar()
 	{
-		$content = $this->showFilter();
-		return $content;
+		return $this->showFilter();
 	}
 
 	public function showFilter()
