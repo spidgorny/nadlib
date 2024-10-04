@@ -28,6 +28,7 @@ class IndexBase /*extends Controller*/
 	 * @var Messages
 	 */
 	public $content;
+
 	/**
 	 * @var AppController|UserlessController
 	 */

@@ -41,10 +41,10 @@ class ClearCache extends AppControllerBE
 
 	public function sidebar()
 	{
-		return $this->getActionButton('Clear Cache', 'clear');
+		return $this->getActionButton('Clear Cache', 'clearCache');
 	}
 
-	public function clearAction()
+	public function clearCacheAction()
 	{
 		$ccs = new ClearCacheService();
 		$ccs->clearCacheIn($this->dir);
