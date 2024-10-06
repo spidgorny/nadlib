@@ -362,8 +362,10 @@ if (!function_exists('llog')) {
 					if (method_exists($el, '__toString')) {
 						return $el->__toString();
 					}
-					return typ($el, true, true);
-					// or trim(strip_tags(typ($el)));
+					if (method_exists($el, '__debugInfo')) {
+						return $el->__debugInfo();
+					}
+					return get_class_vars($el);
 				}
 			}
 			return $el;
