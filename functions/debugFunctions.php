@@ -365,7 +365,7 @@ if (!function_exists('llog')) {
 					if (method_exists($el, '__debugInfo')) {
 						return $el->__debugInfo();
 					}
-					return get_class_vars($el);
+					return get_object_vars($el);
 				}
 			}
 			return $el;
