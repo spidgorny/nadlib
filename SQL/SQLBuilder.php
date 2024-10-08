@@ -598,7 +598,7 @@ class SQLBuilder
 		return $this->db = $this->db ?: $this->config->getDB();
 	}
 
-	public function getTableOptions($table, $titleField, $where = [], $order = null, $idField = 'id', $prefix = null)
+	public function getTableOptions($table, $titleField, $where = [], $order = null, $idField = 'id', $prefix = null, $addFields = '')
 	{
 		$prefix = $prefix ?: $table . '.';
 
@@ -613,7 +613,8 @@ class SQLBuilder
 			$where,
 			$order,
 			$addSelect . ' ' .
-			$this->quoteKey($prefix . $idField) . ' AS id_field'
+			$this->quoteKey($prefix . $idField) . ' AS id_field' .
+			($addFields ? ', ' . $addFields : '')
 		);
 
 		// $prefix.'*, is not selected as DISTINCT will not work
