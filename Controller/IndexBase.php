@@ -581,7 +581,7 @@ class IndexBase /*extends Controller*/
 	 * @param bool $defer
 	 * @return $this
 	 */
-	public function addJQuery($defer = true)
+	public function addJQuery($props = ['defer' => true])
 	{
 		if (isset($this->footer['jquery.js'])) {
 			return $this;
@@ -610,7 +610,7 @@ class IndexBase /*extends Controller*/
 			]);
 			if (file_exists($al->componentsPath . $jQueryPath)) {
 				//debug(__LINE__, $al->componentsPath, $al->componentsPath->getURL());
-				$this->addJS(cap($al->componentsPath->getURL()) . $jQueryPath, $defer);
+				$this->addJS(cap($al->componentsPath->getURL()) . $jQueryPath, $props);
 				return $this;
 			} elseif (file_exists($appRoot . $jQueryPath)) {
 				// does not work if both paths are the same!!
@@ -618,15 +618,15 @@ class IndexBase /*extends Controller*/
 				$rel = Path::make(Config::getInstance()->documentRoot)->remove($appRoot);
 				$rel->trimIf('be');
 				$rel->reverse();
-				$this->addJS($rel . $jQueryPath, $defer);
+				$this->addJS($rel . $jQueryPath, $props);
 				return $this;
 			} elseif (file_exists($al->nadlibFromDocRoot . $jQueryPath)) {
-				$this->addJS($al->nadlibFromDocRoot . $jQueryPath, $defer);
+				$this->addJS($al->nadlibFromDocRoot . $jQueryPath, $props);
 				return $this;
 			} else {
 				$jQueryPath = 'node_modules/jquery/dist/jquery.min.js';
 			}
-			$this->addJS($jQueryPath, $defer);
+			$this->addJS($jQueryPath, $props);
 		}
 		return $this;
 	}
