@@ -140,7 +140,7 @@ class DBLayer extends DBLayerBase
 	/**
 	 * @param string $query
 	 * @param array $params
-	 * @return resource|null
+	 * @return \PgSql\Result|null
 	 * @throws DatabaseException
 	 * @throws MustBeStringException
 	 */

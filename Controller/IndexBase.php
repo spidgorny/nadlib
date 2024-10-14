@@ -636,7 +636,7 @@ class IndexBase /*extends Controller*/
 	 * @param bool $defer
 	 * @return Index|IndexBase
 	 */
-	public function addJS($source, $defer = true)
+	public function addJS($source, $props = ['defer' => true])
 	{
 		if (class_exists('Debug')) {
 			$called = Debug::getCaller();
@@ -655,8 +655,7 @@ class IndexBase /*extends Controller*/
 			$fn = new Path($fileName);
 			$fileName = $fn->relativeFromAppRoot();
 		}
-		$defer = $defer ? 'defer="defer"' : '';
-		$this->footer[$source] = '<!-- ' . $called . ' --><script src="' . $fileName . '" ' . $defer . '></script>';
+		$this->footer[$source] = '<!-- ' . $called . ' --><script src="' . $fileName . '" ' . HTMLTag::renderAttr($props) . '></script>';
 		return $this;
 	}
 
