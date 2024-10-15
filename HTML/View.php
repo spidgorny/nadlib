@@ -266,11 +266,13 @@ class View extends stdClass implements ToStringable
 		return call_user_func_array($method, $args);
 	}
 
-	public function &__get($var)
+	public function __get($var)
 	{
+//		llog('$this->caller', get_debug_type($this->caller));
 		if ($this->caller !== null) {
 			return $this->caller->$var;
 		}
+		return $this->$var ?? null;
 	}
 
 	public function __set($var, $val)
@@ -284,9 +286,9 @@ class View extends stdClass implements ToStringable
 	public function __isset($name)
 	{
 		if ($this->caller !== null) {
-			return $this->caller->$name;
+			return isset($this->caller->$name);
 		}
-		return false;
+		return isset($this->$name);
 	}
 
 	/**
