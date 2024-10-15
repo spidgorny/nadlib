@@ -12,6 +12,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 	public $isHTML = false;
 	public $closingTag = true;
 
+
 	public function __construct($tag, array $attr = [], $content = '', $isHTML = false)
 	{
 		$this->tag = $tag;
@@ -91,7 +92,10 @@ class HTMLTag implements ArrayAccess, ToStringable
 					debug($val);
 				}
 				$val = implode(' ', $val);        // for class="a b c"
-			} elseif ($val !== false) {  // false is not a proper html value
+			}
+
+			// inject
+			if ($val !== false) {  // false is not a proper html value
 				$set[] = $key . '="' . htmlspecialchars($val ?? '', ENT_QUOTES | PHP_QUERY_RFC3986) . '"';
 			}
 		}
