@@ -578,7 +578,7 @@ class IndexBase /*extends Controller*/
 	}
 
 	/**
-	 * @param bool $defer
+	 * @param array $props
 	 * @return $this
 	 */
 	public function addJQuery($props = ['defer' => true])

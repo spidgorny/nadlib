@@ -109,9 +109,8 @@ class HTMLTag implements ArrayAccess, ToStringable
 		if ($value) {
 			$this->attr[$name] = $value;
 			return $this;
-		} else {
-			return ifsetor($this->attr[$name]);
 		}
+		return ifsetor($this->attr[$name]);
 	}
 
 	public function setAttr($name, $value)
