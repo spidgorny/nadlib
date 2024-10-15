@@ -91,7 +91,10 @@ class HTMLTag implements ArrayAccess, ToStringable
 					debug($val);
 				}
 				$val = implode(' ', $val);        // for class="a b c"
-			} elseif ($val !== false) {  // false is not a proper html value
+			}
+
+			// inject
+			if ($val !== false) {  // false is not a proper html value
 				$set[] = $key . '="' . htmlspecialchars($val ?? '', ENT_QUOTES | PHP_QUERY_RFC3986) . '"';
 			}
 		}
