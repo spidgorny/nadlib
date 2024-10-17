@@ -1611,7 +1611,12 @@ class Request
 		if (!$postData) {
 			return $postData;
 		}
-		return json_decode($postData, false, 512, JSON_THROW_ON_ERROR);
+
+		$contentType = $this->getHeader('Content-Type');
+		if ($contentType === 'application/json') {
+			return json_decode($postData, false, 512, JSON_THROW_ON_ERROR);
+		}
+		return $postData;
 	}
 
 	public function getRawPost()
@@ -1629,7 +1634,6 @@ class Request
 			$ii = str_pad($i, 2, '0', STR_PAD_LEFT);
 			header($prefix . $ii . ': ' . $line);
 		}
-
 	}
 
 	public function getLastNameless()
