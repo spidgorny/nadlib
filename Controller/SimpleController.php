@@ -215,10 +215,14 @@ abstract class SimpleController
 		if (Request::isCLI()) {
 			$assoc = array_slice(ifsetor($_SERVER['argv'], []), 3);
 			$content = call_user_func_array([$proxy, $method], $assoc);
-		} else {
-			$caller = new MarshalParams($proxy);
-			$content = $caller->call($method);
+			return '';
 		}
+
+		$caller = new MarshalParams($proxy);
+		$content = $caller->call($method);
+		// prevent further controllers seeing already processed action
+		llog('Unset action = ' . $action);
+		$this->request->un_set('action');
 
 		return $content;
 	}
