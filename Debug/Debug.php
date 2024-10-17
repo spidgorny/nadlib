@@ -357,7 +357,7 @@ class Debug
 			$types = array_map(static function ($a) use ($typeName) {
 				$val = null;
 				if (is_scalar($a)) {
-					$val = $a . '';
+					$val = substr($a, 0, 10) . '...';
 				} elseif (is_array($a)) {
 					$val = self::peek($a);
 				} elseif (is_object($a)) {
@@ -366,7 +366,7 @@ class Debug
 				}
 				return [
 					'type' => $typeName ?: trim(strip_tags(typ($a) . '')),
-					'value' => $val
+					'value' => $val,
 				];
 			}, $row);
 			return array_combine(array_keys($row), $types);

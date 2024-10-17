@@ -22,8 +22,8 @@ trait HTMLHelper
 	public function div($content, $class = '', array $more = [])
 	{
 		$more['class'] = ifsetor($more['class']) . ' ' . $class;
-		$more = HTMLTag::renderAttr($more);
-		return '<div ' . $more . '>' . $this->s($content) . '</div>';
+		$sMore = HTMLTag::renderAttr($more);
+		return '<div ' . $sMore . '>' . $this->s($content) . '</div>';
 	}
 
 	public function s($something)
@@ -34,8 +34,8 @@ trait HTMLHelper
 	public function span($content, $class = '', array $more = [])
 	{
 		$more['class'] = ifsetor($more['class']) . ' ' . $class;
-		$more = HTMLTag::renderAttr($more);
-		return '<span ' . $more . '>' . $this->s($content) . '</span>';
+		$sMore = HTMLTag::renderAttr($more);
+		return '<span ' . $sMore . '>' . $this->s($content) . '</span>';
 	}
 
 	public function info($content)

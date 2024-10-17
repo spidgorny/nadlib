@@ -251,19 +251,11 @@ abstract class Controller extends SimpleController
 	{
 		$elements = func_get_args();
 		return call_user_func_array([__CLASS__, 'inColumnsHTML5'], $elements);
-		/*		$content = '';
-				foreach ($elements as $html) {
-					$html = $this->s($html);
-					$content .= '<div style="float: left;">'.$html.'</div>';
-				}
-				$content = $content.'<div style="clear: both"></div>';
-				return $content;*/
 	}
 
-	public function inColumnsHTML5()
+	public function inColumnsHTML5(...$elements)
 	{
 		$this->index->addCSS(AutoLoad::getInstance()->nadlibFromDocRoot . 'CSS/display-box.css');
-		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
 			$html = $this->s($html);
@@ -279,10 +271,9 @@ abstract class Controller extends SimpleController
 	//function getMenuSuffix() {
 	//	return '';
 	//}
-	public function inEqualColumnsHTML5()
+	public function inEqualColumnsHTML5(...$elements)
 	{
 		$this->index->addCSS(AutoLoad::getInstance()->nadlibFromDocRoot . 'CSS/display-box.css');
-		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
 			$html = $this->s($html);
