@@ -221,7 +221,7 @@ abstract class SimpleController
 		$caller = new MarshalParams($proxy);
 		$content = $caller->call($method);
 		// prevent further controllers seeing already processed action
-		llog('Unset action = ' . $action);
+//		llog('Unset action = ' . $action);
 		$this->request->un_set('action');
 
 		return $content;
