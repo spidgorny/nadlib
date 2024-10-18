@@ -665,7 +665,7 @@ class IndexBase /*extends Controller*/
 	 */
 	public function addCSS($source)
 	{
-		if (strtolower(pathinfo($source, PATHINFO_EXTENSION)) == 'less') {
+		if (strtolower(pathinfo($source, PATHINFO_EXTENSION)) === 'less') {
 			if ($this->request->apacheModuleRewrite() && file_exists('css/.htaccess')) {
 				$fileName = $source;    // rewrite inside css folder
 			} else {
