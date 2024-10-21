@@ -158,6 +158,7 @@ class SQLSelectQuery extends SQLWherePart
 	 */
 	public function getQuery()
 	{
+		$this->db->resetQueryParameters();
 		$query = trim("SELECT
 {$this->select}
 FROM {$this->from}
@@ -262,7 +263,7 @@ FROM {$this->from}
 	{
 		$sQuery = $this->getQuery();
 		$aParams = $this->getParameters();
-		//		debug(['where' => $this->where, 'sql' => $sQuery, 'params' => $aParams]);
+//		llog(['where' => $this->where, 'sql' => $sQuery, 'params' => $aParams]);
 		return $this->db->perform($sQuery, $aParams);
 	}
 

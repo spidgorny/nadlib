@@ -177,7 +177,7 @@ class DBLayer extends DBLayerBase
 	 */
 	public function perform($query, array $params = [])
 	{
-//		llog(str_replace("\n", " ",			str_replace("\t", " ", $query)));
+		llog(SQLSelectQuery::trim($query), $params);
 		$prof = new Profiler();
 
 		$this->lastQuery = $query;
@@ -217,7 +217,7 @@ class DBLayer extends DBLayerBase
 //				? pg_result_error($this->LAST_PERFORM_RESULT)
 //				: '';
 			$e = new DatabaseException(
-				get_class($e) .' [' . $e->getCode() . '] ' . $e->getMessage()
+				get_class($e) . ' [' . $e->getCode() . '] ' . $e->getMessage()
 			);
 			$e->setQuery($query);
 			throw $e;
@@ -586,6 +586,7 @@ class DBLayer extends DBLayerBase
 			$queryObj = $result;
 			$result = $queryObj->getQuery();
 			$params = $queryObj->getParameters();
+//			llog('converted to string', $result, $params);
 		}
 		if (is_string($result)) {
 			//debug($result);

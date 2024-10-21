@@ -136,7 +136,13 @@ class SQLOr extends SQLWherePart
 
 	public function debug()
 	{
-		return [$this->field => $this->or];
+		return [
+			'class' => get_class($this),
+			'field' => $this->field,
+			'or' => collect($this->or)->map(function ($sub) {
+				return $sub->debug();
+			})->toArray()
+		];
 	}
 
 	public function getParameter()
@@ -154,8 +160,7 @@ class SQLOr extends SQLWherePart
 				}
 			}
 		}
-//		llog($this->or);
-//		llog($params);
+//		llog($this->debug(), '=>', $params);
 		return $params;
 	}
 

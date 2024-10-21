@@ -142,11 +142,11 @@ class CollectionQuery
 	{
 		$taylorKey = get_class($this) . '::' . __FUNCTION__;
 		TaylorProfiler::start($taylorKey);
-//		$this->log(__METHOD__, Debug::getBackLog(25, 0, null, false));
 
 		$this->query = $this->getQueryWithLimit();
 //		$this->log($taylorKey, [
-//			'query' => str_replace("\n", " ", str_replace("\t", " ", $this->query . ''))
+//			'type' => get_debug_type($this->query),
+//			'query' => $this->query
 //		]);
 
 		// in most cases we don't need to rasterize the query to SQL

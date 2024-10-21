@@ -22,14 +22,13 @@ class SQLWherePart
 	public function __construct($sql = '')
 	{
 		$this->sql = $sql;
-//		$this->db = Config::getInstance()->getDB();
 	}
 
 	/**
 	 * Not used directly
-	 * @see SQLWhereEqual
 	 * @return string
 	 * @throws MustBeStringException
+	 * @see SQLWhereEqual
 	 */
 	public function __toString()
 	{
@@ -38,9 +37,8 @@ class SQLWherePart
 				[$this->field => $this->sql]
 			);
 			return implode('', $part1);
-		} else {
-			return $this->sql . '';
 		}
+		return $this->sql . '';
 	}
 
 	public function injectDB(DBInterface $db)

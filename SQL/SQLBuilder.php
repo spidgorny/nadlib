@@ -772,4 +772,9 @@ class SQLBuilder
 		return '$' . (++$this->placeholderIndex);
 	}
 
+	public function resetQueryParameters()
+	{
+		$this->placeholderIndex = 0;
+	}
+
 }

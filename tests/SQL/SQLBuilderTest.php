@@ -138,9 +138,23 @@ AND something else');
 		]);
 		$query = $col->getQueryWithLimit();
 		$this->assertEquals('SELECT "person".* FROM "person" WHERE NOT "hidden" AND "trim(login)" <> \'\' AND ("name" ILIKE \'\' || $1 || \'\' OR "name" ILIKE \'\' || $2 || \'\') ORDER BY name, surname', SQLSelectQuery::trim($query->__toString()));
+		// repeat should call resetQueryParameters() and start from $1 again
+		$this->assertEquals('SELECT "person".* FROM "person" WHERE NOT "hidden" AND "trim(login)" <> \'\' AND ("name" ILIKE \'\' || $1 || \'\' OR "name" ILIKE \'\' || $2 || \'\') ORDER BY name, surname', SQLSelectQuery::trim($query->__toString()));
 
 		$params = $query->getParameters();
 //		llog($params);
 		$this->assertEquals(['John', 'Doe'], $params);
+
+		// perform
+		$rows = $col->getData();
+		$this->assertEquals([], $rows->getData());
+
+		// with limit should return an object so that we can use getParameters()
+		$query = $col->getQueryWithLimit();
+		$this->assertInstanceOf(SQLSelectQuery::class, $query);
+
+		// retrieveDataFromDB
+		$rows = $col->getCollectionQuery()->retrieveData();
+		llog($rows);
 	}
 }

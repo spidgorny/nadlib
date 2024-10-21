@@ -34,4 +34,8 @@ class SQLIn extends SQLWherePart
 		return $content;
 	}
 
+	public function debug()
+	{
+		return $this->field . ' IN (' . implode(', ', $this->list) . ')';
+	}
 }

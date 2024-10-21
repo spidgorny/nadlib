@@ -26,8 +26,8 @@ class SQLLike extends SQLWherePart
 	public function __construct($string, $caseInsensitive = true)
 	{
 		parent::__construct();
-		$this->caseInsensitive = $caseInsensitive;
 		$this->string = $string;
+		$this->caseInsensitive = $caseInsensitive;
 	}
 
 	public function wrap($string)
@@ -39,7 +39,7 @@ class SQLLike extends SQLWherePart
 	public function __toString()
 	{
 		if (!$this->db) {
-			throw new InvalidArgumentException(__METHOD__.' has to DB');
+			throw new InvalidArgumentException(__METHOD__ . ' has to DB');
 		}
 
 		$like = $this->caseInsensitive ? $this->ilike : $this->like;
@@ -47,13 +47,6 @@ class SQLLike extends SQLWherePart
 
 		// must get from QB, to have the index starting with $1
 		$escape = $this->db->qb->getPlaceholder($this->field);
-
-		if (false) {
-			$escape = $this->db->escape($this->string);
-			$escape = str_replace('\\"', '"', $escape);
-			$escape = str_replace('%', '\\%', $escape);
-			$escape = str_replace('_', '\\_', $escape);
-		}
 
 		$field = $this->db->quoteKey($this->field);
 
@@ -75,6 +68,16 @@ class SQLLike extends SQLWherePart
 	public function getParameter()
 	{
 		return $this->string;
+	}
+
+	public function debug()
+	{
+		return [
+			'class' => get_class($this),
+			'string' => $this->string,
+			'caseInsensitive' => $this->caseInsensitive,
+			'wrap' => $this->wrap,
+		];
 	}
 
 }
