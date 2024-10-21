@@ -53,7 +53,7 @@ class CollectionQuery
 	{
 		TaylorProfiler::start($profiler = get_class($this) . '::' . __FUNCTION__ . " ({$this->table})");
 		if (!$this->db) {
-			debug_pre_print_backtrace();
+			throw new DatabaseException('DB is not set in ' . get_class($this));
 		}
 		if (!$where) {
 			$where = $this->where;

@@ -47,6 +47,8 @@ class SQLBuilder
 
 	public $logToLog = false;
 
+	protected $placeholderIndex = 0;
+
 	public function __construct(DBInterface $db)
 	{
 		if (class_exists('Config')) {
@@ -292,8 +294,7 @@ class SQLBuilder
 	public function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = '')
 	{
 		$table1 = $this->getFirstWord($table);
-		$select = $addSelect ? $addSelect
-			: $this->quoteKey($table1) . ".*";
+		$select = $addSelect ? $addSelect : $this->quoteKey($table1) . ".*";
 		$q = SQLSelectQuery::getSelectQueryP($this->db, $table, $where, $order, $select);
 		return $q;
 	}
@@ -761,4 +762,14 @@ class SQLBuilder
 			return [];
 		}
 	}
+
+	/**
+	 * Used in prepared statements to denote parameters of the query
+	 * @return string
+	 */
+	public function getPlaceholder()
+	{
+		return '$' . (++$this->placeholderIndex);
+	}
+
 }

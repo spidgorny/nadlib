@@ -43,4 +43,12 @@ class AsIs extends SQLWherePart
 		$this->value = $value;
 	}
 
+	public function getParameter()
+	{
+		if ($this->value instanceof SQLWherePart) {
+			return $this->value->getParameter();
+		}
+		return parent::getParameter();
+	}
+
 }

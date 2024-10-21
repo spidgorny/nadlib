@@ -44,7 +44,9 @@ class SQLLike extends SQLWherePart
 
 		$like = $this->caseInsensitive ? $this->ilike : $this->like;
 		$w = explode('|', $this->wrap);
-		$escape = $this->db->getPlaceholder($this->field);
+
+		// must get from QB, to have the index starting with $1
+		$escape = $this->db->qb->getPlaceholder($this->field);
 
 		if (false) {
 			$escape = $this->db->escape($this->string);

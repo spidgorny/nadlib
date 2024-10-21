@@ -23,6 +23,28 @@ class SQLOr extends SQLWherePart
 		$this->or = $ors;
 	}
 
+	public function inject(DBInterface $db)
+	{
+		$this->db = $db;
+		foreach ($this->or as $p) {
+			if ($p instanceof SQLWherePart) {
+				$p->injectDB($this->db);
+			}
+		}
+		return $this;
+	}
+
+	public function injectField($field)
+	{
+		$this->field = $field;
+		foreach ($this->or as $p) {
+			if ($p instanceof SQLWherePart) {
+				$p->injectField($field);
+			}
+		}
+		return $this;
+	}
+
 	/**
 	 * Please make SQLOrBijou, SQLOrORS and so on classes.
 	 * This one should be just simple general.
@@ -132,6 +154,8 @@ class SQLOr extends SQLWherePart
 				}
 			}
 		}
+//		llog($this->or);
+//		llog($params);
 		return $params;
 	}
 

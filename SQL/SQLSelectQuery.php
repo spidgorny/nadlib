@@ -175,13 +175,17 @@ FROM {$this->from}
 
 	public function __toString()
 	{
-		try {
-			return $this->getQuery();
-		} catch (Exception $e) {
-			echo '<strong>', $e->getMessage(), '</strong>', BR;
-			//echo '<strong>', $e->getPrevious()->getMessage(), '</strong>', BR;
-			pre_print_r($e->getTraceAsString());
-		}
+		return $this->getQuery();
+	}
+
+	public static function trim($sql)
+	{
+		$sql = str_replace("\n", ' ', $sql);
+		$sql = str_replace("\t", ' ', $sql);
+		$sql = preg_replace('/ +/', ' ', $sql);
+		$sql = trim($sql);
+//		echo $sql, BR;
+		return $sql;
 	}
 
 	public static function sqlSH($sql)
@@ -287,10 +291,10 @@ FROM {$this->from}
 	 */
 	public static function getSelectQueryP(
 		DBInterface $db,
-		$table,
-		$where = [],
-		$sOrder = '',
-		$addSelect = null
+								$table,
+								$where = [],
+								$sOrder = '',
+								$addSelect = null
 	)
 	{
 		$table1 = SQLBuilder::getFirstWord($table);

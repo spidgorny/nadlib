@@ -912,11 +912,6 @@ FROM
 WHERE ccu.table_name='" . $table . "'");
 	}
 
-	public function getPlaceholder()
-	{
-		return '$0$';
-	}
-
 	public function isPostgres()
 	{
 		return true;

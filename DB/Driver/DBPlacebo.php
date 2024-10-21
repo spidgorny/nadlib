@@ -156,16 +156,18 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 
 	public function getSelectQuerySW($table, SQLWhere $where, $order = '', $selectPlus = '')
 	{
-		$query = $this->getSelectQuery($table, [
-			new AsIsOp($where->__toString()),
-		], $order, $selectPlus);
+//		$where->injectDB($this);
+		// WHY this is here? Because we can't call getSelectQuerySW and must convert the quest to string
+		// it does not propagate the query parameters properly
+//		$asIsOp = new AsIsOp(str_replace('WHERE', '', $where->__toString()));
+//		$asIsOp->injectDB($this);
+//		$where = [
+//			$asIsOp,
+//		];
+//		$query = $this->getSelectQuery($table, $where, $order, $selectPlus);
+		$query = SQLSelectQuery::getSelectQueryP($this, $table, $where, $order, $selectPlus);
 		$this->lastQuery = $query;
 		return $query;
-	}
-
-	public function getPlaceholder()
-	{
-		return '?';
 	}
 
 	public function getInfo()

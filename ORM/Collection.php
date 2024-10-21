@@ -346,7 +346,7 @@ class Collection implements IteratorAggregate, ToStringable
 		$this->log($method, ['rows after idealize' => count($this->data)]);
 	}
 
-	public function getQueryWithLimit()
+	public function getQueryWithLimit(): SQLSelectQuery
 	{
 		$cq = $this->getCollectionQuery();
 		return $cq->getQueryWithLimit();
@@ -852,6 +852,9 @@ class Collection implements IteratorAggregate, ToStringable
 		$this->query = null;
 		$this->data = null;
 		$this->members = null;
+
+		// reset getPlaceholder count
+		$this->db->setQB(new SQLBuilder($this->db));
 	}
 
 	public function getIDs()

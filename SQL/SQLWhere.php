@@ -127,7 +127,7 @@ class SQLWhere implements ArrayAccess
 		foreach ($this->parts as $part) {
 			if ($part instanceof SQLWherePart) {
 				$plus = $part->getParameter();
-				//debug(typ($part), $part->getField(), $plus);
+//				llog(get_debug_type($part), $part->getField(), $plus);
 				if (is_array($plus)) {
 					$parameters = array_merge($parameters, $plus);
 				} elseif (!is_null($plus)) {
@@ -136,7 +136,6 @@ class SQLWhere implements ArrayAccess
 				}
 			}
 		}
-//		debug($parameters);
 		return $parameters;
 	}
 

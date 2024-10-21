@@ -50,14 +50,4 @@ class SQLWhereTest extends PHPUnit\Framework\TestCase
 		]);
 	}
 
-	public function trim($sql)
-	{
-		$sql = str_replace("\n", ' ', $sql);
-		$sql = str_replace("\t", ' ', $sql);
-		$sql = preg_replace('/ +/', ' ', $sql);
-		$sql = trim($sql);
-//		echo $sql, BR;
-		return $sql;
-	}
-
 }
