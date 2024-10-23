@@ -177,7 +177,7 @@ class DBLayer extends DBLayerBase
 	 */
 	public function perform($query, array $params = [])
 	{
-		llog(SQLSelectQuery::trim($query), $params);
+//		llog(SQLSelectQuery::trim($query), $params);
 		$prof = new Profiler();
 
 		$this->lastQuery = $query;
