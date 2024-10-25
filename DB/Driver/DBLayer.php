@@ -85,12 +85,6 @@ class DBLayer extends DBLayerBase
 		}
 	}
 
-	public function getVersion()
-	{
-		$version = pg_version($this->connection);
-		return $version['server'];
-	}
-
 	/**
 	 * @return bool
 	 */
@@ -100,44 +94,47 @@ class DBLayer extends DBLayerBase
 			&& pg_connection_status($this->connection) === PGSQL_CONNECTION_OK;
 	}
 
-	public function getConnection()
+	public function getVersion()
 	{
-		return $this->connection;
+		$version = pg_version($this->connection);
+		return $version['server'];
 	}
 
-	public function reconnect()
+	/**
+	 * Overrides because of pg_fetch_all
+	 * @param resource|string $result
+	 * @param null $key
+	 * @return array
+	 * @throws Exception
+	 */
+	public function fetchAll($result, $key = null)
 	{
-		$this->connect($this->database, $this->user, $this->pass, $this->host);
-	}
-
-	public function connect($database = null, $user = null, $pass = null, $host = null)
-	{
-		if (!$this->isConnected()) {
-			return;
+		$params = [];
+		if ($result instanceof SQLSelectQuery) {
+			/** @var SQLSelectQuery $queryObj */
+			$queryObj = $result;
+			$result = $queryObj->getQuery();
+			$params = $queryObj->getParameters();
 		}
-		if ($database) {
-			$this->database = $database;
+		if (is_string($result)) {
+			//debug($result);
+			$result = $this->perform($result, $params);
 		}
-		if ($user) {
-			$this->user = $user;
+		//debug($this->numRows($result));
+		$res = pg_fetch_all($result);
+		pg_free_result($result);
+		if (ifsetor($_REQUEST['d']) == 'q') {
+			debug($this->lastQuery, sizeof($res));
 		}
-		if ($pass) {
-			$this->pass = $pass;
-		}
-		if ($host) {
-			$this->host = $host;
-		}
-		$string = "host={$this->host} dbname={$this->database} user={$this->user} password={$this->pass}";
-//		llog($string);
-		$this->connection = pg_connect($string);
-		if (!$this->connection) {
-			throw new DatabaseException("No PostgreSQL connection to $host. " . json_encode(error_get_last()));
-			//printbr('Error: '.pg_errormessage());	// Warning: pg_errormessage(): No PostgreSQL link opened yet
+		if (!$res) {
+			$res = [];
+		} elseif ($key) {
+			$ap = ArrayPlus::create($res)->IDalize($key)->getData();
+			//debug(sizeof($res), sizeof($ap));
+			$res = $ap;
 		}
 
-		$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
-		//print(pg_client_encoding($this->connection));
-		return true;
+		return $res;
 	}
 
 	/**
@@ -205,6 +202,54 @@ class DBLayer extends DBLayerBase
 		return $this->LAST_PERFORM_RESULT;
 	}
 
+	public function connect($database = null, $user = null, $pass = null, $host = null)
+	{
+		if (!$this->isConnected()) {
+			return;
+		}
+		if ($database) {
+			$this->database = $database;
+		}
+		if ($user) {
+			$this->user = $user;
+		}
+		if ($pass) {
+			$this->pass = $pass;
+		}
+		if ($host) {
+			$this->host = $host;
+		}
+		$string = "host={$this->host} dbname={$this->database} user={$this->user} password={$this->pass}";
+//		llog($string);
+		$this->connection = pg_connect($string);
+		if (!$this->connection) {
+			throw new DatabaseException("No PostgreSQL connection to $host. " . json_encode(error_get_last()));
+			//printbr('Error: '.pg_errormessage());	// Warning: pg_errormessage(): No PostgreSQL link opened yet
+		}
+
+		$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
+		//print(pg_client_encoding($this->connection));
+		return true;
+	}
+
+	/**
+	 * http://www.postgresql.org/docs/9.3/static/datatype-money.html
+	 * @param string $source
+	 * @return float
+	 */
+	public static function getMoney($source = '$1,234.56')
+	{
+		$source = str_replace('$', '', $source);
+		$source = str_replace(',', '', $source);
+		$source = floatval($source);
+		return $source;
+	}
+
+	public function reconnect()
+	{
+		$this->connect($this->database, $this->user, $this->pass, $this->host);
+	}
+
 	public function reportIfLastQueryFailed()
 	{
 		if (false === $this->LAST_PERFORM_RESULT) {
@@ -226,56 +271,6 @@ class DBLayer extends DBLayerBase
 				implode(PHP_EOL, $backtrace)
 			);
 		}
-	}
-
-	/**
-	 * Overrides because of pg_fetch_all
-	 * @param resource|string $result
-	 * @param null $key
-	 * @return array
-	 * @throws Exception
-	 */
-	public function fetchAll($result, $key = null)
-	{
-		$params = [];
-		if ($result instanceof SQLSelectQuery) {
-			/** @var SQLSelectQuery $queryObj */
-			$queryObj = $result;
-			$result = $queryObj->getQuery();
-			$params = $queryObj->getParameters();
-		}
-		if (is_string($result)) {
-			//debug($result);
-			$result = $this->perform($result, $params);
-		}
-		//debug($this->numRows($result));
-		$res = pg_fetch_all($result);
-		pg_free_result($result);
-		if (ifsetor($_REQUEST['d']) == 'q') {
-			debug($this->lastQuery, sizeof($res));
-		}
-		if (!$res) {
-			$res = [];
-		} elseif ($key) {
-			$ap = ArrayPlus::create($res)->IDalize($key)->getData();
-			//debug(sizeof($res), sizeof($ap));
-			$res = $ap;
-		}
-
-		return $res;
-	}
-
-	/**
-	 * http://www.postgresql.org/docs/9.3/static/datatype-money.html
-	 * @param string $source
-	 * @return float
-	 */
-	public static function getMoney($source = '$1,234.56')
-	{
-		$source = str_replace('$', '', $source);
-		$source = str_replace(',', '', $source);
-		$source = floatval($source);
-		return $source;
 	}
 
 	public function performWithParams($query, $params)
@@ -366,6 +361,40 @@ class DBLayer extends DBLayerBase
 	}
 
 	/**
+	 * fetchAll() equivalent with $key and $val properties
+	 * @param string $query
+	 * @param string $key
+	 * @param mixed $val
+	 * @return array
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
+	 */
+	public function getTableDataSql($query, $key = null, $val = null)
+	{
+		if (is_string($query)) {
+			$result = $this->perform($query);
+		} else {
+			$result = $query;
+		}
+		$return = [];
+		while ($row = pg_fetch_assoc($result)) {
+			if ($val) {
+				$value = $row[$val];
+			} else {
+				$value = $row;
+			}
+
+			if ($key) {
+				$return[$row[$key]] = $value;
+			} else {
+				$return[] = $value;
+			}
+		}
+		pg_free_result($result);
+		return $return;
+	}
+
+	/**
 	 * @param string $table
 	 * @param string $column
 	 * @param string $where
@@ -403,41 +432,6 @@ class DBLayer extends DBLayerBase
 	 * return $b;
 	 * }
 	 * /**/
-
-
-	/**
-	 * fetchAll() equivalent with $key and $val properties
-	 * @param string $query
-	 * @param string $key
-	 * @param mixed $val
-	 * @return array
-	 * @throws DatabaseException
-	 * @throws MustBeStringException
-	 */
-	public function getTableDataSql($query, $key = null, $val = null)
-	{
-		if (is_string($query)) {
-			$result = $this->perform($query);
-		} else {
-			$result = $query;
-		}
-		$return = [];
-		while ($row = pg_fetch_assoc($result)) {
-			if ($val) {
-				$value = $row[$val];
-			} else {
-				$value = $row;
-			}
-
-			if ($key) {
-				$return[$row[$key]] = $value;
-			} else {
-				$return[] = $value;
-			}
-		}
-		pg_free_result($result);
-		return $return;
-	}
 
 	/**
 	 * Returns a list of tables in the current database
@@ -611,12 +605,15 @@ class DBLayer extends DBLayerBase
 		return $row[0];
 	}
 
-	public function numRows($query = null)
+	/**
+	 * Compatibility.
+	 * @param resource $res
+	 * @param string $table - optional
+	 * @return null
+	 */
+	public function lastInsertID($res, $table = null)
 	{
-		if (is_string($query)) {
-			$query = $this->perform($query);
-		}
-		return pg_num_rows($query);
+		return $this->getLastInsertID($res, $table);
 	}
 
 	public function getLastInsertID($res = null, $table = 'not required since 8.1')
@@ -633,15 +630,9 @@ class DBLayer extends DBLayerBase
 //		return $id;
 	}
 
-	/**
-	 * Compatibility.
-	 * @param resource $res
-	 * @param string $table - optional
-	 * @return null
-	 */
-	public function lastInsertID($res, $table = null)
+	public function getConnection()
 	{
-		return $this->getLastInsertID($res, $table);
+		return $this->connection;
 	}
 
 	protected function lastval()
@@ -650,7 +641,6 @@ class DBLayer extends DBLayerBase
 		$row = $this->fetchAssoc($res);
 		return $row['lastval'];
 	}
-
 
 	public function getComment($table, $column)
 	{
@@ -861,7 +851,7 @@ FROM
 WHERE ccu.table_name='" . $table . "'");
 	}
 
-	public function getPlaceholder()
+	public function getPlaceholder($field)
 	{
 		return '$0$';
 	}
@@ -947,6 +937,13 @@ WHERE ccu.table_name='" . $table . "'");
 		return $key;
 	}
 
+	public function numRows($query = null)
+	{
+		if (is_string($query)) {
+			$query = $this->perform($query);
+		}
+		return pg_num_rows($query);
+	}
 
 	public function isTransaction()
 	{

@@ -116,4 +116,8 @@ class PlainSessionUser extends UserBase implements UserModelInterface
 		return false;
 	}
 
+	public function updatePassword($newPassword)
+	{
+		// TODO: Implement updatePassword() method.
+	}
 }

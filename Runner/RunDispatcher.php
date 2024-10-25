@@ -71,19 +71,8 @@ class RunDispatcher extends AppControllerBE
 		return $cmd;
 	}
 
-	public function getTaskCommandLine(RunnerTask $task) {
-		$cmd = 'php index.php '.get_class($task->obj).' '.$task->method;
-		$params = $task->getParams();
-		if ($params) {
-			$rMethod = new ReflectionMethod($task->obj, $task->method);
-			foreach ($rMethod->getParameters() as $i => $param) {
-				$cmd .= ' -'.$param->getName().' '.$params[$i];
-			}
-		}
-		return $cmd;
-	}
-
-	public function checkLiveProcesses() {
+	public function checkLiveProcesses()
+	{
 		echo 'Active Processes: ', TAB, 'max: ', $this->parallelism, BR;
 		/**
 		 * @var int $p
@@ -91,7 +80,7 @@ class RunDispatcher extends AppControllerBE
 		 */
 		foreach ($this->processes as $p => $task) {
 			// getting the PID of "start" process is not helpful
-			$pidOfStart = $task->pinfo['pid'];
+			$pidOfStart = $task->data['pid'];
 			$pid = $task->getPID();
 			echo TAB, '* ', $task->id(), TAB, $task->getName(),
 			TAB, 'PID of Start: ', $pidOfStart,
@@ -107,6 +96,19 @@ class RunDispatcher extends AppControllerBE
 				}
 			}
 		}
+	}
+
+	public function getTaskCommandLine(RunnerTask $task)
+	{
+		$cmd = 'php index.php ' . get_class($task->obj) . ' ' . $task->method;
+		$params = $task->getParams();
+		if ($params) {
+			$rMethod = new ReflectionMethod($task->obj, $task->method);
+			foreach ($rMethod->getParameters() as $i => $param) {
+				$cmd .= ' -' . $param->getName() . ' ' . $params[$i];
+			}
+		}
+		return $cmd;
 	}
 
 	/**

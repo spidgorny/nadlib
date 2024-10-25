@@ -365,35 +365,36 @@ class slTableValue
 
 	public function renderSelection(array $k, $col, $val)
 	{
-		if ($val) {
-			$what = ifsetor($k['title'], $col);
-			$id = ifsetor($k['idField'], 'id');
-			if (!isset($k['options'])) {
-				if ($k['set']) {
-					$list = trimExplode(',', $val);
-					$out = [];
-					foreach ($list as $listVal) {
-						$row = $this->db->fetchOneSelectQuery($k['from'], $id . " = '" . $listVal . "'");
-						$out[] = $row[$what];
-					}
-					$out = implode(', ', $out);
-				} elseif ($k['from']) {
-					$options = $this->db->fetchSelectQuery($k['from'], [$id => $val], '', $k['from'] . '.*, ' . $what);
-					//debug($options, $k); exit();
-					$whatAs = trimExplode('AS', $what);
-					$whatAs = $whatAs[1] ?: $what;
-					$options = ArrayPlus::create($options)
-						->IDalize($id, true)
-						->column($whatAs)
-						->getData();
-					$out = $options[$val];
+		$out = '';
+		if (!$val) {
+			return $out;
+		}
+
+		$what = ifsetor($k['title'], $col);
+		$id = ifsetor($k['idField'], 'id');
+		if (!isset($k['options'])) {
+			if ($k['set']) {
+				$list = trimExplode(',', $val);
+				$out = [];
+				foreach ($list as $listVal) {
+					$row = $this->db->fetchOneSelectQuery($k['from'], $id . " = '" . $listVal . "'");
+					$out[] = $row[$what];
 				}
-			} else {
-				$options = $k['options'];
+				$out = implode(', ', $out);
+			} elseif ($k['from']) {
+				$options = $this->db->fetchSelectQuery($k['from'], [$id => $val], '', $k['from'] . '.*, ' . $what);
+				//debug($options, $k); exit();
+				$whatAs = trimExplode('AS', $what);
+				$whatAs = $whatAs[1] ?: $what;
+				$options = ArrayPlus::create($options)
+					->IDalize($id, true)
+					->column($whatAs)
+					->getData();
 				$out = $options[$val];
 			}
 		} else {
-			$out = "";
+			$options = $k['options'];
+			$out = $options[$val];
 		}
 		return $out;
 	}

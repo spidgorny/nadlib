@@ -58,13 +58,6 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		return $instance;
 	}
 
-	public static function fromPDO(PDO $pdo)
-	{
-		$instance = new self();
-		$instance->connection = $pdo;
-		return $instance;
-	}
-
 	/**
 	 * @param string $user
 	 * @param string $password
@@ -229,6 +222,13 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 			throw $e;
 		}
 		return $this->lastResult;
+	}
+
+	public static function fromPDO(PDO $pdo)
+	{
+		$instance = new self();
+		$instance->connection = $pdo;
+		return $instance;
 	}
 
 	public static function getAvailableDrivers()
@@ -446,7 +446,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		return $this->qb;
 	}
 
-	public function getPlaceholder()
+	public function getPlaceholder($field)
 	{
 		return '?';
 	}

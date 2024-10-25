@@ -57,21 +57,6 @@ class SQLOr extends SQLWherePart
 		return $res;
 	}
 
-	public function bijouStyle()
-	{
-		// bijou
-		$ors = [];
-		foreach ($this->or as $key => $or) {
-			if ($this->is_main($key)) {
-				$ors[] = $this->db->getWherePart([
-					$key => $or,
-					$key . '.' => $this->or[$key . '.'],
-				], false);
-			}
-		}
-		return first($ors);
-	}
-
 	public function dciStyle()
 	{
 		$ors = [];
@@ -110,6 +95,26 @@ class SQLOr extends SQLWherePart
 		return first($ors);
 	}
 
+	public function bijouStyle()
+	{
+		// bijou
+		$ors = [];
+		foreach ($this->or as $key => $or) {
+			if ($this->is_main($key)) {
+				$ors[] = $this->db->getWherePart([
+					$key => $or,
+					$key . '.' => $this->or[$key . '.'],
+				], false);
+			}
+		}
+		return first($ors);
+	}
+
+	private function is_main($key)
+	{
+		return $key[0] != '.';
+	}
+
 	public function debug()
 	{
 		return [$this->field => $this->or];
@@ -119,7 +124,6 @@ class SQLOr extends SQLWherePart
 	{
 		$params = [];
 		/**
-		 * @var string $field
 		 * @var SQLLike $sub
 		 */
 		foreach ($this->or as $sub) {
@@ -131,11 +135,6 @@ class SQLOr extends SQLWherePart
 			}
 		}
 		return $params;
-	}
-
-	private function is_main($key)
-	{
-		return $key[0] != '.';
 	}
 
 }

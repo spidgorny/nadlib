@@ -82,4 +82,6 @@ interface DBInterface
 
 	public function getVersion();
 
+	public function getPlaceholder($field);
+
 }
