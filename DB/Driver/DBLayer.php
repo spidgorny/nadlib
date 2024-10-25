@@ -71,9 +71,9 @@ class DBLayer extends DBLayerBase
 		$this->pass = $pass;
 		$this->host = $host;
 		if ($dbName) {
-			$this->connect($dbName, $user, $pass, $host);
+//			$this->connect($dbName, $user, $pass, $host);
 
-			if ($this->getVersion() >= 8.4) {
+			if ($this->isConnected() && $this->getVersion() >= 8.4) {
 				$query = "select * from pg_get_keywords() WHERE catcode IN ('R', 'T')";
 				$words = $this->fetchAll($query, 'word');
 				$this->reserved = array_keys($words);
@@ -112,6 +112,9 @@ class DBLayer extends DBLayerBase
 
 	public function connect($database = null, $user = null, $pass = null, $host = null)
 	{
+		if (!$this->isConnected()) {
+			return;
+		}
 		if ($database) {
 			$this->database = $database;
 		}
@@ -146,6 +149,7 @@ class DBLayer extends DBLayerBase
 	 */
 	public function perform($query, array $params = [])
 	{
+		$this->connect($dbName, $user, $pass, $host);
 		$prof = new Profiler();
 
 //		$this->reportIfLastQueryFailed();
