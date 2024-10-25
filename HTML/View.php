@@ -43,21 +43,29 @@ class View extends stdClass implements ToStringable
 	protected $parts = [];
 	protected $folder;
 
-	public function __construct($file, $copyObject = null)
+	public function __construct(string $file, $copyObject = null)
 	{
 		TaylorProfiler::start(__METHOD__ . ' (' . $file . ')');
 		$config = class_exists('Config')
 			? Config::getInstance() : new stdClass();
-		$appRoot = AutoLoad::getInstance()->getAppRoot();
-		$this->folder = (ifsetor($appRoot) ? cap($appRoot, '/') : '')
-			. 'template/';
-		if (class_exists('Config') && ifsetor($config->config[__CLASS__]['folder'])) {
-			$this->folder = dirname(__FILE__) . '/' . $config->config[__CLASS__]['folder'];
+		if (Path::isItAbsolute($file)) {
+			$this->folder = '';
+		} else {
+			$appRoot = AutoLoad::getInstance()->getAppRoot();
+			$this->folder = (ifsetor($appRoot) ? cap($appRoot, '/') : '')
+				. 'template/';
+			if (class_exists('Config') && ifsetor($config->config[__CLASS__]['folder'])) {
+				$this->folder = dirname(__FILE__) . '/' . $config->config[__CLASS__]['folder'];
+			}
 		}
 		$this->file = $file;
 		if (!is_readable($this->folder . $this->file)) {
-			//debug(filesize($this->folder.$this->file));
-			//throw new Exception('File not readable '.$this->file);
+			llog([
+				'folder' => $this->folder,
+				'file' => $this->file,
+				'isAbs' => Path::isItAbsolute($file),
+			]);
+			throw new Exception('File not readable ' . $this->file);
 		}
 		/*nodebug(
 			$config->appRoot,

@@ -10,14 +10,11 @@ if (!function_exists('str_startsWith')) {
 	 */
 	function str_startsWith($haystack, $needle)
 	{
-		if (!$haystack) {
-			return false;
-		}
 		if (!is_array($needle)) {
 			$needle = [$needle];
 		}
 		foreach ($needle as $need) {
-			if (strpos($haystack || '', $need) === 0) {
+			if (str_starts_with($haystack, $need)) {
 				return true;
 			}
 		}
