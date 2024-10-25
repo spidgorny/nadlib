@@ -10,7 +10,7 @@ trait DirectDataAccess
 		return $this->data[$key] ?? null;
 	}
 
-	public function __set(mixed $key, $val): mixed
+	public function __set(mixed $key, $val): void
 	{
 		$this->data[$key] = $val;
 	}

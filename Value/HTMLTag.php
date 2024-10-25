@@ -34,7 +34,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 
 	public static function __callStatic(string $name, array $arguments)
 	{
-		llog('HTMLTag', $name, $arguments);
+//		llog('HTMLTag', $name, $arguments);
 		return new static($name, $arguments[0], $arguments[1], $arguments[2]);
 	}
 
