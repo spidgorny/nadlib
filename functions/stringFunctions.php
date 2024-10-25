@@ -17,7 +17,7 @@ if (!function_exists('str_startsWith')) {
 			$needle = [$needle];
 		}
 		foreach ($needle as $need) {
-			if (strpos($haystack ?? '', $need) === 0) {
+			if (strpos($haystack || '', $need) === 0) {
 				return true;
 			}
 		}

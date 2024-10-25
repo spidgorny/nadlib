@@ -809,7 +809,7 @@ class slTable implements ToStringable
 			&& strlen($parts[1]) == 2);
 	}
 
-	protected function getColumnTotalTime($data, $col, $isRecursive = false, $showNumericKeys = false)
+	protected function getColumnTotalTime(array $data, $col, $isRecursive = false, $showNumericKeys = false)
 	{
 		foreach ($data as $key => &$val) {
 			if ($isRecursive && (is_array($val) || is_object($val))) {
@@ -848,9 +848,9 @@ class slTable implements ToStringable
 				'' => $val,
 			];
 		}
-		$s = new self($assoc, 'class="visual nospacing table table-striped"', [
+		$s = new self($data, 'class="visual nospacing table table-striped"', [
 			0 => '',
-			'' => ['no_hsc' => $true],
+			'' => ['no_hsc' => true],
 		]);
 		return $s;
 	}
