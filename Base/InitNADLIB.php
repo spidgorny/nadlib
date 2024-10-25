@@ -29,9 +29,9 @@ class InitNADLIB
 	public function __construct()
 	{
 		$this->startTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
-		require_once dirname(__FILE__) . '/AutoLoad.php';
-		require_once dirname(__FILE__) . '/../HTTP/Request.php';
-		require_once dirname(__FILE__) . '/../Debug/TaylorProfiler.php';
+		require_once __DIR__ . '/AutoLoad.php';
+		require_once __DIR__ . '/../HTTP/Request.php';
+		require_once __DIR__ . '/../Debug/TaylorProfiler.php';
 		if (!defined('BR')) {
 			if (Request::isCLI()) {
 				define('BR', "\n");
@@ -47,7 +47,8 @@ class InitNADLIB
 		$this->development = Request::isWindows()
 			|| ifsetor($_COOKIE['debug']) === ifsetor($_SERVER['HTTP_HOST'])
 			|| ini_get('debug')
-			|| getenv('NADLIB');
+			|| getenv('NADLIB')
+			|| getenv('DEVELOPMENT');
 	}
 
 	public function disableAutoload()
@@ -67,7 +68,7 @@ class InitNADLIB
 		if ($this->al) {
 			$this->al->useCookies = $this->useCookies;
 			$this->al->postInit();
-			$this->al->register();
+			AutoLoad::register();
 			//debug($this->al->folders);
 		}
 
