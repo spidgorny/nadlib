@@ -77,11 +77,11 @@ if (!function_exists('d')) {
 	{
 	}
 
-	function getDebug(...$a)
+	function getDebug(...$params)
 	{
 		$debug = Debug::getInstance();
 		$dh = new DebugHTML($debug);
-		$content = $dh->printStyles();
+		$content = DebugHTML::printStyles();
 		if (ifsetor($params[1]) === DebugHTML::LEVELS) {
 			$levels = ifsetor($params[2]);
 			$params[1] = $levels;

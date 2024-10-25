@@ -247,8 +247,7 @@ abstract class Controller extends SimpleController
 	 */
 	public function inColumns()
 	{
-		$elements = func_get_args();
-		return call_user_func_array([__CLASS__, 'inColumnsHTML5'], $elements);
+		return call_user_func_array([__CLASS__, 'inColumnsHTML5'], func_get_args());
 	}
 
 	public function inColumnsHTML5(...$elements)

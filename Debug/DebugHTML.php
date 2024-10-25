@@ -165,6 +165,7 @@ class DebugHTML
 	 * @param mixed $a
 	 * @param int $levels
 	 * @return string|NULL    - will be recursive while levels is more than zero, but NULL is a special case
+	 * @throws JsonException
 	 */
 	public static function view_array($a, $levels = 1, $tableClass = 'view_array font-mono')
 	{
@@ -218,15 +219,15 @@ class DebugHTML
 			}
 		} elseif (is_resource($a)) {
 			$content = $a;
-		} elseif (is_string($a) && strstr($a, "\n")) {
+		} elseif (is_string($a) && str_contains($a, "\n")) {
 			$content = '<pre style="font-size: 12px; white-space: pre-wrap">' .
 				htmlspecialchars($a) . '</pre>';
 		} elseif ($a instanceof __PHP_Incomplete_Class) {
 			$content = '__PHP_Incomplete_Class';
 		} elseif (is_string($a) && strlen($a) && $a[0] === '{') {
-			$try = @json_decode($a);
+			$try = @json_decode($a, false, 512, JSON_THROW_ON_ERROR);
 			if ($try) {
-				$content = '<pre style="white-space: pre-wrap">' . json_encode($try, JSON_PRETTY_PRINT) . '</pre>';
+				$content = '<pre style="white-space: pre-wrap">' . json_encode($try, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT) . '</pre>';
 			} else {
 				$content = htmlspecialchars($a . '');
 			}
