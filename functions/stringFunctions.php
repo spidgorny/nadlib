@@ -4,7 +4,7 @@ if (!function_exists('str_startsWith')) {
 
 	/**
 	 * Whether string starts with some chars
-	 * @param                 $haystack
+	 * @param string|null $haystack
 	 * @param string|string[] $needle
 	 * @return bool
 	 */

@@ -771,7 +771,7 @@ class slTable implements ToStringable
 	 *
 	 * @return array
 	 */
-	public function getTotals()
+	public function getTotals($isRecursive = false)
 	{
 		$footer = [];
 		$this->generateThes();
@@ -782,7 +782,7 @@ class slTable implements ToStringable
 			foreach ($this->thes as $col => $_) {
 				$first[$col] = strip_tags($first[$col]);
 				if ($this->is_time($first[$col])) {
-					$footer[$col] = $this->getColumnTotalTime($this->data, $col);
+					$footer[$col] = $this->getColumnTotalTime($this->data, $col, $isRecursive);
 				} else {//if (floatval($first[$col])) {
 					$footer[$col] = 0;
 					foreach ($this->data as $row) {
@@ -809,14 +809,14 @@ class slTable implements ToStringable
 			&& strlen($parts[1]) == 2);
 	}
 
-	protected function getColumnTotalTime($data, $col)
+	protected function getColumnTotalTime($data, $col, $isRecursive = false, $showNumericKeys = false)
 	{
-		foreach ($assoc as $key => &$val) {
+		foreach ($data as $key => &$val) {
 			if ($isRecursive && (is_array($val) || is_object($val))) {
 				if (is_object($val)) {
 					$val = get_object_vars($val);
 				}
-				$val = slTable::showAssoc($val, $isRecursive, $showNumericKeys, $no_hsc);
+				$val = slTable::showAssoc($val, $isRecursive, $showNumericKeys);
 				$val = new HtmlString($val);    // to prevent hsc later
 			}
 			if (!$showNumericKeys && is_numeric($key)) {
@@ -831,20 +831,15 @@ class slTable implements ToStringable
 				//throw new InvalidArgumentException('slTable array instead of scalar');
 				//return '['.implode(', ', $val).']';
 			} else {
-				if (!$no_hsc) {
-					if (is_object($val)) {
-						$val = '[' . get_class($val) . ']';
-					} elseif (mb_strpos($val, "\n") !== false) {
-						$val = htmlspecialchars($val);
-						$val = new HtmlString('<pre style="white-space: pre-wrap;">' . htmlspecialchars($val) . '</pre>');
-					} else {
-						$val = htmlspecialchars($val, ENT_NOQUOTES);
-					}
-					$no_hsc = true;
+				if (is_object($val)) {
+					$val = '[' . get_class($val) . ']';
+				} elseif (mb_strpos($val, "\n") !== false) {
+					$val = htmlspecialchars($val);
+					$val = new HtmlString('<pre style="white-space: pre-wrap;">' . htmlspecialchars($val) . '</pre>');
 				} else {
-					// will be done by slTable
-					//$val = htmlspecialchars($val);
+					$val = htmlspecialchars($val, ENT_NOQUOTES);
 				}
+				$no_hsc = true;
 			}
 
 			$val = [
@@ -855,7 +850,7 @@ class slTable implements ToStringable
 		}
 		$s = new self($assoc, 'class="visual nospacing table table-striped"', [
 			0 => '',
-			'' => ['no_hsc' => $no_hsc],
+			'' => ['no_hsc' => $true],
 		]);
 		return $s;
 	}

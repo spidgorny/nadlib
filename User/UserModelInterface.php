@@ -44,6 +44,4 @@ interface UserModelInterface
 
 //	public function getData();
 
-	public function isJuniorTechnician();
-
 }

@@ -33,6 +33,8 @@ class Mailer implements MailerInterface
 
 	public $params = [];
 
+	public $attachments = [];
+
 	/**
 	 * @return \SendGrid\Response
 	 */
@@ -89,6 +91,12 @@ class Mailer implements MailerInterface
 		$assoc['params'] = implode(' ', $this->params);
 		$assoc['bodyText'] = nl2br($this->getBodyText());
 		return slTable::showAssoc($assoc);
+	}
+
+	public static function isHTML($bodyText)
+	{
+//		return strpos($bodyText, '<') !== FALSE;
+		return $bodyText !== '' && $bodyText[0] === '<';
 	}
 
 	/**
