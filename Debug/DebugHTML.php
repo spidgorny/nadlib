@@ -225,9 +225,11 @@ class DebugHTML
 		} elseif ($a instanceof __PHP_Incomplete_Class) {
 			$content = '__PHP_Incomplete_Class';
 		} elseif (is_string($a) && strlen($a) && $a[0] === '{') {
-			$try = @json_decode($a, false, 512, JSON_THROW_ON_ERROR);
+			/** @noinspection JsonEncodingApiUsageInspection */
+			$try = @json_decode($a, false);
 			if ($try) {
-				$content = '<pre style="white-space: pre-wrap">' . json_encode($try, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT) . '</pre>';
+				/** @noinspection JsonEncodingApiUsageInspection */
+				$content = '<pre style="white-space: pre-wrap">' . @json_encode($try, JSON_PRETTY_PRINT) . '</pre>';
 			} else {
 				$content = htmlspecialchars($a . '');
 			}
