@@ -396,7 +396,7 @@ class URL
 
 	public function getRequest()
 	{
-		$r = new Request($this->params ?: []);
+		$r = Request::getInstance($this->params ?: []);
 		$r->url = $this;
 		return $r;
 	}
