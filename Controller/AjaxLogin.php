@@ -175,7 +175,7 @@ class AjaxLogin extends AppControllerBE
 			<a href="http://de.gravatar.com/" class="gravatar">
 				<img src="' . $this->user->getGravatarURL(25) . '" align="left" border="0">
 			</a>' .
-			$this->user->getNameHTML() . '
+			$this->user->getName() . '
 			<br clear="all">
 			<ul>
 				<li><a href="' . $linkEdit . '" class="ajax">' . __('Edit Profile') . '</a><div id="profileForm"></div></li>
@@ -184,40 +184,6 @@ class AjaxLogin extends AppControllerBE
 				<li><a href="' . $linkLogout . '" class="ajax">' . __('Logout') . '</a></li>
 			</ul>
 		</div>';
-		return $content;
-	}
-
-	public function activateActionReal()
-	{
-		$content = [];
-		$id = $this->request->getTrim('id');
-		$confirm = $this->request->getTrim('confirm');
-		$this->user->findInDB(['id' => $id]);
-		//debug($this->user->data);
-		$confirm2 = md5($this->secret . serialize($this->user->id));
-		//debug(array($id, $confirm, $confirm2));
-		if ($confirm == $confirm2) {
-			if ($this->user->data['activated']) {
-				$content[] = '<div class="message alert alert-warning">' . __('Account already activated.') . '</div>';
-			} else {
-				$this->user->update(['activated' => 1]);
-				$content[] = '<div class="message alert alert-success">' . __('Account activated.') . '</div>';
-				if (($redirect = $_SESSION['pageBeforeRegister'])) {
-					//$content[] = $redirect.'<br>';
-					//header('Location: '.$redirect);
-					$_SESSION['pageBeforeRegister_show'] = true;
-					$content[] = '<script> document.location = "' . htmlspecialchars($redirect) . '"; </script>';
-				}
-			}
-		} else {
-			$content[] = '<div class="error alert alert-danger">' . __('Error activating your account.') . '</div>';
-		}
-		$this->message = $content;
-		$content = [];
-		$content[] = $this->formAction();
-		if ($this->withRegister) {
-			$content[] = $this->registerAction();
-		}
 		return $content;
 	}
 

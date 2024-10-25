@@ -33,6 +33,18 @@ class LDAPLogin
 		$this->LDAP_BASEDN = $base;
 	}
 
+	/**
+	 * http://php.net/manual/en/function.ldap-bind.php
+	 * @param $loginDN
+	 * @param $password
+	 * @return mixed
+	 */
+	public function bind($loginDN, $password)
+	{
+		$this->_connectLdap();
+		return ldap_bind($this->_ldapconn, $loginDN, $password);
+	}
+
 	private function _connectLdap()
 	{
 		if (!$this->_ldapconn) {
@@ -53,28 +65,6 @@ class LDAPLogin
 		// https://stackoverflow.com/questions/17742751/ldap-operations-error
 		ldap_set_option($this->_ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
 		ldap_set_option($this->_ldapconn, LDAP_OPT_REFERRALS, 0);
-	}
-
-	/**
-	 * What if the password contains special characters?
-	 * @param $string
-	 * @return string
-	 */
-	public function _sanitizeLdap($string)
-	{
-		return trim(preg_replace('/[^a-zA-Z0-9_]+/', '', $string));
-	}
-
-	/**
-	 * http://php.net/manual/en/function.ldap-bind.php
-	 * @param $loginDN
-	 * @param $password
-	 * @return mixed
-	 */
-	public function bind($loginDN, $password)
-	{
-		$this->_connectLdap();
-		return ldap_bind($this->_ldapconn, $loginDN, $password);
 	}
 
 	/**
@@ -104,12 +94,13 @@ class LDAPLogin
 				$info = ldap_get_entries($this->_ldapconn, $search);
 				//debug($info);
 
-				if ($info['count'] == 0) {
+				$count = (int)$info['count'];
+				if ($count === 0) {
 					$this->error = "User not found in LDAP {$this->LDAP_BASEDN} [{$filter}]";
 					return false;
 				}
 
-				for ($i = 0; $i < $info['count']; $i++) {
+				for ($i = 0; $i < $count; $i++) {
 					//$this->reconnect();
 					// Warning: ldap_bind(): Unable to bind to server: Invalid credentials
 					$ldapbind = @ldap_bind($this->_ldapconn, $info[$i]['dn'], $password);
@@ -130,6 +121,16 @@ class LDAPLogin
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * What if the password contains special characters?
+	 * @param $string
+	 * @return string
+	 */
+	public function _sanitizeLdap($string)
+	{
+		return trim(preg_replace('/[^a-zA-Z0-9_]+/', '', $string));
 	}
 
 	/**

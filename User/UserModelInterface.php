@@ -44,4 +44,10 @@ interface UserModelInterface
 
 //	public function getData();
 
+	public function getGravatarURL($size = 32);
+
+	public function updatePassword($newPassword);
+
+	//public function findInDB(array $where = [], $orderByLimit = '', $selectPlus = null);
+
 }

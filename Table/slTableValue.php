@@ -18,7 +18,7 @@ class slTableValue
 	];
 
 	/**
-	 * @var MySQL|DBLayer
+	 * @var DBLayer
 	 */
 	public $db;
 
@@ -84,35 +84,7 @@ class slTableValue
 			case 'ajaxSingleChoice':
 			case "selection":
 				//debug($k + array('val' => $val));
-				if ($val) {
-					$what = ifsetor($k['title'], $col);
-					$id = ifsetor($k['idField'], 'id');
-					if (!isset($k['options'])) {
-						if ($k['set']) {
-							$list = trimExplode(',', $val);
-							$out = [];
-							foreach ($list as $val) {
-								$out[] = $this->db->sqlFind($what, $k['from'], $id . " = '" . $val . "'", false);
-							}
-							$out = implode(', ', $out);
-						} elseif ($k['from']) {
-							$options = $this->db->fetchSelectQuery($k['from'], [$id => $val], '', $k['from'] . '.*, ' . $what);
-							//debug($options, $k); exit();
-							$whatAs = trimExplode('AS', $what);
-							$whatAs = $whatAs[1] ?: $what;
-							$options = ArrayPlus::create($options)
-								->IDalize($id, true)
-								->column($whatAs)
-								->getData();
-							$out = $options[$val];
-						}
-					} else {
-						$options = $k['options'];
-						$out = $options[$val];
-					}
-				} else {
-					$out = "";
-				}
+				$out = $this->renderSelection($k, $col, $val);
 				break;
 
 			case "date":
@@ -387,6 +359,41 @@ class slTableValue
 		}
 		if (isset($k['round']) && $out) {
 			$out = number_format($out, $k['round'], '.', '');
+		}
+		return $out;
+	}
+
+	public function renderSelection(array $k, $col, $val)
+	{
+		if ($val) {
+			$what = ifsetor($k['title'], $col);
+			$id = ifsetor($k['idField'], 'id');
+			if (!isset($k['options'])) {
+				if ($k['set']) {
+					$list = trimExplode(',', $val);
+					$out = [];
+					foreach ($list as $listVal) {
+						$row = $this->db->fetchOneSelectQuery($k['from'], $id . " = '" . $listVal . "'");
+						$out[] = $row[$what];
+					}
+					$out = implode(', ', $out);
+				} elseif ($k['from']) {
+					$options = $this->db->fetchSelectQuery($k['from'], [$id => $val], '', $k['from'] . '.*, ' . $what);
+					//debug($options, $k); exit();
+					$whatAs = trimExplode('AS', $what);
+					$whatAs = $whatAs[1] ?: $what;
+					$options = ArrayPlus::create($options)
+						->IDalize($id, true)
+						->column($whatAs)
+						->getData();
+					$out = $options[$val];
+				}
+			} else {
+				$options = $k['options'];
+				$out = $options[$val];
+			}
+		} else {
+			$out = "";
 		}
 		return $out;
 	}

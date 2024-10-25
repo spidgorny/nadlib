@@ -87,7 +87,7 @@ class IndexBase /*extends Controller*/
 	public $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error';
 
 	/**
-	 * @var DbInterface
+	 * @var DBInterface
 	 */
 	protected $db;
 
@@ -633,7 +633,7 @@ class IndexBase /*extends Controller*/
 
 	/**
 	 * @param string $source
-	 * @param bool $defer
+	 * @param array $props
 	 * @return Index|IndexBase
 	 */
 	public function addJS($source, $props = ['defer' => true])

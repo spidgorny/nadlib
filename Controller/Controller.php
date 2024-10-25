@@ -49,7 +49,7 @@ abstract class Controller extends SimpleController
 
 	/**
 	 * @var bool
-	 * @use $this->preventDefault() to set
+	 * use $this->preventDefault() to set
 	 * Check manually in render()
 	 */
 	public $noRender = false;
@@ -82,7 +82,7 @@ abstract class Controller extends SimpleController
 	/**
 	 * Used by Collection to get the current sorting method.
 	 * Ugly, please reprogram.
-	 * @var
+	 * @var string
 	 */
 	public $sortBy;
 

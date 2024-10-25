@@ -91,7 +91,7 @@ if (!function_exists('d')) {
 	}
 
 	/**
-	 * @param ..$a
+	 * @param array ...$a
 	 * @noinspection ForgottenDebugOutputInspection
 	 */
 	function pre_print_r(...$a)

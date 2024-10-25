@@ -91,7 +91,8 @@ class slTable implements ToStringable
 	public $isOddEven = true;
 
 	/**
-	 * @var array <tr $thesMore>
+	 * <tr $thesMore>
+	 * @var array
 	 */
 	public $thesMore = [];
 
@@ -108,7 +109,9 @@ class slTable implements ToStringable
 	public $arrowDesc = '<img src="img/arrow_down.gif" align="absmiddle" />';
 
 	public $arrowAsc = '<img src="img/arrow_up.gif" align="absmiddle" />';
+
 	public $isCLI = false;
+
 	/**
 	 * @var Request
 	 */

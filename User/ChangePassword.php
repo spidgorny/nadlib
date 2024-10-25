@@ -3,11 +3,9 @@
 class ChangePassword extends HTMLFormProcessor
 {
 
-	protected $minLength = 8;
-
-	protected $submitButton = 'Change';
-
 	public $title = 'Change Password';
+	protected $minLength = 8;
+	protected $submitButton = 'Change';
 
 	public function getDesc()
 	{
@@ -33,18 +31,18 @@ class ChangePassword extends HTMLFormProcessor
 	{
 		$content = '';
 		if (strlen($data['password']) >= $this->minLength) {
-			if ($data['password'] == $data['repeat']) {
-				$ok = $this->user->updatePassword($data['current'], $data['password']);
+			if ($data['password'] === $data['repeat']) {
+				$ok = $this->user->updatePassword($data['password']);
 				if (!$ok['error']) {
 					$content .= $this->success(__('Password changed.'));
 				} else {
 					$content .= $this->error($ok['message']);
 				}
 			} else {
-				throw new Exception(__('Passwords mismatch. Please try again.'));
+				throw new \RuntimeException(__('Passwords mismatch. Please try again.'));
 			}
 		} else {
-			throw new Exception(__('Minimum password length is %s characters.', $this->minLength));
+			throw new \RuntimeException(__('Minimum password length is %s characters.', $this->minLength));
 		}
 		return $content;
 	}

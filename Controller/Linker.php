@@ -47,11 +47,11 @@ class Linker
 	}
 
 	/**
-	 * @param array|string $params
+	 * @param array $params
 	 * @param null $prefix
 	 * @return URL
 	 * @public for View::link
-	 * @use getURL()
+	 * use getURL() for retrieving current URL
 	 */
 	public function makeURL(array $params, $prefix = null)
 	{
