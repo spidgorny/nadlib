@@ -61,7 +61,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 			$content = ($this->isHTML
 				|| $this->content instanceof HTMLTag
 				|| $this->content instanceof HtmlString)
-				? $this->content
+				? $this->content.''
 				: htmlspecialchars($this->content ?? '', ENT_QUOTES);
 		}
 		$attribs = self::renderAttr($this->attr);

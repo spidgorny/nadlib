@@ -194,8 +194,8 @@ class slTable implements ToStringable
 			if ($thes) {
 				$thes = array_combine($thes, $thes);
 				foreach ($thes as $i => &$th) {
-					if (is_string($i)&& (!strlen($i)
-						|| (strlen($i) && $i[strlen($i) - 1] !== '.'))
+					if (is_string($i) && (!strlen($i)
+							|| (strlen($i) && $i[strlen($i) - 1] !== '.'))
 					) {
 						$th = ['name' => $th];
 					} else {
@@ -368,8 +368,8 @@ class slTable implements ToStringable
 
 			$t = $this->generation;
 			$t->table([
-				'id' => $this->ID,
-			] + $this->more);
+					'id' => $this->ID,
+				] + $this->more);
 
 			$this->generateThead();
 			$this->generation->text('<tbody>');
@@ -457,54 +457,52 @@ class slTable implements ToStringable
 
 		$thes2 = [];
 		$thMore = [];
-		if (is_array($thes)) {
-			foreach ($thes as $thk => $thv) {
-				if (!is_array($thv)) {
-					$thv = ['name' => $thv];
-				}
-				$thvName = $thv['name'] ?? ($thv['label'] ?? null);
-				$thMore[$thk] = $thv['thmore'] ?? ($thv['more'] ?? null);
+		foreach ($thes as $thk => $thv) {
+			if (!is_array($thv)) {
+				$thv = ['name' => $thv];
+			}
+			$thvName = $thv['name'] ?? ($thv['label'] ?? null);
+			$thMore[$thk] = $thv['thmore'] ?? ($thv['more'] ?? null);
 
-				// gives <tr with properties from column keys>
-				// this is problematic as it will create html props for all column params
+			// gives <tr with properties from column keys>
+			// this is problematic as it will create html props for all column params
 //				$this->thesMore[HTMLTag::key($thk)] = ifsetor($thv['thmore']);
 
-				if (!is_array($thMore)) {
-					$thMore = ['' => $thMore];
-				}
-				if (isset($thv['align']) && $thv['align']) {
-					$thMore[$thk]['style'] = ifsetor($thMore[$thk]['style'])
-						. '; text-align: ' . $thv['align'];
-				}
-				if ($this->sortable) {
-					if (
-						((isset($thv['dbField'])
-								&& $thv['dbField']
-							) || !isset($thv['dbField']))
-						&& ifsetor($thv['sortable']) !== false
-					) {
-						$sortField = ifsetor($thv['dbField'], $thk);    // set to null - don't sort
-						$sortOrder = $this->sortBy === $sortField
-							? !$this->sortOrder
-							: $this->sortOrder;
-						$link = $this->sortLinkPrefix->forceParams([
-							$this->prefix => [
-								'sortBy' => $sortField,
-								'sortOrder' => $sortOrder,
-							],
-						]);
-						$thes2[$thk] = new HtmlString('<a href="' . $link . '">' . $thvName . '</a>');
-					} else {
-						$thes2[$thk] = $thvName;
-					}
+			if (!is_array($thMore)) {
+				$thMore = ['' => $thMore];
+			}
+			if (isset($thv['align']) && $thv['align']) {
+				$thMore[$thk]['style'] = ifsetor($thMore[$thk]['style'])
+					. '; text-align: ' . $thv['align'];
+			}
+			if ($this->sortable) {
+				if (
+					((isset($thv['dbField'])
+							&& $thv['dbField']
+						) || !isset($thv['dbField']))
+					&& ifsetor($thv['sortable']) !== false
+				) {
+					$sortField = ifsetor($thv['dbField'], $thk);    // set to null - don't sort
+					$sortOrder = $this->sortBy === $sortField
+						? !$this->sortOrder
+						: $this->sortOrder;
+					$link = $this->sortLinkPrefix->forceParams([
+						$this->prefix => [
+							'sortBy' => $sortField,
+							'sortOrder' => $sortOrder,
+						],
+					]);
+					$thes2[$thk] = new HtmlString('<a href="' . $link . '">' . $thvName . '</a>');
 				} else {
-					if (is_array($thv) && isset($thv['clickSort']) && $thv['clickSort']) {
-						$link = URL::getCurrent();
-						$link->setParam($thv['clickSort'], $thk);
-						$thvName = new HtmlString('<a href="' . $link . '">' . $thvName . '</a>');
-					}
 					$thes2[$thk] = $thvName;
 				}
+			} else {
+				if (is_array($thv) && isset($thv['clickSort']) && $thv['clickSort']) {
+					$link = URL::getCurrent();
+					$link->setParam($thv['clickSort'], $thk);
+					$thvName = new HtmlString('<a href="' . $link . '">' . $thvName . '</a>');
+				}
+				$thes2[$thk] = $thvName;
 			}
 		}
 

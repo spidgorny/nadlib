@@ -99,8 +99,8 @@ class HTMLTableBuf extends MergedContent
 	{
 		$this->htr($trMore);
 		foreach ($aCaption as $i => $caption) {
-			if ($caption instanceof HTMLTag) {
-				$this->thead[] = $caption;
+			if ($caption instanceof HTMLTag && $caption->tag === 'th') {
+				$this->thead[] = $caption . '';
 			} else {
 				$more = $thMore[$i] ?? [];
 				$this->th($more, $caption);
