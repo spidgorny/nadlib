@@ -127,8 +127,6 @@ class AjaxLogin extends AppControllerBE
 				$content[] = $contentPlus;
 			} elseif ($this->user && $this->user->isAuth()) {
 				$content[] = $this->menuAction();
-			} elseif ($this->action == 'activate') {
-				$content[] = $this->activateActionReal();
 			} else {
 				$content[] = $this->formAction();
 				if ($this->withRegister) {

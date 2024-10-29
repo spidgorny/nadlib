@@ -1,5 +1,7 @@
 <?php
 
+use PgSql\Connection;
+
 /**
  * Class dbLayer
  * @mixin SQLBuilder
@@ -13,7 +15,7 @@ class DBLayer extends DBLayerBase
 {
 
 	/**
-	 * @var resource
+	 * @var Connection
 	 */
 	public $connection = null;
 
@@ -123,7 +125,7 @@ class DBLayer extends DBLayerBase
 		//debug($this->numRows($result));
 		$res = pg_fetch_all($result);
 		pg_free_result($result);
-		if (ifsetor($_REQUEST['d']) == 'q') {
+		if (ifsetor($_REQUEST['d']) === 'q') {
 			debug($this->lastQuery, sizeof($res));
 		}
 		if (!$res) {
@@ -146,7 +148,7 @@ class DBLayer extends DBLayerBase
 	 */
 	public function perform($query, array $params = [])
 	{
-		$this->connect($dbName, $user, $pass, $host);
+		$this->connect($this->dbName, $this->user, $this->pass, $this->host);
 		$prof = new Profiler();
 
 //		$this->reportIfLastQueryFailed();
@@ -185,8 +187,7 @@ class DBLayer extends DBLayerBase
 			//debug_pre_print_backtrace();
 			//debug($query);
 			//debug($this->queryLog->queryLog);
-			$e = new DatabaseException(pg_errormessage($this->connection), 3, null, $query);
-			throw $e;
+			throw new DatabaseException(pg_last_error($this->connection), 3, null, $query);
 		}
 
 		$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
@@ -204,7 +205,7 @@ class DBLayer extends DBLayerBase
 
 	public function connect($database = null, $user = null, $pass = null, $host = null)
 	{
-		if (!$this->isConnected()) {
+		if ($this->isConnected()) {
 			return;
 		}
 		if ($database) {
@@ -223,7 +224,7 @@ class DBLayer extends DBLayerBase
 //		llog($string);
 		$this->connection = pg_connect($string);
 		if (!$this->connection) {
-			throw new DatabaseException("No PostgreSQL connection to $host. " . json_encode(error_get_last()));
+			throw new DatabaseException("No PostgreSQL connection to $host. " . json_encode(error_get_last(), JSON_THROW_ON_ERROR));
 			//printbr('Error: '.pg_errormessage());	// Warning: pg_errormessage(): No PostgreSQL link opened yet
 		}
 
@@ -241,8 +242,7 @@ class DBLayer extends DBLayerBase
 	{
 		$source = str_replace('$', '', $source);
 		$source = str_replace(',', '', $source);
-		$source = floatval($source);
-		return $source;
+		return (float)$source;
 	}
 
 	public function reconnect()
@@ -267,7 +267,7 @@ class DBLayer extends DBLayerBase
 			throw new DatabaseException(
 				'Last query has failed.' . PHP_EOL .
 				$this->lastQuery . PHP_EOL .
-				pg_errormessage($this->connection) . PHP_EOL .
+				pg_last_error($this->connection) . PHP_EOL .
 				implode(PHP_EOL, $backtrace)
 			);
 		}
@@ -281,7 +281,7 @@ class DBLayer extends DBLayerBase
 		if (!$this->LAST_PERFORM_RESULT) {
 			debug($query);
 			debug_pre_print_backtrace();
-			throw new Exception(pg_errormessage($this->connection) . BR . $query);
+			throw new DatabaseException(pg_last_error($this->connection) . BR . $query);
 		}
 
 		$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
@@ -707,6 +707,7 @@ order by a.attnum';
 
 	public function escape($str)
 	{
+		$this->connect();
 		return pg_escape_string($this->connection, $str);
 	}
 

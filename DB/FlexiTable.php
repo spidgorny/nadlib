@@ -9,17 +9,6 @@ class FlexiTable extends OODBase
 {
 
 	/**
-	 * @var array
-	 */
-	protected $columns = [];
-
-	/**
-	 * Enables/disables FlexiTable functionality
-	 * @var bool
-	 */
-	public $doCheck = false;
-
-	/**
 	 * array(
 	 *        $table => array('id' => ...)
 	 * )
@@ -27,26 +16,31 @@ class FlexiTable extends OODBase
 	 * @var array
 	 */
 	protected static $tableColumns = [];
-
+	/**
+	 * Enables/disables FlexiTable functionality
+	 * @var bool
+	 */
+	public $doCheck = false;
 	/**
 	 * @var string 'ctime'
 	 */
 	public $ctimeField;
-
 	/**
 	 * @var string 'cuser'
 	 */
 	public $cuserField;
-
 	/**
 	 * @var string 'mtime'
 	 */
 	public $mtimeField;
-
 	/**
 	 * @var string 'muser'
 	 */
 	public $muserField;
+	/**
+	 * @var array
+	 */
+	protected $columns = [];
 
 	public function __construct($id = null)
 	{
@@ -61,6 +55,30 @@ class FlexiTable extends OODBase
 				}
 			}
 		}
+	}
+
+	public function checkCreateTable()
+	{
+		$this->fetchColumns();
+		if (!$this->columns) {
+			$query = 'CREATE TABLE ' . $this->db->escape($this->table) .
+				' (id integer auto_increment, PRIMARY KEY (id))';
+			$this->db->perform($query);
+			$this->fetchColumns(true);
+		}
+	}
+
+	public function fetchColumns($force = false)
+	{
+		//TaylorProfiler::start(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
+		$table = str_replace('`', '', $this->table);
+		$table = str_replace("'", '', $table);
+		if (!ifsetor(self::$tableColumns[$table]) || $force) {
+			self::$tableColumns[$table] = $this->db->getTableColumnsEx($table);
+		}
+		$this->columns = self::$tableColumns[$table];
+		//debug($table, sizeof($this->columns), array_keys(self::$tableColumns), $this->db->lastQuery);
+		//TaylorProfiler::stop(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
 	}
 
 	public function insert(array $row)
@@ -79,66 +97,11 @@ class FlexiTable extends OODBase
 		return $ret;
 	}
 
-	public function update(array $row)
-	{
-		if ($this->mtimeField && !ifsetor($row[$this->mtimeField])) {
-			$mtime = new Time();
-			$row[$this->mtimeField] = $mtime->format('Y-m-d H:i:s');
-		}
-		$user = Config::getInstance()->getUser();
-		if ($this->muserField
-			&& !ifsetor($row[$this->muserField])
-			&& is_object($user)
-			&& $user->id) {
-			$row[$this->muserField] = $user->id;
-		}
-		if ($this->doCheck) {
-			$this->checkAllFields($row);
-		}
-//		$tempMtime = $this->data[$this->mtimeField];
-		$res = parent::update($row);    // calls $this->init($id) to update data
-		//debug($this->data['id'], $tempMtime, $row['mtime'], $this->data['mtime']);
-		return $res;
-	}
-
-	public function findInDB(array $where, $orderBy = '', $selectPlus = null)
-	{
-		if ($this->doCheck) {
-			$this->log(__METHOD__, 'Checking columns exist');
-			$this->checkAllFields($where);
-		}
-		return parent::findInDB($where, $orderBy, $selectPlus);
-	}
-
 	public function checkAllFields(array $row)
 	{
 		$this->fetchColumns();
 		foreach ($row as $field => $value) {
 			$this->checkCreateField($field, $value);
-		}
-	}
-
-	public function fetchColumns($force = false)
-	{
-		//TaylorProfiler::start(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
-		$table = str_replace('`', '', $this->table);
-		$table = str_replace("'", '', $table);
-		if (!ifsetor(self::$tableColumns[$table]) || $force) {
-			self::$tableColumns[$table] = $this->db->getTableColumnsEx($table);
-		}
-		$this->columns = self::$tableColumns[$table];
-		//debug($table, sizeof($this->columns), array_keys(self::$tableColumns), $this->db->lastQuery);
-		//TaylorProfiler::stop(__METHOD__." ({$this->table}) <- ".Debug::getCaller(5));
-	}
-
-	public function checkCreateTable()
-	{
-		$this->fetchColumns();
-		if (!$this->columns) {
-			$query = 'CREATE TABLE ' . $this->db->escape($this->table) .
-				' (id integer auto_increment, PRIMARY KEY (id))';
-			$this->db->perform($query);
-			$this->fetchColumns(true);
 		}
 	}
 
@@ -168,6 +131,37 @@ class FlexiTable extends OODBase
 			$type = 'VARCHAR (255)';
 		}
 		return $type;
+	}
+
+	public function update(array $row)
+	{
+		if ($this->mtimeField && !ifsetor($row[$this->mtimeField])) {
+			$mtime = new Time();
+			$row[$this->mtimeField] = $mtime->format('Y-m-d H:i:s');
+		}
+		$user = Config::getInstance()->getUser();
+		if ($this->muserField
+			&& !ifsetor($row[$this->muserField])
+			&& is_object($user)
+			&& $user->id) {
+			$row[$this->muserField] = $user->id;
+		}
+		if ($this->doCheck) {
+			$this->checkAllFields($row);
+		}
+//		$tempMtime = $this->data[$this->mtimeField];
+		$res = parent::update($row);    // calls $this->init($id) to update data
+		//debug($this->data['id'], $tempMtime, $row['mtime'], $this->data['mtime']);
+		return $res;
+	}
+
+	public function findInDB(array $where = [], $orderBy = '', $selectPlus = null)
+	{
+		if ($this->doCheck) {
+			$this->log(__METHOD__, 'Checking columns exist');
+			$this->checkAllFields($where);
+		}
+		return parent::findInDB($where, $orderBy, $selectPlus);
 	}
 
 	/**
