@@ -22,9 +22,35 @@ class RunnerTask
 		$this->db = Config::getInstance()->getDB();
 	}
 
-	public function id()
+	/**
+	 * Use this function to insert a new task.
+	 * @param $class
+	 * @param $method
+	 * @param array $params
+	 * @return RunnerTask
+	 */
+	public static function schedule($class, $method, array $params = [])
 	{
-		return $this->data['id'];
+		$task = new self([]);
+		$id = $task->insert([
+			'command' => json_encode([$class, $method], JSON_THROW_ON_ERROR),
+			'params' => json_encode($params, JSON_THROW_ON_ERROR),
+		]);
+		$task->fetch($id);
+		return $task;
+	}
+
+	public function insert(array $data)
+	{
+		$res = $this->db->runInsertQuery($this->table, $data);
+		if (is_resource($res)) {
+			$id = $this->db->lastInsertID($res);
+		} elseif ($res instanceof PDOStatement) {
+			$id = $this->db->lastInsertID($res);
+		} else {
+			$id = $res;
+		}
+		return $id;
 	}
 
 	public function fetch($id)
@@ -40,6 +66,44 @@ class RunnerTask
 		} else {
 			return false;
 		}
+	}
+
+	public function isValid()
+	{
+		$command = $this->data['command'];
+		$command = json_decode($command);
+		if (sizeof($command) == 2) {
+			$class = $command[0];
+			$method = $command[1];
+			if (class_exists($class)) {
+				$this->obj = new $class($this);
+				if (is_callable([$this->obj, $method])) {
+					$this->method = $method;
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public static function getNext()
+	{
+		$task = new RunnerTask([]);
+		$task->db->transaction();
+		$row = $task->db->fetchOneSelectQuery('runner', [
+			'status' => new SQLOr([
+				'status' => '',
+				'status ' => null,
+			]),
+		], 'ORDER BY ctime');
+//		echo str_replace("\n", ' ', $task->db->lastQuery), BR;
+		if ($row) {
+			$task->data = $row;
+			return $task;
+		}
+
+		$task->release();
+		return null;
 	}
 
 	public function release()
@@ -62,22 +126,9 @@ class RunnerTask
 		$this->db->commit();
 	}
 
-	public function isValid()
+	public function id()
 	{
-		$command = $this->data['command'];
-		$command = json_decode($command);
-		if (sizeof($command) == 2) {
-			$class = $command[0];
-			$method = $command[1];
-			if (class_exists($class)) {
-				$this->obj = new $class($this);
-				if (is_callable([$this->obj, $method])) {
-					$this->method = $method;
-					return true;
-				}
-			}
-		}
-		return false;
+		return $this->data['id'];
 	}
 
 	public function __invoke()
@@ -94,6 +145,14 @@ class RunnerTask
 			echo $e->getTraceAsString(), BR;
 			$this->failed($e);
 		}
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getParams()
+	{
+		return json_decode($this->data['params']);
 	}
 
 	private function done()
@@ -114,7 +173,7 @@ class RunnerTask
 		echo $e->getTraceAsString();
 		$this->db->runUpdateQuery($this->table, [
 			'status' => 'failed',
-			'meta' => json_encode($e),
+			'meta' => json_encode($e, JSON_THROW_ON_ERROR),
 			'mtime' => new SQLNow(),
 		], ['id' => $this->id()]);
 		$this->db->commit();
@@ -129,55 +188,10 @@ class RunnerTask
 		], ['id' => $this->id()]);
 	}
 
-	/**
-	 * Use this function to insert a new task.
-	 * @param $class
-	 * @param $method
-	 * @param array $params
-	 * @return RunnerTask
-	 */
-	public static function schedule($class, $method, array $params = [])
+	public function render()
 	{
-		$task = new self([]);
-		$id = $task->insert([
-			'command' => json_encode([$class, $method]),
-			'params' => json_encode($params),
-		]);
-		$task->fetch($id);
-		return $task;
-	}
-
-	public function insert(array $data)
-	{
-		$res = $this->db->runInsertQuery($this->table, $data);
-		if (is_resource($res)) {
-			$id = $this->db->lastInsertID($res);
-		} elseif ($res instanceof PDOStatement) {
-			$id = $this->db->lastInsertID($res);
-		} else {
-			$id = $res;
-		}
-		return $id;
-	}
-
-	public static function getNext()
-	{
-		$task = new RunnerTask([]);
-		$task->db->transaction();
-		$row = $task->db->fetchOneSelectQuery('runner', [
-			'status' => new SQLOr([
-				'status' => '',
-				'status ' => null,
-			]),
-		], 'ORDER BY ctime');
-//		echo str_replace("\n", ' ', $task->db->lastQuery), BR;
-		if ($row) {
-			$task->data = $row;
-			return $task;
-		} else {
-			$task->release();
-		}
-		return null;
+		return '<div class="message ' . __CLASS__ . '">' .
+			'Task #' . $this->id() . ' is ' . $this->getStatus() . ' since ' . $this->getTime() . '.</div>';
 	}
 
 	public function getStatus()
@@ -190,25 +204,6 @@ class RunnerTask
 		return $this->data['ctime'];
 	}
 
-	public function getMTime()
-	{
-		return new Time($this->data['mtime']);
-	}
-
-	public function render()
-	{
-		return '<div class="message ' . __CLASS__ . '">' .
-			'Task #' . $this->id() . ' is ' . $this->getStatus() . ' since ' . $this->getTime() . '.</div>';
-	}
-
-	public function getName()
-	{
-		$command = json_decode($this->get('command'));
-		$class = $this->obj ? get_class($this->obj) : $command[0];
-		$method = $this->method ?: $command[1];
-		return $class . ' -> ' . $method;
-	}
-
 	public function setProgress($p)
 	{
 		$this->db->runUpdateQuery($this->table,
@@ -217,21 +212,6 @@ class RunnerTask
 				'mtime' => new SQLNow(),
 			],
 			['id' => $this->id()]);
-	}
-
-	public function getProgress()
-	{
-		return $this->data['progress'];
-	}
-
-	public function isDone()
-	{
-		return $this->getStatus() == 'done';
-	}
-
-	public function get($name)
-	{
-		return ifsetor($this->data[$name]);
 	}
 
 	public function getInfoBoxCLI()
@@ -246,6 +226,37 @@ class RunnerTask
 		$content[] = 'Progress: ' . TAB . $this->getProgress() . BR;
 		$content[] = 'Position: ' . TAB . $this->getQueuePosition() . BR;
 		return $content;
+	}
+
+	public function getName()
+	{
+		$command = json_decode($this->get('command'));
+		$class = $this->obj ? get_class($this->obj) : $command[0];
+		$method = $this->method ?: $command[1];
+		return $class . ' -> ' . $method;
+	}
+
+	public function get($name)
+	{
+		return ifsetor($this->data[$name]);
+	}
+
+	public function getMTime()
+	{
+		return new Time($this->data['mtime']);
+	}
+
+	public function getProgress()
+	{
+		return $this->data['progress'];
+	}
+
+	private function getQueuePosition()
+	{
+		return $this->db->fetchOneSelectQuery($this->table, [
+			'status' => '',
+			'ctime' => new AsIsOp("< '" . $this->getTime() . "'"),
+		], '', 'count(*) as count')['count'];
 	}
 
 	public function getInfoBox($controller = '')
@@ -293,20 +304,9 @@ class RunnerTask
 		return $content;
 	}
 
-	private function getQueuePosition()
+	public function isDone()
 	{
-		return $this->db->fetchOneSelectQuery($this->table, [
-			'status' => '',
-			'ctime' => new AsIsOp("< '" . $this->getTime() . "'"),
-		], '', 'count(*) as count')['count'];
-	}
-
-	/**
-	 * @return mixed
-	 */
-	public function getParams()
-	{
-		return json_decode($this->data['params']);
+		return $this->getStatus() == 'done';
 	}
 
 	public function isKilled()

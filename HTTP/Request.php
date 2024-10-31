@@ -1341,17 +1341,13 @@ class Request
 
 	public function getPOST()
 	{
-		if (isset($HTTP_RAW_POST_DATA)) {
-			return $HTTP_RAW_POST_DATA;
-		}
-
 		return file_get_contents("php://input");
 	}
 
-	public function forceDownload($contentType, $filename)
+	public function forceDownload($contentType, $filename, $attachment = 'attachment')
 	{
 		header('Content-Type: ' . $contentType);
-		header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
+		header("Content-Disposition: $attachment; filename=\"" . $filename . "\"");
 	}
 
 	public function getKeys()

@@ -88,14 +88,14 @@ class NoUser extends UserBase implements UserModelInterface
 		return 'http://avatar.com/';
 	}
 
-	public function prefs()
-	{
-		return $this->prefs;
-	}
-
 	public function getAllPrefs()
 	{
 		return $this->prefs()->getData();
+	}
+
+	public function prefs()
+	{
+		return $this->prefs;
 	}
 
 	public function getPerson()
@@ -121,5 +121,10 @@ class NoUser extends UserBase implements UserModelInterface
 	public function getSetting($key)
 	{
 		return null;
+	}
+
+	public function updatePassword($newPassword)
+	{
+		// TODO: Implement updatePassword() method.
 	}
 }

@@ -26,14 +26,6 @@ abstract class DBLayerBase implements DBInterface
 	public $qb;
 
 	public $AFFECTED_ROWS = null;
-
-	/**
-	 * List of reserved words for each DB
-	 * which can't be used as field names and must be quoted
-	 * @var array
-	 */
-	protected $reserved = [];
-
 	/**
 	 * @var resource
 	 */
@@ -54,7 +46,12 @@ abstract class DBLayerBase implements DBInterface
 	 * @var string DB name (file name)
 	 */
 	public $database;
-
+	/**
+	 * List of reserved words for each DB
+	 * which can't be used as field names and must be quoted
+	 * @var array
+	 */
+	protected $reserved = [];
 	/**
 	 * set to NULL for disabling
 	 * @var QueryLog
@@ -80,9 +77,9 @@ abstract class DBLayerBase implements DBInterface
 		}
 		if (method_exists($this->qb, $method)) {
 			return call_user_func_array([$this->qb, $method], $params);
-		} else {
-			throw new Exception($method . ' not found in ' . get_class($this) . ' and SQLBuilder');
 		}
+
+		throw new \RuntimeException($method . ' not found in ' . get_class($this) . ' and SQLBuilder');
 	}
 
 	public function logQuery($query)
@@ -120,14 +117,6 @@ abstract class DBLayerBase implements DBInterface
 		// never free as one may retrieve another portion
 		//$this->free($res);
 		return $data;
-	}
-
-	/**
-	 * @return string 'mysql', 'pg', 'ms'... PDO will override this
-	 */
-	public function getScheme()
-	{
-		return strtolower(str_replace('DBLayer', '', get_class($this)));
 	}
 
 	public function numRows($res = null)
@@ -230,6 +219,14 @@ abstract class DBLayerBase implements DBInterface
 			['mysql', 'mysqli']);
 	}
 
+	/**
+	 * @return string 'mysql', 'pg', 'ms'... PDO will override this
+	 */
+	public function getScheme()
+	{
+		return strtolower(str_replace('DBLayer', '', get_class($this)));
+	}
+
 	public function isPostgres()
 	{
 		return $this->getScheme() == 'psql';
@@ -330,7 +327,7 @@ abstract class DBLayerBase implements DBInterface
 
 	public function escape($string)
 	{
-		throw new Exception('Implement ' . __METHOD__);
+		throw new \RuntimeException('Implement ' . __METHOD__);
 	}
 
 	public function getLastQuery()

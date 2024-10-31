@@ -16,4 +16,6 @@ interface ConfigInterface
 
 	public function getLL();
 
+	public function getRequest();
+
 }

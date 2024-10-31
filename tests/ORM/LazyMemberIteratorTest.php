@@ -14,7 +14,7 @@ class LazyMemberIteratorTest extends PHPUnit\Framework\TestCase
 	protected $list;
 
 	/**
-	 * @var LazyMemberIterator|Iterator
+	 * @var LazyMemberIterator
 	 */
 	protected $sut;
 

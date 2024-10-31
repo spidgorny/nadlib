@@ -74,7 +74,7 @@ class FlotArea
 <script type="text/javascript" language="javascript" src="' . $this->flotPath . 'jquery.flot.time.js"></script>';
 		$content .= '<div id="placeholder" style="width: 768px; height: 480px;"></div>';
 		$content .= "<script type=\"text/javascript\">
-$(document).ready(function ($) {
+jQuery(document).ready(function ($) {
     var d1 = " . $series[$this->series[0]] . ";
     var d2 = " . $series[$this->series[1]] . ";
  
@@ -83,7 +83,7 @@ $(document).ready(function ($) {
         { label: 'Resolved', data: d2, points: { fillColor: '#76EE00', size: 5 }, color: '#76EE00' }
     ];
  
-    $.plot($('#placeholder'), data1, {
+    $.plot(jQuery('#placeholder'), data1, {
         xaxis: {
 			//min: (new Date(2009, 12, 1)).getTime(),
             //max: (new Date(2010, 11, 1)).getTime(),

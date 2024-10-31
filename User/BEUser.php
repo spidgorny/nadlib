@@ -88,4 +88,9 @@ class BEUser extends UserBase
 	{
 		// TODO: Implement getSetting() method.
 	}
+
+	public function updatePassword($newPassword)
+	{
+		// TODO: Implement updatePassword() method.
+	}
 }

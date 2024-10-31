@@ -70,8 +70,8 @@ class HTMLForm implements ToStringable
 					});
 				};
 				function setDropSelectValue(id, name) {
-					$("' . $fieldName . '").value = id;
-					$("' . $fieldName . '_name").value = name;
+					jQuery("' . $fieldName . '").value = id;
+					jQuery("' . $fieldName . '_name").value = name;
 				}
 			</script>';
 

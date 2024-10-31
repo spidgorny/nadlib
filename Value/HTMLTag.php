@@ -34,7 +34,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 
 	public static function __callStatic(string $name, array $arguments)
 	{
-		llog('HTMLTag', $name, $arguments);
+//		llog('HTMLTag', $name, $arguments);
 		return new static($name, $arguments[0], $arguments[1], $arguments[2]);
 	}
 
@@ -61,7 +61,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 			$content = ($this->isHTML
 				|| $this->content instanceof HTMLTag
 				|| $this->content instanceof HtmlString)
-				? $this->content
+				? $this->content.''
 				: htmlspecialchars($this->content ?? '', ENT_QUOTES);
 		}
 		$attribs = self::renderAttr($this->attr);

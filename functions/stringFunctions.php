@@ -4,20 +4,17 @@ if (!function_exists('str_startsWith')) {
 
 	/**
 	 * Whether string starts with some chars
-	 * @param                 $haystack
+	 * @param string|null $haystack
 	 * @param string|string[] $needle
 	 * @return bool
 	 */
 	function str_startsWith($haystack, $needle)
 	{
-		if (!$haystack) {
-			return false;
-		}
 		if (!is_array($needle)) {
 			$needle = [$needle];
 		}
 		foreach ($needle as $need) {
-			if (strpos($haystack ?? '', $need) === 0) {
+			if (str_starts_with($haystack, $need)) {
 				return true;
 			}
 		}

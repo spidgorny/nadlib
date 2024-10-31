@@ -38,7 +38,6 @@ class MarshalParams
 
 	/**
 	 * @param string $class
-	 * @param object $container
 	 * @return object
 	 * @throws ReflectionException
 	 */
@@ -60,7 +59,6 @@ class MarshalParams
 	}
 
 	/**
-	 * @param object $container
 	 * @param ReflectionMethod $constructor
 	 * @return array
 	 * @throws ReflectionException
@@ -172,7 +170,9 @@ class MarshalParams
 		}
 
 		$return = $this->request->getTrim($name);
-		$paramClassRef = $param->getType() && !$param->getType()->isBuiltin() ? new ReflectionClass($param->getType()->getName()) : null;
+		$paramClassRef = $param->getType() instanceof ReflectionNamedType && !$param->getType()->isBuiltin()
+			? new ReflectionClass($param->getType()->getName())
+			: null;
 		//debug($param->getPosition(), $paramClassRef, $paramClassRef->getName());
 		if ($paramClassRef && class_exists($paramClassRef->getName())) {
 			$paramClass = $paramClassRef->getName();
