@@ -98,45 +98,46 @@ class DBLayer extends DBLayerBase
 
 	public function getVersion()
 	{
-		$version = pg_version($this->connection);
+		$version = pg_version($this->getConnection());
 		return $version['server'];
 	}
 
-	/**
-	 * Overrides because of pg_fetch_all
-	 * @param resource|string $result
-	 * @param null $key
-	 * @return array
-	 * @throws Exception
-	 */
-	public function fetchAll($result, $key = null)
+	public function getConnection()
 	{
-		$params = [];
-		if ($result instanceof SQLSelectQuery) {
-			/** @var SQLSelectQuery $queryObj */
-			$queryObj = $result;
-			$result = $queryObj->getQuery();
-			$params = $queryObj->getParameters();
+		if (!$this->isConnected()) {
+			$this->connect();
 		}
-		if (is_string($result)) {
-			//debug($result);
-			$result = $this->perform($result, $params);
+		return $this->connection;
+	}
+
+	public function connect($database = null, $user = null, $pass = null, $host = null)
+	{
+		if ($this->isConnected()) {
+			return;
 		}
-		//debug($this->numRows($result));
-		$res = pg_fetch_all($result);
-		pg_free_result($result);
-		if (ifsetor($_REQUEST['d']) === 'q') {
-			debug($this->lastQuery, sizeof($res));
+		if ($database) {
+			$this->database = $database;
 		}
-		if (!$res) {
-			$res = [];
-		} elseif ($key) {
-			$ap = ArrayPlus::create($res)->IDalize($key)->getData();
-			//debug(sizeof($res), sizeof($ap));
-			$res = $ap;
+		if ($user) {
+			$this->user = $user;
+		}
+		if ($pass) {
+			$this->pass = $pass;
+		}
+		if ($host) {
+			$this->host = $host;
+		}
+		$string = "host={$this->host} dbname={$this->database} user={$this->user} password={$this->pass}";
+//		llog($string);
+		$this->connection = pg_connect($string);
+		if (!$this->connection) {
+			throw new DatabaseException("No PostgreSQL connection to $host. " . json_encode(error_get_last(), JSON_THROW_ON_ERROR));
+			//printbr('Error: '.pg_errormessage());	// Warning: pg_errormessage(): No PostgreSQL link opened yet
 		}
 
-		return $res;
+		$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
+		//print(pg_client_encoding($this->connection));
+		return true;
 	}
 
 	/**
@@ -203,34 +204,41 @@ class DBLayer extends DBLayerBase
 		return $this->LAST_PERFORM_RESULT;
 	}
 
-	public function connect($database = null, $user = null, $pass = null, $host = null)
+	/**
+	 * Overrides because of pg_fetch_all
+	 * @param resource|string $result
+	 * @param null $key
+	 * @return array
+	 * @throws Exception
+	 */
+	public function fetchAll($result, $key = null)
 	{
-		if ($this->isConnected()) {
-			return;
+		$params = [];
+		if ($result instanceof SQLSelectQuery) {
+			/** @var SQLSelectQuery $queryObj */
+			$queryObj = $result;
+			$result = $queryObj->getQuery();
+			$params = $queryObj->getParameters();
 		}
-		if ($database) {
-			$this->database = $database;
+		if (is_string($result)) {
+			//debug($result);
+			$result = $this->perform($result, $params);
 		}
-		if ($user) {
-			$this->user = $user;
+		//debug($this->numRows($result));
+		$res = pg_fetch_all($result);
+		pg_free_result($result);
+		if (ifsetor($_REQUEST['d']) === 'q') {
+			debug($this->lastQuery, sizeof($res));
 		}
-		if ($pass) {
-			$this->pass = $pass;
-		}
-		if ($host) {
-			$this->host = $host;
-		}
-		$string = "host={$this->host} dbname={$this->database} user={$this->user} password={$this->pass}";
-//		llog($string);
-		$this->connection = pg_connect($string);
-		if (!$this->connection) {
-			throw new DatabaseException("No PostgreSQL connection to $host. " . json_encode(error_get_last(), JSON_THROW_ON_ERROR));
-			//printbr('Error: '.pg_errormessage());	// Warning: pg_errormessage(): No PostgreSQL link opened yet
+		if (!$res) {
+			$res = [];
+		} elseif ($key) {
+			$ap = ArrayPlus::create($res)->IDalize($key)->getData();
+			//debug(sizeof($res), sizeof($ap));
+			$res = $ap;
 		}
 
-		$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
-		//print(pg_client_encoding($this->connection));
-		return true;
+		return $res;
 	}
 
 	/**
@@ -361,40 +369,6 @@ class DBLayer extends DBLayerBase
 	}
 
 	/**
-	 * fetchAll() equivalent with $key and $val properties
-	 * @param string $query
-	 * @param string $key
-	 * @param mixed $val
-	 * @return array
-	 * @throws DatabaseException
-	 * @throws MustBeStringException
-	 */
-	public function getTableDataSql($query, $key = null, $val = null)
-	{
-		if (is_string($query)) {
-			$result = $this->perform($query);
-		} else {
-			$result = $query;
-		}
-		$return = [];
-		while ($row = pg_fetch_assoc($result)) {
-			if ($val) {
-				$value = $row[$val];
-			} else {
-				$value = $row;
-			}
-
-			if ($key) {
-				$return[$row[$key]] = $value;
-			} else {
-				$return[] = $value;
-			}
-		}
-		pg_free_result($result);
-		return $return;
-	}
-
-	/**
 	 * @param string $table
 	 * @param string $column
 	 * @param string $where
@@ -432,6 +406,40 @@ class DBLayer extends DBLayerBase
 	 * return $b;
 	 * }
 	 * /**/
+
+	/**
+	 * fetchAll() equivalent with $key and $val properties
+	 * @param string $query
+	 * @param string $key
+	 * @param mixed $val
+	 * @return array
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
+	 */
+	public function getTableDataSql($query, $key = null, $val = null)
+	{
+		if (is_string($query)) {
+			$result = $this->perform($query);
+		} else {
+			$result = $query;
+		}
+		$return = [];
+		while ($row = pg_fetch_assoc($result)) {
+			if ($val) {
+				$value = $row[$val];
+			} else {
+				$value = $row;
+			}
+
+			if ($key) {
+				$return[$row[$key]] = $value;
+			} else {
+				$return[] = $value;
+			}
+		}
+		pg_free_result($result);
+		return $return;
+	}
 
 	/**
 	 * Returns a list of tables in the current database
@@ -628,11 +636,6 @@ class DBLayer extends DBLayerBase
 //		$oid = pg_last_oid($res);
 //		$id = $this->sqlFind('id', $table, "oid = '" . $oid . "'");
 //		return $id;
-	}
-
-	public function getConnection()
-	{
-		return $this->connection;
 	}
 
 	protected function lastval()
