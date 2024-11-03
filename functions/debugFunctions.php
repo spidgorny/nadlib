@@ -158,7 +158,7 @@ if (!function_exists('d')) {
 				$sxe = $sxe->asXML();
 			}
 			//$len = strlen(serialize($vals[$key]));
-			$len = strlen(json_encode($sxe));
+			$len = strlen(json_encode($sxe, JSON_THROW_ON_ERROR));
 			//$len = gettype($vals[$key]) . ' '.get_class($vals[$key]);
 			$assoc[$key] = $len;
 		}
@@ -168,7 +168,7 @@ if (!function_exists('d')) {
 	function debug_get_backtrace()
 	{
 		ob_start();
-		if (phpversion() >= '5.3.6') {
+		if (PHP_VERSION >= '5.3.6') {
 			debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 		} else {
 			debug_print_backtrace();
