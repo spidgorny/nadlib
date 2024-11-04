@@ -136,7 +136,7 @@ class DBLayer extends DBLayerBase
 		}
 
 		$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
-		//print(pg_client_encoding($this->connection));
+		//print(pg_client_encoding($this->getConnection()));
 		return true;
 	}
 
@@ -154,7 +154,7 @@ class DBLayer extends DBLayerBase
 
 //		$this->reportIfLastQueryFailed();
 		$this->lastQuery = $query;
-		if (!$this->connection) {
+		if (!$this->getConnection()) {
 			throw new DatabaseException('No connection', 0, null, $query);
 		}
 
@@ -164,14 +164,14 @@ class DBLayer extends DBLayerBase
 		}
 
 		if ($params) {
-			$ok = pg_prepare($this->connection, '', $query);
+			$ok = pg_prepare($this->getConnection(), '', $query);
 			if (!$ok) {
-				throw new DatabaseException('Query can not be prepared because: ' . pg_last_error($this->connection), 1, null, $query);
+				throw new DatabaseException('Query can not be prepared because: ' . pg_last_error($this->getConnection()), 1, null, $query);
 			}
-			$this->LAST_PERFORM_RESULT = pg_execute($this->connection, '', $params);
+			$this->LAST_PERFORM_RESULT = pg_execute($this->getConnection(), '', $params);
 		} else {
-			$this->LAST_PERFORM_RESULT = pg_query($this->connection, $query);
-			$lastError = pg_last_error($this->connection);
+			$this->LAST_PERFORM_RESULT = pg_query($this->getConnection(), $query);
+			$lastError = pg_last_error($this->getConnection());
 			if ($lastError) {
 				// setQuery will be called in the catch below
 				throw new DatabaseException($lastError, 2, null, $query);
@@ -188,7 +188,7 @@ class DBLayer extends DBLayerBase
 			//debug_pre_print_backtrace();
 			//debug($query);
 			//debug($this->queryLog->queryLog);
-			throw new DatabaseException(pg_last_error($this->connection), 3, null, $query);
+			throw new DatabaseException(pg_last_error($this->getConnection()), 3, null, $query);
 		}
 
 		$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
@@ -261,7 +261,7 @@ class DBLayer extends DBLayerBase
 	public function reportIfLastQueryFailed()
 	{
 		if (false === $this->LAST_PERFORM_RESULT) {
-			$backtrace = array_map(function ($el) {
+			$backtrace = array_map(static function ($el) {
 				unset($el['object']);
 				unset($el['args']);
 				return $el;
@@ -270,12 +270,12 @@ class DBLayer extends DBLayerBase
 				return ifsetor($el['class']) . ifsetor($el['type']) . ifsetor($el['function']) .
 					' in ' . basename(ifsetor($el['file'])) . ':' . ifsetor($el['line']);
 			}, $backtrace);
-//			debug($this->lastQuery.'', pg_errormessage($this->connection));
-//			die(pg_errormessage($this->connection));
+//			debug($this->lastQuery.'', pg_errormessage($this->getConnection()));
+//			die(pg_errormessage($this->getConnection()));
 			throw new DatabaseException(
 				'Last query has failed.' . PHP_EOL .
 				$this->lastQuery . PHP_EOL .
-				pg_last_error($this->connection) . PHP_EOL .
+				pg_last_error($this->getConnection()) . PHP_EOL .
 				implode(PHP_EOL, $backtrace)
 			);
 		}
@@ -285,11 +285,11 @@ class DBLayer extends DBLayerBase
 	{
 		$prof = new Profiler();
 		$this->lastQuery = $query;
-		$this->LAST_PERFORM_RESULT = pg_query_params($this->connection, $query, $params);
+		$this->LAST_PERFORM_RESULT = pg_query_params($this->getConnection(), $query, $params);
 		if (!$this->LAST_PERFORM_RESULT) {
 			debug($query);
 			debug_pre_print_backtrace();
-			throw new DatabaseException(pg_last_error($this->connection) . BR . $query);
+			throw new DatabaseException(pg_last_error($this->getConnection()) . BR . $query);
 		}
 
 		$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
@@ -307,20 +307,18 @@ class DBLayer extends DBLayerBase
 	 */
 	public function getTableColumns($table)
 	{
-		if (!$table) {
-			debug_pre_print_backtrace();
-		}
-		$meta = pg_meta_data($this->connection, $table);
+		invariant($table, 'Table name must be provided');
+		$meta = pg_meta_data($this->getConnection(), $table);
 		if (is_array($meta)) {
 			return array_keys($meta);
 		}
 
-		throw new Exception("Table not found: <strong>$table</strong>");
+		throw new DatabaseException("Table not found: <strong>$table</strong>");
 	}
 
 	public function getTableColumnsEx($table)
 	{
-		return pg_meta_data($this->connection, $table);
+		return pg_meta_data($this->getConnection(), $table);
 	}
 
 	public function getTableColumnsCached($table)
@@ -334,11 +332,11 @@ class DBLayer extends DBLayerBase
 		//debug($cache); exit;
 
 		if (!$cache[$table]) {
-			$meta = pg_meta_data($this->connection, $table);
+			$meta = pg_meta_data($this->getConnection(), $table);
 			if (is_array($meta)) {
 				$cache[$table] = array_keys($meta);
 			} else {
-				throw new Exception("Table not found: <strong>$table</strong>");
+				throw new DatabaseException("Table not found: <strong>$table</strong>");
 			}
 		}
 		$return = $cache[$table];
@@ -348,7 +346,7 @@ class DBLayer extends DBLayerBase
 
 	public function getColumnTypes($table)
 	{
-		$meta = pg_meta_data($this->connection, $table);
+		$meta = pg_meta_data($this->getConnection(), $table);
 		if (is_array($meta)) {
 			$return = [];
 			foreach ($meta as $col => $m) {
@@ -356,7 +354,7 @@ class DBLayer extends DBLayerBase
 			}
 			return $return;
 		}
-		throw new Exception("Table not found: <strong>$table</strong>");
+		throw new DatabaseException("Table not found: <strong>$table</strong>");
 	}
 
 	public function getTableDataEx($table, $where = "", $what = "*")
@@ -711,7 +709,7 @@ order by a.attnum';
 	public function escape($str)
 	{
 		$this->connect();
-		return pg_escape_string($this->connection, $str);
+		return pg_escape_string($this->getConnection(), $str);
 	}
 
 	/**
@@ -931,7 +929,7 @@ WHERE ccu.table_name='" . $table . "'");
 		if (ctype_alpha($key)) {
 			$isFunc = function_exists('pg_escape_identifier');
 			if ($isFunc && $this->isConnected()) {
-				$key = pg_escape_identifier($this->connection, $key);
+				$key = pg_escape_identifier($this->getConnection(), $key);
 			} else {
 				$key = '"' . $key . '"';
 			}
@@ -951,7 +949,7 @@ WHERE ccu.table_name='" . $table . "'");
 
 	public function isTransaction()
 	{
-		return pg_transaction_status($this->connection) === PGSQL_TRANSACTION_INTRANS;
+		return pg_transaction_status($this->getConnection()) === PGSQL_TRANSACTION_INTRANS;
 	}
 
 	/**
@@ -959,16 +957,16 @@ WHERE ccu.table_name='" . $table . "'");
 	 */
 	public function getInfo()
 	{
-		return pg_version($this->connection) + [
-				'options' => pg_options($this->connection),
-				'busy' => pg_connection_busy($this->connection),
-				'status' => pg_connection_status($this->connection),
+		return pg_version($this->getConnection()) + [
+				'options' => pg_options($this->getConnection()),
+				'busy' => $this->getConnection()($this->getConnection()),
+				'status' => pg_connection_status($this->getConnection()),
 				'status_ok' => PGSQL_CONNECTION_OK,
 				'status_bad' => PGSQL_CONNECTION_BAD,
-				'transaction' => pg_transaction_status($this->connection),
-				'client_encoding' => pg_client_encoding($this->connection),
-				'host' => pg_host($this->connection),
-				'port' => pg_port($this->connection),
+				'transaction' => pg_transaction_status($this->getConnection()),
+				'client_encoding' => pg_client_encoding($this->getConnection()),
+				'host' => pg_host($this->getConnection()),
+				'port' => pg_port($this->getConnection()),
 			];
 	}
 
