@@ -191,7 +191,7 @@ class Request
 		$docRoot = self::getDocRoot();
 //		llog($docRoot.'');
 		$host = self::getHost($isUTF8);
-		$url = Request::getRequestType() . '://' . $host . $docRoot;
+		$url = self::getRequestType() . '://' . $host . $docRoot;
 		return new URL($url);
 	}
 
