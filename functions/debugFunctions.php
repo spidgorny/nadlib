@@ -397,3 +397,8 @@ if (!function_exists('llog')) {
 		error_log("{$url} [{$runtime}] {$caller} {$type} {$output}");
 	}
 }
+
+function elapsed()
+{
+	return microtime(true) - (float)$_SERVER['REQUEST_TIME_FLOAT'];
+}
