@@ -178,7 +178,6 @@ abstract class SimpleController
 	 */
 	public function performAction($action = null)
 	{
-		$content = '';
 		$method = $action ?: $this->detectAction();
 		if (!$method) {
 			throw new Exception404('No action provided');
