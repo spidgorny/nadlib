@@ -454,9 +454,6 @@ class View extends stdClass implements ToStringable
 
 	public function s($a)
 	{
-//		echo typ($a), BR;
-//		debug_pre_print_backtrace();
-//		echo '<hr />';
 		return MergedContent::mergeStringArrayRecursive($a);
 	}
 

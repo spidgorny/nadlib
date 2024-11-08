@@ -19,15 +19,16 @@ class GroupSwitch extends Controller
 	{
 		//debug($this->user->data);
 		$content = '';
-		if ($this->canSwitchGroup()) {
-//			$this->performAction($this->detectAction());	// this leads to issues in PrepareGive
-			if ($this->detectAction() === 'setGroup') {
-				return $this->setGroupAction();
-			}
-			$this->groups = $this->fetchGroups();
-			$content = $this->renderGroups();
+		if (!$this->canSwitchGroup()) {
+			return $content;
 		}
-		return $content;
+
+//			$this->performAction($this->detectAction());	// this leads to issues in PrepareGive
+		if ($this->detectAction() === 'setGroup') {
+			return $this->setGroupAction();
+		}
+		$this->groups = $this->fetchGroups();
+		return $this->renderGroups();
 	}
 
 	public function canSwitchGroup()

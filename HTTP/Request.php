@@ -235,16 +235,16 @@ class Request
 		$HTTP_X_FORWARDED_SSL = ifsetor($_SERVER['HTTP_X_FORWARDED_SSL']);
 		$HTTP_X_FORWARDED_PROTO = ifsetor($_SERVER['HTTP_X_FORWARDED_PROTO']);
 		$HTTP_X_FORWARDED_BY = ifsetor($_SERVER['HTTP_X_FORWARDED_BY']);
-		$HTTP_X_FORWARDED_SERVER = ifsetor($_SERVER['HTTP_X_FORWARDED_SERVER']);
-		return ((($HTTPS) && (strtolower($HTTPS) == 'on' || $HTTPS == '1'))) ||
-		(($HTTP_X_FORWARDED_BY) && strpos(strtoupper($HTTP_X_FORWARDED_BY), 'SSL') !== false) ||
-		(($HTTP_X_FORWARDED_HOST) && (strpos(strtoupper($HTTP_X_FORWARDED_HOST), 'SSL') !== false)) ||
-		(($HTTP_X_FORWARDED_HOST && $HTTPS_SERVER) && (strpos(strtoupper($HTTP_X_FORWARDED_HOST), str_replace('https://', '', $HTTPS_SERVER)) !== false)) ||
-		(isset($_SERVER['SCRIPT_URI']) && strtolower(substr($_SERVER['SCRIPT_URI'], 0, 6)) == 'https:') ||
-		(($HTTP_X_FORWARDED_SSL) && ($HTTP_X_FORWARDED_SSL == '1' || strtolower($HTTP_X_FORWARDED_SSL) == 'on')) ||
-		(($HTTP_X_FORWARDED_PROTO) && (strtolower($HTTP_X_FORWARDED_PROTO) == 'ssl' || strtolower($HTTP_X_FORWARDED_PROTO) == 'https')) ||
-		(isset($_SERVER['HTTP_SSLSESSIONID']) && $_SERVER['HTTP_SSLSESSIONID'] != '') ||
-		(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443') ||
+		$HTTP_X_FORWARDED_SERVER = ifsetor($_SERVER['HTTP_X_FORWARDED_SERVER'], '');
+		return ((($HTTPS) && (strtolower($HTTPS) === 'on' || $HTTPS === '1'))) ||
+		(($HTTP_X_FORWARDED_BY) && str_contains(strtoupper($HTTP_X_FORWARDED_BY), 'SSL')) ||
+		(($HTTP_X_FORWARDED_HOST) && (str_contains(strtoupper($HTTP_X_FORWARDED_HOST), 'SSL'))) ||
+		(($HTTP_X_FORWARDED_HOST && $HTTPS_SERVER) && (str_contains(strtoupper($HTTP_X_FORWARDED_HOST), str_replace('https://', '', $HTTPS_SERVER)))) ||
+		(isset($_SERVER['SCRIPT_URI']) && stripos($_SERVER['SCRIPT_URI'], 'https:') === 0) ||
+		(($HTTP_X_FORWARDED_SSL) && ($HTTP_X_FORWARDED_SSL === '1' || strtolower($HTTP_X_FORWARDED_SSL) === 'on')) ||
+		(($HTTP_X_FORWARDED_PROTO) && (strtolower($HTTP_X_FORWARDED_PROTO) === 'ssl' || strtolower($HTTP_X_FORWARDED_PROTO) === 'https')) ||
+		(isset($_SERVER['HTTP_SSLSESSIONID']) && $_SERVER['HTTP_SSLSESSIONID'] !== '') ||
+		(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] === '443') ||
 		ifsetor($_SERVER['FAKE_HTTPS'])
 		|| (str_startsWith($HTTP_X_FORWARDED_SERVER, 'sslproxy'))    // BlueMix
 			? 'https' : 'http';
@@ -259,7 +259,7 @@ class Request
 
 	public static function removeCookiesFromRequest()
 	{
-		if (false !== strpos(ini_get('variables_order'), 'C')) {
+		if (str_contains(ini_get('variables_order'), 'C')) {
 			//debug($_COOKIE, ini_get('variables_order'));
 			foreach ($_COOKIE as $key => $_) {
 				if (!isset($_GET[$key]) && !isset($_POST[$key])) {

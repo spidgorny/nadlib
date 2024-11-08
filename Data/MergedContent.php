@@ -27,6 +27,9 @@ class MergedContent implements ArrayAccess
 	 */
 	public static function mergeStringArrayRecursive($render)
 	{
+		if (is_array($render) && empty($render)) {
+			return '';
+		}
 		if (!$render) {
 			return $render;
 		}
