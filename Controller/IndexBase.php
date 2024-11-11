@@ -15,20 +15,12 @@ class IndexBase /*extends Controller*/
 	 * @var LocalLangDummy
 	 */
 	public $ll;
-
-	/**
-	 * @var UserModelInterface
-	 * @public for template.phtml
-	 */
-	protected $user;
-
 	/**
 	 * For any error messages during initialization.
 	 *
 	 * @var Messages
 	 */
 	public $content;
-
 	/**
 	 * @var AppController|UserlessController
 	 */
@@ -42,12 +34,6 @@ class IndexBase /*extends Controller*/
 	public $description = '';
 	public $keywords = '';
 	public $bodyClasses = [];
-
-	/**
-	 * @var ConfigInterface
-	 */
-	protected $config;
-
 	public $csp = [
 		"default-src" => [
 			"'self'",
@@ -85,7 +71,15 @@ class IndexBase /*extends Controller*/
 		],
 	];
 	public $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error';
-
+	/**
+	 * @var UserModelInterface
+	 * @public for template.phtml
+	 */
+	protected $user;
+	/**
+	 * @var ConfigInterface
+	 */
+	protected $config;
 	/**
 	 * @var DBInterface
 	 */
@@ -339,32 +333,6 @@ class IndexBase /*extends Controller*/
 //		debug($_SERVER['HTTP_USER_AGENT'], $_SERVER['REMOTE_ADDR']);
 	}
 
-	public function getMethodFromCli()
-	{
-		llog('argv', $_SERVER['argv']);
-		$notOptions = array_filter(
-			array_slice(
-				ifsetor($_SERVER['argv'], []),
-				1
-			),
-			static function ($el) {
-				if (is_numeric($el)) {
-					return false;
-				}
-				return $el[0] !== '-';    // --options
-			}
-		);
-		llog('notOptions', $notOptions);
-		// $notOptions[0] is the controller
-		return ifsetor($notOptions[1], 'render');
-	}
-
-	public function getMethodFromWeb()
-	{
-		$method = ifsetor($_REQUEST['action']);
-		return $method ? $method . 'Action' : 'render';
-	}
-
 	/**
 	 * @throws ReflectionException
 	 */
@@ -409,6 +377,26 @@ class IndexBase /*extends Controller*/
 		return $content;
 	}
 
+	public function getMethodFromCli()
+	{
+		llog('argv', $_SERVER['argv']);
+		$notOptions = array_filter(
+			array_slice(
+				ifsetor($_SERVER['argv'], []),
+				1
+			),
+			static function ($el) {
+				if (is_numeric($el)) {
+					return false;
+				}
+				return $el[0] !== '-';    // --options
+			}
+		);
+		llog('notOptions', $notOptions);
+		// $notOptions[0] is the controller
+		return ifsetor($notOptions[1], 'render');
+	}
+
 	/**
 	 * Does not catch LoginException - show your login form in Index
 	 * @param Exception $e
@@ -424,7 +412,6 @@ class IndexBase /*extends Controller*/
 			echo $e->getTraceAsString(), BR;
 			return '';
 		}
-		http_response_code($e->getCode());
 		if ($this->controller) {
 			$this->controller->title = get_class($this->controller);
 		}
@@ -498,6 +485,12 @@ class IndexBase /*extends Controller*/
 	{
 		$pp = new PageProfiler();
 		return $pp->render();
+	}
+
+	public function getMethodFromWeb()
+	{
+		$method = ifsetor($_REQUEST['action']);
+		return $method ? $method . 'Action' : 'render';
 	}
 
 	public function __destruct()

@@ -297,6 +297,17 @@ class Request
 		return $phar || $loader || $phpStorm || $phpStorm2 || $phpunit;
 	}
 
+	/**
+	 * http://stackoverflow.com/questions/738823/possible-values-for-php-os
+	 * @return bool
+	 */
+	public static function isWindows()
+	{
+		//$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
+		//return $os == 'Windows_NT';
+		return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+	}
+
 	public static function printDocumentRootDebug()
 	{
 		pre_print_r([
@@ -442,6 +453,18 @@ class Request
 	}
 
 	/**
+	 * General filtering function
+	 * @param $name
+	 * @return string
+	 */
+	public function getTrim($name)
+	{
+		$value = $this->getString($name);
+		$value = strip_tags($value);
+		return trim($value);
+	}
+
+	/**
 	 * Will strip tags
 	 * @param $name
 	 * @return string
@@ -473,18 +496,6 @@ class Request
 			throw new Exception(__METHOD__ . ' is throwing an exception.');
 		}
 		return $value;
-	}
-
-	/**
-	 * General filtering function
-	 * @param $name
-	 * @return string
-	 */
-	public function getTrim($name)
-	{
-		$value = $this->getString($name);
-		$value = strip_tags($value);
-		return trim($value);
 	}
 
 	/**
@@ -865,41 +876,6 @@ class Request
 		return (isset($this->data[$name]) && $this->data[$name]) ? true : false;
 	}
 
-	public function getHeader($name)
-	{
-		$headers = $this->getHeaders();
-
-		$found = ifsetor($headers[$name]);
-		if ($found) {
-			return $found;
-		}
-
-		foreach ($headers as $header => $value) {
-			if (strtolower($header) === strtolower($name)) {
-				return $value;
-			}
-		}
-		return null;
-	}
-
-	public function getHeaders()
-	{
-		if (function_exists('apache_request_headers')) {
-			return apache_request_headers();
-		}
-		if (function_exists('getallheaders')) {
-			return getallheaders();
-		}
-
-		return collect($_SERVER)->filter(static function ($val, $key) {
-			return str_startsWith($key, 'HTTP_');
-		})->mapWithKeys(static function ($val, $key) {
-			$newKey = strtolower($key);
-			$newKey = str_replace('_', '-', $newKey);
-			return [$newKey => $val];
-		})->toArray();
-	}
-
 	public function getJson($name, $array = true)
 	{
 		return json_decode($this->getTrim($name), $array);
@@ -992,17 +968,6 @@ class Request
 			//			debug($url.'', $path.'', $al->documentRoot.'');
 		}
 		return $path;
-	}
-
-	/**
-	 * http://stackoverflow.com/questions/738823/possible-values-for-php-os
-	 * @return bool
-	 */
-	public static function isWindows()
-	{
-		//$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
-		//return $os == 'Windows_NT';
-		return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 	}
 
 	/**
@@ -1622,6 +1587,41 @@ class Request
 		}
 
 		return file_get_contents('php://input');
+	}
+
+	public function getHeader($name)
+	{
+		$headers = $this->getHeaders();
+
+		$found = ifsetor($headers[$name]);
+		if ($found) {
+			return $found;
+		}
+
+		foreach ($headers as $header => $value) {
+			if (strtolower($header) === strtolower($name)) {
+				return $value;
+			}
+		}
+		return null;
+	}
+
+	public function getHeaders()
+	{
+		if (function_exists('apache_request_headers')) {
+			return apache_request_headers();
+		}
+		if (function_exists('getallheaders')) {
+			return getallheaders();
+		}
+
+		return collect($_SERVER)->filter(static function ($val, $key) {
+			return str_startsWith($key, 'HTTP_');
+		})->mapWithKeys(static function ($val, $key) {
+			$newKey = strtolower($key);
+			$newKey = str_replace('_', '-', $newKey);
+			return [$newKey => $val];
+		})->toArray();
 	}
 
 	public function showStackTraceAsHeaders(array $bt, $prefix = 'Redirect-From-')
