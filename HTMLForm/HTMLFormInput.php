@@ -7,7 +7,7 @@
  * @property string $type
  * @property string $placeholder
  */
-class HTMLFormInput extends HTMLFormType
+class HTMLFormInput extends HTMLFormField
 {
 
 	public $prefix;
@@ -20,7 +20,7 @@ class HTMLFormInput extends HTMLFormType
 
 	public function __construct($name, array $attr = ['type' => 'text'])
 	{
-//		parent::__construct($attr + ['type' => 'text'], $name);
+		parent::__construct($attr + ['type' => 'text'], $name);
 //		$this->name = $name;
 //		$this->assign($attr);
 		$this->setValue($this->value);
@@ -42,14 +42,16 @@ class HTMLFormInput extends HTMLFormType
 
 	public function __toString()
 	{
-		return MergedContent::mergeStringArrayRecursive($this->render());
+		return MergedContent::mergeStringArrayRecursive($this->render()) . '';
 	}
 
 	public function render()
 	{
+		$name = $this->form->getName($this->field, '', true);
+		llog($this->name, $this->form->getPrefix(), $name);
 		$input = new HTMLTag('input', [
 			'type' => $this->type,
-			'name' => $this->form->getName($this->name, '', true),
+			'name' => $name,
 			'placeholder' => $this->placeholder,
 			'value' => $this->value,
 		]);
@@ -61,4 +63,36 @@ class HTMLFormInput extends HTMLFormType
 		return $this->render();
 	}
 
+	public function offsetExists(mixed $offset): bool
+	{
+		return isset($this->$offset) || isset($this->attr[$offset]);
+	}
+
+	public function &offsetGet(mixed $offset): mixed
+	{
+		if (isset($this->$offset)) {
+			return $this->$offset;
+		}
+		return $this->attr[$offset];
+	}
+
+	public function offsetSet(mixed $offset, mixed $value): void
+	{
+		if (isset($this->$offset)) {
+			$this->$offset = $value;
+			return;
+		}
+
+		$this->attr[$offset] = $value;
+	}
+
+	public function offsetUnset(mixed $offset): void
+	{
+		if (isset($this->$offset)) {
+			unset($this->$offset);
+			return;
+		}
+
+		unset($this->attr[$offset]);
+	}
 }

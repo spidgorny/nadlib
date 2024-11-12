@@ -6,7 +6,7 @@
  * Do not confuse it with HTMLFormType and it's descendants.
  * @property $elementID string
  */
-class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
+class HTMLFormField extends HTMLFormType
 {
 	use MagicDataProps;
 	use ArrayAccessData;
@@ -35,7 +35,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 	 */
 	protected $content;
 
-	public function __construct(array $desc, $fieldName = null)
+	public function __construct(array|HTMLFormType $desc, $fieldName = null)
 	{
 		$this->data = $desc;
 		if ($fieldName) {
@@ -46,6 +46,7 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 
 	public function setField($fieldName)
 	{
+		parent::setField($fieldName);
 		$this->fieldName = $fieldName;
 	}
 
@@ -82,6 +83,8 @@ class HTMLFormField implements ArrayAccess, HTMLFormFieldInterface
 
 	public function setValue($value)
 	{
+//		llog('setValue', $this->fieldName, $value);
+		parent::setValue($value);
 		$this->data['value'] = $value;
 	}
 

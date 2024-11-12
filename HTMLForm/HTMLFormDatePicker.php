@@ -1,6 +1,6 @@
 <?php
 
-class HTMLFormDatePicker extends HTMLFormType implements HTMLFormTypeInterface
+class HTMLFormDatePicker extends HTMLFormField
 {
 	/**
 	 * PHP Format
@@ -25,6 +25,7 @@ class HTMLFormDatePicker extends HTMLFormType implements HTMLFormTypeInterface
 	 */
 	public function __construct()
 	{
+		parent::__construct([]);
 		$index = Index::getInstance();
 		$index->addJQueryUI();    // for the picker
 		$index->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . 'js/HTMLFormDatePicker.js');

@@ -6,7 +6,7 @@
  * Date: 20.01.2016
  * Time: 14:59
  */
-interface HTMLFormFieldInterface
+interface HTMLFormFieldInterface extends ArrayAccess
 {
 
 	/**
@@ -17,10 +17,10 @@ interface HTMLFormFieldInterface
 
 	/**
 	 * Whet's the key name
-	 * @param $field
+	 * @param $fieldName
 	 * @return mixed
 	 */
-	public function setField($field);
+	public function setField($fieldName);
 
 	/**
 	 * Inject form for additional function calls

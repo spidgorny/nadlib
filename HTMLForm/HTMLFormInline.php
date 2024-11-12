@@ -33,9 +33,6 @@ class HTMLFormInline extends HTMLFormTable
 	 */
 	public function getForm(array $formData, array $prefix = [], $mainForm = true, $append = '')
 	{
-		if (!is_array($formData)) {
-			debug_pre_print_backtrace();
-		}
 		$startedFieldset = false;
 		$tmp = $this->stdout;
 		$this->stdout = '';
@@ -67,25 +64,25 @@ class HTMLFormInline extends HTMLFormTable
 	{
 		$content = [];
 		foreach ($formData as $fieldName => $fieldDesc) {
-			$content[] = $this->showTR($prefix, $fieldDesc, array_merge($prefix, [$fieldName]));
+			$content[] = $this->showTR(array_merge($prefix, [$fieldName]), $fieldDesc);
 		}
 		return $content;
 	}
 
-	public function showTR(array $prefix, $fieldDesc, $path)
+	public function showTR(array $prefix, array|HTMLFormFieldInterface $fieldDesc)
 	{
 		$wrapElement = $fieldDesc['type'] !== 'html';
 		if ($wrapElement) {
 			$content[] = '<div class="form-group">' . PHP_EOL;
 		}
-		$content[] = $this->showCell($path, $fieldDesc);
+		$content[] = $this->showCell($prefix, $fieldDesc);
 		if ($wrapElement) {
 			$content[] = '</div>' . PHP_EOL;
 		}
 		return $content;
 	}
 
-	public function showCell($fieldName, /*array*/ $desc)
+	public function showCell(array $fieldName, array|HTMLFormFieldInterface $desc)
 	{
 		$fieldValue = $desc['value'] ?? null;
 		$fieldObj = $this->switchType($fieldName, $fieldValue, $desc);

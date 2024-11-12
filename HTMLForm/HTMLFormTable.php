@@ -159,18 +159,21 @@ class HTMLFormTable extends HTMLForm
 	 * @param string $append
 	 * @return $this
 	 */
-	public function showForm($prefix = [], $mainForm = true, $append = '')
+	public function showForm(array $prefix = [], $mainForm = true, $append = '')
 	{
 		$this->tableMore['class'] = collect(trimExplode(' ', $this->tableMore['class'] ?? ''))->add($this->defaultBR ? 'defaultBR' : '')->join(' ');
+
+		// can't do this as btnSubmit should not be in the form
+//		$this->prefix = $prefix;  // HTMLFormInput reads from the form
+
+
 		$this->stdout .= $this->getForm($this->desc, $prefix, $mainForm, $append);
 		return $this;
 	}
 
 	public function getForm(array $formData, array $prefix = [], $mainForm = true, $append = '')
 	{
-		if (!is_array($formData)) {
-			debug_pre_print_backtrace();
-		}
+//		llog('getForm', $prefix);
 		$startedFieldset = false;
 		$tmp = $this->stdout;
 		$this->stdout = '';
@@ -179,7 +182,7 @@ class HTMLFormTable extends HTMLForm
 			$this->mainFormStart();
 		}
 		if ($this->fieldset) {
-			$this->stdout .= "<fieldset " . $this->getAttrHTML($this->fieldsetMore) . ">
+			$this->stdout .= "<fieldset " . self::getAttrHTML($this->fieldsetMore) . ">
 				<legend>" . $this->fieldset . "</legend>";
 			$startedFieldset = true;
 			$this->fieldset = null;
@@ -205,7 +208,7 @@ class HTMLFormTable extends HTMLForm
 		$tmp = $this->stdout;
 		$this->stdout = '';
 		foreach ($formData as $fieldName => $fieldDesc) {
-			$path = is_array($prefix) ? $prefix : ($prefix ?: null);
+			$path = $prefix;
 			$fnp = strpos($fieldName, '[');
 			if ($fnp !== false) {
 				$path[] = substr($fieldName, 0, $fnp);
@@ -222,7 +225,11 @@ class HTMLFormTable extends HTMLForm
 			$sType = is_object($sType)
 				? get_class($sType)
 				: $sType;
-			//pre_print_r([$sType, is_array($fieldDesc)]);
+//			llog('renderFormRows', [
+//				'sType' => $sType,
+//				'is_array' => is_array($fieldDesc),
+//				'HTMLFormFieldInterface' => $fieldDesc instanceof HTMLFormFieldInterface,
+//			]);
 			if ($sType === 'HTMLFormTable') {
 				/** @var $subForm HTMLFormTable */
 				$subForm = $fieldDesc;
@@ -230,27 +237,14 @@ class HTMLFormTable extends HTMLForm
 				$this->stdout .= '<tr><td colspan="2">' .
 					$subForm->getBuffer() .
 					'</td></tr>' . "\n";
-			} elseif ($fieldDesc instanceof HTMLFormTypeInterface) {
-				// this is not so good idea because we miss all the surrounding
-				// information about the 'label', cell, formatting
-				// even unrelated to the rendering of the form field itself
-				$this->stdout .= '<tr class="' . $sType . '">';
-				$copy = clone $this;
-				$copy->stdout = '';
-				$fieldDesc->setField($fieldName);
-				$fieldDesc->setForm($copy);
-				//$fieldDesc->setValue();	// value is inside the object
-				$this->stdout .= $fieldDesc->render();
-				$this->stdout .= '</tr>' . "\n";
-			} elseif (is_array($fieldDesc)
-				|| $fieldDesc instanceof HTMLFormFieldInterface) {
+			} elseif ($fieldDesc instanceof HTMLFormFieldInterface || is_array($fieldDesc)) {
 				if (in_array($sType, ['hidden', 'hiddenArray'])) {
 					// hidden are shown without table cells
 					//debug(array($formData, $path, $fieldDesc));
 					$this->showCell($path, $fieldDesc);
 				} else {
 					//debug($prefix, $fieldDesc, $path);
-					$this->showTR($prefix, $fieldDesc, $path);
+					$this->showTR($path, $fieldDesc);
 				}
 			} else {
 				pre_print_r([
@@ -269,19 +263,19 @@ class HTMLFormTable extends HTMLForm
 	/**
 	 * @param array $prefix
 	 * @param array|HTMLFormTypeInterface $fieldDesc
-	 * @param       $path
+	 * @param array $path
 	 */
-	public function showTR(array $prefix, $fieldDesc, $path)
+	public function showTR(array $prefix, array|HTMLFormFieldInterface $fieldDesc)
 	{
-		//debug($fieldDesc);
+//		llog('showTR', $prefix);
 		if (!isset($fieldDesc['horisontal']) || !$fieldDesc['horisontal']) {
-			$this->stdout .= "<tr " . $this->getAttrHTML(isset($fieldDesc['TRmore']) ? $fieldDesc['TRmore'] : null) . ">";
+			$this->stdout .= "<tr " . self::getAttrHTML($fieldDesc['TRmore'] ?? null) . ">";
 		}
 
 		if (isset($fieldDesc['table'])) {
 			$this->stdout .= '<td class="table">';
 			$f2 = new HTMLFormTable($fieldDesc);
-			$f2->showForm($path, false);
+			$f2->showForm($prefix, false);
 			$this->stdout .= $f2->stdout;
 			$this->stdout .= "</td>";
 		}
@@ -290,9 +284,9 @@ class HTMLFormTable extends HTMLForm
 			$fieldDesc['append'] .= '</legend>' .
 				$this->getForm($fieldDesc['dependant'], $prefix, false) // $path
 				. '</fieldset>';
-			$this->showCell($path, $fieldDesc);
+			$this->showCell($prefix, $fieldDesc);
 		} else {
-			$this->showCell($path, $fieldDesc);
+			$this->showCell($prefix, $fieldDesc);
 		}
 
 		$this->stdout .= "</tr>\n";
@@ -335,13 +329,12 @@ class HTMLFormTable extends HTMLForm
 	}
 
 	/**
-	 * @param string $fieldName
+	 * @param array $fieldName
 	 * @param array|HTMLFormFieldInterface $desc
 	 */
-	public function showCell($fieldName, /*array*/ $desc)
+	public function showCell(array $fieldName, array|HTMLFormFieldInterface $desc)
 	{
-//		echo __METHOD__, ' ', json_encode($fieldName), BR;
-		//debug(array($fieldName, $desc));
+//		llog('showCell', $fieldName);
 		$desc['TDmore'] = (isset($desc['TDmore']) && is_array($desc['TDmore']))
 			? $desc['TDmore']
 			: [];
@@ -364,8 +357,8 @@ class HTMLFormTable extends HTMLForm
 		if (empty($desc['br']) && !$this->defaultBR) {
 			ifsetor($desc['TDmore'], ['class' => '']);    //set
 			$desc['TDmore']['class'] = ifsetor($desc['TDmore']['class'], '');
-			$desc['TDmore']['class'] = isset($desc['TDmore']['class']) ? $desc['TDmore']['class'] : '';
-			$desc['TDmore']['class'] = $desc['TDmore']['class'] . ' tdlabel';
+			$desc['TDmore']['class'] = $desc['TDmore']['class'] ?? '';
+			$desc['TDmore']['class'] .= ' tdlabel';
 		}
 		$this->stdout .= '<td ' . self::getAttrHTML($desc['TDmore'] + [
 					'class' => 'showCell'
@@ -417,15 +410,14 @@ class HTMLFormTable extends HTMLForm
 	}
 
 	/**
-	 * @param string $fieldName
+	 * @param array $fieldName
 	 * @param mixed $fieldValue
 	 * @param array|HTMLFormFieldInterface $descIn
 	 * @return HTMLFormField
 	 */
-	public function switchType($fieldName, $fieldValue, $descIn)
+	public function switchType(array $fieldName, $fieldValue, $descIn)
 	{
-//		debug($fieldName, $fieldValue, gettype2($descIn),
-//			$descIn instanceof HTMLFormFieldInterface);
+//		llog('switchType', $fieldName, $fieldValue, get_debug_type($descIn));
 		if ($descIn instanceof HTMLFormFieldInterface) {
 			$field = $descIn;
 			$field->setField($fieldName);
@@ -575,10 +567,10 @@ class HTMLFormTable extends HTMLForm
 			$descKey = is_array($descKey) ? $descKey : ['name' => $descKey];
 
 			// calc $val
-			if ($this->withValue) {
-				$desc[$key]['value'] = $val['value'];
+			if ($desc[$key] instanceof HTMLFormFieldInterface) {
+				$desc[$key]->setValue($this->withValue ? $val['value'] : $val);
 			} else {
-				$desc[$key]['value'] = $val;
+				$desc[$key]['value'] = $this->withValue ? $val['value'] : $val;
 			}
 
 			/** @var HTMLFormType|HTMLFormDatePicker $type */
@@ -628,9 +620,9 @@ class HTMLFormTable extends HTMLForm
 		$this->desc = $this->fillValues($this->desc, $assoc);
 	}
 
-	public function getSingle($fieldName, array $desc)
+	public function getSingle(array|string $fieldName, array $desc)
 	{
-		$field = $this->switchType($fieldName, ifsetor($desc['value']), $desc);
+		$field = $this->switchType(is_array($fieldName) ? $fieldName : [$fieldName], ifsetor($desc['value']), $desc);
 		return $field->getContent();
 	}
 
