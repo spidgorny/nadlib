@@ -438,10 +438,9 @@ class Menu /*extends Controller*/
 	{
 		$content = $this->renderLevelItems($items, $root, $level, $ulClass);
 		//debug($this->current);
-		$content = '<' . $this->menuTag .
+		return '<' . $this->menuTag .
 			' class="' . ($ulClass ?: $this->ulClass) . '">' . PHP_EOL .
 			$content . '</' . $this->menuTag . '>';
-		return $content;
 	}
 
 	/**

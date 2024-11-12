@@ -53,6 +53,11 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return new self('pre', $params, $content);
 	}
 
+	public static function tag(string $tag, array $attr, $content = null)
+	{
+		return new self($tag, $attr, $content);
+	}
+
 	public function render()
 	{
 		if (is_array($this->content) || $this->content instanceof MergedContent) {
@@ -61,7 +66,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 			$content = ($this->isHTML
 				|| $this->content instanceof HTMLTag
 				|| $this->content instanceof HtmlString)
-				? $this->content.''
+				? $this->content . ''
 				: htmlspecialchars($this->content ?? '', ENT_QUOTES);
 		}
 		$attribs = self::renderAttr($this->attr);
