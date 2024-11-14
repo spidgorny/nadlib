@@ -410,7 +410,7 @@ class Collection implements IteratorAggregate, ToStringable
 			$counter = new SQLCountQuery($cq);
 			$this->count = $counter->getCount();
 		}
-		llog(['$this->count', $this->count]);
+//		llog(['$this->count', $this->count]);
 		return (int)$this->count;
 	}
 
