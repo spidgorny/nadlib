@@ -215,7 +215,7 @@ abstract class FullGrid extends Grid
 			]
 		];
 		$f = new HTMLFormTable($desc);
-		$f->method('GET');
+		$f->method(HTMLForm::METHOD_GET);
 		$f->defaultBR = true;
 		$f->formHideArray($this->linker->linkVars);
 		$f->showForm();
