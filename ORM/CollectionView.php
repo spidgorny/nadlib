@@ -52,7 +52,7 @@ class CollectionView
 	public function renderMembers()
 	{
 		$content = [];
-		//debug(sizeof($this->members));
+//		llog(sizeof($this->collection->objectify()));
 		if ($this->collection->objectify()) {
 			/**
 			 * @var int $key
@@ -85,36 +85,31 @@ class CollectionView
 	 */
 	public function renderTable()
 	{
-		TaylorProfiler::start(__METHOD__ . " ({$this->collection->table})");
-		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '()');
 		$count = $this->collection->getCount();
-		if ($count) {
-			$this->prepareRender();
-			//debug($this->tableMore);
-			$s = $this->getDataTable();
-			if ($this->collection->pager) {
-				$pages = $this->collection->pager->renderPageSelectors();
-				$content[] = [$pages .
-					'<div class="collection"
-					 id="' . get_class($this->collection) . '">',
-					$s,  // not HTML, may need to process later
-					'</div>',
-					$pages];
-			} else {
-				$content[] = $s;
-			}
-			$content = $this->wrap($content);
-		} else {
-			$content = '<div class="message alert alert-warning">' . __($this->noDataMessage) . '</div>';
+		llog($this->collection->getQueryWithLimit() . '', $count);
+		if (!$count) {
+			return '<div class="message alert alert-warning">' . __($this->noDataMessage) . '</div>';
 		}
-		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '() done');
-		TaylorProfiler::stop(__METHOD__ . " ({$this->collection->table})");
-		return $content;
+
+		$this->prepareRender();
+		//debug($this->tableMore);
+		$s = $this->getDataTable();
+		if ($this->collection->pager) {
+			$pages = $this->collection->pager->renderPageSelectors();
+			$content[] = [$pages .
+				'<div class="collection"
+				 id="' . get_class($this->collection) . '">',
+				$s,  // not HTML, may need to process later
+				'</div>',
+				$pages];
+		} else {
+			$content[] = $s;
+		}
+		return $this->wrap($content);
 	}
 
 	public function prepareRender()
 	{
-		TaylorProfiler::start(__METHOD__ . " ({$this->collection->table})");
 		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '()');
 		$data = $this->collection->getProcessedData();
 		$count = $this->collection->getCount();
@@ -126,7 +121,6 @@ class CollectionView
 		$this->collection->setData($data);
 		$this->collection->count = $count;
 		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '() done');
-		TaylorProfiler::stop(__METHOD__ . " ({$this->collection->table})");
 	}
 
 	public function getDataTable()

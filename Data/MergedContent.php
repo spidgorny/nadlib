@@ -25,13 +25,13 @@ class MergedContent implements ArrayAccess
 	 * @param string|string[]|mixed $render
 	 * @return string
 	 */
-	public static function mergeStringArrayRecursive($render)
+	public static function mergeStringArrayRecursive($render): string
 	{
 		if (is_array($render) && empty($render)) {
 			return '';
 		}
 		if (!$render) {
-			return $render;
+			return $render . '';
 		}
 		if (is_string($render) || is_scalar($render)) {
 			return $render;

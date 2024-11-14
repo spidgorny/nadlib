@@ -395,10 +395,10 @@ class Collection implements IteratorAggregate, ToStringable
 	 */
 	public function getCount()
 	{
-		$this->log(get_class($this) . '::' . __FUNCTION__, ['original', $this->count]);
 //		$this->log('this->query', $this->query.'');
 //		$this->log('getQueryWithLimit', $this->getQueryWithLimit().'');
 		$queryIsTheSame = ($this->query . '') === ($this->getQueryWithLimit() . '');
+//		llog(['count before' => $this->count, '$queryIsTheSame' => $queryIsTheSame]);
 		if ($this->count !== null && $queryIsTheSame) {
 			return (int)$this->count;
 		}
@@ -410,7 +410,7 @@ class Collection implements IteratorAggregate, ToStringable
 			$counter = new SQLCountQuery($cq);
 			$this->count = $counter->getCount();
 		}
-		$this->log(get_class($this) . '::' . __FUNCTION__, ['exit', $this->count]);
+		llog(['$this->count', $this->count]);
 		return (int)$this->count;
 	}
 
