@@ -1,8 +1,7 @@
 <?php
 
-use PgSql\Result;
-
 use PgSql\Connection;
+use PgSql\Result;
 
 /**
  * Class dbLayer
@@ -17,7 +16,7 @@ class DBLayer extends DBLayerBase
 {
 
 	/**
-	 * @var Connection
+	 * @var Connection|resource
 	 */
 	public $connection = null;
 

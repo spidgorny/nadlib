@@ -363,7 +363,7 @@ abstract class OODBase implements ArrayAccess
 	 * @return array of the found record
 	 * @throws Exception
 	 */
-	public function findInDB(array $where = [], $orderByLimit = '', $selectPlus = null)
+	public function findInDB(array $where, $orderByLimit = '', $selectPlus = null)
 	{
 		$taylorKey = Debug::getBackLog(15, 0, BR, false);
 		if (!$this->db) {
