@@ -5,7 +5,7 @@ trait ArrayAccessData
 
 	public $data = [];
 
-	public function offsetExists($offset)
+	public function offsetExists(mixed $offset): bool
 	{
 		return isset($this->data[$offset]);
 	}
@@ -16,13 +16,13 @@ trait ArrayAccessData
 	 * @param mixed $offset
 	 * @return mixed
 	 */
-	public function &offsetGet($offset)
+	public function &offsetGet(mixed $offset): mixed
 	{
 		$ref = $this->data[$offset] ?? null;
 		return $ref;
 	}
 
-	public function offsetSet($offset, $value)
+	public function offsetSet(mixed $offset, mixed $value): void
 	{
 		if (is_null($offset)) {
 			$this->data[] = $value;
@@ -31,7 +31,7 @@ trait ArrayAccessData
 		}
 	}
 
-	public function offsetUnset($offset)
+	public function offsetUnset(mixed $offset): void
 	{
 		unset($this->data[$offset]);
 	}

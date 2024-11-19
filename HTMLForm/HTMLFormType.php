@@ -16,7 +16,7 @@ abstract class HTMLFormType implements HTMLFormFieldInterface
 	/**
 	 * @var array
 	 */
-	public $field;
+	public $field = [];
 
 	/**
 	 * @var string like prefix[p2][asd]
@@ -41,12 +41,12 @@ abstract class HTMLFormType implements HTMLFormFieldInterface
 //	}
 
 	/**
-	 * @param $field
+	 * @param $fieldName
 	 * @return mixed|void
 	 */
-	public function setField($field)
+	public function setField($fieldName)
 	{
-		$this->field = $field;
+		$this->field = $fieldName;
 	}
 
 	public function setForm(HTMLForm $f)

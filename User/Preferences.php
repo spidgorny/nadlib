@@ -4,7 +4,7 @@ class Preferences
 {
 
 	/**
-	 * @var LoginUser|NoUser
+	 * @var UserModelInterface|NoUser
 	 */
 	protected $user;
 

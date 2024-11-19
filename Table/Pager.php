@@ -264,11 +264,6 @@ class Pager
 		TaylorProfiler::stop($key);
 	}
 
-	public function getPageSize()
-	{
-		return $this->itemsPerPage;
-	}
-
 	/**
 	 * @param $query
 	 * @return string|SQLSelectQuery
@@ -446,6 +441,11 @@ class Pager
 		return $pages;
 	}
 
+	public function getPageSize()
+	{
+		return $this->itemsPerPage;
+	}
+
 	public function getSinglePageLink($k, $text)
 	{
 		$link = $this->url->setParam('Pager_' . $this->prefix, [
@@ -551,7 +551,7 @@ class Pager
 		return $content;
 	}
 
-	public function setIterator(Iterator $iterator)
+	public function setIterator(Iterator|Countable $iterator)
 	{
 		$this->log[] = __METHOD__;
 		$this->iterator = $iterator;
@@ -572,7 +572,7 @@ class Pager
 			ifsetor($_REQUEST['Pager_' . $this->prefix])
 		);
 //		debug($pagerData);
-		$this->log[] = __METHOD__ . ': ' . json_encode($pagerData);
+		$this->log[] = __METHOD__ . ': ' . json_encode($pagerData, JSON_THROW_ON_ERROR);
 		if ($pagerData) {
 			// when typing page number in [input] box
 			if ($this->request->isPOST() && ifsetor($pagerData['decrement'])) {

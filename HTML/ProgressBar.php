@@ -232,11 +232,11 @@ class ProgressBar
 		return $percent;
 	}
 
-	public function setProgressBarProgress($percentDone, $text = '', $after = '')
+	public function setProgressBarProgress($percentDone, $text = '', $after = '', $cssStyles = '', $appendImageParams = '')
 	{
-		return new HtmlString('<div style="' . $css . '">' .
-			number_format($p, 2) . '&nbsp;%&nbsp;
-			' . self::getImage($p, $append) . '
+		return new HtmlString('<div style="' . $cssStyles . '">' .
+			number_format($percentDone, 2) . '&nbsp;%&nbsp;
+			' . self::getImage($percentDone, $appendImageParams) . '
 		</div>');
 	}
 

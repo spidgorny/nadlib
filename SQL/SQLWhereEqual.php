@@ -9,7 +9,7 @@ class SQLWhereEqual extends SQLWherePart
 
 	/**
 	 * $this->field is inherited
-	 * @var
+	 * @var mixed
 	 */
 	protected $val;
 
@@ -18,6 +18,11 @@ class SQLWhereEqual extends SQLWherePart
 		parent::__construct();
 		$this->field = $field;
 		$this->val = $val;
+	}
+
+	public function debug()
+	{
+		return $this->__toString();
 	}
 
 	public function __toString()
@@ -99,7 +104,7 @@ class SQLWhereEqual extends SQLWherePart
 			$set[] = "$key IS NOT NULL";
 		} elseif (in_array($key[strlen($key) - 1], ['>', '<'])
 			|| in_array(substr($key, -2), ['!=', '<=', '>=', '<>'])) {
-			list($key, $sign) = explode(' ', $key); // need to quote separately
+			[$key, $sign] = explode(' ', $key); // need to quote separately
 			// TODO: quoteKey was done already?
 			$key = $this->db->quoteKey($key);
 			$set[] = "$key $sign '$val'";
@@ -131,11 +136,6 @@ class SQLWhereEqual extends SQLWherePart
 			$set[] = "$key = $val";
 		}
 		return first($set);
-	}
-
-	public function debug()
-	{
-		return $this->__toString();
 	}
 
 	public function injectField($field)

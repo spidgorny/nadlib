@@ -49,7 +49,7 @@ abstract class HTMLFormProcessor extends AppControllerBE
 		parent::__construct();
 		$this->prefix = get_class($this);
 		$this->default = $default ?: $this->default;
-		assert($this->submitButton != '');
+		assert($this->submitButton !== '');
 		$this->submitButton = strip_tags(__($this->submitButton));
 		$this->submitted = $this->request->is_set($this->prefix);
 		//debug($this->prefix, $this->request->is_set($this->prefix));

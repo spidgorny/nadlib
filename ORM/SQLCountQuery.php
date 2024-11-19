@@ -10,9 +10,20 @@ class SQLCountQuery
 
 	protected $db;
 
-	public function __construct(CollectionQuery $cq)
+	public function __construct(CollectionQuery $cq, DBInterface $db = null)
 	{
 		$this->cq = $cq;
+		$this->db = $db;
+	}
+
+	public function __toString()
+	{
+		$query = new SQLSelectQuery($this->db,
+			new SQLSelect('count(*) AS count'),
+			$this->cq->getQueryWithLimit()
+		);
+
+		return $query . '';
 	}
 
 	public function getCount()

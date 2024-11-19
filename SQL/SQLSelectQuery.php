@@ -278,6 +278,17 @@ class SQLSelectQuery extends SQLWherePart
 		}
 	}
 
+	public static function trim($sql)
+	{
+		$sql = str_replace("\r", ' ', $sql);
+		$sql = str_replace("\n", ' ', $sql);
+		$sql = str_replace("\t", ' ', $sql);
+		$sql = preg_replace('/ +/', ' ', $sql);
+		$sql = trim($sql);
+//		echo $sql, BR;
+		return $sql;
+	}
+
 	/**
 	 * @return string
 	 */
@@ -292,9 +303,7 @@ FROM {$this->from}
 {$this->having}
 {$this->order}
 {$this->limit}");
-		// http://stackoverflow.com/a/709684
-		$query = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $query);
-		//		debug($this->where, $query, $this->getParameters());
+		$query = SQLSelectQuery::trim($query);
 		return $query;
 	}
 

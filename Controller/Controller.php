@@ -49,7 +49,7 @@ abstract class Controller extends SimpleController
 
 	/**
 	 * @var bool
-	 * @use $this->preventDefault() to set
+	 * use $this->preventDefault() to set
 	 * Check manually in render()
 	 */
 	public $noRender = false;
@@ -82,7 +82,7 @@ abstract class Controller extends SimpleController
 	/**
 	 * Used by Collection to get the current sorting method.
 	 * Ugly, please reprogram.
-	 * @var
+	 * @var string
 	 */
 	public $sortBy;
 
@@ -190,8 +190,6 @@ abstract class Controller extends SimpleController
 		}
 		$more['class'] = ifsetor($more['class'], 'padding clearfix');
 		$more['class'] .= ' ' . get_class($this);
-		//debug_pre_print_backtrace();
-		//$more['style'] = "position: relative;";	// project specific
 		return new HTMLTag('section', $more, $content, true);
 	}
 
@@ -249,21 +247,12 @@ abstract class Controller extends SimpleController
 	 */
 	public function inColumns()
 	{
-		$elements = func_get_args();
-		return call_user_func_array([__CLASS__, 'inColumnsHTML5'], $elements);
-		/*		$content = '';
-				foreach ($elements as $html) {
-					$html = $this->s($html);
-					$content .= '<div style="float: left;">'.$html.'</div>';
-				}
-				$content = $content.'<div style="clear: both"></div>';
-				return $content;*/
+		return call_user_func_array([__CLASS__, 'inColumnsHTML5'], func_get_args());
 	}
 
-	public function inColumnsHTML5()
+	public function inColumnsHTML5(...$elements)
 	{
 		$this->index->addCSS(AutoLoad::getInstance()->nadlibFromDocRoot . 'CSS/display-box.css');
-		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
 			$html = $this->s($html);
@@ -279,10 +268,9 @@ abstract class Controller extends SimpleController
 	//function getMenuSuffix() {
 	//	return '';
 	//}
-	public function inEqualColumnsHTML5()
+	public function inEqualColumnsHTML5(...$elements)
 	{
 		$this->index->addCSS(AutoLoad::getInstance()->nadlibFromDocRoot . 'CSS/display-box.css');
-		$elements = func_get_args();
 		$content = '';
 		foreach ($elements as $html) {
 			$html = $this->s($html);

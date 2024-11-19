@@ -439,60 +439,6 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
-	 * Returns the character at index $index, counting from zero.
-	 * If the index doesn't exists, returns null.
-	 * @param int $index character index, counting from zero.
-	 * @return String
-	 */
-	public function charAt($index)
-	{
-		return $this->substring($index, 1);
-	}
-
-	/**
-	 * Compares this string to the provided string.
-	 * Returns positive number if this string is greater than $string,
-	 * negative number if this string is less than $string,
-	 * and 0 in case the strings are equal.
-	 * This method is case-sensitive. See also {@link compareToIgnoreCase()}
-	 * @param string
-	 * @param int $characters upper limit of characters to use in comparison (default null)
-	 * @return int
-	 */
-	public function compareTo($string, $characters = null)
-	{
-		if ($characters === null) {
-			return strcmp($this->_string, (string)$string);
-		}
-		return strncmp($this->_string, (string)$string, (int)$characters);
-	}
-
-	/**
-	 * Similar to {@link compareTo()}, but case-insensitive.
-	 * @param string $string
-	 * @param int $characters upper limit of characters to use in comparison (default null)
-	 * @return int
-	 */
-	public function compareToIgnoreCase($string, $characters = null)
-	{
-		if ($characters === null) {
-			return strncasecmp($this->_string, (string)$string, 999999);
-		}
-		return strncasecmp($this->_string, (string)$string, (int)$characters);
-	}
-
-	/**
-	 * Concats a string and returns the new one.
-	 * Actually, it is the same as the dot operator.
-	 * @param string $string
-	 * @return String
-	 */
-	public function concat($string)
-	{
-		return new self($this->_string . (string)$string);
-	}
-
-	/**
 	 * Checks if the string contains a substring.
 	 * @param string $substr
 	 * @return bool true if the string contains $substr
@@ -551,6 +497,17 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
+	 * Returns the character at index $index, counting from zero.
+	 * If the index doesn't exists, returns null.
+	 * @param int $index character index, counting from zero.
+	 * @return String
+	 */
+	public function charAt($index)
+	{
+		return $this->substring($index, 1);
+	}
+
+	/**
 	 * Returns part of the string.
 	 * @param int $start
 	 * @param int $length
@@ -579,11 +536,6 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	{
 		$substr = new self($substr);
 		return ($this->lastIndexOf($substr) === $this->getLength() - $substr->getLength());
-	}
-
-	public function length(): int
-	{
-		return count($this->_string);
 	}
 
 	/**
@@ -615,6 +567,20 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	public function equalsIgnoreCase($string)
 	{
 		return ($this->compareToIgnoreCase($string) === 0);
+	}
+
+	/**
+	 * Similar to {@link compareTo()}, but case-insensitive.
+	 * @param string $string
+	 * @param int $characters upper limit of characters to use in comparison (default null)
+	 * @return int
+	 */
+	public function compareToIgnoreCase($string, $characters = null)
+	{
+		if ($characters === null) {
+			return strncasecmp($this->_string, (string)$string, 999999);
+		}
+		return strncasecmp($this->_string, (string)$string, (int)$characters);
 	}
 
 	public function insert($offset, $string)
@@ -667,7 +633,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * Removes characters from both parts of the string.
 	 * If $charlist is not provided, the default is to remove spaces.
 	 * @param string $charlist characters to remove (default space characters)
-	 * @return String
+	 * @return StringPlus
 	 */
 	public function trim($charlist = null)
 	{
@@ -727,6 +693,24 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
+	 * Compares this string to the provided string.
+	 * Returns positive number if this string is greater than $string,
+	 * negative number if this string is less than $string,
+	 * and 0 in case the strings are equal.
+	 * This method is case-sensitive. See also {@link compareToIgnoreCase()}
+	 * @param string
+	 * @param int $characters upper limit of characters to use in comparison (default null)
+	 * @return int
+	 */
+	public function compareTo($string, $characters = null)
+	{
+		if ($characters === null) {
+			return strcmp($this->_string, (string)$string);
+		}
+		return strncmp($this->_string, (string)$string, (int)$characters);
+	}
+
+	/**
 	 * Revereses a string.
 	 * @return String
 	 */
@@ -759,7 +743,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * echo $string->toLowerCase(); // prints: abc
 	 * ?>
 	 * </code>
-	 * @return String
+	 * @return StringPlus
 	 */
 	public function toLowerCase()
 	{
@@ -814,7 +798,6 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	{
 		return $this->_index;
 	}
-
 
 	/**
 	 * Returns the leftmost $length characters of a string.
@@ -1146,6 +1129,17 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
+	 * Concats a string and returns the new one.
+	 * Actually, it is the same as the dot operator.
+	 * @param string $string
+	 * @return String
+	 */
+	public function concat($string)
+	{
+		return new self($this->_string . (string)$string);
+	}
+
+	/**
 	 * Gets the substring before the last occurrence of a separator.
 	 * If no match is found returns null.
 	 * @param String $separator
@@ -1201,6 +1195,11 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 			return null;
 		}
 		return $this->substring($posLeft, $posRight - $posLeft);
+	}
+
+	public function length(): int
+	{
+		return count($this->_string);
 	}
 
 	/**
@@ -1371,7 +1370,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 
 	public function mb_ord()
 	{
-		list(, $ord) = unpack('N', mb_convert_encoding($this->_string, 'UCS-4BE', 'UTF-8'));
+		[, $ord] = unpack('N', mb_convert_encoding($this->_string, 'UCS-4BE', 'UTF-8'));
 		return $ord;
 	}
 

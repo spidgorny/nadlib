@@ -1,6 +1,6 @@
 <?php
 
-class HTMLFormDatePicker extends HTMLFormType implements HTMLFormTypeInterface
+class HTMLFormDatePicker extends HTMLFormField
 {
 	/**
 	 * PHP Format
@@ -25,6 +25,7 @@ class HTMLFormDatePicker extends HTMLFormType implements HTMLFormTypeInterface
 	 */
 	public function __construct()
 	{
+		parent::__construct([]);
 		$index = Index::getInstance();
 		$index->addJQueryUI();    // for the picker
 		$index->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . 'js/HTMLFormDatePicker.js');
@@ -37,7 +38,7 @@ class HTMLFormDatePicker extends HTMLFormType implements HTMLFormTypeInterface
 //
 //		echo __METHOD__, BR;
 		//debug($this->field, $this->value);
-		if ($this->value && $this->value != '0000-00-00') {
+		if ($this->value && $this->value !== '0000-00-00') {
 			if (is_integer($this->value) || is_numeric($this->value)) {
 				$val = date($this->format, $this->value);
 			} else {
@@ -50,7 +51,7 @@ class HTMLFormDatePicker extends HTMLFormType implements HTMLFormTypeInterface
 		$this->form->input($this->field, $val, [
 				'format' => $this->jsFormat
 			] + $this->jsParams,
-			$this->inputType, ifsetor($this->desc['class']) . ' datepicker');
+			$this->inputType, ifsetor($this->desc['class']));
 
 		$this->content = $this->form->stdout;
 		$this->form->stdout = $tmp;

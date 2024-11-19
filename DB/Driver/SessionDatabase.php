@@ -22,6 +22,7 @@ use SQLWhere;
  * @method  getUpdateQuery($table, array $set, array $where)
  * @method  runDeleteQuery($table, array $where)
  * @phpstan-consistent-constructor
+ * @method  runInsertUpdateQuery($table, array $fields, array $where, array $insert = [])
  */
 class SessionDatabase implements DBInterface
 {
@@ -306,5 +307,10 @@ class SessionDatabase implements DBInterface
 	public function __call($name, $arguments)
 	{
 		// TODO: Implement @method  runDeleteQuery($table, array $where)
+	}
+
+	public function getPlaceholder($field)
+	{
+		// TODO: Implement getPlaceholder() method.
 	}
 }

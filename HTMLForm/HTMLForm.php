@@ -70,8 +70,8 @@ class HTMLForm implements ToStringable
 					});
 				};
 				function setDropSelectValue(id, name) {
-					$("' . $fieldName . '").value = id;
-					$("' . $fieldName . '_name").value = name;
+					jQuery("' . $fieldName . '").value = id;
+					jQuery("' . $fieldName . '_name").value = name;
 				}
 			</script>';
 
@@ -128,8 +128,7 @@ class HTMLForm implements ToStringable
 			$attrs['value'] = $value;
 		}
 		$attrs += $more;
-		$a = "<input " . $this->getAttrHTML($attrs) . " />\n";
-		return $a;
+		return "<input " . $this->getAttrHTML($attrs) . " />\n";
 	}
 
 	public function getName($name, $namePlus = '', $onlyValue = false)
@@ -162,9 +161,9 @@ class HTMLForm implements ToStringable
 	{
 		if ($attr) {
 			return HTMLTag::renderAttr($attr);
-		} else {
-			return '';
 		}
+
+		return '';
 	}
 
 	public function action($action)
@@ -344,9 +343,9 @@ class HTMLForm implements ToStringable
 	{
 		if ($label instanceof HtmlString) {
 			return $label;
-		} else {
-			return htmlspecialchars($label, ENT_QUOTES);
 		}
+
+		return htmlspecialchars($label, ENT_QUOTES);
 	}
 
 	public function file($name, array $desc = [])

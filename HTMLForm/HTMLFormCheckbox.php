@@ -1,12 +1,13 @@
 <?php
 
-class HTMLFormCheckbox extends HTMLFormType implements HTMLFormTypeInterface
+class HTMLFormCheckbox extends HTMLFormField
 {
 
 	public $checked;
 
 	public function __construct($name, $checked, array $more = [])
 	{
+		parent::__construct($more, $name);
 		$this->field = $name;
 		$this->checked = $checked;
 		$this->desc = $more;

@@ -3,6 +3,7 @@
 /**
  * @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
  * @method  runDeleteQuery($table, array $where)
+ * @method  runInsertUpdateQuery($table, array $fields, array $where, array $insert = [])
  */
 class DBLayerJSONTable extends DBLayerBase implements DBInterface
 {
@@ -130,5 +131,10 @@ class DBLayerJSONTable extends DBLayerBase implements DBInterface
 	{
 		// TODO: Implement @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
 		// TODO: Implement @method  runDeleteQuery($table, array $where)
+	}
+
+	public function getPlaceholder($field)
+	{
+		// TODO: Implement getPlaceholder() method.
 	}
 }

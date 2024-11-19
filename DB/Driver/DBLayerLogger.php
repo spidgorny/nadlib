@@ -6,6 +6,7 @@
  * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
  * @method  getSelectQuery(string $table, array $where = [], $order = '', $addSelect = '')
  * @method  runDeleteQuery($table, array $where)
+ * @method  runInsertUpdateQuery($table, array $fields, array $where, array $insert = [])
  */
 class DBLayerLogger extends DBLayerBase implements DBInterface
 {
@@ -165,5 +166,10 @@ class DBLayerLogger extends DBLayerBase implements DBInterface
 	public function getVersion()
 	{
 		// TODO: Implement getVersion() method.
+	}
+
+	public function getPlaceholder($field)
+	{
+		// TODO: Implement getPlaceholder() method.
 	}
 }

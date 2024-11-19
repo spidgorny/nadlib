@@ -1,19 +1,20 @@
 <?php
 
-class HTMLSubmit implements HTMLFormFieldInterface
+class HTMLSubmit extends HTMLFormField
 {
 
-	protected $value;
+	public $value;
 
 	protected $params = [];
 
 	/** @var HTMLForm */
-	protected $form;
+	public $form;
 
-	protected $field;
+	public $field;
 
 	public function __construct($value = '', array $params = [])
 	{
+		parent::__construct($params);
 		$this->value = $value;
 		$this->params = $params;
 		$this->field = ifsetor($params['name'], 'btnSubmit');
@@ -38,12 +39,12 @@ class HTMLSubmit implements HTMLFormFieldInterface
 
 	/**
 	 * Whet's the key name
-	 * @param $field
+	 * @param $fieldName
 	 * @return mixed
 	 */
-	public function setField($field)
+	public function setField($fieldName)
 	{
-		$this->field = $field;
+		$this->field = $fieldName;
 	}
 
 	/**

@@ -21,20 +21,20 @@ trait JsonController
 	 */
 	public function validateAuthorization(array $registeredApps)
 	{
-		list($actionClass) = $this->getActionAndArguments();
+		[$actionClass] = $this->getActionAndArguments();
 		$obj = new $actionClass();
 		if ($obj::$publicAPI) {
 			return;
 		}
 
-		$headers = $this->request->getHeaders();
+//		$headers = $this->request->getHeaders();
 //		llog('apache_headers in JsonController for', get_class($this), $headers);
 
 		$authorization = $this->request->getHeader('Authorization');
 //		llog($authorization);
 		//debug($headers, $authorization);
-		invariant($authorization, 'No Authorization Header', 401);
-		if (!in_array($authorization, $registeredApps)) {
+		invariant($authorization, new AccessDeniedException('No Authorization Header', 401));
+		if (!in_array($authorization, $registeredApps, true)) {
 			throw new LoginException('Authorization failed.', 401);
 		}
 	}
@@ -90,7 +90,7 @@ trait JsonController
 
 	public function __invoke()
 	{
-		list($request, $arguments) = $this->getActionAndArguments();
+		[$request, $arguments] = $this->getActionAndArguments();
 		return call_user_func_array([$this, $request], $arguments);
 	}
 

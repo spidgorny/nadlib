@@ -62,4 +62,14 @@ class CLIUser implements UserModelInterface
 	{
 		// TODO: Implement getGroup() method.
 	}
+
+	public function getGravatarURL($size = 32)
+	{
+		// TODO: Implement getGravatarURL() method.
+	}
+
+	public function updatePassword($newPassword)
+	{
+		// TODO: Implement updatePassword() method.
+	}
 }

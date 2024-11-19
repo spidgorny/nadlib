@@ -37,6 +37,8 @@ class Model
 	public $lastInsertQuery;
 	public $lastUpdateQuery;
 
+	protected static $instances = [];
+
 	/**
 	 * Not caching.
 	 * @param array $data
@@ -61,8 +63,12 @@ class Model
 	 */
 	public static function getInstanceByID(DBInterface $db, $id)
 	{
+		if (self::$instances[$id]) {
+			return self::$instances[$id];
+		};
 		$obj = new static($db, []);
 		$obj->getByID($id);
+		self::$instances[$id] = $obj;
 		return $obj;
 	}
 

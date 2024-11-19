@@ -91,7 +91,8 @@ class slTable implements ToStringable
 	public $isOddEven = true;
 
 	/**
-	 * @var array <tr $thesMore>
+	 * <tr $thesMore>
+	 * @var array
 	 */
 	public $thesMore = [];
 
@@ -108,7 +109,9 @@ class slTable implements ToStringable
 	public $arrowDesc = '<img src="img/arrow_down.gif" align="absmiddle" />';
 
 	public $arrowAsc = '<img src="img/arrow_up.gif" align="absmiddle" />';
+
 	public $isCLI = false;
+
 	/**
 	 * @var Request
 	 */
@@ -194,8 +197,8 @@ class slTable implements ToStringable
 			if ($thes) {
 				$thes = array_combine($thes, $thes);
 				foreach ($thes as $i => &$th) {
-					if (is_string($i)&& (!strlen($i)
-						|| (strlen($i) && $i[strlen($i) - 1] !== '.'))
+					if (is_string($i) && (!strlen($i)
+							|| (strlen($i) && $i[strlen($i) - 1] !== '.'))
 					) {
 						$th = ['name' => $th];
 					} else {
@@ -368,8 +371,8 @@ class slTable implements ToStringable
 
 			$t = $this->generation;
 			$t->table([
-				'id' => $this->ID,
-			] + $this->more);
+					'id' => $this->ID,
+				] + $this->more);
 
 			$this->generateThead();
 			$this->generation->text('<tbody>');
@@ -457,54 +460,52 @@ class slTable implements ToStringable
 
 		$thes2 = [];
 		$thMore = [];
-		if (is_array($thes)) {
-			foreach ($thes as $thk => $thv) {
-				if (!is_array($thv)) {
-					$thv = ['name' => $thv];
-				}
-				$thvName = $thv['name'] ?? ($thv['label'] ?? null);
-				$thMore[$thk] = $thv['thmore'] ?? ($thv['more'] ?? null);
+		foreach ($thes as $thk => $thv) {
+			if (!is_array($thv)) {
+				$thv = ['name' => $thv];
+			}
+			$thvName = $thv['name'] ?? ($thv['label'] ?? null);
+			$thMore[$thk] = $thv['thmore'] ?? ($thv['more'] ?? null);
 
-				// gives <tr with properties from column keys>
-				// this is problematic as it will create html props for all column params
+			// gives <tr with properties from column keys>
+			// this is problematic as it will create html props for all column params
 //				$this->thesMore[HTMLTag::key($thk)] = ifsetor($thv['thmore']);
 
-				if (!is_array($thMore)) {
-					$thMore = ['' => $thMore];
-				}
-				if (isset($thv['align']) && $thv['align']) {
-					$thMore[$thk]['style'] = ifsetor($thMore[$thk]['style'])
-						. '; text-align: ' . $thv['align'];
-				}
-				if ($this->sortable) {
-					if (
-						((isset($thv['dbField'])
-								&& $thv['dbField']
-							) || !isset($thv['dbField']))
-						&& ifsetor($thv['sortable']) !== false
-					) {
-						$sortField = ifsetor($thv['dbField'], $thk);    // set to null - don't sort
-						$sortOrder = $this->sortBy === $sortField
-							? !$this->sortOrder
-							: $this->sortOrder;
-						$link = $this->sortLinkPrefix->forceParams([
-							$this->prefix => [
-								'sortBy' => $sortField,
-								'sortOrder' => $sortOrder,
-							],
-						]);
-						$thes2[$thk] = new HtmlString('<a href="' . $link . '">' . $thvName . '</a>');
-					} else {
-						$thes2[$thk] = $thvName;
-					}
+			if (!is_array($thMore)) {
+				$thMore = ['' => $thMore];
+			}
+			if (isset($thv['align']) && $thv['align']) {
+				$thMore[$thk]['style'] = ifsetor($thMore[$thk]['style'])
+					. '; text-align: ' . $thv['align'];
+			}
+			if ($this->sortable) {
+				if (
+					((isset($thv['dbField'])
+							&& $thv['dbField']
+						) || !isset($thv['dbField']))
+					&& ifsetor($thv['sortable']) !== false
+				) {
+					$sortField = ifsetor($thv['dbField'], $thk);    // set to null - don't sort
+					$sortOrder = $this->sortBy === $sortField
+						? !$this->sortOrder
+						: $this->sortOrder;
+					$link = $this->sortLinkPrefix->forceParams([
+						$this->prefix => [
+							'sortBy' => $sortField,
+							'sortOrder' => $sortOrder,
+						],
+					]);
+					$thes2[$thk] = new HtmlString('<a href="' . $link . '">' . $thvName . '</a>');
 				} else {
-					if (is_array($thv) && isset($thv['clickSort']) && $thv['clickSort']) {
-						$link = URL::getCurrent();
-						$link->setParam($thv['clickSort'], $thk);
-						$thvName = new HtmlString('<a href="' . $link . '">' . $thvName . '</a>');
-					}
 					$thes2[$thk] = $thvName;
 				}
+			} else {
+				if (is_array($thv) && isset($thv['clickSort']) && $thv['clickSort']) {
+					$link = URL::getCurrent();
+					$link->setParam($thv['clickSort'], $thk);
+					$thvName = new HtmlString('<a href="' . $link . '">' . $thvName . '</a>');
+				}
+				$thes2[$thk] = $thvName;
 			}
 		}
 
@@ -773,7 +774,7 @@ class slTable implements ToStringable
 	 *
 	 * @return array
 	 */
-	public function getTotals()
+	public function getTotals($isRecursive = false)
 	{
 		$footer = [];
 		$this->generateThes();
@@ -784,7 +785,7 @@ class slTable implements ToStringable
 			foreach ($this->thes as $col => $_) {
 				$first[$col] = strip_tags($first[$col]);
 				if ($this->is_time($first[$col])) {
-					$footer[$col] = $this->getColumnTotalTime($this->data, $col);
+					$footer[$col] = $this->getColumnTotalTime($this->data, $col, $isRecursive);
 				} else {//if (floatval($first[$col])) {
 					$footer[$col] = 0;
 					foreach ($this->data as $row) {
@@ -811,14 +812,14 @@ class slTable implements ToStringable
 			&& strlen($parts[1]) == 2);
 	}
 
-	protected function getColumnTotalTime($data, $col)
+	protected function getColumnTotalTime(array $data, $col, $isRecursive = false, $showNumericKeys = false)
 	{
-		foreach ($assoc as $key => &$val) {
+		foreach ($data as $key => &$val) {
 			if ($isRecursive && (is_array($val) || is_object($val))) {
 				if (is_object($val)) {
 					$val = get_object_vars($val);
 				}
-				$val = slTable::showAssoc($val, $isRecursive, $showNumericKeys, $no_hsc);
+				$val = slTable::showAssoc($val, $isRecursive, $showNumericKeys);
 				$val = new HtmlString($val);    // to prevent hsc later
 			}
 			if (!$showNumericKeys && is_numeric($key)) {
@@ -833,20 +834,15 @@ class slTable implements ToStringable
 				//throw new InvalidArgumentException('slTable array instead of scalar');
 				//return '['.implode(', ', $val).']';
 			} else {
-				if (!$no_hsc) {
-					if (is_object($val)) {
-						$val = '[' . get_class($val) . ']';
-					} elseif (mb_strpos($val, "\n") !== false) {
-						$val = htmlspecialchars($val);
-						$val = new HtmlString('<pre style="white-space: pre-wrap;">' . htmlspecialchars($val) . '</pre>');
-					} else {
-						$val = htmlspecialchars($val, ENT_NOQUOTES);
-					}
-					$no_hsc = true;
+				if (is_object($val)) {
+					$val = '[' . get_class($val) . ']';
+				} elseif (mb_strpos($val, "\n") !== false) {
+					$val = htmlspecialchars($val);
+					$val = new HtmlString('<pre style="white-space: pre-wrap;">' . htmlspecialchars($val) . '</pre>');
 				} else {
-					// will be done by slTable
-					//$val = htmlspecialchars($val);
+					$val = htmlspecialchars($val, ENT_NOQUOTES);
 				}
+				$no_hsc = true;
 			}
 
 			$val = [
@@ -855,9 +851,9 @@ class slTable implements ToStringable
 				'' => $val,
 			];
 		}
-		$s = new self($assoc, 'class="visual nospacing table table-striped"', [
+		$s = new self($data, 'class="visual nospacing table table-striped"', [
 			0 => '',
-			'' => ['no_hsc' => $no_hsc],
+			'' => ['no_hsc' => true],
 		]);
 		return $s;
 	}

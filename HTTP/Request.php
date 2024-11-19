@@ -191,7 +191,7 @@ class Request
 		$docRoot = self::getDocRoot();
 //		llog($docRoot.'');
 		$host = self::getHost($isUTF8);
-		$url = Request::getRequestType() . '://' . $host . $docRoot;
+		$url = self::getRequestType() . '://' . $host . $docRoot;
 		return new URL($url);
 	}
 
@@ -235,16 +235,16 @@ class Request
 		$HTTP_X_FORWARDED_SSL = ifsetor($_SERVER['HTTP_X_FORWARDED_SSL']);
 		$HTTP_X_FORWARDED_PROTO = ifsetor($_SERVER['HTTP_X_FORWARDED_PROTO']);
 		$HTTP_X_FORWARDED_BY = ifsetor($_SERVER['HTTP_X_FORWARDED_BY']);
-		$HTTP_X_FORWARDED_SERVER = ifsetor($_SERVER['HTTP_X_FORWARDED_SERVER']);
-		return ((($HTTPS) && (strtolower($HTTPS) == 'on' || $HTTPS == '1'))) ||
-		(($HTTP_X_FORWARDED_BY) && strpos(strtoupper($HTTP_X_FORWARDED_BY), 'SSL') !== false) ||
-		(($HTTP_X_FORWARDED_HOST) && (strpos(strtoupper($HTTP_X_FORWARDED_HOST), 'SSL') !== false)) ||
-		(($HTTP_X_FORWARDED_HOST && $HTTPS_SERVER) && (strpos(strtoupper($HTTP_X_FORWARDED_HOST), str_replace('https://', '', $HTTPS_SERVER)) !== false)) ||
-		(isset($_SERVER['SCRIPT_URI']) && strtolower(substr($_SERVER['SCRIPT_URI'], 0, 6)) == 'https:') ||
-		(($HTTP_X_FORWARDED_SSL) && ($HTTP_X_FORWARDED_SSL == '1' || strtolower($HTTP_X_FORWARDED_SSL) == 'on')) ||
-		(($HTTP_X_FORWARDED_PROTO) && (strtolower($HTTP_X_FORWARDED_PROTO) == 'ssl' || strtolower($HTTP_X_FORWARDED_PROTO) == 'https')) ||
-		(isset($_SERVER['HTTP_SSLSESSIONID']) && $_SERVER['HTTP_SSLSESSIONID'] != '') ||
-		(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443') ||
+		$HTTP_X_FORWARDED_SERVER = ifsetor($_SERVER['HTTP_X_FORWARDED_SERVER'], '');
+		return ((($HTTPS) && (strtolower($HTTPS) === 'on' || $HTTPS === '1'))) ||
+		(($HTTP_X_FORWARDED_BY) && str_contains(strtoupper($HTTP_X_FORWARDED_BY), 'SSL')) ||
+		(($HTTP_X_FORWARDED_HOST) && (str_contains(strtoupper($HTTP_X_FORWARDED_HOST), 'SSL'))) ||
+		(($HTTP_X_FORWARDED_HOST && $HTTPS_SERVER) && (str_contains(strtoupper($HTTP_X_FORWARDED_HOST), str_replace('https://', '', $HTTPS_SERVER)))) ||
+		(isset($_SERVER['SCRIPT_URI']) && stripos($_SERVER['SCRIPT_URI'], 'https:') === 0) ||
+		(($HTTP_X_FORWARDED_SSL) && ($HTTP_X_FORWARDED_SSL === '1' || strtolower($HTTP_X_FORWARDED_SSL) === 'on')) ||
+		(($HTTP_X_FORWARDED_PROTO) && (strtolower($HTTP_X_FORWARDED_PROTO) === 'ssl' || strtolower($HTTP_X_FORWARDED_PROTO) === 'https')) ||
+		(isset($_SERVER['HTTP_SSLSESSIONID']) && $_SERVER['HTTP_SSLSESSIONID'] !== '') ||
+		(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] === '443') ||
 		ifsetor($_SERVER['FAKE_HTTPS'])
 		|| (str_startsWith($HTTP_X_FORWARDED_SERVER, 'sslproxy'))    // BlueMix
 			? 'https' : 'http';
@@ -259,7 +259,7 @@ class Request
 
 	public static function removeCookiesFromRequest()
 	{
-		if (false !== strpos(ini_get('variables_order'), 'C')) {
+		if (str_contains(ini_get('variables_order'), 'C')) {
 			//debug($_COOKIE, ini_get('variables_order'));
 			foreach ($_COOKIE as $key => $_) {
 				if (!isset($_GET[$key]) && !isset($_POST[$key])) {
@@ -295,6 +295,17 @@ class Request
 		$phpStorm = basename($_SERVER['PHP_SELF']) == 'ide-phpunit.php';
 		$phpStorm2 = basename($_SERVER['PHP_SELF']) == 'phpunit';
 		return $phar || $loader || $phpStorm || $phpStorm2 || $phpunit;
+	}
+
+	/**
+	 * http://stackoverflow.com/questions/738823/possible-values-for-php-os
+	 * @return bool
+	 */
+	public static function isWindows()
+	{
+		//$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
+		//return $os == 'Windows_NT';
+		return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 	}
 
 	public static function printDocumentRootDebug()
@@ -442,6 +453,18 @@ class Request
 	}
 
 	/**
+	 * General filtering function
+	 * @param $name
+	 * @return string
+	 */
+	public function getTrim($name)
+	{
+		$value = $this->getString($name);
+		$value = strip_tags($value);
+		return trim($value);
+	}
+
+	/**
 	 * Will strip tags
 	 * @param $name
 	 * @return string
@@ -473,18 +496,6 @@ class Request
 			throw new Exception(__METHOD__ . ' is throwing an exception.');
 		}
 		return $value;
-	}
-
-	/**
-	 * General filtering function
-	 * @param $name
-	 * @return string
-	 */
-	public function getTrim($name)
-	{
-		$value = $this->getString($name);
-		$value = strip_tags($value);
-		return trim($value);
 	}
 
 	/**
@@ -865,41 +876,6 @@ class Request
 		return (isset($this->data[$name]) && $this->data[$name]) ? true : false;
 	}
 
-	public function getHeader($name)
-	{
-		$headers = $this->getHeaders();
-
-		$found = ifsetor($headers[$name]);
-		if ($found) {
-			return $found;
-		}
-
-		foreach ($headers as $header => $value) {
-			if (strtolower($header) === strtolower($name)) {
-				return $value;
-			}
-		}
-		return null;
-	}
-
-	public function getHeaders()
-	{
-		if (function_exists('apache_request_headers')) {
-			return apache_request_headers();
-		}
-		if (function_exists('getallheaders')) {
-			return getallheaders();
-		}
-
-		return collect($_SERVER)->filter(static function ($val, $key) {
-			return str_startsWith($key, 'HTTP_');
-		})->mapWithKeys(static function ($val, $key) {
-			$newKey = strtolower($key);
-			$newKey = str_replace('_', '-', $newKey);
-			return [$newKey => $val];
-		})->toArray();
-	}
-
 	public function getJson($name, $array = true)
 	{
 		return json_decode($this->getTrim($name), $array);
@@ -992,17 +968,6 @@ class Request
 			//			debug($url.'', $path.'', $al->documentRoot.'');
 		}
 		return $path;
-	}
-
-	/**
-	 * http://stackoverflow.com/questions/738823/possible-values-for-php-os
-	 * @return bool
-	 */
-	public static function isWindows()
-	{
-		//$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
-		//return $os == 'Windows_NT';
-		return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 	}
 
 	/**
@@ -1341,17 +1306,13 @@ class Request
 
 	public function getPOST()
 	{
-		if (isset($HTTP_RAW_POST_DATA)) {
-			return $HTTP_RAW_POST_DATA;
-		}
-
 		return file_get_contents("php://input");
 	}
 
-	public function forceDownload($contentType, $filename)
+	public function forceDownload($contentType, $filename, $attachment = 'attachment')
 	{
 		header('Content-Type: ' . $contentType);
-		header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
+		header("Content-Disposition: $attachment; filename=\"" . $filename . "\"");
 	}
 
 	public function getKeys()
@@ -1611,7 +1572,12 @@ class Request
 		if (!$postData) {
 			return $postData;
 		}
-		return json_decode($postData, false, 512, JSON_THROW_ON_ERROR);
+
+		$contentType = $this->getHeader('Content-Type');
+		if ($contentType === 'application/json') {
+			return json_decode($postData, false, 512, JSON_THROW_ON_ERROR);
+		}
+		return $postData;
 	}
 
 	public function getRawPost()
@@ -1623,13 +1589,47 @@ class Request
 		return file_get_contents('php://input');
 	}
 
+	public function getHeader($name)
+	{
+		$headers = $this->getHeaders();
+
+		$found = ifsetor($headers[$name]);
+		if ($found) {
+			return $found;
+		}
+
+		foreach ($headers as $header => $value) {
+			if (strtolower($header) === strtolower($name)) {
+				return $value;
+			}
+		}
+		return null;
+	}
+
+	public function getHeaders()
+	{
+		if (function_exists('apache_request_headers')) {
+			return apache_request_headers();
+		}
+		if (function_exists('getallheaders')) {
+			return getallheaders();
+		}
+
+		return collect($_SERVER)->filter(static function ($val, $key) {
+			return str_startsWith($key, 'HTTP_');
+		})->mapWithKeys(static function ($val, $key) {
+			$newKey = strtolower($key);
+			$newKey = str_replace('_', '-', $newKey);
+			return [$newKey => $val];
+		})->toArray();
+	}
+
 	public function showStackTraceAsHeaders(array $bt, $prefix = 'Redirect-From-')
 	{
 		foreach ($bt as $i => $line) {
 			$ii = str_pad($i, 2, '0', STR_PAD_LEFT);
 			header($prefix . $ii . ': ' . $line);
 		}
-
 	}
 
 	public function getLastNameless()

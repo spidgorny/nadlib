@@ -29,7 +29,7 @@ class Recursive
 
 	public function __toString()
 	{
-		return strip_tags(strval($this->value));
+		return $this->value;
 	}
 
 	public function getChildren()

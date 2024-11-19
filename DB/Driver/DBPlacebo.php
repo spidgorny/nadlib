@@ -12,7 +12,7 @@
  * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
  * @method  runDeleteQuery($table, array $where)
  */
-class DBPlacebo extends DBLayerBase implements DBInterface
+class DBPlacebo extends DBLayerBase
 {
 	public $lastQuery;
 
@@ -28,6 +28,11 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 		//llog(__METHOD__, Debug::getCaller());
 		// recursion:
 		//$this->qb = Config::getInstance()->getQb();
+	}
+
+	public static function getFirstWord($asd)
+	{
+		return $asd;
 	}
 
 	public function perform($query, array $params = [])
@@ -163,7 +168,7 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 		return $query;
 	}
 
-	public function getPlaceholder()
+	public function getPlaceholder($field)
 	{
 		return '?';
 	}
@@ -185,11 +190,6 @@ class DBPlacebo extends DBLayerBase implements DBInterface
 		}
 		$this->insertedRow = $columns;
 		$this->returnNextTime = $columns;
-	}
-
-	public function getFirstWord($asd)
-	{
-		return $asd;
 	}
 
 	public function getVersion()

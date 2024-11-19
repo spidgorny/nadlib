@@ -64,12 +64,19 @@ class HTMLTagTest extends PHPUnit\Framework\TestCase
 
 	public function test_pre()
 	{
-		$title = HTMLTag::pre(json_encode(
-			'something', JSON_PRETTY_PRINT
-		), ['style' => [
+		$title = HTMLTag::pre(json_encode('something', JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT), ['style' => [
 			'white-space' => 'pre-wrap'
 		]]);
 		$this->assertEquals('<pre style="white-space: pre-wrap">&quot;something&quot;</pre>' . "\n", $title . '');
+	}
+
+	public function test_div_with_array_content()
+	{
+		$tag = HTMLTag::div([
+			HTMLTag::span(['a', 'c']),
+			HTMLTag::span('b'),
+		]);
+		$this->assertEquals('<div><span>ac</span> <span>b</span> </div>', SQLSelectQuery::trim($tag));
 	}
 
 }

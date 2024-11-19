@@ -43,12 +43,12 @@ class HTMLInputWithOptions implements HTMLFormFieldInterface
 
 	/**
 	 * Whet's the key name
-	 * @param $field
+	 * @param $fieldName
 	 * @return mixed
 	 */
-	public function setField($field)
+	public function setField($fieldName)
 	{
-		$this->field = $field;
+		$this->field = $fieldName;
 	}
 
 	/**

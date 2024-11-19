@@ -12,6 +12,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 	public $isHTML = false;
 	public $closingTag = true;
 
+
 	public function __construct($tag, array $attr = [], $content = '', $isHTML = false)
 	{
 		$this->tag = $tag;
@@ -33,7 +34,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 
 	public static function __callStatic(string $name, array $arguments)
 	{
-		llog('HTMLTag', $name, $arguments);
+//		llog('HTMLTag', $name, $arguments);
 		return new static($name, $arguments[0], $arguments[1], $arguments[2]);
 	}
 
@@ -52,6 +53,11 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return new self('pre', $params, $content);
 	}
 
+	public static function tag(string $tag, array $attr, $content = null)
+	{
+		return new self($tag, $attr, $content);
+	}
+
 	public function render()
 	{
 		if (is_array($this->content) || $this->content instanceof MergedContent) {
@@ -60,7 +66,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 			$content = ($this->isHTML
 				|| $this->content instanceof HTMLTag
 				|| $this->content instanceof HtmlString)
-				? $this->content
+				? $this->content . ''
 				: htmlspecialchars($this->content ?? '', ENT_QUOTES);
 		}
 		$attribs = self::renderAttr($this->attr);
@@ -91,7 +97,10 @@ class HTMLTag implements ArrayAccess, ToStringable
 					debug($val);
 				}
 				$val = implode(' ', $val);        // for class="a b c"
-			} elseif ($val !== false) {  // false is not a proper html value
+			}
+
+			// inject
+			if ($val !== false) {  // false is not a proper html value
 				$set[] = $key . '="' . htmlspecialchars($val ?? '', ENT_QUOTES | PHP_QUERY_RFC3986) . '"';
 			}
 		}

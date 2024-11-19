@@ -77,11 +77,11 @@ if (!function_exists('d')) {
 	{
 	}
 
-	function getDebug(...$a)
+	function getDebug(...$params)
 	{
 		$debug = Debug::getInstance();
 		$dh = new DebugHTML($debug);
-		$content = $dh->printStyles();
+		$content = DebugHTML::printStyles();
 		if (ifsetor($params[1]) === DebugHTML::LEVELS) {
 			$levels = ifsetor($params[2]);
 			$params[1] = $levels;
@@ -91,7 +91,7 @@ if (!function_exists('d')) {
 	}
 
 	/**
-	 * @param ..$a
+	 * @param array ...$a
 	 * @noinspection ForgottenDebugOutputInspection
 	 */
 	function pre_print_r(...$a)
@@ -158,7 +158,7 @@ if (!function_exists('d')) {
 				$sxe = $sxe->asXML();
 			}
 			//$len = strlen(serialize($vals[$key]));
-			$len = strlen(json_encode($sxe));
+			$len = strlen(json_encode($sxe, JSON_THROW_ON_ERROR));
 			//$len = gettype($vals[$key]) . ' '.get_class($vals[$key]);
 			$assoc[$key] = $len;
 		}
@@ -168,7 +168,7 @@ if (!function_exists('d')) {
 	function debug_get_backtrace()
 	{
 		ob_start();
-		if (phpversion() >= '5.3.6') {
+		if (PHP_VERSION >= '5.3.6') {
 			debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 		} else {
 			debug_print_backtrace();
@@ -396,4 +396,9 @@ if (!function_exists('llog')) {
 		$url = first($url) ?? '';
 		error_log("{$url} [{$runtime}] {$caller} {$type} {$output}");
 	}
+}
+
+function elapsed()
+{
+	return microtime(true) - (float)$_SERVER['REQUEST_TIME_FLOAT'];
 }

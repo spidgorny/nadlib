@@ -4,20 +4,17 @@ if (!function_exists('str_startsWith')) {
 
 	/**
 	 * Whether string starts with some chars
-	 * @param                 $haystack
+	 * @param string|null $haystack
 	 * @param string|string[] $needle
 	 * @return bool
 	 */
 	function str_startsWith($haystack, $needle)
 	{
-		if (!$haystack) {
-			return false;
-		}
 		if (!is_array($needle)) {
 			$needle = [$needle];
 		}
 		foreach ($needle as $need) {
-			if (strpos($haystack ?? '', $need) === 0) {
+			if (str_starts_with($haystack, $need)) {
 				return true;
 			}
 		}
@@ -225,9 +222,9 @@ function str_replace_once($search, $replace, $subject)
 		$beforeStr = substr($subject, 0, $firstChar);
 		$afterStr = substr($subject, $firstChar + strlen($search));
 		return $beforeStr . $replace . $afterStr;
-	} else {
-		return $subject;
 	}
+
+	return $subject;
 }
 
 /**
@@ -281,4 +278,16 @@ function toDatabaseKey($string)
 function stripNamespace($className)
 {
 	return last(trimExplode('\\', $className));
+}
+
+// https://stackoverflow.com/a/74876203/417153
+function str_contains_any($haystack, $needles, $case_sensitive = false)
+{
+	foreach ($needles as $needle) {
+		if (str_contains($haystack, $needle) || (($case_sensitive === false) && str_contains(strtolower($haystack), strtolower($needle)))) {
+			return true;
+		}
+	}
+
+	return false;
 }

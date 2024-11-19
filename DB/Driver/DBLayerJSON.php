@@ -2,6 +2,7 @@
 
 /**
  * @method  runDeleteQuery($table, array $where)
+ * @method  runInsertUpdateQuery($table, array $fields, array $where, array $insert = [])
  */
 class DBLayerJSON extends DBLayerBase implements DBInterface
 {
@@ -15,19 +16,6 @@ class DBLayerJSON extends DBLayerBase implements DBInterface
 	public function __construct($folderName)
 	{
 		$this->folderName = $folderName;
-	}
-
-	/**
-	 * @param string $name
-	 * @return DBLayerJSONTable
-	 */
-	public function getTable($name)
-	{
-		$name = trim($name);
-		if (!isset($this->tables[$name])) {
-			$this->tables[$name] = new DBLayerJSONTable(cap($this->folderName) . $name . '.json');
-		}
-		return $this->tables[$name];
 	}
 
 	public function fetchAll($res_or_query, $index_by_key = null)
@@ -57,6 +45,19 @@ class DBLayerJSON extends DBLayerBase implements DBInterface
 		$iFROM = array_search('FROM', $tokens);
 		$table = ifsetor($tokens[$iFROM + 1]);
 		return $table;
+	}
+
+	/**
+	 * @param string $name
+	 * @return DBLayerJSONTable
+	 */
+	public function getTable($name)
+	{
+		$name = trim($name);
+		if (!isset($this->tables[$name])) {
+			$this->tables[$name] = new DBLayerJSONTable(cap($this->folderName) . $name . '.json');
+		}
+		return $this->tables[$name];
 	}
 
 	public function fetchAssoc($res)
@@ -141,5 +142,10 @@ class DBLayerJSON extends DBLayerBase implements DBInterface
 	public function getVersion()
 	{
 		// TODO: Implement getVersion() method.
+	}
+
+	public function getPlaceholder($field)
+	{
+		// TODO: Implement getPlaceholder() method.
 	}
 }
