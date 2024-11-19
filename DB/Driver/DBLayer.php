@@ -132,7 +132,7 @@ class DBLayer extends DBLayerBase
 //		llog($string);
 		$this->connection = pg_connect($string);
 		if (!$this->connection) {
-			throw new DatabaseException("No PostgreSQL connection to $host. " . json_encode(error_get_last(), JSON_THROW_ON_ERROR));
+			throw new DatabaseException("No PostgreSQL connection to $this->host. " . json_encode(error_get_last(), JSON_THROW_ON_ERROR));
 			//printbr('Error: '.pg_errormessage());	// Warning: pg_errormessage(): No PostgreSQL link opened yet
 		}
 
