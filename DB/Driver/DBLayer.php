@@ -32,23 +32,30 @@ class DBLayer extends DBLayerBase
 	public $qb = null;
 
 	public $AFFECTED_ROWS = null;
+
 	/**
 	 * @var string
 	 */
 	public $lastQuery;
+
 	/**
 	 * @var string DB name
 	 */
 	public $db;
+
 	public $reserved = [
 		'SELECT', 'LIKE', 'TO',
 	];
+
 	public $dbName;
+
 	public $host;
+
 	/**
 	 * @var MemcacheArray
 	 */
 	protected $mcaTableColumns;
+
 	/**
 	 * Transaction count because three are no nested transactions
 	 * @var int
@@ -68,7 +75,7 @@ class DBLayer extends DBLayerBase
 	public function __construct($dbName = null, $user = null, $pass = null, $host = "localhost")
 	{
 //		debug_pre_print_backtrace();
-		$this->database = $dbName;
+		$this->dbName = $dbName;
 //		pre_print_r($this->dbName);
 		$this->user = $user;
 		$this->pass = $pass;
@@ -111,24 +118,17 @@ class DBLayer extends DBLayerBase
 		return $this->connection;
 	}
 
-	public function connect($database = null, $user = null, $pass = null, $host = null)
+	/**
+	 * @throws MustBeStringException
+	 * @throws DatabaseException
+	 * @throws JsonException
+	 */
+	public function connect()
 	{
 		if ($this->isConnected()) {
 			return;
 		}
-		if ($database) {
-			$this->database = $database;
-		}
-		if ($user) {
-			$this->user = $user;
-		}
-		if ($pass) {
-			$this->pass = $pass;
-		}
-		if ($host) {
-			$this->host = $host;
-		}
-		$string = "host={$this->host} dbname={$this->database} user={$this->user} password={$this->pass}";
+		$string = "host={$this->host} dbname={$this->dbName} user={$this->user} password={$this->pass}";
 //		llog($string);
 		$this->connection = pg_connect($string);
 		if (!$this->connection) {
@@ -150,7 +150,7 @@ class DBLayer extends DBLayerBase
 	 */
 	public function perform($query, array $params = [])
 	{
-		$this->connect($this->dbName, $this->user, $this->pass, $this->host);
+		$this->connect();
 		$prof = new Profiler();
 
 //		$this->reportIfLastQueryFailed();
@@ -256,7 +256,7 @@ class DBLayer extends DBLayerBase
 
 	public function reconnect()
 	{
-		$this->connect($this->database, $this->user, $this->pass, $this->host);
+		$this->connect();
 	}
 
 	public function reportIfLastQueryFailed()
@@ -973,7 +973,7 @@ WHERE ccu.table_name='" . $table . "'");
 
 	public function getDSN()
 	{
-		return 'pgsql://' . $this->user . '@' . $this->host . '/' . $this->database;
+		return 'pgsql://' . $this->user . '@' . $this->host . '/' . $this->dbName;
 	}
 
 }

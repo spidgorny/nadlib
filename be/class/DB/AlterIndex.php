@@ -20,7 +20,7 @@ class AlterIndex extends AppControllerBE
 		parent::__construct();
 		$host = gethostname() ?: $_SERVER['SERVER_NAME'];
 		$filename = $this->request->getFilename('file') ?:
-			$host . '-' . $this->db->database . '.json';
+			$host . '-' . $this->db->dbName . '.json';
 		if (!Path::isItAbsolute($filename)) {
 			$appRoot = AutoLoad::getInstance()->getAppRoot();
 			$this->jsonFile = $appRoot . '/sql/' . $filename;
@@ -45,9 +45,9 @@ class AlterIndex extends AppControllerBE
 	{
 		$content[] = 'Schema: ' . $this->db->getScheme() . BR;
 		$content[] = 'Wrapper: ' . get_class($this->db) . BR;
-		$content[] = 'DB: ' . $this->db->database . BR;
+		$content[] = 'DB: ' . $this->db->dbName . BR;
 		$content[] = 'File: ' . basename($this->jsonFile) . BR;
-		if ($this->db->database) {
+		if ($this->db->dbName) {
 			$content[] = $this->getActionButton('Save DB Struct', 'saveStruct', null, [], 'btn btn-info');
 		}
 		return $content;

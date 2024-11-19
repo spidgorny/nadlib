@@ -41,7 +41,7 @@ class DBLayerSQLite extends DBLayerBase
 	public function __construct($file = null, $unused1 = null, $unused2 = null, $unused3 = null)
 	{
 		$this->file = $file;
-		$this->database = basename($this->file);
+		$this->dbName = basename($this->file);
 		$unused1 + $unused2 + $unused3;
 	}
 

@@ -1,6 +1,6 @@
 <?php
 
-class DBLayerOCI extends DBLayer implements DBInterface
+class DBLayerOCI extends DBLayer
 {
 	public $connection = null;
 	public $COUNTQUERIES = 0;
@@ -12,7 +12,7 @@ class DBLayerOCI extends DBLayer implements DBInterface
 
 	public function __construct($tns, $user, $pass)
 	{
-		$this->connect($tns, $user, $pass);
+		parent::__construct($tns, $user, $pass);
 		//debug('<div class="error">OCI CONNECT</div>');
 	}
 
@@ -69,7 +69,7 @@ class DBLayerOCI extends DBLayer implements DBInterface
 			//debug($query);
 		}
 
-		list($time1['usec'], $time1['sec']) = explode(" ", microtime());
+		[$time1['usec'], $time1['sec']] = explode(" ", microtime());
 		$time1['float'] = (float)$time1['usec'] + (float)$time1['sec'];
 
 		$this->LAST_PERFORM_RESULT = oci_parse($this->connection, $query);
@@ -92,7 +92,7 @@ class DBLayerOCI extends DBLayer implements DBInterface
 			}
 		}
 
-		list($time2['usec'], $time2['sec']) = explode(" ", microtime());
+		[$time2['usec'], $time2['sec']] = explode(" ", microtime());
 		$time2['float'] = (float)$time2['usec'] + (float)$time2['sec'];
 
 		$numRows = $this->numRows($this->LAST_PERFORM_RESULT);

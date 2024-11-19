@@ -71,9 +71,9 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	{
 		//$dsn = $scheme.':DRIVER={'.$driver.'};DATABASE='.$db.';SYSTEM='.$host.';dbname='.$db.';HOSTNAME='.$host.';PORT='.$port.';PROTOCOL=TCPIP;';
 		if ($scheme === 'sqlite') {
-			$this->database = basename($db);
+			$this->dbName = basename($db);
 		} else {
-			$this->database = $db;
+			$this->dbName = $db;
 		}
 
 		$builder = DSNBuilder::make($scheme, $host, $user, $password, $db, $port);
@@ -106,7 +106,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 			$dsn = $dsnBuilder->__toString();
 //			debug($dsnParts);
 		}
-		$this->database = $dsnParts['path'];
+		$this->dbName = $dsnParts['path'];
 
 		$this->dsn = $dsn;
 		$options = [

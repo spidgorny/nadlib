@@ -45,7 +45,7 @@ abstract class DBLayerBase implements DBInterface
 	/**
 	 * @var string DB name (file name)
 	 */
-	public $database;
+	public $dbName;
 	/**
 	 * List of reserved words for each DB
 	 * which can't be used as field names and must be quoted
@@ -79,7 +79,7 @@ abstract class DBLayerBase implements DBInterface
 			return call_user_func_array([$this->qb, $method], $params);
 		}
 
-		throw new \RuntimeException($method . ' not found in ' . get_class($this) . ' and SQLBuilder');
+		throw new RuntimeException($method . ' not found in ' . get_class($this) . ' and SQLBuilder');
 	}
 
 	public function logQuery($query)
@@ -327,7 +327,7 @@ abstract class DBLayerBase implements DBInterface
 
 	public function escape($string)
 	{
-		throw new \RuntimeException('Implement ' . __METHOD__);
+		throw new RuntimeException('Implement ' . __METHOD__);
 	}
 
 	public function getLastQuery()
@@ -342,7 +342,7 @@ abstract class DBLayerBase implements DBInterface
 
 	public function getDatabaseName()
 	{
-		return $this->database;
+		return $this->dbName;
 	}
 
 }

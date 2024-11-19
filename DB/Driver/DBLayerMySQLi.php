@@ -22,15 +22,15 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 
 	public function __construct($db = null, $host = '127.0.0.1', $login = 'root', $password = '')
 	{
-		$this->database = $db;
-		if ($this->database) {
+		$this->dbName = $db;
+		if ($this->dbName) {
 			$this->connect($host, $login, $password);
 		}
 	}
 
 	public function connect($host, $login, $password)
 	{
-		$this->connection = new mysqli($host, $login, $password, $this->database);
+		$this->connection = new mysqli($host, $login, $password, $this->dbName);
 		if (!$this->connection) {
 			throw new Exception(mysqli_error($this->connection), mysqli_errno($this->connection));
 		}
