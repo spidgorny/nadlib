@@ -1,5 +1,7 @@
 <?php
 
+use PgSql\Result;
+
 /**
  * Class dbLayer
  * @mixin SQLBuilder
@@ -140,7 +142,7 @@ class DBLayer extends DBLayerBase
 	/**
 	 * @param string $query
 	 * @param array $params
-	 * @return \PgSql\Result|null
+	 * @return Result|null|resource
 	 * @throws DatabaseException
 	 * @throws MustBeStringException
 	 */
