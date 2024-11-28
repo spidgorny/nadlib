@@ -39,45 +39,6 @@ class HTMLForm implements ToStringable
 		}
 	}
 
-	public static function dropSelect($fieldName, array $options)
-	{
-		$content = '
-			<input type="hidden" name="' . $fieldName . '" id="' . $fieldName . '">
-			<input type="text" name="' . $fieldName . '_name" id="' . $fieldName . '_name" onchange="setDropSelectValue(this.value, this.value);">
-			<img src="design/bb8120_options_icon.gif" id="' . $fieldName . '_selector">
-			<link rel="stylesheet" href="js/proto.menu.0.6.css" type="text/css" media="screen" />
-			<script src="js/proto.menu.0.6.js" defer="true"></script>
-			<script>
-				//document.observe("dom:loaded", function() {
-				window.onload = function () {
-					var myMenuItems = [';
-		$optArr = [];
-		foreach ($options as $id => $name) {
-			$optArr[] = '{
-						    name: "' . $name . '",
-						    className: "swr",
-						    callback: function() {
-								setDropSelectValue("' . $id . '", "' . $name . '");
-						    }
-					    }';
-		}
-		$content .= implode(',', $optArr) . '
-					];
-					new Proto.Menu({
-					  selector: "#' . $fieldName . '_selector",
-					  className: "menu desktop",
-					  menuItems: myMenuItems
-					});
-				};
-				function setDropSelectValue(id, name) {
-					jQuery("' . $fieldName . '").value = id;
-					jQuery("' . $fieldName . '_name").value = name;
-				}
-			</script>';
-
-		return $content;
-	}
-
 	public function formHideArray(array $ar)
 	{
 		foreach ($ar as $k => $a) {
@@ -222,32 +183,6 @@ class HTMLForm implements ToStringable
 		return $this->getName($name, '', false);
 	}
 
-
-	/**
-	 * @param string $name
-	 * @param string $value
-	 * @param array $more - may be array
-	 * @param string $type
-	 * @param string $extraClass
-	 */
-	public function input($name, $value = "", array $more = [], $type = 'text', $extraClass = '')
-	{
-		//$value = htmlspecialchars($value, ENT_QUOTES);
-		//$this->stdout .= '<input type="'.$type.'" '.$this->getName($name).' '.$more.' value="'.$value.'" />'."\n";
-		$this->stdout .= $this->getInput($type, $name, $value, $more, $extraClass);
-	}
-
-	public function add(HTMLFormFieldInterface $field)
-	{
-		$field->setForm($this);
-		$this->stdout .= $this->s($field->render());
-	}
-
-	public function s($content)
-	{
-		return MergedContent::mergeStringArrayRecursive($content);
-	}
-
 	public function label($for, $text)
 	{
 		$this->stdout .= '<label for="' . $for . '">' . $text . '</label>';
@@ -274,6 +209,19 @@ class HTMLForm implements ToStringable
 		$this->stdout .= MergedContent::mergeStringArrayRecursive($a);
 	}
 
+	/**
+	 * @param string $name
+	 * @param string $value
+	 * @param array $more - may be array
+	 * @param string $type
+	 * @param string $extraClass
+	 */
+	public function input($name, $value = "", array $more = [], $type = 'text', $extraClass = '')
+	{
+		//$value = htmlspecialchars($value, ENT_QUOTES);
+		//$this->stdout .= '<input type="'.$type.'" '.$this->getName($name).' '.$more.' value="'.$value.'" />'."\n";
+		$this->stdout .= $this->getInput($type, $name, $value, $more, $extraClass);
+	}
 
 	public function password($name, $value = "", array $desc = [])
 	{
@@ -337,15 +285,6 @@ class HTMLForm implements ToStringable
 	public function getPrefix()
 	{
 		return $this->prefix;
-	}
-
-	public function hsc($label)
-	{
-		if ($label instanceof HtmlString) {
-			return $label;
-		}
-
-		return htmlspecialchars($label, ENT_QUOTES);
 	}
 
 	public function file($name, array $desc = [])
@@ -495,6 +434,17 @@ class HTMLForm implements ToStringable
 		$field->setForm($this);
 		$this->add($field);
 		return $this;
+	}
+
+	public function add(HTMLFormFieldInterface $field)
+	{
+		$field->setForm($this);
+		$this->stdout .= $this->s($field->render());
+	}
+
+	public function s($content)
+	{
+		return MergedContent::mergeStringArrayRecursive($content);
 	}
 
 	/**
@@ -753,6 +703,15 @@ class HTMLForm implements ToStringable
 			id="' . $id . '"
 			' . (is_array($more) ? $this->getAttrHTML($more) : $more) . '> ';
 		$this->stdout .= $this->hsc($label) . "</label>";
+	}
+
+	public function hsc($label)
+	{
+		if ($label instanceof HtmlString) {
+			return $label;
+		}
+
+		return htmlspecialchars($label, ENT_QUOTES);
 	}
 
 	public function jsCal2($fieldName, $fieldValue, $location = 'js/JSCal2/')
