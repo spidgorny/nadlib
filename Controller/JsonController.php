@@ -67,6 +67,9 @@ trait JsonController
 			AddVersion::class,
 			AddJob::class,
 			ArchiveComplete::class,
+			UpsertSoftware::class,
+			UpsertVersion::class,
+			VersionFiles::class,
 		];
 //		llog('$thisParents', $thisParents);
 		foreach (array_reverse($levels) as $i => $el) {
@@ -97,7 +100,7 @@ trait JsonController
 	public function jsonError(Exception $e, $httpCode = 500, array $extraData = [])
 	{
 		$message = '[' . get_class($e) . ']' . PHP_EOL . $e->getMessage() . PHP_EOL . $e->getFile() . '#' . $e->getLine();
-		llog(get_class($this), $message);
+		llog('jsonError', get_class($this), $message);
 		http_response_code($httpCode);
 		return $this->json([
 				'status' => 'error',
