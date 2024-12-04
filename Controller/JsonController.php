@@ -121,9 +121,7 @@ trait JsonController
 	{
 		header('Content-Type: application/json');
 		$key['duration'] = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
-		$response = json_encode($key, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES  /*JSON_UNESCAPED_LINE_TERMINATORS*/);
-//		error_log($response);
-		return $response;
+		return json_encode($key, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 	}
 
 }
