@@ -14,33 +14,42 @@ class View extends stdClass implements ToStringable
 	 * @var stdClass
 	 */
 	public $caller;
+
 	/**
 	 * @var Index
 	 */
 	public $index;
+
 	/**
 	 * Store something here and then @use $this->data('asd') to access it with escaping
 	 * @var array
 	 */
 	public $data = [];
+
 	/**
 	 * @var AppController
 	 */
 	public $controller;
+
 	public $processed;
+
 	/**
 	 * @var string
 	 */
 	protected $file;
+
 	/**
 	 * @var LocalLang
 	 */
 	protected $ll;
+
 	/**
 	 * @var Request
 	 */
 	protected $request;
+
 	protected $parts = [];
+
 	protected $folder;
 
 	public function __construct(string $file, $copyObject = null)
@@ -280,7 +289,7 @@ class View extends stdClass implements ToStringable
 		if ($this->caller !== null) {
 			return $this->caller->$var;
 		}
-		return $this->$var ?? null;
+		return $this->$var ?? $this->data[$var] ?? null;
 	}
 
 	public function __set($var, $val)
