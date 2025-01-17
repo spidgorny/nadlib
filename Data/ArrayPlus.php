@@ -86,6 +86,11 @@ class ArrayPlus extends ArrayObject implements Countable
 		return false;
 	}
 
+	public static function from(array $getSystems)
+	{
+		return self::create($getSystems);
+	}
+
 	public function column_coalesce($col1, $col2): int
 	{
 		$return = [];
@@ -1368,15 +1373,42 @@ class ArrayPlus extends ArrayObject implements Countable
 	{
 		return $this->contains($id);
 	}
+
+	public function containsAny(ArrayPlus $anotherList)
+	{
+		foreach ($this as $el) {
+			if ($anotherList->includes($el)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public function containsAll(ArrayPlus $anotherList)
+	{
+		foreach ($this as $el) {
+			if (!$anotherList->includes($el)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public function join(string $string)
+	{
+		return $this->implode($string);
+	}
 }
 
 function AP($a = [])
 {
 	if ($a instanceof ArrayPlus) {
 		return $a;
-	} elseif (is_array($a)) {
-		return ArrayPlus::create($a);
-	} else {
-		throw new InvalidArgumentException(__METHOD__ . ' accepts array');
 	}
+
+	if (is_array($a)) {
+		return ArrayPlus::create($a);
+	}
+
+	throw new InvalidArgumentException(__METHOD__ . ' accepts array');
 }
