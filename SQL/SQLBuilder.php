@@ -171,7 +171,7 @@ class SQLBuilder
 		return $this->getSelectQuery($table, $where, $order, $select);
 	}
 
-	public function getSelectQuery($table, $where = [], $orderAndLimit = '', $addSelect = null)
+	public function getSelectQuery($table, $where = [], $orderAndLimit = '', $addSelect = '')
 	{
 		$sqlWhere = $where instanceof SQLWhere ? $where : new SQLWhere($where);
 		if (strpos($orderAndLimit, 'LIMIT') > 0) {  // ORDER BY xxx LIMIT yyy

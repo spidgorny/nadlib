@@ -205,7 +205,7 @@ abstract class SimpleController
 //			'exists' => method_exists($proxy, $method)
 //		]);
 		if (!method_exists($proxy, $method)) {
-			llog($method, 'does not exist in', get_class($this));
+//			llog($method, 'does not exist in', get_class($this));
 			// other classes except main controller may result in multiple messages
 //				Index::getInstance()->message('Action "'.$method.'" does not exist in class "'.get_class($this).'".');
 			throw new Exception404('Action "' . $method . '" does not exist in class "' . get_class($this) . '".');

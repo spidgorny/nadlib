@@ -1358,6 +1358,16 @@ class ArrayPlus extends ArrayObject implements Countable
 	{
 		return $this->getData();
 	}
+
+	public function isEmpty()
+	{
+		return count($this->getData()) === 0;
+	}
+
+	public function includes($id)
+	{
+		return $this->contains($id);
+	}
 }
 
 function AP($a = [])
