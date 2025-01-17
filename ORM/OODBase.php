@@ -194,8 +194,7 @@ abstract class OODBase implements ArrayAccess
 				$this->id[$field] = $this->data[$field];
 			}
 			//} else if (igorw\get_in($this->data, array($this->idField))) {   // not ifsetor
-		} elseif (isset($this->data[$idField])
-			&& $this->data[$idField]) {
+		} elseif (isset($this->data[$idField]) && $this->data[$idField]) {
 			$this->id = $this->data[$idField];
 //			assert($this->id);
 		} else {
@@ -371,27 +370,46 @@ abstract class OODBase implements ArrayAccess
 			//debug($this);
 		}
 		//debug(get_class($this->db));
-		$rows = $this->db->fetchOneSelectQuery(
+		$row = $this->db->fetchOneSelectQuery(
 			$this->table,
 			$this->where + $where,
 			$orderByLimit,
 			$selectPlus
 		);
+
 		//debug($this->where + $where, $this->db->lastQuery);
 		$this->lastSelectQuery = $this->db->lastQuery;
 		$this->log(__METHOD__, $this->lastSelectQuery . '');
 //		debug($rows, $this->lastSelectQuery);
-		if (is_array($rows) && $rows) {
-			$data = $rows;
-			$this->initByRow($data);
+		if (is_array($row) && $row) {
+			$row = $this->fixRowDataTypes($row);
+			$this->initByRow($row);
 		} else {
-			$data = [];
 			if ($this->forceInit) {
-				$this->init($data);
+				$this->initByRow([]);
 			}
 		}
 		TaylorProfiler::stop($taylorKey);
-		return $data;
+		return $this->data;
+	}
+
+	// should be called after the select query
+	public function fixRowDataTypes(array $row)
+	{
+		// fix data types, as array_contains will fail due to wrong data type
+		$i = 0;
+		foreach ($row as $k => &$v) {
+			$dbFieldType = pg_field_type($this->db->lastResult, $i++);
+//				llog($k, get_debug_type($v), $v, $dbFieldType);
+			if ($dbFieldType === 'int4' && get_debug_type($v) === 'string') {
+				$v = (int)$v;
+			}
+			if ($dbFieldType === 'bool' && get_debug_type($v) === 'string') {
+				$v = $v === 't';
+			}
+		}
+//		llog('afterFixRowDataTypes', $row);
+		return $row;
 	}
 
 	/**

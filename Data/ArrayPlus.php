@@ -971,6 +971,17 @@ class ArrayPlus extends ArrayObject implements Countable
 				$result[$i] = $object->$method();
 			}
 		}
+		return self::from($result);
+	}
+
+	public function callMutate($method)
+	{
+		$result = [];
+		foreach ($this->getData() as $i => $object) {
+			if (is_object($object)) {
+				$result[$i] = $object->$method();
+			}
+		}
 		$this->setData($result);
 		return $this;
 	}
@@ -995,7 +1006,7 @@ class ArrayPlus extends ArrayObject implements Countable
 
 	public function __toString()
 	{
-		return json_encode($this->getArrayCopy(), JSON_PRETTY_PRINT);
+		return (string)json_encode($this->getArrayCopy(), JSON_PRETTY_PRINT);
 	}
 
 	public function toStringEach()
@@ -1397,6 +1408,31 @@ class ArrayPlus extends ArrayObject implements Countable
 	public function join(string $string)
 	{
 		return $this->implode($string);
+	}
+
+	public function toInt()
+	{
+		return self::from($this->map(fn($x) => (int)$x)->getData());
+	}
+
+	public function toFloat()
+	{
+		return self::from($this->map(fn($x) => (float)$x)->getData());
+	}
+
+	public function toString()
+	{
+		return self::from($this->map(fn($x) => (string)$x)->getData());
+	}
+
+//	public function toArray()
+//	{
+//		return self::from($this->map(fn ($x) => (array) $x)->getData());
+//	}
+
+	public function toObject()
+	{
+		return self::from($this->map(fn($x) => (object)$x)->getData());
 	}
 }
 

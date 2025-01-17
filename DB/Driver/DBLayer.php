@@ -20,7 +20,8 @@ class DBLayer extends DBLayerBase
 	 */
 	public $connection = null;
 
-	public $LAST_PERFORM_RESULT;
+	/** @var Result */
+	public $lastResult;
 
 	/**
 	 * todo: use setter & getter method
@@ -169,9 +170,9 @@ class DBLayer extends DBLayerBase
 			if (!$ok) {
 				throw new DatabaseException('Query can not be prepared because: ' . pg_last_error($this->getConnection()), 1, null, $query);
 			}
-			$this->LAST_PERFORM_RESULT = pg_execute($this->getConnection(), '', $params);
+			$this->lastResult = pg_execute($this->getConnection(), '', $params);
 		} else {
-			$this->LAST_PERFORM_RESULT = pg_query($this->getConnection(), $query);
+			$this->lastResult = pg_query($this->getConnection(), $query);
 			$lastError = pg_last_error($this->getConnection());
 			if ($lastError) {
 				// setQuery will be called in the catch below
@@ -180,21 +181,21 @@ class DBLayer extends DBLayerBase
 		}
 		$this->queryTime = $prof->elapsed();
 		if ($this->logToLog) {
-			llog($query . '' . ' => ' . $this->LAST_PERFORM_RESULT);
+			llog($query . '' . ' => ' . $this->lastResult);
 		}
 //			$this->reportIfLastQueryFailed();
 
 
-		if (!$this->LAST_PERFORM_RESULT) {
+		if (!$this->lastResult) {
 			//debug_pre_print_backtrace();
 			//debug($query);
 			//debug($this->queryLog->queryLog);
 			throw new DatabaseException(pg_last_error($this->getConnection()), 3, null, $query);
 		}
 
-		$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
+		$this->AFFECTED_ROWS = pg_affected_rows($this->lastResult);
 		if ($this->queryLog) {
-			$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS, $this->LAST_PERFORM_RESULT);
+			$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS, $this->lastResult);
 		}
 
 		$this->logQuery($query);    // uses $this->queryTime
@@ -202,7 +203,7 @@ class DBLayer extends DBLayerBase
 		$this->lastQuery = $query;
 		$this->queryCount++;
 		$this->lastBacktrace = debug_backtrace();
-		return $this->LAST_PERFORM_RESULT;
+		return $this->lastResult;
 	}
 
 	/**
@@ -261,7 +262,7 @@ class DBLayer extends DBLayerBase
 
 	public function reportIfLastQueryFailed()
 	{
-		if (false === $this->LAST_PERFORM_RESULT) {
+		if (false === $this->lastResult) {
 			$backtrace = array_map(static function ($el) {
 				unset($el['object']);
 				unset($el['args']);
@@ -286,19 +287,19 @@ class DBLayer extends DBLayerBase
 	{
 		$prof = new Profiler();
 		$this->lastQuery = $query;
-		$this->LAST_PERFORM_RESULT = pg_query_params($this->getConnection(), $query, $params);
-		if (!$this->LAST_PERFORM_RESULT) {
+		$this->lastResult = pg_query_params($this->getConnection(), $query, $params);
+		if (!$this->lastResult) {
 			debug($query);
 			debug_pre_print_backtrace();
 			throw new DatabaseException(pg_last_error($this->getConnection()) . BR . $query);
 		}
 
-		$this->AFFECTED_ROWS = pg_affected_rows($this->LAST_PERFORM_RESULT);
+		$this->AFFECTED_ROWS = pg_affected_rows($this->lastResult);
 		if ($this->queryLog) {
 			$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS);
 		}
 		$this->queryCount++;
-		return $this->LAST_PERFORM_RESULT;
+		return $this->lastResult;
 	}
 
 	/**

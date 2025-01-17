@@ -4,7 +4,7 @@ class DBLayerOCI extends DBLayer
 {
 	public $connection = null;
 	public $COUNTQUERIES = 0;
-	public $LAST_PERFORM_RESULT;
+	public $lastResult;
 	public $LOG;
 	public $debug = false;
 	public $debugOnce = false;
@@ -72,21 +72,21 @@ class DBLayerOCI extends DBLayer
 		[$time1['usec'], $time1['sec']] = explode(" ", microtime());
 		$time1['float'] = (float)$time1['usec'] + (float)$time1['sec'];
 
-		$this->LAST_PERFORM_RESULT = oci_parse($this->connection, $query);
+		$this->lastResult = oci_parse($this->connection, $query);
 		$error = oci_error();
 		if ($error) {
 			print('Oracle error ' . $error['code'] . ': ' . $error['message'] . ' while doing ' . $query . BR);
 		}
 		if ($try) {
-			@oci_execute($this->LAST_PERFORM_RESULT, OCI_DEFAULT);
+			@oci_execute($this->lastResult, OCI_DEFAULT);
 			//debug($this->LAST_PERFORM_RESULT); exit();
 			//debug(oci_error($this->LAST_PERFORM_RESULT)); exit();
-			if (oci_error($this->LAST_PERFORM_RESULT)) {
-				$this->LAST_PERFORM_RESULT = null;
+			if (oci_error($this->lastResult)) {
+				$this->lastResult = null;
 			}
 		} else {
-			oci_execute($this->LAST_PERFORM_RESULT, OCI_DEFAULT);
-			$error = oci_error($this->LAST_PERFORM_RESULT);
+			oci_execute($this->lastResult, OCI_DEFAULT);
+			$error = oci_error($this->lastResult);
 			if ($error) {
 				print('Oracle error ' . $error['code'] . ': ' . $error['message'] . ' while doing ' . $query . BR);
 			}
@@ -95,7 +95,7 @@ class DBLayerOCI extends DBLayer
 		[$time2['usec'], $time2['sec']] = explode(" ", microtime());
 		$time2['float'] = (float)$time2['usec'] + (float)$time2['sec'];
 
-		$numRows = $this->numRows($this->LAST_PERFORM_RESULT);
+		$numRows = $this->numRows($this->lastResult);
 		if ($this->debugOnce || $this->debug) {
 			debug([$query]);
 			$this->debugOnce = false;
@@ -138,7 +138,7 @@ class DBLayerOCI extends DBLayer
 				'total' => $elapsed,
 			];
 		}
-		return $this->LAST_PERFORM_RESULT;
+		return $this->lastResult;
 	}
 
 	public function done($result)
