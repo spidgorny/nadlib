@@ -1420,17 +1420,23 @@ class ArrayPlus extends ArrayObject implements Countable
 
 	public function toInt()
 	{
-		return self::from($this->map(fn($x) => (int)$x)->getData());
+		return self::from($this->map(function ($x) {
+			return (int)$x;
+		})->getData());
 	}
 
 	public function toFloat()
 	{
-		return self::from($this->map(fn($x) => (float)$x)->getData());
+		return self::from($this->map(function ($x) {
+			return (float)$x;
+		})->getData());
 	}
 
 	public function toString()
 	{
-		return self::from($this->map(fn($x) => (string)$x)->getData());
+		return self::from($this->map(function ($x) {
+			return (string)$x;
+		})->getData());
 	}
 
 //	public function toArray()
@@ -1440,7 +1446,9 @@ class ArrayPlus extends ArrayObject implements Countable
 
 	public function toObject()
 	{
-		return self::from($this->map(fn($x) => (object)$x)->getData());
+		return self::from($this->map(function ($x) {
+			return (object)$x;
+		})->getData());
 	}
 }
 
