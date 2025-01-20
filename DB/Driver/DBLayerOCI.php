@@ -16,11 +16,6 @@ class DBLayerOCI extends DBLayer implements DBInterface
 		//debug('<div class="error">OCI CONNECT</div>');
 	}
 
-	function __toString()
-	{
-		return '[Object of type dbLayerOCI]';
-	}
-
 	/**
 	 * @param string $tns
 	 * @param string $user
@@ -36,6 +31,11 @@ class DBLayerOCI extends DBLayer implements DBInterface
 			return NULL;
 		}
 		return $this->connection;
+	}
+
+	function __toString()
+	{
+		return '[Object of type dbLayerOCI]';
 	}
 
 	function getConnection()
@@ -101,23 +101,11 @@ class DBLayerOCI extends DBLayer implements DBInterface
 			$this->debugOnce = FALSE;
 		}
 		$elapsed = number_format($time2['float'] - $time1['float'], 3);
-		$debug = debug_backtrace();
-		$deb = '';
-		foreach ($debug as $i => $row) {
-			if ($i > 1) {
-				unset($row['object']);
-				$deb .= implode(', ', $row);
-				$deb .= "\n";
-			}
-		}
+
 		if ($this->LOG[$query]) {
 			$a = $this->LOG[$query];
 			$this->LOG[$query] = [
 				'timestamp' => '',
-				'file' => $debug[1]['file'],
-				'function' => $debug[1]['function'],
-				'line' => $debug[1]['line'],
-				'title' => $deb,
 				'query' => $query,
 				'results' => $numRows,
 				'elapsed' => $a['elapsed'],
@@ -127,10 +115,6 @@ class DBLayerOCI extends DBLayer implements DBInterface
 		} else {
 			$this->LOG[$query] = [
 				'timestamp' => date('H:i:s'),
-				'file' => $debug[1]['file'],
-				'function' => $debug[1]['function'],
-				'line' => $debug[1]['line'],
-				'title' => $deb,
 				'query' => $query,
 				'results' => $numRows,
 				'elapsed' => $elapsed,
@@ -141,9 +125,13 @@ class DBLayerOCI extends DBLayer implements DBInterface
 		return $this->LAST_PERFORM_RESULT;
 	}
 
-	public function done($result)
+	public function numRows($result = NULL)
 	{
-		oci_free_statement($result);
+		$i = 0;
+		while (($row = $this->fetchAssoc($result)) !== FALSE) {
+			$i++;
+		}
+		return $i;
 	}
 
 	/*	function transaction() {
@@ -151,9 +139,11 @@ class DBLayerOCI extends DBLayer implements DBInterface
 			ora_commitoff($this->CONNECTION);
 		}
 	*/
-	public function commit()
+
+	public function fetchAssoc($result)
 	{
-		oci_commit($this->connection);
+		$array = oci_fetch_array($result, OCI_RETURN_NULLS | OCI_ASSOC);
+		return $array;
 	}
 
 	/*
@@ -161,6 +151,17 @@ class DBLayerOCI extends DBLayer implements DBInterface
 			ora_rollback($this->CONNECTION);
 		}
 	*/
+
+	public function done($result)
+	{
+		oci_free_statement($result);
+	}
+
+	public function commit()
+	{
+		oci_commit($this->connection);
+	}
+
 	function quoteSQL($value, $more = [])
 	{
 		if ($value == "CURRENT_TIMESTAMP") {
@@ -191,24 +192,9 @@ class DBLayerOCI extends DBLayer implements DBInterface
 		return $ret;
 	}
 
-	public function fetchAssoc($result)
-	{
-		$array = oci_fetch_array($result, OCI_RETURN_NULLS | OCI_ASSOC);
-		return $array;
-	}
-
 	public function numRowsFast($result)
 	{
 		return oci_num_rows($result);
-	}
-
-	public function numRows($result = NULL)
-	{
-		$i = 0;
-		while (($row = $this->fetchAssoc($result)) !== FALSE) {
-			$i++;
-		}
-		return $i;
 	}
 
 	public function to_date($timestamp)

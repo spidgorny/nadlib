@@ -3,38 +3,38 @@
 	SimpleXLSX php class v0.6.8
 	MS Excel 2007 workbooks reader
 
-	Example 1: 
+	Example 1:
 	$xlsx = new SimpleXLSX('book.xlsx');
 	print_r( $xlsx->rows() );
 
-	Example 2: 
+	Example 2:
 	$xlsx = new SimpleXLSX('book.xlsx');
 	print_r( $xlsx->rowsEx() );
 
-	Example 3: 
+	Example 3:
 	$xlsx = new SimpleXLSX('book.xlsx');
 	print_r( $xlsx->rows(2) ); // second worksheet
 
 	Example 4.1:
 	$xlsx = new SimpleXLSX('book.xlsx');
 	print_r( $xlsx->sheetNames() ); // array( 1 => 'Sheet 1', 3 => 'Catalog' );
-	
+
 	Example 4.2:
-	$xlsx = new SimpleXLSX('book.xlsx');	
+	$xlsx = new SimpleXLSX('book.xlsx');
 	echo 'Sheet Name 2 = '.$xlsx->sheetName(2);
-	
+
 	Example 5:
 	$xlsx = new SimpleXLSX('book.xlsx');
 	if ($xslx->success())
 		print_r( $xlsx->rows() );
 	else
 		echo 'xlsx error: '.$xslx->error();
-	
+
 	Example 6:
 	$xslx = new SimpleXLSX( file_get_contents('http://www.example.com/example.xlsx'), true);
 	list($num_cols, $num_rows) = $xlsx->dimension(2);
 	echo $xlsx->sheetName(2).':'.$num_cols.'x'.$num_rows;
-	
+
 	v0.6.8 (2013-10-13) fixed dimension() where 1 row only, fixed rowsEx() empty cells indexes (Daniel Stastka)
 	v0.6.7 (2013-08-10) fixed unzip (mac), added $debug param to _constructor to display errors
 	v0.6.6 (2013-06-03) +entryExists(),
@@ -55,9 +55,18 @@
 class SimpleXLSX
 {
 	// Don't remove this string! Created by Sergey Schuchkin from http://www.sibvision.ru - professional php developers team 2010-2013
+	const SCHEMA_REL_OFFICEDOCUMENT = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument';
+	const SCHEMA_REL_SHAREDSTRINGS = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings';
+	const SCHEMA_REL_WORKSHEET = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet';
+	const SCHEMA_REL_STYLES = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles';
+	/**
+	 * @var array
+	 */
+	var $datasec = [];
 	private $workbook;
 	private $sheets;
 	private $styles;
+	// scheme
 	private $hyperlinks;
 	private $package = [
 		'filename' => '',
@@ -69,12 +78,6 @@ class SimpleXLSX
 	private $sharedstrings;
 	private $error = false;
 	private $debug = false;
-	// scheme
-	const SCHEMA_REL_OFFICEDOCUMENT = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument';
-	const SCHEMA_REL_SHAREDSTRINGS = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings';
-	const SCHEMA_REL_WORKSHEET = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet';
-	const SCHEMA_REL_STYLES = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles';
-
 	private $workbook_cell_formats = [];
 	private $built_in_cell_formats = [
 		0 => 'General',
@@ -125,270 +128,11 @@ class SimpleXLSX
 		70 => 't# ??/??',
 	];
 
-	/**
-	 * @var array
-	 */
-	var $datasec = [];
-
 	function __construct($filename, $is_data = false, $debug = false)
 	{
 		$this->debug = $debug;
 		$this->_unzip($filename, $is_data);
 		$this->_parse();
-	}
-
-	function sheets()
-	{
-		return $this->sheets;
-	}
-
-	function sheetsCount()
-	{
-		return count($this->sheets);
-	}
-
-	function sheetName($worksheet_id)
-	{
-
-		foreach ($this->workbook->sheets->sheet as $s) {
-
-			if ($s->attributes('r', true)->id == 'rId' . $worksheet_id)
-				return (string)$s['name'];
-
-		}
-		return false;
-	}
-
-	function sheetNames()
-	{
-
-		$result = [];
-
-		foreach ($this->workbook->sheets->sheet as $s) {
-
-			$result[substr($s->attributes('r', true)->id, 3)] = (string)$s['name'];
-
-		}
-		return $result;
-	}
-
-	function worksheet($worksheet_id)
-	{
-		if (isset($this->sheets[$worksheet_id])) {
-			$ws = $this->sheets[$worksheet_id];
-
-			if (isset($ws->hyperlinks)) {
-				$this->hyperlinks = [];
-				foreach ($ws->hyperlinks->hyperlink as $hyperlink) {
-					$this->hyperlinks[(string)$hyperlink['ref']] = (string)$hyperlink['display'];
-				}
-			}
-
-			return $ws;
-		} else {
-			$this->error('Worksheet ' . $worksheet_id . ' not found. Try $xlsx->rows(' . implode(') or $xlsx->rows(', array_keys($this->sheets)) . ')');
-			return false;
-		}
-	}
-
-	function dimension($worksheet_id = 1)
-	{
-
-		if (($ws = $this->worksheet($worksheet_id)) === false)
-			return false;
-
-		$ref = (string)$ws->dimension['ref'];
-
-		if (strpos($ref, ':') !== false) {
-			$d = explode(':', $ref);
-			if (!isset($d[1]))
-				return [0, 0];
-			$index = $this->_columnIndex($d[1]);
-			return [$index[0] + 1, $index[1] + 1];
-		} else if (strlen($ref)) { // 0.6.8
-			$index = $this->_columnIndex($ref);
-			return [$index[0] + 1, $index[1] + 1];
-		} else
-			return [0, 0];
-
-	}
-
-	// sheets numeration: 1,2,3....
-	function rows($worksheet_id = 1)
-	{
-
-		if (($ws = $this->worksheet($worksheet_id)) === false)
-			return false;
-
-		$rows = [];
-		$curR = 0;
-
-		list($cols,) = $this->dimension($worksheet_id);
-
-		foreach ($ws->sheetData->row as $row) {
-//			echo 'row<br />';
-			foreach ($row->c as $c) {
-				list($curC,) = $this->_columnIndex((string)$c['r']);
-				$rows[$curR][$curC] = $this->value($c);
-			}
-			for ($i = 0; $i < $cols; $i++)
-				if (!isset($rows[$curR][$i]))
-					$rows[$curR][$i] = '';
-
-			ksort($rows[$curR]);
-
-			$curR++;
-		}
-		return $rows;
-	}
-
-	function rowsEx($worksheet_id = 1)
-	{
-
-		if (($ws = $this->worksheet($worksheet_id)) === false)
-			return false;
-
-		$rows = [];
-		$curR = 0;
-		list($cols,) = $this->dimension($worksheet_id);
-
-		foreach ($ws->sheetData->row as $row) {
-
-			foreach ($row->c as $c) {
-				list($curC,) = $this->_columnIndex((string)$c['r']);
-				$t = (string)$c['t'];
-				$s = (int)$c['s'];
-				if ($s > 0 && isset($this->workbook_cell_formats[$s])) {
-					$format = $this->workbook_cell_formats[$s]['format'];
-					if (strpos($format, 'm') !== false)
-						$t = 'd';
-				} else
-					$format = '';
-
-				$rows[$curR][$curC] = [
-					'type' => $t,
-					'name' => (string)$c['r'],
-					'value' => $this->value($c),
-					'href' => $this->href($c),
-					'f' => (string)$c->f,
-					'format' => $format
-				];
-			}
-			for ($i = 0; $i < $cols; $i++) {
-
-				if (!isset($rows[$curR][$i])) {
-
-					// 0.6.8
-					for ($c = '', $j = $i; $j >= 0; $j = intval($j / 26) - 1)
-						$c = chr($j % 26 + 65) . $c;
-
-					$rows[$curR][$i] = [
-						'type' => '',
-//						'name' => chr($i + 65).($curR+1),
-						'name' => $c . ($curR + 1),
-						'value' => '',
-						'href' => '',
-						'f' => '',
-						'format' => ''
-					];
-				}
-			}
-
-			ksort($rows[$curR]);
-
-			$curR++;
-		}
-		return $rows;
-
-	}
-
-	// thx Gonzo
-	private function _columnIndex($cell = 'A1')
-	{
-
-		if (preg_match("/([A-Z]+)(\d+)/", $cell, $matches)) {
-
-			$col = $matches[1];
-			$row = $matches[2];
-
-			$colLen = strlen($col);
-			$index = 0;
-
-			for ($i = $colLen - 1; $i >= 0; $i--)
-				$index += (ord($col[$i]) - 64) * pow(26, $colLen - $i - 1);
-
-			return [$index - 1, $row - 1];
-		}
-
-		throw new RuntimeException("Invalid cell index.");
-	}
-
-	function value($cell)
-	{
-		// Determine data type
-		$dataType = (string)$cell['t'];
-
-		switch ($dataType) {
-			case "s":
-				// Value is a shared string
-				if ((string)$cell->v != '') {
-					$value = $this->sharedstrings[intval($cell->v)];
-				} else {
-					$value = '';
-				}
-
-				break;
-
-			case "b":
-				// Value is boolean
-				$value = (string)$cell->v;
-				if ($value == '0') {
-					$value = false;
-				} else if ($value == '1') {
-					$value = true;
-				} else {
-					$value = (bool)$cell->v;
-				}
-
-				break;
-
-			case "inlineStr":
-				// Value is rich text inline
-				$value = $this->_parseRichText($cell->is);
-
-				break;
-
-			case "e":
-				// Value is an error message
-				if ((string)$cell->v != '') {
-					$value = (string)$cell->v;
-				} else {
-					$value = '';
-				}
-
-				break;
-
-			default:
-				// Value is a string
-				$value = (string)$cell->v;
-
-				// Check for numeric values
-				if (is_numeric($value) && $dataType != 's') {
-					if ($value == (int)$value) $value = (int)$value;
-					elseif ($value == (float)$value) $value = (float)$value;
-				}
-		}
-		return $value;
-	}
-
-	function href($cell)
-	{
-		return isset($this->hyperlinks[(string)$cell['r']]) ? $this->hyperlinks[(string)$cell['r']] : '';
-	}
-
-	function styles()
-	{
-		return $this->styles;
 	}
 
 	function _unzip($filename, $is_data = false)
@@ -512,13 +256,6 @@ class SimpleXLSX
 							$vZ = gzinflate($vZ);
 							break;
 						case 12: // BZIP2
-							if (!extension_loaded('bz2')) {
-								if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') {
-									@dl('php_bz2.dll');
-								} else {
-									@dl('bz2.so');
-								}
-							}
 							if (extension_loaded('bz2')) {
 								$vZ = bzdecompress($vZ);
 							} else {
@@ -572,50 +309,6 @@ class SimpleXLSX
 		} // end for each entries
 	}
 
-	function getPackage()
-	{
-		return $this->package;
-	}
-
-	function entryExists($name)
-	{ // 0.6.6
-		$dir = dirname($name);
-		$name = basename($name);
-		foreach ($this->package['entries'] as $entry)
-			if ($entry['path'] == $dir && $entry['name'] == $name)
-				return true;
-		return false;
-	}
-
-	function getEntryData($name)
-	{
-		$dir = dirname($name);
-		$name = basename($name);
-		foreach ($this->package['entries'] as $entry)
-			if ($entry['path'] == $dir && $entry['name'] == $name)
-				return $entry['data'];
-		$this->error('Unknown format');
-		return false;
-	}
-
-	function getEntryXML($name)
-	{
-		if (($entry_xml = $this->getEntryData($name))
-			&& ($entry_xmlobj = simplexml_load_string($entry_xml)))
-			return $entry_xmlobj;
-
-
-		$this->error('Entry not found: ' . $name);
-		return false;
-	}
-
-	function unixstamp($excelDateTime)
-	{
-		$d = floor($excelDateTime); // seconds since 1900
-		$t = $excelDateTime - $d;
-		return ($d > 0) ? ($d - 25569) * 86400 + $t * 86400 : $t * 86400;
-	}
-
 	function error($set = false)
 	{
 		if ($set) {
@@ -625,11 +318,6 @@ class SimpleXLSX
 		} else {
 			return $this->error;
 		}
-	}
-
-	function success()
-	{
-		return !$this->error;
 	}
 
 	function _parse()
@@ -719,6 +407,40 @@ class SimpleXLSX
 		ksort($this->sheets);
 	}
 
+	function getEntryXML($name)
+	{
+		if (($entry_xml = $this->getEntryData($name))
+			&& ($entry_xmlobj = simplexml_load_string($entry_xml)))
+			return $entry_xmlobj;
+
+
+		$this->error('Entry not found: ' . $name);
+		return false;
+	}
+
+	function getEntryData($name)
+	{
+		$dir = dirname($name);
+		$name = basename($name);
+		foreach ($this->package['entries'] as $entry)
+			if ($entry['path'] == $dir && $entry['name'] == $name)
+				return $entry['data'];
+		$this->error('Unknown format');
+		return false;
+	}
+
+	function entryExists($name)
+	{ // 0.6.6
+		$dir = dirname($name);
+		$name = basename($name);
+		foreach ($this->package['entries'] as $entry)
+			if ($entry['path'] == $dir && $entry['name'] == $name)
+				return true;
+		return false;
+	}
+
+	// sheets numeration: 1,2,3....
+
 	private function _parseRichText($is = null)
 	{
 		$value = [];
@@ -732,6 +454,277 @@ class SimpleXLSX
 		}
 
 		return implode(' ', $value);
+	}
+
+	function sheets()
+	{
+		return $this->sheets;
+	}
+
+	// thx Gonzo
+
+	function sheetsCount()
+	{
+		return count($this->sheets);
+	}
+
+	function sheetName($worksheet_id)
+	{
+
+		foreach ($this->workbook->sheets->sheet as $s) {
+
+			if ($s->attributes('r', true)->id == 'rId' . $worksheet_id)
+				return (string)$s['name'];
+
+		}
+		return false;
+	}
+
+	function sheetNames()
+	{
+
+		$result = [];
+
+		foreach ($this->workbook->sheets->sheet as $s) {
+
+			$result[substr($s->attributes('r', true)->id, 3)] = (string)$s['name'];
+
+		}
+		return $result;
+	}
+
+	function rows($worksheet_id = 1)
+	{
+
+		if (($ws = $this->worksheet($worksheet_id)) === false)
+			return false;
+
+		$rows = [];
+		$curR = 0;
+
+		list($cols,) = $this->dimension($worksheet_id);
+
+		foreach ($ws->sheetData->row as $row) {
+//			echo 'row<br />';
+			foreach ($row->c as $c) {
+				list($curC,) = $this->_columnIndex((string)$c['r']);
+				$rows[$curR][$curC] = $this->value($c);
+			}
+			for ($i = 0; $i < $cols; $i++)
+				if (!isset($rows[$curR][$i]))
+					$rows[$curR][$i] = '';
+
+			ksort($rows[$curR]);
+
+			$curR++;
+		}
+		return $rows;
+	}
+
+	function worksheet($worksheet_id)
+	{
+		if (isset($this->sheets[$worksheet_id])) {
+			$ws = $this->sheets[$worksheet_id];
+
+			if (isset($ws->hyperlinks)) {
+				$this->hyperlinks = [];
+				foreach ($ws->hyperlinks->hyperlink as $hyperlink) {
+					$this->hyperlinks[(string)$hyperlink['ref']] = (string)$hyperlink['display'];
+				}
+			}
+
+			return $ws;
+		} else {
+			$this->error('Worksheet ' . $worksheet_id . ' not found. Try $xlsx->rows(' . implode(') or $xlsx->rows(', array_keys($this->sheets)) . ')');
+			return false;
+		}
+	}
+
+	function dimension($worksheet_id = 1)
+	{
+
+		if (($ws = $this->worksheet($worksheet_id)) === false)
+			return false;
+
+		$ref = (string)$ws->dimension['ref'];
+
+		if (strpos($ref, ':') !== false) {
+			$d = explode(':', $ref);
+			if (!isset($d[1]))
+				return [0, 0];
+			$index = $this->_columnIndex($d[1]);
+			return [$index[0] + 1, $index[1] + 1];
+		} else if (strlen($ref)) { // 0.6.8
+			$index = $this->_columnIndex($ref);
+			return [$index[0] + 1, $index[1] + 1];
+		} else
+			return [0, 0];
+
+	}
+
+	private function _columnIndex($cell = 'A1')
+	{
+
+		if (preg_match("/([A-Z]+)(\d+)/", $cell, $matches)) {
+
+			$col = $matches[1];
+			$row = $matches[2];
+
+			$colLen = strlen($col);
+			$index = 0;
+
+			for ($i = $colLen - 1; $i >= 0; $i--)
+				$index += (ord($col[$i]) - 64) * pow(26, $colLen - $i - 1);
+
+			return [$index - 1, $row - 1];
+		}
+
+		throw new RuntimeException("Invalid cell index.");
+	}
+
+	function value($cell)
+	{
+		// Determine data type
+		$dataType = (string)$cell['t'];
+
+		switch ($dataType) {
+			case "s":
+				// Value is a shared string
+				if ((string)$cell->v != '') {
+					$value = $this->sharedstrings[intval($cell->v)];
+				} else {
+					$value = '';
+				}
+
+				break;
+
+			case "b":
+				// Value is boolean
+				$value = (string)$cell->v;
+				if ($value == '0') {
+					$value = false;
+				} else if ($value == '1') {
+					$value = true;
+				} else {
+					$value = (bool)$cell->v;
+				}
+
+				break;
+
+			case "inlineStr":
+				// Value is rich text inline
+				$value = $this->_parseRichText($cell->is);
+
+				break;
+
+			case "e":
+				// Value is an error message
+				if ((string)$cell->v != '') {
+					$value = (string)$cell->v;
+				} else {
+					$value = '';
+				}
+
+				break;
+
+			default:
+				// Value is a string
+				$value = (string)$cell->v;
+
+				// Check for numeric values
+				if (is_numeric($value) && $dataType != 's') {
+					if ($value == (int)$value) $value = (int)$value;
+					elseif ($value == (float)$value) $value = (float)$value;
+				}
+		}
+		return $value;
+	}
+
+	function rowsEx($worksheet_id = 1)
+	{
+
+		if (($ws = $this->worksheet($worksheet_id)) === false)
+			return false;
+
+		$rows = [];
+		$curR = 0;
+		list($cols,) = $this->dimension($worksheet_id);
+
+		foreach ($ws->sheetData->row as $row) {
+
+			foreach ($row->c as $c) {
+				list($curC,) = $this->_columnIndex((string)$c['r']);
+				$t = (string)$c['t'];
+				$s = (int)$c['s'];
+				if ($s > 0 && isset($this->workbook_cell_formats[$s])) {
+					$format = $this->workbook_cell_formats[$s]['format'];
+					if (strpos($format, 'm') !== false)
+						$t = 'd';
+				} else
+					$format = '';
+
+				$rows[$curR][$curC] = [
+					'type' => $t,
+					'name' => (string)$c['r'],
+					'value' => $this->value($c),
+					'href' => $this->href($c),
+					'f' => (string)$c->f,
+					'format' => $format
+				];
+			}
+			for ($i = 0; $i < $cols; $i++) {
+
+				if (!isset($rows[$curR][$i])) {
+
+					// 0.6.8
+					for ($c = '', $j = $i; $j >= 0; $j = intval($j / 26) - 1)
+						$c = chr($j % 26 + 65) . $c;
+
+					$rows[$curR][$i] = [
+						'type' => '',
+//						'name' => chr($i + 65).($curR+1),
+						'name' => $c . ($curR + 1),
+						'value' => '',
+						'href' => '',
+						'f' => '',
+						'format' => ''
+					];
+				}
+			}
+
+			ksort($rows[$curR]);
+
+			$curR++;
+		}
+		return $rows;
+
+	}
+
+	function href($cell)
+	{
+		return isset($this->hyperlinks[(string)$cell['r']]) ? $this->hyperlinks[(string)$cell['r']] : '';
+	}
+
+	function styles()
+	{
+		return $this->styles;
+	}
+
+	function getPackage()
+	{
+		return $this->package;
+	}
+
+	function unixstamp($excelDateTime)
+	{
+		$d = floor($excelDateTime); // seconds since 1900
+		$t = $excelDateTime - $d;
+		return ($d > 0) ? ($d - 25569) * 86400 + $t * 86400 : $t * 86400;
+	}
+
+	function success()
+	{
+		return !$this->error;
 	}
 }
 

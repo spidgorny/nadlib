@@ -34,17 +34,6 @@ class SQLOr extends SQLWherePart
 		return $this;
 	}
 
-	public function injectField($field)
-	{
-		$this->field = $field;
-		foreach ($this->or as $p) {
-			if ($p instanceof SQLWherePart) {
-				$p->injectField($field);
-			}
-		}
-		return $this;
-	}
-
 	/**
 	 * Please make SQLOrBijou, SQLOrORS and so on classes.
 	 * This one should be just simple general.
@@ -96,6 +85,11 @@ class SQLOr extends SQLWherePart
 		return first($ors);
 	}
 
+	private function is_main($key)
+	{
+		return $key[0] != '.';
+	}
+
 	public function dciStyle()
 	{
 		$ors = [];
@@ -134,6 +128,17 @@ class SQLOr extends SQLWherePart
 		return first($ors);
 	}
 
+	public function injectField($field)
+	{
+		$this->field = $field;
+		foreach ($this->or as $p) {
+			if ($p instanceof SQLWherePart) {
+//				$p->injectField($field);
+			}
+		}
+		return $this;
+	}
+
 	public function debug()
 	{
 		return [
@@ -162,11 +167,6 @@ class SQLOr extends SQLWherePart
 		}
 //		llog($this->debug(), '=>', $params);
 		return $params;
-	}
-
-	private function is_main($key)
-	{
-		return $key[0] != '.';
 	}
 
 }
