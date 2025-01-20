@@ -254,7 +254,7 @@ class ArrayPlus extends ArrayObject implements Countable
 	}
 
 	#[ReturnTypeWillChange]
-	public function append(mixed $value)
+	public function append($value)
 	{
 		$this[] = $value;
 		return $this;
