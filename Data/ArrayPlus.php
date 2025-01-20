@@ -86,11 +86,6 @@ class ArrayPlus extends ArrayObject implements Countable
 		return false;
 	}
 
-	public static function from(array $getSystems)
-	{
-		return self::create($getSystems);
-	}
-
 	public function column_coalesce($col1, $col2): int
 	{
 		$return = [];
@@ -259,7 +254,14 @@ class ArrayPlus extends ArrayObject implements Countable
 	}
 
 	#[ReturnTypeWillChange]
-	public function append(mixed $value, $key = null)
+	public function append(mixed $value)
+	{
+		$this[] = $value;
+		return $this;
+	}
+
+
+	public function appendWithKey($value, $key = null)
 	{
 		if (!is_null($key)) {
 			$this[$key] = $value;
@@ -412,6 +414,24 @@ class ArrayPlus extends ArrayObject implements Countable
 			$prev = $iterator->current();
 		}
 //		debug($key, $row, $row2, $row3['id'], $next['id'], $prev['id']); //, $rc->data);//, $rc);
+	}
+
+	/**
+	 * Filter rows where $key = $value
+	 * @param string $key
+	 * @param mixed $value
+	 * @return $this
+	 */
+	public function where($key, $value)
+	{
+		$copy = $this->getData();
+		foreach ($copy as $i => $row) {
+			if ($row[$key] != $value) {
+				unset($copy[$i]);
+			}
+		}
+		// no setData() here
+		return new self($copy);
 	}
 
 	/**
@@ -721,11 +741,6 @@ class ArrayPlus extends ArrayObject implements Countable
 		return $this;
 	}
 
-	public function implode($sep = "\n")
-	{
-		return implode($sep, $this->getData());
-	}
-
 	public function typoscript($prefix = '')
 	{
 		$replace = [];
@@ -739,6 +754,17 @@ class ArrayPlus extends ArrayObject implements Countable
 			}
 		}
 		return $replace;
+	}
+
+	/**
+	 * Static initializers can be chained in PHP
+	 * @param array $data
+	 * @return ArrayPlus
+	 */
+	public static function create(array $data = [])
+	{
+		$self = new self($data);
+		return $self;
 	}
 
 	public function concat()
@@ -820,23 +846,6 @@ class ArrayPlus extends ArrayObject implements Countable
 	}
 
 	/**
-	 * @param string $oldKey
-	 * @param string $newKey
-	 * @return static
-	 * @throws Exception
-	 */
-	public function replace_key($oldKey, $newKey)
-	{
-		$keys = array_keys((array)$this);
-		if (false === $index = array_search($oldKey, $keys)) {
-			throw new Exception(sprintf('Key "%s" does not exit', $oldKey));
-		}
-		$keys[$index] = $newKey;
-		$this->exchangeArray(array_combine($keys, array_values((array)$this)));
-		return $this;
-	}
-
-	/**
 	 * @param array $ar2
 	 * @return static
 	 */
@@ -880,17 +889,6 @@ class ArrayPlus extends ArrayObject implements Countable
 		return $new;
 	}
 
-	/**
-	 * Static initializers can be chained in PHP
-	 * @param array $data
-	 * @return ArrayPlus
-	 */
-	public static function create(array $data = [])
-	{
-		$self = new self($data);
-		return $self;
-	}
-
 	public function columnEmpty($string)
 	{
 		foreach ($this->getData() as $row) {
@@ -927,6 +925,23 @@ class ArrayPlus extends ArrayObject implements Countable
 		foreach ($visibleFields as $key => $val) {
 			$this->replace_key($key, $val);
 		}
+		return $this;
+	}
+
+	/**
+	 * @param string $oldKey
+	 * @param string $newKey
+	 * @return static
+	 * @throws Exception
+	 */
+	public function replace_key($oldKey, $newKey)
+	{
+		$keys = array_keys((array)$this);
+		if (false === $index = array_search($oldKey, $keys)) {
+			throw new Exception(sprintf('Key "%s" does not exit', $oldKey));
+		}
+		$keys[$index] = $newKey;
+		$this->exchangeArray(array_combine($keys, array_values((array)$this)));
 		return $this;
 	}
 
@@ -972,6 +987,11 @@ class ArrayPlus extends ArrayObject implements Countable
 			}
 		}
 		return self::from($result);
+	}
+
+	public static function from(array $getSystems)
+	{
+		return self::create($getSystems);
 	}
 
 	public function callMutate($method)
@@ -1034,11 +1054,6 @@ class ArrayPlus extends ArrayObject implements Countable
 		}
 		$this->setData($new);
 		return $this;
-	}
-
-	public function contains($string)
-	{
-		return in_array($string, $this->getData());
 	}
 
 	public function containsPartly($string)
@@ -1139,24 +1154,6 @@ class ArrayPlus extends ArrayObject implements Countable
 		$ap = $ap instanceof ArrayPlus ? $ap->getData() : $ap;
 		$new->setData(array_diff($new->getData(), $ap));
 		return $new;
-	}
-
-	/**
-	 * Filter rows where $key = $value
-	 * @param string $key
-	 * @param mixed $value
-	 * @return $this
-	 */
-	public function where($key, $value)
-	{
-		$copy = $this->getData();
-		foreach ($copy as $i => $row) {
-			if ($row[$key] != $value) {
-				unset($copy[$i]);
-			}
-		}
-		// no setData() here
-		return new self($copy);
 	}
 
 	/**
@@ -1299,7 +1296,6 @@ class ArrayPlus extends ArrayObject implements Countable
 		return $this;
 	}
 
-	// untested from https://stackoverflow.com/questions/3797239/insert-new-item-in-array-on-any-position-in-php
 	public function insertAfter($position, $insert)
 	{
 		if (is_int($position)) {
@@ -1328,6 +1324,8 @@ class ArrayPlus extends ArrayObject implements Countable
 		}
 		return $this;
 	}
+
+	// untested from https://stackoverflow.com/questions/3797239/insert-new-item-in-array-on-any-position-in-php
 
 	public function sort($callback)
 	{
@@ -1380,11 +1378,6 @@ class ArrayPlus extends ArrayObject implements Countable
 		return count($this->getData()) === 0;
 	}
 
-	public function includes($id)
-	{
-		return $this->contains($id);
-	}
-
 	public function containsAny(ArrayPlus $anotherList)
 	{
 		foreach ($this as $el) {
@@ -1393,6 +1386,16 @@ class ArrayPlus extends ArrayObject implements Countable
 			}
 		}
 		return false;
+	}
+
+	public function includes($id)
+	{
+		return $this->contains($id);
+	}
+
+	public function contains($string)
+	{
+		return in_array($string, $this->getData());
 	}
 
 	public function containsAll(ArrayPlus $anotherList)
@@ -1408,6 +1411,11 @@ class ArrayPlus extends ArrayObject implements Countable
 	public function join(string $string)
 	{
 		return $this->implode($string);
+	}
+
+	public function implode($sep = "\n")
+	{
+		return implode($sep, $this->getData());
 	}
 
 	public function toInt()
