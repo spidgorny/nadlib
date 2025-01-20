@@ -363,3 +363,13 @@ if (!function_exists('llog')) {
 		error_log($caller . ' ' . $output);
 	}
 }
+
+if (!function_exists('get_debug_type')) {
+	function get_debug_type($value)
+	{
+		if (is_object($value)) {
+			return get_class($value);
+		}
+		return gettype($value);
+	}
+}

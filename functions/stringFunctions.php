@@ -20,7 +20,16 @@ if (!function_exists('str_startsWith')) {
 		}
 		return false;
 	}
+}
 
+if (!function_exists('str_starts_with')) {
+	function str_starts_with($haystack, $needle)
+	{
+		return str_startsWith($haystack, $needle);
+	}
+}
+
+if (!function_exists('str_endWith')) {
 	/**
 	 * Whether string ends with some chars
 	 * @param string $haystack

@@ -5,25 +5,17 @@ class CollectionQuery
 
 	/** @var DBInterface */
 	public $db;
-
+	public $log = [];
 	protected $table;
-
 	protected $join;
-
 	protected $where;
-
 	protected $orderBy;
-
 	protected $select;
-
 	protected $query;
-
 	/**
 	 * @var Pager
 	 */
 	protected $pager;
-
-	public $log = [];
 
 	/**
 	 * @param DBInterface $db
@@ -43,72 +35,6 @@ class CollectionQuery
 		$this->orderBy = $orderBy;
 		$this->select = $select;
 		$this->pager = $pager;
-	}
-
-	/**
-	 * @param array /SQLWhere $where
-	 * @return string|SQLSelectQuery
-	 */
-	public function getQuery($where = [])
-	{
-		TaylorProfiler::start($profiler = get_class($this) . '::' . __FUNCTION__ . " ({$this->table})");
-		if (!$this->db) {
-			throw new DatabaseException('DB is not set in ' . get_class($this));
-		}
-		if (!$where) {
-			$where = $this->where;
-		}
-		// bijou old style - each collection should care about hidden and deleted
-		//$where += $GLOBALS['db']->filterFields($this->filterDeleted, $this->filterHidden, $GLOBALS['db']->getFirstWord($this->table));
-		if ($where instanceof SQLWhere) {
-			$query = $this->db->getSelectQuerySW($this->table . ' ' . $this->join, $where, $this->orderBy, $this->select);
-		} else {
-			//debug($where);
-			if ($this->join) {
-				$query = $this->db->getSelectQuery(
-					$this->table . ' ' . $this->join,
-					$where,
-					$this->orderBy,
-					$this->select
-				);
-			} else {
-				// joins are not implemented yet (IMHO)
-				$query = $this->db->getSelectQuerySW(
-					$this->table,
-					$where instanceof SQLWhere ? $where : new SQLWhere($where),
-					$this->orderBy,
-					$this->select
-				);
-			}
-		}
-		if (DEVELOPMENT) {
-//			$index = Index::getInstance();
-//			$controllerCollection = ifsetor($index->controller->collection);
-//			if ($this == $controllerCollection) {
-//				header('X-Collection-' . $this->table . ': ' . str_replace(["\r", "\n"], " ", $query));
-//			}
-		}
-		TaylorProfiler::stop($profiler);
-		return $query;
-	}
-
-	public function getQueryWithLimit()
-	{
-		$query = $this->getQuery();
-		if ($this->pager) {
-			// do it only once
-			if (!$this->pager->numberOfRecords) {
-				//debug($this->pager->getObjectInfo());
-				//			debug($query);
-				$this->pager->initByQuery($query);
-				//			debug($query, $this->query);
-			}
-			$query = $this->pager->getSQLLimit($query);
-			//debug($query.''); exit();
-		}
-		//debug($query);
-		//TaylorProfiler::stop(__METHOD__." ({$this->table})");
-		return $query;
 	}
 
 	public function retrieveData()
@@ -169,6 +95,72 @@ class CollectionQuery
 //		]);
 		TaylorProfiler::stop($taylorKey);
 		return $data;
+	}
+
+	public function getQueryWithLimit(): SQLSelectQuery
+	{
+		$query = $this->getQuery();
+		if ($this->pager) {
+			// do it only once
+			if (!$this->pager->numberOfRecords) {
+				//debug($this->pager->getObjectInfo());
+				//			debug($query);
+				$this->pager->initByQuery($query);
+				//			debug($query, $this->query);
+			}
+			$query = $this->pager->getSQLLimit($query);
+			//debug($query.''); exit();
+		}
+		//debug($query);
+		//TaylorProfiler::stop(__METHOD__." ({$this->table})");
+		return $query;
+	}
+
+	/**
+	 * @param array /SQLWhere $where
+	 * @return string|SQLSelectQuery
+	 */
+	public function getQuery($where = [])
+	{
+		TaylorProfiler::start($profiler = get_class($this) . '::' . __FUNCTION__ . " ({$this->table})");
+		if (!$this->db) {
+			throw new DatabaseException('DB is not set in ' . get_class($this));
+		}
+		if (!$where) {
+			$where = $this->where;
+		}
+		// bijou old style - each collection should care about hidden and deleted
+		//$where += $GLOBALS['db']->filterFields($this->filterDeleted, $this->filterHidden, $GLOBALS['db']->getFirstWord($this->table));
+		if ($where instanceof SQLWhere) {
+			$query = $this->db->getSelectQuerySW($this->table . ' ' . $this->join, $where, $this->orderBy, $this->select);
+		} else {
+			//debug($where);
+			if ($this->join) {
+				$query = $this->db->getSelectQuery(
+					$this->table . ' ' . $this->join,
+					$where,
+					$this->orderBy,
+					$this->select
+				);
+			} else {
+				// joins are not implemented yet (IMHO)
+				$query = $this->db->getSelectQuerySW(
+					$this->table,
+					$where instanceof SQLWhere ? $where : new SQLWhere($where),
+					$this->orderBy,
+					$this->select
+				);
+			}
+		}
+		if (DEVELOPMENT) {
+//			$index = Index::getInstance();
+//			$controllerCollection = ifsetor($index->controller->collection);
+//			if ($this == $controllerCollection) {
+//				header('X-Collection-' . $this->table . ': ' . str_replace(["\r", "\n"], " ", $query));
+//			}
+		}
+		TaylorProfiler::stop($profiler);
+		return $query;
 	}
 
 	protected function log($action, ...$something)
