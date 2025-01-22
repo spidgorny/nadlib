@@ -43,17 +43,16 @@ abstract class Controller extends SimpleController
 	use HTMLHelper;
 
 	/**
+	 * accessible without login
+	 * @var bool
+	 */
+	public static $public = false;
+	/**
 	 * @var boolean
 	 * @use $this->preventDefault() to set
 	 * Check manually in render()
 	 */
 	public $noRender = false;
-
-	/**
-	 * @var MySQL|DBLayer|DBLayerMS|DBLayerPDO|DBLayerSQLite|DBLayerBase|DBInterface
-	 */
-	protected $db;
-
 	/**
 	 * Will be taken as a <title> of the HTML table
 	 * @var string
@@ -71,29 +70,24 @@ abstract class Controller extends SimpleController
 	 * @var string|Wrap
 	 */
 	public $layout;
-
-	/**
-	 * accessible without login
-	 * @var bool
-	 */
-	public static $public = false;
-
 	/**
 	 * @var Config
 	 */
 	public $config;
-
 	/**
 	 * Used by Collection to get the current sorting method.
 	 * Ugly, please reprogram.
 	 * @var
 	 */
 	public $sortBy;
-
 	/**
 	 * @var Linker
 	 */
 	public $linker;
+	/**
+	 * @var DBLayer|DBLayerPDO|DBLayerSQLite|DBLayerBase|DBInterface
+	 */
+	protected $db;
 
 	public function __construct()
 	{
@@ -118,6 +112,26 @@ abstract class Controller extends SimpleController
 		if (!$this->linker->useRouter) {
 			$this->linker->linkVars['c'] = get_class($this);
 		}
+	}
+
+	public static function link($text = null, array $params = [])
+	{
+		return new HTMLTag('a', [
+			'href' => static::href($params)
+		], $text ?: static::class);
+	}
+
+	public static function href(array $params = [])
+	{
+		return static::class . static::buildQuery($params);
+	}
+
+	public static function buildQuery(array $params = [])
+	{
+		if (!$params) {
+			return '';
+		}
+		return '?' . http_build_query($params);
 	}
 
 	public function __call($method, array $arguments)
@@ -234,6 +248,14 @@ abstract class Controller extends SimpleController
 		return '<div class="display-box equal">' . $content . '</div>';
 	}
 
+	/**
+	 * Commented to allow get_class_methods() to return false
+	 * @return string
+	 */
+	//function getMenuSuffix() {
+	//	return '';
+	//}
+
 	public function encloseInTableHTML3(array $cells, array $more = [], array $colMore = [])
 	{
 		if (!$more) {
@@ -292,14 +314,6 @@ abstract class Controller extends SimpleController
 	}
 
 	/**
-	 * Commented to allow get_class_methods() to return false
-	 * @return string
-	 */
-	//function getMenuSuffix() {
-	//	return '';
-	//}
-
-	/**
 	 * @return string|string[]|HTMLForm|ToStringable
 	 */
 	public function sidebar()
@@ -345,26 +359,6 @@ abstract class Controller extends SimpleController
 	{
 		$this->noRender = true;
 		$this->request->set('ajax', 1);
-	}
-
-	public static function link($text = null, array $params = [])
-	{
-		return new HTMLTag('a', [
-			'href' => static::href($params)
-		], $text ?: static::class);
-	}
-
-	public static function href(array $params = [])
-	{
-		return static::class . static::buildQuery($params);
-	}
-
-	public static function buildQuery(array $params = [])
-	{
-		if (!$params) {
-			return '';
-		}
-		return '?' . http_build_query($params);
 	}
 
 	/**
