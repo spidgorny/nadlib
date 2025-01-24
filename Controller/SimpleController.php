@@ -176,7 +176,7 @@ abstract class SimpleController
 
 		$method .= 'Action';        // ZendFramework style
 		if ($method !== 'updateNotificationCounterAction') {
-//			llog(get_class($this), $method, method_exists($this, $method));
+			llog(get_class($this), $method, method_exists($this, $method));
 		}
 
 		$proxy = $this;
@@ -214,7 +214,7 @@ abstract class SimpleController
 	{
 		if (Request::isCLI()) {
 			//debug($_SERVER['argv']);
-			llog('iscli', true);
+//			llog('iscli', true);
 			return ifsetor($_SERVER['argv'][2]);    // it was 1
 		}
 
