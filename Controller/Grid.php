@@ -6,35 +6,30 @@ abstract class Grid extends AppController
 {
 
 	/**
-	 * @var Collection
-	 */
-	protected $collection;
-
-	/**
 	 * @var OODBase|null
 	 */
 	public $model;
-
 	/**
 	 * @var Filter
 	 */
 	public $filter;
-
 	/**
 	 * Defines which columns are visible in a table
 	 * @var VisibleColumns
 	 */
 	public $columns;
-
 	/**
 	 * @var array ['sortBy'], ['sortOrder']
 	 */
 	public $sort = [];
-
 	/**
 	 * @var PageSize
 	 */
 	public $pageSize;
+	/**
+	 * @var Collection
+	 */
+	protected $collection;
 
 	public function __construct()
 	{
@@ -51,6 +46,42 @@ abstract class Grid extends AppController
 		if ($allowEdit) {
 			$this->setFilter($cn);
 		}
+	}
+
+	/**
+	 * Only get filter if it's not need to be cleared
+	 * @param string $cn
+	 * @throws LoginException
+	 */
+	public function setFilter($cn = __CLASS__)
+	{
+		$this->filter = new Filter();
+//		$action = $this->request->getTrim('action');
+//		$this->log(__METHOD__, 'isSubmit', $this->request->isSubmit());
+//		$this->log(__METHOD__, 'GET filter=', $this->request->getArray('filter'));
+		if ($this->request->isSubmit() || $this->request->getArray('filter')) {
+			$this->filter->setRequest($this->request->getArray('filter'));
+		}
+		if (method_exists($this->user, 'getPref')) {
+			$prefFilter = $this->user->getPref('Filter.' . $cn);
+//				debug($prefFilter);
+			if ($prefFilter) {
+//				$this->log(__METHOD__, 'setPreferences', $prefFilter);
+				$this->filter->setPreferences($prefFilter);
+			}
+		}
+//			d($cn, $this->filter,
+//				array_keys($_SESSION), gettypes($_SESSION),
+//				$_SESSION
+//			);
+		//debug(get_class($this), 'Filter.'.$cn, $this->filter);
+		0 && debug([
+			'controller' => $this->request->getControllerString(),
+			'this' => get_class($this),
+			//'allowEdit' => $allowEdit,
+			'this->filter' => $this->filter,
+			'_REQUEST' => $_REQUEST,
+		]);
 	}
 
 	public function initPageSize()
@@ -106,42 +137,6 @@ abstract class Grid extends AppController
 	}
 
 	/**
-	 * Only get filter if it's not need to be cleared
-	 * @param string $cn
-	 * @throws LoginException
-	 */
-	public function setFilter($cn = __CLASS__)
-	{
-		$this->filter = new Filter();
-//		$action = $this->request->getTrim('action');
-//		$this->log(__METHOD__, 'isSubmit', $this->request->isSubmit());
-//		$this->log(__METHOD__, 'GET filter=', $this->request->getArray('filter'));
-		if ($this->request->isSubmit() || $this->request->getArray('filter')) {
-			$this->filter->setRequest($this->request->getArray('filter'));
-		}
-		if (method_exists($this->user, 'getPref')) {
-			$prefFilter = $this->user->getPref('Filter.' . $cn);
-//				debug($prefFilter);
-			if ($prefFilter) {
-//				$this->log(__METHOD__, 'setPreferences', $prefFilter);
-				$this->filter->setPreferences($prefFilter);
-			}
-		}
-//			d($cn, $this->filter,
-//				array_keys($_SESSION), gettypes($_SESSION),
-//				$_SESSION
-//			);
-		//debug(get_class($this), 'Filter.'.$cn, $this->filter);
-		0 && debug([
-			'controller' => $this->request->getControllerString(),
-			'this' => get_class($this),
-			//'allowEdit' => $allowEdit,
-			'this->filter' => $this->filter,
-			'_REQUEST' => $_REQUEST,
-		]);
-	}
-
-	/**
 	 * @param string $cn Supply get_class($this->collection) to the function
 	 * or it should be called after $this->collection is initialized
 	 * @throws LoginException
@@ -193,12 +188,11 @@ abstract class Grid extends AppController
 		}
 		$content[] = $this->collection->render();
 		$content[] = '<hr />';
-		$content = $this->encloseInAA(
+		return $this->encloseInAA(
 			$content,
 			$this->title = $this->title ?: get_class($this),
 			$this->encloseTag
 		);
-		return $content;
 	}
 
 	public function injectCollection()
