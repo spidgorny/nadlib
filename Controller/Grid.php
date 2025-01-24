@@ -181,7 +181,7 @@ abstract class Grid extends AppController
 		}
 	}
 
-	public function render()
+	public function indexAction()
 	{
 		if (!$this->collection) {
 			$this->injectCollection();
@@ -208,6 +208,12 @@ abstract class Grid extends AppController
 		}
 	}
 
+	public function render()
+	{
+		$content[] = $this->performAction($this->detectAction());
+		return $content;
+	}
+
 	/**
 	 * This is now handled by the saveFilterColumnsSort()
 	 */
@@ -219,6 +225,7 @@ abstract class Grid extends AppController
 			Index::getInstance()->message('Filter cleared');
 		}
 	}*/
+
 
 	public function sidebar()
 	{
