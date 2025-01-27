@@ -131,25 +131,6 @@ abstract class FullGrid extends Grid
 		return $ret;
 	}
 
-	public function render()
-	{
-		$this->setVisibleColumns();
-		//$this->collection->pageSize = $this->pageSize;
-		return parent::render();
-	}
-
-	public function setVisibleColumns()
-	{
-		if ($this->columns) {
-			foreach ($this->collection->thes as $cn => $_) {
-				if (!$this->columns->isVisible($cn)) {
-					//unset($this->collection->thes[$cn]);
-					$this->collection->thes[$cn]['!show'] = true;
-				}
-			}
-		}
-	}
-
 	/**
 	 * @return array
 	 * @throws Exception
@@ -195,6 +176,27 @@ abstract class FullGrid extends Grid
 	public function getFilterDesc(array $fields = null)
 	{
 		return $this->filterController->getFilterDesc($fields);
+	}
+
+	public function render()
+	{
+		$this->setVisibleColumns();
+		//$this->collection->pageSize = $this->pageSize;
+		return parent::render();
+	}
+
+	public function setVisibleColumns()
+	{
+		if (!$this->columns) {
+			return;
+		}
+		//llog('visibleColumns', $this->columns->getData());
+		foreach ($this->collection->thes as $cn => $_) {
+			if (!$this->columns->isVisible($cn)) {
+				//unset($this->collection->thes[$cn]);
+				$this->collection->thes[$cn]['!show'] = true;
+			}
+		}
 	}
 
 	public function getColumnsForm()
