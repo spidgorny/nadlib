@@ -603,7 +603,7 @@ class Collection implements IteratorAggregate, ToStringable
 			return null;
 		}
 
-		llog('$this->getProcessedData()', $this->getProcessedData()->count());
+//		llog('$this->getProcessedData()', $this->getProcessedData()->count());
 		foreach ($this->getProcessedData() as $id => $row) {
 			if ($this->itemClassName) {
 				$list[$id] = $this->renderListItem($row);

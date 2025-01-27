@@ -111,8 +111,7 @@ class ArrayPlus extends ArrayObject implements Countable
 		foreach ((array)$this as $key => $row) {
 			$return[$key] = ifsetor($row[$col]);
 		}
-		$ap = new ArrayPlus($return);
-		return $ap;
+		return new ArrayPlus($return);
 	}
 
 	public function pick($key)
@@ -1307,11 +1306,13 @@ class ArrayPlus extends ArrayObject implements Countable
 			if (false === $pos) {
 				throw new Exception('position ' . $position . ' not found');
 			}
+//			llog('insertAfter', $position, $pos);
 			$array = array_merge(
 				array_slice($this->getArrayCopy(), 0, $pos + 1),
 				$insert,
 				array_slice($this->getArrayCopy(), $pos + 1)
 			);
+//			llog('insertAfter', array_keys($array));
 			$this->setData($array);
 		}
 		return $this;

@@ -5,25 +5,21 @@ use spidgorny\nadlib\HTTP\URL;
 class CollectionView
 {
 
-	/**
-	 * @var Collection
-	 */
-	protected $collection;
-
 	public $noDataMessage = 'No data';
-
 	/**
 	 * Indication to slTable
 	 * @var bool
 	 */
 	public $useSorting = true;
-
 	public $tableMore = [
 		'class' => 'nospacing table table-striped',
 		'width' => '100%',
 	];
-
 	public $wrapTag = 'div';
+	/**
+	 * @var Collection
+	 */
+	protected $collection;
 
 	public function __construct(Collection $col)
 	{
@@ -33,20 +29,6 @@ class CollectionView
 	public function __toString()
 	{
 		return MergedContent::mergeStringArrayRecursive($this->renderMembers());
-	}
-
-	public function wrap($content)
-	{
-		if ($this->wrapTag) {
-			list($tagClass, $id) = trimExplode('#', $this->wrapTag, 2);
-			list($tag, $class) = trimExplode('.', $tagClass, 2);
-			$content = [
-				'<' . $tag . ' class="' . get_class($this->collection) . ' ' . $class . '" id="' . $id . '">',
-				$content,
-				'</' . $tag . '>'
-			];
-		}
-		return $content;
 	}
 
 	public function renderMembers()
@@ -75,6 +57,20 @@ class CollectionView
 		if ($this->collection->pager) {
 			$pages = $this->collection->pager->renderPageSelectors();
 			$content = [$pages, $content, $pages];
+		}
+		return $content;
+	}
+
+	public function wrap($content)
+	{
+		if ($this->wrapTag) {
+			list($tagClass, $id) = trimExplode('#', $this->wrapTag, 2);
+			list($tag, $class) = trimExplode('.', $tagClass, 2);
+			$content = [
+				'<' . $tag . ' class="' . get_class($this->collection) . ' ' . $class . '" id="' . $id . '">',
+				$content,
+				'</' . $tag . '>'
+			];
 		}
 		return $content;
 	}
@@ -135,6 +131,7 @@ class CollectionView
 		$data = $this->collection->getData()->getData();
 		$s = new slTable($data, HTMLTag::renderAttr($this->tableMore));
 		$s->thes($this->collection->thes);
+		//llog('getDataTable', $s->thes);
 		$s->ID = get_class($this->collection);
 		$s->sortable = $this->useSorting;
 		if (class_exists('Index') && Index::getInstance()) {

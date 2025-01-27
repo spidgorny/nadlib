@@ -9,23 +9,28 @@ abstract class Grid extends AppController
 	 * @var OODBase|null
 	 */
 	public $model;
+
 	/**
 	 * @var Filter
 	 */
 	public $filter;
+
 	/**
 	 * Defines which columns are visible in a table
 	 * @var VisibleColumns
 	 */
 	public $columns;
+
 	/**
 	 * @var array ['sortBy'], ['sortOrder']
 	 */
 	public $sort = [];
+
 	/**
 	 * @var PageSize
 	 */
 	public $pageSize;
+
 	/**
 	 * @var Collection
 	 */
@@ -315,17 +320,18 @@ abstract class Grid extends AppController
 	 */
 	public function getGridColumns()
 	{
-		if ($this->collection) {
-//			$this->log(__METHOD__, 'Collection exists');
-			return ArrayPlus::create($this->collection->thes)
-				->makeTable('name')
-				->column('name')
-				//->combineSelf() ?!? WTF
-				->getData();
+		if (!$this->collection) {
+			return [];
 		}
 
-//		$this->log(__METHOD__, 'No collection');
-		return [];
+//			$this->log(__METHOD__, 'Collection exists');
+		return ArrayPlus::create($this->collection->thes)
+			->makeTable('name')
+			->column('name')
+			//->combineSelf() ?!? WTF
+			->mapBoth(function ($key, $val) {
+				return $val ?? $key;
+			})
+			->getData();
 	}
-
 }
