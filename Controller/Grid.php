@@ -315,17 +315,18 @@ abstract class Grid extends AppController
 	 */
 	public function getGridColumns()
 	{
-		if ($this->collection) {
-//			$this->log(__METHOD__, 'Collection exists');
-			return ArrayPlus::create($this->collection->thes)
-				->makeTable('name')
-				->column('name')
-				//->combineSelf() ?!? WTF
-				->getData();
+		if (!$this->collection) {
+			return [];
 		}
 
-//		$this->log(__METHOD__, 'No collection');
-		return [];
+//			$this->log(__METHOD__, 'Collection exists');
+		return ArrayPlus::create($this->collection->thes)
+			->makeTable('name')
+			->column('name')
+			//->combineSelf() ?!? WTF
+			->mapBoth(function ($key, $val) {
+				return $val ?? $key;
+			})
+			->getData();
 	}
-
 }

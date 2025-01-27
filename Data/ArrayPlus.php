@@ -111,8 +111,7 @@ class ArrayPlus extends ArrayObject implements Countable
 		foreach ((array)$this as $key => $row) {
 			$return[$key] = ifsetor($row[$col]);
 		}
-		$ap = new ArrayPlus($return);
-		return $ap;
+		return new ArrayPlus($return);
 	}
 
 	public function pick($key)
