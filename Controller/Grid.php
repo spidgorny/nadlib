@@ -320,6 +320,9 @@ abstract class Grid extends AppController
 				->makeTable('name')
 				->column('name')
 				//->combineSelf() ?!? WTF
+				->mapBoth(function ($key, $val) {
+					return $val ?? $key;
+				})
 				->getData();
 		}
 
