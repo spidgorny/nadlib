@@ -189,10 +189,10 @@ function recursive_array_diff($a1, $a2)
 function arrayToObject($array)
 {
 	// First we convert the array to a json string
-	$json = json_encode($array);
+	$json = json_encode($array, JSON_THROW_ON_ERROR);
 
 	// The we convert the json string to a stdClass()
-	return json_decode($json, false);
+	return json_decode($json, false, 512, JSON_THROW_ON_ERROR);
 }
 
 
@@ -206,15 +206,17 @@ function arrayToObject($array)
 function objectToArray($object)
 {
 	// First we convert the object into a json string
-	$json = json_encode($object);
+	$json = json_encode($object, JSON_THROW_ON_ERROR);
 
 	// Then we convert the json string to an array
-	return json_decode($json, true);
+	return json_decode($json, true, 512, JSON_THROW_ON_ERROR);
 }
 
-function array_find($array, $callback)
-{
-	return current(array_filter($array, $callback));
+if (!function_exists('array_find')) {
+	function array_find($array, $callback)
+	{
+		return current(array_filter($array, $callback));
+	}
 }
 
 // https://www.reddit.com/r/PHPhelp/comments/7987wv/is_there_a_php_equivalent_of_javascripts_arrayfind/
