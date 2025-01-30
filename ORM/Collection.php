@@ -951,5 +951,9 @@ class Collection implements IteratorAggregate, ToStringable
 		$this->logger = $log;
 	}
 
+	public function isTrue($value)
+	{
+		return $value === 't' || $value === true;
+	}
 
 }
