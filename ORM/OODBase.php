@@ -335,7 +335,7 @@ abstract class OODBase implements ArrayAccess
 	 * @throws MustBeStringException
 	 * @throws DatabaseException
 	 */
-	public function delete(array $where = null)
+	public function delete(?array $where = null)
 	{
 		if (!$where) {
 			if ($this->id) {
@@ -614,12 +614,12 @@ abstract class OODBase implements ArrayAccess
 	/**
 	 * Uses $this->thes if available
 	 * Hides fields without values
-	 * @param array $assoc
+	 * @param array|null $assoc
 	 * @param bool $recursive
 	 * @param bool $skipEmpty
 	 * @return slTable
 	 */
-	public function renderAssoc(array $assoc = null, $recursive = false, $skipEmpty = true)
+	public function renderAssoc(?array $assoc = null, $recursive = false, $skipEmpty = true)
 	{
 		$assoc = $assoc ?: $this->data;
 		//debug($this->thes);
@@ -816,7 +816,7 @@ abstract class OODBase implements ArrayAccess
 	 * @return resource|string
 	 * @throws Exception
 	 */
-	public function save(array $where = null)
+	public function save(?array $where = null)
 	{
 		if ($this->id) {
 			$res = $this->update($this->data);

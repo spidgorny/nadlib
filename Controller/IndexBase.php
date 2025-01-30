@@ -90,7 +90,7 @@ class IndexBase /*extends Controller*/
 	 */
 	protected $request;
 
-	public function __construct(ConfigInterface $config = null)
+	public function __construct(?ConfigInterface $config = null)
 	{
 		TaylorProfiler::start(__METHOD__);
 		//parent::__construct();
@@ -142,7 +142,7 @@ class IndexBase /*extends Controller*/
 	 * @return Index|IndexBE
 	 * @throws Exception
 	 */
-	public static function makeInstance(Config $config = null)
+	public static function makeInstance(?Config $config = null)
 	{
 		return static::getInstance(true, $config);
 	}
@@ -153,7 +153,7 @@ class IndexBase /*extends Controller*/
 	 * @return Index
 	 * @throws Exception
 	 */
-	public static function getInstance($createNew = false, ConfigInterface $config = null)
+	public static function getInstance($createNew = false, ?ConfigInterface $config = null)
 	{
 		TaylorProfiler::start(__METHOD__);
 		$instance = self::$instance ?: null;

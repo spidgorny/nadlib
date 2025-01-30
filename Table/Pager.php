@@ -299,7 +299,7 @@ class Pager
 			$i < ($this->getPageFirstItem($this->currentPage) + $this->itemsPerPage);
 	}
 
-	public function renderPageSelectors(URL $url = null)
+	public function renderPageSelectors(?URL $url = null)
 	{
 		$this->log[] = __METHOD__;
 		$content = '';
