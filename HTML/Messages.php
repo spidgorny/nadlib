@@ -70,4 +70,9 @@ class Messages extends MergedContent
 		}
 	}
 
+	public function __destruct()
+	{
+		$this->saveMessages();
+	}
+
 }
