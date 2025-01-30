@@ -43,6 +43,7 @@ class HTMLFormSelection extends HTMLFormField
 
 	function render()
 	{
+		llog('HTMLFormSelection::render()', 'isNull', $this->desc['null']);
 		$this->form = $this->form ?: new HTMLForm();
 		$content[] = "<select " .
 			$this->form->getName($this->field, $this->multiple ? '[]' : '');
@@ -71,6 +72,9 @@ class HTMLFormSelection extends HTMLFormField
 
 		if (is_null($this->options)) {
 			$this->options = $this->fetchSelectionOptions($this->desc->getArray());
+		}
+		if ($this->desc['null']) {
+			$this->options = [NULL => "---"] + $this->options;
 		}
 		$content[] = $this->getSelectionOptions($this->options, $this->value, $this->desc->getArray());
 		$content[] = "</select>\n";
@@ -103,9 +107,9 @@ class HTMLFormSelection extends HTMLFormField
 				// === does not prevent NULL from being selected
 				// ==  does better compare POST value with DB value
 				$justEquals = !is_array($default) && $default == $value;
-				if ($this->field[0] == 'id_person' && $value == 327) {
-					//debug($value, $default, $arrayContains, $justEquals);
-				}
+//				if ($this->field[0] === 'id_person' && $value == 327) {
+				//debug($value, $default, $arrayContains, $justEquals);
+//				}
 				if ($arrayContains || $justEquals) {
 					$selected = true;
 				} else {
@@ -154,9 +158,9 @@ class HTMLFormSelection extends HTMLFormField
 			$db = Config::getInstance()->getDB();
 			$options = $db->getTableOptions($desc['from'],
 				$desc['title'],
-				isset($desc['where']) ? $desc['where'] : [],
-				isset($desc['order']) ? $desc['order'] : '',
-				isset($desc['idField']) ? $desc['idField'] : 'id',
+				$desc['where'] ?? [],
+				$desc['order'] ?? '',
+				$desc['idField'] ?? 'id',
 				ifsetor($desc['prefix'])
 			//$desc['noDeleted']
 			);
@@ -166,9 +170,6 @@ class HTMLFormSelection extends HTMLFormField
 		}
 		if (isset($desc['options'])) {
 			$options += $desc['options'];
-		}
-		if (isset($desc['null'])) {
-			$options = [NULL => "---"] + $options;
 		}
 		if (isset($desc['map'])) {
 			$options = array_map($desc['map'], $options);

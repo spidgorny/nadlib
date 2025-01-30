@@ -728,7 +728,7 @@ class HTMLForm implements ToStringable
 		$content = '<input id="calendar-' . $fieldName . '" name="' . $this->getName($fieldName) . '" value="' .
 			($fieldValue ? date('Y-m-d', $fieldValue) : '') . '"/>
 		<button id="calendar-trigger-' . $fieldName . '" onclick="return false;">...</button>';
-		$index->footer['jsCal2-' . $fieldName] = '<script defer="true"> 
+		$index->footer['jsCal2-' . $fieldName] = '<script defer="true">
 document.observe("dom:loaded", () => {
     Calendar.setup({
         trigger    	: "calendar-trigger-' . $fieldName . '",

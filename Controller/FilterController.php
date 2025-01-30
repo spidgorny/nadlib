@@ -105,6 +105,7 @@ class FilterController extends Controller
 			$k['type'] = 'select';
 			$stv = new slTableValue('', []);
 			$options = [
+				'' => '---',
 				't' => $stv->SLTABLE_IMG_CHECK,
 				'f' => $stv->SLTABLE_IMG_CROSS,
 			];
@@ -115,7 +116,7 @@ class FilterController extends Controller
 				// convert to string for === operation
 				$options = ArrayPlus::create($options)->trim()->getData();
 				// will only work for strings, ID to other table needs to avoid it
-				$options = array_combine_stringkey($options, $options);
+				$options = ['' => '---'] + array_combine_stringkey($options, $options);
 			} else {
 				$options = $k['options'];
 			}
@@ -127,17 +128,15 @@ class FilterController extends Controller
 			$k['type'] = $k['type'] ?: 'input';
 			$options = null;
 		}
-		$k = [
+		return [
 				'label' => $k['name'],
 				'type' => $k['type'] ?: 'text',
 				'options' => $options,
 				'null' => true,
-				'value' => isset($this->filter[$key]) ? $this->filter[$key] : ifsetor($k['value']),
+				'value' => $this->filter[$key] ?? ifsetor($k['value']),
 				'more' => ['class' => "text input-medium"],
 				'===' => true,
 			] + $k;
-//		debug(without($k, 'options'));
-		return $k;
 	}
 
 	public function getTableFieldOptions($key, $count = false)
