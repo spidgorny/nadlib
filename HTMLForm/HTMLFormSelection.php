@@ -43,7 +43,6 @@ class HTMLFormSelection extends HTMLFormField
 
 	function render()
 	{
-		llog('HTMLFormSelection::render()', 'isNull', $this->desc['null']);
 		$this->form = $this->form ?: new HTMLForm();
 		$content[] = "<select " .
 			$this->form->getName($this->field, $this->multiple ? '[]' : '');
