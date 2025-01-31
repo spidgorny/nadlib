@@ -27,7 +27,7 @@ class Date extends Time
 
 	/**
 	 * Copy/paste because to 'static'
-	 * @param int $input
+	 * @param string|int $input
 	 * @param int $relativeTo
 	 * @return static
 	 */

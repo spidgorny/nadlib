@@ -97,14 +97,13 @@ class Time
 	}
 
 	/**
-	 * @param string|null $input
+	 * @param string|null|int $input
 	 * @param null $relativeTo
 	 * @return static
 	 */
-	public static function make(string $input = null, $relativeTo = null)
+	public static function make($input = null, $relativeTo = null)
 	{
-		$self = get_called_class();
-		return new $self($input, $relativeTo);
+		return new static($input, $relativeTo);
 	}
 
 	/**
