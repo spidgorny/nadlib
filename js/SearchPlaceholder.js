@@ -10,10 +10,10 @@ jQuery(document).ready(function () {
 function runNextAjaxLink() {
 	if (ajaxLinks.length) {
 		var link = ajaxLinks.shift();
-		jQuery('#SearchPlaceholder').append(
+		jQuery("#SearchPlaceholder").append(
 			jQuery("<div>").load(link, function (tx) {
 				runNextAjaxLink();
-			})
+			}),
 		);
 	}
 }

@@ -1,9 +1,12 @@
 function addEvent(html_element, event_name, event_function) {
-	if (html_element.addEventListener) { // Modern
+	if (html_element.addEventListener) {
+		// Modern
 		html_element.addEventListener(event_name, event_function, false);
-	} else if (html_element.attachEvent) { // Internet Explorer
+	} else if (html_element.attachEvent) {
+		// Internet Explorer
 		html_element.attachEvent("on" + event_name, event_function);
-	} else { // others
+	} else {
+		// others
 		html_element["on" + event_name] = event_function;
 	}
 }
@@ -14,7 +17,7 @@ function startTask(url, target) {
 	/* handle incoming messages */
 	source.onmessage = (event) => {
 		//console.log(event);
-		if (event.type == 'message') {
+		if (event.type == "message") {
 			// data expected to be in JSON-format, so parse */
 			const data = JSON.parse(event.data);
 			//console.log(event.data.length, data);
@@ -27,11 +30,11 @@ function startTask(url, target) {
 			}
 			// otherwise, it's a progress update so just update progress bar
 			else {
-				const pct = 100.0 * data.current / data.total;
+				const pct = (100.0 * data.current) / data.total;
 				//console.log(pct);
-				document.getElementById('progress-bar').style.width = pct + '%';
-				document.getElementById('pb_text').innerHTML =
-					Math.round(pct) + '% (' + data.current + ' of ' + data.total + ')';
+				document.getElementById("progress-bar").style.width = pct + "%";
+				document.getElementById("pb_text").innerHTML =
+					Math.round(pct) + "% (" + data.current + " of " + data.total + ")";
 			}
 		}
 	};
@@ -41,11 +44,11 @@ function startTask(url, target) {
 		switch (es.readyState) {
 			// if reconnecting
 			case EventSource.CONNECTING:
-				txt = 'Reconnecting...';
+				txt = "Reconnecting...";
 				break;
 			// if error was fatal
 			case EventSource.CLOSED:
-				txt = 'Connection failed. Will not retry.';
+				txt = "Connection failed. Will not retry.";
 				break;
 		}
 		console.log(txt);
@@ -53,9 +56,9 @@ function startTask(url, target) {
 	};
 }
 
-addEvent(document, 'DOMContentLoaded', () => {
+addEvent(document, "DOMContentLoaded", () => {
 	//console.log('domready');
-	const target = document.getElementById('sseTarget');
-	const href = target.getAttribute('href');
+	const target = document.getElementById("sseTarget");
+	const href = target.getAttribute("href");
 	startTask(href, target);
 });

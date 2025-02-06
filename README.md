@@ -8,8 +8,8 @@ Actively improved.
 
 ## todo
 
-* create unit tests
-* refactor HTMLFormTable to use an array of objects which can be manipulated even after the whole form is built. Currently, every form element is rendered and concatenated as string making post modification difficult.
-* refactor dbLayer->queryLog into a separate class which can be used by multiple dbLayer implementations.
-* continue crating a standard dbLayer interface for all db classes.
-* write documentation and a demo page showing all features of nadlib.
+- create unit tests
+- refactor HTMLFormTable to use an array of objects which can be manipulated even after the whole form is built. Currently, every form element is rendered and concatenated as string making post modification difficult.
+- refactor dbLayer->queryLog into a separate class which can be used by multiple dbLayer implementations.
+- continue crating a standard dbLayer interface for all db classes.
+- write documentation and a demo page showing all features of nadlib.

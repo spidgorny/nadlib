@@ -3,8 +3,10 @@ $(document).ready(function () {
 		"lib/wp-cumulus/tagcloud.swf",
 		"tagcloud",
 		$("#flashcontent").width(),
-		$("#flashcontent").width()*3/4,
-		"7", "#336699");
+		($("#flashcontent").width() * 3) / 4,
+		"7",
+		"#336699",
+	);
 	so.addParam("wmode", "transparent");
 	so.addVariable("mode", "tags");
 	so.addVariable("distr", "true");

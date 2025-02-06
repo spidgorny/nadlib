@@ -8,18 +8,18 @@ jQuery(document).ready(function ($) {
 		i.setAttribute("type", "date");
 		supportsDate = i.type !== "text";
 	}
-	console.log('supportsDate: ', supportsDate);
+	console.log("supportsDate: ", supportsDate);
 	//if (!supportsDate) {  // value dd.mm.yyyy is not recognized by Chrome
 	if (true) {
-		var self = $('input.datepicker');
+		var self = $("input.datepicker");
 		var options = {
-			dateFormat: self.attr('format'),
-			minDate: self.attr('minDate'),
-			maxDate: self.attr('maxDate'),
-			firstDay: self.attr('firstDay'),
+			dateFormat: self.attr("format"),
+			minDate: self.attr("minDate"),
+			maxDate: self.attr("maxDate"),
+			firstDay: self.attr("firstDay"),
 			changeMonth: true,
 			changeYear: true,
-			firstDay: 1
+			firstDay: 1,
 		};
 		//console.log(self, 'datepicker', options);
 		self.datepicker(options);

@@ -88,15 +88,20 @@ class Mailer implements MailerInterface
 		if (count($split) === 2) {
 			$this->fromName = $split[0];
 			$this->from = str_replace('>', '', $split[1]);
+		} else {
+			$this->fromName = $mailFrom;
+			$this->from = $mailFrom;
 		}
 		$this->headers['From'] = 'From: ' . $mailFrom;
 		// get only the pure email from "Somebody <sb@somecompany.de>"
 		$arMailFrom = explode('<', $mailFrom);
-		$mailFromOnly = (strpos($this->bodytext, '<') !== false)
-			? substr(next($arMailFrom), 0, -1)
-			: ''; //$mailFrom;
-		if ($mailFromOnly) {
-			$this->params['-f'] = '-f' . $mailFromOnly;    // no space
+		if (count($arMailFrom) === 2) {
+			$mailFromOnly = (strpos($this->bodytext, '<') !== false)
+				? substr(next($arMailFrom), 0, -1)
+				: ''; //$mailFrom;
+			if ($mailFromOnly) {
+				$this->params['-f'] = '-f' . $mailFromOnly;    // no space
+			}
 		}
 		return [$this->from => $this->fromName];
 	}
@@ -256,6 +261,106 @@ class Mailer implements MailerInterface
 		/** @var $response \SendGrid\Response */
 		$response = $sg->client->mail()->send()->post($mail);
 		return $response;
+	}
+
+	/**
+	 * Method to send emails via SwiftMailer.
+	 * Throws an Exception if SwiftMailer is not installed.
+	 *
+	 * Uses sendmail to deliver messages.
+	 *
+	 * @param mixed $cc
+	 * @param mixed $bcc
+	 * @param array $attachments
+	 * @param array $additionalSenders This will be added to
+	 * @return int|array Either number of recipients who were accepted for delivery OR an array of failed recipients
+	 * @throws Exception
+	 */
+	function sendSwiftMailerEmail($cc = null, $bcc = null, $attachments = [], $additionalSenders = [])
+	{
+		$message = $this->getSwiftMessage($cc, $bcc, $attachments, $additionalSenders);
+
+		$transport = new Swift_SendmailTransport();
+		$mailer = new Swift_Mailer($transport);
+		$failedRecipients = [];
+		$sent = $mailer->send($message, $failedRecipients);
+
+		return !empty($failedRecipients) ? $failedRecipients : $sent;
+	}
+
+	/**
+	 * @param $cc
+	 * @param $bcc
+	 * @param $attachments
+	 * @param $additionalSenders
+	 * @return Swift_Message
+	 * @throws Exception
+	 */
+	public function getSwiftMessage($cc = null, $bcc = null, $attachments = [], $additionalSenders = [])
+	{
+		$messageHTML = $this->getBodyText();
+		$messageText = $this->getPlainText();
+
+		/** @var Swift_Message $message */
+		$message = new Swift_Message();
+		$message->setSubject($this->subject)
+			->setBody($messageHTML, 'text/html')
+			->addPart($messageText, 'text/plain');
+		$message->setCharset('utf-8');
+
+		llog('mailFromSwiftMailer', DCI_EMAILFROM, $this->from, $this->fromName);
+
+		$message->setFrom($this->from, $this->fromName);
+
+		if (!empty($additionalSenders)) {
+			foreach ($additionalSenders as $address) {
+				$message->addFrom(key($address));
+			}
+		}
+
+		if (is_string($this->to)) {
+			$to = trimExplode(';', $this->to);
+		} else {
+			$to = $this->to;
+		}
+		foreach ($to as $address) {
+			$message->addTo(trim($address));
+		}
+
+		if (!empty($cc)) {
+			foreach ($cc as $address) {
+				$message->addCc($address);
+			}
+		}
+
+		if (!empty($bcc)) {
+			foreach ($bcc as $address) {
+				$message->addBcc($address);
+			}
+		}
+
+		if (!empty($attachments)) {
+			foreach ($attachments as $attachment) {
+				if (is_string($attachment)) {
+					$smAttachment = Swift_Attachment::fromPath($attachment);
+					$shortFile = $this->getShortFilename($attachment);
+					$smAttachment->setFilename($shortFile);
+					$message->attach($smAttachment);
+				} else {
+					$message->attach($attachment);
+				}
+			}
+		}
+
+		if (!empty($additionalSenders)) {
+			foreach ($additionalSenders as $address => $name) {
+				empty($address)
+					? null
+					: $message->addFrom($address, $name);
+			}
+		}
+
+		return $message;
 	}
 
 }

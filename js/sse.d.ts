@@ -2,13 +2,11 @@
 // Specification: http://dev.w3.org/html5/eventsource/
 // Definitions by: Yannik Hampe <https://github.com/yankee42>
 
-declare var EventSource : sse.IEventSourceStatic;
+declare var EventSource: sse.IEventSourceStatic;
 
 declare module sse {
-
 	/** The readyState attribute represents the state of the connection. */
 	enum ReadyState {
-
 		/** The connection has not yet been established, or it was closed and the user agent is reconnecting. */
 		CONNECTING = 0,
 
@@ -16,11 +14,14 @@ declare module sse {
 		OPEN = 1,
 
 		/** The connection is not open, and the user agent is not trying to reconnect. Either there was a fatal error or the close() method was invoked. */
-		CLOSED = 2
+		CLOSED = 2,
 	}
 
 	interface IEventSourceStatic {
-		new (url: string, eventSourceInitDict?: IEventSourceInit): IEventSourceStatic;
+		new (
+			url: string,
+			eventSourceInitDict?: IEventSourceInit,
+		): IEventSourceStatic;
 		/** The serialisation of this EventSource object's url. */
 		url: string;
 		withCredentials: boolean;
@@ -37,8 +38,14 @@ declare module sse {
 		onerror: (event: Event) => any;
 		/** The close() method must abort any instances of the fetch algorithm started for this EventSource object, and must set the readyState attribute to CLOSED. */
 		close: () => void;
-		addEventListener: (type: string, h: (event: IOnMessageEvent) => void) => void;
-		removeEventListener: (type: string, h: (event: IOnMessageEvent) => void) => void;
+		addEventListener: (
+			type: string,
+			h: (event: IOnMessageEvent) => void,
+		) => void;
+		removeEventListener: (
+			type: string,
+			h: (event: IOnMessageEvent) => void,
+		) => void;
 	}
 
 	interface IEventSourceInit {

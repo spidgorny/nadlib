@@ -1,13 +1,12 @@
 $(document).ready(function () {
 	updateHere = function (timeout) {
-		var uh = $('.updateHere');
+		var uh = $(".updateHere");
 		if (uh.length) {
 			setTimeout(function () {
-				uh.load(uh.attr('src'));
+				uh.load(uh.attr("src"));
 			}, timeout || 1000);
 		}
 	};
 
 	updateHere();
 });
-
