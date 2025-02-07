@@ -35,8 +35,18 @@ class DownloadObfuscator
 	public function __construct($file = '', $fileSuffix = '')
 	{
 		$this->file = $file ?: $_REQUEST['file'];
+		invariant($this->validateFilePath($this->file));
 		$this->fileSuffix = $fileSuffix;
 		$this->swordfish .= date('Y-m-d-H');
+	}
+
+	function validateFilePath($filePath)
+	{
+		// Regular expression to validate file path
+		$pattern = '/^(\/[a-zA-Z0-9_-]+)+\/?$/';
+
+		// Use filter_var with FILTER_VALIDATE_REGEXP
+		return filter_var($filePath, FILTER_VALIDATE_REGEXP, ["options" => ["regexp" => $pattern]]) !== false;
 	}
 
 	public function getDownloadLink()
