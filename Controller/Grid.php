@@ -193,12 +193,11 @@ abstract class Grid extends AppController
 		}
 		$content[] = $this->collection->render();
 		$content[] = '<hr />';
-		$content = $this->encloseInAA(
+		return $this->encloseInAA(
 			$content,
 			$this->title = $this->title ?: get_class($this),
 			$this->encloseTag
 		);
-		return $content;
 	}
 
 	public function injectCollection()
@@ -269,43 +268,44 @@ abstract class Grid extends AppController
 	{
 //		$this->log(__METHOD__, $cn);
 		// request
-		if ($this->request->is_set('columns') && $allowEdit) {
-			$urlColumns = $this->request->getArray('columns');
+		$urlColumns = $this->request->getArray('columns');
+		if ($allowEdit && $urlColumns) {
+			llog('urlColumns', $urlColumns);
 			$this->columns = new VisibleColumns($urlColumns);
 			$this->user->setPref('Columns.' . $cn, $this->columns->getData());
-//			$this->log(__METHOD__, 'Columns set from URL');
+			llog('Columns set from URL', $this->columns->getData());
 		} elseif (!$this->columns && method_exists($this->user, 'getPref')) {
 			$prefs = $this->user->getPref('Columns.' . $cn);
 			if ($prefs) {
 				$this->columns = new VisibleColumns($prefs);
-//				$this->log(__METHOD__, 'Columns set from getPref');
+//				llog(__METHOD__, 'Columns set from getPref');
 			}
 		}
 
 		if (!$this->columns) {
 			// default
 			$gridColumns = array_keys($this->getGridColumns());
-//			$this->log(__METHOD__, ['getGridColumns' => $gridColumns]);
+//			llog(__METHOD__, ['getGridColumns' => $gridColumns]);
 			if ($gridColumns) {
 				$this->columns = new VisibleColumns($gridColumns);
-//				$this->log(__METHOD__, 'Columns set from getGridColumns');
+//				llog(__METHOD__, 'Columns set from getGridColumns');
 			}
 		}
 
 		if (!$this->columns && ifsetor($this->model->thes)) {
 			$this->columns = array_keys($this->model->thes);
-//			$this->log(__METHOD__, 'Columns set from model');
+//			llog(__METHOD__, 'Columns set from model');
 		}
 
 		if (!$this->columns && $this->collection && $this->collection->thes) {
 			$keysOfThes = array_keys($this->collection->thes);
 			$this->columns = new VisibleColumns($keysOfThes);
-//			$this->log(__METHOD__, 'Columns set from collection ' . typ($this->collection) . ': ' . json_encode($this->columns));
+//			llog(__METHOD__, 'Columns set from collection ' . typ($this->collection) . ': ' . json_encode($this->columns));
 		} elseif (!$this->columns) {
 			$this->columns = new VisibleColumns();
 		}
 
-//		$this->log(__METHOD__, $this->columns->getData());
+//		llog(__METHOD__, $this->columns->getData());
 	}
 
 	/**
@@ -315,7 +315,7 @@ abstract class Grid extends AppController
 	public function getGridColumns()
 	{
 		if ($this->collection) {
-//			$this->log(__METHOD__, 'Collection exists');
+//			llog(__METHOD__, 'Collection exists');
 			return ArrayPlus::create($this->collection->thes)
 				->makeTable('name')
 				->column('name')
@@ -326,7 +326,7 @@ abstract class Grid extends AppController
 				->getData();
 		}
 
-//		$this->log(__METHOD__, 'No collection');
+//		llog(__METHOD__, 'No collection');
 		return [];
 	}
 
