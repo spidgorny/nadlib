@@ -42,11 +42,14 @@ class HTMLFormTable extends HTMLForm
 	 * @var array
 	 */
 	public $desc;
+
 	public $noStarUseBold;
+
 	/**
 	 * @var HTMLFormValidate
 	 */
 	public $validator;
+
 	/**
 	 * Is needed in case validation is made before checking if it's valid.
 	 * It's set in HTMLFormTable::validate();
@@ -54,10 +57,12 @@ class HTMLFormTable extends HTMLForm
 	 * @var bool
 	 */
 	public $isValid = false;
+
 	/**
 	 * @var
 	 */
 	protected $mainForm;
+
 	/**
 	 * @var Request
 	 */
@@ -467,7 +472,7 @@ class HTMLFormTable extends HTMLForm
 		}
 		$this->stdout .= ifsetor($desc['beforeLabel']);
 		//debug($label);
-		assert(is_string($label));
+		assert(is_string($label) || $label instanceof HtmlString || $label instanceof HTMLTag);
 		$this->stdout .= '<label for="' . $elementID . '" class="' . ($desc['labelClass'] ?? '') . '">' . $label . '</label>';
 		if (!$withBR) {
 			$this->stdout .= '</td><td>';
