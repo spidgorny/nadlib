@@ -41,18 +41,20 @@ class LogEntry
 		}
 		return implode("\t", [
 			date('H:i:s', $this->time) . '.' . $floating,
-			$paddedAction,
+			new HTMLTag('strong', [], $paddedAction),
 			$this->data ? $sData : null
 		]);
 	}
 
 	/**
 	 * Render function for multiple log entries
-	 * @param array $log
+	 * @param LogEntry[] $log
 	 * @return array
 	 */
 	public static function getLogFrom(array $log): array
 	{
+		$prevTime = $log[0]->time;
+		$log = collect($log)->map(fn(LogEntry $x) => '[' . number_format($x->time - $prevTime, 4, '.') . '] ' . $x->__toString())->toArray();
 		return [
 			'<pre class="debug" style="font-family: monospace; white-space: pre-wrap;">',
 			implode(PHP_EOL, $log),
@@ -70,7 +72,7 @@ class LogEntry
 			$sData = $data;
 		} else {
 			$jsonOptions = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
-			$sData = json_encode($data, $jsonOptions);
+			$sData = json_encode($data, JSON_THROW_ON_ERROR | $jsonOptions);
 		}
 
 		if (contains($sData, '<')) {
