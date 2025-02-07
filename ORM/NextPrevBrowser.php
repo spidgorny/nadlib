@@ -52,13 +52,18 @@ class NextPrevBrowser
 				$prevData = [];
 			}
 
+			llog('loading pageKeys');
 			$pageKeys = $this->data->getKeys()->getData();
+			llog('pageKeys', $pageKeys);
 			if ($this->pager->currentPage < $this->pager->getMaxPage() &&
 				end($pageKeys) == $model->id    // last element on the page
 			) {
 				$copy = clone $this->collection;
-				$copy->pager->setCurrentPage($copy->pager->currentPage + 1);
+				$nextPageNumber = $copy->pager->currentPage + 1;
+				llog('nextPageNumber', $nextPageNumber);
+				$copy->pager->setCurrentPage($nextPageNumber);
 				$copy->retrieveData();
+				llog('fetched', $copy->getData()->count());
 				$copy->preprocessData();
 				$nextData = $copy->getData()->getData();
 			} else {
