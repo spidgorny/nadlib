@@ -68,7 +68,7 @@ abstract class FullGrid extends Grid
 		}
 		// after collection is made, to run getGridColumns
 		$allowEdit = $this->request->getControllerString() === get_class($this);
-		llog('allowEdit', get_class($this), get_class($this->collection), $allowEdit);
+//		llog('allowEdit', get_class($this), get_class($this->collection), $allowEdit);
 		$this->setColumns(get_class($this), $allowEdit);
 	}
 
