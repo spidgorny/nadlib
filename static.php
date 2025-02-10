@@ -8,6 +8,3 @@ if (!defined('BR')) {
 if (!defined('TAB')) {
 	define('TAB', "\t");
 }
-if (!defined('DEVELOPMENT')) {
-	define('DEVELOPMENT', true);
-}

@@ -175,9 +175,9 @@ abstract class SimpleController
 		}
 
 		$method .= 'Action';        // ZendFramework style
-		if ($method !== 'updateNotificationCounterAction') {
-			llog(get_class($this), $method, method_exists($this, $method));
-		}
+//		if ($method !== 'updateNotificationCounterAction') {
+//			llog(get_class($this), $method, method_exists($this, $method));
+//		}
 
 		$proxy = $this;
 		// used to call an $action on PrepareGive, PrepareBurn instead of direct PrepareRequest class
