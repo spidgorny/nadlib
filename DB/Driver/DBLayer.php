@@ -210,23 +210,16 @@ class DBLayer extends DBLayerBase
 			if ($this->logToLog) {
 				llog($query . '' . ' => ' . $this->LAST_PERFORM_RESULT);
 			}
-//			$this->reportIfLastQueryFailed();
-		} catch (Exception $e) {
-			//debug($e->getMessage(), $query);
-//			$errorMessage = is_resource($this->LAST_PERFORM_RESULT)
-//				? pg_result_error($this->LAST_PERFORM_RESULT)
-//				: '';
+		} catch (Exception $exception) {
 			$e = new DatabaseException(
-				get_class($e) . ' [' . $e->getCode() . '] ' . $e->getMessage()
+				get_class($exception) . ' [' . $exception->getCode() . '] ' . $exception->getMessage(),
+				$exception->getCode(), $exception
 			);
 			$e->setQuery($query);
 			throw $e;
 		}
 
 		if (!$this->LAST_PERFORM_RESULT) {
-			//debug_pre_print_backtrace();
-			//debug($query);
-			//debug($this->queryLog->queryLog);
 			$e = new DatabaseException(
 				pg_errormessage($this->connection) .
 				'Query: ' . $query
@@ -244,7 +237,9 @@ class DBLayer extends DBLayerBase
 
 		$this->lastQuery = $query;
 		$this->queryCount++;
-		$this->lastBacktrace = debug_backtrace();
+
+		// this calls getPref() somehow and leads to supplied resource is not a valid PostgreSQL result resource
+//		$this->lastBacktrace = debug_backtrace();
 		return $this->LAST_PERFORM_RESULT;
 	}
 
@@ -900,12 +895,12 @@ order by a.attnum';
 	{
 		return $this->fetchAll(
 			"SELECT
-	tc.constraint_name, tc.table_name, kcu.column_name, 
+	tc.constraint_name, tc.table_name, kcu.column_name,
 	ccu.table_name AS foreign_table_name,
 	ccu.column_name AS foreign_column_name,
 	constraint_type
-FROM 
-	information_schema.table_constraints AS tc 
+FROM
+	information_schema.table_constraints AS tc
 	JOIN information_schema.key_column_usage AS kcu
 	  ON tc.constraint_name = kcu.constraint_name
 	JOIN information_schema.constraint_column_usage AS ccu
@@ -933,7 +928,7 @@ WHERE ccu.table_name='" . $table . "'");
 		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
 		$values = implode(", ", $this->quoteValues(array_values($columns)));
 		$table = $this->quoteKey($table);
-		$q = "INSERT INTO {$table} ({$fields}) VALUES ({$values}) 
+		$q = "INSERT INTO {$table} ({$fields}) VALUES ({$values})
 			ON CONFLICT UPDATE SET ";
 		return $q;
 	}

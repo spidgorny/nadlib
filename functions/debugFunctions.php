@@ -340,6 +340,9 @@ if (!function_exists('llog')) {
 			if (is_object($el) && !($el instanceof stdClass)) {
 				return trim(strip_tags(typ($el)));
 			}
+			if (is_resource($el)) {
+				return 'Resource #' . get_resource_id($el) . ' of ' . get_resource_type($el);
+			}
 			return $el;
 		}, $args);
 
@@ -350,13 +353,13 @@ if (!function_exists('llog')) {
 			], $jsonOptions);
 		} else {
 			$output = json_encode($vars, $jsonOptions);
-		}
-		if (strlen($output) > 80) {
-			$output = json_encode(count($vars) === 1
-				? [
-					'type' => get_debug_type(first($args)),
-					'value' => first($vars)
-				] : $vars, $jsonOptions | JSON_PRETTY_PRINT);
+			if (strlen($output) > 80) {
+				$output = json_encode(count($vars) === 1
+					? [
+						'type' => get_debug_type(first($args)),
+						'value' => first($vars)
+					] : $vars, $jsonOptions | JSON_PRETTY_PRINT);
+			}
 		}
 
 		/** @noinspection ForgottenDebugOutputInspection */
