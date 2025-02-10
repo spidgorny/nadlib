@@ -52,6 +52,8 @@ class DBLayer extends DBLayerBase
 
 	public $host;
 
+	public $port;
+
 	/**
 	 * @var MemcacheArray
 	 */
@@ -73,14 +75,13 @@ class DBLayer extends DBLayerBase
 	 * @param string $host
 	 * @throws Exception
 	 */
-	public function __construct($dbName = null, $user = null, $pass = null, $host = "localhost")
+	public function __construct($dbName = null, $user = null, $pass = null, $host = "localhost", $port = 5432)
 	{
-//		debug_pre_print_backtrace();
 		$this->dbName = $dbName;
-//		pre_print_r($this->dbName);
 		$this->user = $user;
 		$this->pass = $pass;
 		$this->host = $host;
+		$this->port = $port;
 		if ($dbName) {
 //			$this->connect($dbName, $user, $pass, $host);
 
@@ -129,8 +130,8 @@ class DBLayer extends DBLayerBase
 		if ($this->isConnected()) {
 			return;
 		}
-		$string = "host={$this->host} dbname={$this->dbName} user={$this->user} password={$this->pass}";
-//		llog($string);
+		$string = "host={$this->host} port={$this->port} dbname={$this->dbName} user={$this->user} password={$this->pass}";
+		llog('pg_connect', $string);
 		$this->connection = pg_connect($string);
 		if (!$this->connection) {
 			throw new DatabaseException("No PostgreSQL connection to $this->host. " . json_encode(error_get_last(), JSON_THROW_ON_ERROR));
@@ -842,12 +843,12 @@ order by a.attnum';
 	{
 		return $this->fetchAll(
 			"SELECT
-	tc.constraint_name, tc.table_name, kcu.column_name, 
+	tc.constraint_name, tc.table_name, kcu.column_name,
 	ccu.table_name AS foreign_table_name,
 	ccu.column_name AS foreign_column_name,
 	constraint_type
-FROM 
-	information_schema.table_constraints AS tc 
+FROM
+	information_schema.table_constraints AS tc
 	JOIN information_schema.key_column_usage AS kcu
 	  ON tc.constraint_name = kcu.constraint_name
 	JOIN information_schema.constraint_column_usage AS ccu
@@ -913,7 +914,7 @@ WHERE ccu.table_name='" . $table . "'");
 		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
 		$values = implode(", ", $this->quoteValues(array_values($columns)));
 		$table = $this->quoteKey($table);
-		$q = "INSERT INTO {$table} ({$fields}) VALUES ({$values}) 
+		$q = "INSERT INTO {$table} ({$fields}) VALUES ({$values})
 			ON CONFLICT UPDATE SET ";
 		return $q;
 	}
