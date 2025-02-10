@@ -49,34 +49,42 @@ class Pager
 	 * @var array
 	 */
 	public $pageTitles = [];
+
 	/**
 	 * @var Iterator
 	 */
 	public $iterator;
+
 	/**
 	 * for debugging
 	 * @var string
 	 */
 	public $countQuery;
+
 	/**
 	 * @var int - can deviate from the valid range of pages
 	 */
 	public $requestedPage;
-	/** @var string[] */
+
+	/** @var LogEntry[] */
 	public $log = [];
+
 	/**
 	 * @var Request
 	 */
 	protected $request;
+
 	/**
 	 * Identifies pager preferences on different pages
 	 * @var string
 	 */
 	protected $prefix;
+
 	/**
 	 * @var UserModelInterface
 	 */
 	protected $user;
+
 	/**
 	 * @var DBInterface
 	 */
@@ -85,8 +93,8 @@ class Pager
 	public function __construct($itemsPerPage = null, $prefix = '')
 	{
 //		debug_pre_print_backtrace();
-		$this->log[] = __METHOD__;
-		$this->id = uniqid();
+		$this->log(__METHOD__);
+		$this->id = uniqid('', true);
 		if ($itemsPerPage instanceof PageSize) {
 			$this->pageSize = $itemsPerPage;
 		} else {
@@ -107,18 +115,27 @@ class Pager
 		$this->url = new URL();    // just in case
 	}
 
+	public function log($action, ...$data)
+	{
+		if (count($data) === 1) {
+			$data = $data[0];
+		}
+		$logEntry = new LogEntry($action, $data);
+		$this->log[] = $logEntry;
+	}
+
 	/**
 	 * @param int $items
 	 */
 	public function setItemsPerPage($items)
 	{
-		$this->log[] = __METHOD__ . '(' . $items . ')';
+		$this->log(__METHOD__ . '(' . $items . ')');
 		if (!$items) {
 			$items = $this->pageSize->get();
 		}
 		$this->itemsPerPage = $items;
 		if (ArrayPlus::create($this->log)->containsPartly('detectCurrentPage')) {
-			$this->log[] = __METHOD__ . ' WARNING: make sure to call detectCurrentPage again';
+			$this->log(__METHOD__ . ' WARNING: make sure to call detectCurrentPage again');
 		}
 		$this->pageSize->set($items);
 	}
@@ -141,7 +158,7 @@ class Pager
 
 	public function initByQuery($originalSQL)
 	{
-		$this->log[] = __METHOD__;
+		$this->log(__METHOD__);
 		if (is_string($originalSQL)) {
 			$this->initByStringQuery($originalSQL);
 		} elseif ($originalSQL instanceof SQLSelectQuery) {
@@ -153,7 +170,7 @@ class Pager
 
 	public function initByStringQuery($originalSQL)
 	{
-		$this->log[] = __METHOD__;
+		$this->log(__METHOD__);
 		//debug_pre_print_backtrace();
 		$key = __METHOD__ . ' (' . substr($originalSQL, 0, 300) . ')';
 		TaylorProfiler::start($key);
@@ -172,7 +189,7 @@ class Pager
 			$countQuery = $originalSQL;
 		}
 		$this->countQuery = $countQuery;
-		$this->log[] = $this->countQuery;
+		$this->log($this->countQuery);
 		$res = $this->db->fetchAssoc($this->db->perform($countQuery));
 		// , $query->getParameters()
 		$this->setNumberOfRecords($res['count']);
@@ -187,7 +204,7 @@ class Pager
 	 */
 	public function setNumberOfRecords($i)
 	{
-		$this->log[] = __METHOD__ . '(' . $i . ')';
+		$this->log(__METHOD__ . '(' . $i . ')');
 		$this->numberOfRecords = $i;
 		if ($this->getStartingRecord() > $this->numberOfRecords) {    // required
 			$this->setCurrentPage($this->currentPage);
@@ -210,7 +227,7 @@ class Pager
 	 */
 	public function setCurrentPage($page)
 	{
-		$this->log[] = __METHOD__ . '(' . $page . ')';
+		$this->log(__METHOD__ . '(' . $page . ')');
 		//max(0, ceil($this->numberOfRecords/$this->itemsPerPage)-1);    // 0-indexed
 		$page = min($page, $this->getMaxPage());
 		$this->currentPage = max(0, $page);
@@ -229,15 +246,15 @@ class Pager
 			$maxpage = max(0, ceil($div) - 1);
 		} else {
 			$maxpage = 0;
-			$this->log[] = '$this->itemsPerPage: ' . $this->itemsPerPage;
+			$this->log('$this->itemsPerPage: ' . $this->itemsPerPage);
 		}
-		$this->log[] = __METHOD__ . '->' . $maxpage;
+		$this->log(__METHOD__ . '->' . $maxpage);
 		return $maxpage;
 	}
 
 	public function initBySelectQuery(SQLSelectQuery $originalSQL, array $parameters = [])
 	{
-		$this->log[] = __METHOD__;
+		$this->log(__METHOD__);
 		$key = __METHOD__ . ' (' . substr($originalSQL, 0, 300) . ')';
 		TaylorProfiler::start($key);
 		if (!$originalSQL->getSelect()->contains('count(*)')) {
@@ -301,7 +318,7 @@ class Pager
 
 	public function renderPageSelectors(?URL $url = null)
 	{
-		$this->log[] = __METHOD__;
+		$this->log(__METHOD__);
 		$content = '';
 		if ($url) {
 			$this->url = clone $url;  // this->url may be modified
@@ -350,7 +367,7 @@ class Pager
 
 	public function showSearchBrowser()
 	{
-		$this->log[] = __METHOD__;
+		$this->log(__METHOD__);
 		$content = '';
 		$maxpage = $this->getMaxPage();
 		$pages = $this->getPagesAround($this->currentPage, $maxpage);
@@ -408,7 +425,7 @@ class Pager
 	 */
 	public function getPagesAround($current, $max)
 	{
-		$this->log[] = __METHOD__;
+		$this->log(__METHOD__);
 		$size = $this->pagesAround;
 		$pages = [];
 		$k = 0;
@@ -467,7 +484,7 @@ class Pager
 
 	public function renderPageSize()
 	{
-		$this->log[] = __METHOD__;
+		$this->log(__METHOD__);
 		$this->pageSize->setURL(new URL(null, []));
 		$this->pageSize->set($this->itemsPerPage);
 		$content = '<div class="pageSize pull-right floatRight">' .
@@ -553,7 +570,7 @@ class Pager
 
 	public function setIterator(Iterator|Countable $iterator)
 	{
-		$this->log[] = __METHOD__;
+		$this->log(__METHOD__);
 		$this->iterator = $iterator;
 		$this->setNumberOfRecords($iterator->count());
 		$this->detectCurrentPage();    // why?
@@ -572,7 +589,7 @@ class Pager
 			ifsetor($_REQUEST['Pager_' . $this->prefix])
 		);
 //		debug($pagerData);
-		$this->log[] = __METHOD__ . ': ' . json_encode($pagerData, JSON_THROW_ON_ERROR);
+		$this->log(__METHOD__ . ': ' . json_encode($pagerData, JSON_THROW_ON_ERROR));
 		if ($pagerData) {
 			// when typing page number in [input] box
 			if ($this->request->isPOST() && ifsetor($pagerData['decrement'])) {
@@ -594,7 +611,7 @@ class Pager
 
 	public function saveCurrentPage()
 	{
-		$this->log[] = __METHOD__;
+		$this->log(__METHOD__);
 		//debug(__METHOD__, $this->prefix, $this->currentPage);
 		if ($this->user instanceof UserWithPreferences) {
 			$this->user->setPref('Pager.' . $this->prefix, [
@@ -635,7 +652,7 @@ class Pager
 
 	public function slice(array $data)
 	{
-		$this->log[] = __METHOD__;
+		$this->log(__METHOD__);
 		$this->setNumberOfRecords(sizeof($data));
 		$this->detectCurrentPage();
 		return array_slice($data,
