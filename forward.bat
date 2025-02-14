@@ -1,5 +1,4 @@
-hg pull http://appdev.nintendo.de/hg/nadlib
+hg pull https://appdev.nintendo.de/hg/nadlib
 hg update
-hg push https://bitbucket.org/spidgorny/nadlib 
+hg push https://bitbucket.org/spidgorny/nadlib
 hg id
-

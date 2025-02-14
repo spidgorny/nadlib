@@ -444,7 +444,6 @@ class Menu /*extends Controller*/
 	}
 
 	/**
-	 * For http://appdev.nintendo.de/~depidsvy/posaCards/ListSales/ChartSales/BreakdownTotal/?filter[id_country]=2
 	 * to work we need to split by '/' not only the path but also parameters
 	 * @param string $class
 	 * @param array $subMenu

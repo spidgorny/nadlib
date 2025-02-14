@@ -105,7 +105,6 @@ class DownloadObfuscator
 	{
 		//$file = str_replace(SUBMISSION_SUB_BASE, '', $file);
 		//$file = escapeshellcmd($file);
-		// FIX http://ors.nintendo.de/dev/QueueEPES/QueueEPES/RequestInfoEPES?id=97311
 		$file = str_replace("''", "'", $file);    // who escaped it?!?
 		return file_exists($file) && is_readable($file);
 	}
