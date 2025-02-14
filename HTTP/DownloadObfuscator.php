@@ -35,12 +35,16 @@ class DownloadObfuscator
 	public function __construct($file = '', $fileSuffix = '')
 	{
 		$this->file = $file ?: $_REQUEST['file'];
-		invariant($this->validateFilePath($this->file));
+		// numeric ID may be used to calculate hash without downloading the file from a particular page (FlySystem)
+		invariant(is_numeric($this->file) || $this->validateFilePath($this->file), $this->file . ' file path can not be validated');
 		$this->fileSuffix = $fileSuffix;
+		if (getenv('DOWNLOAD_OBFUSCATOR_SECRET')) {
+			$this->swordfish = getenv('DOWNLOAD_OBFUSCATOR_SECRET');
+		}
 		$this->swordfish .= date('Y-m-d-H');
 	}
 
-	function validateFilePath($filePath)
+	public function validateFilePath($filePath)
 	{
 		// Regular expression to validate file path
 		$pattern = '/^(\/[a-zA-Z0-9_-]+)+\/?$/';
