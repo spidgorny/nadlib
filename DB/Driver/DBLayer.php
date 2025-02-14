@@ -131,7 +131,7 @@ class DBLayer extends DBLayerBase
 			return;
 		}
 		$string = "host={$this->host} port={$this->port} dbname={$this->dbName} user={$this->user} password={$this->pass}";
-		llog('pg_connect', $string);
+//		llog('pg_connect', $string);
 		$this->connection = pg_connect($string);
 		if (!$this->connection) {
 			throw new DatabaseException("No PostgreSQL connection to $this->host. " . json_encode(error_get_last(), JSON_THROW_ON_ERROR));
