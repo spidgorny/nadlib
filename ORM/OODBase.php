@@ -147,7 +147,6 @@ abstract class OODBase implements ArrayAccess
 	 */
 	public function init($id)
 	{
-		TaylorProfiler::start(__METHOD__);
 		if (is_array($id)) {
 			$this->initByRow($id);
 		} elseif ($id instanceof SQLWhere) {
@@ -159,20 +158,18 @@ abstract class OODBase implements ArrayAccess
 			if (is_array($this->idField)) {
 				// TODO
 				throw new InvalidArgumentException(__METHOD__ . '->idField is an array. Init failed.');
-			} else {
-				// will do $this->init()
-				$this->findByID($this->id);
 			}
+
+// will do $this->init()
+			$this->findByID($this->id);
 //			debug('data set', $this->data);
 			if (!$this->data) {
 				$this->id = null;
 			}
 		} elseif (!is_null($id)) {
 			debug($id);
-			TaylorProfiler::stop(__METHOD__);
 			throw new Exception(get_class($this) . '::' . __FUNCTION__);
 		}
-		TaylorProfiler::stop(__METHOD__);
 	}
 
 	public function initByRow(array $row)
@@ -198,9 +195,10 @@ abstract class OODBase implements ArrayAccess
 			$this->id = $this->data[$idField];
 //			assert($this->id);
 		} else {
-			debug([
+			llog('Invalid argument to OODBase::initByRow', [
 				'class' => static::class,
-				'typ' => typ($row) . '',
+				'typ' => get_debug_type($row),
+				'count' => count($row),
 				'idField' => $this->idField,
 				'id' => $idField,
 				'data' => $this->data]);
@@ -364,12 +362,6 @@ abstract class OODBase implements ArrayAccess
 	 */
 	public function findInDB(array $where, $orderByLimit = '', $selectPlus = null)
 	{
-		$taylorKey = Debug::getBackLog(15, 0, BR, false);
-		if (!$this->db) {
-			//debug($this->db, $this->db->fetchAssoc('SELECT database()'));
-			//debug($this);
-		}
-		//debug(get_class($this->db));
 		$row = $this->db->fetchOneSelectQuery(
 			$this->table,
 			$this->where + $where,
@@ -389,7 +381,6 @@ abstract class OODBase implements ArrayAccess
 				$this->initByRow([]);
 			}
 		}
-		TaylorProfiler::stop($taylorKey);
 		return $this->data;
 	}
 

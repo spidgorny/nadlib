@@ -461,7 +461,7 @@ class Localize extends AppControllerBE
 			$id = $langObj->id($key);
 			if (!$id) {
 				$id = [$lang, $key];    // @see $this->save()
-				$id = json_encode($id);
+				$id = json_encode($id, JSON_THROW_ON_ERROR);
 			}
 			$f = new HTMLForm();
 			$f->action('?c=' . get_class($this));
@@ -477,8 +477,7 @@ class Localize extends AppControllerBE
 			}
 		}
 		$this->noRender = true;
-		$content = $this->encloseInAA($content, $this->title = $key);
-		return $content;
+		return $this->encloseInAA($content, $this->title = $key);
 	}
 
 	public function saveOneAction()
