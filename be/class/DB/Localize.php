@@ -487,7 +487,10 @@ class Localize extends AppControllerBE
 		if ($id) {
 			$row = $this->save($id, $this->request->getString('value'));    // HTML tags allowed
 			$key = $row['code'];
-			$this->request->redirect('?c=' . get_class($this) . '&action=editOne&key=' . urlencode($key));
+			$this->request->redirect(self::href([
+				'action' => 'editOne',
+				'key' => $key
+			]));
 		}
 	}
 

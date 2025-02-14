@@ -37,7 +37,7 @@ class SessionView extends AppControllerBE
 		unset($_SESSION[$del]);
 		$this->index->message('Deleted ' . $del);
 		$this->index->content->saveMessages();
-		$this->request->redirect('?c=' . $this->request->getRefererController());
+		$this->request->redirect($this->request->getRefererController());
 	}
 
 	public function sidebar()

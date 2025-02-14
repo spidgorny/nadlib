@@ -17,7 +17,7 @@ class Cookies extends AppControllerBE
 	{
 		$del = $this->request->getTrim('del');
 		unset($_COOKIE[$del]);
-		$this->request->redirect('?c=' . $this->request->getRefererController());
+		$this->request->redirect($this->request->getRefererController());
 	}
 
 	public function sidebar()
