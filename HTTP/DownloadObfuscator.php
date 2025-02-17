@@ -46,12 +46,58 @@ class DownloadObfuscator
 
 	public function validateFilePath($filePath)
 	{
-		// Regular expression to validate file path
-		$pattern = '/^(\/[a-zA-Z0-9_-]+)+\/?$/';
-
-		// Use filter_var with FILTER_VALIDATE_REGEXP
-		return filter_var($filePath, FILTER_VALIDATE_REGEXP, ["options" => ["regexp" => $pattern]]) !== false;
+		$parts = trimExplode('/', $filePath);
+		return collect($parts)->every(fn($x) => $this->validateFilename($x, false));
 	}
+
+	public function validateFilename(string $filename, bool $allowUnicode = false): bool
+	{
+		// 1. Empty filename check
+		if (empty($filename)) {
+			return false;
+		}
+
+		// 2. Length check (optional, but recommended)
+		$maxLength = 255; // Adjust as needed
+		if (strlen($filename) > $maxLength) {
+			return false;
+		}
+
+		// 3. Character validation (most important)
+		$pattern = '/^[\w\-\.\_\~\(\)\ ]+$/'; // Basic alphanumeric, hyphen, underscore, period, tilde, parentheses, and space
+		if ($allowUnicode) {
+			$pattern = '/^[\p{L}\p{N}\p{S}\p{P}\w\-\.\_\~\(\)\ ]+$/u'; // Unicode support (letters, numbers, symbols, punctuation, etc.)
+		}
+
+		if (!preg_match($pattern, $filename)) {
+			return false;
+		}
+
+		// 4. Reserved characters or names (OS-specific)
+		$reservedNames = ['con', 'prn', 'aux', 'nul', 'com1', 'com2', 'com3', 'com4', 'lpt1', 'lpt2', 'lpt3', 'lpt4']; // Windows reserved names (case-insensitive)
+		if (in_array(strtolower($filename), $reservedNames)) {
+			return false;
+		}
+
+		// 5. Check for leading/trailing spaces (often unwanted)
+		if (trim($filename) !== $filename) {
+			return false; // Or you could just trim it: $filename = trim($filename);
+		}
+
+
+		// 6. Check for multiple consecutive periods (sometimes problematic)
+		if (preg_match('/\.\.+/', $filename)) {
+			return false;
+		}
+
+		// 7. Check for special characters you want to exclude (e.g., control characters)
+		if (preg_match('/[\x00-\x1F\x7F]/', $filename)) { // Control characters
+			return false;
+		}
+
+		return true; // Filename is valid
+	}
+
 
 	public function getDownloadLink()
 	{

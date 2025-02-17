@@ -106,9 +106,9 @@ class slTable implements ToStringable
 	 */
 	public $trmore;
 
-	public $arrowDesc = '<img src="img/arrow_down.gif" align="absmiddle" />';
+	public $arrowDesc = '<img src="/img/arrow_down.gif" align="absmiddle" alt="down"/>';
 
-	public $arrowAsc = '<img src="img/arrow_up.gif" align="absmiddle" />';
+	public $arrowAsc = '<img src="/img/arrow_up.gif" align="absmiddle" alt="up"/>';
 
 	public $isCLI = false;
 

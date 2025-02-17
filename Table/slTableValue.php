@@ -27,9 +27,9 @@ class slTableValue
 	 */
 	public $caller;
 
-	//public $SLTABLE_IMG_CHECK = '<img src="img/check.png">';
+	//public $SLTABLE_IMG_CHECK = '<img src="/img/check.png">';
 	public $SLTABLE_IMG_CHECK = '☑';
-	//public $SLTABLE_IMG_CROSS = '<img src="img/uncheck.png">';
+	//public $SLTABLE_IMG_CROSS = '<img src="/img/uncheck.png">';
 	public $SLTABLE_IMG_CROSS = '☐';
 
 	public function __construct($value, array $desc = [])
@@ -168,7 +168,7 @@ class slTableValue
 				break;
 
 			case 'link':
-				$out = '<a href="' . $val . '" 
+				$out = '<a href="' . $val . '"
 					target="' . ifsetor($k['target']) . '">' .
 					ifsetor($k['text'], $val) . '</a>';
 				break;
