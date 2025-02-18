@@ -98,7 +98,6 @@ class DownloadObfuscator
 		return true; // Filename is valid
 	}
 
-
 	public function getDownloadLink()
 	{
 		//$link = '?id='.DownloadObfuscator::page.'&type='.DownloadObfuscator::type.'&file='.urlencode($this->filename).'&check='.$this->getHash();
@@ -161,14 +160,14 @@ class DownloadObfuscator
 		//$file = str_replace(SUBMISSION_SUB_BASE, '', $file);
 		$exists = $this->fileExists($file);
 		//debug($file, $exists, glob(dirname($file).'/*')); exit();
-		if ($exists) {
-			//if ($GLOBALS['TSFE']->fe_user->user['uid']) {
-			$this->forceDownload($file);
-			readfile($file);
-			exit();
-		} else {
-			throw new Exception(__('File does not exist.'));
+		if (!$exists) {
+			throw new \RuntimeException(__('File does not exist.'));
 		}
+
+//if ($GLOBALS['TSFE']->fe_user->user['uid']) {
+		$this->forceDownload($file);
+		readfile($file);
+		exit();
 	}
 
 	public function forceDownload($file)
