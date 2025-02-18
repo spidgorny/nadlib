@@ -74,34 +74,31 @@ class Lesser extends AppControllerBE
 			}
 
 			$ext = pathinfo($cssFile, PATHINFO_EXTENSION);
-			if ($ext == 'less') {
+			if ($ext === 'less') {
 				$compiledNearby = str_replace('.less', '.css', $cssFile);
 				if (file_exists($compiledNearby)) {
 					@header('Content-type: text/css');
 					echo file_get_contents($cssFile);
 					exit();
-				} elseif (file_exists('vendor/oyejorge/less.php/lessc.inc.php')) {
-					require_once 'vendor/oyejorge/less.php/lessc.inc.php';
-					$less = new lessc();
-					if (is_writable($this->output)) {
-						if ($this->request->isCtrlRefresh()) {
-							$less->compileFile($cssFile, $this->output);
-						} else {
-							$less->checkedCompile($cssFile, $this->output);
-						}
+				}
 
-						if (file_exists($this->output)) {
-							header('Content-type: text/css');
-							readfile($this->output);
-						} else {
-							echo 'error {}';
-						}
+				$less = new lessc();
+				if (is_writable($this->output)) {
+					if ($this->request->isCtrlRefresh()) {
+						$less->compileFile($cssFile, $this->output);
 					} else {
-						@header('Content-type: text/css');
-						echo $less->compileFile($cssFile);
+						$less->checkedCompile($cssFile, $this->output);
+					}
+
+					if (file_exists($this->output)) {
+						header('Content-type: text/css');
+						readfile($this->output);
+					} else {
+						echo 'error {}';
 					}
 				} else {
-					echo 'composer require oyejorge/less.php';
+					@header('Content-type: text/css');
+					echo $less->compileFile($cssFile);
 				}
 			} else {
 				@header('Content-type: text/css');

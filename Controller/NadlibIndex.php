@@ -18,16 +18,6 @@ class NadlibIndex
 
 	public function __construct()
 	{
-		if (file_exists('vendor/autoload.php')) {
-			require_once 'vendor/autoload.php';
-		} elseif (file_exists('../vendor/autoload.php')) {
-			require_once '../vendor/autoload.php';
-		} elseif (file_exists('../../vendor/autoload.php')) {
-			require_once '../../vendor/autoload.php';
-		} elseif (file_exists('../../../vendor/autoload.php')) {
-			require_once '../../../vendor/autoload.php';
-		}
-
 		require_once 'init.php';
 		$in = new InitNADLIB();
 		$in->init();

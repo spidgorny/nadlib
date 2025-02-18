@@ -6,17 +6,13 @@ class HTMLFormDatePopup2 extends HTMLFormType
 	 * @var $form HTMLForm
 	 */
 	public $form;
-
-	protected $name;
-
 	/**
 	 * @var int timestamp
 	 */
 	public $value;
-
 	public $desc;
-
 	public $id;
+	protected $name;
 
 	public function __construct(HTMLForm $form, $name, $value, array $desc = [
 		'phpFormat' => 'Y-m-d',
@@ -46,6 +42,11 @@ class HTMLFormDatePopup2 extends HTMLFormType
 			$this->value = $value;
 		}
 //		debug(__METHOD__, $value, $this->value);
+	}
+
+	public function __toString()
+	{
+		return $this->render() . '';
 	}
 
 	public function render()
@@ -82,9 +83,23 @@ class HTMLFormDatePopup2 extends HTMLFormType
 		return $content;
 	}
 
-	public function __toString()
+	public function offsetExists(mixed $offset): bool
 	{
-		return $this->render() . '';
+		return $this->desc[$offset];
 	}
 
+	public function offsetGet(mixed $offset): mixed
+	{
+		return $this->desc[$offset];
+	}
+
+	public function offsetSet(mixed $offset, mixed $value): void
+	{
+		$this->desc[$offset] = $value;
+	}
+
+	public function offsetUnset(mixed $offset): void
+	{
+		unset($this->desc[$offset]);
+	}
 }

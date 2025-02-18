@@ -10,7 +10,7 @@ class HTMLImage extends HTMLTag
 
 	public function __construct($filename, array $attr = [])
 	{
-		parent::__construct('img', $attr);
+		parent::__construct('img', $attr, '', false);
 		$this->filename = $filename;
 	}
 
@@ -50,9 +50,21 @@ class HTMLImage extends HTMLTag
 		return !contains($this->filename, '://');
 	}
 
-	public function getBaseName()
+	public function hasLatLon()
 	{
-		return basename($this->filename);
+		[$lat, $lon] = $this->getLatLon();
+		return $lat || $lon;
+	}
+
+	public function getLatLon()
+	{
+		$lat = $lon = null;
+		$exif = $this->getExif();
+		if ($exif && $exif["GPSLatitude"]) {
+			$lat = $this->getGps($exif["GPSLatitude"], $exif['GPSLatitudeRef']);
+			$lon = $this->getGps($exif["GPSLongitude"], $exif['GPSLongitudeRef']);
+		}
+		return [$lat, $lon];
 	}
 
 	public function getExif()
@@ -65,17 +77,6 @@ class HTMLImage extends HTMLTag
 			$exif = exif_read_data($this->filename); // warning if PNG
 		}
 		return $exif;
-	}
-
-	public function getLatLon()
-	{
-		$lat = $lon = null;
-		$exif = $this->getExif();
-		if ($exif && $exif["GPSLatitude"]) {
-			$lat = $this->getGps($exif["GPSLatitude"], $exif['GPSLatitudeRef']);
-			$lon = $this->getGps($exif["GPSLongitude"], $exif['GPSLongitudeRef']);
-		}
-		return [$lat, $lon];
 	}
 
 	public function getGps($exifCoord, $hemi)
@@ -102,12 +103,6 @@ class HTMLImage extends HTMLTag
 		return floatval($parts[0]) / floatval($parts[1]);
 	}
 
-	public function hasLatLon()
-	{
-		list($lat, $lon) = $this->getLatLon();
-		return $lat || $lon;
-	}
-
 	public function getMiniMap()
 	{
 		return '<div class="MiniMap">
@@ -131,6 +126,11 @@ class HTMLImage extends HTMLTag
 			$correct = $basename;
 		}
 		return $correct;
+	}
+
+	public function getBaseName()
+	{
+		return basename($this->filename);
 	}
 
 	public function getMimeExt()
