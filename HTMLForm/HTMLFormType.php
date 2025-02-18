@@ -52,7 +52,7 @@ abstract class HTMLFormType implements HTMLFormFieldInterface
 	public function setForm(HTMLForm $f)
 	{
 		$this->form = $f;
-		$this->fullName = $this->form->getName($this->field, '', TRUE);
+		$this->fullName = $this->form->getName($this->field, '', true);
 	}
 
 	/**
@@ -64,6 +64,11 @@ abstract class HTMLFormType implements HTMLFormFieldInterface
 		$this->value = $value;
 	}
 
+	public function __toString()
+	{
+		return MergedContent::mergeStringArrayRecursive($this->render()) . '';
+	}
+
 	/**
 	 * Can't inherit abstract function HTMLFormFieldInterface::render() (previously declared abstract in HTMLFormType)
 	 */
@@ -72,18 +77,33 @@ abstract class HTMLFormType implements HTMLFormFieldInterface
 		die(__METHOD__ . ' is abstract');
 	}
 
-	public function __toString()
-	{
-		return MergedContent::mergeStringArrayRecursive($this->render()) . '';
-	}
-
 	/**
 	 * Return error message
 	 * @return null
 	 */
 	public function validate()
 	{
-		return NULL;
+		return null;
+	}
+
+	public function offsetExists(mixed $offset): bool
+	{
+		return $this->desc[$offset];
+	}
+
+	public function offsetGet(mixed $offset): mixed
+	{
+		return $this->desc[$offset];
+	}
+
+	public function offsetSet(mixed $offset, mixed $value): void
+	{
+		$this->desc[$offset] = $value;
+	}
+
+	public function offsetUnset(mixed $offset): void
+	{
+		unset($this->desc[$offset]);
 	}
 
 }

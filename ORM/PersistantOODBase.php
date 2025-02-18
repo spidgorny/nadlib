@@ -18,7 +18,7 @@ class PersistantOODBase extends OODBase
 
 	// define them in a subclass for static::inserted to work
 
-	public function __construct($initer)
+	public function __construct($initer = null)
 	{
 		parent::__construct($initer);
 		$this->originalData = $this->data;
@@ -28,7 +28,7 @@ class PersistantOODBase extends OODBase
 
 	public function getStateHash()
 	{
-		$isNull = array_reduce($this->data, function ($acc, $el) {
+		$isNull = array_reduce($this->data, static function ($acc, $el) {
 			return is_null($acc) && is_null($el) ? null : 'not null';
 		}, null);
 		//debug($this->data, $isNull); die;

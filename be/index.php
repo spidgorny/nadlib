@@ -4,9 +4,6 @@ ini_set('display_errors', true);
 error_reporting(E_ALL);
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 	require_once __DIR__ . '/vendor/autoload.php';
-} else {
-	//require_once '../../../../vendor/autoload.php';
-	require_once '../vendor/autoload.php';
 }
 //require_once 'init.php';
 

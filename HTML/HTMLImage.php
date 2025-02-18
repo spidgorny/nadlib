@@ -8,9 +8,9 @@ class HTMLImage extends HTMLTag
 	 */
 	public $filename;
 
-	public function __construct($filename, array $attr = [])
+	public function __construct($filename, array $attr = [], $content = '', $isHtml = false)
 	{
-		parent::__construct('img', $attr, '', false);
+		parent::__construct('img', $attr, $content, $isHtml);
 		$this->filename = $filename;
 	}
 
@@ -29,7 +29,7 @@ class HTMLImage extends HTMLTag
 	public function getImageLink()
 	{
 		if ($this->isLocalFile()) {
-			if ($this->filename[0] == '/') {
+			if ($this->filename[0] === '/') {
 				$documentRoot = AutoLoad::getInstance()->getAppRoot();
 				$documentRoot = str_replace('\\', '/', $documentRoot);
 				$realpath = realpath($this->filename);

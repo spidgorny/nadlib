@@ -7,18 +7,18 @@
 class LocalLangTest extends LocalLangDummy
 {
 
-	public function __construct()
+	public function __construct($forceLang = null)
 	{
-		parent::__construct();
+		parent::__construct($forceLang);
 		$file = file_get_contents('class/ll-' . $this->lang . '.json');
-		$this->ll = json_decode($file, true);
+		$this->ll = json_decode($file, true, 512, JSON_THROW_ON_ERROR);
 		//debug($file, $this->ll);
 	}
 
 	public function updateMessage(array $data)
 	{
 		$this->ll[$data['code']] = $data['text'];
-		file_put_contents('class/ll-' . $this->lang . '.json', json_encode($this->ll));
+		file_put_contents('class/ll-' . $this->lang . '.json', json_encode($this->ll, JSON_THROW_ON_ERROR));
 	}
 
 }

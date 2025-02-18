@@ -2,7 +2,7 @@
 
 use spidgorny\nadlib\HTTP\URL;
 
-class HTMLFormDropZone extends HTMLFormType implements HTMLFormFieldInterface
+class HTMLFormDropZone extends HTMLFormType
 {
 
 	public $makeFallback = true;

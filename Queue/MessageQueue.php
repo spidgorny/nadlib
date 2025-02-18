@@ -31,7 +31,7 @@ class MessageQueue extends OODBase
 	private $taskData = [];
 
 
-	public function __construct($type)
+	public function __construct($type = null)
 	{
 		parent::__construct();
 

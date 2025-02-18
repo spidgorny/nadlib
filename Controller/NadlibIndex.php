@@ -18,7 +18,6 @@ class NadlibIndex
 
 	public function __construct()
 	{
-		require_once 'init.php';
 		$in = new InitNADLIB();
 		$in->init();
 

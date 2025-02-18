@@ -1,6 +1,6 @@
 <?php
 
-class HTMLFormHidden extends HTMLFormType implements HTMLFormFieldInterface
+class HTMLFormHidden extends HTMLFormType
 {
 
 	public function __construct($value)

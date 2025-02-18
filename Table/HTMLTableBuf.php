@@ -14,13 +14,13 @@ class HTMLTableBuf extends MergedContent
 	public $tbody;
 	public $tfoot;
 
-	public function __construct()
+	public function __construct(array $parts = [])
 	{
-		parent::__construct([
-			'table' => '',
-			'thead' => '',
-			'tbody' => '',
-		]);
+		parent::__construct($parts + [
+				'table' => '',
+				'thead' => '',
+				'tbody' => '',
+			]);
 	}
 
 	public function table(array $more = [])

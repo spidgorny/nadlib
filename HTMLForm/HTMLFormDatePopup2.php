@@ -24,7 +24,7 @@ class HTMLFormDatePopup2 extends HTMLFormType
 		$this->setValue($value);
 
 		$this->desc = $desc;
-		$this->id = uniqid();
+		$this->id = uniqid('', true);
 	}
 
 	public function setValue($value)
@@ -83,23 +83,4 @@ class HTMLFormDatePopup2 extends HTMLFormType
 		return $content;
 	}
 
-	public function offsetExists(mixed $offset): bool
-	{
-		return $this->desc[$offset];
-	}
-
-	public function offsetGet(mixed $offset): mixed
-	{
-		return $this->desc[$offset];
-	}
-
-	public function offsetSet(mixed $offset, mixed $value): void
-	{
-		$this->desc[$offset] = $value;
-	}
-
-	public function offsetUnset(mixed $offset): void
-	{
-		unset($this->desc[$offset]);
-	}
 }

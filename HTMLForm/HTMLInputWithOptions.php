@@ -1,20 +1,16 @@
 <?php
 
-class HTMLInputWithOptions implements HTMLFormFieldInterface
+class HTMLInputWithOptions extends HTMLFormField
 {
 
-	protected $field;
-
-	protected $options = [];
-
-	protected $listName;
-
+	public $field;
 	/**
 	 * @var HTMLForm
 	 */
-	protected $form;
-
-	protected $value;
+	public $form;
+	public $value;
+	protected $options = [];
+	protected $listName;
 
 	public function __construct($field, $value, array $options, $listName = 'browsers')
 	{
@@ -30,8 +26,8 @@ class HTMLInputWithOptions implements HTMLFormFieldInterface
 	 */
 	public function render()
 	{
-		$content[] = '<input name="' . $this->field . '" 
-		list="' . $this->listName . '" 
+		$content[] = '<input name="' . $this->field . '"
+		list="' . $this->listName . '"
 		value="' . htmlspecialchars($this->value) . '">
 		<datalist id="' . $this->listName . '">';
 		foreach ($this->options as $option => $description) {
@@ -64,7 +60,6 @@ class HTMLInputWithOptions implements HTMLFormFieldInterface
 	/**
 	 * Set current field value
 	 * @param $value
-	 * @return mixed
 	 */
 	public function setValue($value)
 	{
