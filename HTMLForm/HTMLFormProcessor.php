@@ -7,42 +7,51 @@
  * - onSuccess();
  * - submitButton
  */
-abstract class HTMLFormProcessor extends AppControllerBE
+abstract class HTMLFormProcessor extends SimpleController
 {
 
 	/**
 	 * @var array
 	 */
 	public $default = [];
+
 	public $ajax = true;
+
 	/**
 	 * For debugging
 	 * @var array
 	 */
 	public $method = [];
+
 	/**
 	 * @var string
 	 */
 	protected $prefix = __CLASS__;
+
 	/**
 	 * @var HTMLFormValidate
 	 */
 	protected $validator;
+
 	/**
 	 * Stored result of the validation. HTMLFormValidate doesn't cache the result
 	 * @var bool
 	 */
 	protected $validated = false;
-	protected $submitButton = '';
+
+	protected $submitButton = 'Save';
+
 	/**
 	 * @var HTMLFormTable
 	 */
 	protected $form;
+
 	/**
 	 * Distinguishes initial display of the form (false) from after submit (true)
 	 * @var bool
 	 */
 	protected $submitted = false;
+	public $postUrl;
 
 	public function __construct(array $default = [])
 	{
@@ -62,12 +71,11 @@ abstract class HTMLFormProcessor extends AppControllerBE
 
 	/**
 	 * If inherited can be used as both string and HTMLFormTable
-	 * @return HTMLFormTable|string[]
+	 * @return string[]|ToStringable
 	 * @throws Exception
 	 */
 	public function render()
 	{
-		TaylorProfiler::start(__METHOD__);
 		$content = '';
 		if (!$this->form) {
 			$this->postInit();
@@ -87,9 +95,7 @@ abstract class HTMLFormProcessor extends AppControllerBE
 			}
 			$content .= $this->s($this->showForm());
 		}
-		$content = $this->encloseInAA($content, $this->title);
-		TaylorProfiler::stop(__METHOD__);
-		return $content;
+		return $this->encloseInAA($content, $this->title);
 	}
 
 	/**
@@ -98,7 +104,6 @@ abstract class HTMLFormProcessor extends AppControllerBE
 	 */
 	public function postInit()
 	{
-		TaylorProfiler::start(__METHOD__);
 		$this->form = new HTMLFormTable();    // needed sometime in getDesc
 		$this->form->setDesc($this->getDesc());
 		$this->form = $this->getForm($this->form);        // $this->desc will be used inside
@@ -131,22 +136,19 @@ abstract class HTMLFormProcessor extends AppControllerBE
 				$this->method[] = '! import $this->default';
 			}
 		}
-		TaylorProfiler::stop(__METHOD__);
 	}
 
 	abstract public function getDesc();
 
 	public function getForm(HTMLFormTable $preForm = null)
 	{
-		TaylorProfiler::start(__METHOD__);
 		$f = $preForm ?: $this->form;
 		if ($this->ajax) {
 			$f->formMore['onsubmit'] = "return ajaxSubmitForm(this);";
 		}
 		$f->method('POST');
-		$f->hidden('c', $this->prefix);
+		$f->action($this->postUrl);
 		$f->hidden('ajax', $this->ajax);
-		TaylorProfiler::stop(__METHOD__);
 		return $f;
 	}
 
@@ -155,14 +157,12 @@ abstract class HTMLFormProcessor extends AppControllerBE
 	public function showForm()
 	{
 		if (!$this->form) {
-			throw new Exception(__METHOD__ . ': initialize form with getForm()');
+			throw new \RuntimeException(__METHOD__ . ': initialize form with getForm()');
 		}
-		TaylorProfiler::start(__METHOD__);
 		$this->form->prefix($this->prefix);
 		$this->form->showForm();
 		$this->form->prefix('');
 		$this->form->submit($this->submitButton, ['class' => 'btn btn-success']);
-		TaylorProfiler::stop(__METHOD__);
 		return $this->form->getContent();
 	}
 
