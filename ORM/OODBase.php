@@ -223,7 +223,7 @@ abstract class OODBase implements ArrayAccess
 	public function insert(array $data)
 	{
 		TaylorProfiler::start(__METHOD__);
-		$this->log(static::class . '::' . __FUNCTION__, $data);
+//		$this->log(static::class . '::' . __FUNCTION__, $data);
 		//$data['ctime'] = new SQLNow();
 		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
@@ -282,7 +282,7 @@ abstract class OODBase implements ArrayAccess
 
 		TaylorProfiler::start(__METHOD__);
 		$action = static::class . '::' . __FUNCTION__ . '(id: ' . json_encode($this->id, JSON_THROW_ON_ERROR) . ')';
-		$this->log($action, $data);
+//		$this->log($action, $data);
 		$where = [];
 		if (is_array($this->idField)) {
 			foreach ($this->idField as $field) {
@@ -342,7 +342,7 @@ abstract class OODBase implements ArrayAccess
 				return null;
 			}
 		}
-		$this->log(static::class . '::' . __FUNCTION__, $where);
+//		$this->log(static::class . '::' . __FUNCTION__, $where);
 		$query = $this->db->getDeleteQuery($this->table, $where);
 		$this->lastQuery = $query;
 		$res = $this->db->perform($query);
@@ -371,7 +371,7 @@ abstract class OODBase implements ArrayAccess
 
 		//debug($this->where + $where, $this->db->lastQuery);
 		$this->lastSelectQuery = $this->db->lastQuery;
-		$this->log(__METHOD__, $this->lastSelectQuery . '');
+//		$this->log(__METHOD__, $this->lastSelectQuery . '');
 //		debug($rows, $this->lastSelectQuery);
 		if (is_array($row) && $row) {
 			$row = $this->fixRowDataTypes($row);
