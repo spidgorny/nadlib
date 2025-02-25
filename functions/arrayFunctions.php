@@ -213,9 +213,11 @@ function objectToArray($object)
 	return json_decode($json, true);
 }
 
-function array_find($array, $callback)
-{
-	return current(array_filter($array, $callback));
+if (!function_exists('array_find')) {
+	function array_find($array, $callback)
+	{
+		return current(array_filter($array, $callback));
+	}
 }
 
 if (!function_exists('array_flatten')) {
