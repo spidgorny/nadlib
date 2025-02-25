@@ -9,17 +9,18 @@
 class TranslateLL extends HTMLFormProcessor
 {
 
-	protected $submitButton = 'Update';
-
 	/**
 	 * @var CookieUser|User|LoginUser
 	 */
 	public $user;
+	protected $submitButton = 'Update';
+	private Config $config;
 
 	public function __construct()
 	{
 		parent::__construct();
-		$this->user = Config::getInstance()->getUser();
+		$this->config = Config::getInstance();
+		$this->user = $this->config->getUser();
 		if (!$this->user || !$this->user->id || !$this->user->isAdmin()) {
 			throw new AccessDeniedException();
 		}
@@ -29,7 +30,7 @@ class TranslateLL extends HTMLFormProcessor
 	{
 		$ll = $this->config->getLL();
 		$code = $this->request->getTrim('code');
-		$desc = [
+		return [
 			'lang' => [
 				'label' => __('Lang'),
 				'more' => [
@@ -53,7 +54,6 @@ class TranslateLL extends HTMLFormProcessor
 				]
 			],
 		];
-		return $desc;
 	}
 
 	public function render()

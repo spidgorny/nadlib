@@ -7,6 +7,14 @@ class ChangePassword extends HTMLFormProcessor
 	protected $minLength = 8;
 	protected $submitButton = 'Change';
 
+	private DCILoginUser|null|NoUser|DCICLIUser $user;
+
+	public function __construct($default = [])
+	{
+		parent::__construct($default);
+		$this->user = Config::getInstance()->getUser();
+	}
+
 	public function getDesc()
 	{
 		$desc = [];
