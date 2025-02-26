@@ -34,7 +34,8 @@ class HTMLFormCheckbox extends HTMLFormField
 			+ ($this->desc['autoSubmit'] ? ["onchange" => "this.form.submit()"] : [])
 			+ (ifsetor($this->desc['required']) ? ["required" => true] : [])
 			+ $more;
-		return $this->form->getInput("checkbox", $this->field, $this->value, $more, ifsetor($more['class']));
+
+		return $this->form->getInput("checkbox", $this->form->getName($this->field), $this->value, $more, ifsetor($more['class']));
 	}
 
 }

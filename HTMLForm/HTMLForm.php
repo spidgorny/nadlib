@@ -89,7 +89,7 @@ class HTMLForm implements ToStringable
 			$attrs['value'] = $value;
 		}
 		$attrs += $more;
-		return "<input " . $this->getAttrHTML($attrs) . " />\n";
+		return "<input " . self::getAttrHTML($attrs) . " />\n";
 	}
 
 	public function getName($name, $namePlus = '', $onlyValue = false)

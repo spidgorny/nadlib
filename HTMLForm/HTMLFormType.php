@@ -14,6 +14,8 @@ abstract class HTMLFormType implements HTMLFormFieldInterface
 	public $form;
 
 	/**
+	 * This is an array of a prefix + field name
+	 * Use $this->form->getName() to convert to string
 	 * @var array
 	 */
 	public $field = [];

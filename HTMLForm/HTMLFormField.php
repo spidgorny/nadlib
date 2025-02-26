@@ -55,11 +55,6 @@ class HTMLFormField extends HTMLFormType
 		return !$this->isObligatory();
 	}
 
-	public function getArray()
-	{
-		return $this->data;
-	}
-
 	public function isObligatory()
 	{
 		$type = $this->getTypeString();
@@ -74,18 +69,6 @@ class HTMLFormField extends HTMLFormType
 			return null;
 		}
 		return is_string($type) ? $type : get_class($type);
-	}
-
-	public function setForm(HTMLForm $form)
-	{
-		$this->form = $form;
-	}
-
-	public function setValue($value)
-	{
-//		llog('setValue', $this->fieldName, $value);
-		parent::setValue($value);
-		$this->data['value'] = $value;
 	}
 
 	public function render()
@@ -149,6 +132,18 @@ class HTMLFormField extends HTMLFormType
 			$elementID = uniqid('id-', true);
 		}
 		return $elementID;
+	}
+
+	public function setForm(HTMLForm $form)
+	{
+		$this->form = $form;
+	}
+
+	public function setValue($value)
+	{
+//		llog('setValue', $this->fieldName, $value);
+		parent::setValue($value);
+		$this->data['value'] = $value;
 	}
 
 	/**
@@ -219,7 +214,7 @@ class HTMLFormField extends HTMLFormType
 				}
 				$elementID = $this['elementID'];
 				$more = ifsetor($desc['more'], []) + ['id' => $elementID];
-				if (ifsetor($desc['postgresql'])) {
+				if (is_string($fieldValue) && ifsetor($desc['postgresql'])) {
 					$fieldValue = $fieldValue === 't';
 				}
 				$this->form->check($fieldName, ifsetor($desc['post-value'], 1), $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', false,*/
@@ -368,6 +363,11 @@ class HTMLFormField extends HTMLFormType
 				//debug($desc, $desc->isObligatory(), $desc->getTypeString());
 				break;
 		}
+	}
+
+	public function getArray()
+	{
+		return $this->data;
 	}
 
 	public function getContent()
