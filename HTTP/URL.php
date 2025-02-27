@@ -955,7 +955,7 @@ class URL
 	public function makeAbsolute()
 	{
 		if (!ifsetor($this->components['scheme'])) {
-			$this->components['scheme'] = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on'
+			$this->components['scheme'] = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on'
 				? 'https'
 				: 'http';
 		}
