@@ -62,7 +62,7 @@ class HTMLForm implements ToStringable
 
 	/**
 	 * @param string $type
-	 * @param string $name
+	 * @param string|array $name
 	 * @param null $value
 	 * @param array $more - may be array
 	 * @param string $extraClass

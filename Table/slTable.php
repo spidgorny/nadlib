@@ -538,7 +538,7 @@ class slTable implements ToStringable
 		$colgroup = '<colgroup>';
 		$i = 0;
 		foreach ($thes as $key => $dummy) {
-			$key = strip_tags($key);    // <col class="col_E-manual<img src="design/manual.gif">" />
+			$key = strip_tags($key);    // <col class="col_E-manual<img src="/design/manual.gif">" />
 			$key = URL::getSlug($key);    // special cars and spaces
 			if ($this->isAlternatingColumns) {
 				$key .= ' ' . ((++$i % 2) ? 'even' : 'odd');
