@@ -677,6 +677,10 @@ class SQLBuilder
 	public function fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
 	{
 		$query = $this->getSelectQuery($table, $where, $order, $selectPlus);
+		if (!str_contains($query->__toString(), 'LIMIT')) {
+			// speed improvement
+			$query->setLimit(new SQLLimit(1));
+		}
 		if ($this->logToLog) {
 			llog($query . '', $query->getParameters(), get_class($this->db), $this->db->getConnection());
 		}
