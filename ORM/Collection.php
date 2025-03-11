@@ -239,7 +239,7 @@ class Collection implements IteratorAggregate, ToStringable
 	public function getData($preProcess = true)
 	{
 		$this->log(get_class($this) . '::' . __FUNCTION__ . '(preProcess=' . $preProcess . ')');
-		$this->log(__METHOD__, 'collection Where' . json_encode($this->where));
+		$this->log(__METHOD__, 'collection Where' . json_encode($this->where, JSON_THROW_ON_ERROR));
 		$this->log(__METHOD__, 'query: ' . $this->query . '');
 		$this->log(__METHOD__, [
 			'data' => $this->data
