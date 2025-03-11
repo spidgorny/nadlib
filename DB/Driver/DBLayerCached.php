@@ -22,12 +22,12 @@ class DBLayerCached extends DBLayer
 	{
 		$cacheKey = $this->getCacheKey(__METHOD__, func_get_args());
 		if (isset($this->cache[$cacheKey])) {
-			llog('HIT', __METHOD__, substr($result, 0, 40));
+//			llog('HIT', __METHOD__, substr($result, 0, 40));
 			return $this->cache[$cacheKey];
 		}
-		if ($cacheKey) {
-			llog('MISS', __METHOD__, substr($result, 0, 40));
-		}
+//		if ($cacheKey) {
+//			llog('MISS', __METHOD__, substr($result, 0, 40));
+//		}
 
 		$data = parent::fetchAll($result, $key);
 		if ($cacheKey) {
