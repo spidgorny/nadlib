@@ -141,23 +141,8 @@ class CollectionQuery
 //		]);
 
 		// in most cases we don't need to rasterize the query to SQL
-		$most_cases = true;
-		if ($most_cases) {
-			$data = $this->db->fetchAll($this->query);
-		} else {
-			// legacy case - need SQL string
-			if ($this->query instanceof SQLSelectQuery) {
-				$res = $this->query->perform();
-			} else {
-				$res = $this->db->perform($this->query);
-			}
-			$data = $this->db->fetchAll($res);
-		}
+		$data = $this->db->fetchAll($this->query);
 		// fetchAll does implement free()
-//		$this->db->free($res);
-//		$this->log($taylorKey, [
-//			'fetched fetchAll rows' => count($data),
-//		]);
 		TaylorProfiler::stop($taylorKey);
 		return $data;
 	}

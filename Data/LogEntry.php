@@ -53,7 +53,7 @@ class LogEntry
 	 */
 	public static function getLogFrom(array $log): array
 	{
-		$prevTime = $log[0]->time;
+		$prevTime = count($log) ? $log[0]?->time : null;
 		$log = collect($log)->map(fn(LogEntry $x) => '[' . number_format($x->time - $prevTime, 4, '.') . '] ' . $x->__toString())->toArray();
 		return [
 			'<pre class="debug" style="font-family: monospace; white-space: pre-wrap;">',

@@ -303,58 +303,82 @@ class SQLBuilder
 		if ($value instanceof SQLNow) {     // check subclass first
 			$value->injectDB($this->db);
 			return $value . '';
-		} elseif ($value instanceof AsIsOp) {     // check subclass first
+		}
+
+		if ($value instanceof AsIsOp) {     // check subclass first
 			$value->injectDB($this->db);
 			$value->injectField($key);
 			$result = $value->__toString();
 			return $result;
-		} elseif ($value instanceof AsIs) {
+		}
+
+		if ($value instanceof AsIs) {
 			$value->injectDB($this->db);
 			//$value->injectField($key); not needed as it will make the field name twice
 			return $value->__toString();
-		} elseif ($value instanceof SQLOr) {
+		}
+
+		if ($value instanceof SQLOr) {
 			return $value->__toString();
-		} elseif ($value instanceof Time) {
+		}
+
+		if ($value instanceof Time) {
 			return $this->quoteSQL($value->getMySQL(), $key);
-		} elseif ($value instanceof SQLDate) {
+		}
+
+		if ($value instanceof SQLDate) {
 			$content = "'" . $this->db->escape($value->__toString()) . "'";
 			//debug($content, $value);
 			return $content;
-		} elseif ($value instanceof Time) {
+		}
+
+		if ($value instanceof Time) {
 			$content = "'" . $this->db->escape($value->toSQL()) . "'";
 			//debug($content);
 			return $content;
-		} elseif ($value instanceof SimpleXMLElement && $this->getScheme() == 'mysql') {
+		}
+
+		if ($value instanceof SimpleXMLElement && $this->getScheme() == 'mysql') {
 			return "COMPRESS('" . $this->db->escape($value->asXML()) . "')";
-		} elseif (is_object($value)) {
+		}
+
+		if (is_object($value)) {
 			if ($value instanceof stdClass) {
 				debug($value);
 			}
 			return "'" . $this->db->escape((string)$value) . "'";
-		} elseif ($value === null) {
+		}
+
+		if ($value === null) {
 			return "NULL";
-		} elseif (is_numeric($value) && !$this->isExp($value)) {
+		}
+
+		if (is_numeric($value) && !$this->isExp($value)) {
 			//$set[] = "($key = ".$val." OR {$key} = '".$val."')";
 			return "'" . $value . "'";    // quoting will not hurt, but will keep leading zeroes if necessary
 			// /* numeric */";		// this makes SQLQuery not work
-		} elseif (is_bool($value)) {
+		}
+
+		if (is_bool($value)) {
 			$res = $this->db->escapeBool($value);
 			//debug($value, $key, get_class($this->db), $res);
 			return $res;
-		} elseif (is_scalar($value)) {
+		}
+
+		if (is_scalar($value)) {
 			$sql = "'" . $this->db->escape($value) . "'";
 			if ($this->db->getScheme() == 'ms') {
 				$sql = 'N' . $sql;    // UTF-8 encoding
 			}
 			return $sql;
-		} else {
-			debug([
-				'key' => $key,
-				'value' => $value,
-				'problem' => 'MustBeStringException',
-			]);
-			throw new MustBeStringException('Must be string.');
 		}
+
+		debug([
+			'key' => $key,
+			'value' => $value,
+			'problem' => 'MustBeStringException',
+		]);
+		throw new MustBeStringException('Must be string.');
 	}
 
 	/**
@@ -677,6 +701,10 @@ class SQLBuilder
 	public function fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
 	{
 		$query = $this->getSelectQuery($table, $where, $order, $selectPlus);
+		if (!str_contains($query->__toString(), 'LIMIT')) {
+			// speed improvement
+			$query->setLimit(new SQLLimit(1));
+		}
 		if ($this->logToLog) {
 			llog($query . '', $query->getParameters(), get_class($this->db), $this->db->getConnection());
 		}
