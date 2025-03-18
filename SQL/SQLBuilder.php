@@ -726,8 +726,7 @@ class SQLBuilder
 	public function fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
 	{
 		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
-		$rows = $this->db->fetchAll($res, $key);
-		return $rows;
+		return $this->db->fetchAll($res, $key);
 	}
 
 	public function getWhereString(array $where)
