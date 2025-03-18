@@ -623,6 +623,7 @@ class HTMLFormTable extends HTMLForm
 	public function fillDesc(array $assoc)
 	{
 		$this->desc = $this->fillValues($this->desc, $assoc);
+		return $this;
 	}
 
 	public function getSingle(array|string $fieldName, array $desc)
