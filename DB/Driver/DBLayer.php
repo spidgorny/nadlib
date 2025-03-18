@@ -627,16 +627,15 @@ class DBLayer extends DBLayerBase
 
 	public function getLastInsertID($res = null, $table = 'not required since 8.1')
 	{
+//		$row = $this->fetchAssoc("SELECT currval('".$table."') AS currval");
+//		return $row['currval'];
 		$pgv = pg_version($this->getConnection());
-//		llog('pg_version', $pgv);
+		llog('pg_version', $pgv);
 		if ((float)$pgv['server'] >= 8.1) {
 			return $this->lastval();
 		}
 
 		throw new RuntimeException('Upgrade PostgreSQL to 8.1 or higher');
-//		$oid = pg_last_oid($res);
-//		$id = $this->sqlFind('id', $table, "oid = '" . $oid . "'");
-//		return $id;
 	}
 
 	protected function lastval()
