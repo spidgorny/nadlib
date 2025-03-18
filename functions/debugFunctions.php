@@ -327,6 +327,14 @@ if (!function_exists('d')) {
 }
 
 if (!function_exists('invariant')) {
+	/**
+	 * @param $test
+	 * @param $format_str
+	 * @param ...$args
+	 * @return void
+	 * @throws Exception
+	 * @assert (true, 'test') == void
+	 */
 	function invariant($test, $format_str = null, ...$args)
 	{
 		if ($test) {
