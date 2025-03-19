@@ -272,7 +272,6 @@ class HTMLFormTable extends HTMLForm
 	 */
 	public function showTR(array $prefix, array|HTMLFormFieldInterface $fieldDesc)
 	{
-//		llog('showTR', $prefix);
 		if (!isset($fieldDesc['horisontal']) || !$fieldDesc['horisontal']) {
 			$this->stdout .= "<tr " . self::getAttrHTML($fieldDesc['TRmore'] ?? null) . ">";
 		}
@@ -347,7 +346,7 @@ class HTMLFormTable extends HTMLForm
 			$this->stdout .= '</tr></table></td>
 			<td ' . $desc['TDmore'] . '><table ' . HTMLForm::getAttrHTML($this->tableMore) . '><tr>' . "\n";
 		}
-		$fieldValue = $desc['value'] ?? null;
+		$fieldValue = $desc['value'] ?? $desc['default'] ?? null;
 		$type = $desc['type'] ?? null;
 
 		if (!is_object($type) && ($type === 'hidden' || in_array($type, ['fieldset', '/fieldset']))) {
@@ -422,7 +421,6 @@ class HTMLFormTable extends HTMLForm
 	 */
 	public function switchType(array $fieldName, $fieldValue, $descIn)
 	{
-//		llog('switchType', $fieldName, $fieldValue, get_debug_type($descIn));
 		if ($descIn instanceof HTMLFormFieldInterface) {
 			$field = $descIn;
 			$field->setField($fieldName);
@@ -628,7 +626,7 @@ class HTMLFormTable extends HTMLForm
 
 	public function getSingle(array|string $fieldName, array $desc)
 	{
-		$field = $this->switchType(is_array($fieldName) ? $fieldName : [$fieldName], ifsetor($desc['value']), $desc);
+		$field = $this->switchType(is_array($fieldName) ? $fieldName : [$fieldName], ifsetor($desc['value'], $desc['default'] ?? ''), $desc);
 		return $field->getContent();
 	}
 
