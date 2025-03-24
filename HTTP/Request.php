@@ -29,7 +29,7 @@ class Request
 	/**
 	 * @param array|null $array
 	 */
-	public function __construct(array $array = null)
+	public function __construct(?array $array = null)
 	{
 		$this->data = !is_null($array) ? $array : $_REQUEST;
 		$this->url = new URL(
