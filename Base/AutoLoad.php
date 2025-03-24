@@ -109,6 +109,142 @@ class AutoLoad
 	}
 
 	/**
+	 * @return AutoLoad
+	 */
+	public static function getInstance()
+	{
+		if (!self::$instance) {
+			self::$instance = new self();
+			self::$instance->detectNadlibRoot();
+
+			// should not be called before $this->useCookies is set
+			//self::$instance->initFolders();
+		}
+		return self::$instance;
+	}
+
+	public function detectNadlibRoot()
+	{
+		$this->documentRoot = new Path($_SERVER['DOCUMENT_ROOT']);
+		$this->documentRoot->resolveLink();
+		$this->documentRoot = new Path(
+			str_replace('/kunden', '', $this->documentRoot)
+		); // 1und1.de
+
+		$scriptWithPath = URL::getScriptWithPath();
+		if ($this->debugStartup) {
+			echo 'scriptWithPath: ', $scriptWithPath, BR;
+		}
+//		$relToNadlibCLI = URL::getRelativePath($scriptWithPath, dirname(__FILE__));
+		$this->nadlibRoot = dirname(__DIR__) . '/';
+		$this->appRoot = $this->detectAppRoot();
+		if ($this->debugStartup) {
+			echo 'appRoot: ', $this->appRoot, BR;
+		}
+
+		if ((strlen($this->appRoot) > 1) && !$this->appRoot->isAbsolute()) { // '/', 'w:\\'
+			$this->nadlibFromDocRoot = URL::getRelativePath($this->appRoot, realpath($this->nadlibRoot));
+			$appRootIsRoot = true;
+		} else {
+			$path = new Path($scriptWithPath);
+			//if (basename(dirname($scriptWithPath)) == 'nadlib') {
+			if ($path->contains('nadlib')) {
+				$this->nadlibFromDocRoot = Request::getDocumentRoot();
+				$this->nadlibFromDocRoot = str_replace('/be', '', $this->nadlibFromDocRoot);
+				$appRootIsRoot = 'DocumentRoot without /be';
+			} else {
+				$relToNadlibPU = URL::getRelativePath(getcwd(), dirname(__DIR__));
+				$this->nadlibFromDocRoot = $relToNadlibPU;
+				$appRootIsRoot = '$relToNadlibPU';
+			}
+		}
+		$this->nadlibFromDocRoot = str_replace(dirname($_SERVER['SCRIPT_FILENAME']), '', $this->nadlibFromDocRoot);
+		$this->nadlibFromDocRoot = cap($this->nadlibFromDocRoot, '/');
+		if ($this->debugStartup) {
+			echo 'documentRoot: ', $this->documentRoot, BR;
+			echo 'nadlibFromDocRoot: ', $this->nadlibFromDocRoot, BR;
+			echo 'appRootIsRoot: ', $appRootIsRoot, BR;
+		}
+
+//		$this->nadlibFromCWD = URL::getRelativePath(getcwd(), $this->nadlibRoot);
+		if ($this->debugStartup) {
+			echo 'nadlibFromCWD: ', $this->nadlibFromCWD, BR;
+		}
+
+		$this->nadlibRoot = cap($this->nadlibRoot);
+		if ($this->debugStartup) {
+			echo __METHOD__, ' ', $this->nadlibRoot, BR;
+		}
+
+		$this->setComponentsPath();
+
+		if (0) {
+			echo '<pre>';
+			print_r([
+				'SCRIPT_FILENAME' => $_SERVER['SCRIPT_FILENAME'],
+				'rp(SCRIPT_FILENAME)' => realpath($_SERVER['SCRIPT_FILENAME']),
+				'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
+				'documentRoot' => $this->documentRoot . '',
+				'getcwd()' => getcwd(),
+				'__FILE__' => __FILE__,
+				'$scriptWithPath' => $scriptWithPath,
+				'dirname(__FILE__)' => dirname(__FILE__),
+				'baseHref' => Request::getLocation() . '',
+//				'$relToNadlibCLI' => $relToNadlibCLI,
+//				'$relToNadlibPU' => $relToNadlibPU,
+				'$this->nadlibRoot' => $this->nadlibRoot,
+//				'Config->documentRoot' => isset($config) ? $config->documentRoot : NULL,
+				'$this->appRoot' => $this->appRoot . '',
+				'appRootIsRoot' => $appRootIsRoot,
+//				'Config->appRoot' => isset($config) ? $config->appRoot : null,
+				'$this->nadlibFromDocRoot' => $this->nadlibFromDocRoot,
+				'$this->nadlibFromCWD' => $this->nadlibFromCWD,
+				'request->getDocumentRoot()' => Request::getInstance()->getDocumentRoot() . '',
+				'request->getLocation()' => Request::getInstance()->getLocation() . '',
+				'this->componentsPath' => $this->componentsPath . '',
+			]);
+			echo '</pre>';
+		}
+	}
+
+	public function detectAppRoot()
+	{
+		require_once __DIR__ . '/AppRootDetector.php';
+		$ard = new AppRootDetector();
+		return $ard->get();
+	}
+
+	public function setComponentsPath()
+	{
+		if (file_exists('composer.json')) {
+			$json = json_decode(file_get_contents('composer.json'), 1);
+			//debug($json['config']);
+			if (isset($json['config'])
+				&& isset($json['config']['component-dir'])) {
+				$this->componentsPath = new Path($json['config']['component-dir']);
+				$this->componentsPath->remove('public');
+				$this->componentsPath = $this->componentsPath->relativeFromAppRoot();
+			}
+		}
+		if (!$this->componentsPath) {
+			$this->componentsPath = new Path($this->appRoot);
+			$this->componentsPath->setAsDir();
+			if (!$this->componentsPath->appendIfExists('components')) {
+				$this->componentsPath->up();
+				if (!$this->componentsPath->appendIfExists('components')) {
+					$this->componentsPath->up();
+					if (!$this->componentsPath->appendIfExists('components')) {
+						$this->componentsPath = new Path($this->documentRoot);
+						if ($this->componentsPath->appendIfExists('components')) {    // no !
+							//$this->componentsPath = $this->componentsPath->relativeFromDocRoot();	// to check exists()
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
 	 * While loading Config, we need to make sure nadlib libraries can be loaded
 	 */
 	public function postInit()
@@ -149,13 +285,6 @@ class AutoLoad
 		$this->appRoot = $path;
 	}
 
-	public function detectAppRoot()
-	{
-		require_once __DIR__ . '/AppRootDetector.php';
-		$ard = new AppRootDetector();
-		return $ard->get();
-	}
-
 	public function __destruct()
 	{
 		if ($this->useCookies) {
@@ -173,12 +302,7 @@ class AutoLoad
 	 */
 	public function load($class)
 	{
-		/** @var TaylorProfiler $tp */
-		//echo TaylorProfiler::getElapsedTimeString().' '.$class.BR;
-
-		//$tp = TaylorProfiler::getInstance();
 		$tp = null;
-		if ($tp) $tp->start(__METHOD__);
 		$this->count++;
 
 		$file = $this->loadFileForClass($class);
@@ -200,23 +324,20 @@ class AutoLoad
 			}
 
 			if ($notFoundException) {
-				if ($tp) $tp->stop(__METHOD__);
 				debug($this->folders->folders);
 				throw new Exception('Class ' . $class . ' (' . $file . ') not found.' . BR);
-			} else {
-				//debug_pre_print_backtrace();
-				//pre_print_r($file, $this->folders->folders, $this->folders->collectDebug);
-				$this->logError($class . ' not found by AutoLoad');
 			}
+
+//debug_pre_print_backtrace();
+			//pre_print_r($file, $this->folders->folders, $this->folders->collectDebug);
+			$this->logError($class . ' not found by AutoLoad');
 			//echo '<font color="red">'.$classFile.'-'.$file.'</font> ';
-			if ($tp) $tp->stop(__METHOD__);
 			return false;
-		} else {
-			//echo $classFile.' ';
-			$this->logSuccess($class . ' OK');
-			if ($tp) $tp->stop(__METHOD__);
-			return true;
 		}
+
+//echo $classFile.' ';
+		$this->logSuccess($class . ' OK');
+		return true;
 	}
 
 	public function loadFileForClass($class)
@@ -329,135 +450,6 @@ class AutoLoad
 		if ($this->debug) {
 			$this->dumpCSS();
 			echo '<span class="debug success">' . $debugLine . '</span>', BR;
-		}
-	}
-
-	/**
-	 * @return AutoLoad
-	 */
-	public static function getInstance()
-	{
-		if (!self::$instance) {
-			self::$instance = new self();
-			self::$instance->detectNadlibRoot();
-
-			// should not be called before $this->useCookies is set
-			//self::$instance->initFolders();
-		}
-		return self::$instance;
-	}
-
-	public function detectNadlibRoot()
-	{
-		$this->documentRoot = new Path($_SERVER['DOCUMENT_ROOT']);
-		$this->documentRoot->resolveLink();
-		$this->documentRoot = new Path(
-			str_replace('/kunden', '', $this->documentRoot)
-		); // 1und1.de
-
-		$scriptWithPath = URL::getScriptWithPath();
-		if ($this->debugStartup) {
-			echo 'scriptWithPath: ', $scriptWithPath, BR;
-		}
-//		$relToNadlibCLI = URL::getRelativePath($scriptWithPath, dirname(__FILE__));
-		$this->nadlibRoot = dirname(__DIR__) . '/';
-		$this->appRoot = $this->detectAppRoot();
-		if ($this->debugStartup) {
-			echo 'appRoot: ', $this->appRoot, BR;
-		}
-
-		if ((strlen($this->appRoot) > 1) && !$this->appRoot->isAbsolute()) { // '/', 'w:\\'
-			$this->nadlibFromDocRoot = URL::getRelativePath($this->appRoot, realpath($this->nadlibRoot));
-			$appRootIsRoot = true;
-		} else {
-			$path = new Path($scriptWithPath);
-			//if (basename(dirname($scriptWithPath)) == 'nadlib') {
-			if ($path->contains('nadlib')) {
-				$this->nadlibFromDocRoot = Request::getDocumentRoot();
-				$this->nadlibFromDocRoot = str_replace('/be', '', $this->nadlibFromDocRoot);
-				$appRootIsRoot = 'DocumentRoot without /be';
-			} else {
-				$relToNadlibPU = URL::getRelativePath(getcwd(), dirname(__DIR__));
-				$this->nadlibFromDocRoot = $relToNadlibPU;
-				$appRootIsRoot = '$relToNadlibPU';
-			}
-		}
-		$this->nadlibFromDocRoot = str_replace(dirname($_SERVER['SCRIPT_FILENAME']), '', $this->nadlibFromDocRoot);
-		$this->nadlibFromDocRoot = cap($this->nadlibFromDocRoot, '/');
-		if ($this->debugStartup) {
-			echo 'documentRoot: ', $this->documentRoot, BR;
-			echo 'nadlibFromDocRoot: ', $this->nadlibFromDocRoot, BR;
-			echo 'appRootIsRoot: ', $appRootIsRoot, BR;
-		}
-
-//		$this->nadlibFromCWD = URL::getRelativePath(getcwd(), $this->nadlibRoot);
-		if ($this->debugStartup) {
-			echo 'nadlibFromCWD: ', $this->nadlibFromCWD, BR;
-		}
-
-		$this->nadlibRoot = cap($this->nadlibRoot);
-		if ($this->debugStartup) {
-			echo __METHOD__, ' ', $this->nadlibRoot, BR;
-		}
-
-		$this->setComponentsPath();
-
-		if (0) {
-			echo '<pre>';
-			print_r([
-				'SCRIPT_FILENAME' => $_SERVER['SCRIPT_FILENAME'],
-				'rp(SCRIPT_FILENAME)' => realpath($_SERVER['SCRIPT_FILENAME']),
-				'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
-				'documentRoot' => $this->documentRoot . '',
-				'getcwd()' => getcwd(),
-				'__FILE__' => __FILE__,
-				'$scriptWithPath' => $scriptWithPath,
-				'dirname(__FILE__)' => dirname(__FILE__),
-				'baseHref' => Request::getLocation() . '',
-//				'$relToNadlibCLI' => $relToNadlibCLI,
-//				'$relToNadlibPU' => $relToNadlibPU,
-				'$this->nadlibRoot' => $this->nadlibRoot,
-//				'Config->documentRoot' => isset($config) ? $config->documentRoot : NULL,
-				'$this->appRoot' => $this->appRoot . '',
-				'appRootIsRoot' => $appRootIsRoot,
-//				'Config->appRoot' => isset($config) ? $config->appRoot : null,
-				'$this->nadlibFromDocRoot' => $this->nadlibFromDocRoot,
-				'$this->nadlibFromCWD' => $this->nadlibFromCWD,
-				'request->getDocumentRoot()' => Request::getInstance()->getDocumentRoot() . '',
-				'request->getLocation()' => Request::getInstance()->getLocation() . '',
-				'this->componentsPath' => $this->componentsPath . '',
-			]);
-			echo '</pre>';
-		}
-	}
-
-	public function setComponentsPath()
-	{
-		if (file_exists('composer.json')) {
-			$json = json_decode(file_get_contents('composer.json'), 1);
-			//debug($json['config']);
-			if (isset($json['config'])
-				&& isset($json['config']['component-dir'])) {
-				$this->componentsPath = new Path($json['config']['component-dir']);
-				$this->componentsPath->remove('public');
-				$this->componentsPath = $this->componentsPath->relativeFromAppRoot();
-			}
-		}
-		if (!$this->componentsPath) {
-			$this->componentsPath = new Path($this->appRoot);
-			$this->componentsPath->setAsDir();
-			if (!$this->componentsPath->appendIfExists('components')) {
-				$this->componentsPath->up();
-				if (!$this->componentsPath->appendIfExists('components')) {
-					$this->componentsPath->up();
-					if (!$this->componentsPath->appendIfExists('components')) {
-						$this->componentsPath = new Path($this->documentRoot);
-						if ($this->componentsPath->appendIfExists('components')) {    // no !
-							//$this->componentsPath = $this->componentsPath->relativeFromDocRoot();	// to check exists()
-						}
-					}
-				}
-			}
 		}
 	}
 
