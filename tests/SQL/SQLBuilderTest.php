@@ -108,7 +108,7 @@ AND something else');
 	public function testPlaceholder()
 	{
 		$this->assertEquals('$1', $this->db->getPlaceholder());
-		$col = new \AppBundle\Model\Person\RisPersonCollection();
+		$col = new \App\Model\Person\RisPersonCollection();
 		$query = $col->getQueryWithLimit();
 		$this->assertEquals('SELECT "person".* FROM "person" WHERE NOT "hidden" AND "trim(login)" <> \'\' ORDER BY name, surname', SQLSelectQuery::trim($query->__toString()));
 
