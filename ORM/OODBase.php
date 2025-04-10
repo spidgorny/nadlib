@@ -879,6 +879,11 @@ abstract class OODBase
 		return ifsetor($this->data[$name]);
 	}
 
+	public function getInt($name)
+	{
+		return (int)ifsetor($this->data[$name]);
+	}
+
 	public function setLogger($log)
 	{
 		$this->logger = $log;
