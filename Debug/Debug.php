@@ -318,7 +318,11 @@ class Debug
 		reset($btl);
 		$bt = current($btl);
 		for ($i = 0; $i < $stepBack; $i++) {
-			$bt = next($btl);
+			$next = next($btl);
+			if (!$next) {
+				break;
+			}
+			$bt = $next;
 		}
 		$btBefore = $btl[$stepBack - 1];
 		$object = ifsetor($bt['object']);
