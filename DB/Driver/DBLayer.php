@@ -72,7 +72,8 @@ class DBLayer extends DBLayerBase
 	 */
 	public function __construct($dbName = null, $user = null, $pass = null, $host = "localhost")
 	{
-//		debug_pre_print_backtrace();
+		llog('dblayer construct');
+
 		$this->database = $dbName;
 //		pre_print_r($this->dbName);
 		$this->user = $user;
@@ -91,6 +92,7 @@ class DBLayer extends DBLayerBase
 		if (DEVELOPMENT) {
 			$this->queryLog = new QueryLog();
 		}
+		llog('dblayer construct ok');
 	}
 
 	public function getVersion()
@@ -133,7 +135,7 @@ class DBLayer extends DBLayerBase
 			$this->host = $host;
 		}
 		$string = "host={$this->host} dbname={$this->database} user={$this->user} password={$this->pass}";
-//		llog($string);
+		llog($string);
 		$this->connection = pg_connect($string);
 		if (!$this->connection) {
 			throw new DatabaseException("No PostgreSQL connection to $host. " . json_encode(error_get_last()));
@@ -141,7 +143,7 @@ class DBLayer extends DBLayerBase
 		}
 
 		$this->perform("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
-		//print(pg_client_encoding($this->connection));
+		llog('connect', pg_client_encoding($this->connection));
 		return true;
 	}
 
