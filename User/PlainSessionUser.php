@@ -26,12 +26,6 @@ class PlainSessionUser extends User
 	 */
 	public function __construct($id = null, $session = null)
 	{
-		if (!Request::isCLI()) {
-			//debug('session_start');
-			@session_start();
-		} else {
-			$_SESSION = [];
-		}
 		$this->session = $session ?: new Session(get_class($this));
 		parent::__construct($id);
 	}

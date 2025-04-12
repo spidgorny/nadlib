@@ -139,7 +139,7 @@ class IndexBase /*extends Controller*/
 	 */
 	public function initSession()
 	{
-//		debug('is session started', session_id(), session_status());
+		debug('is session started', session_id(), session_status());
 		if (!Request::isCLI() && !Session::isActive() && !headers_sent()) {
 			ini_set('session.use_trans_sid', false);
 			ini_set('session.use_only_cookies', true);

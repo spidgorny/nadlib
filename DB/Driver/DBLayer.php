@@ -779,7 +779,7 @@ order by a.attnum';
 		if (ctype_alpha($key)) {
 			$isFunc = function_exists('pg_escape_identifier');
 			if ($isFunc && $this->isConnected()) {
-				$key = pg_escape_identifier($key);
+				$key = pg_escape_identifier($this->connection, $key);
 			} else {
 				$key = '"' . $key . '"';
 			}
