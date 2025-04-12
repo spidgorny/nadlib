@@ -748,7 +748,7 @@ order by a.attnum';
 
 	public function escape($str)
 	{
-		return pg_escape_string($str);
+		return pg_escape_string($this->connection, $str);
 	}
 
 	/**
