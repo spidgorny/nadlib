@@ -179,13 +179,13 @@ class SQLBuilder
 			$limit = 'LIMIT ' . $limit;  // fix after split
 		} elseif (str_startsWith($orderAndLimit, 'ORDER')) {
 			$order = $orderAndLimit;
-			$limit = null;
+			$limit = '';
 		} elseif (str_startsWith($orderAndLimit, 'LIMIT')) {
-			$order = null;
+			$order = '';
 			$limit = $orderAndLimit;
 		} else {
-			$order = null;
-			$limit = null;
+			$order = '';
+			$limit = '';
 		}
 //		llog($orderAndLimit, '=>', $order, $limit);
 

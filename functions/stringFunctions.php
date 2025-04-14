@@ -8,13 +8,13 @@ if (!function_exists('str_startsWith')) {
 	 * @param string|string[] $needle
 	 * @return bool
 	 */
-	function str_startsWith($haystack, $needle)
+	function str_startsWith(string $haystack, string $needle)
 	{
 		if (!is_array($needle)) {
 			$needle = [$needle];
 		}
 		foreach ($needle as $need) {
-			if (str_starts_with($haystack, $need)) {
+			if (str_starts_with($haystack ?? '', $need)) {
 				return true;
 			}
 		}

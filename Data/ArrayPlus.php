@@ -301,7 +301,7 @@ class ArrayPlus extends ArrayObject implements Countable
 		return $content;
 	}
 
-	public function ksort(int $flags = SORT_REGULAR): bool
+	public function ksort(int $flags = SORT_REGULAR): true
 	{
 		$arrayCopy = $this->getArrayCopy();
 		ksort($arrayCopy);
@@ -638,7 +638,7 @@ class ArrayPlus extends ArrayObject implements Countable
 	 * @param array $data
 	 * @return ArrayPlus
 	 */
-	public function object2array(array $data = null)
+	public function object2array(?array $data = null)
 	{
 		$this->setData($this->objectToArray($this));
 		return $this;
@@ -678,7 +678,7 @@ class ArrayPlus extends ArrayObject implements Countable
 	 * @param array $data
 	 * @return array
 	 */
-	public function linearize(array $data = null)
+	public function linearize(?array $data = null)
 	{
 		$data = $data ?: $this;
 		$linear = [];
