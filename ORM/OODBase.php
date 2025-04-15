@@ -880,6 +880,11 @@ abstract class OODBase implements ArrayAccess
 		return (int)$this->id;
 	}
 
+	public function getInt(string $fieldName)
+	{
+		return (int)$this->data[$fieldName];
+	}
+
 	public function getBoolField(string $fieldName)
 	{
 		return self::getBool($this->data[$fieldName] ?? null);
