@@ -47,7 +47,7 @@ class Collection implements IteratorAggregate, ToStringable
 	 * Default is NULL in order to check whether it's set or not.
 	 * @var string
 	 */
-	public $itemClassName;
+	public static $itemClassName;
 	/**
 	 * SQL part
 	 * @var string
