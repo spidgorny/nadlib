@@ -1,6 +1,8 @@
 <?php
 
-class AppController4Test extends Controller
+use App\Controller\BaseController;
+
+class AppController4Test extends BaseController
 {
 
 	public function __construct()
