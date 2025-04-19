@@ -170,7 +170,7 @@ class PorterStemmer
 	 *
 	 * @param string $word String to stem
 	 */
-	private static function step3($word)
+	private static function step3(string $word): string
 	{
 		switch (substr($word, -2, 1)) {
 			case 'a':

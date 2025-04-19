@@ -50,7 +50,7 @@ class AccessRights implements AccessRightsInterface
 		$this->init($this->groupID);
 	}
 
-	public function init(string $idGroup): void
+	public function init(int $idGroup): void
 	{
 		$res = $this->db->runSelectQuery(
 			$this->accessTable . ' /**/
