@@ -7,7 +7,10 @@
 class CsvIterator implements Iterator, Countable
 {
 
-	public $filename;
+	/**
+     * @var string
+     */
+    public $filename;
 
 	const ROW_SIZE = 4194304; // 4096*1024;
 
@@ -16,7 +19,7 @@ class CsvIterator implements Iterator, Countable
 	 * @var resource
 	 * @access private
 	 */
-	public $filePointer = null;
+	public $filePointer;
 
 	/**
 	 * The current element, which will
@@ -24,7 +27,7 @@ class CsvIterator implements Iterator, Countable
 	 * @var array
 	 * @access private
 	 */
-	protected $currentElement = null;
+	protected $currentElement;
 
 	/**
 	 * @var int - cached amount of rows in a file
@@ -43,7 +46,7 @@ class CsvIterator implements Iterator, Countable
 	 * @var string
 	 * @access private
 	 */
-	private $delimiter = null;
+	private $delimiter;
 
 	public $doConvertToUTF8 = false;
 
@@ -63,39 +66,41 @@ class CsvIterator implements Iterator, Countable
 	 *
 	 * @throws Exception
 	 */
-	public function __construct($filename, $delimiter = ',')
+	public function __construct(string $filename, $delimiter = ',')
 	{
 		$this->filename = $filename;
 		ini_set('auto_detect_line_endings', true);
 		$this->delimiter = $delimiter;
 		try {
 			$this->filePointer = $this->fopen_utf8($filename, 'r');
-		} catch (Exception $e) {
-			throw new Exception('The file "' . $filename . '" cannot be read because ' . $e->getMessage());
+		} catch (Exception $exception) {
+			throw new Exception('The file "' . $filename . '" cannot be read because ' . $exception->getMessage(), $exception->getCode(), $exception);
 		}
 	}
 
 	/**
-	 * Reads past the UTF-8 bom if it is there.
-	 * @param string $filename
-	 * @param string $mode
-	 * @return resource
-	 */
-	public function fopen_utf8($filename, $mode)
+     * Reads past the UTF-8 bom if it is there.
+     * @param string $mode
+     * @return resource
+     */
+    public function fopen_utf8(string $filename, $mode)
 	{
 		$file = fopen($filename, $mode);
 		if (!$file) {
 			throw new InvalidArgumentException($filename . ' is not found in ' . getcwd());
 		}
+
 		$bom = fread($file, 3);
 		if ($bom != b"\xEF\xBB\xBF") {
 			rewind($file);
 		} else {
 			//echo "bom found!\n";
 		}
-		if (pathinfo($filename, PATHINFO_EXTENSION) == 'bz2') {
+
+		if (pathinfo($filename, PATHINFO_EXTENSION) === 'bz2') {
 			stream_filter_prepend($file, 'bzip2.decompress', STREAM_FILTER_READ);
 		}
+
 		return $file;
 	}
 
@@ -108,11 +113,12 @@ class CsvIterator implements Iterator, Countable
 	{
 		$this->rowCounter = 0;
 		// feof() is stuck in true after rewind somehow
-		if (pathinfo($this->filename, PATHINFO_EXTENSION) == 'bz2') {
+		if (pathinfo($this->filename, PATHINFO_EXTENSION) === 'bz2') {
 			$this->filePointer = $this->fopen_utf8($this->filename, 'r');
 		} else {
 			rewind($this->filePointer);
 		}
+
 		assert(ftell($this->filePointer) == 0);
 		assert(!$this->feof());
 		$this->lastRead = -1;
@@ -175,7 +181,7 @@ class CsvIterator implements Iterator, Countable
 	 * If called multiple times should return the same value
 	 * until next() is called
 	 */
-	public function read()
+	public function read(): void
 	{
 		//debug_pre_print_backtrace();
 		if ($this->rowCounter != $this->lastRead) {
@@ -207,6 +213,7 @@ class CsvIterator implements Iterator, Countable
 		if ($this->numRows) {
 			return $this->numRows;
 		}
+
 //		$save = ftell($this->filePointer);
 //		$saveRow = $this->rowCounter;
 
@@ -215,6 +222,7 @@ class CsvIterator implements Iterator, Countable
 			$this->next();
 			$count++;
 		}
+
 		$this->numRows = $count;
 
 //		$fail = fseek($this->filePointer, $save);

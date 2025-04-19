@@ -8,6 +8,7 @@ abstract class LDAPUser extends UserBase implements UserModelInterface
 {
 
 	public $UserID;
+
 	public $UserName;
 
 	/**
@@ -20,7 +21,7 @@ abstract class LDAPUser extends UserBase implements UserModelInterface
 		$this->initLDAP($ldapInfo);
 	}
 
-	public function initLDAP(array $ldapInfo = [])
+	public function initLDAP(array $ldapInfo = []): void
 	{
 		$goodKeys = array_filter(array_keys($ldapInfo), 'is_string');
 		$ldapInfo = array_intersect_key($ldapInfo, array_flip($goodKeys));
@@ -29,6 +30,7 @@ abstract class LDAPUser extends UserBase implements UserModelInterface
 			$this->id = $this->data['uid'][0];
 			$this->UserID = $this->data['uid'][0];
 		}
+
 		if (isset($this->data['fullname'])) {
 			$this->UserName = $this->data['fullname'][0];
 		}
@@ -39,7 +41,7 @@ abstract class LDAPUser extends UserBase implements UserModelInterface
 		return $this->UserName . ' (' . $this->UserID . ') <' . $this->data['mail'][0] . '>';
 	}
 
-	public function try2login($user, $password = null)
+	public function try2login($user, $password = null): void
 	{
 		if ($_SESSION['user']) {
 			$this->id = $_SESSION['user']->id;
@@ -49,7 +51,7 @@ abstract class LDAPUser extends UserBase implements UserModelInterface
 		}
 	}
 
-	public function saveLogin()
+	public function saveLogin(): void
 	{
 		$obj = new stdClass();
 		$obj->id = $this->id;
@@ -59,7 +61,7 @@ abstract class LDAPUser extends UserBase implements UserModelInterface
 		$_SESSION['user'] = $obj;
 	}
 
-	public function logout()
+	public function logout(): void
 	{
 		unset($_SESSION['user']);
 	}
@@ -79,6 +81,7 @@ abstract class LDAPUser extends UserBase implements UserModelInterface
 				$simpleData[$field] = $data;
 			}
 		}
+
 		unset($simpleData['zcmsharedsecret']);
 		unset($simpleData['zenzfdversion']);
 		unset($simpleData['dirxml-passwordsyncstatus']);

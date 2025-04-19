@@ -28,19 +28,20 @@ class POPOBase
 		}
 	}
 
-	public function transform($name, $value)
+	public function transform(string $name, $value)
 	{
 		$reflector = new ReflectionClass($this);
 		try {
 			$prop = $reflector->getProperty($name);
 			if ($prop) {
-				$type = $prop->getType() ? $prop->getType()->getName() : null;
+				$type = $prop->getType() instanceof \ReflectionType ? $prop->getType()->getName() : null;
 				if (!$type) {
 					$docText = $prop->getDocComment();
 					$doc = new DocCommentParser($docText);
 					$type = $doc->getFirstTagValue('var');
 //					llog($docText, $type, $value);
 				}
+                
 //				llog($name, $type.'', $value);
 				switch ($type) {
 					case 'integer':
@@ -64,6 +65,7 @@ class POPOBase
 						} elseif ($value) {
 							$value = new DateTime($value);
 						}
+                        
 						break;
 					case 'DateTimeImmutable':
 						if (is_object($value)) {
@@ -71,6 +73,7 @@ class POPOBase
 						} elseif ($value) {
 							$value = new DateTimeImmutable($value);
 						}
+                        
 						break;
 					default:
 						// inner subclasses
@@ -79,9 +82,10 @@ class POPOBase
 						}
 				}
 			}
-		} catch (ReflectionException $e) {
+		} catch (ReflectionException $reflectionException) {
 			$this->_missingProperties[$name] = TAB . 'public $' . $name . ';';
 		}
+        
 		return $value;
 	}
 
@@ -90,7 +94,7 @@ class POPOBase
 	 * @return false|string
 	 * @throws JsonException
 	 */
-	public function toJson()
+	public function toJson(): string
 	{
 		return json_encode($this, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
 	}

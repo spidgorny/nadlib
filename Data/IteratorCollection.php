@@ -39,7 +39,7 @@ class IteratorCollection /*extends Collection*/
 
 	public function count(): int
 	{
-		return sizeof($this->data);
+		return count($this->data);
 	}
 
 }

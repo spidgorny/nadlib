@@ -6,29 +6,29 @@ class HTMLFormSelection extends HTMLFormField
 	/**
 	 * @var array
 	 */
-	var $options;
+	public $options;
 
 	/**
 	 * @var boolean
 	 */
-	var $autoSubmit;
+	public $autoSubmit;
 
 	/**
 	 * @var boolean
 	 */
-	var $multiple;
+	public $multiple;
 
 	/**
 	 * @var array
 	 */
-	var $more = [];
+	public $more = [];
 
 	/**
 	 * @var HTMLFormField
 	 */
-	var $desc = [];
+	public $desc = [];
 
-	function __construct($fieldName, array $options = NULL, $selected = NULL)
+	public function __construct($fieldName, array $options = NULL, $selected = NULL)
 	{
 		parent::__construct([], $fieldName);
 		$this->setField($fieldName);
@@ -36,12 +36,12 @@ class HTMLFormSelection extends HTMLFormField
 		$this->value = $selected;
 	}
 
-	function setDesc(array $desc)
+	public function setDesc(array $desc): void
 	{
 		$this->desc = new HTMLFormField($desc);
 	}
 
-	function render()
+	public function render(): void
 	{
 		$this->form = $this->form ?: new HTMLForm();
 		$content[] = "<select " .
@@ -49,6 +49,7 @@ class HTMLFormSelection extends HTMLFormField
 		if ($this->autoSubmit) {
 			$content[] = " onchange='this.form.submit()' ";
 		}
+
 		if ($this->multiple) {
 			$content[] = ' multiple="1"';
 		}
@@ -67,14 +68,17 @@ class HTMLFormSelection extends HTMLFormField
 				? $this->desc['more']
 				: HTMLTag::parseAttributes($this->desc['more']);
 		}
+
 		$content[] = ' ' . HTMLTag::renderAttr($more) . ">\n";
 
 		if (is_null($this->options)) {
 			$this->options = $this->fetchSelectionOptions($this->desc->getArray());
 		}
+
 		if ($this->desc['null']) {
 			$this->options = [NULL => "---"] + $this->options;
 		}
+
 		$content[] = $this->getSelectionOptions($this->options, $this->value, $this->desc->getArray());
 		$content[] = "</select>\n";
 
@@ -83,15 +87,13 @@ class HTMLFormSelection extends HTMLFormField
 	}
 
 	/**
-	 * @param array $aOptions
-	 * @param $default  array|mixed
-	 * @param array $desc
-	 *    boolean '===' - compare value and default strictly (BUG: integer looking string keys will be treated as integer)
-	 *    string 'classAsValuePrefix' - will prefix value with the value of this param with space replaced with _
-	 *      boolean 'useTitle'
-	 * @return string
-	 */
-	function getSelectionOptions(array $aOptions, $default, array $desc = [])
+     * @param $default  array|mixed
+     * @param array $desc
+     *    boolean '===' - compare value and default strictly (BUG: integer looking string keys will be treated as integer)
+     *    string 'classAsValuePrefix' - will prefix value with the value of this param with space replaced with _
+     *      boolean 'useTitle'
+     */
+    public function getSelectionOptions(array $aOptions, $default, array $desc = []): string
 	{
 		$content = '';
 		//Debug::debug_args($aOptions);
@@ -109,17 +111,15 @@ class HTMLFormSelection extends HTMLFormField
 //				if ($this->field[0] === 'id_person' && $value == 327) {
 				//debug($value, $default, $arrayContains, $justEquals);
 //				}
-				if ($arrayContains || $justEquals) {
-					$selected = true;
-				} else {
-					$selected = false;
-				}
+				$selected = $arrayContains || $justEquals;
 			}
+
 			//debug($default, $value, $selected);
 			if ($option instanceof HTMLTag) {
 				if ($selected) {
 					$option->attr('selected', $selected);
 				}
+
 				//$option->content .= ' '.$value.' '.$default;
 				$content .= $option;
 			} elseif ($option instanceof Recursive) {
@@ -127,30 +127,33 @@ class HTMLFormSelection extends HTMLFormField
 				$content .= $this->getSelectionOptions($option->getChildren(), $default, $desc);
 				$content .= '</optgroup>';
 			} else {
-				$content .= "<option value=\"$value\"";
+				$content .= sprintf('<option value="%s"', $value);
 				if ($selected) {
 					$content .= " selected";
 				}
+
 				if (isset($desc['classAsValuePrefix'])) {
 					$content .= ' class="' . $desc['classAsValuePrefix'] . str_replace(' ', '_', $value) . '"';
 				}
+
 				if (isset($desc['useTitle']) && $desc['useTitle'] == true) {
 					$content .= ' title="' . strip_tags($option) . '"';
 				}
-				$content .= ">$option</option>\n";
+
+				$content .= ">{$option}</option>\n";
 			}
 		}
+
 		return $content;
 	}
 
 	/**
-	 * Retrieves data from DB
-	 * Provide either 'options' assoc array
-	 * OR a DB 'table', 'title' column, 'idField' column 'where' and 'order'
-	 * @param array $desc
-	 * @return array
-	 */
-	function fetchSelectionOptions(array $desc)
+     * Retrieves data from DB
+     * Provide either 'options' assoc array
+     * OR a DB 'table', 'title' column, 'idField' column 'where' and 'order'
+     * @return array
+     */
+    public function fetchSelectionOptions(array $desc)
 	{
 		if (ifsetor($desc['from']) && $desc['title']) {
 			/** @var DBLayerBase $db */
@@ -167,12 +170,15 @@ class HTMLFormSelection extends HTMLFormField
 		} else {
 			$options = [];
 		}
+
 		if (isset($desc['options'])) {
 			$options += $desc['options'];
 		}
+
 		if (isset($desc['map'])) {
 			$options = array_map($desc['map'], $options);
 		}
+
 		//Debug::debug_args($options, $desc['options']);
 		return $options;
 	}

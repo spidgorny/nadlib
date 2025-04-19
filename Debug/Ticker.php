@@ -10,7 +10,10 @@ require_once __DIR__ . '/TaylorProfiler.php';
 class Ticker
 {
 
-	static public $instance;
+	/**
+     * @var $this
+     */
+    static public $instance;
 
 	/**
 	 * @var string "html"
@@ -65,6 +68,7 @@ class Ticker
 				define('BR', "<br />\n");
 			}
 		}
+
 		if (!defined('TAB')) {
 			define('TAB', "\t");
 		}
@@ -72,13 +76,9 @@ class Ticker
 		$this->prevMemory = TaylorProfiler::getMemUsage();
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isCLI()
+	public function isCLI(): bool
 	{
-		$isCLI = php_sapi_name() == 'cli';
-		return $isCLI;
+		return PHP_SAPI === 'cli';
 	}
 
 	/**
@@ -100,6 +100,7 @@ class Ticker
 		} else {
 			die('register_tick_function returned false');
 		}
+
 		return $tp;
 	}
 
@@ -107,13 +108,13 @@ class Ticker
 	 * This is not working reliably yet. Stops output forever
 	 * @deprecated
 	 */
-	public function stopOutput()
+	public function stopOutput(): void
 	{
 		ob_start([$this, 'ob_end']);
 		$this->noOutput = true;
 	}
 
-	public function ob_end($output)
+	public function ob_end($output): string
 	{
 		// don't print
 		return 'Collected output length: ' . strlen($output) . BR;
@@ -122,7 +123,7 @@ class Ticker
 	/**
 	 * @throws Exception
 	 */
-	public function tick()
+	public function tick(): void
 	{
 		$bt = debug_backtrace();
 		$list = [];
@@ -137,6 +138,7 @@ class Ticker
 				'#' . ifsetor($prow['line']);
 			$prow = $row;
 		}
+
 		$list = array_reverse($list);
 		$list = array_slice($list, 0, -1);    // cut TaylorProfiler::tick
 		//$list = array_slice($list, 3);
@@ -147,8 +149,10 @@ class Ticker
 			if (!isset($this->firstCall[$lastCall])) {
 				$this->firstCall[$lastCall] = microtime(true);
 			}
+
 			$this->lastCall[$lastCall] = microtime(true);
 		}
+
 		$trace = implode(' -> ', $list);
 		$trace = substr($trace, -100);
 
@@ -173,18 +177,19 @@ class Ticker
 
 		$this->render($output, $time);
 		$this->prevMemory = $mem;
-		if (sizeof($list) > 100) {
+		if (count($list) > 100) {
 			pre_print_r($list);
 			throw new Exception('Infinite loop detected');
 		}
 	}
 
-	public function render($output, $time)
+	public function render($output, $time): void
 	{
 		if ($this->tickTo == 'html') {
 			if ($this->isCLI()) {
 				$output = strip_tags($output);
 			}
+
 			echo $output . "\n";
 		} elseif ($this->tickTo == 'header') {
 			$pad = str_pad($time, 6, '0', STR_PAD_LEFT);
@@ -196,6 +201,7 @@ class Ticker
 //				ob_end_clean();
 //				ob_end_flush();
 			}
+
 			echo strip_tags($output), BR;
 			if ($this->noOutput) {
 				$this->stopOutput();
@@ -205,7 +211,7 @@ class Ticker
 		}
 	}
 
-	public static function disableTick()
+	public static function disableTick(): void
 	{
 		echo __METHOD__, BR;
 		$tp = self::getInstance();
@@ -222,6 +228,7 @@ class Ticker
 			} else {
 				$duration = '';
 			}
+
 			echo $count, TAB, $duration, TAB, $function, BR;
 		}
 	}

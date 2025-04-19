@@ -23,11 +23,10 @@ interface HTMLFormFieldInterface extends ArrayAccess
 	public function setField($fieldName);
 
 	/**
-	 * Inject form for additional function calls
-	 * @param HTMLForm $form
-	 * @return mixed
-	 */
-	public function setForm(HTMLForm $form);
+     * Inject form for additional function calls
+     * @return mixed
+     */
+    public function setForm(HTMLForm $form);
 
 	/**
 	 * Set current field value

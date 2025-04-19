@@ -50,51 +50,52 @@ class Duration extends Time
 		} else {
 			$this->time = $input;
 		}
+
 		$this->updateDebug();
 	}
 
-	public static function fromSeconds($ini_get)
+	public static function fromSeconds($ini_get): \Duration
 	{
 		return new Duration($ini_get);
 	}
 
-	public function format($rules)
+	public function format($rules): void
 	{
-		die(__METHOD__ . ' - don\'t use.');
+		die(__METHOD__ . " - don't use.");
 	}
 
-	public function getTime($format = 'H:i:s')
+	public function getTime($format = 'H:i:s'): string
 	{
 		return gmdate($format, $this->time);
 	}
 
-	public function nice($perCount = 2)
+	public function nice($perCount = 2): string
 	{
 		return $this->toString($perCount);
 	}
 
-	public function short()
+	public function short(): string
 	{
 		$h = floor($this->time / 3600);
 		$m = floor($this->time % 3600 / 60);
 		$content = [];
-		if ($h) {
+		if ($h !== 0.0) {
 			$content[] = $h . 'h';
 		}
-		if ($m) {
+
+		if ($m !== 0.0) {
 			$content[] = $m . 'm';
 		}
+
 		$content = implode('&nbsp;', $content);
 		return $content ?: '-';
 	}
 
 	/**
-	 * Parses the human string like '24h 10m'
-	 * No spaces allowed between the number and value
-	 * @param string $string
-	 * @return Duration
-	 */
-	public static function fromHuman($string)
+     * Parses the human string like '24h 10m'
+     * No spaces allowed between the number and value
+     */
+    public static function fromHuman(string $string): \Duration
 	{
 		$total = 0;
 		$parts = trimExplode(' ', $string);
@@ -107,7 +108,7 @@ class Duration extends Time
 				case 'sec':
 				case 'second':
 				case 'seconds':
-					$total += $value * 1;
+					$total += $value;
 					break;
 				case 'm':
 				case 'min':
@@ -147,6 +148,7 @@ class Duration extends Time
 					break;
 			}
 		}
+
 		if (!$total) {
 			$totalBefore = $total;
 			$tz = date_default_timezone_get();
@@ -155,26 +157,25 @@ class Duration extends Time
 			//debug($string, $totalBefore, $tz, date_default_timezone_get(), $total, $total/60/60);
 			date_default_timezone_set($tz);
 		}
+
 		return new Duration($total);
 	}
 
 	/**
-	 * Return human-readable time units
-	 * @return string
-	 */
-	public function __toString()
+     * Return human-readable time units
+     */
+    public function __toString(): string
 	{
 		//return floor($this->time / 3600/24).gmdate('\d H:i:s', $this->time).' ('.$this->time.')';
 		return $this->toString();
 	}
 
 	/**
-	 * All in one method
-	 *
-	 * @param int $perCount
-	 * @return  string
-	 */
-	public function toString($perCount = 2)
+     * All in one method
+     *
+     * @param int $perCount
+     */
+    public function toString($perCount = 2): string
 	{
 		$content = '';
 		$duration = $this->int2array();
@@ -218,8 +219,9 @@ class Duration extends Time
 			if ($count > 1) {
 				$period .= 's';
 			}
+
 			$values[$period] = $count;
-			$seconds = $seconds % $value;
+			$seconds %= $value;
 		}
 
 		return $values;
@@ -233,7 +235,7 @@ class Duration extends Time
 	 * @return       string
 	 * @package      Duration
 	 */
-	protected static function array2string($duration)
+	protected static function array2string($duration): false|string
 	{
 		if (!is_array($duration)) {
 			return false;
@@ -247,8 +249,7 @@ class Duration extends Time
 			$array[] = $segment;
 		}
 
-		$str = implode(', ', $array);
-		return $str;
+		return implode(', ', $array);
 	}
 
 	public function getTimestamp()
@@ -278,42 +279,42 @@ class Duration extends Time
 		}
 	}
 
-	public function getMinutes()
+	public function getMinutes(): int|float
 	{
 		return $this->time / 60;
 	}
 
-	public function getHours()
+	public function getHours(): int|float
 	{
 		return $this->time / 60 / 60;
 	}
 
-	public function getDays()
+	public function getDays(): int|float
 	{
 		return $this->time / 60 / 60 / 24;
 	}
 
-	public function getRemHours()
+	public function getRemHours(): float
 	{
 		return floor($this->time / 60 / 60);
 	}
 
-	public function getRemMinutes()
+	public function getRemMinutes(): float
 	{
 		return floor($this->time % (60 * 60) / 60);
 	}
 
-	public function getRemSeconds()
+	public function getRemSeconds(): int
 	{
 		return $this->time % (60);
 	}
 
-	public function biggerThan(Duration $d2)
+	public function biggerThan(Duration $d2): bool
 	{
 		return abs($this->time) > abs($d2->getTimestamp());
 	}
 
-	public function smallerThan(Duration $d2)
+	public function smallerThan(Duration $d2): bool
 	{
 		return abs($this->time) < abs($d2->getTimestamp());
 	}

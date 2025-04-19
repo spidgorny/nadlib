@@ -33,10 +33,7 @@ class View extends stdClass implements ToStringable
 
 	public $processed;
 
-	/**
-	 * @var string
-	 */
-	protected $file;
+	protected string $file;
 
 	/**
 	 * @var LocalLang
@@ -67,6 +64,7 @@ class View extends stdClass implements ToStringable
 				$this->folder = dirname(__FILE__) . '/' . $config->config[__CLASS__]['folder'];
 			}
 		}
+        
 		$this->file = $file;
 		if (!is_readable($this->folder . $this->file)) {
 			llog([
@@ -76,6 +74,7 @@ class View extends stdClass implements ToStringable
 			]);
 			throw new Exception('File not readable ' . $this->file);
 		}
+        
 		/*nodebug(
 			$config->appRoot,
 			$config->config[__CLASS__],
@@ -87,6 +86,7 @@ class View extends stdClass implements ToStringable
 		} elseif (is_array($copyObject)) {
 			$this->caller = (object)$copyObject;
 		}
+        
 		$this->ll = (class_exists('Config') && Config::getInstance()->getLL())
 			? Config::getInstance()->getLL() : null;
 		$this->request = Request::getInstance();
@@ -95,14 +95,14 @@ class View extends stdClass implements ToStringable
 		TaylorProfiler::stop(__METHOD__ . ' (' . $file . ')');
 	}
 
-	public static function getInstance($file, $copyObject = null)
+	public static function getInstance($file, $copyObject = null): self
 	{
 		return new self($file, $copyObject);
 	}
 
 	/*	Add as many public properties as you like and use them in the PHTML file. */
 
-	public function getFile()
+	public function getFile(): string
 	{
 		$path = new Path($this->file);
 //		debug($path, $path->isAbsolute());
@@ -113,7 +113,7 @@ class View extends stdClass implements ToStringable
 		return $file;
 	}
 
-	public function getContent($file, array $variables = [])
+	public function getContent($file, array $variables = []): string
 	{
 		ob_start();
 
@@ -132,7 +132,7 @@ class View extends stdClass implements ToStringable
 		return $this->s($content);
 	}
 
-	public static function bar($percent, array $params = [], $attr = [])
+	public static function bar($percent, array $params = [], $attr = []): \HTMLTag
 	{
 		$percent = round($percent);
 		$src = AutoLoad::getInstance()->nadlibFromDocRoot . 'bar.php?' . http_build_query($params + [
@@ -146,7 +146,7 @@ class View extends stdClass implements ToStringable
 		return new HTMLTag('img', $attr, null);
 	}
 
-	public static function markdown($text)
+	public static function markdown(string $text): string
 	{
 		return Markdown::defaultTransform($text);
 	}
@@ -158,31 +158,30 @@ class View extends stdClass implements ToStringable
 	 * @param callable $linkCallback
 	 * @return mixed|string
 	 */
-	public function wikify($text, $linkCallback = null)
+	public function wikify($text, $linkCallback = null): ?string
 	{
 		$inUL = false;
 		$lines2 = [];
 		$lines = trimExplode("\n", '' . $text);
 		foreach ($lines as $line) {
-			if ($line[0] === '*' || $line[0] === '-') {
-				if (!$inUL) {
-					$lines2[] = '<ul>';
-					$inUL = true;
-				}
-			}
+			if (($line[0] === '*' || $line[0] === '-') && !$inUL) {
+                $lines2[] = '<ul>';
+                $inUL = true;
+            }
+            
 			$lines2[] = $inUL
 				? '<li>' . substr($line, 2) . '</li>'
 				: $line;
-			if ($line[0] !== '*' && $line[0] !== '-') {
-				if ($inUL) {
-					$lines2[] = '</ul>';
-					$inUL = false;
-				}
-			}
+			if ($line[0] !== '*' && $line[0] !== '-' && $inUL) {
+                $lines2[] = '</ul>';
+                $inUL = false;
+            }
 		}
+        
 		if ($inUL) {
 			$lines2[] = '</ul>';
 		}
+        
 		$text = implode("\n", $lines2);
 		//debug($lines2, $text);
 		//$text = str_replace("\n* ", "\n<li> ", $text);
@@ -195,8 +194,8 @@ class View extends stdClass implements ToStringable
 		if ($linkCallback) {
 			$text = preg_replace_callback('/\[\[(.*?)\]\]/', $linkCallback, $text);
 		}
-		$text = preg_replace('/====(.*?)====/', '<h2>\1</h2>', $text);
-		return $text;
+		
+		return preg_replace('/====(.*?)====/', '<h2>\1</h2>', $text);
 	}
 
 	/**
@@ -205,7 +204,7 @@ class View extends stdClass implements ToStringable
 	 *
 	 * @param string $sep
 	 */
-	public function splitBy($sep)
+	public function splitBy($sep): void
 	{
 		$file = $this->getFile();
 		$content = file_get_contents($file);
@@ -224,35 +223,34 @@ class View extends stdClass implements ToStringable
 		return eval('?>' . $this->parts[$i]);
 	}
 
-	public function data($key)
+	public function data($key): ?string
 	{
 		if ($this->caller != null) {
 			return $this->e($this->caller->get($key));
 		}
+        
 		return null;
 	}
 
-	public function e($str)
+	public function e($str): string
 	{
 		return $this->escape($str);
 	}
 
 	/**
-	 * Uses htmlspecialchars()
-	 * @param string $str
-	 * @return string
-	 */
-	public function escape($str)
+     * Uses htmlspecialchars()
+     * @param string $str
+     */
+    public function escape($str): string
 	{
 		return htmlspecialchars($str, ENT_QUOTES);
 	}
 
 	/**
-	 * Use this helper to make URL (makeURL, getURL)
-	 * @param array $params
-	 * @return URL
-	 */
-	public function link(array $params)
+     * Use this helper to make URL (makeURL, getURL)
+     * @return URL
+     */
+    public function link(array $params)
 	{
 		return $this->getController()->makeURL($params);
 	}
@@ -262,24 +260,26 @@ class View extends stdClass implements ToStringable
 		if (!$this->controller) {
 			$this->controller = Index::getInstance()->getController();
 		}
+        
 		return $this->controller;
 	}
 
-	public function ahref($text, $href)
+	public function ahref($text, $href): \HTMLTag
 	{
 		return new HTMLTag('a', [
 			'href' => $href,
 		], $text);
 	}
 
-	public function __call($func, array $args)
+	public function __call(string $func, array $args)
 	{
 		$method = [$this->caller, $func];
 		if (!is_callable($method) || !method_exists($this->caller, $func)) {
 			//$method = array($this->caller, end(explode('::', $func)));
 			$methodName = is_object($this->caller) ? get_class($this->caller) . '::' . $func : $func;
-			throw new RuntimeException('View: Method ' . $func . ' (' . $methodName . ') doesn\'t exists.');
+			throw new RuntimeException('View: Method ' . $func . ' (' . $methodName . ") doesn't exists.");
 		}
+        
 		return call_user_func_array($method, $args);
 	}
 
@@ -289,6 +289,7 @@ class View extends stdClass implements ToStringable
 		if ($this->caller !== null) {
 			return $this->caller->$var;
 		}
+        
 		return $this->$var ?? $this->data[$var] ?? null;
 	}
 
@@ -297,6 +298,7 @@ class View extends stdClass implements ToStringable
 		if (!$this->caller) {
 			$this->caller = new stdClass();
 		}
+        
 		$this->caller->$var = &$val;
 	}
 
@@ -305,6 +307,7 @@ class View extends stdClass implements ToStringable
 		if ($this->caller !== null) {
 			return isset($this->caller->$name);
 		}
+        
 		return isset($this->$name);
 	}
 
@@ -322,7 +325,7 @@ class View extends stdClass implements ToStringable
 	{
 		// grab anything that looks like a URL...
 		$urls = $this->_autolink_find_URLS($text);
-		if (!empty($urls)) {
+		if ($urls !== []) {
 			// i.e. there were some URLS found in the text
 			array_walk($urls, [$this, '_autolink_create_html_tags'], [
 				'target' => $target,
@@ -330,10 +333,11 @@ class View extends stdClass implements ToStringable
 			]);
 			$text = str_replace(array_keys($urls), array_values($urls), $text);
 		}
+        
 		return $text;
 	}
 
-	public static function _autolink_find_URLS($text)
+	public static function _autolink_find_URLS($text): array
 	{
 		// build the patterns
 		$scheme = '(http:\/\/|https:\/\/)';
@@ -343,55 +347,58 @@ class View extends stdClass implements ToStringable
 		$name = '[a-z][-a-z0-9]+\.';
 		$tld = '[a-z]+(\.[a-z]{2,2})?';
 		$the_rest = '\/?[a-z0-9._\/~#&=;%+?-]+[a-z0-9\/#=?]{1,1}';
-		$pattern = "$scheme?(?(1)($ip|($subdomain)?$name$tld)|($www$name$tld))$the_rest";
+		$pattern = sprintf('%s?(?(1)(%s|(%s)?%s%s)|(%s%s%s))%s', $scheme, $ip, $subdomain, $name, $tld, $www, $name, $tld, $the_rest);
 
 		$pattern = '/' . $pattern . '/is';
+        
 		$c = preg_match_all($pattern, $text, $m);
 		unset($text, $scheme, $www, $ip, $subdomain, $name, $tld, $the_rest, $pattern);
 		if ($c) {
 			return (array_flip($m[0]));
 		}
+        
 		return ([]);
 	}
 
-	public function _autolink_create_html_tags(&$value, $key, $other = null)
+	public function _autolink_create_html_tags(&$value, $key, $other = null): void
 	{
-		$target = $nofollow = null;
-		if (is_array($other)) {
-			$target = ($other['target'] ? " target=\"$other[target]\"" : null);
+		$target = null;
+        $nofollow = null;
+        if (is_array($other)) {
+			$target = ($other['target'] ? sprintf(' target="%s"', $other[target]) : null);
 			// see: http://www.google.com/googleblog/2005/01/preventing-comment-spam.html
 			$nofollow = ($other['nofollow'] ? ' rel="nofollow"' : null);
 		}
-		$value = "<a href=\"$key\"$target$nofollow>$key</a>";
+        
+		$value = sprintf('<a href="%s"%s%s>%s</a>', $key, $target, $nofollow, $key);
 	}
 
 	public function linkBIDs($text)
 	{
-		$text = preg_replace('/\[#(\d+)\]/', '<a href="?bid=$1">$1</a>', $text);
-		return $text;
+		return preg_replace('/\[#(\d+)\]/', '<a href="?bid=$1">$1</a>', $text);
 	}
 
-	public function euro($val, $noCent = false)
+	public function euro($val, $noCent = false): string|array
 	{
 		$money = $this->money($val) . '&nbsp;&euro;';
 		if ($noCent) {
 			$money = str_replace('.00', '.-', $money);
 		}
+        
 		return $money;
 	}
 
-	public function money($val)
+	public function money($val): string
 	{
 		return number_format(floatval($val), 2, '.', '');
 	}
 
-	public function purifyLinkify($comment)
+	public function purifyLinkify($comment): string
 	{
 		$comment = preg_replace("/#(\w+)/", "<a href=\"Search?q=\\1\" target=\"_blank\">#\\1</a>", $comment);
 		$comment = $this->cleanComment($comment);
 		$comment = nl2br($comment);
-		$comment .= $this->getEmbeddables($comment);
-		return $comment;
+		return $comment . $this->getEmbeddables($comment);
 	}
 
 	/**
@@ -412,15 +419,16 @@ class View extends stdClass implements ToStringable
 		$config->set('AutoFormat.Linkify', true);
 		$config->set('HTML.TargetBlank', true);
 		$config->set('HTML.Nofollow', true);
+        
 		$purifier = new HTMLPurifier($config);
 		return $purifier->purify($comment);
 	}
 
-	public function getEmbeddables($comment)
+	public function getEmbeddables($comment): string
 	{
 		$content = '';
 		$links = $this->getLinks($comment);
-		foreach ($links as $link => $_) {
+		foreach (array_keys($links) as $link) {
 			$Essence = Essence\Essence::instance();
 			$Media = $Essence->extract($link);
 
@@ -428,29 +436,26 @@ class View extends stdClass implements ToStringable
 				$content .= $Media->html;
 			}
 		}
+        
 		return $content;
 	}
 
 	/**
-	 * @param $comment
-	 * @return array
-	 */
-	public function getLinks($comment)
+     * @param $comment
+     */
+    public function getLinks($comment): array
 	{
 		return self::_autolink_find_URLS($comment);
 	}
 
-	/**
-	 * @param array $some
-	 */
-	public function setSome(array $some)
+	public function setSome(array $some): void
 	{
-		foreach ($some as $key => $val) {
+		foreach ($some as $val) {
 			$this->key = $val;
 		}
 	}
 
-	public function replace(array $map)
+	public function replace(array $map): string
 	{
 		$file = $this->getFile();
 		$content = $this->getContent($file);
@@ -461,30 +466,31 @@ class View extends stdClass implements ToStringable
 		);
 	}
 
-	public function s($a)
+	public function s($a): string
 	{
 		return MergedContent::mergeStringArrayRecursive($a);
 	}
 
-	public function curly()
+	public function curly(): string|array
 	{
 		$file = $this->getFile();
 		$template = $this->getContent($file);
 		preg_match_all('/\{([^}]+)\}/m', $template, $matches);
 //		debug($matches);
-		foreach ($matches[1] as $i => $m) {
+		foreach ($matches[1] as $m) {
 			$val = eval(' return ' . $m . ';');
 			$template = str_replace('{' . $m . '}', $val, $template);
 		}
+        
 		return $template;
 	}
 
-	public function setHTML($html)
+	public function setHTML($html): void
 	{
 		$this->processed = $html;
 	}
 
-	public function withoutScripts()
+	public function withoutScripts(): static
 	{
 		$scripts = $this->extractScripts();
 		$this->index->footer[basename($this->file)] = $scripts;
@@ -500,6 +506,7 @@ class View extends stdClass implements ToStringable
 		$dom = new AdvancedHtmlDom($html);
 		$scripts = $dom->find('script');
 		$scripts->remove();
+        
 		$this->processed = $dom->body->innerhtml();
 		return $scripts->__toString();
 	}
@@ -515,14 +522,11 @@ class View extends stdClass implements ToStringable
 
 			// Locallang replacement
 			$content = $this->localize($content);
-
-			if (DEVELOPMENT) {
-				// not allowed in MRBS as some templates return OBJECT(!)
-//				$content = '<div style="border: solid 1px red;">'.$file.'<br />'.$content.'</div>';
-				$content .= '<!-- View template: ' . $this->file . ' -->' . "\n";
-			}
+            $content .= '<!-- View template: ' . $this->file . ' -->' . "\n";
+            
 			$this->processed = $content;
 		}
+        
 		TaylorProfiler::stop($key);
 		return $this->processed;
 	}
@@ -540,6 +544,7 @@ class View extends stdClass implements ToStringable
 				$content = str_replace('__{' . $ll . '}__', __($ll), $content);
 			}
 		}
+        
 		return $content;
 	}
 
@@ -549,13 +554,12 @@ class View extends stdClass implements ToStringable
 	 * which prevents seeing the trace of where the problem happened.
 	 * Please call ->render() everywhere manually.
 	 */
-	public function __toString()
+	public function __toString(): string
 	{
-		if (DEVELOPMENT) {
-			debug('Do not call View::__toString() as it will prevent you from obtaining a valid backtrace in case of an error.', $this->file, $this->caller ? get_class($this->caller) : null);
-			debug_pre_print_backtrace();
-		}
-//		return $this->render().'';
+		debug('Do not call View::__toString() as it will prevent you from obtaining a valid backtrace in case of an error.', $this->file, $this->caller ? get_class($this->caller) : null);
+        debug_pre_print_backtrace();
+
+        //		return $this->render().'';
 		return get_class($this) . '@' . spl_object_hash($this);
 	}
 
@@ -565,6 +569,7 @@ class View extends stdClass implements ToStringable
 		$dom = new AdvancedHtmlDom($html);
 		$scripts = $dom->find('img');
 		$scripts->remove();
+        
 		$this->processed = $dom->body->innerhtml();
 		return $scripts;
 	}

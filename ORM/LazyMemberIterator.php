@@ -57,8 +57,7 @@ class LazyMemberIterator extends IteratorIterator implements Countable
 		//debug($array);
 		//debug($array);
 		if ($array) {
-			$obj = new $this->class($array);
-			return $obj;
+			return new $this->class($array);
 		} else {
 			return null;
 		}
@@ -92,10 +91,9 @@ class LazyMemberIterator extends IteratorIterator implements Countable
 	}
 
 	/**
-	 * This was fucking missing(!) without any warnings
-	 * @return bool
-	 */
-	public function valid(): bool
+     * This was fucking missing(!) without any warnings
+     */
+    public function valid(): bool
 	{
 		/** @var DatabaseResultIteratorAssoc $iterator */
 		$iterator = $this->getInnerIterator();
@@ -106,6 +104,7 @@ class LazyMemberIterator extends IteratorIterator implements Countable
 			//echo __METHOD__, ': ', $valid, ' - ', $current['title'], BR;
 			$valid = false;
 		}
+        
 		return $valid;
 	}
 

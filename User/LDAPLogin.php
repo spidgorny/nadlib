@@ -20,7 +20,7 @@ class LDAPLogin
 	 */
 	public $data;
 
-	public $error = null;
+	public $error;
 
 	/**
 	 * @var string LDAPUser::class or a descendant
@@ -34,34 +34,35 @@ class LDAPLogin
 	}
 
 	/**
-	 * http://php.net/manual/en/function.ldap-bind.php
-	 * @param $loginDN
-	 * @param $password
-	 * @return mixed
-	 */
-	public function bind($loginDN, $password)
+     * http://php.net/manual/en/function.ldap-bind.php
+     * @param $loginDN
+     * @param $password
+     */
+    public function bind($loginDN, $password): bool
 	{
 		$this->_connectLdap();
 		return ldap_bind($this->_ldapconn, $loginDN, $password);
 	}
 
-	private function _connectLdap()
+	private function _connectLdap(): void
 	{
 		if (!$this->_ldapconn) {
 			$this->reconnect();
 		}
 	}
 
-	public function reconnect()
+	public function reconnect(): void
 	{
 		if ($this->_ldapconn) {
 			ldap_unbind($this->_ldapconn);
 		}
+
 //		ldap_set_option(null, LDAP_OPT_DEBUG_LEVEL, 7);
 		$this->_ldapconn = ldap_connect($this->LDAP_HOST);
 		if (!$this->_ldapconn) {
 			throw new RuntimeException("Couldn't connect to the LDAP server.");
 		}
+
 		// https://stackoverflow.com/questions/17742751/ldap-operations-error
 		ldap_set_option($this->_ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
 		ldap_set_option($this->_ldapconn, LDAP_OPT_REFERRALS, 0);
@@ -96,7 +97,7 @@ class LDAPLogin
 
 				$count = (int)$info['count'];
 				if ($count === 0) {
-					$this->error = "User not found in LDAP {$this->LDAP_BASEDN} [{$filter}]";
+					$this->error = sprintf('User not found in LDAP %s [%s]', $this->LDAP_BASEDN, $filter);
 					return false;
 				}
 
@@ -120,15 +121,15 @@ class LDAPLogin
 				throw new LoginException(error_get_last());
 			}
 		}
+
 		return false;
 	}
 
 	/**
-	 * What if the password contains special characters?
-	 * @param $string
-	 * @return string
-	 */
-	public function _sanitizeLdap($string)
+     * What if the password contains special characters?
+     * @param $string
+     */
+    public function _sanitizeLdap($string): string
 	{
 		return trim(preg_replace('/[^a-zA-Z0-9_]+/', '', $string));
 	}
@@ -158,6 +159,7 @@ class LDAPLogin
 		foreach ($info as &$user) {
 			$user = new $userClass($user);
 		}
+
 		return $info;
 	}
 
@@ -173,12 +175,14 @@ class LDAPLogin
 		if (!$search) {
 			return null;
 		}
+
 		$info = ldap_get_entries($this->_ldapconn, $search);
 		unset($info['count']);
 		$userClass = get_class($this->userClass);
 		foreach ($info as &$user) {
 			$user = new $userClass($user);
 		}
+
 		return $info;
 	}
 }

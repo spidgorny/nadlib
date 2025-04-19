@@ -9,6 +9,7 @@ class VisibleColumns extends ArrayPlus
 			// only keys are provided
 			$array = array_fill_keys($array, true);
 		}
+
 		parent::__construct($array);
 	}
 
@@ -19,19 +20,21 @@ class VisibleColumns extends ArrayPlus
 	 */
 	public function isVisible($key)
 	{
-		if (!$this->count()) {
+		if ($this->count() === 0) {
 			return true;
 		}
+
 		return ifsetor($this[$key]);
 	}
 
-	public function getData()
+	public function getData(): array
 	{
 		$data = parent::getData();
 		$onlySet = array_filter($data);
-		if (!$onlySet) {    // all unset
+		if ($onlySet === []) {    // all unset
 			$data = array_fill_keys(array_keys($data), true); // all set
 		}
+
 		return $data;
 	}
 

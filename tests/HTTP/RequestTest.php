@@ -14,18 +14,18 @@ class RequestTest extends PHPUnit\Framework\TestCase
 	 */
 	protected $r;
 
-	public function setUp(): void
+	protected function setUp(): void
 	{
 		$this->r = Request::getInstance();
 	}
 
-	public function test_set()
+	public function test_set(): void
 	{
 		$this->r->set('a', 'b');
 		$this->assertEquals('b', $this->r->getTrim('a'));
 	}
 
-	public function test_unset()
+	public function test_unset(): void
 	{
 		//debug($this->r);
 		$this->r->set('a', 'b');
@@ -33,7 +33,7 @@ class RequestTest extends PHPUnit\Framework\TestCase
 		$this->assertEmpty($this->r->getTrim('a'));
 	}
 
-	public function test_getTrim()
+	public function test_getTrim(): void
 	{
 		$this->r->set('a', ' some words' . "\n\t");
 		$this->assertEquals('some words', $this->r->getTrim('a'));
@@ -42,7 +42,7 @@ class RequestTest extends PHPUnit\Framework\TestCase
 	/**
 	 * @expectedException Exception
 	 */
-	public function test_getTrimRequired()
+	public function test_getTrimRequired(): void
 	{
 		$this->r->set('a', '  ');
 		$this->r->getTrimRequired('a');
@@ -51,30 +51,30 @@ class RequestTest extends PHPUnit\Framework\TestCase
 	/**
 	 * @expectedException Exception
 	 */
-	public function test_getOneOf()
+	public function test_getOneOf(): void
 	{
 		$this->r->set('a', 'b');
 		$this->r->getOneOf('a', ['c']);
 	}
 
-	public function test_getInt()
+	public function test_getInt(): void
 	{
 		$this->r->set('i', '10');
 		$this->assertEquals(10, $this->r->getInt('i'));
 	}
 
-	public function test_getInt0()
+	public function test_getInt0(): void
 	{
 		$this->r->set('i', '10');
 		$this->assertEquals(0, $this->r->getInt('new'));
 	}
 
-	public function test_getIntOrNULL()
+	public function test_getIntOrNULL(): void
 	{
 		$this->assertNull($this->r->getIntOrNULL('new'));
 	}
 
-	public function test_getIntIn()
+	public function test_getIntIn(): void
 	{
 		$this->r->set('i', 10);
 		$this->assertEquals(10, $this->r->getIntIn('i', [
@@ -84,7 +84,7 @@ class RequestTest extends PHPUnit\Framework\TestCase
 		]));
 	}
 
-	public function test_getIntIn0()
+	public function test_getIntIn0(): void
 	{
 		$this->r->set('i', 10);
 		$this->assertNull($this->r->getIntIn('i', [
@@ -93,7 +93,7 @@ class RequestTest extends PHPUnit\Framework\TestCase
 		]));
 	}
 
-	public function test_getLocation()
+	public function test_getLocation(): void
 	{
 		$_SERVER['DOCUMENT_ROOT'] = 'Z:/web/dev-jobz/htdocs/';
 		$_SERVER['HTTP_HOST'] = 'dev-jobz.local';
@@ -102,7 +102,7 @@ class RequestTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals('http://' . gethostname() . '/', $location);
 	}
 
-	public function test_dir_of_file()
+	public function test_dir_of_file(): void
 	{
 		$set = [
 			'a' => '.',
@@ -116,19 +116,19 @@ class RequestTest extends PHPUnit\Framework\TestCase
 		}
 	}
 
-	public function test_getDocumentRootByIsDir()
+	public function test_getDocumentRootByIsDir(): void
 	{
 		$result = Request::getDocumentRootByIsDir();
 		$this->assertEquals('/', $result);
 	}
 
-	public function test_getOnlyHost()
+	public function test_getOnlyHost(): void
 	{
 		$host = Request::getOnlyHost();
 		$this->assertEquals(gethostname(), $host);
 	}
 
-	public function test_isAjax()
+	public function test_isAjax(): void
 	{
 		$r = Request::getInstance();
 		$r->set('ajax', false);

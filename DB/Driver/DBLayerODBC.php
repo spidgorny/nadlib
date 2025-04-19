@@ -21,9 +21,9 @@ class DBLayerODBC extends DBLayerBase implements DBInterface
 	 */
 	public $result;
 
-	public $cursor = null;
+	public $cursor;
 
-	public function __construct($user, $password, $host, $db)
+	public function __construct($user, $password, string $host, string $db)
 	{
 		if ($user) {
 			$this->connect($user, $password, $host, $db);
@@ -31,7 +31,7 @@ class DBLayerODBC extends DBLayerBase implements DBInterface
 		}
 	}
 
-	public function connect($user, $password, $host, $db)
+	public function connect($user, $password, string $host, string $db): void
 	{
 		//$this->connection = odbc_connect('odbc:DRIVER={IBM DB2 ODBC DRIVER};HOSTNAME='.$host.';PORT=50000;DATABASE=PCTRANSW;PROTOCOL=TCPIP', $user, $password);
 		$this->connection = odbc_pconnect('DSN=' . $host . ';DATABASE=' . $db, $user, $password);
@@ -47,20 +47,21 @@ class DBLayerODBC extends DBLayerBase implements DBInterface
 		} else {
 			throw new Exception($this->lastError());
 		}
+
 		return $this->result;
 	}
 
-	public function lastError()
+	public function lastError(): string
 	{
 		return 'ODBC error #' . odbc_error() . ': ' . odbc_errormsg();
 	}
 
-	public function numRows($res = null)
+	public function numRows($res = null): int
 	{
 		return odbc_num_rows($res);
 	}
 
-	public function affectedRows($res = null)
+	public function affectedRows($res = null): void
 	{
 		// TODO: Implement affectedRows() method.
 	}
@@ -71,19 +72,19 @@ class DBLayerODBC extends DBLayerBase implements DBInterface
 		return $this->fetchAll($this->result);
 	}
 
-	public function escapeBool($value)
+	public function escapeBool($value): bool
 	{
-		return !!$value;
+		return (bool) $value;
 	}
 
-	public function free($res)
+	public function free($res): void
 	{
 		if (is_resource($res)) {
 			odbc_free_result($res);
 		}
 	}
 
-	public function lastInsertID($result, $key = null)
+	public function lastInsertID($result, $key = null): void
 	{
 		// TODO: Implement lastInsertID() method.
 	}
@@ -93,12 +94,12 @@ class DBLayerODBC extends DBLayerBase implements DBInterface
 		return $key;
 	}
 
-	public function dataSeek($res, $set)
+	public function dataSeek($res, $set): void
 	{
 		$this->cursor = $set;
 	}
 
-	public function fetchAssoc($res)
+	public function fetchAssoc($res): array|false
 	{
 		if ($this->connection) {
 			if (is_null($this->cursor)) {
@@ -107,6 +108,7 @@ class DBLayerODBC extends DBLayerBase implements DBInterface
 				// row numbering starts with 1 - @see php.net
 				$row = odbc_fetch_array($res, 1 + $this->cursor++);
 			}
+
 			//debug(__METHOD__, $this->cursor, $row);
 			return $row;
 		}
@@ -114,7 +116,7 @@ class DBLayerODBC extends DBLayerBase implements DBInterface
 		throw new RuntimeException(__METHOD__);
 	}
 
-	public function getVersion()
+	public function getVersion(): void
 	{
 		// TODO: Implement getVersion() method.
 	}
@@ -126,7 +128,7 @@ class DBLayerODBC extends DBLayerBase implements DBInterface
 		// TODO: Implement @method  runDeleteQuery($table, array $where)
 	}
 
-	public function getPlaceholder($field)
+	public function getPlaceholder($field): void
 	{
 		// TODO: Implement getPlaceholder() method.
 	}

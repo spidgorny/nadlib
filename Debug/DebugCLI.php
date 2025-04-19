@@ -15,19 +15,21 @@ class DebugCLI
 		$this->helper = $helper;
 	}
 
-	public static function canCLI()
+	public static function canCLI(): bool
 	{
 		$isCURL = ifsetor($_SERVER['HTTP_USER_AGENT']) && str_contains(ifsetor($_SERVER['HTTP_USER_AGENT'], ''), 'curl');
 		return Request::isCLI() || $isCURL;
 	}
 
-	public function debug($args)
+	public function debug($args): void
 	{
 		if (!DEVELOPMENT) {
 			return;
 		}
+
 		$db = debug_backtrace();
-		$db = array_slice($db, 2, sizeof($db));
+		$db = array_slice($db, 2, count($db));
+
 		$trace = [];
 		$row = first($db);
 		$trace[] = $row['file'] . ':' . $row['line'];
@@ -37,6 +39,7 @@ class DebugCLI
 				break;
 			}
 		}
+
 		echo '⎯⎯⎯⎯⎯⎯⎯⎯⎯ ¯\_(ツ)_/¯ ' . $this->helper->name . BR .
 			implode(BR, $trace) . "\n";
 

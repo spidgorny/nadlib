@@ -3,7 +3,10 @@
 class Selectable
 {
 
-	public $name;
+	/**
+     * @var class-string<Selectable>
+     */
+    public $name;
 
 	/**
 	 * Assoc [14 => 'Koopa']
@@ -45,7 +48,7 @@ class Selectable
 		}
 	}
 
-	public function validateSelected()
+	public function validateSelected(): void
 	{
 		// it's called AFTER subclass initialized $this->data
 		//debug($selected, array_keys($this->data));
@@ -59,15 +62,14 @@ class Selectable
 	}
 
 	/**
-	 * It's not more convenient to have it in a toString()
-	 * @return string
-	 */
-	public function __toString()
+     * It's not more convenient to have it in a toString()
+     */
+    public function __toString(): string
 	{
 		return $this->getDropdown();
 	}
 
-	public function getDropdown()
+	public function getDropdown(): string
 	{
 		$request = Request::getInstance();
 
@@ -103,6 +105,7 @@ class Selectable
 			//debug_pre_print_backtrace();
 			return 'Unknown room/location #' . $this->selected;
 		}
+
 		return $this->options[$this->selected];
 	}
 

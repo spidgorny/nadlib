@@ -6,9 +6,10 @@ trait JsonController
 {
 
 	public static $publicAPI = false;
+
 	public $user;
 
-	public function afterConstruct()
+	public function afterConstruct(): void
 	{
 		$this->request->set('ajax', true);
 		$this->user = new APIUser();  // prevent API to hijack user session
@@ -16,10 +17,9 @@ trait JsonController
 	}
 
 	/**
-	 * @param array $registeredApps
-	 * @throws LoginException
-	 */
-	public function validateAuthorization(array $registeredApps)
+     * @throws LoginException
+     */
+    public function validateAuthorization(array $registeredApps): void
 	{
 		[$actionClass] = $this->getActionAndArguments();
 		$obj = new $actionClass();
@@ -39,7 +39,7 @@ trait JsonController
 		}
 	}
 
-	public function getActionAndArguments()
+	public function getActionAndArguments(): array
 	{
 		// debug($_SERVER);
 		$requestURI = ifsetor($_SERVER['REQUEST_URI']);
@@ -49,9 +49,11 @@ trait JsonController
 		if ($levels[0] === 'stage') {
 			$levels = array_slice($levels, 1);
 		}
+
 		if ($levels[0] === 'API') {
 			$levels = array_slice($levels, 1);
 		}
+
 //		llog('API Levels', $levels);
 
 		// next after /API/
@@ -82,16 +84,18 @@ trait JsonController
 				break;
 			}
 		}
+
 		if (!$last) {
 			$last = last($levels);
 		}
+
 		$request = trim($last, '/\\ ');
 		$request = explode('.', $request)[0];
 //		llog(['request' => $request, 'arguments' => $arguments]);
 		return [$request, $arguments];
 	}
 
-	public function __invoke()
+	public function __invoke(): mixed
 	{
 		[$request, $arguments] = $this->getActionAndArguments();
 		return call_user_func_array([$this, $request], $arguments);
@@ -117,7 +121,7 @@ trait JsonController
 			] + $extraData);
 	}
 
-	public function json($key)
+	public function json(array $key): string
 	{
 		header('Content-Type: application/json');
 		$key['duration'] = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];

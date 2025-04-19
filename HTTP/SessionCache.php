@@ -5,10 +5,7 @@ use nadlib\HTTP\Session;
 class SessionCache
 {
 
-	/**
-	 * @var Session
-	 */
-	protected $session;
+	protected \nadlib\HTTP\Session $session;
 
 	public function __construct($class)
 	{
@@ -23,6 +20,7 @@ class SessionCache
 			$val = $getter();
 			$sc->session->save($method, $val);
 		}
+
 		return $val;
 	}
 

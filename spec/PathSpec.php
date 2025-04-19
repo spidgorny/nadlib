@@ -2,7 +2,7 @@
 
 namespace spec;
 
-use Path as Path;
+use Path;
 use PhpSpec\ObjectBehavior;
 
 /**
@@ -18,7 +18,7 @@ class PathSpec extends ObjectBehavior
 		require_once __DIR__ . '/../HTTP/Request.php';
 	}
 
-	public function it_is_initializable()
+	public function it_is_initializable(): void
 	{
 		$this->beConstructedWith(new Path(getcwd()));
 		$this->shouldHaveType(Path::class);
@@ -40,14 +40,14 @@ class PathSpec extends ObjectBehavior
 //		$this->__toString()->shouldBe('depidsvy/public_html/floorplan/details');
 //	}
 //
-	public function it_appendString()
+	public function it_appendString(): void
 	{
 		$this->beConstructedWith('/');
 		$this->appendString('/api/health');
 		$this->__toString()->shouldBe('/api/health');
 	}
 
-	public function it_from()
+	public function it_from(): void
 
 	{
 		$this->beConstructedWith('/root');

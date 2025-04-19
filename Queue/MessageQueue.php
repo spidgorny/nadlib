@@ -11,18 +11,22 @@ class MessageQueue extends OODBase
 {
 
 	const STATUS_NEW = 'NEW';
+
 	const STATUS_IN_PROGRESS = 'IN PROGRESS';
+
 	const STATUS_DONE = 'DONE';
+
 	const STATUS_FAILED = 'FAILED';
 
 	public $table = 'message_queue';
+
 	public $idField = 'id';
 
 	/**
 	 * Class name
 	 * @var string
 	 */
-	private $type = null;
+	private $type;
 
 	/**
 	 * Contains data
@@ -48,7 +52,7 @@ class MessageQueue extends OODBase
 	 * @return TaskInterface
 	 * @throws Exception
 	 */
-	public function getTaskObject()
+	public function getTaskObject(): object|false|null
 	{
 		// need to delete previous record, otherwise infinite loop
 		$this->id = null;
@@ -75,6 +79,7 @@ class MessageQueue extends OODBase
 				echo $e->getMessage(), BR;
 				$obj = false;
 			}
+
 			return $obj;
 		}
 
@@ -85,13 +90,12 @@ class MessageQueue extends OODBase
 	}
 
 	/**
-	 * Fetches next task for given type from db
-	 * and puts it's data into $this->data
-	 *
-	 * @param $type
-	 * @return bool
-	 */
-	private function fetchNextTask($type)
+     * Fetches next task for given type from db
+     * and puts it's data into $this->data
+     *
+     * @param $type
+     */
+    private function fetchNextTask($type): bool
 	{
 		$where = [
 			'status' => self::STATUS_NEW,
@@ -111,12 +115,11 @@ class MessageQueue extends OODBase
 	}
 
 	/**
-	 * Sets status of current task
-	 *
-	 * @param string $status MessageQueue::STATUS_*
-	 * @return void
-	 */
-	public function setStatus($status)
+     * Sets status of current task
+     *
+     * @param string $status MessageQueue::STATUS_*
+     */
+    public function setStatus($status): void
 	{
 		$data = [
 			'status' => $status
@@ -166,7 +169,7 @@ class MessageQueue extends OODBase
 	 *
 	 * @param array $data
 	 */
-	public function setTaskData($data)
+	public function setTaskData($data): void
 	{
 		$this->taskData = json_decode($data, true, 512, JSON_THROW_ON_ERROR);
 	}

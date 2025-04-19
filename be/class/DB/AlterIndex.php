@@ -8,12 +8,12 @@ class AlterIndex extends AppControllerBE
 	/**
 	 * @var string
 	 */
-	var $jsonFile;
+	public $jsonFile;
 
 	/**
 	 * @var DBLayerBase
 	 */
-	var $db;
+	public $db;
 
 	public function __construct()
 	{
@@ -27,7 +27,7 @@ class AlterIndex extends AppControllerBE
 		}
 	}
 
-	public function sidebar()
+	public function sidebar(): array
 	{
 		$content = [];
 		if (class_exists('AdminPage')) {
@@ -41,7 +41,7 @@ class AlterIndex extends AppControllerBE
 		return $content;
 	}
 
-	public function showDBInfo()
+	public function showDBInfo(): array
 	{
 		$content[] = 'Schema: ' . $this->db->getScheme() . BR;
 		$content[] = 'Wrapper: ' . get_class($this->db) . BR;
@@ -50,6 +50,7 @@ class AlterIndex extends AppControllerBE
 		if ($this->db->dbName) {
 			$content[] = $this->getActionButton('Save DB Struct', 'saveStruct', null, [], 'btn btn-info');
 		}
+
 		return $content;
 	}
 
@@ -59,35 +60,33 @@ class AlterIndex extends AppControllerBE
 		$files = new ListFilesIn(AutoLoad::getInstance()->getAppRoot() . '/sql/');
 		foreach ($files as $file) {
 			/** @var $file File|Recursive */
-			if ($file instanceof File) {
-				if ($file->getExtension() == 'json') {
-					$li[] = $this->a(new URL(null, [
+			if ($file instanceof File && $file->getExtension() === 'json') {
+				$li[] = $this->a(new URL(null, [
 							'c' => get_class($this),
 							'file' => basename($file),
 						]), basename($file)) .
 						'<div style="float: right;">[' . date('Y-m-d H:i', $file->getCTime()) . ']</div>';
-				}
 			}
 		}
+
 		$ul = new UL($li);
 		$content[] = $ul;
 		return $content;
 	}
 
-	public function saveStructAction()
+	public function saveStructAction(): string
 	{
 		$struct = $this->getDBStruct();
-		if (phpversion() > '5.4') {
-			$json = json_encode($struct, JSON_PRETTY_PRINT);
-		} else {
-			$json = json_encode($struct);
-		}
+		$json = phpversion() > '5.4' ? json_encode($struct, JSON_PRETTY_PRINT) : json_encode($struct);
 
 		file_put_contents($this->jsonFile, $json);
 		return 'Saved: ' . strlen($json) . '<br />';
 	}
 
-	public function getDBStruct()
+	/**
+     * @return array{columns: mixed, indexes: mixed}[]
+     */
+    public function getDBStruct(): array
 	{
 		$result = [];
 		$tables = $this->db->getTables();
@@ -99,6 +98,7 @@ class AlterIndex extends AppControllerBE
 				'indexes' => $indexes,
 			];
 		}
+
 		return $result;
 	}
 
@@ -118,10 +118,11 @@ class AlterIndex extends AppControllerBE
 		} else {
 			$content[] = '<div class="message">Choose file on the left</div>';
 		}
+
 		return $content;
 	}
 
-	public function renderTableStruct(array $struct, array $local)
+	public function renderTableStruct(array $struct, array $local): string
 	{
 		$content = '';
 		foreach ($struct as $table => $desc) {
@@ -145,16 +146,14 @@ class AlterIndex extends AppControllerBE
 				//'Index_comment' => 'Index_comment',
 			]);
 		}
+
 		return $content;
 	}
 
 	/**
-	 * @param string $table
-	 * @param array $local
-	 * @param array $desc
-	 * @return array
-	 */
-	protected function compareTable($table, array $local, array $desc)
+     * @param string $table
+     */
+    protected function compareTable($table, array $local, array $desc): array
 	{
 		$indexCompare = [];
 		foreach ($desc['indexes'] as $i => $index) {
@@ -164,14 +163,13 @@ class AlterIndex extends AppControllerBE
 			//debug($index, $localIndex);
 
 			unset($index['Cardinality'], $localIndex['Cardinality']);    // changes over time
-			if ($index != $localIndex) {
+			if ($index !== $localIndex) {
 				//$content .= getDebug($index, $localIndex);
-				if (is_array($index)) {
-					$indexCompare[] = [
+				$indexCompare[] = [
 							'same' => 'sql file',
 							'###TR_MORE###' => 'style="background: pink"',
 						] + $index;
-				}
+
 				if (is_array($localIndex)) {
 					$indexCompare[] = [
 							'same' => 'database',
@@ -195,10 +193,11 @@ class AlterIndex extends AppControllerBE
 				//debug($index); exit();
 			}
 		}
+
 		return $indexCompare;
 	}
 
-	public function convertFromOtherDB(array $desc)
+	public function convertFromOtherDB(array $desc): array
 	{
 		if ($desc['tbl_name']) {    // SQLite
 			$desc['Table'] = $desc['tbl_name'];
@@ -211,6 +210,7 @@ class AlterIndex extends AppControllerBE
 			$desc['comment'] = $desc['sql'];
 			unset($desc['sql']);
 		}
+
 		return $desc;
 	}
 

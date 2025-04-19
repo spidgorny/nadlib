@@ -15,7 +15,7 @@ class LocalLangTest extends LocalLangDummy
 		//debug($file, $this->ll);
 	}
 
-	public function updateMessage(array $data)
+	public function updateMessage(array $data): void
 	{
 		$this->ll[$data['code']] = $data['text'];
 		file_put_contents('class/ll-' . $this->lang . '.json', json_encode($this->ll, JSON_THROW_ON_ERROR));

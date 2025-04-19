@@ -16,7 +16,7 @@ class SQLOrder extends SQLWherePart
 		}
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		if ($this->parts) {
 			return 'ORDER BY ' . implode(' ', $this->parts);
@@ -25,7 +25,7 @@ class SQLOrder extends SQLWherePart
 		}
 	}
 
-	public function getField()
+	public function getField(): mixed
 	{
 		return first($this->parts);
 	}

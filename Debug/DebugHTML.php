@@ -6,7 +6,9 @@ class DebugHTML
 	const LEVELS = 'LEVELS';
 
 	public static $stylesPrinted = false;
+    
 	public static $defaultLevels = 4;
+    
 	/**
 	 * @var Debug
 	 */
@@ -19,26 +21,21 @@ class DebugHTML
 		$this->helper = $helper;
 	}
 
-	private static function shortenType(string $type)
+	private static function shortenType(string $type): string
 	{
 		$type = str_replace('string', 'S', $type);
 		$type = str_replace('array', 'A', $type);
 		$type = str_replace('integer', 'I', $type);
-		$type = str_replace('boolean', 'B', $type);
-		return $type;
+		return str_replace('boolean', 'B', $type);
 	}
 
-	public function render()
+	public function render(...$args): string
 	{
-		$levels = self::$defaultLevels;
-		$args = func_get_args();
-		if (is_array($args)) {
-			$levels = $this->getLevels($args) ?: self::$defaultLevels;
-			//$args['levels'] = $levels;
-		}
+		$levels = $this->getLevels($args) ?: self::$defaultLevels;
+        //$args['levels'] = $levels;
 
-		$db = debug_backtrace();
-		$db = array_slice($db, 3, sizeof($db));
+        $db = debug_backtrace();
+		$db = array_slice($db, 3, count($db));
 
 		$content = static::renderHTMLView($db, $args, $levels);
 		$content .= static::printStyles();
@@ -53,12 +50,13 @@ class DebugHTML
 				$this->htmlPrologSent = true;
 			}
 		}
+        
 		return $content;
 	}
 
 	public function getLevels(array &$args)
 	{
-		if (sizeof($args) === 1) {
+		if (count($args) === 1) {
 			$a = $args[0];
 			$levels = self::$defaultLevels;
 		} else {
@@ -70,11 +68,12 @@ class DebugHTML
 				$levels = self::$defaultLevels;
 			}
 		}
+        
 		$args = $a;
 		return $levels;
 	}
 
-	public function renderHTMLView(array $db, $a, $levels)
+	public function renderHTMLView(array $db, $a, $levels): string
 	{
 		$props = $this->getProps($db, $a);
 
@@ -99,16 +98,12 @@ class DebugHTML
 		return $content;
 	}
 
-	protected function getProps($db, $a)
+	protected function getProps($db, $a): array
 	{
 		static $lastElapsed;
 
 		$first = ifsetor($db[2]);
-		if ($first) {
-			$function = $this->helper->getMethod($first);
-		} else {
-			$function = '';
-		}
+		$function = $first ? $this->helper->getMethod($first) : '';
 
 		$next = ifsetor($db[1]);
 		$file = ifsetor($next['file']);
@@ -121,6 +116,7 @@ class DebugHTML
 				'Name:' => $this->helper->name,
 			];
 		}
+        
 		$props += [
 //			'Class:' => ifsetor($first['class']),
 //			'Function:' => ifsetor($first['function']),
@@ -140,7 +136,7 @@ class DebugHTML
 			$pb->getImage($memPercent) . ' of ' . ini_get('memory_limit');
 
 		$memDiff = TaylorProfiler::getMemDiff();
-		$memDiff = $memDiff[0] == '+'
+		$memDiff = $memDiff[0] === '+'
 			? '<span style="color: green">' . $memDiff . '</span>'
 			: '<span style="color: red">' . $memDiff . '</span>';
 		$props['Mem ±:'] = $memDiff;
@@ -152,12 +148,13 @@ class DebugHTML
 		return $props;
 	}
 
-	public function renderProps(array $props)
+	public function renderProps(array $props): string
 	{
 		$rows = [];
 		foreach ($props as $key => $val) {
 			$rows[] = '<span class="debug_prop">' . $key . '</span> ' . $val;
 		}
+        
 		return implode(BR, $rows);
 	}
 
@@ -167,7 +164,7 @@ class DebugHTML
 	 * @return string|NULL    - will be recursive while levels is more than zero, but NULL is a special case
 	 * @throws JsonException
 	 */
-	public static function view_array($a, $levels = 1, $tableClass = 'view_array font-mono')
+	public static function view_array($a, $levels = 1, string $tableClass = 'view_array font-mono')
 	{
 		if (is_object($a)) {
 			if (method_exists($a, 'debug')) {
@@ -179,7 +176,7 @@ class DebugHTML
 			} elseif (method_exists($a, '__debugInfo')) {
 				$a = $a->__debugInfo();
 			} elseif ($a instanceof HtmlString) {
-				$a = $a; // will take care below
+				// will take care below
 			} elseif ($a instanceof SimpleXMLElement) {
 				$a = 'XML[' . $a->asXML() . ']';
 			} else {
@@ -206,9 +203,11 @@ class DebugHTML
 				} else {
 					$content .= '<i>Too deep, $level: ' . $levels . '</i>';
 				}
+                
 				//$content = print_r($r, true);
 				$content .= '</td></tr>';
 			}
+            
 			$content .= '</table>';
 		} elseif (is_object($a)) {
 			if ($a instanceof HtmlString) {
@@ -236,19 +235,24 @@ class DebugHTML
 		} else {
 			$content = htmlspecialchars($a . '');
 		}
+        
 		return $content;
 	}
 
-	public static function printStyles()
+	public static function printStyles(): string
 	{
-		if (Request::isCLI()) return '';
-		$content = '';
+		if (Request::isCLI()) {
+            return '';
+        }
+
+        $content = '';
 		if (!self::$stylesPrinted) {
 			$content = '<style>' . file_get_contents(__DIR__ . '/Debug.css') . '</style>';
 			self::$stylesPrinted = true;
 		} else {
 			$content .= '<!-- styles printed -->';
 		}
+        
 		return $content;
 	}
 

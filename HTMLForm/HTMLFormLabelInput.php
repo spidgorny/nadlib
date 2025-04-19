@@ -8,7 +8,7 @@
 class HTMLFormLabelInput extends HTMLFormInput
 {
 
-	public function render()
+	public function render(): string
 	{
 		$label = new HTMLTag('label', [], $this->label);
 		$input = new HTMLTag('input', [

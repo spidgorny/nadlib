@@ -13,7 +13,7 @@ class ContentEditable
 	/**
 	 * @var string FAQ/EventVersionsAvailable.txt
 	 */
-	protected $filename;
+	protected string $filename;
 
 	/**
 	 * @var string content of the file
@@ -29,10 +29,11 @@ class ContentEditable
 		if (!$this->content) {
 			$this->content = '&nbsp;';
 		}
+        
 		//echo __METHOD__.': '.$this->content.'<br />'."\n";
 	}
 
-	public function getHeader()
+	public function getHeader(): void
 	{
 		$index = Index::getInstance();
 		$index->addJQuery();
@@ -43,10 +44,11 @@ class ContentEditable
 		} else {
 			$index->addJS("components/hallo/hallo.min.js");
 		}
+        
 		$index->addJS("vendor/spidgorny/nadlib/js/contentEditable.js");
 	}
 
-	public function store()
+	public function store(): void
 	{
 		$html = html_entity_decode($this->content);
 		file_put_contents($this->filename, $html);
@@ -58,7 +60,7 @@ class ContentEditable
 		//$this->store();
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		$ext = pathinfo($this->filename, PATHINFO_EXTENSION);
 		switch ($ext) {
@@ -75,21 +77,19 @@ class ContentEditable
 			default:
 				throw new Exception(__METHOD__);
 		}
+        
 		return $content;
 	}
 
 	/**
-	 * Make sure $saveURL ends with "=" so that $this->file is correctly appended to it
-	 * @param string $saveURL
-	 * @return string
-	 * @throws Exception
-	 */
-	public function render($saveURL)
+     * Make sure $saveURL ends with "=" so that $this->file is correctly appended to it
+     * @throws Exception
+     */
+    public function render(string $saveURL): string
 	{
-		$content = '<div class="editable" data-save-url="' . $saveURL . urlencode($this->file) . '">' .
+		return '<div class="editable" data-save-url="' . $saveURL . urlencode($this->file) . '">' .
 			$this->__toString() .
 			'</div>';
-		return $content;
 	}
 
 }

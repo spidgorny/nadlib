@@ -38,32 +38,29 @@ class ArrayPlus extends ArrayObject implements Countable
 	}
 
 	/**
-	 * Chainable
-	 *
-	 * @param array $data
-	 * @return static
-	 */
-	public function setData(array $data)
+     * Chainable
+     */
+    public function setData(array $data): static
 	{
 		$this->exchangeArray($data);
 		return $this;
 	}
 
 	/**
-	 * http://php.net/manual/en/function.array-splice.php#111204
-	 * @param array $input
-	 * @param int $offset - key of the element to insert BEFORE(!)
-	 * @param int $length
-	 * @param array $replacement
-	 * @return array
-	 */
-	public static function array_splice_assoc(&$input, $offset, $length, $replacement = [])
+     * http://php.net/manual/en/function.array-splice.php#111204
+     * @param array $input
+     * @param int $offset - key of the element to insert BEFORE(!)
+     * @param int $length
+     * @param array $replacement
+     */
+    public static function array_splice_assoc(&$input, $offset, $length, $replacement = []): array
 	{
 		$replacement = (array)$replacement;
 		$key_indices = array_flip(array_keys($input));
 		if (isset($input[$offset]) && is_string($offset)) {
 			$offset = $key_indices[$offset];
 		}
+
 		if (isset($input[$length]) && is_string($length)) {
 			$length = $key_indices[$length] - $offset;
 		}
@@ -76,17 +73,18 @@ class ArrayPlus extends ArrayObject implements Countable
 		return $extract;
 	}
 
-	public static function isRecursive(array $array)
+	public static function isRecursive(array $array): bool
 	{
 		foreach ($array as $item) {
 			if (is_array($item)) {
 				return true;
 			}
 		}
+
 		return false;
 	}
 
-	public static function from(array $getSystems)
+	public static function from(array $getSystems): \ArrayPlus
 	{
 		return self::create($getSystems);
 	}
@@ -97,30 +95,30 @@ class ArrayPlus extends ArrayObject implements Countable
 		foreach ((array)$this as $key => $row) {
 			$return[$key] = ifsetor($row[$col1]) ? $row[$col1] : $row[$col2];
 		}
+
 		return $return;
 	}
 
-	public function pluck($key)
+	public function pluck($key): \ArrayPlus
 	{
 		return $this->column($key);
 	}
 
 	/**
-	 * Returns an array of the elements in a specific column.
-	 * @param string $col
-	 * @return ArrayPlus
-	 */
-	public function column($col)
+     * Returns an array of the elements in a specific column.
+     * @param string $col
+     */
+    public function column($col): \ArrayPlus
 	{
 		$return = [];
 		foreach ((array)$this as $key => $row) {
 			$return[$key] = ifsetor($row[$col]);
 		}
-		$ap = new ArrayPlus($return);
-		return $ap;
+
+		return new ArrayPlus($return);
 	}
 
-	public function pick($key)
+	public function pick($key): array
 	{
 		return $this->getMap(function ($el) use ($key) {
 			//			debug($el, $key);
@@ -129,23 +127,19 @@ class ArrayPlus extends ArrayObject implements Countable
 	}
 
 	/**
-	 * @param callable $callback
-	 * @return array
-	 */
-	public function getMap($callback)
+     * @param callable $callback
+     */
+    public function getMap($callback): array
 	{
 		return array_map($callback, $this->getData());
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getData()
+	public function getData(): array
 	{
 		return (array)$this;
 	}
 
-	public function pickAssoc($name, $key = 'id')
+	public function pickAssoc($name, $key = 'id'): array
 	{
 		$keys = $this->getMap(function ($el) use ($key) {
 			return $el->$key;
@@ -156,28 +150,29 @@ class ArrayPlus extends ArrayObject implements Countable
 		return array_combine($keys, $names);
 	}
 
-	public function column_assoc($key, $val)
+	public function column_assoc($key, $val): static
 	{
 		$data = [];
 		foreach ((array)$this as $row) {
 			$data[$row[$key]] = $row[$val];
 		}
+
 		$this->setData($data);
 		return $this;
 	}
 
 	/**
-	 * Use to filter input array to keep some data that fits the DB schema
-	 * @param array $keep
-	 * @return $this
-	 */
-	public function keepColumns(array $keep)
+     * Use to filter input array to keep some data that fits the DB schema
+     * @return $this
+     */
+    public function keepColumns(array $keep): static
 	{
 		$data = [];
 		foreach ((array)$this as $i => $row) {
 			$row = array_intersect_key($row, array_combine($keep, $keep));
 			$data[$i] = $row;
 		}
+
 		$this->setData($data);
 		return $this;
 	}
@@ -187,7 +182,7 @@ class ArrayPlus extends ArrayObject implements Countable
 	 * @param array $keep ['new' => 'existing'] it's reversed, keys are what you want to have
 	 * @return $this
 	 */
-	public function remap(array $keep)
+	public function remap(array $keep): static
 	{
 		$data = [];
 		foreach ($keep as $i => $row) {
@@ -195,28 +190,29 @@ class ArrayPlus extends ArrayObject implements Countable
 				$data[$i] = $this[$row];
 			}
 		}
+
 		$this->setData($data);
 		return $this;
 	}
 
-	public function remapColumns(array $keys)
+	public function remapColumns(array $keys): static
 	{
 		$data = $this->getData();
 		foreach ($data as &$row) {
 			$row = array_combine($keys, $row);
 		}
+
 		$this->setData($data);
 		return $this;
 	}
 
 	/**
-	 * Modifies itself
-	 * @param string $key
-	 * @param bool $allowMerge
-	 * @return ArrayPlus
-	 * @throws Exception
-	 */
-	public function IDalize($key = 'id', $allowMerge = false)
+     * Modifies itself
+     * @param string $key
+     * @param bool $allowMerge
+     * @throws Exception
+     */
+    public function IDalize($key = 'id', $allowMerge = false): static
 	{
 		$data = [];
 		foreach ($this as $row) {
@@ -231,8 +227,10 @@ class ArrayPlus extends ArrayObject implements Countable
 //				]);
 				throw new RuntimeException($error);
 			}
+
 			$data[$keyValue] = $row;
 		}
+
 		$this->setData($data);
 		return $this;
 	}
@@ -247,57 +245,59 @@ class ArrayPlus extends ArrayObject implements Countable
 	 * @param string $key
 	 * @return $this
 	 */
-	public function combine($key = 'id')
+	public function combine($key = 'id'): static
 	{
 		$data = [];
 		foreach ($this as $row) {
 			$keyValue = $row[$key];
 			$data[$keyValue][] = $row;
 		}
+
 		$this->setData($data);
 		return $this;
 	}
 
 	#[ReturnTypeWillChange]
-	public function append(mixed $value, $key = null)
+	public function append(mixed $value, $key = null): static
 	{
 		if (!is_null($key)) {
 			$this[$key] = $value;
 		} else {
 			$this[] = $value;
 		}
+
 		return $this;
 	}
 
 	/**
-	 * Callback = function ($value, [$index]) {}
-	 *
-	 * @param callable $callback
-	 * @return static
-	 */
-	public function each($callback)
+     * Callback = function ($value, [$index]) {}
+     *
+     * @param callable $callback
+     */
+    public function each($callback): static
 	{
 		foreach ($this as $i => $el) {
 			//$el = $callback($el, $i);
 			$el = call_user_func($callback, $el, $i);
 			$this[$i] = $el;
 		}
+
 		return $this;
 	}
 
 	/**
-	 * Callback = function ($value, [$index]) {}
-	 *
-	 * @param callable $callback
-	 * @return string
-	 */
-	public function eachCollect($callback)
+     * Callback = function ($value, [$index]) {}
+     *
+     * @param callable $callback
+     */
+    public function eachCollect($callback): string
 	{
 		$content = '';
 		foreach ($this as $i => $el) {
 			$plus = $callback($el, $i);
 			$content .= $plus;
 		}
+
 		return $content;
 	}
 
@@ -322,42 +322,46 @@ class ArrayPlus extends ArrayObject implements Countable
 				return $row;
 			}
 		}
+
+        return null;
 	}
 
-	public function getAssoc($key, $val)
+	/**
+     * @return mixed[]
+     */
+    public function getAssoc($key, $val): array
 	{
 		$ret = [];
 		foreach ($this as $row) {
 			$ret[$row[$key]] = $row[$val];
 		}
+
 		return $ret;
 	}
 
-	/**
-	 * @return static
-	 */
-	public function trim()
+	public function trim(): static
 	{
 		foreach ($this as $i => $value) {
 			$this[$i] = trim($value);
 		}
+
 		return $this;
 	}
 
-	public function stripTags()
+	public function stripTags(): static
 	{
 		foreach ($this as $i => $value) {
 			$this[$i] = strip_tags($value);
 		}
+
 		return $this;
 	}
 
 	/**
-	 * Will keep the assoc keys
-	 * @param callable $callback
-	 * @return static
-	 */
-	public function mapBoth($callback)
+     * Will keep the assoc keys
+     * @param callable $callback
+     */
+    public function mapBoth($callback): static
 	{
 		$data = $this->getData();
 		$keys = $this->getKeys();
@@ -369,21 +373,17 @@ class ArrayPlus extends ArrayObject implements Countable
 		return $this;
 	}
 
-	public function getKeys()
+	public function getKeys(): self
 	{
 		return new self(array_keys($this->getData()));
 	}
 
-	/**
-	 * @param string $a
-	 * @param string $b
-	 * @return array
-	 */
-	public function wrap($a, $b)
+	public function wrap(string $a, string $b): array
 	{
 		foreach ($this as $i => $value) {
 			$this[$i] = $a . $value . $b;
 		}
+
 		return $this->getData();
 	}
 
@@ -393,17 +393,17 @@ class ArrayPlus extends ArrayObject implements Countable
 	 * PHP 5 doesn't have prev() method
 	 * @param string $key
 	 */
-	public function getPrevNext($key)
+	public function getPrevNext($key): void
 	{
-		$row = $this->where('id', $key);
-		$row2 = $this[$key];    // works, but how to get next?
+		$this->where('id', $key);
+        // works, but how to get next?
 		# http://stackoverflow.com/questions/4792673/php-get-previous-array-element-knowing-current-array-key
 		# http://www.php.net/manual/en/arrayiterator.seek.php
 		$arrayobject = new ArrayObject($this);
 		$iterator = $arrayobject->getIterator();
 
 		if ($iterator->valid()) {
-			$iterator->seek(array_search($key, array_keys((array)$this)));
+			$iterator->seek(array_search($key, array_keys((array)$this), true));
 			$row3 = $iterator->current();
 			$iterator->next();
 			$next = $iterator->current();
@@ -411,55 +411,56 @@ class ArrayPlus extends ArrayObject implements Countable
 			$iterator->previous();
 			$prev = $iterator->current();
 		}
+
 //		debug($key, $row, $row2, $row3['id'], $next['id'], $prev['id']); //, $rc->data);//, $rc);
 	}
 
 	/**
-	 * @param array $where
-	 * @return mixed - single row
-	 * @throws Exception
-	 */
-	public function findInData(array $where)
+     * @return mixed - single row
+     * @throws Exception
+     */
+    public function findInData(array $where)
 	{
 		//debug($where);
 		//echo new slTable($this->data);
 		foreach ($this->getData() as $row) {
 			$intersect1 = array_intersect_key($row, $where);
 			$intersect2 = array_intersect_key($where, $row);
-			if ($intersect1 == $intersect2) {
+			if ($intersect1 === $intersect2) {
 				return $row;
 			}
 		}
+
 		return null;
 	}
 
 	/**
-	 * http://stackoverflow.com/a/9944080/417153
-	 * @param string $key
-	 * @return bool
-	 */
-	public function getPrevKey($key)
+     * http://stackoverflow.com/a/9944080/417153
+     * @param string $key
+     */
+    public function getPrevKey($key): false|int|string
 	{
 		$keys = array_keys($this->getData());
-		$found_index = array_search($key, $keys);
+		$found_index = array_search($key, $keys, true);
 		if ($found_index === false || $found_index === 0) {
 			return false;
 		}
+
 		return $keys[$found_index - 1];
 	}
 
 	/**
-	 * http://stackoverflow.com/a/9944080/417153
-	 * @param string $key
-	 * @return bool
-	 */
-	public function getNextKey($key)
+     * http://stackoverflow.com/a/9944080/417153
+     * @param string $key
+     */
+    public function getNextKey($key): false|int|string
 	{
 		$keys = array_keys($this->getData());
-		$found_index = array_search($key, $keys);
+		$found_index = array_search($key, $keys, true);
 		if ($found_index === false || $key == end($keys)) {
 			return false;
 		}
+
 		return $keys[$found_index + 1];
 	}
 
@@ -484,32 +485,36 @@ class ArrayPlus extends ArrayObject implements Countable
 			} else {
 				$find = ($key == $needle) ? [$key] : null;
 			}
+
 			if ($find) {
 				return $find;
 			}
 		}
+
+        return null;
 	}
 
 	public function findAlternativeFromMenu($current)
 	{
-		foreach ($this->getData() as $key => $rec) {
+		foreach ($this->getData() as $rec) {
 			/** @var $rec Recursive */
 			//$found = $rec->findPath($this->current);
 			if ($rec instanceof Recursive) {
 				$children = $rec->getChildren();
-				$found = $children[$current] ?? null;
 				//debug($children, $found, $key, $this->current);
-				return $found;
+				return $children[$current] ?? null;
 			}
 		}
+
 		return null;
 	}
 
 	public function first()
 	{
-		if (!$this->count()) {
+		if ($this->count() === 0) {
 			return null;
 		}
+
 		$var = $this->getData();
 		reset($var);
 		return current($var);
@@ -525,7 +530,7 @@ class ArrayPlus extends ArrayObject implements Countable
 	 * @param string $column
 	 * @return $this
 	 */
-	public function sortBy($column)
+	public function sortBy($column): static
 	{
 		$this->insertKeyAsColumn();
 		// buggy
@@ -548,21 +553,21 @@ class ArrayPlus extends ArrayObject implements Countable
 	 * @param string $keyColumnName
 	 * @return $this
 	 */
-	public function insertKeyAsColumn($keyColumnName = '__key__')
+	public function insertKeyAsColumn($keyColumnName = '__key__'): static
 	{
-		foreach ($this->getData() as $key => $_) {
+		foreach (array_keys($this->getData()) as $key) {
 			$this[$key][$keyColumnName] = $key;
 		}
+
 		return $this;
 	}
 
 	/**
-	 * Extracts key from array as ['__key__']
-	 * @param string $column
-	 * @param bool $unset
-	 * @return ArrayPlus
-	 */
-	public function extractKeyFromColumn($column = '__key__', $unset = true)
+     * Extracts key from array as ['__key__']
+     * @param string $column
+     * @param bool $unset
+     */
+    public function extractKeyFromColumn($column = '__key__', $unset = true): static
 	{
 		$new = [];
 		foreach ($this as $row) {
@@ -570,13 +575,15 @@ class ArrayPlus extends ArrayObject implements Countable
 			if ($unset) {
 				unset($row[$column]);
 			}
+
 			$new[$key] = $row;
 		}
+
 		$this->setData($new);
 		return $this;
 	}
 
-	public function transpose()
+	public function transpose(): static
 	{
 		$out = [];
 		foreach ($this as $key => $subarr) {
@@ -584,27 +591,25 @@ class ArrayPlus extends ArrayObject implements Countable
 				$out[$subkey][$key] = $subvalue;
 			}
 		}
+
 		$this->setData($out);
 		return $this;
 	}
 
-	/**
-	 * @param array $column
-	 * @return static
-	 */
-	public function unshift(array $column)
+	public function unshift(array $column): static
 	{
 		reset($column);
 		foreach ($this as $i => $row) {
 			$this[$i] = [current($column)] + $row;
 			next($column);
 		}
+
 		return $this;
 	}
 
 	public function min()
 	{
-		if ($this->count()) {
+		if ($this->count() !== 0) {
 			return min($this->getData());
 		} else {
 			return null;
@@ -613,32 +618,33 @@ class ArrayPlus extends ArrayObject implements Countable
 
 	public function max()
 	{
-		if ($this->count()) {
+		if ($this->count() !== 0) {
 			return max($this->getData());
 		} else {
 			return null;
 		}
 	}
 
-	public function avg()
+	public function avg(): int|float|null
 	{
 		$count = $this->count();
 		if ($count != 0) {
 			return $this->sum() / $count;
 		}
+
+        return null;
 	}
 
-	public function sum()
+	public function sum(): float|int
 	{
 		return array_sum($this->getData());
 	}
 
 	/**
-	 * Runs get_object_vars() recursively
-	 * @param array $data
-	 * @return ArrayPlus
-	 */
-	public function object2array(?array $data = null)
+     * Runs get_object_vars() recursively
+     * @param array $data
+     */
+    public function object2array(?array $data = null): static
 	{
 		$this->setData($this->objectToArray($this));
 		return $this;
@@ -671,14 +677,13 @@ class ArrayPlus extends ArrayObject implements Countable
 	}
 
 	/**
-	 *    $tree = AP(array('a' => array('b' => array('c' => 'd'))));
-	 * $linear = $tree->linearize();
-	 * return slTable::showAssoc($linear, true, true);
-	 * == "c": "d"
-	 * @param array $data
-	 * @return array
-	 */
-	public function linearize(?array $data = null)
+     *    $tree = AP(array('a' => array('b' => array('c' => 'd'))));
+     * $linear = $tree->linearize();
+     * return slTable::showAssoc($linear, true, true);
+     * == "c": "d"
+     * @param array $data
+     */
+    public function linearize(?array $data = null): array
 	{
 		$data = $data ?: $this;
 		$linear = [];
@@ -689,44 +694,42 @@ class ArrayPlus extends ArrayObject implements Countable
 				$linear[$key] = $val;
 			}
 		}
+
 		return $linear;
 	}
 
-	public function filterBoth($callback = null)
+	public function filterBoth($callback = null): static
 	{
-		if ($callback /*is_callable($callback)*/) {
-			$new = array_filter($this->getData(), $callback, ARRAY_FILTER_USE_BOTH);
-		} else {
-			$new = array_filter($this->getData());
-		}
-		$this->setData($new);
+		$new = $callback ? array_filter($this->getData(), $callback, ARRAY_FILTER_USE_BOTH) : array_filter($this->getData());
+
+        $this->setData($new);
 		return $this;
 	}
 
-	public function filterContains($needle)
+	public function filterContains($needle): static
 	{
-		return $this->filter(function ($el) use ($needle) {
+		return $this->filter(function ($el) use ($needle): bool {
 			return str_contains($el, $needle);
 		});
 	}
 
-	public function filter($callback = null)
+	public function filter($callback = null): static
 	{
-		if ($callback /*is_callable($callback)*/) {
-			$new = array_filter($this->getData(), $callback);
-		} else {
-			$new = array_filter($this->getData());
-		}
-		$this->setData($new);
+		$new = $callback ? array_filter($this->getData(), $callback) : array_filter($this->getData());
+
+        $this->setData($new);
 		return $this;
 	}
 
-	public function implode($sep = "\n")
+	public function implode($sep = "\n"): string
 	{
 		return implode($sep, $this->getData());
 	}
 
-	public function typoscript($prefix = '')
+	/**
+     * @return mixed[]
+     */
+    public function typoscript(?string $prefix = ''): array
 	{
 		$replace = [];
 		foreach ($this as $key => $val) {
@@ -738,15 +741,16 @@ class ArrayPlus extends ArrayObject implements Countable
 				$replace[$prefixKey] = $val;
 			}
 		}
+
 		return $replace;
 	}
 
-	public function concat()
+	public function concat(): string
 	{
 		return implode('', $this->getData());
 	}
 
-	public function count_if($k)
+	public function count_if($k): int
 	{
 		$count = 0;
 		foreach ($this as $val) {
@@ -754,16 +758,15 @@ class ArrayPlus extends ArrayObject implements Countable
 				$count++;
 			}
 		}
+
 		return $count;
 	}
 
 	/**
-	 * Searches table for specific columns and counts where $k2 is true
-	 * @param array $k1s
-	 * @param       $k2
-	 * @return int
-	 */
-	public function count_if_sub(array $k1s, $k2)
+     * Searches table for specific columns and counts where $k2 is true
+     * @param       $k2
+     */
+    public function count_if_sub(array $k1s, $k2): int
 	{
 		$count = 0;
 		foreach ($this as $val) {
@@ -774,6 +777,7 @@ class ArrayPlus extends ArrayObject implements Countable
 				}
 			}
 		}
+
 		return $count;
 	}
 
@@ -784,19 +788,18 @@ class ArrayPlus extends ArrayObject implements Countable
 	 * @param mixed $val
 	 * @return $this
 	 */
-	public function set($i, $val)
+	public function set($i, $val): static
 	{
 		$this->offsetSet($i, $val);
 		return $this;
 	}
 
 	/**
-	 * Chainable
-	 *
-	 * @param mixed $i
-	 * @return static
-	 */
-	public function un_set($i)
+     * Chainable
+     *
+     * @param mixed $i
+     */
+    public function un_set($i): static
 	{
 		$this->offsetUnset($i);
 		return $this;
@@ -808,10 +811,11 @@ class ArrayPlus extends ArrayObject implements Countable
 		if ($subkey) {
 			$element = $element[$subkey];
 		}
+
 		return $element;
 	}
 
-	public function debug()
+	public function debug(): array
 	{
 		return [
 			'class' => get_class($this),
@@ -820,27 +824,26 @@ class ArrayPlus extends ArrayObject implements Countable
 	}
 
 	/**
-	 * @param string $oldKey
-	 * @param string $newKey
-	 * @return static
-	 * @throws Exception
-	 */
-	public function replace_key($oldKey, $newKey)
+     * @param string $oldKey
+     * @param string $newKey
+     * @throws Exception
+     */
+    public function replace_key($oldKey, $newKey): static
 	{
 		$keys = array_keys((array)$this);
-		if (false === $index = array_search($oldKey, $keys)) {
+		if (false === $index = array_search($oldKey, $keys, true)) {
 			throw new Exception(sprintf('Key "%s" does not exit', $oldKey));
 		}
+
 		$keys[$index] = $newKey;
 		$this->exchangeArray(array_combine($keys, array_values((array)$this)));
 		return $this;
 	}
 
 	/**
-	 * @param array $ar2
-	 * @return static
-	 */
-	public function merge_recursive_overwrite($ar2)
+     * @param array $ar2
+     */
+    public function merge_recursive_overwrite($ar2): static
 	{
 		foreach ($ar2 as $key2 => $val2) {
 			if (isset($this[$key2]) && is_array($this[$key2])) {
@@ -851,6 +854,7 @@ class ArrayPlus extends ArrayObject implements Countable
 				$this[$key2] = $val2;
 			}
 		}
+
 		return $this;
 	}
 
@@ -859,100 +863,103 @@ class ArrayPlus extends ArrayObject implements Countable
 	 * @param string $groupBy
 	 * @return $this
 	 */
-	public function groupBy($groupBy)
+	public function groupBy($groupBy): static
 	{
 		$new = [];
 		foreach ($this->getData() as $line) {
 			$key = $line[$groupBy];
 			$new[$key][] = $line;
 		}
+
 		$this->setData($new);
 		return $this;
 	}
 
-	public function sumGroups($field)
+	public function sumGroups($field): \ArrayPlus
 	{
 		$new = new ArrayPlus();
 		foreach ($this->getData() as $key => $subtable) {
 			$ap = ArrayPlus::create($subtable);
 			$new[$key] = $ap->column($field)->sum();
 		}
+
 		return $new;
 	}
 
 	/**
-	 * Static initializers can be chained in PHP
-	 * @param array $data
-	 * @return ArrayPlus
-	 */
-	public static function create(array $data = [])
+     * Static initializers can be chained in PHP
+     */
+    public static function create(array $data = []): self
 	{
-		$self = new self($data);
-		return $self;
+		return new self($data);
 	}
 
-	public function columnEmpty($string)
+	public function columnEmpty($string): bool
 	{
 		foreach ($this->getData() as $row) {
 			if (ifsetor($row[$string])) {
 				return false;
 			}
 		}
+
 		return true;
 	}
 
-	public function columnSet($string)
+	public function columnSet($string): bool
 	{
 		foreach ($this->getData() as $row) {
 			if (isset($row[$string])) {
 				return true;
 			}
 		}
+
 		return false;
 	}
 
-	public function findDelete($niceName)
+	public function findDelete($niceName): static
 	{
 		$ar = $this->getData();
-		$index = array_search($niceName, $ar);
+		$index = array_search($niceName, $ar, true);
 		if ($index !== false) {
 			array_splice($ar, $index, 1);
 			$this->setData($ar);
 		}
+
 		return $this;
 	}
 
-	public function replaceKeys(array $visibleFields)
+	public function replaceKeys(array $visibleFields): static
 	{
 		foreach ($visibleFields as $key => $val) {
 			$this->replace_key($key, $val);
 		}
+
 		return $this;
 	}
 
 	/**
-	 * Used in HTTP protocol
-	 * @param null $joinWith
-	 * @return array|string
-	 */
-	public function getHeaders($joinWith = null)
+     * Used in HTTP protocol
+     * @return array|string
+     */
+    public function getHeaders($joinWith = null)
 	{
 		$headers = [];
 		foreach ($this as $key => $val) {
 			$headers[] = $key . ': ' . $val;
 		}
+
 		if ($joinWith) {
 			$headers = implode($joinWith, $headers);
 		}
+
 		return $headers;
 	}
 
 	/**
-	 * If we store array of objects, we can retrieve a specific property of all objects
-	 * @param string $name
-	 * @return ArrayPlus
-	 */
-	public function getProperty($name)
+     * If we store array of objects, we can retrieve a specific property of all objects
+     * @param string $name
+     */
+    public function getProperty($name): \ArrayPlus
 	{
 		$result = [];
 		foreach ($this->getData() as $i => $object) {
@@ -960,10 +967,11 @@ class ArrayPlus extends ArrayObject implements Countable
 				$result[$i] = $object->$name;
 			}
 		}
+
 		return new ArrayPlus($result);
 	}
 
-	public function call($method)
+	public function call($method): \ArrayPlus
 	{
 		$result = [];
 		foreach ($this->getData() as $i => $object) {
@@ -971,10 +979,11 @@ class ArrayPlus extends ArrayObject implements Countable
 				$result[$i] = $object->$method();
 			}
 		}
+
 		return self::from($result);
 	}
 
-	public function callMutate($method)
+	public function callMutate($method): static
 	{
 		$result = [];
 		foreach ($this->getData() as $i => $object) {
@@ -982,6 +991,7 @@ class ArrayPlus extends ArrayObject implements Countable
 				$result[$i] = $object->$method();
 			}
 		}
+
 		$this->setData($result);
 		return $this;
 	}
@@ -989,36 +999,42 @@ class ArrayPlus extends ArrayObject implements Countable
 	public function andAll()
 	{
 		$result = true;
-		foreach ($this->getData() as $i => $object) {
+		foreach ($this->getData() as $object) {
 			$result = $result && $object;
 		}
+
 		return $result;
 	}
 
 	public function orAll()
 	{
 		$result = false;
-		foreach ($this->getData() as $i => $object) {
+		foreach ($this->getData() as $object) {
 			$result = $result || $object;
 		}
+
 		return $result;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return (string)json_encode($this->getArrayCopy(), JSON_PRETTY_PRINT);
 	}
 
-	public function toStringEach()
+	/**
+     * @return string[]
+     */
+    public function toStringEach(): array
 	{
 		$new = [];
 		foreach ($this->getData() as $i => $mixed) {
 			$new[$i] = (string)$mixed;
 		}
+
 		return $new;
 	}
 
-	public function combineSelf()
+	public function combineSelf(): static
 	{
 		return $this->setData(array_combine(
 			$this->getData(),
@@ -1026,64 +1042,58 @@ class ArrayPlus extends ArrayObject implements Countable
 		));
 	}
 
-	public function stringArray()
+	public function stringArray(): static
 	{
 		$new = [];
 		foreach ($this->getData() as $i => $mixed) {
 			$new[$i] = MergedContent::mergeStringArrayRecursive($mixed);
 		}
+
 		$this->setData($new);
 		return $this;
 	}
 
-	public function contains($string)
+	public function contains($string): bool
 	{
 		return in_array($string, $this->getData());
 	}
 
-	public function containsPartly($string)
+	public function containsPartly($string): bool
 	{
 		foreach ($this as $element) {
 			if (str_contains($element, $string)) {
 				return true;
 			}
 		}
+
 		return false;
 	}
 
-	public function convertTo($className)
+	public function convertTo($className): static
 	{
 		foreach ($this as $key => $row) {
-			if (method_exists($className, 'getInstance')) {
-				$instance = $className::getInstance($row);
-			} else {
-				$instance = new $className($row);
-			}
-			$this[$key] = $instance;
+			$instance = method_exists($className, 'getInstance') ? $className::getInstance($row) : new $className($row);
+
+            $this[$key] = $instance;
 		}
+
 		return $this;
 	}
 
-	public function makeTable($newKey)
+	public function makeTable($newKey): static
 	{
 		$copy = [];
 		foreach ($this->getData() as $key => $row) {
-			if (is_array($row)) {
-				$copy[$key] = $row;
-			} else {
-				$copy[$key] = [
+			$copy[$key] = is_array($row) ? $row : [
 					$newKey => $row,
 				];
-			}
 		}
+
 		$this->setData($copy);
 		return $this;
 	}
 
-	/**
-	 * @return ArrayPlus
-	 */
-	public function sortByValue()
+	public function sortByValue(): static
 	{
 		$data = $this->getData();
 		asort($data);
@@ -1091,7 +1101,7 @@ class ArrayPlus extends ArrayObject implements Countable
 		return $this;
 	}
 
-	public function sortByKey()
+	public function sortByKey(): static
 	{
 		$data = $this->getData();
 		ksort($data);
@@ -1099,41 +1109,38 @@ class ArrayPlus extends ArrayObject implements Countable
 		return $this;
 	}
 
-	public function reverse()
+	public function reverse(): static
 	{
 		$this->setData(array_reverse($this->getData()));
 		return $this;
 	}
 
-	public function getSlice($from = 0, $length = null)
+	public function getSlice($from = 0, $length = null): array
 	{
 		return array_slice($this->getData(), $from, $length, true);
 	}
 
-	public function addColumn($columnName, $callback)
+	public function addColumn($columnName, $callback): static
 	{
 		$copy = $this->getData();
 		foreach ($copy as $i => $row) {
 			$copy[$i][$columnName] = call_user_func($callback, $row, $i);
 		}
+
 		$this->setData($copy);
 		return $this;
 	}
 
-	/**
-	 * @return ArrayPlus
-	 */
-	public function values()
+	public function values(): static
 	{
 		$this->setData(array_values($this->getData()));
 		return $this;
 	}
 
 	/**
-	 * @param ArrayPlus|array $ap
-	 * @return ArrayPlus
-	 */
-	public function diff($ap)
+     * @param ArrayPlus|array $ap
+     */
+    public function diff($ap): static
 	{
 		$new = clone($this);
 		$ap = $ap instanceof ArrayPlus ? $ap->getData() : $ap;
@@ -1147,7 +1154,7 @@ class ArrayPlus extends ArrayObject implements Countable
 	 * @param mixed $value
 	 * @return $this
 	 */
-	public function where($key, $value)
+	public function where($key, $value): self
 	{
 		$copy = $this->getData();
 		foreach ($copy as $i => $row) {
@@ -1155,6 +1162,7 @@ class ArrayPlus extends ArrayObject implements Countable
 				unset($copy[$i]);
 			}
 		}
+
 		// no setData() here
 		return new self($copy);
 	}
@@ -1165,7 +1173,7 @@ class ArrayPlus extends ArrayObject implements Countable
 	 * @param mixed $value
 	 * @return $this
 	 */
-	public function filterWhere($key, $value)
+	public function filterWhere($key, $value): static
 	{
 		$copy = $this->getData();
 		foreach ($copy as $i => $row) {
@@ -1173,15 +1181,16 @@ class ArrayPlus extends ArrayObject implements Countable
 				unset($copy[$i]);
 			}
 		}
+
 		$this->setData($copy);
 		return $this;
 	}
 
-	public function filterBy(array $where)
+	public function filterBy(array $where): static
 	{
 		//		debug($where, sizeof($this->events));
 		$this->setData(
-			array_filter($this->getData(), function ($row) use ($where) {
+			array_filter($this->getData(), function (array $row) use ($where): bool {
 				//			$same = array_intersect_key((array)$row, $where);
 
 				$okList = [];
@@ -1189,6 +1198,7 @@ class ArrayPlus extends ArrayObject implements Countable
 					if (is_object($v)) {
 						//					var_dump($v);
 					}
+
 					if ($v instanceof FilterBetween) {
 						$ok = $v->apply($row->$k);
 					} elseif (is_array($v)) {
@@ -1199,33 +1209,34 @@ class ArrayPlus extends ArrayObject implements Countable
 							: ifsetor($row[$k]);
 						$ok = $v == $value;
 					}
+
 					$okList[$k] = $ok;
 				}
+
 				$okList = array_filter($okList);
 				//			debug($where, $okList);
-				return sizeof($okList) == sizeof($where);
+				return count($okList) === count($where);
 			})
 		);
 		return $this;
 	}
 
-	public function apply(callable $fn)
+	public function apply(callable $fn): void
 	{
 		$this->map($fn);
 	}
 
 	/**
-	 * Keys are reindexed
-	 * @param callable $callback
-	 * @return static
-	 */
-	public function map($callback)
+     * Keys are reindexed
+     * @param callable $callback
+     */
+    public function map($callback): static
 	{
 		$this->setData(array_map($callback, $this->getData()));
 		return $this;
 	}
 
-	public function has($el)
+	public function has($el): bool
 	{
 		return in_array($el, $this->getArrayCopy());
 	}
@@ -1239,54 +1250,55 @@ class ArrayPlus extends ArrayObject implements Countable
 	}
 
 	/**
-	 * http://stackoverflow.com/questions/173400/how-to-check-if-php-array-is-associative-or-sequential
-	 * @param array $array
-	 * @return bool
-	 * @static because it's used in the constructor of VisibleColumns
-	 */
-	public static function has_string_keys(array $array)
+     * http://stackoverflow.com/questions/173400/how-to-check-if-php-array-is-associative-or-sequential
+     * @static because it's used in the constructor of VisibleColumns
+     */
+    public static function has_string_keys(array $array): bool
 	{
-		return count(array_filter(array_keys($array), 'is_string')) > 0;
+		return array_filter(array_keys($array), 'is_string') !== [];
 	}
 
-	public function reindex(callable $keyGenerator)
+	public function reindex(callable $keyGenerator): \ArrayPlus
 	{
 		$new = new ArrayPlus();
 		foreach ($this as $key => $val) {
 			$newKey = $keyGenerator($key, $val);
 			$new[$newKey][] = $val;
 		}
+
 		return $new;
 	}
 
-	public function reindexOne(callable $keyGenerator)
+	public function reindexOne(callable $keyGenerator): \ArrayPlus
 	{
 		$new = new ArrayPlus();
 		foreach ($this as $key => $val) {
 			$newKey = $keyGenerator($key, $val);
 			$new[$newKey] = $val;
 		}
+
 		return $new;
 	}
 
-	public function countEach()
+	/**
+     * @return int[]
+     */
+    public function countEach(): array
 	{
 		$set = [];
 		foreach ($this as $key => $val) {
-			$set[$key] = is_array($val) ? sizeof($val) : 1;
+			$set[$key] = is_array($val) ? count($val) : 1;
 		}
+
 		return $set;
 	}
 
-	public function insertBefore($key, $content)
+	public function insertBefore($key, $content): static
 	{
 		$indexes = array_keys($this->getArrayCopy());
 		$intPos = array_search($key, $indexes, true);
-		if ($intPos) {
-			$beforeKeys = array_slice($indexes, 0, $intPos);
-		} else {
-			$beforeKeys = [];
-		}
+        $beforeKeys = $intPos ? array_slice($indexes, 0, $intPos) : [];
+
 		$values = array_values($this->getArrayCopy());
 		$before = array_combine($beforeKeys, array_slice($values, 0, $intPos));
 //		debug($indexes, $intPos, $beforeKeys, $before);
@@ -1300,17 +1312,18 @@ class ArrayPlus extends ArrayObject implements Countable
 	}
 
 	// untested from https://stackoverflow.com/questions/3797239/insert-new-item-in-array-on-any-position-in-php
-	public function insertAfter($position, $insert)
+	public function insertAfter($position, $insert): static
 	{
 		if (is_int($position)) {
 			$copy = $this->getArrayCopy();
 			array_splice($copy, $position, 0, $insert);
 			$this->setData($copy);
 		} else {
-			$pos = array_search($position, array_keys($this->getArrayCopy()));
+			$pos = array_search($position, array_keys($this->getArrayCopy()), true);
 			if (false === $pos) {
 				throw new Exception('position ' . $position . ' not found');
 			}
+
 			$array = array_merge(
 				array_slice($this->getArrayCopy(), 0, $pos + 1),
 				$insert,
@@ -1318,18 +1331,20 @@ class ArrayPlus extends ArrayObject implements Countable
 			);
 			$this->setData($array);
 		}
+
 		return $this;
 	}
 
-	public function without(array $keys)
+	public function without(array $keys): self
 	{
 		foreach ($keys as $key) {
 			unset($this[$key]);
 		}
+
 		return $this;
 	}
 
-	public function sort($callback)
+	public function sort($callback): static
 	{
 		$data = $this->getArrayCopy();
 		usort($data, $callback);
@@ -1337,7 +1352,7 @@ class ArrayPlus extends ArrayObject implements Countable
 		return $this;
 	}
 
-	public function any(Closure $check)
+	public function any(Closure $check): bool
 	{
 		foreach ($this->getData() as $el) {
 			$ok = $check($el);
@@ -1345,10 +1360,11 @@ class ArrayPlus extends ArrayObject implements Countable
 				return true;
 			}
 		}
+
 		return false;
 	}
 
-	public function all(Closure $check)
+	public function all(Closure $check): bool
 	{
 		foreach ($this->getData() as $el) {
 			$ok = $check($el);
@@ -1356,10 +1372,11 @@ class ArrayPlus extends ArrayObject implements Countable
 				return false;
 			}
 		}
+
 		return true;
 	}
 
-	public function none(Closure $check)
+	public function none(Closure $check): bool
 	{
 		foreach ($this->getData() as $el) {
 			$ok = $check($el);
@@ -1367,62 +1384,65 @@ class ArrayPlus extends ArrayObject implements Countable
 				return false;
 			}
 		}
+
 		return true;
 	}
 
-	public function toArray()
+	public function toArray(): array
 	{
 		return $this->getData();
 	}
 
-	public function isEmpty()
+	public function isEmpty(): bool
 	{
-		return count($this->getData()) === 0;
+		return $this->getData() === [];
 	}
 
-	public function includes($id)
+	public function includes($id): bool
 	{
 		return $this->contains($id);
 	}
 
-	public function containsAny(ArrayPlus $anotherList)
+	public function containsAny(ArrayPlus $anotherList): bool
 	{
 		foreach ($this as $el) {
 			if ($anotherList->includes($el)) {
 				return true;
 			}
 		}
+
 		return false;
 	}
 
-	public function containsAll(ArrayPlus $anotherList)
+	public function containsAll(ArrayPlus $anotherList): bool
 	{
 		foreach ($this as $el) {
 			if (!$anotherList->includes($el)) {
 				return false;
 			}
 		}
+
 		return true;
 	}
 
-	public function join(string $string)
+	public function join(string $string): string
 	{
 		return $this->implode($string);
 	}
 
-	public function toInt()
+	public function toInt(): \ArrayPlus
 	{
-		return self::from($this->map(fn($x) => (int)$x)->getData());
+		return self::from($this->map(fn($x): int => (int)$x)->getData());
 	}
 
-	public function toFloat()
+	public function toFloat(): \ArrayPlus
 	{
-		return self::from($this->map(fn($x) => (float)$x)->getData());
+		return self::from($this->map(fn($x): float => (float)$x)->getData());
 	}
 
-	public function toString()
+	public function toString(): \ArrayPlus
 	{
-		return self::from($this->map(fn($x) => (string)$x)->getData());
+		return self::from($this->map(fn($x): string => (string)$x)->getData());
 	}
 
 //	public function toArray()
@@ -1430,9 +1450,9 @@ class ArrayPlus extends ArrayObject implements Countable
 //		return self::from($this->map(fn ($x) => (array) $x)->getData());
 //	}
 
-	public function toObject()
+	public function toObject(): \ArrayPlus
 	{
-		return self::from($this->map(fn($x) => (object)$x)->getData());
+		return self::from($this->map(fn($x): \stdClass => (object)$x)->getData());
 	}
 }
 

@@ -3,8 +3,13 @@
 class ConfigView extends AppControllerBE
 {
 
-	public $file;
+	/**
+     * @var string
+     */
+    public $file;
+
 	protected $prefix = __CLASS__;
+
 	protected $typeMap = [
 		'string' => 'input',
 		'boolean' => 'checkbox',
@@ -18,7 +23,7 @@ class ConfigView extends AppControllerBE
 		$this->file = str_replace('\\', '/', $this->file);
 	}
 
-	public function render()
+	public function render(): string
 	{
 		$content = '';
 		if (file_exists($this->file)) {
@@ -34,6 +39,7 @@ class ConfigView extends AppControllerBE
 				//debug($props);
 				$this->renderFormArray($f, $class, $props);
 			}
+
 			$f->prefix('');
 			$f->hidden('action', 'save');
 			$f->submit('Save');
@@ -42,10 +48,11 @@ class ConfigView extends AppControllerBE
 
 			$content .= '<style>.tdlabel { width: 10em; } </style>';
 		}
+
 		return $content;
 	}
 
-	public function renderFormArray(HTMLFormTable $f, $class, array $data)
+	public function renderFormArray(HTMLFormTable $f, string $class, array $data): void
 	{
 		$f->fieldset($class);
 		$desc = [];
@@ -69,23 +76,26 @@ class ConfigView extends AppControllerBE
 				//}
 			}
 		}
+
 		$f->desc = $desc;
 		$f->showForm();
 	}
 
-	public function saveAction()
+	public function saveAction(): void
 	{
 		$data = $this->request->getArray($this->prefix);
-		foreach ($data as $class => &$props) {
-			foreach ($props as $key => &$val) {
+		foreach ($data as &$props) {
+			foreach ($props as &$val) {
 				if ($val === "0") {
 					$val = false;
 				}
+
 				if ($val === "1") {
 					$val = true;
 				}
 			}
 		}
+
 		//debug($data);
 		$yaml = Spyc::YAMLDump($data);
 		//debug($yaml);

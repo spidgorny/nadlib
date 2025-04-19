@@ -37,7 +37,7 @@ class Timeline /*extends AppController */
 		$this->duration = $this->end->minus($this->start);
 	}
 
-	public function render(Date $from, Date $till)
+	public function render(Date $from, Date $till): string
 	{
 		$content = '';
 		if ($this->duration->getTimestamp()) {
@@ -58,6 +58,7 @@ class Timeline /*extends AppController */
 				$content .= '<line x1="' . $x . '" y1="' . ($this->height - 5) . '" x2="' . $x . '" y2="' . $this->height . '"
 					style="stroke:' . $this->textColor . ';stroke-width:1"/>';
 			}
+
 			for ($date = clone $this->start/* @var $date Date */;
 					 $date->earlier($this->end);
 					 $date->add(new Duration('1 week'))) {
@@ -69,6 +70,7 @@ class Timeline /*extends AppController */
 					y="' . ($height_20 + 13) . '"
 					fill="' . $this->textColor . '">' . $date->format('W') . '</text>';
 			}
+
 			for ($date = clone $this->start/* @var $date Date */;
 					 $date->earlier($this->end);
 					 $date->add(new Duration('1 month'))) {
@@ -98,10 +100,11 @@ class Timeline /*extends AppController */
 				style="fill:' . $this->rangeColor . '; stroke-width:0; stroke:rgb(0,0,0)" />' . "\n";
 			$content .= '</svg>';
 		}
+
 		return $content;
 	}
 
-	public function date2x(Date $date)
+	public function date2x(Date $date): float
 	{
 		$sinceStart = $date->minus($this->start);
 		//$tillEnd = $this->end->minus($date);

@@ -13,25 +13,24 @@ class AlterTableHandler
 		$this->db = $db;
 	}
 
-	public function sameType($index1, $index2)
+	public function sameType(array $index1, array $index2): bool
 	{
 		$t1 = $index1['Type'];
 		$t2 = $index2['Type'];
 		return $this->sameTypeString($t1, $t2);
 	}
 
-	public function sameFieldType(TableField $index1, TableField $index2)
+	public function sameFieldType(TableField $index1, TableField $index2): bool
 	{
 		return $this->sameTypeString($index1->type, $index2->type);
 	}
 
 	/**
-	 * @param string $t1
-	 * @param string $t2
-	 * @return bool
-	 * @todo compare using TableField
-	 */
-	public function sameTypeString($t1, $t2)
+     * @param string $t1
+     * @param string $t2
+     * @todo compare using TableField
+     */
+    public function sameTypeString($t1, $t2): bool
 	{
 		$int = ['int(11)', 'INTEGER', 'integer', 'tinyint(1)', 'int', 'tinyint(4)'];
 		$text = ['text', 'varchar(255)', 'tinytext'];

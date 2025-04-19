@@ -16,12 +16,12 @@ class Bytes
 
 	public $precision = 3;
 
-	public static function create($bytes)
+	public static function create($bytes): self
 	{
 		return new self($bytes);
 	}
 
-	public static function fromString(string $size)
+	public static function fromString(string $size): self
 	{
 		return new self(self::return_bytes($size));
 	}
@@ -35,22 +35,17 @@ class Bytes
 		$iBytes = (string)(float)$bytes;
 		$sBytes = $bytes;
 		//echo $bytes, TAB, $iBytes, TAB, $sBytes, BR, $sBytes === $iBytes, BR;
-		if ($sBytes === $iBytes) {
-			$this->value = $bytes;
-		} else {
-			$this->value = $this->return_bytes($bytes);
-		}
+		$this->value = $sBytes === $iBytes ? $bytes : $this->return_bytes($bytes);
 	}
 
 	/**
-	 * http://stackoverflow.com/a/1336624
-	 * @param string $val
-	 * @return int|string
-	 */
-	public static function return_bytes($val)
+     * http://stackoverflow.com/a/1336624
+     * @param string $val
+     */
+    public static function return_bytes($val): string|int
 	{
 		$val = trim($val);
-		if (strlen($val)) {
+		if (strlen($val) !== 0) {
 			$last = strtolower($val[strlen($val) - 1]);
 			$val = intval($val);
 			switch ($last) {
@@ -70,12 +65,12 @@ class Bytes
 		return $val;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->renderDynamic();
 	}
 
-	public function renderDynamic()
+	public function renderDynamic(): string
 	{
 		if ($this->value < 1024) {
 			return $this->value . $this->suffix['b'];
@@ -86,6 +81,7 @@ class Bytes
 		} elseif ($this->value > 1024) {
 			return round($this->value / 1024, $this->precision) . $this->suffix['k'];
 		}
+
 		return '?';
 	}
 
@@ -94,30 +90,33 @@ class Bytes
 		return $this->value;
 	}
 
-	public function getKB()
+	public function getKB(): int|string
 	{
 		$val = $this->value / 1024;
 		if (is_int($val)) {
 			return $val;
 		}
+
 		return number_format($val, 3, '.', '');
 	}
 
-	public function getMB()
+	public function getMB(): int|string
 	{
 		$val = $this->value / 1024 / 1024;
 		if (is_int($val)) {
 			return $val;
 		}
+
 		return number_format($val, 3, '.', '');
 	}
 
-	public function getGB()
+	public function getGB(): int|string
 	{
 		$val = $this->value / 1024 / 1024 / 1024;
 		if (is_int($val)) {
 			return $val;
 		}
+
 		return number_format($val, 3, '.', '');
 	}
 

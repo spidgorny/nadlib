@@ -3,7 +3,7 @@
 class HTMLnoTag
 {
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return '[HTMLnoTag]';
 	}

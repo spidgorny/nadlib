@@ -27,9 +27,9 @@ class RandomStringGenerator
 			$this->setAlphabet($alphabet);
 		} else {
 			$this->setAlphabet(
-				implode(range('a', 'z'))
-				. implode(range('A', 'Z'))
-				. implode(range(0, 9))
+				implode('', range('a', 'z'))
+				. implode('', range('A', 'Z'))
+				. implode('', range(0, 9))
 			);
 		}
 	}
@@ -37,17 +37,16 @@ class RandomStringGenerator
 	/**
 	 * @param string $alphabet
 	 */
-	public function setAlphabet($alphabet)
+	public function setAlphabet($alphabet): void
 	{
 		$this->alphabet = $alphabet;
 		$this->alphabetLength = strlen($alphabet);
 	}
 
 	/**
-	 * @param int $length
-	 * @return string
-	 */
-	public function generate($length)
+     * @param int $length
+     */
+    public function generate($length): string
 	{
 		$token = '';
 
@@ -82,26 +81,27 @@ class RandomStringGenerator
 		$bits = (int)$log + 1;
 
 		// Set all lower bits to 1.
-		$filter = (int)(1 << $bits) - 1;
+		$filter = 1 << $bits - 1;
 
 		do {
 			$rnd = hexdec(bin2hex(openssl_random_pseudo_bytes($bytes)));
 
 			// Discard irrelevant bits.
-			$rnd = $rnd & $filter;
+			$rnd &= $filter;
 
 		} while ($rnd >= $range);
 
 		return ($min + $rnd);
 	}
 
-	public function generateSplit4($length)
+	public function generateSplit4($length): string
 	{
 		$continuous = $this->generate($length);
 		$parts = chunk_split($continuous, 4, '-');
 		if ($parts[strlen($parts) - 1] === '-') {
 			$parts = substr($parts, 0, strlen($parts) - 1);
 		}
+
 		return $parts;
 	}
 
@@ -112,11 +112,10 @@ class RandomStringGenerator
 	}
 
 	/**
-	 * http://www.anyexample.com/programming/php/php__password_generation.xml
-	 * @param int $syllables
-	 * @return string
-	 */
-	public function generateReadablePassword($syllables = 3)
+     * http://www.anyexample.com/programming/php/php__password_generation.xml
+     * @param int $syllables
+     */
+    public function generateReadablePassword($syllables = 3): string
 	{
 		$use_prefix = false;
 		// Define function unless it is already exists
@@ -144,19 +143,22 @@ class RandomStringGenerator
 			// selecting random consonant
 			$doubles = ['n', 'm', 't', 's'];
 			$c = ae_arr($consonants);
-			if (in_array($c, $doubles) && ($i != 0)) { // maybe double it
-				if (rand(0, 2) == 1) // 33% probability
-					$c .= $c;
+			// maybe double it
+            if (in_array($c, $doubles) && $i != 0 && rand(0, 2) == 1) { // 33% probability
+                $c .= $c;
 			}
+
 			$password .= $c;
 			//
 
 			// selecting random vowel
 			$password .= ae_arr($vowels);
 
-			if ($i == $syllables - 1) // if suffix begin with vovel
-				if (in_array($password_suffix[0], $vowels)) // add one more consonant
-					$password .= ae_arr($consonants);
+			// if suffix begin with vovel
+            if ($i == $syllables - 1 && in_array($password_suffix[0], $vowels)) {
+                // add one more consonant
+                $password .= ae_arr($consonants);
+            }
 
 		}
 

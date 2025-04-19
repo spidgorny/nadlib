@@ -39,7 +39,7 @@ class DatabaseResultIterator implements Iterator, Countable
 	 * Amount. Must be NULL for the first time.
 	 * @var int
 	 */
-	protected $rows = null;
+	protected $rows;
 
 	/**
 	 * Will return the value of the current row corresponding to $this->defaultKey
@@ -48,34 +48,30 @@ class DatabaseResultIterator implements Iterator, Countable
 	 */
 	public $key = 0;
 
-	/**
-	 * @var DBInterface
-	 */
-	protected $db;
+	protected \DBInterface $db;
 
 	public $query;
 
 	public $debug = false;
 
 	/**
-	 * DatabaseResultIterator constructor.
-	 * @param DBInterface $db
-	 * @param string $defaultKey = 'id', or 'uid'
-	 */
-	public function __construct(DBInterface $db, $defaultKey = null)
+     * DatabaseResultIterator constructor.
+     * @param string $defaultKey = 'id', or 'uid'
+     */
+    public function __construct(DBInterface $db, $defaultKey = null)
 	{
 		$this->db = $db;
 		$this->defaultKey = $defaultKey;
 	}
 
-	public function setResult($res)
+	public function setResult($res): void
 	{
 		$this->dbResultResource = $res;
 		// performance increase
 //		$this->rows = $this->count();
 	}
 
-	public function perform($query)
+	public function perform($query): void
 	{
 		$this->log(__METHOD__);
 		$this->query = $query;
@@ -84,6 +80,7 @@ class DatabaseResultIterator implements Iterator, Countable
 			$params = $query->getParameters();
 			//debug($query, $params);
 		}
+
 		$this->log('call perform() on ' . get_class($this->db));
 		$this->dbResultResource = $this->db->perform($query, $params);
 		$this->log(__METHOD__, [
@@ -99,6 +96,7 @@ class DatabaseResultIterator implements Iterator, Countable
 		if (!is_null($this->rows)) {
 			return $this->rows;
 		}
+
 		$numRows = $this->db->numRows($this->dbResultResource);
 		$this->log(__METHOD__, ['numRows' => $numRows]);
 		return $numRows;
@@ -107,7 +105,7 @@ class DatabaseResultIterator implements Iterator, Countable
 	public function rewind():void
 	{
 		$this->log(__METHOD__);
-		if ($this->count()) {
+		if ($this->count() !== 0) {
 			$this->key = 0;
 			$this->db->dataSeek($this->dbResultResource, 0);
 			$this->next();
@@ -136,15 +134,15 @@ class DatabaseResultIterator implements Iterator, Countable
 				$this->key++;
 			}
 		}
+
 		//debug($this->key, $this->row);
 	}
 
 	public function retrieveRow()
 	{
 		$this->log(__METHOD__);
-		$row = $this->db->fetchAssoc($this->dbResultResource);
 //		debug(__METHOD__, $row);
-		return $row;
+		return $this->db->fetchAssoc($this->dbResultResource);
 	}
 
 	public function valid(): bool
@@ -154,16 +152,16 @@ class DatabaseResultIterator implements Iterator, Countable
 	}
 
 	/**
-	 * Should not be used - against the purpose, but nice for debugging
-	 * @return array
-	 */
-	public function fetchAll()
+     * Should not be used - against the purpose, but nice for debugging
+     */
+    public function fetchAll(): array
 	{
 		$this->log(__METHOD__);
 		$data = [];
 		foreach ($this as $row) {
 			$data[] = $row;
 		}
+
 		return $data;
 	}
 
@@ -173,18 +171,19 @@ class DatabaseResultIterator implements Iterator, Countable
 		$this->db->free($this->dbResultResource);
 	}
 
-	public function skip($rows)
+	public function skip($rows): static
 	{
 		$this->log(__METHOD__, $rows);
 		while ($rows) {
 			$this->next();
 			$rows--;
 		}
+
 		$this->key += $rows;
 		return $this;
 	}
 
-	public function log($method, $data = null)
+	public function log($method, $data = null): void
 	{
 		if ($this->debug) {
 			debug($method, $data);

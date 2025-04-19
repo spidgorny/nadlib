@@ -17,10 +17,11 @@ class SQLWhere implements ArrayAccess
 		} elseif ($where) {
 			$this->add($where);
 		}
+
 //		$this->db = Config::getInstance()->getDB();
 	}
 
-	public function injectDB(DBInterface $db)
+	public function injectDB(DBInterface $db): void
 	{
 		//debug(__METHOD__, gettype2($db));
 		$this->db = $db;
@@ -31,12 +32,13 @@ class SQLWhere implements ArrayAccess
 		}
 	}
 
-	public function add($where, $key = null)
+	public function add($where, $key = null): void
 	{
 		if (is_array($where)) {
 			//debug($where);
 			throw new InvalidArgumentException(__METHOD__);
 		}
+
 		if (!$key || is_numeric($key)) {
 			$this->parts[] = $where;
 		} else {
@@ -44,15 +46,16 @@ class SQLWhere implements ArrayAccess
 		}
 	}
 
-	public function addArray(array $where)
+	public function addArray(array $where): static
 	{
 		foreach ($where as $key => $el) {
 			$this->add($el, $key);
 		}
+
 		return $this;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		if ($this->parts) {
 //			debug($this->parts);
@@ -72,8 +75,10 @@ class SQLWhere implements ArrayAccess
 					$p = new SQLWhereEqual($field, $p);
 					$p->injectDB($this->db);
 				}
+
 				$strings[] = $p->__toString();
 			}
+
 			$sWhere = " WHERE\n\t" . implode("\n\tAND ", $strings);    // __toString()
 
 			return $this->replaceParams($sWhere);
@@ -87,13 +92,14 @@ class SQLWhere implements ArrayAccess
 		// replace $0$, $0$, $0$ with $1, $2, $3
 		$params = $this->getParameters();
 		//debug($sWhere, $params);
-		foreach ($params as $i => $name) {
+		foreach (array_keys($params) as $i) {
 			if ($this->db->isMySQL()) {
 				$sWhere = str_replace_once('$0$', '?', $sWhere);
 			} else {
 				$sWhere = str_replace_once('$0$', '$' . ($i + 1), $sWhere);
 			}
 		}
+
 		return $sWhere;
 	}
 
@@ -110,17 +116,18 @@ class SQLWhere implements ArrayAccess
 		return $this->parts;
 	}
 
-	public static function genFromArray(array $where)
+	public static function genFromArray(array $where): self
 	{
 		foreach ($where as $key => &$val) {
 			if (!($val instanceof SQLWherePart)) {
 				$val = new SQLWhereEqual($key, $val);
 			}
 		}
+
 		return new self($where);
 	}
 
-	public function getParameters()
+	public function getParameters(): array
 	{
 		$parameters = [];
 		foreach ($this->parts as $part) {
@@ -135,6 +142,7 @@ class SQLWhere implements ArrayAccess
 				}
 			}
 		}
+
 //		debug($parameters);
 		return $parameters;
 	}

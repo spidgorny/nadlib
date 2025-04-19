@@ -34,20 +34,19 @@ class Model
 	public $id;
 
 	public $lastSelectQuery;
+    
 	public $lastInsertQuery;
+    
 	public $lastUpdateQuery;
 
 	protected static $instances = [];
 
 	/**
-	 * Not caching.
-	 * @param array $data
-	 * @param DBInterface $db
-	 * @return static
-	 * @throws DatabaseException
-	 * @throws Exception
-	 */
-	public static function getInstance(array $data, DBInterface $db = null)
+     * Not caching.
+     * @throws DatabaseException
+     * @throws Exception
+     */
+    public static function getInstance(array $data, DBInterface $db = null): static
 	{
 		$obj = new static(null);
 		$obj->setDB($db ?: Config::getInstance()->getDB());
@@ -56,16 +55,16 @@ class Model
 	}
 
 	/**
-	 * Not caching.
-	 * @param DBInterface $db
-	 * @param $id
-	 * @return static
-	 */
-	public static function getInstanceByID(DBInterface $db, $id)
+     * Not caching.
+     * @param $id
+     * @return static
+     */
+    public static function getInstanceByID(DBInterface $db, $id)
 	{
 		if (self::$instances[$id]) {
 			return self::$instances[$id];
-		};
+		}
+        ;
 		$obj = new static($db, []);
 		$obj->getByID($id);
 		self::$instances[$id] = $obj;
@@ -73,37 +72,36 @@ class Model
 	}
 
 	/**
-	 * @param DBInterface|null $db
-	 * @param array $data
-	 */
-	public function __construct(DBInterface $db = null, array $data = [])
+     * @param DBInterface|null $db
+     */
+    public function __construct(DBInterface $db = null, array $data = [])
 	{
-		if ($db) {
+		if ($db instanceof \DBInterface) {
 			$this->setDB($db);
 		}
+        
 		$this->setData($data);
 	}
 
-	public function setDB(DBInterface $db)
+	public function setDB(DBInterface $db): void
 	{
 		$this->db = $db;
 	}
 
 	/**
-	 * Different models may extend this to covert between
-	 * different data types in DB and in runtime.
-	 * @param array $data
-	 */
-	public function setData(array $data)
+     * Different models may extend this to covert between
+     * different data types in DB and in runtime.
+     */
+    public function setData(array $data): void
 	{
 		foreach ($data as $key => $val) {
 			$this->$key = $val;
 		}
 	}
 
-	public function unsetData()
+	public function unsetData(): void
 	{
-		foreach ($this->getFields() as $field => $dc) {
+		foreach (array_keys($this->getFields()) as $field) {
 			$this->$field = null;
 		}
 	}
@@ -126,6 +124,7 @@ class Model
 		if (!($data instanceof ArrayPlus)) {
 			$data = new ArrayPlus($data);
 		}
+        
 		return $data;
 	}
 
@@ -141,13 +140,14 @@ class Model
 		if (!($data instanceof ArrayPlus)) {
 			$data = new ArrayPlus($data);
 		}
-		$data->map(function ($row) {
+        
+		$data->map(function ($row): static {
 			return new static($this->db, $row);
 		});
 		return $data;
 	}
 
-	public function renderList()
+	public function renderList(): ?\UL
 	{
 		$list = [];
 		if ($this->getData()->count()) {
@@ -157,20 +157,19 @@ class Model
 					$content = $this->render();
 				} elseif (method_exists($this, 'getSingleLink')) {
 					$link = $this->getSingleLink();
-					if ($link) {
-						$content = new HTMLTag('a', [
+					$content = $link !== '' && $link !== '0' ? new HTMLTag('a', [
 							'href' => $link,
-						], $this->getName());
-					} else {
-						$content = $this->getName();
-					}
+						], $this->getName()) : $this->getName();
 				} else {
 					$content = $this->getName();
 				}
+                
 				$list[$id] = $content;
 			}
+            
 			return new UL($list);
 		}
+        
 		return null;
 	}
 
@@ -179,6 +178,7 @@ class Model
 		if (!isset($data[$this->idField])) {
 			$data[$this->idField] = RandomStringGenerator::likeYouTube();
 		}
+        
 		$res = $this->db->runInsertQuery($this->table, $data, $where);
 		$this->lastInsertQuery = $this->db->getLastQuery();
 		$this->setData($data);
@@ -186,12 +186,11 @@ class Model
 	}
 
 	/**
-	 * Original runs getUpdateQuery() which is not supported
-	 * by DBLayerJSON
-	 * @param array $data
-	 * @return resource
-	 */
-	public function update(array $data)
+     * Original runs getUpdateQuery() which is not supported
+     * by DBLayerJSON
+     * @return resource
+     */
+    public function update(array $data)
 	{
 		$res = $this->db->runUpdateQuery($this->table, $data, [
 			$this->idField => $this->{$this->idField},
@@ -199,12 +198,13 @@ class Model
 		if ($this->db->affectedRows($res) !== 1) {
 			throw new DatabaseException($this->db->getLastQuery() . ' updated ' . $this->db->affectedRows($res) . ' rows');
 		}
+        
 		$this->lastUpdateQuery = $this->db->getLastQuery();
 		$this->setData($data);
 		return $res;
 	}
 
-	public function getByID($id)
+	public function getByID($id): static
 	{
 		$found = $this->db->fetchOneSelectQuery($this->table, [
 			$this->idField => $id,
@@ -215,10 +215,14 @@ class Model
 		} else {
 			$this->unsetData();
 		}
+        
 		return $this;
 	}
 
-	public function getFormFromModel()
+	/**
+     * @return array{label: mixed, type: mixed, optional: bool}[]
+     */
+    public function getFormFromModel(): array
 	{
 		$desc = [];
 		$fields = $this->getFields();
@@ -231,16 +235,17 @@ class Model
 				'optional' => $dc->is_set('optional') || !$dc->is_set('required'),
 			];
 		}
+        
 		return $desc;
 	}
 
 	/**
 	 * @return DocCommentParser[]
 	 */
-	public function getFields()
+	public function getFields(): array
 	{
 		$fields = [];
-		foreach (get_object_vars($this) as $fieldName => $_) {
+		foreach (array_keys(get_object_vars($this)) as $fieldName) {
 			try {
 				$field = new ReflectionProperty(get_class($this), $fieldName);
 				$sComment = $field->getDocComment();
@@ -255,25 +260,29 @@ class Model
 				// skip
 			}
 		}
+        
 		return $fields;
 	}
 
-	function getVisibleFields()
+	public function getVisibleFields(): void
 	{
 		// TODO
 	}
 
-	function id()
+	public function id()
 	{
 		return $this->id;
 	}
 
-	function get($field)
+	public function get($field)
 	{
 		return ifsetor($this->$field);
 	}
 
-	public function asArray()
+	/**
+     * @return mixed[]
+     */
+    public function asArray(): array
 	{
 		$data = get_object_vars($this);
 		unset($data['table']);
@@ -286,22 +295,22 @@ class Model
 		return $data;
 	}
 
-	public function getJSON()
+	public function getJSON(): \stdClass
 	{
 		return (object)$this->asArray();
 	}
 
-	public function getNameLink()
+	public function getNameLink(): \HTMLTag
 	{
 		return HTMLTag::a($this->getSingleLink(), $this->getName());
 	}
 
-	public function getSingleLink()
+	public function getSingleLink(): string
 	{
 		return 'Controller?id=' . $this->id();
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->getName();
 	}
@@ -335,8 +344,10 @@ class Model
 					: 'varchar';
 				$f->references = $type->table . '(' . $type->idField . ')';
 			}
+            
 			$columns[] = $f;
 		}
+        
 		$at = new AlterTable();
 		$handler = $at->handler;
 		return $handler->getCreateQuery($this->table, $columns);

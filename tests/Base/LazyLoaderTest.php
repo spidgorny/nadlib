@@ -15,7 +15,7 @@ use stdClass;
 class LazyLoaderTest extends TestCase
 {
 
-	public function test_ll_same_value()
+	public function test_ll_same_value(): void
 	{
 		$l1 = new LazyLoader('123');
 		$v1 = $l1();
@@ -24,7 +24,7 @@ class LazyLoaderTest extends TestCase
 		$this->assertEquals('123', $v2);
 	}
 
-	public function test_ll_same_object()
+	public function test_ll_same_object(): void
 	{
 		$l1 = new LazyLoader(new stdClass());
 		$v1 = $l1();
@@ -32,14 +32,14 @@ class LazyLoaderTest extends TestCase
 		$this->assertEquals(spl_object_hash($v1), spl_object_hash($v2));
 	}
 
-	public function test_ll_time_once()
+	public function test_ll_time_once(): void
 	{
-		$l1 = new LazyLoader(function () {
+		$l1 = new LazyLoader(function (): void {
 			sleep(1);
 		});
 		$start = microtime(true);
-		$v1 = $l1();
-		$v2 = $l1();
+		$l1();
+		$l1();
 		$duration = microtime(true) - $start;
 //		echo __METHOD__, ': ', $duration, PHP_EOL;
 		$this->assertLessThan(2, $duration);

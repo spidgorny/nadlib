@@ -7,7 +7,7 @@ use Request;
 class Bootstrap
 {
 
-	public function boot()
+	public function boot(): void
 	{
 		echo 'cwd: ', basename(getcwd()), "\n";
 
@@ -47,11 +47,11 @@ class Bootstrap
 		echo 'bootstrap.php done', BR;
 	}
 
-	public function loadVendorAutoload()
+	public function loadVendorAutoload(): void
 	{
 		$path = trimExplode('/', str_replace('\\', '/', getcwd()));
 		//debug($path);
-		foreach (range(sizeof($path), 0, -1) as $i) {
+		foreach (range(count($path), 0, -1) as $i) {
 			$dir = implode(DIRECTORY_SEPARATOR, array_slice($path, 0, $i));
 			$autoloadPHP = $dir . '/vendor/autoload.php';
 			echo $autoloadPHP, BR;

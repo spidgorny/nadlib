@@ -11,13 +11,13 @@ class Stats
 {
 
 	// Function to calculate square of value - mean
-	public static function sd_square($x, $mean)
+	public static function sd_square($x, $mean): int|float
 	{
 		return pow($x - $mean, 2);
 	}
 
 	// Function to calculate standard deviation (uses sd_square)
-	public static function sd(array $array)
+	public static function sd(array $array): float
 	{
 		// square root of sum of squares devided by N-1
 		return sqrt(
@@ -32,23 +32,22 @@ class Stats
 		);
 	}
 
-	public static function mean(array $set)
+	public static function mean(array $set): int|float
 	{
 		return array_sum($set) / count($set);
 	}
 
-	public static function cv(array $set)
+	public static function cv(array $set): int|float
 	{
 		return self::sd($set) / self::mean($set);
 	}
 
 	/**
-	 * @param array $set
-	 * @param int $numBuckets
-	 * @return array
-	 * Buckets [-12...0...+12]
-	 */
-	public static function buildDistribution(array $set, $numBuckets = 25)
+     * @param int $numBuckets
+     * @return array
+     * Buckets [-12...0...+12]
+     */
+    public static function buildDistribution(array $set, $numBuckets = 25): array
 	{
 		$buckets = array_fill(0, $numBuckets + 1, 0);
 //		debug($buckets);
@@ -58,7 +57,7 @@ class Stats
 
 		foreach ($set as $value) {
 			$key = ($value - $min) / ($max - $min) * $numBuckets;
-			$buckets[$key] = $buckets[$key] + 1;
+			$buckets[$key] += 1;
 		}
 
 		return $buckets;

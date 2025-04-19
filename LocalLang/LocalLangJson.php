@@ -20,24 +20,20 @@ class LocalLangJson extends LocalLangDummy
 //		$this->log(__METHOD__, $bt);
 	}
 
-	public function areThereTranslationsFor($lang)
+	public function areThereTranslationsFor($lang): bool
 	{
 		$this->lang = $lang;  // temporary
 		$file = $this->getFilename();
-		$ok = is_file($file);
 		//debug($lang, $file, $ok);
-		return $ok;
+		return is_file($file);
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getFilename()
+	public function getFilename(): string
 	{
 		return $this->langFolder . 'll-' . $this->lang . '.json';
 	}
 
-	public function readDB()
+	public function readDB(): void
 	{
 //		$this->log(__METHOD__, $this->getFilename());
 		$file = file_get_contents($this->getFilename());
@@ -54,7 +50,7 @@ class LocalLangJson extends LocalLangDummy
 		}
 	}
 
-	public function saveMissingMessage($text)
+	public function saveMissingMessage($text): void
 	{
 		$this->updateMessage([
 			//'code' => RandomStringGenerator::likeYouTube(),
@@ -63,7 +59,7 @@ class LocalLangJson extends LocalLangDummy
 		]);
 	}
 
-	public function updateMessage(array $data)
+	public function updateMessage(array $data): void
 	{
 		$this->ll[$data['code']] = $data['text'];
 	}
@@ -75,6 +71,7 @@ class LocalLangJson extends LocalLangDummy
 		} else {
 			$trans = $text;
 		}
+        
 		return $trans;
 	}
 

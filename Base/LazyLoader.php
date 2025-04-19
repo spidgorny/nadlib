@@ -8,7 +8,8 @@ class LazyLoader
 {
 
 	private $providerOrValue;
-	private $evaluated = false;
+
+	private bool $evaluated = false;
 
 	public function __construct($providerOrValue)
 	{
@@ -18,10 +19,13 @@ class LazyLoader
 	public function __invoke()
 	{
 		if (!$this->evaluated) {
-			if (is_callable($this->providerOrValue))
-				$this->providerOrValue = call_user_func($this->providerOrValue);
-			$this->evaluated = true;
+			if (is_callable($this->providerOrValue)) {
+                $this->providerOrValue = call_user_func($this->providerOrValue);
+            }
+
+            $this->evaluated = true;
 		}
+
 		return $this->providerOrValue;
 	}
 

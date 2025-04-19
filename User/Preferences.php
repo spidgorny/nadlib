@@ -23,7 +23,7 @@ class Preferences
 		}
 	}
 
-	public function set($key, $val)
+	public function set($key, $val): void
 	{
 		$this->prefs[$key] = $val;
 		//debug(__METHOD__, typ($this), $key, $val);
@@ -35,7 +35,7 @@ class Preferences
 		return ifsetor($this->prefs[$key], $default);
 	}
 
-	public function un_set($key)
+	public function un_set($key): void
 	{
 		unset($this->prefs[$key]);
 	}
@@ -50,6 +50,7 @@ class Preferences
 		} else {
 			$val = $prio3;
 		}
+
 		/*		debug(array(
 					$prio1,
 					$prio2,
@@ -61,7 +62,7 @@ class Preferences
 		return $val;
 	}
 
-	public function serialize()
+	public function serialize(): string
 	{
 		return serialize($this->prefs);
 	}

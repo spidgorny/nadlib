@@ -40,22 +40,19 @@ class ModelQuery implements IteratorAggregate
 	}
 
 	/**
-	 * @param array $where
-	 * @param string $orderBy
-	 * @return array[]
-	 */
-	public function queryData(array $where, $orderBy = 'ORDER BY id DESC')
+     * @param string $orderBy
+     * @return array[]
+     */
+    public function queryData(array $where, $orderBy = 'ORDER BY id DESC')
 	{
 		$this->where($where);
 		return $this->db->fetchAllSelectQuery($this->itemInstance->table, $this->where, $orderBy);
 	}
 
 	/**
-	 * @param array $where
-	 * @param string $orderBy
-	 * @return ArrayPlus
-	 */
-	public function queryObjects(array $where = [], $orderBy = 'ORDER BY id DESC')
+     * @param string $orderBy
+     */
+    public function queryObjects(array $where = [], $orderBy = 'ORDER BY id DESC'): \ArrayPlus
 	{
 		$this->where($where);
 		$data = $this->queryData($this->where, $orderBy);
@@ -63,10 +60,11 @@ class ModelQuery implements IteratorAggregate
 		foreach ($data as $row) {
 			$list->append(new $this->itemClassName($this->db, $row));
 		}
+
 		return $list;
 	}
 
-	public function where(array $where)
+	public function where(array $where): static
 	{
 		$this->where += $where;
 		return $this;

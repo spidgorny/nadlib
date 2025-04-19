@@ -23,10 +23,7 @@ abstract class HTMLFormProcessor extends SimpleController
 	 */
 	public $method = [];
 
-	/**
-	 * @var string
-	 */
-	protected $prefix = __CLASS__;
+	protected string $prefix;
 
 	/**
 	 * @var HTMLFormValidate
@@ -39,7 +36,7 @@ abstract class HTMLFormProcessor extends SimpleController
 	 */
 	protected $validated = false;
 
-	protected $submitButton = 'Save';
+	protected string $submitButton = 'Save';
 
 	/**
 	 * @var HTMLFormTable
@@ -51,6 +48,7 @@ abstract class HTMLFormProcessor extends SimpleController
 	 * @var bool
 	 */
 	protected $submitted = false;
+
 	public $postUrl;
 
 	public function __construct(array $default = [])
@@ -64,7 +62,7 @@ abstract class HTMLFormProcessor extends SimpleController
 		//debug($this->prefix, $this->request->is_set($this->prefix));
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return '<div class="HTMLFormProcessor">' . $this->render() . '</div>';
 	}
@@ -80,6 +78,7 @@ abstract class HTMLFormProcessor extends SimpleController
 		if (!$this->form) {
 			$this->postInit();
 		}
+
 		//debug($this->validated);
 		//$errors = AP($this->desc)->column('error')->filter()->getData();
 		//debug($errors);
@@ -93,8 +92,10 @@ abstract class HTMLFormProcessor extends SimpleController
 				$content .= '<div class="error alert alert-error ui-state-error padding">' .
 					__('The form is not complete. Please check the comments next to each field below.') . '</div>';
 			}
+
 			$content .= $this->s($this->showForm());
 		}
+
 		return $this->encloseInAA($content, $this->title);
 	}
 
@@ -102,7 +103,7 @@ abstract class HTMLFormProcessor extends SimpleController
 	 * The idea is to remove all slow operations outside of the constructor.
 	 * Who's gonna call this function? Index?
 	 */
-	public function postInit()
+	public function postInit(): void
 	{
 		$this->form = new HTMLFormTable();    // needed sometime in getDesc
 		$this->form->setDesc($this->getDesc());
@@ -146,6 +147,7 @@ abstract class HTMLFormProcessor extends SimpleController
 		if ($this->ajax) {
 			$f->formMore['onsubmit'] = "return ajaxSubmitForm(this);";
 		}
+
 		$f->method('POST');
 		$f->action($this->postUrl);
 		$f->hidden('ajax', $this->ajax);
@@ -159,6 +161,7 @@ abstract class HTMLFormProcessor extends SimpleController
 		if (!$this->form) {
 			throw new \RuntimeException(__METHOD__ . ': initialize form with getForm()');
 		}
+
 		$this->form->prefix($this->prefix);
 		$this->form->showForm();
 		$this->form->prefix('');

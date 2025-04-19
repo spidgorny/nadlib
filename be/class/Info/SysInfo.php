@@ -14,7 +14,7 @@ class SysInfo extends AppController
 		$content[] = $this->encloseInAA(slTable::showAssoc($a), 'Sys Info');
 
 		$config = get_object_vars($this->config);
-		$config = array_filter($config, function ($el) {
+		$config = array_filter($config, function ($el): bool {
 			if (is_object($el)) {
 				return method_exists($el, '__toString');
 			} else {

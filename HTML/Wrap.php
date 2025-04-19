@@ -2,7 +2,9 @@
 
 class Wrap
 {
-	protected $wrap1, $wrap2;
+	protected $wrap1;
+
+    protected $wrap2;
 
 	public function __construct($strWrap, $arrWrap2 = null)
 	{
@@ -11,7 +13,7 @@ class Wrap
 			$this->wrap2 = $arrWrap2;
 		} else {
 			$parts = explode('|', $strWrap);
-			if (sizeof($parts) == 2) {
+			if (count($parts) == 2) {
 				list($this->wrap1, $this->wrap2) = $parts;
 			} else {
 				throw new InvalidArgumentException(__METHOD__);
@@ -19,28 +21,27 @@ class Wrap
 		}
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return 'Wrap Object (' . strlen($this->wrap1) . ', ' . strlen($this->wrap2) . ')';
 	}
 
-	public function debug()
+	public function debug(): string
 	{
 		return $this->__toString();
 	}
 
-	public function wrap($str)
+	public function wrap($str): string
 	{
 		$str = MergedContent::mergeStringArrayRecursive($str);
 		return $this->wrap1 . $str . $this->wrap2;
 	}
 
 	/**
-	 * @param $w1
-	 * @param $w2
-	 * @return Wrap
-	 */
-	public static function make($w1, $w2 = null)
+     * @param $w1
+     * @param $w2
+     */
+    public static function make($w1, $w2 = null): self
 	{
 		return new self($w1, $w2);
 	}

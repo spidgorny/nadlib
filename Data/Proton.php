@@ -5,16 +5,18 @@ class Proton
 
 	public $base = 'http://photon.komoot.de/api/?q=';
 
-	public function get($q)
+	public function get($q): mixed
 	{
 		$gz = new GuzzleHttp\Client();
 		$response = $gz->get($this->base . urlencode($q));
 		$json = $response->getBody()->getContents();
-		$features = json_decode($json);
-		return $features;
+		return json_decode($json);
 	}
 
-	public function getCities($q)
+	/**
+     * @return \list<\non-falsy-string>
+     */
+    public function getCities($q): array
 	{
 		$set = [];
 		$results = $this->get($q);
@@ -27,6 +29,7 @@ class Proton
 				debug($place->properties);
 			}
 		}
+        
 		return $set;
 	}
 

@@ -3,14 +3,14 @@
 class MinifyJS
 {
 
-	protected $footer = [];
+	protected array $footer;
 
 	public function __construct(array $footer)
 	{
 		$this->footer = $footer;
 	}
 
-	public function implodeJS()
+	public function implodeJS(): ?string
 	{
 		// composer require mrclay/minify
 		$index_php = __DIR__ . '/../../../mrclay/minify/index.php';
@@ -18,6 +18,7 @@ class MinifyJS
 		if (!file_exists($index_php)) {
 			return null;
 		}
+
 		$include = []; // some files can't be found
 		$files = array_keys($this->footer);
 
@@ -30,6 +31,7 @@ class MinifyJS
 				if (!Path::isItAbsolute($file)) {
 					$file = $docRoot . $file;
 				}
+
 				$file = realpath($file);
 				$file = str_replace('\\', '/', $file);    // fix windows
 //					debug($file, file_exists($file), Path::isItAbsolute($file));
@@ -43,7 +45,7 @@ class MinifyJS
 		// "slawa/mrbs/"
 //			Request::printDocumentRootDebug();
 //			debug($_SERVER);
-		foreach ($files as $f => &$file) {
+		foreach ($files as &$file) {
 			$file2 = substr(
 				$file,
 				strpos($file, $docRoot) + strlen($docRoot)
@@ -58,8 +60,7 @@ class MinifyJS
 				'f' => implode(",", $files),
 			]);
 		$content = '<script src="' . $path . '"></script>' . PHP_EOL;
-		$content .= implode("\n", $include);
 //			debug($content);
-		return $content;
+		return $content . implode("\n", $include);
 	}
 }

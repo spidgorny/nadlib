@@ -4,9 +4,13 @@ class DSNBuilderSQLite extends DSNBuilder
 {
 
 	public $host;
+    
 	public $user;
+    
 	public $pass;
+    
 	public $db;
+    
 	public $port;
 
 	public function __construct($host, $user, $pass, $db, $port)
@@ -18,7 +22,7 @@ class DSNBuilderSQLite extends DSNBuilder
 		$this->port = $port;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return 'sqlite:' . $this->db;
 	}

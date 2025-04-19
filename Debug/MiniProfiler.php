@@ -3,15 +3,16 @@
 class MiniProfiler
 {
 	protected $timer = [];
+    
 	protected $lastName = [];
 
-	public function startTimer($name)
+	public function startTimer($name): void
 	{
 		$this->timer[$name]['start'] = microtime(true);
 		//$this->lastName[] = $name;
 	}
 
-	public function stopTimer($name)
+	public function stopTimer($name): void
 	{
 		$this->timer[$name]['duration'] += microtime(true) - $this->timer[$name]['start'];
 		$this->timer[$name]['times']++;
@@ -19,7 +20,7 @@ class MiniProfiler
 		//$this->lastName[] = $name;
 	}
 
-	public function printTimers()
+	public function printTimers(): \slTable
 	{
 		$table = [];
 		foreach ($this->timer as $name => $t) {
@@ -29,6 +30,7 @@ class MiniProfiler
 				'times' => $t['times'],
 			];
 		}
+        
 		//$ac = array_column($table, 'duration');
 		$ac = ArrayPlus::create($table)->column('duration')->getData();
 		array_multisort($ac, SORT_DESC, $table);

@@ -11,7 +11,7 @@ class DatabaseException extends Exception
 		$this->setQuery($query);
 	}
 
-	public function setQuery($q)
+	public function setQuery($q): void
 	{
 		$this->query = $q;
 	}

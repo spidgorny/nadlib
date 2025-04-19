@@ -5,10 +5,7 @@ namespace nadlib;
 class Service
 {
 
-	/**
-	 * @var IndexInterface
-	 */
-	protected $index;
+	protected \nadlib\IndexInterface $index;
 
 	public function __construct(IndexInterface $index)
 	{

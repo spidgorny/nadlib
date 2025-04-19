@@ -14,16 +14,12 @@ class ArrayPlusReference /*extends ArrayPlus */
 		$this->setData($a);
 	}
 
-	public static function create(array &$data = [])
+	public static function create(array &$data = []): self
 	{
-		$self = new self($data);
-		return $self;
+		return new self($data);
 	}
 
-	/**
-	 * @return array
-	 */
-	public function &getData()
+	public function &getData(): array
 	{
 		return (array)$this;
 	}
@@ -32,7 +28,7 @@ class ArrayPlusReference /*extends ArrayPlus */
 
 error_reporting($tmp);
 
-function APR(array &$a = [])
+function APR(array &$a = []): \ArrayPlusReference
 {
 	return ArrayPlusReference::create($a);
 }

@@ -3,7 +3,10 @@
 class AssocCollection
 {
 
-	public $data;
+	/**
+     * @var mixed[]
+     */
+    public $data;
 
 	public function __construct(array $data = [])
 	{

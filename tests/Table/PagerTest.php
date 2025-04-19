@@ -4,7 +4,7 @@
 class PagerTest extends NadlibTestCase
 {
 
-	public function testDetectCurrentPage()
+	public function testDetectCurrentPage(): void
 	{
 		$_REQUEST['Pager.'] = ['page' => 2];
 		$p = new Pager();
@@ -13,7 +13,7 @@ class PagerTest extends NadlibTestCase
 		$this->assertEquals(2, $p->currentPage);
 	}
 
-	public function test_getMaxPage()
+	public function test_getMaxPage(): void
 	{
 		$fixture = [
 			0 => 0,

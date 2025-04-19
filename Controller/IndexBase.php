@@ -10,30 +10,43 @@ class IndexBase /*extends Controller*/
 	 * @var Index|IndexBE
 	 */
 	protected static $instance;
+
 	/**
 	 * @see Config for a public property
 	 * @var LocalLangDummy
 	 */
 	public $ll;
+
 	/**
 	 * For any error messages during initialization.
 	 *
 	 * @var Messages
 	 */
 	public $content;
+
 	/**
 	 * @var AppController|UserlessController
 	 */
 	public $controller;
+
 	public $header = [];
+
 	public $footer = [];
+
 	public $loadJSfromGoogle = true;
+
 	public $template = 'template.phtml';
+
 	public $sidebar = '';
+
 	public $appName = 'Project name';
+
 	public $description = '';
+
 	public $keywords = '';
+
 	public $bodyClasses = [];
+
 	public $csp = [
 		"default-src" => [
 			"'self'",
@@ -70,16 +83,17 @@ class IndexBase /*extends Controller*/
 			"'unsafe-eval'",
 		],
 	];
+
 	public $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error';
+
 	/**
 	 * @var UserModelInterface
 	 * @public for template.phtml
 	 */
 	protected $user;
-	/**
-	 * @var ConfigInterface
-	 */
-	protected $config;
+
+	protected ?\ConfigInterface $config;
+
 	/**
 	 * @var DBInterface
 	 */
@@ -118,42 +132,39 @@ class IndexBase /*extends Controller*/
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	/**
-	 * @return void
-	 */
-	public function setSecurityHeaders()
+	public function setSecurityHeaders(): void
 	{
 		if (headers_sent()) {
 			return;
 		}
+
 		header('X-Frame-Options: SAMEORIGIN');
 		header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
 		foreach ($this->csp as $key => &$val) {
 			$val = $key . ' ' . implode(' ', $val);
 		}
+
 		header('Content-Security-Policy: ' . implode('; ', $this->csp));
 		header('X-Content-Security-Policy: ' . implode('; ', $this->csp));
 	}
 
 	/**
-	 * TODO: Remove the boolean parameter from getInstance()
-	 * TODO: And force to use makeInstance() in case it was true
-	 * @param Config|null $config
-	 * @return Index|IndexBE
-	 * @throws Exception
-	 */
-	public static function makeInstance(?Config $config = null)
+     * TODO: Remove the boolean parameter from getInstance()
+     * TODO: And force to use makeInstance() in case it was true
+     * @return Index|IndexBE
+     * @throws Exception
+     */
+    public static function makeInstance(?Config $config = null)
 	{
 		return static::getInstance(true, $config);
 	}
 
 	/**
-	 * @param bool $createNew - must be false
-	 * @param ConfigInterface|null $config
-	 * @return Index
-	 * @throws Exception
-	 */
-	public static function getInstance($createNew = false, ?ConfigInterface $config = null)
+     * @param bool $createNew - must be false
+     * @return Index
+     * @throws Exception
+     */
+    public static function getInstance($createNew = false, ?ConfigInterface $config = null)
 	{
 		TaylorProfiler::start(__METHOD__);
 		$instance = self::$instance ?: null;
@@ -162,6 +173,7 @@ class IndexBase /*extends Controller*/
 			$instance = new $static($config);
 			self::$instance = $instance;
 		}
+
 		TaylorProfiler::stop(__METHOD__);
 		return $instance;
 	}
@@ -175,6 +187,7 @@ class IndexBase /*extends Controller*/
 		if (!$this->controller) {
 			$this->initController();
 		}
+
 		//debug(get_class($this->controller));
 		return $this->controller;
 	}
@@ -186,20 +199,23 @@ class IndexBase /*extends Controller*/
 	 * That's not true anymore, called in render().
 	 * @throws Exception
 	 */
-	public function initController()
+	public function initController(): void
 	{
 		// already created
 		if ($this->controller instanceof Controller) {
 			return;
 		}
+
 		$slug = $this->request->getControllerString();
 //		llog('initController slug', $slug);
 		if (!$slug) {
 			throw new Exception404($slug);
 		}
+
 		if ($_REQUEST['d']) {
 			$this->log(__METHOD__, $slug);
 		}
+
 		$this->loadController($slug);
 		$this->bodyClasses[] = is_object($this->controller) ? get_class($this->controller) : '';
 		TaylorProfiler::stop(__METHOD__);
@@ -211,7 +227,7 @@ class IndexBase /*extends Controller*/
 	 * @param string $action
 	 * @param mixed $data
 	 */
-	public function log($action, $data)
+	public function log($action, $data): void
 	{
 		//debug($action, $bookingID);
 		/*$this->db->runInsertQuery('log', array(
@@ -235,7 +251,9 @@ class IndexBase /*extends Controller*/
 		if (class_exists($class)) {
 			$this->controller = $this->makeController($class);
 			return $this->controller;
-		}//debug($_SESSION['autoloadCache']);
+		}
+
+        //debug($_SESSION['autoloadCache']);
 		$exception = 'Class ' . $class . ' not found. Dev hint: try clearing autoload cache?';
 		unset($_SESSION['AutoLoad']);
 		throw new Exception404($exception);
@@ -257,15 +275,17 @@ class IndexBase /*extends Controller*/
 			$ms = new MarshalParams($this->config);
 			$this->controller = $ms->make($class);
 		}
+
 //			$this->controller = new $class();
 		// debug($class, get_class($this->controller));
 		if (method_exists($this->controller, 'postInit')) {
 			$this->controller->postInit();
 		}
+
 		return $this->controller;
 	}
 
-	public function render()
+	public function render(): string
 	{
 		TaylorProfiler::start(__METHOD__);
 		$content = '';
@@ -282,20 +302,19 @@ class IndexBase /*extends Controller*/
 				$this->content->clear();
 				//$content .= $this->renderException(new Exception('Controller not found'));
 			}
-		} catch (Exception $e) {    // handles ALL exceptions
-			$content = $this->renderException($e);
+		} catch (Exception $exception) {    // handles ALL exceptions
+			$content = $this->renderException($exception);
 		}
 
 		$content = $this->renderTemplateIfNotAjax($content);
 		TaylorProfiler::stop(__METHOD__);
-		$content .= $this->s($this->renderProfiler());
-		return $content;
+		return $content . $this->s($this->renderProfiler());
 	}
 
 	/**
 	 * @throws AccessDeniedException
 	 */
-	public function initSession()
+	public function initSession(): void
 	{
 //		debug('is session started', session_id(), session_status());
 		if (!Request::isCLI() && !Session::isActive() && !headers_sent()) {
@@ -310,6 +329,7 @@ class IndexBase /*extends Controller*/
 				throw new RuntimeException('session_start() failed');
 			}
 		}
+
 		$this->setSecurityHeaders();
 		if (ifsetor($_SESSION['HTTP_USER_AGENT'])) {
 			if ($_SESSION['HTTP_USER_AGENT'] != $_SERVER['HTTP_USER_AGENT']) {
@@ -320,6 +340,7 @@ class IndexBase /*extends Controller*/
 		} else {
 			$_SESSION['HTTP_USER_AGENT'] = ifsetor($_SERVER['HTTP_USER_AGENT']);
 		}
+
 		if (ifsetor($_SESSION['REMOTE_ADDR'])) {
 			if ($_SESSION['REMOTE_ADDR'] != $_SERVER['REMOTE_ADDR']) {
 				session_regenerate_id(true);
@@ -329,6 +350,7 @@ class IndexBase /*extends Controller*/
 		} else {
 			$_SESSION['REMOTE_ADDR'] = ifsetor($_SERVER['REMOTE_ADDR']);
 		}
+
 //		debug($_SESSION['HTTP_USER_AGENT'], $_SESSION['REMOTE_ADDR']);
 //		debug($_SERVER['HTTP_USER_AGENT'], $_SERVER['REMOTE_ADDR']);
 	}
@@ -336,7 +358,7 @@ class IndexBase /*extends Controller*/
 	/**
 	 * @throws ReflectionException
 	 */
-	public function renderController()
+	public function renderController(): string|array
 	{
 		TaylorProfiler::start(__METHOD__);
 		$content = '';
@@ -365,6 +387,7 @@ class IndexBase /*extends Controller*/
 					get_class($this->controller))
 			);
 		}
+
 		$content = $this->s($content);
 		$this->sidebar = $this->showSidebar();
 		if ($this->controller->layout instanceof Wrap
@@ -373,6 +396,7 @@ class IndexBase /*extends Controller*/
 			$content = $this->controller->layout->wrap($content);
 			$content = str_replace('###SIDEBAR###', $this->showSidebar(), $content);
 		}
+
 		TaylorProfiler::stop(__METHOD__);
 		return $content;
 	}
@@ -385,10 +409,11 @@ class IndexBase /*extends Controller*/
 				ifsetor($_SERVER['argv'], []),
 				1
 			),
-			static function ($el) {
+			static function ($el): bool {
 				if (is_numeric($el)) {
 					return false;
 				}
+
 				return $el[0] !== '-';    // --options
 			}
 		);
@@ -398,12 +423,11 @@ class IndexBase /*extends Controller*/
 	}
 
 	/**
-	 * Does not catch LoginException - show your login form in Index
-	 * @param Exception $e
-	 * @param string $wrapClass
-	 * @return string
-	 */
-	public function renderException(Exception $e, $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error')
+     * Does not catch LoginException - show your login form in Index
+     * @param string $wrapClass
+     * @return string
+     */
+    public function renderException(Exception $e, $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error'): string|\JSONResponse
 	{
 		if (Request::isCLI()) {
 			echo get_class($e),
@@ -412,14 +436,16 @@ class IndexBase /*extends Controller*/
 			echo $e->getTraceAsString(), BR;
 			return '';
 		}
+
 		if ($this->controller) {
 			$this->controller->title = get_class($this->controller);
 		}
+
 		$re = new RenderException($e);
 		return $re->render($this->wrapClass);
 	}
 
-	public function s($content)
+	public function s($content): string
 	{
 		return MergedContent::mergeStringArrayRecursive($content);
 	}
@@ -436,11 +462,15 @@ class IndexBase /*extends Controller*/
 				// no sidebar
 			}
 		}
+
 		TaylorProfiler::stop(__METHOD__);
 		return $content;
 	}
 
-	public function renderTemplateIfNotAjax($content)
+	/**
+     * @return mixed[]
+     */
+    public function renderTemplateIfNotAjax($content): array
 	{
 		$contentOut = [];
 //		llog('renderTemplateIfNotAjax', gettype($content));
@@ -448,19 +478,16 @@ class IndexBase /*extends Controller*/
 			// display Exception
 			$view = $this->renderTemplate($content);
 			//echo gettype2($view), BR;
-			if ($view instanceof View) {
-				$contentOut[] = $view->render();
-			} else {
-				$contentOut[] = $view;
-			}
+			$contentOut[] = $view instanceof View ? $view->render() : $view;
 		} else {
 			//$contentOut .= $this->content;    // NO! it's JSON (maybe)
 			$contentOut[] = $this->s($content);
 		}
+
 		return $contentOut;
 	}
 
-	public function renderTemplate($content)
+	public function renderTemplate($content): \View
 	{
 		TaylorProfiler::start(__METHOD__);
 		$contentOut = '';
@@ -481,13 +508,13 @@ class IndexBase /*extends Controller*/
 		return $v;
 	}
 
-	public function renderProfiler()
+	public function renderProfiler(): array
 	{
 		$pp = new PageProfiler();
 		return $pp->render();
 	}
 
-	public function getMethodFromWeb()
+	public function getMethodFromWeb(): string
 	{
 		$method = ifsetor($_REQUEST['action']);
 		return $method ? $method . 'Action' : 'render';
@@ -501,38 +528,40 @@ class IndexBase /*extends Controller*/
 //		}
 	}
 
-	public function message($text)
+	public function message($text): string
 	{
 		return $this->content->message($text);
 	}
 
-	public function error($text)
+	public function error($text): string
 	{
 		return $this->content->error($text);
 	}
 
-	public function success($text)
+	public function success($text): string
 	{
 		return $this->content->success($text);
 	}
 
-	public function info($text)
+	public function info($text): string
 	{
 		return $this->content->info($text);
 	}
 
-	public function addJQueryUI()
+	public function addJQueryUI(): static
 	{
 		$this->addJQuery();
 		if (ifsetor($this->footer['jqueryui.js'])) {
 			return $this;
 		}
+
 		$al = AutoLoad::getInstance();
 		$jQueryPath = clone $al->componentsPath;
 		//debug($jQueryPath);
 		//$jQueryPath->appendString('jquery-ui/ui/minified/jquery-ui.min.js');
 		$jQueryPath->appendString('jquery-ui/jquery-ui.min.js');
 		$jQueryPath->setAsFile();
+
 		$appRoot = $al->getAppRoot();
 		nodebug([
 			'jQueryPath' => $jQueryPath,
@@ -571,14 +600,14 @@ class IndexBase /*extends Controller*/
 	}
 
 	/**
-	 * @param array $props
-	 * @return $this
-	 */
-	public function addJQuery($props = ['defer' => true])
+     * @return $this
+     */
+    public function addJQuery(array $props = ['defer' => true]): static
 	{
 		if (isset($this->footer['jquery.js'])) {
 			return $this;
 		}
+
 		if ($this->loadJSfromGoogle) {
 			$jQueryPath = 'node_modules/jquery/dist/jquery.min.js';
 			$this->footer['jquery.js'] = '
@@ -619,44 +648,43 @@ class IndexBase /*extends Controller*/
 			} else {
 				$jQueryPath = 'node_modules/jquery/dist/jquery.min.js';
 			}
+
 			$this->addJS($jQueryPath, $props);
 		}
+
 		return $this;
 	}
 
 	/**
-	 * @param string $source
-	 * @param array $props
-	 * @return Index|IndexBase
-	 */
-	public function addJS($source, $props = ['defer' => true])
+     * @return Index|IndexBase
+     */
+    public function addJS(string $source, array $props = ['defer' => true]): static
 	{
-		if (class_exists('Debug')) {
-			$called = Debug::getCaller();
-		} else {
-			$called = '';
-		}
-		$fileName = $source;
+		$called = class_exists('Debug') ? Debug::getCaller() : '';
+
+        $fileName = $source;
 		if (!contains($source, '//') && !contains($source, '?')) {    // don't download URL
 			$mtime = @filemtime($source);
 			if (!$mtime) {
 				$mtime = @filemtime('public/' . $source);
 			}
+
 			if ($mtime) {
 				$fileName .= '?' . $mtime;
 			}
+
 			$fn = new Path($fileName);
 			$fileName = $fn->relativeFromAppRoot();
 		}
+
 		$this->footer[$source] = '<!-- ' . $called . ' --><script src="' . $fileName . '" ' . HTMLTag::renderAttr($props) . '></script>';
 		return $this;
 	}
 
 	/**
-	 * @param string $source
-	 * @return Index|IndexBase
-	 */
-	public function addCSS($source)
+     * @return Index|IndexBase
+     */
+    public function addCSS(string $source): static
 	{
 		if (strtolower(pathinfo($source, PATHINFO_EXTENSION)) === 'less') {
 			if ($this->request->apacheModuleRewrite() && file_exists('css/.htaccess')) {
@@ -679,36 +707,40 @@ class IndexBase /*extends Controller*/
 			$fileName = $fn->relativeFromAppRoot();
 			$fileName = $this->addMtime($fileName);
 		}
+
 		$this->header[$source] = '<link rel="stylesheet" type="text/css" href="' . $fileName . '" />';
 		return $this;
 	}
 
-	public function addMtime($source)
+	public function addMtime(string $source): string
 	{
 		if (!contains($source, '//') && !contains($source, '?')) {    // don't download URL
 			$mtime = null;
 			if (is_file($source)) {
 				$mtime = filemtime($source);
 			}
+
 			if (!$mtime && is_file('public/' . $source)) {
 				$mtime = filemtime('public/' . $source);
 			}
+
 			if ($mtime) {
 				$source .= '?' . $mtime;
 			}
 		}
+
 		return $source;
 	}
 
 
-	public function implodeCSS()
+	public function implodeCSS(): string
 	{
 		$content = [];
 		foreach ($this->header as $key => $script) {
 			$content[] = '<!--' . $key . '-->' . "\n" . $script;
 		}
 
-		foreach ($this->footer as $key => $script) {
+		foreach ($this->footer as $script) {
 			$script = strip_tags($script, '<script>');
 			$script = HTMLTag::parse($script);
 			if ($script && $script->tag === 'script') {
@@ -723,7 +755,7 @@ class IndexBase /*extends Controller*/
 		return implode("\n", $content) . "\n";
 	}
 
-	public function implodeJS()
+	public function implodeJS(): string
 	{
 		if (!DEVELOPMENT) {
 			$min = new MinifyJS($this->footer);
@@ -732,17 +764,18 @@ class IndexBase /*extends Controller*/
 				return $content;
 			}
 		}
+
 //		debug('footer', sizeof($this->footer));
 		return implode("\n", $this->footer) . "\n";
 	}
 
-	public function addBodyClass($name)
+	public function addBodyClass($name): void
 	{
 		$this->bodyClasses[$name] = $name;
 	}
 
 	/// to avoid Config::getInstance() if Index has a valid config
-	public function getConfig()
+	public function getConfig(): ?\ConfigInterface
 	{
 		return $this->config;
 	}

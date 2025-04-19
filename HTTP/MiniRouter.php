@@ -12,11 +12,12 @@ class MiniRouter
 		$this->basePath = $basePath;
 	}
 
-	public function handleRequest()
+	public function handleRequest(): null|bool|string|array|int|float
 	{
 		if (!ifsetor($_SERVER['REQUEST_URI'])) {
 			return true;
 		}
+
 		//debug($_SERVER);
 //		llog($_SERVER['REQUEST_URI']);
 		$requestURL = new URL($_SERVER['REQUEST_URI']);
@@ -29,6 +30,7 @@ class MiniRouter
 			llog('Basename: ' . basename($this->basePath));
 			$staticPath->remove($last);
 		}
+
 		llog('StaticPath: ' . $staticPath . '');
 		if ($staticPath == '/') {
 			return null;  // default index controller
@@ -48,12 +50,13 @@ class MiniRouter
 					http_response_code(404);
 					header('X-Path: ' . $fullPath);
 					//echo 'Class '.$first.' not found';
-					return;
+					return null;
 				} else {
 					return $first;  // the class from the URL
 				}
 			}
 		}
+
 		return $staticPath;  // true means PHP
 	}
 

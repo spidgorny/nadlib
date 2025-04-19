@@ -22,13 +22,13 @@ class DBLayerLogger extends DBLayerBase implements DBInterface
 		//$this->qb = Config::getInstance()->getQb();
 	}
 
-	public function perform($query, array $params = [])
+	public function perform($query, array $params = []): string
 	{
 		$this->log($query);
 		return '';
 	}
 
-	public function log($query)
+	public function log($query): void
 	{
 		if ($this->logger) {
 			$this->logger->log($query);
@@ -37,13 +37,13 @@ class DBLayerLogger extends DBLayerBase implements DBInterface
 		}
 	}
 
-	public function fetchOptions($a)
+	public function fetchOptions($a): string
 	{
 		$this->log(__METHOD__);
 		return '';
 	}
 
-	public function fetchAll($res_or_query, $index_by_key = null)
+	public function fetchAll($res_or_query, $index_by_key = null): array
 	{
 		$this->log(__METHOD__);
 		return [];
@@ -54,6 +54,7 @@ class DBLayerLogger extends DBLayerBase implements DBInterface
 		if (!$this->qb) {
 			throw new Exception(get_called_class() . ' does not have QB');
 		}
+
 		if (method_exists($this->qb, $method)) {
 			$this->log($method);
 			return call_user_func_array([$this->qb, $method], $params);
@@ -62,17 +63,17 @@ class DBLayerLogger extends DBLayerBase implements DBInterface
 		}
 	}
 
-	public function numRows($res = null)
+	public function numRows($res = null): void
 	{
 		$this->log(__METHOD__);
 	}
 
-	public function affectedRows($res = null)
+	public function affectedRows($res = null): void
 	{
 		$this->log(__METHOD__);
 	}
 
-	public function getTables()
+	public function getTables(): void
 	{
 		$this->log(__METHOD__);
 	}
@@ -84,12 +85,12 @@ class DBLayerLogger extends DBLayerBase implements DBInterface
 		return $id;
 	}
 
-	public function free($res)
+	public function free($res): void
 	{
 		$this->log(__METHOD__);
 	}
 
-	public function quoteKey($key)
+	public function quoteKey($key): void
 	{
 		$this->log(__METHOD__);
 	}
@@ -99,48 +100,48 @@ class DBLayerLogger extends DBLayerBase implements DBInterface
 		return $string;
 	}
 
-	public function escapeBool($value)
+	public function escapeBool($value): void
 	{
 		$this->log(__METHOD__);
 	}
 
-	public function fetchAssoc($res)
+	public function fetchAssoc($res): void
 	{
 		$this->log(__METHOD__);
 	}
 
-	public function transaction()
+	public function transaction(): void
 	{
 		$this->log(__METHOD__);
 	}
 
-	public function commit()
+	public function commit(): void
 	{
 		$this->log(__METHOD__);
 	}
 
-	public function rollback()
+	public function rollback(): void
 	{
 		$this->log(__METHOD__);
 	}
 
-	public function getScheme()
+	public function getScheme(): string
 	{
 		$this->log(__METHOD__);
 		return '';
 	}
 
-	public function getTablesEx()
+	public function getTablesEx(): void
 	{
 		$this->log(__METHOD__);
 	}
 
-	public function getTableColumnsEx($table)
+	public function getTableColumnsEx($table): void
 	{
 		$this->log(__METHOD__);
 	}
 
-	public function getIndexesFrom($table)
+	public function getIndexesFrom($table): void
 	{
 		$this->log(__METHOD__);
 	}
@@ -151,7 +152,7 @@ class DBLayerLogger extends DBLayerBase implements DBInterface
 		return $this->data;
 	}
 
-	public function getInsertQuery($table, array $columns)
+	public function getInsertQuery($table, array $columns): string
 	{
 		$this->log(__METHOD__);
 		$this->data = $columns;
@@ -160,15 +161,16 @@ class DBLayerLogger extends DBLayerBase implements DBInterface
 			$this->data['id'] = $id;
 			debug($this->data);
 		}
+
 		return $this->qb->getInsertQuery($table, $columns);
 	}
 
-	public function getVersion()
+	public function getVersion(): void
 	{
 		// TODO: Implement getVersion() method.
 	}
 
-	public function getPlaceholder($field)
+	public function getPlaceholder($field): void
 	{
 		// TODO: Implement getPlaceholder() method.
 	}

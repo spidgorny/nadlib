@@ -10,7 +10,7 @@
 class ModelTest extends PHPUnit\Framework\TestCase
 {
 
-	public function _test_getFormFromModel()
+	public function _test_getFormFromModel(): void
 	{
 //		$cm = new CareerModel(new DBPlacebo());
 //		$form = $cm->getFormFromModel();
@@ -29,14 +29,14 @@ class ModelTest extends PHPUnit\Framework\TestCase
 //		], $form);
 	}
 
-	public function test_isset_empty_array()
+	public function test_isset_empty_array(): void
 	{
 		$a['k'] = null;
 		$this->assertFalse(isset($a['k']));
 		$this->assertTrue(array_key_exists('k', $a));
 	}
 
-	public function _test_getFormFromModel2()
+	public function _test_getFormFromModel2(): void
 	{
 //		$cm = new ApplicationModel(new DBPlacebo());
 //		$form = $cm->getFormFromModel();

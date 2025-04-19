@@ -26,12 +26,11 @@ class SQLWherePart
 	}
 
 	/**
-	 * Not used directly
-	 * @return string
-	 * @throws MustBeStringException
-	 * @see SQLWhereEqual
-	 */
-	public function __toString()
+     * Not used directly
+     * @throws MustBeStringException
+     * @see SQLWhereEqual
+     */
+    public function __toString(): string
 	{
 		if ($this->field && !is_numeric($this->field)) {
 			$part1 = $this->db->quoteWhere(
@@ -43,20 +42,20 @@ class SQLWherePart
 		return $this->sql . '';
 	}
 
-	public function injectDB(DBInterface $db)
+	public function injectDB(DBInterface $db): static
 	{
 		//debug(__METHOD__, gettype2($db));
 		$this->db = $db;
 		return $this;
 	}
 
-	public function injectField($field)
+	public function injectField($field): static
 	{
 		$this->field = $field;
 		return $this;
 	}
 
-	public function debug()
+	public function debug(): array
 	{
 		return [
 			'class' => get_class($this),
@@ -65,10 +64,9 @@ class SQLWherePart
 	}
 
 	/**
-	 * Sub-classes should return their parameters
-	 * @return null
-	 */
-	public function getParameter()
+     * Sub-classes should return their parameters
+     */
+    public function getParameter()
 	{
 		return null;
 	}

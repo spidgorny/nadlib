@@ -32,11 +32,30 @@ class Timeline2 /*extends AppController */
 
 	public $rangeContent = [];
 
-	public $height_10;
-	public $height_20;
-	public $height_30;
-	public $fontSize;
-	public $dayWidth;
+	/**
+     * @var float
+     */
+    public $height_10;
+
+	/**
+     * @var float
+     */
+    public $height_20;
+
+	/**
+     * @var float
+     */
+    public $height_30;
+
+	/**
+     * @var float
+     */
+    public $fontSize;
+
+	/**
+     * @var float
+     */
+    public $dayWidth;
 
 	public function __construct($width, $height, Date $start, Date $end)
 	{
@@ -51,10 +70,11 @@ class Timeline2 /*extends AppController */
 		$this->fontSize = round($this->height / 4.0, 2);
 		$nextDay = clone $this->start;
 		$nextDay = $nextDay->math('+1 day');
+
 		$this->dayWidth = $this->date2x($nextDay);
 	}
 
-	public function date2x(Date $date)
+	public function date2x(Date $date): float
 	{
 		$sinceStart = $date->minus($this->start);
 		//$tillEnd = $this->end->minus($date);
@@ -65,7 +85,7 @@ class Timeline2 /*extends AppController */
 		return round($percent * $this->width, 2);
 	}
 
-	public function render()
+	public function render(): string
 	{
 		TaylorProfiler::start(__METHOD__);
 		$content = '';
@@ -96,11 +116,12 @@ class Timeline2 /*extends AppController */
 			$content .= implode("\n", $this->rangeContent);
 			$content .= '</svg>';
 		}
+
 		TaylorProfiler::stop(__METHOD__);
 		return $content;
 	}
 
-	public function hourTicks()
+	public function hourTicks(): string
 	{
 		$content = '';
 		$every = $this->dayWidth / 24 / 3 / $this->fontSize; // 3 chars for "22h"
@@ -115,6 +136,7 @@ class Timeline2 /*extends AppController */
 					y2="' . ($this->height_10 + $this->height_10 / 2) . '"
 					style="stroke:' . $this->textColor . ';stroke-width:1"/>';
 			}
+
 			// if enough space for dates
 			//if ($this->dayWidth > (48 * 3 * $this->fontSize*1.5)) {
 			if ($every > 1 && !($i++ % $every)) {
@@ -126,10 +148,11 @@ class Timeline2 /*extends AppController */
 					>' . $date->format('H\h') . '</text>';
 			}
 		}
+
 		return $content;
 	}
 
-	public function dateTicks()
+	public function dateTicks(): string
 	{
 		$content = '';
 		for ($date = clone $this->start/* @var $date Date */;
@@ -141,6 +164,7 @@ class Timeline2 /*extends AppController */
 					y2="' . ($this->height_10 + $this->height_10 / 2) . '"
 					style="stroke:' . $this->textColor . ';stroke-width:1"/>';
 			}
+
 			// if enough space for dates
 			if ($this->dayWidth > ($this->fontSize * 1.5)) {
 				$content .= '<text
@@ -151,10 +175,11 @@ class Timeline2 /*extends AppController */
 					>' . $date->format('d') . '</text>';
 			}
 		}
+
 		return $content;
 	}
 
-	public function weekTicks()
+	public function weekTicks(): string
 	{
 		$content = '';
 		$firstWeek = new Date(strtotime('monday', $this->start->getTimestamp()));
@@ -172,10 +197,11 @@ class Timeline2 /*extends AppController */
 							y="'.($this->height_20 + 13).'"
 							fill="'.$this->textColor.'">'.$date->format('W').'</text>';*/
 		}
+
 		return $content;
 	}
 
-	public function monthTicks()
+	public function monthTicks(): string
 	{
 		$content = '';
 		for ($date = clone $this->start
@@ -190,8 +216,8 @@ class Timeline2 /*extends AppController */
 			$date->setTimestamp(strtotime($gmDate . 'GMT'));
 			$x = $this->date2x($date);
 			//debug($this->start, $date->getISODate(), $x, $this->end);
-			$content .= '<line x1="' . ($x + 0) . '" y1="' . $this->height_10 . '"
-				x2="' . ($x + 0) . '" y2="' . ($this->height_30) . '"
+			$content .= '<line x1="' . ($x) . '" y1="' . $this->height_10 . '"
+				x2="' . ($x) . '" y2="' . ($this->height_30) . '"
 				style="stroke:' . $this->textColor . ';stroke-width:1"/>';
 			if (($this->dayWidth * 30) > ($this->fontSize * 3)) {    // 3 letters in Jan
 				$content .= '<text
@@ -202,10 +228,11 @@ class Timeline2 /*extends AppController */
 					>' . $date->format('M') . '</text>';
 			}
 		}
+
 		return $content;
 	}
 
-	public function yearLabels()
+	public function yearLabels(): string
 	{
 		$content = '';
 		//debug($dayWidth, ($dayWidth * 30), $fontSize, ($fontSize*3));
@@ -224,10 +251,11 @@ class Timeline2 /*extends AppController */
 
 			}
 		}
+
 		return $content;
 	}
 
-	public function renderRange(Date $from, Date $till)
+	public function renderRange(Date $from, Date $till): void
 	{
 		$x = $this->date2x($from);
 		$width = $this->date2x($till) - $x;
@@ -239,7 +267,7 @@ class Timeline2 /*extends AppController */
 				style="fill:' . $this->rangeColor . '; stroke-width:0; stroke:rgb(0,0,0)" />';
 	}
 
-	public function date2xTime(Time $time)
+	public function date2xTime(Time $time): float
 	{
 		$sinceStart = $time->minus($this->start);
 		//$tillEnd = $this->end->minus($date);
@@ -248,8 +276,8 @@ class Timeline2 /*extends AppController */
 	}
 
 	public function renderTimeRange(Time $from, Time $till,
-																			 $style = 'fill: #0088CC; stroke-width:0; stroke:rgb(0,0,0)',
-																			 $more = [])
+																			 string $style = 'fill: #0088CC; stroke-width:0; stroke:rgb(0,0,0)',
+																			 array $more = []): string
 	{
 		$x = $this->date2xTime($from);
 		$width = $this->date2xTime($till) - $x;
@@ -268,7 +296,7 @@ class Timeline2 /*extends AppController */
 		return $id;
 	}
 
-	public function renderCircle(Time $from, $radius, $style = 'fill: #0088CC; stroke-width:1; stroke:rgb(0,0,0)')
+	public function renderCircle(Time $from, string $radius, string $style = 'fill: #0088CC; stroke-width:1; stroke:rgb(0,0,0)'): void
 	{
 		$x = $this->date2xTime($from);
 		$this->rangeContent[] = '<circle
@@ -279,7 +307,7 @@ class Timeline2 /*extends AppController */
 				/>';
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->render() . '';
 	}

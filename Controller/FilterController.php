@@ -28,20 +28,20 @@ class FilterController extends Controller
 	 */
 	public $desc;
 
-	public $collection = null;
+	public $collection;
 
-	public function setFields(array $fields)
+	public function setFields(array $fields): void
 	{
 		$this->fields = $fields;
 		$this->desc = $this->getFilterDesc($this->fields);
 	}
 
-	public function setFilter(Filter $filter)
+	public function setFilter(Filter $filter): void
 	{
 		$this->filter = $filter;
 	}
 
-	public function render()
+	public function render(): \HTMLFormTable
 	{
 		$f = new HTMLFormTable($this->desc);
 		$f->setAllOptional();
@@ -57,14 +57,12 @@ class FilterController extends Controller
 	}
 
 	/**
-	 * Make sure you fill the 'value' fields with data from $this->filter manually.
-	 * Why manually? I don't know, it could change.
-	 *
-	 * @param array $fields
-	 * @return array
-	 * @throws Exception
-	 */
-	public function getFilterDesc(array $fields = null)
+     * Make sure you fill the 'value' fields with data from $this->filter manually.
+     * Why manually? I don't know, it could change.
+     *
+     * @throws Exception
+     */
+    public function getFilterDesc(array $fields = null): array
 	{
 //		if (is_callable($this->injectFilterDesc)) {
 //			return call_user_func($this->injectFilterDesc);
@@ -80,20 +78,21 @@ class FilterController extends Controller
 			if (!is_array($k)) {
 				$k = ['name' => $k];
 			}
+
 			if (!ifsetor($k['noFilter'])) {
 				$desc[$key] = $this->getFieldFilter($k, $key);
 			}
 		}
+
 		//debug($fields, $desc);
 		return $desc;
 	}
 
 	/**
-	 * @param array $k
-	 * @param string $key
-	 * @return array
-	 */
-	public function getFieldFilter(array $k, $key)
+     * @param string $key
+     * @return array
+     */
+    public function getFieldFilter(array $k, $key)
 	{
 		$autoClass = ucfirst(str_replace('id_', '', $key)) . 'Collection';
 		if (class_exists($autoClass) &&
@@ -120,6 +119,7 @@ class FilterController extends Controller
 			} else {
 				$options = $k['options'];
 			}
+
 			//debug($options);
 		} elseif (ifsetor($k['type']) === 'like') {
 			// this is handled in getFilterWhere
@@ -128,6 +128,7 @@ class FilterController extends Controller
 			$k['type'] = $k['type'] ?: 'input';
 			$options = null;
 		}
+
 		return [
 				'label' => $k['name'],
 				'type' => $k['type'] ?: 'text',
@@ -139,7 +140,7 @@ class FilterController extends Controller
 			] + $k;
 	}
 
-	public function getTableFieldOptions($key, $count = false)
+	public function getTableFieldOptions(string $key, $count = false)
 	{
 		if ($this->model instanceof OODBase) {
 			$res = $this->db->getTableOptions(
@@ -152,22 +153,22 @@ class FilterController extends Controller
 					$copy = clone $this->collection;
 					$copy->where[$key] = $val;
 					$copy->retrieveData();
-					$val .= ' (' . sizeof($copy->getData()) . ')';
+					$val .= ' (' . count($copy->getData()) . ')';
 				}
 			}
 		} else {
 			$res = [];
 		}
+
 //		debug(__METHOD__, $res, )
 
 		return $res;
 	}
 
 	/**
-	 * Converts $this->filter data from URL into SQL where parameters
-	 * @return array
-	 */
-	public function getFilterWhere()
+     * Converts $this->filter data from URL into SQL where parameters
+     */
+    public function getFilterWhere(): array
 	{
 		$where = [];
 
@@ -186,7 +187,7 @@ class FilterController extends Controller
 		return $where;
 	}
 
-	public function getFilterWherePair($key, $val, $type)
+	public function getFilterWherePair($key, $val, $type): array
 	{
 		$where = [];
 		switch ($type) {
@@ -198,6 +199,7 @@ class FilterController extends Controller
 				$where[$key] = $val;
 				break;
 		}
+
 		return [$key, $val];
 	}
 

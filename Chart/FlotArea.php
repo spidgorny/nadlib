@@ -24,12 +24,15 @@ class FlotArea
 		$this->series = $series;
 	}
 
-	public function setFlot($path)
+	public function setFlot($path): void
 	{
 		$this->flotPath = $path;
 	}
 
-	public function getSeries()
+	/**
+     * @return \non-empty-list<array{int, mixed}>[]
+     */
+    public function getSeries(): array
 	{
 		$series = [];
 		ksort($this->data);
@@ -38,10 +41,11 @@ class FlotArea
 				$series[$key][] = [$time * 1000, $pair[$key]];
 			}
 		}
+        
 		return $series;
 	}
 
-	public function accumulateSeries(array $series)
+	public function accumulateSeries(array $series): array
 	{
 		foreach ($series as &$set) {
 			$runningTotal = 0;
@@ -50,19 +54,21 @@ class FlotArea
 				$pair[1] = $runningTotal;
 			}
 		}
+        
 		return $series;
 	}
 
-	public function getJSON(array $series)
+	public function getJSON(array $series): array
 	{
 		foreach ($series as &$set) {
 			$set = json_encode($set);
 			$set = '[' . substr($set, 1, -1) . ']';  // json_encode => {}
 		}
+        
 		return $series;
 	}
 
-	public function render()
+	public function render(): string
 	{
 		$series = $this->getSeries();
 		$series = $this->accumulateSeries($series);
@@ -73,7 +79,7 @@ class FlotArea
 <script type="text/javascript" language="javascript" src="' . $this->flotPath . 'jquery.flot.js"></script>
 <script type="text/javascript" language="javascript" src="' . $this->flotPath . 'jquery.flot.time.js"></script>';
 		$content .= '<div id="placeholder" style="width: 768px; height: 480px;"></div>';
-		$content .= "<script type=\"text/javascript\">
+		return $content . ("<script type=\"text/javascript\">
 jQuery(document).ready(function ($) {
     var d1 = " . $series[$this->series[0]] . ";
     var d2 = " . $series[$this->series[1]] . ";
@@ -121,8 +127,7 @@ jQuery(document).ready(function ($) {
         }
     });
 });
-</script>";
-		return $content;
+</script>");
 	}
 
 }

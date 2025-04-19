@@ -2,7 +2,8 @@
 
 class TagCloud extends Controller
 {
-	protected $words = [];
+	protected array $words;
+
 	protected $count;
 
 	public function __construct()
@@ -21,7 +22,7 @@ class TagCloud extends Controller
 		$this->count = $count;
 	}
 
-	public function parseWords(array $row)
+	public function parseWords(array $row): array
 	{
 		//debug($row);
 		$url = "Companies?sword=" . urlencode($row['name']);
@@ -29,7 +30,7 @@ class TagCloud extends Controller
 		return $row;
 	}
 
-	public function renderHTML($url =  null)
+	public function renderHTML($url =  null): string
 	{
 		$content = '';
 		$cloud = new WordCloud();
@@ -41,26 +42,28 @@ class TagCloud extends Controller
 				'url' => $url,
 			]);
 		}
+
 		//$content .= $cloud->showCloud();
 		$cloud = $cloud->showCloud('array');
 		foreach ($cloud as $cloudArray) {
 			$content .= ' &nbsp; <a href="' . $cloudArray['url'] . '" class="word size' . $cloudArray['range'] . '">' . $cloudArray['word'] . '</a> &nbsp;';
 		}
+
 		return $content;
 	}
 
-	public function renderXML()
+	public function renderXML(): string
 	{
 		$content = '';
 		foreach ($this->words as $row) {
 			$size = 8 + round($row['count'] / $this->count * 10); // 8...18
 			$content .= "<a href='" . $row['url'] . "' style='" . $size . "'>" . htmlspecialchars($row['name']) . "</a>";
 		}
-		$content = '<tags>' . $content . '</tags>';
-		return $content;
+
+		return '<tags>' . $content . '</tags>';
 	}
 
-	public function renderHTMLandFlash()
+	public function renderHTMLandFlash(): string
 	{
 		$this->index->addCSS('css/wordcloud.css');
 		$this->index->addJS('lib/wp-cumulus/swfobject.js');

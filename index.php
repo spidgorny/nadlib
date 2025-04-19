@@ -5,8 +5,7 @@ if (!function_exists('__')) {
 	{
 		$a = str_replace('%1', $sub1, $a);
 		$a = str_replace('%2', $sub2, $a);
-		$a = str_replace('%3', $sub3, $a);
-		return $a;
+		return str_replace('%3', $sub3, $a);
 	}
 }
 

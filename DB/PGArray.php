@@ -7,10 +7,12 @@ class PGArray extends AsIs
 	 * @var array
 	 */
 	public $data;
+
 	/**
 	 * @var DBLayer
 	 */
 	protected $db;
+
 	/**
 	 * @var bool
 	 */
@@ -26,14 +28,14 @@ class PGArray extends AsIs
 		pg_free_result($result);
 		$this->standard_conforming_strings = first($return);
 		$this->standard_conforming_strings =
-			strtolower($this->standard_conforming_strings) == 'on';
+			strtolower($this->standard_conforming_strings) === 'on';
 
 		if ($data) {
 			$this->data = $data;
 		}
 	}
 
-	public function set(array $data)
+	public function set(array $data): void
 	{
 		$this->data = $data;
 	}
@@ -47,28 +49,25 @@ class PGArray extends AsIs
 	}
 
 	/**
-	 * New better syntax for using it in SQL which does not
-	 * require tripple escaping of backslashes
-	 * @return string
-	 * @throws MustBeStringException
-	 */
-	public function __toString()
+     * New better syntax for using it in SQL which does not
+     * require tripple escaping of backslashes
+     * @throws MustBeStringException
+     */
+    public function __toString(): string
 	{
 		$quoted = $this->db->quoteValues($this->data);
 		return 'ARRAY[' . implode(', ', $quoted) . ']';
 	}
 
-	public function encodeInString()
+	public function encodeInString(): \AsIs
 	{
 		return $this->setPGArray($this->data);
 	}
 
 	/**
-	 * @param array $data
-	 * @param string $type "::integer[]"
-	 * @return AsIs
-	 */
-	public function setPGArray(array $data, $type = '')
+     * @param string $type "::integer[]"
+     */
+    public function setPGArray(array $data, string $type = ''): \AsIs
 	{
 		foreach ($data as &$el) {
 			if (is_array($el)) {
@@ -88,6 +87,7 @@ class PGArray extends AsIs
 				}
 			}
 		}
+
 		//$result = '{'.implode(',', $data).'}';
 		$result = new AsIs('ARRAY[' . implode(',', $data) . ']' . $type);
 		//debug($result.'', $this->standard_conforming_strings, $el, $data);
@@ -95,34 +95,34 @@ class PGArray extends AsIs
 	}
 
 	/**
-	 * http://www.php.net/manual/en/ref.pgsql.php#57709
-	 *
-	 * @param string $pgArray
-	 * @return array
-	 */
-	public function PGArrayToPHPArray($pgArray)
+     * http://www.php.net/manual/en/ref.pgsql.php#57709
+     *
+     * @param string $pgArray
+     */
+    public function PGArrayToPHPArray($pgArray): array
 	{
 		$ret = [];
-		$stack = [&$ret];
 		$pgArray = substr($pgArray, 1, -1);
 		$pgElements = explode(",", $pgArray);
 
 		//ArrayDump($pgElements);
 
 		foreach ($pgElements as $elem) {
-			if (substr($elem, -1) == "}") {
+			if (substr($elem, -1) === "}") {
 				$elem = substr($elem, 0, -1);
 				$newSub = [];
-				while (substr($elem, 0, 1) != "{") {
+				while (substr($elem, 0, 1) !== "{") {
 					$newSub[] = $elem;
 					$elem = array_pop($ret);
 				}
+
 				$newSub[] = substr($elem, 1);
 				$ret[] = array_reverse($newSub);
 			} else {
 				$ret[] = $elem;
 			}
 		}
+
 		return $ret;
 	}
 
@@ -135,7 +135,7 @@ class PGArray extends AsIs
 	public function getPGArray($input)
 	{
 		$input = (string)$input;
-		if (strlen($input) && $input[0] == '{') {    // array inside
+		if (strlen($input) && $input[0] === '{') {    // array inside
 			$input = substr(substr(trim($input), 1), 0, -1);    // cut { and }
 			return $this->getPGArray($input);
 		} else {
@@ -164,6 +164,7 @@ class PGArray extends AsIs
 				//debug($parts);
 				//$parts = array_map('stripslashes', $parts);	// already done in str_getcsv
 			}
+
 			return $parts;
 		}
 	}
@@ -222,7 +223,7 @@ class PGArray extends AsIs
 		$r = [];
 		while (($data = fgetcsv($temp, 4096, $delimiter, $enclosure, $escape)) !== false) {
 //			$data = array_map('stripcslashes', $data);
-			$data = array_map(function ($str) {
+			$data = array_map(function ($str): string|array {
 				// exactly opposite to setPGArray()
 				$str = str_replace('\"', '"', $str);
 				// this is needed because even with
@@ -236,69 +237,75 @@ class PGArray extends AsIs
 			}, $data);
 			$r[] = $data;
 		}
+
 		fclose($temp);
 		return ifsetor($r[0]);
 	}
 
 	/*	public function getPGArray($text) {
-			$this->pg_array_parse($text, $output);
-			return $output;
-		}
+    			$this->pg_array_parse($text, $output);
+    			return $output;
+    		}
 
-		private function pg_array_parse( $text, &$output, $limit = false, $offset = 1 ) {
-			if( false === $limit )
-			{
-				$limit = strlen( $text )-1;
-				$output = array();
-			}
-			if( '{}' != $text )
-				do
-				{
-					if( '{' != $text{$offset} )
-					{
-						preg_match( "/(\\{?\"([^\"\\\\]|\\\\.)*\"|[^,{}]+)+([,}]+)/", $text, $match, 0, $offset );
-						$offset += strlen( $match[0] );
-						$output[] = ( '"' != $match[1]{0} ? $match[1] : stripcslashes( substr( $match[1], 1, -1 ) ) );
-						if( '},' == $match[3] ) return $offset;
-					}
-					else  $offset = $this->pg_array_parse( $text, $output, $limit, $offset+1 );
-				}
-				while( $limit > $offset );
-		}
-	*/
-
-
-	public function getPGArray1D($input)
+    		private function pg_array_parse( $text, &$output, $limit = false, $offset = 1 ) {
+    			if( false === $limit )
+    			{
+    				$limit = strlen( $text )-1;
+    				$output = array();
+    			}
+    			if( '{}' != $text )
+    				do
+    				{
+    					if( '{' != $text{$offset} )
+    					{
+    						preg_match( "/(\\{?\"([^\"\\\\]|\\\\.)*\"|[^,{}]+)+([,}]+)/", $text, $match, 0, $offset );
+    						$offset += strlen( $match[0] );
+    						$output[] = ( '"' != $match[1]{0} ? $match[1] : stripcslashes( substr( $match[1], 1, -1 ) ) );
+    						if( '},' == $match[3] ) return $offset;
+    					}
+    					else  $offset = $this->pg_array_parse( $text, $output, $limit, $offset+1 );
+    				}
+    				while( $limit > $offset );
+    		}
+    	*/
+    /**
+     * @return string[]
+     */
+    public function getPGArray1D($input): array
 	{
 		$pgArray = substr(substr(trim($input), 1), 0, -1);
 		$v1 = explode(',', $pgArray);
 		if ($v1 == ['']) {
 			return [];
 		}
+
 		$inside = false;
 		$out = [];
 		$o = 0;
 		foreach ($v1 as $word) {
-			if ($word[0] == '"') {
+			if ($word[0] === '"') {
 				$inside = true;
 				$word = substr($word, 1);
 			}
-			if (in_array($word[strlen($word) - 1], ['"'])
-				&& !in_array($word[strlen($word) - 2], ['\\'])
+
+			if ($word[strlen($word) - 1] === '"'
+				&& $word[strlen($word) - 2] !== '\\'
 			) {
 				$inside = false;
 				$word = substr($word, 0, -1);
 			}
+
 			$out[$o] .= stripslashes($word); // strange but required
 			if (!$inside) {
 				$o++;
 			}
 		}
+
 		//debug($input, $pgArray, $out);
 		return $out;
 	}
 
-	public function __toString2()
+	public function __toString2(): \AsIs
 	{
 		return $this->setPGArray($this->data);
 	}
@@ -313,6 +320,7 @@ class PGArray extends AsIs
 			$token1 = strtok('{,}"');
 			$tokens[] = $token1;
 		} while ($token1 != null);
+
 //		debug($tokens);
 
 		$keys = [];
@@ -321,16 +329,17 @@ class PGArray extends AsIs
 				$keys[] = substr($chr, 0, -1);
 			}
 		}
+
 		debug($s, $deepData, $keys);
 
-		$arrays = array_filter($deepData, function ($el) {
+		$arrays = array_filter($deepData, function ($el): bool {
 			return is_array($el);
 		});
 //		debug($arrays);
 
-		debug(sizeof($keys), sizeof($arrays), $keys);
+		debug(count($keys), count($arrays), $keys);
 		$deepDataMerged = [];
-		if (sizeof($keys) == sizeof($arrays)) {
+		if (count($keys) === count($arrays)) {
 			foreach ($deepData as $key => $val) {
 				if (is_array($val)) {
 					$key = current($keys);
@@ -343,21 +352,22 @@ class PGArray extends AsIs
 		} else {
 			$deepDataMerged = $deepData;
 		}
+
 		return $deepDataMerged;
 	}
 
 	/**
-	 * https://stackoverflow.com/questions/3068683/convert-postgresql-array-to-php-array
-	 * @param $s
-	 * @param int $start
-	 * @param null $end
-	 * @return array|null
-	 */
-	public function pg_array_parse($s, $start = 0, &$end = null)
+     * https://stackoverflow.com/questions/3068683/convert-postgresql-array-to-php-array
+     * @param $s
+     * @param int $start
+     * @return array|null
+     */
+    public function pg_array_parse($s, $start = 0, &$end = null)
 	{
 		if (empty($s) || $s[0] != '{') {
 			return null;
 		}
+
 		$return = [];
 		$string = false;
 		$quote = '';
@@ -367,9 +377,10 @@ class PGArray extends AsIs
 			$ch = $s[$i];
 
 			if (!$string && $ch == '}') {
-				if ($v !== '' || !empty($return)) {
+				if ($v !== '' || $return !== []) {
 					$return[] = $v;
 				}
+
 				$end = $i;
 				break;
 			} elseif (!$string && $ch == '{') {
@@ -392,7 +403,10 @@ class PGArray extends AsIs
 		return $return;
 	}
 
-	public function getPGArrayFromJSON($s)
+	/**
+     * @return mixed[]
+     */
+    public function getPGArrayFromJSON($s): array
 	{
 		$result = [];
 		$collect = false;
@@ -403,6 +417,7 @@ class PGArray extends AsIs
 				$collect = true;
 				$buffer = [];
 			}
+
 			if ($collect) {
 				$buffer[] = $part;
 			} else {
@@ -415,15 +430,15 @@ class PGArray extends AsIs
 				$collect = false;
 			}
 		}
+
 //		debug($deepData, $result);
 		return $result;
 	}
 
 	public function unnest($sElements)
 	{
-		$rows = $this->db->fetchAll("SELECT unnest('" . pg_escape_string($sElements) . "'::text[])");
-//		$rows = $this->db->fetchAll("SELECT unnest(string_to_array('".pg_escape_string($sElements)."'::text, ','))");
-		return $rows;
+		//		$rows = $this->db->fetchAll("SELECT unnest(string_to_array('".pg_escape_string($sElements)."'::text, ','))");
+		return $this->db->fetchAll("SELECT unnest('" . pg_escape_string($sElements) . "'::text[])");
 	}
 
 }

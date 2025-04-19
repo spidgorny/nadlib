@@ -14,18 +14,19 @@ class SQLJoin
 		}
 	}
 
-	public function add($join)
+	public function add($join): void
 	{
 		if (!in_array($join, $this->parts)) {
 			$this->parts[] = $join;
 		}
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		if ($this->parts) {
 			return implode("\n", $this->parts);
 		}
+        
 		return '';
 	}
 

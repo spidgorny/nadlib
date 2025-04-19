@@ -8,6 +8,7 @@
 class FileCache
 {
 	protected $folder = 'cache/';
+
 	protected $age = 86400; //60*60*24;
 
 	public function __construct($age = NULL, $folder = 'cache/')
@@ -15,6 +16,7 @@ class FileCache
 		if ($age) {
 			$this->age = $age;
 		}
+
 		$this->folder = $folder;
 		$this->folder = realpath($this->folder);
 		$this->folder = cap($this->folder);
@@ -23,7 +25,7 @@ class FileCache
 		}
 	}
 
-	public function map($key)
+	public function map($key): string
 	{
 		return $this->folder . md5($key) . '.cache';
 	}
@@ -35,20 +37,23 @@ class FileCache
 		if (!$has) {
 			@unlink($f);
 		}
+
 		return $has;
 	}
 
-	public function set($key, $val)
+	public function set($key, $val): void
 	{
 		if (is_array($val)) {
 			//print_r($key);
 			$val = serialize($val);
 		}
+
 		$con = null;
 		if (class_exists('Index')) {
 			$con = Index::getInstance()->controller;
 		}
-		if (strlen($val)) {
+
+		if (strlen($val) !== 0) {
 			$con && $con->log(__METHOD__, 'Writing cache to <a href="' . $this->map($key) . '">' . $this->map($key) . ', size: ' . strlen($val));
 			file_put_contents($this->map($key), $val);
 		} else {
@@ -69,6 +74,7 @@ class FileCache
 			$string = is_callable($default) ? $default() : $default;
 			$this->set($key, $string);
 		}
+
 		return $string;
 	}
 

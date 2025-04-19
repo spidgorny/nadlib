@@ -17,7 +17,7 @@ class SessionUser extends PlainSessionUser
 	/**
 	 * @throws Exception
 	 */
-	public function autologin()
+	public function autologin(): void
 	{
 		$class = static::class;
 		$login = $_SESSION[$class]['login'];
@@ -32,12 +32,12 @@ class SessionUser extends PlainSessionUser
 		}
 	}
 
-	public function checkPassword($login, $sessionPassword)
+	public function checkPassword($login, $sessionPassword): bool
 	{
 		return false;
 	}
 
-	public function autoCreate($oodUserClass, $email)
+	public function autoCreate($oodUserClass, $email): void
 	{
 		// we go here only if not logged in
 		// if not a new email and no password we need to ask for password
@@ -48,9 +48,8 @@ class SessionUser extends PlainSessionUser
 			<a href="?c=ForgotPassword">Forgot password?</a>'));
 		} else {
 			$password = random_int(1000000, 9999999);
-			if (DEVELOPMENT) {
-				print 'Generated password: ' . $password;
-			}
+            print 'Generated password: ' . $password;
+            
 			$this->insert([
 				'email' => $email,
 				'password' => $password,
@@ -77,7 +76,7 @@ class SessionUser extends PlainSessionUser
 	 * @param string $password - hash
 	 * @throws Exception
 	 */
-	public function saveLogin($email = null, $password = null)
+	public function saveLogin($email = null, $password = null): void
 	{
 		if (strlen($password) != 32) {
 			throw new Exception(__METHOD__ . ': supplied password is not hash.');
@@ -93,7 +92,7 @@ class SessionUser extends PlainSessionUser
 		}
 	}
 
-	public function logout()
+	public function logout(): void
 	{
 		$class = static::class;
 		unset($_SESSION[$class]);

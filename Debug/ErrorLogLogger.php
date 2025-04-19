@@ -3,7 +3,7 @@
 class ErrorLogLogger
 {
 
-	public function log($method, $data)
+	public function log(string $method, $data): void
 	{
 		if (is_array($data)) {
 			$output = print_r($data, true);
@@ -14,10 +14,11 @@ class ErrorLogLogger
 		} else {
 			$output = json_encode($data);
 		}
+
 		error_log('[' . $method . '] ' . $output);
 	}
 
-	public function info($method, $data)
+	public function info(string $method, $data): void
 	{
 		$this->log($method, $data);
 	}

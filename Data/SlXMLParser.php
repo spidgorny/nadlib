@@ -10,7 +10,7 @@ class slXMLParser
 {
 	public $parsed;
 
-	public function parseText($content)
+	public function parseText($content): array
 	{
 		//debug($content, 'content');
 		$parser = xml_parser_create('UTF-8');
@@ -26,15 +26,14 @@ class slXMLParser
 		//debug($assoc, 'first parse');
 		$key = current(array_keys($assoc));
 		$first = current($assoc);
-		$assoc = [$key => current($this->simplify($first))];
 		//debug($assoc);
-		return $assoc;
+		return [$key => current($this->simplify($first))];
 	}
 
-	public function xml_parse_into_assoc($vals, &$i)
+	public function xml_parse_into_assoc(array $vals, &$i)
 	{
 		$ret = [];
-		while ($i++ < sizeof($vals)) {
+		while ($i++ < count($vals)) {
 			$tag = $vals[$i];
 			//println($tag['type']);
 			switch ($tag['type']) {
@@ -45,13 +44,15 @@ class slXMLParser
 					unset($tag['type']);
 					unset($tag['level']);
 					$tag['value'] = isset($tag['value']) ? trim($tag['value']) : '';
-					if ($tag['value'] == "") {
+					if ($tag['value'] === "") {
 						unset($tag['value']);
 					}
+
 					$attr = isset($tag['attributes']) ? $tag['attributes'] : '';
 					if (!is_array($attr)) {
 						$attr = [];
 					}
+
 					unset($tag['attributes']);
 					$ret[] = array_merge($tag, $attr);
 					break;
@@ -62,59 +63,64 @@ class slXMLParser
 					if (is_array($subpart)) {
 						$tag += $subpart;
 					}
+
 					$tag['value'] = trim($tag['value']);
-					if ($tag['value'] == "") {
+					if ($tag['value'] === "") {
 						unset($tag['value']);
 					}
+
 					$attr = $tag['attributes'];
 					if (!$attr) {
 						$attr = [];
 					}
+
 					unset($tag['attributes']);
 					$ret[] = array_merge($tag, $attr);
 					break;
 				case "close":
-					if ($i == sizeof($vals) - 1) {
+					if ($i == count($vals) - 1) {
 						return [$tag['tag'] => $ret];
 					} else {
 						return $ret;
 					}
-					break;
 			}
 		}
+
+        return null;
 	}
 
 	/**
-	 * Only works with Excel data.
-	 *
-	 * @param array $arr
-	 * @return array
-	 */
-	public function simplify(array $arr)
+     * Only works with Excel data.
+     */
+    public function simplify(array $arr): array
 	{
 		$res = [];
-		if (is_array($arr)) {
-			if (isset($arr['tag'])) {
+        if (isset($arr['tag'])) {
 				$res[$arr['tag']] = $arr['value'];
 			}
-			foreach ($arr as $i => $item) {
+
+        foreach ($arr as $i => $item) {
 				if (is_numeric($i)) {
 					$plus = $this->simplify($item);
-					if ($plus) {
+					if ($plus !== []) {
 						$value = $arr['value'];
 						if ($arr['tag'] == 'ss:Data') {
 							//debug(array('before', $arr['tag'], $res[$arr['tag']]), "tag");
 						}
+
 						if ($res[$arr['tag']] /*!isset($res[$arr['tag']]['value']) && strlen($res[$arr['tag']]) > 0*/) {
 							$temp = $res[$arr['tag']];
 							if (!is_array($res[$arr['tag']])) {
 								$res[$arr['tag']] = [];
 							}
+
 							$res[$arr['tag']]['value'] = $temp;
 						}
+
 						if ($arr['tag'] == 'ss:Data') {
 							//debug(array('after', $arr['tag'], $res[$arr['tag']]), "tag");
 						}
+
 						if (is_array($res[$arr['tag']])) {
 							$temp = $res[$arr['tag']];
 							$res[$arr['tag']] = $this->array_merge_with_multi($res[$arr['tag']], $plus);
@@ -125,7 +131,7 @@ class slXMLParser
 							$res[$arr['tag']] = $plus ?: [];
 						}
 					}
-				} elseif ($i != 'tag' && $i != 'value') { // not numbers are attributes
+				} elseif ($i !== 'tag' && $i !== 'value') { // not numbers are attributes
 					if (is_string($res[$arr['tag']][$i])) {
 						$res[$i] = $item;
 					} else {
@@ -133,7 +139,7 @@ class slXMLParser
 					}
 				}
 			}
-		}
+
 		//if ($arr['tag'] == 'DocumentProperties') {
 		//debug(array('source' => $arr, 'simplified' => $res), 'simplify');
 		//}
@@ -160,56 +166,49 @@ class slXMLParser
 				$c[$i] = $v;
 			}
 		}
+
 		return $c;
 	}
 
 	/**
-	 * Adds sub-elements as they are. Sub-elements are supposed to end with dot (.) to be TTree compatible.
-	 *
-	 * @param array $arr
-	 * @return array
-	 */
-	public function simplifySimple(array $arr)
+     * Adds sub-elements as they are. Sub-elements are supposed to end with dot (.) to be TTree compatible.
+     */
+    public function simplifySimple(array $arr): array
 	{
 		//debug($arr);
 		$res = [];
-		if (is_array($arr)) {
-			foreach ($arr as $numeric => $pair) {
+        foreach ($arr as $numeric => $pair) {
 				//debug($pair, $numeric);
 				if (is_numeric($numeric)) {
 					$res[$pair['tag']] = $pair['value'];
 					$sub = $this->simplifySimple($pair);
-					if ($sub) {
+					if ($sub !== []) {
 						$res[$pair['tag']] = $sub;
 					}
 				}
 			}
-		}
+
 		return $res;
 	}
 
 	/**
-	 * Will add sub-elements with dot (.) in the parent's name. TYPO3 style.
-	 *
-	 * @param array $arr
-	 * @return array
-	 */
-	public function simplifyTree(array $arr)
+     * Will add sub-elements with dot (.) in the parent's name. TYPO3 style.
+     */
+    public function simplifyTree(array $arr): array
 	{
 		//debug($arr);
 		$res = [];
-		if (is_array($arr)) {
-			foreach ($arr as $numeric => $pair) {
+        foreach ($arr as $numeric => $pair) {
 				//debug($pair, $numeric);
 				if (is_numeric($numeric)) {
 					$res[$pair['tag']] = $pair['value'];
 					$sub = $this->simplifyTree($pair);
-					if ($sub) {
+					if ($sub !== []) {
 						$res[$pair['tag'] . '.'] = $sub;
 					}
 				}
 			}
-		}
+
 		return $res;
 	}
 

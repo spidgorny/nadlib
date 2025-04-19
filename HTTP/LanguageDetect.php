@@ -10,17 +10,21 @@ class LanguageDetect
 		if (isset($_COOKIE['lang']) && $_COOKIE['lang']) {
 			$this->languages = [$_COOKIE['lang'] => $_COOKIE['lang']];
 		}
+
 		$this->languages = array_merge($this->languages, $this->getAcceptedLanguages());
 		$this->languages = array_unique($this->languages);
 		//debug($this->languages);// exit();
 	}
 
-	public function getAcceptedLanguages()
+	/**
+     * @return string[]
+     */
+    public function getAcceptedLanguages(): array
         {
 		$languagesArr = [];
 		$rawAcceptedLanguagesArr = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '');
 
-		if ($rawAcceptedLanguagesArr) {
+		if ($rawAcceptedLanguagesArr !== []) {
 			$acceptedLanguagesArr = [];
 			foreach ($rawAcceptedLanguagesArr as $languageAndQualityStr) {
 				if (strpos($languageAndQualityStr, ';') !== false) {
@@ -29,6 +33,7 @@ class LanguageDetect
 					$languageCode = $languageAndQualityStr;
 					$quality = null;
 				}
+
 				$acceptedLanguagesArr[$languageCode] = $quality ? (float)substr($quality, 2) : (float)1;
 			}
 
@@ -43,6 +48,7 @@ class LanguageDetect
 				}
 			}
 		}
+
 		return $languagesArr;
 	}
 

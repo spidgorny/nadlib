@@ -8,6 +8,7 @@ class HTMLFormRecaptcha
 {
 
 	public $publickey;
+
 	protected $privatekey;
 
 	public function __construct()
@@ -17,6 +18,7 @@ class HTMLFormRecaptcha
 		if (!$this->publickey || !$this->privatekey) {
 			throw new Exception('Please define publickey and privatekey for Recaptcha.');
 		}
+
 		//$error = htmlspecialchars(urlencode($desc['captcha-error'] ? '' : ''), ENT_QUOTES);
 		Index::getInstance()->addJS('//www.google.com/recaptcha/api/js/recaptcha_ajax.js'); //?error=' . $error);
 	}
@@ -24,13 +26,12 @@ class HTMLFormRecaptcha
 	public function getForm(array $desc)
 	{
 		$r = Request::getInstance();
-		$content = recaptcha_get_html($this->publickey, ifsetor($desc['error']), $r->isHTTPS());
-		return $content;
+		return recaptcha_get_html($this->publickey, ifsetor($desc['error']), $r->isHTTPS());
 	}
 
-	public function getFormAjax(array $desc)
+	public function getFormAjax(array $desc): string
 	{
-		$content = '
+		return '
 		<div id="recaptcha_div"></div>
  		<script>
  			Recaptcha.create("' . $this->publickey . '", "recaptcha_div");
@@ -38,7 +39,6 @@ class HTMLFormRecaptcha
  		<input type="hidden" name="' . $desc['name'] . '">
  		<!--input type="hidden" name="recaptcha_challenge_field"-->
  		<!--input type="hidden" name="recaptcha_response_field"-->';
-		return $content;
 	}
 
 	public function validate($field, array $d)
@@ -58,6 +58,7 @@ class HTMLFormRecaptcha
 		} else {
 			return __('Field "%1" is obligatory.', $d['label'] ?: $field);
 		}
+
 		return '';
 	}
 

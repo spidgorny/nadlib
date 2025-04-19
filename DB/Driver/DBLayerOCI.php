@@ -2,12 +2,18 @@
 
 class DBLayerOCI extends DBLayer
 {
-	public $connection = null;
+	public $connection;
+
 	public $COUNTQUERIES = 0;
+
 	public $lastResult;
+
 	public $LOG;
+
 	public $debug = false;
+
 	public $debugOnce = false;
+
 	public $is_connected = false;
 
 	public function __construct($tns, $user, $pass)
@@ -16,7 +22,7 @@ class DBLayerOCI extends DBLayer
 		//debug('<div class="error">OCI CONNECT</div>');
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return '[Object of type dbLayerOCI]';
 	}
@@ -28,13 +34,14 @@ class DBLayerOCI extends DBLayer
 	 * @param string $host - unused, for declaration consistency
 	 * @return bool|null|resource
 	 */
-	public function connect($tns = null, $user = null, $pass = null, $host = 'localhost')
+	public function connect($tns = null, $user = null, $pass = null, $host = 'localhost'): ?bool
 	{
 		$this->connection = oci_connect($user, $pass, $tns);
 		if (!$this->connection) {
 			print('Error in Oracle library: connection failed. Reason: ' . getDebug(oci_error($this->connection)) . BR);
 			return null;
 		}
+
 		return $this->connection;
 	}
 
@@ -43,27 +50,28 @@ class DBLayerOCI extends DBLayer
 		return $this->connection;
 	}
 
-	public function disconnect()
+	public function disconnect(): void
 	{
 		oci_close($this->connection);
 	}
 
-	public function insertFields()
+	public function insertFields(): array
 	{
 		return [];
 	}
 
-	public function updateFields()
+	public function updateFields(): array
 	{
 		return [];
 	}
 
-	public function performOCI($query, $canprint = true, $try = false)
+	public function performOCI(string $query, $canprint = true, $try = false)
 	{
 		if (!$this->connection) {
 			print('Error in Oracle library: no connection. Query: ' . $query . BR);
 			return null;
 		}
+
 		$this->COUNTQUERIES++;
 		if ($this->debugOnce || $this->debug) {
 			//debug($query);
@@ -77,6 +85,7 @@ class DBLayerOCI extends DBLayer
 		if ($error) {
 			print('Oracle error ' . $error['code'] . ': ' . $error['message'] . ' while doing ' . $query . BR);
 		}
+
 		if ($try) {
 			@oci_execute($this->lastResult, OCI_DEFAULT);
 			//debug($this->LAST_PERFORM_RESULT); exit();
@@ -100,6 +109,7 @@ class DBLayerOCI extends DBLayer
 			debug([$query]);
 			$this->debugOnce = false;
 		}
+
 		$elapsed = number_format($time2['float'] - $time1['float'], 3);
 		$debug = debug_backtrace();
 		$deb = '';
@@ -110,6 +120,7 @@ class DBLayerOCI extends DBLayer
 				$deb .= "\n";
 			}
 		}
+
 		if ($this->LOG[$query]) {
 			$a = $this->LOG[$query];
 			$this->LOG[$query] = [
@@ -138,10 +149,11 @@ class DBLayerOCI extends DBLayer
 				'total' => $elapsed,
 			];
 		}
+
 		return $this->lastResult;
 	}
 
-	public function done($result)
+	public function done($result): void
 	{
 		oci_free_statement($result);
 	}
@@ -151,7 +163,7 @@ class DBLayerOCI extends DBLayer
 			ora_commitoff($this->CONNECTION);
 		}
 	*/
-	public function commit()
+	public function commit(): void
 	{
 		oci_commit($this->connection);
 	}
@@ -161,7 +173,7 @@ class DBLayerOCI extends DBLayer
 			ora_rollback($this->CONNECTION);
 		}
 	*/
-	public function quoteSQL($value, $more = [])
+	public function quoteSQL($value, $more = []): int|string
 	{
 		if ($value == "CURRENT_TIMESTAMP") {
 			return $value;
@@ -182,47 +194,50 @@ class DBLayerOCI extends DBLayer
 		}
 	}
 
-	public function fetchAll($result, $key = null)
+	/**
+     * @return mixed[]
+     */
+    public function fetchAll($result, $key = null): array
 	{
 		$ret = [];
 		while (($row = $this->fetchAssoc($result)) !== false) {
 			$ret[] = $row;
 		}
+
 		return $ret;
 	}
 
-	public function fetchAssoc($result)
+	public function fetchAssoc($result): array|false
 	{
-		$array = oci_fetch_array($result, OCI_RETURN_NULLS | OCI_ASSOC);
-		return $array;
+		return oci_fetch_array($result, OCI_RETURN_NULLS | OCI_ASSOC);
 	}
 
-	public function numRowsFast($result)
+	public function numRowsFast($result): int|false
 	{
 		return oci_num_rows($result);
 	}
 
-	public function numRows($result = null)
+	public function numRows($result = null): int
 	{
 		$i = 0;
 		while (($row = $this->fetchAssoc($result)) !== false) {
 			$i++;
 		}
+
 		return $i;
 	}
 
-	public function to_date($timestamp)
+	public function to_date($timestamp): string
 	{
-		$content = "to_date('" . date('Y-m-d H:i', $timestamp) . "', 'yyyy-mm-dd hh24:mi')";
-		return $content;
+		return "to_date('" . date('Y-m-d H:i', $timestamp) . "', 'yyyy-mm-dd hh24:mi')";
 	}
 
-	public function to_timestamp($value)
+	public function to_timestamp($value): int|false
 	{
 		return strtotime($value);
 	}
 
-	public function filterFields()
+	public function filterFields(): array
 	{
 		return [];
 	}

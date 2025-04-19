@@ -33,7 +33,7 @@ class MockIndex
 		return null;
 	}
 
-	public function getBookmarks()
+	public function getBookmarks(): array
 	{
 		return [];
 	}

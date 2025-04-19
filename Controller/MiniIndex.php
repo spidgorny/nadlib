@@ -7,15 +7,19 @@ class MiniIndex extends AppControllerBE
 	 * @var MiniIndex
 	 */
 	protected static $instance;
+
 	/**
 	 * @var Menu
 	 */
 	public $menu;
+
 	/**
 	 * @var AppControllerBE
 	 */
 	public $controller;
+
 	public $header = [];
+
 	public $footer = [];
 
 	public $layout;
@@ -41,17 +45,16 @@ class MiniIndex extends AppControllerBE
 	public static function getInstance($createAllowed = true)
 	{
 		$self = get_called_class();
-		if (!self::$instance) {
-			if ($createAllowed) {
-				self::$instance = new $self();
-				/** @var self::$instance MiniIndex */
-				self::$instance->init();
-			}
-		}
+		if (!self::$instance && $createAllowed) {
+            self::$instance = new $self();
+            /** @var self::$instance MiniIndex */
+            self::$instance->init();
+        }
+
 		return self::$instance;
 	}
 
-	public function init()
+	public function init(): void
 	{
 		$this->controller = $this->request->getController();
 		//debug(get_class($this), spl_object_hash($this));
@@ -73,6 +76,7 @@ class MiniIndex extends AppControllerBE
 			$this->title = $this->controller->title;    // after $controller->render() before $view->render()
 			$content = $v->render();
 		}
+
 		return $content;
 	}
 
@@ -85,14 +89,16 @@ class MiniIndex extends AppControllerBE
 			} catch (Exception $e) {
 				$content = $this->error($e->getMessage());
 			}
+
 			if (!$this->request->isAjax() && $this->controller->layout instanceof Wrap) {
 				$content = $this->controller->layout->wrap($content);
 			}
 		}
+
 		return $content;
 	}
 
-	public function error($text)
+	public function error($text): string
 	{
 		return '<div class="ui-state-error alert alert-error alert-danger padding">' . $text . '</div>';
 	}
@@ -102,21 +108,23 @@ class MiniIndex extends AppControllerBE
 		if (method_exists($this->controller, 'sidebar')) {
 			return $this->controller->sidebar();
 		}
+
+        return null;
 	}
 
-	public function message($text)
+	public function message($text): string
 	{
 		return '<div class="message">' . $text . '</div>';
 	}
 
-	public function addJQueryUI()
+	public function addJQueryUI(): void
 	{
 		$this->addJQuery();
 		$this->footer['jqueryui.js'] = '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>';
 		$this->addCSS('http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/themes/base/jquery-ui.css');
 	}
 
-	public function addJQuery()
+	public function addJQuery(): void
 	{
 		$this->footer['jquery.js'] = '
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
@@ -124,17 +132,17 @@ class MiniIndex extends AppControllerBE
 		';
 	}
 
-	public function addCSS($source)
+	public function addCSS(string $source): void
 	{
 		$this->header[$source] = '<link rel="stylesheet" type="text/css" href="' . $source . '" />';
 	}
 
-public function addJS($source)
+public function addJS(string $source): void
 	{
 		$this->footer[$source] = '<script src="' . $source . '"></script>';
 	}
 
-	public function renderProfiler()
+	public function renderProfiler(): string|false
 	{
 		$content = '';
 		$profiler = $GLOBALS['profiler'];
@@ -145,6 +153,7 @@ public function addJS($source)
 		} elseif (DEVELOPMENT) {
 			$content = TaylorProfiler::renderFloat();
 		}
+
 		return $content;
 	}
 

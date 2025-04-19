@@ -31,15 +31,14 @@ class HTMLFormRange extends HTMLFormType
 	}
 
 	/**
-	 * @param int $value
-	 * @return mixed|void
-	 */
-	public function setValue($value)
+     * @param int $value
+     */
+    public function setValue($value): void
 	{
 		$this->value = $value;
 	}
 
-	public function render()
+	public function render(): void
 	{
 		$index = Index::getInstance();
 		$index->addJQuery();
@@ -50,6 +49,7 @@ class HTMLFormRange extends HTMLFormType
 		$fieldString = $this->form->getName($this->field, '', true);
 		$fieldString = str_replace('[', '\\[', $fieldString);
 		$fieldString = str_replace(']', '\\]', $fieldString);
+        
 		$view->fieldEscaped = $fieldString;
 		return $view->render();
 	}

@@ -11,8 +11,7 @@ trait DatabaseManipulation
 	public static function insert(DBInterface $db, array $data)
 	{
 		$table = static::getTableName();
-		$ok = $db->runInsertQuery($table, $data);
-		return $ok;
+		return $db->runInsertQuery($table, $data);
 	}
 
 	public function update(array $update)

@@ -13,14 +13,20 @@ class Proxy extends OODBase
 {
 
 	public static $best = [];
+
 	protected static $maxFail = 15;
+
 	protected static $maxFailBest = 200;
+
 	public $table = 'proxy';
+
 	/**
 	 * @var DBInterface
 	 */
 	public $db;
+
 	public $ratio = 0;
+
 	protected $titleColumn = 'proxy';
 
 	public function __construct($row = null)
@@ -32,7 +38,7 @@ class Proxy extends OODBase
 		}
 	}
 
-	public static function getRandomOrBest($percentRandom = 50)
+	public static function getRandomOrBest($percentRandom = 50): ?\nadlib\Proxy
 	{
 		$proxy = null;
 		$db = Config::getInstance()->getDB();
@@ -49,10 +55,11 @@ class Proxy extends OODBase
 			}
 		} else {
 			$best = self::getBest();
-			$idx = random_int(0, sizeof($best) - 1);
+			$idx = random_int(0, count($best) - 1);
 			$proxy = new Proxy($best[$idx]);
 			$c->log('Best proxy (' . $idx . '): ' . $proxy . ' (ratio: ' . $proxy->ratio . ')', __METHOD__);
 		}
+
 		return $proxy;
 	}
 
@@ -70,13 +77,14 @@ class Proxy extends OODBase
 			//debug($rows);
 			self::$best = $rows;
 		}
+
 		return self::$best;
 	}
 
 	/**
 	 * @return array(342571/359601)
 	 */
-	public static function getProxies()
+	public static function getProxies(): array
 	{
 		$db = Config::getInstance()->getDB();
 		$row = $db->fetchSelectQuery('proxy', [], '', 'count(*)');    // total
@@ -93,30 +101,29 @@ class Proxy extends OODBase
 		return $rowOK[0]['count(*)'];
 	}
 
-	public function setProxy($proxy)
+	public function setProxy($proxy): void
 	{
 		$this->data['proxy'] = $proxy;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->data['proxy'] . '';
 	}
 
 	public function getList()
 	{
-		$rows = $this->db->fetchSelectQuery('proxy', [], 'ORDER BY ok DESC, fail ASC LIMIT 100');
-		return $rows;
+		return $this->db->fetchSelectQuery('proxy', [], 'ORDER BY ok DESC, fail ASC LIMIT 100');
 	}
 
-	public function fail()
+	public function fail(): void
 	{
 		if ($this->id) {
 			$this->update(['fail' => $this->data['fail'] + 1]);
 		}
 	}
 
-	public function ok()
+	public function ok(): void
 	{
 		if ($this->id) {
 			$this->update(['ok' => $this->data['ok'] + 1]);

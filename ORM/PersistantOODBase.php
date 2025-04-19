@@ -4,17 +4,18 @@ class PersistantOODBase extends OODBase
 {
 
 	public static $inserted = 0;
+
 	public static $updated = 0;
+
 	public static $skipped = 0;
+
 	/**
 	 *
 	 * @var array
 	 */
 	public $originalData;
-	/**
-	 * @var string
-	 */
-	protected $stateHash;
+
+	protected string $stateHash;
 
 	// define them in a subclass for static::inserted to work
 
@@ -26,19 +27,20 @@ class PersistantOODBase extends OODBase
 		//debug($this->getStateHash(), $this->stateHash, $this->data, $this->id);
 	}
 
-	public function getStateHash()
+	public function getStateHash(): string
 	{
-		$isNull = array_reduce($this->data, static function ($acc, $el) {
+		$isNull = array_reduce($this->data, static function ($acc, $el): ?string {
 			return is_null($acc) && is_null($el) ? null : 'not null';
 		}, null);
 		//debug($this->data, $isNull); die;
 		if (is_null($isNull)) {
 			$this->data = [];
 		}
+
 		return md5(serialize($this->data));
 	}
 
-	public function init($id)
+	public function init($id): void
 	{
 		parent::init($id);
 	}
@@ -48,6 +50,8 @@ class PersistantOODBase extends OODBase
 		if (isset($this->data[$property])) {
 			return $this->data[$property];
 		}
+
+        return null;
 	}
 
 	public function __set($property, $value)
@@ -61,7 +65,7 @@ class PersistantOODBase extends OODBase
 		$this->save();
 	}
 
-	public function save(array $where = null)
+	public function save(array $where = null): string
 	{
 		if ($this->isChanged()) {
 			0 && debug([
@@ -87,6 +91,7 @@ class PersistantOODBase extends OODBase
 			$action = 'SKIP';
 			static::$skipped++;
 		}
+
 		nodebug([
 			$this->stateHash => $this->originalData,
 			$this->getStateHash() => $this->data,
@@ -97,27 +102,25 @@ class PersistantOODBase extends OODBase
 		return $action;
 	}
 
-	public function isChanged()
+	public function isChanged(): bool
 	{
-		return $this->getStateHash() != $this->stateHash;
+		return $this->getStateHash() !== $this->stateHash;
 	}
 
 	public function isUpdate()
 	{
-		$idDefined = is_array($this->id)
+		return is_array($this->id)
 			? trim(implode('', $this->id))
 			: $this->id;
-		return $idDefined;
 	}
 
 	/**
-	 * Update updates state hash so that destruct will not try to update again
-	 *
-	 * @param array $data
-	 * @return resource
-	 * @throws Exception
-	 */
-	public function update(array $data)
+     * Update updates state hash so that destruct will not try to update again
+     *
+     * @return resource
+     * @throws Exception
+     */
+    public function update(array $data)
 	{
 		$ret = parent::update($data);
 		//debug($this->db->lastQuery);
@@ -127,12 +130,11 @@ class PersistantOODBase extends OODBase
 	}
 
 	/**
-	 * Insert updates state hash so that destruct will not try to insert again
-	 *
-	 * @param array $data
-	 * @return OODBase
-	 */
-	public function insert(array $data)
+     * Insert updates state hash so that destruct will not try to insert again
+     *
+     * @return OODBase
+     */
+    public function insert(array $data)
 	{
 		$ret = null;
 		nodebug([
@@ -143,10 +145,11 @@ class PersistantOODBase extends OODBase
 		]);
 		try {
 			$ret = parent::insert($data);
-		} catch (Exception $e) {
+		} catch (Exception $exception) {
 			//debug('LastInsertID() failed but it\'s OK');
 			$ret = null;
 		}
+
 		//debug($this->db->lastQuery);
 		$this->originalData = $this->data;
 		$this->stateHash = $this->getStateHash();

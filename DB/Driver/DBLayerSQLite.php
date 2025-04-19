@@ -38,24 +38,22 @@ class DBLayerSQLite extends DBLayerBase
 		'FROM',
 	];
 
-	public function __construct($file = null, $unused1 = null, $unused2 = null, $unused3 = null)
+	public function __construct($file = null)
 	{
 		$this->file = $file;
 		$this->dbName = basename($this->file);
-		$unused1 + $unused2 + $unused3;
 	}
 
-	public function affectedRows($res = null)
+	public function affectedRows($res = null): void
 	{
 		$this->lastResult->numRows();
 	}
 
 	/**
-	 * @param SQLiteResult $res
-	 * @return int
-	 * @throws Exception
-	 */
-	public function numRows($res = null)
+     * @param SQLiteResult $res
+     * @throws Exception
+     */
+    public function numRows($res = null): int
 	{
 		$numRows = 0;
 		if ($res instanceof SQLite3Result) {
@@ -66,11 +64,13 @@ class DBLayerSQLite extends DBLayerBase
 			while ($this->fetchAssoc($res) !== false) {
 				$numRows++;
 			}
+
 			$res->reset();
 		} else {
 			debug($res);
 			throw new DatabaseException('invalid result');
 		}
+
 		return $numRows;
 	}
 
@@ -92,6 +92,7 @@ class DBLayerSQLite extends DBLayerBase
 			debug_pre_print_backtrace();
 			throw new DatabaseException('unknown res');
 		}
+
 //		debug($this->lastQuery, typ($res));
 
 		$row = $res->fetchArray(SQLITE3_ASSOC);
@@ -104,17 +105,17 @@ class DBLayerSQLite extends DBLayerBase
 	}
 
 	/**
-	 * @param string $query
-	 * @param array $params
-	 * @return null|SQLite3Result|SQLiteResult
-	 * @throws DatabaseException
-	 */
-	public function perform($query, array $params = [])
+     * @param string $query
+     * @return null|SQLite3Result|SQLiteResult
+     * @throws DatabaseException
+     */
+    public function perform($query, array $params = [])
 	{
 		if (!$this->connection) {
 //			debug_pre_print_backtrace();
 			$this->connect();
 		}
+
 		$this->lastQuery = $query;
 		$profiler = new Profiler();
 		$this->lastResult = $this->connection->query($query);
@@ -124,10 +125,11 @@ class DBLayerSQLite extends DBLayerBase
 			debug($this->lastResult, $query, $this->connection->lastErrorMsg());
 			throw new DatabaseException($this->connection->lastErrorMsg());
 		}
+
 		return $this->lastResult;
 	}
 
-	public function connect()
+	public function connect(): void
 	{
 		if (class_exists('SQLite3')) {
 			$this->connection = new SQLite3($this->file);
@@ -151,17 +153,14 @@ class DBLayerSQLite extends DBLayerBase
 		WHERE type = 'table'
 		ORDER BY name
 		");
-		$tables = $this->fetchAll($this->lastResult, 'name');
-		return $tables;
+		return $this->fetchAll($this->lastResult, 'name');
 	}
 
 	/**
-	 * @param SQLite3Result|string $res_or_query
-	 * @param null $index_by_key
-	 * @return array
-	 * @throws Exception
-	 */
-	public function fetchAll($res_or_query, $index_by_key = null)
+     * @param SQLite3Result|string $res_or_query
+     * @throws Exception
+     */
+    public function fetchAll($res_or_query, $index_by_key = null): void
 	{
 		if (is_string($res_or_query)) {
 			$res = $this->perform($res_or_query);
@@ -173,6 +172,7 @@ class DBLayerSQLite extends DBLayerBase
 //			error_log(typ($res_or_query));
 			throw new DatabaseException('res is not usable');
 		}
+
 //		debug($res_or_query.'');
 
 		$data = [];
@@ -190,6 +190,7 @@ class DBLayerSQLite extends DBLayerBase
 		if ($index_by_key) {
 			$data = ArrayPlus::create($data)->IDalize($index_by_key)->getData();
 		}
+
 		return $data;
 	}
 
@@ -204,7 +205,7 @@ class DBLayerSQLite extends DBLayerBase
 		return $this->fetchAll($this->lastResult);
 	}
 
-	public function lastInsertID($res = null, $table = null)
+	public function lastInsertID($res = null, $table = null): int
 	{
 		return $this->connection->lastInsertRowid();
 	}
@@ -212,7 +213,7 @@ class DBLayerSQLite extends DBLayerBase
 	/**
 	 * @param SQLite3Result $res
 	 */
-	public function free($res)
+	public function free($res): void
 	{
 		// The SQLite3Result object has not been correctly initialised
 		if ($res instanceof SQLite3Result) {
@@ -220,9 +221,9 @@ class DBLayerSQLite extends DBLayerBase
 		}
 	}
 
-	public function escapeBool($value)
+	public function escapeBool($value): int
 	{
-		return intval(!!$value);
+		return intval((bool) $value);
 	}
 
 	/**
@@ -240,18 +241,20 @@ class DBLayerSQLite extends DBLayerBase
 			$row['Type'] = $row['type'];
 			$row['Null'] = $row['notnull'] ? 'NO' : 'YES';
 		}
+
 		return $tableInfo;
 	}
 
-	public function quoteKey($key)
+	public function quoteKey($key): string
 	{
 		if ($key instanceof AsIs) {
 			return $key . '';
 		}
+
 		return '`' . $key . '`';
 	}
 
-	public function escape($str)
+	public function escape($str): string
 	{
 		return SQLite3::escapeString($str);
 	}
@@ -271,12 +274,12 @@ class DBLayerSQLite extends DBLayerBase
 		return $this->perform('ROLLBACK');
 	}
 
-	public function getScheme()
+	public function getScheme(): string
 	{
 		return 'sqlite';
 	}
 
-	public function getInfo()
+	public function getInfo(): array
 	{
 		return ['class' => get_class($this)];
 	}
@@ -286,12 +289,12 @@ class DBLayerSQLite extends DBLayerBase
 		return $this->connection;
 	}
 
-	public function getVersion()
+	public function getVersion(): void
 	{
 		// TODO: Implement getVersion() method.
 	}
 
-	public function getPlaceholder($field)
+	public function getPlaceholder($field): void
 	{
 		// TODO: Implement getPlaceholder() method.
 	}

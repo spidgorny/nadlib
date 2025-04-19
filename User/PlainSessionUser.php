@@ -32,6 +32,7 @@ class PlainSessionUser extends UserBase implements UserModelInterface
 		} else {
 			$_SESSION = [];
 		}
+        
 		$this->session = $session ?: new Session(get_class($this));
 		parent::__construct($id);
 	}
@@ -45,7 +46,7 @@ class PlainSessionUser extends UserBase implements UserModelInterface
 		return $this->session->get($name);
 	}
 
-	public function setPref($name, $value)
+	public function setPref($name, $value): void
 	{
 		$this->session->save($name, $value);
 		return $value;
@@ -65,13 +66,13 @@ class PlainSessionUser extends UserBase implements UserModelInterface
 		return true;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		$default = parent::__toString();
 		return ifsetor($default, session_id()) . '';
 	}
 
-	public function try2login($login, $email = null)
+	public function try2login($login, $email = null): void
 	{
 		// session_start
 	}
@@ -81,12 +82,12 @@ class PlainSessionUser extends UserBase implements UserModelInterface
 		return null;
 	}
 
-	public function prefs()
+	public function prefs(): array
 	{
 		return [];
 	}
 
-	public function isAdmin()
+	public function isAdmin(): bool
 	{
 		return false;
 	}
@@ -111,12 +112,12 @@ class PlainSessionUser extends UserBase implements UserModelInterface
 		return null;
 	}
 
-	public function can($acl)
+	public function can($acl): bool
 	{
 		return false;
 	}
 
-	public function updatePassword($newPassword)
+	public function updatePassword($newPassword): void
 	{
 		// TODO: Implement updatePassword() method.
 	}

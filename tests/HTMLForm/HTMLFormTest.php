@@ -9,21 +9,21 @@
 class HTMLFormTest extends PHPUnit\Framework\TestCase
 {
 
-	public function __construct($name = null)
+	public function __construct(string $name = null)
 	{
 		parent::__construct($name);
 		@define('BR', Request::isWindows()
 			? "\r\n" : "\n");
 	}
 
-	public function test_id()
+	public function test_id(): void
 	{
 		$f = new HTMLForm('action', __CLASS__);
 		$sForm = $f->getContent();
 		$this->assertContains('id="' . __CLASS__ . '"', $sForm);
 	}
 
-	public function test_formTag()
+	public function test_formTag(): void
 	{
 		$f = new HTMLForm();
 		$tag = $f->getFormTag();
@@ -31,10 +31,11 @@ class HTMLFormTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals('<form method="POST">' . "\n", $tag);
 	}
 
-	public function test_input()
+	public function test_input(): void
 	{
 		$f = new HTMLForm();
 		$f->input('name', 'value', ['more' => 'more'], 'text', 'class');
+
 		$sInput = $f->getBuffer();
 //		echo $sInput, PHP_EOL;
 		$this->assertContains(
@@ -42,7 +43,7 @@ class HTMLFormTest extends PHPUnit\Framework\TestCase
 		);
 	}
 
-	public function test_input_more()
+	public function test_input_more(): void
 	{
 		$f = new HTMLForm();
 		$f->input('name', 'value', [
@@ -59,7 +60,7 @@ class HTMLFormTest extends PHPUnit\Framework\TestCase
 		);
 	}
 
-	public function test_set()
+	public function test_set(): void
 	{
 		$f = new HTMLForm();
 		$f->set('asd', 'k1', [
@@ -74,7 +75,7 @@ class HTMLFormTest extends PHPUnit\Framework\TestCase
 		$this->assertContains('"k1" checked', $html);
 	}
 
-	public function test_set_multiple()
+	public function test_set_multiple(): void
 	{
 		$f = new HTMLForm();
 		$f->set('asd', ['k1', 'k2'], [
@@ -90,7 +91,7 @@ class HTMLFormTest extends PHPUnit\Framework\TestCase
 		$this->assertContains('"k2" checked', $html);
 	}
 
-	public function test_keyset_multiple()
+	public function test_keyset_multiple(): void
 	{
 		$f = new HTMLForm();
 		$f->set('asd', ['k1', 'k2'], [

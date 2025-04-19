@@ -147,23 +147,21 @@ abstract class AbstractDecorator
 	{
 		$type = constant(get_class($this) . '::COMPONENT_CLASS');
 		if ($type) {
-			if ($component instanceof $type) {
+            if ($component instanceof $type) {
 				$this->component = $component;
 				return;
 			}
-			if ($component instanceof self) {
-				if ($type == constant(get_class($component) . '::COMPONENT_CLASS')) {
-					$this->component = $component;
-					return;
-				}
-			}
-		} else {
-			// No component type defined, take any object:
-			if (is_object($component)) {
-				$this->component = $component;
-				return;
-			}
-		}
+
+            if ($component instanceof self && $type == constant(get_class($component) . '::COMPONENT_CLASS')) {
+                $this->component = $component;
+                return;
+            }
+        } elseif (is_object($component)) {
+            // No component type defined, take any object:
+            $this->component = $component;
+            return;
+        }
+        
 		throw new InvalidArgumentException(sprintf(
 			'Argument 1 passed to %s::%s must be an instance of %s or according decorator, %s given',
 			__CLASS__, __FUNCTION__, $type, gettype($component)
@@ -216,13 +214,12 @@ abstract class AbstractDecorator
 	}
 
 	/**
-	 * Magic method, simulates the component's interface
-	 *
-	 * @param string $name
-	 * @param array $arguments
-	 * @return mixed
-	 */
-	public function __call($name, $arguments)
+     * Magic method, simulates the component's interface
+     *
+     * @param array $arguments
+     * @return mixed
+     */
+    public function __call(string $name, $arguments)
 	{
 		if (method_exists($this->component, $name)) {
 			return call_user_func_array([$this->component, $name], $arguments);

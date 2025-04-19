@@ -9,32 +9,40 @@
 class HTMLTable
 {
 
-	public $data = [];
+	/**
+     * @var mixed[]
+     */
+    public $data = [];
+
 	public $thes = [];
-	public $attributes = [];
 
 	/**
-	 * HTMLTable constructor.
-	 *
-	 * @param array|object|null $res
-	 * @param array $thes
-	 */
-	public function __construct(array $res, array $thes = [], array $attributes = [])
+     * @var mixed[]
+     */
+    public $attributes = [];
+
+	/**
+     * HTMLTable constructor.
+     *
+     * @param array|object|null $res
+     */
+    public function __construct(array $res, array $thes = [], array $attributes = [])
 	{
 		$this->data = $res;
 		$this->thes = $thes;
 		$this->attributes = $attributes;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		if (!$this->thes) {
 			$this->genThes();
 		}
+
 		return implode(PHP_EOL, $this->table());
 	}
 
-	public function genThes()
+	public function genThes(): void
 	{
 		$col1 = current($this->data);
 		$this->thes = $col1;
@@ -43,22 +51,24 @@ class HTMLTable
 	public function table()
 	{
 		$attributes = HTMLTag::renderAttr($this->attributes);
-		$content['table'] = "<table $attributes>";
+		$content['table'] = sprintf('<table %s>', $attributes);
 		$content['thead'] = '<thead><tr>';
-		foreach ((array)$this->thes as $key => $_) {
+		foreach (array_keys((array)$this->thes) as $key) {
 			$content['th.' . $key] = '<th>' . htmlspecialchars($key) . '</th>';
 		}
+
 		$content['/thead'] = '</tr></thead>';
 		$content['tbody'] = '<tbody>';
 		foreach ($this->data as $row) {
 			$content[] = $this->row((array)$row);
 		}
+
 		$content['/tbody'] = '<tbody>';
 		$content['/table'] = '</table>';
 		return $content;
 	}
 
-	public function row(array $row)
+	public function row(array $row): string
 	{
 		$content[] = '<tr>';
 		foreach ($this->thes as $key => $_) {
@@ -68,8 +78,10 @@ class HTMLTable
 			} else {
 				$cell = htmlspecialchars($cell ?? '');
 			}
+
 			$content[] = '<td>' . $cell . '</td>';
 		}
+
 		$content[] = '</tr>';
 
 		return implode(PHP_EOL, $content);

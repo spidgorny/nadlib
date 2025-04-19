@@ -7,7 +7,7 @@
 class JSONResponse
 {
 
-	public $json = null;
+	public $json;
 
 	public $httpCode;
 
@@ -17,7 +17,7 @@ class JSONResponse
 		$this->httpCode = $httpCode;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		http_response_code($this->httpCode);
 		Request::getInstance()->set('ajax', true);
@@ -25,6 +25,7 @@ class JSONResponse
 		if (defined('JSON_UNESCAPED_LINE_TERMINATORS')) {
 			$options |= JSON_UNESCAPED_LINE_TERMINATORS;
 		}
+
 		$duration = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
 
 		if (is_object($this->json)) {

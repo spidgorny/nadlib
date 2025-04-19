@@ -16,7 +16,7 @@ class HTMLFormCheckbox extends HTMLFormField
 		}
 	}
 
-	public function render()
+	public function render(): void
 	{
 		$this->form = $this->form instanceof HTMLForm
 			? $this->form
@@ -27,6 +27,7 @@ class HTMLFormCheckbox extends HTMLFormField
 		if (ifsetor($this->desc['elementID'])) {
 			//$more['id'] = $this->desc['elementID'];
 		}
+
 		//debug($this->field, $this->value, $this->desc);
 //		llog($this->desc);
 		$more =

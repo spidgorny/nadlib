@@ -28,12 +28,13 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 		}
 	}
 
-	public function connect($host, $login, $password)
+	public function connect($host, $login, $password): void
 	{
 		$this->connection = new mysqli($host, $login, $password, $this->dbName);
 		if (!$this->connection) {
 			throw new Exception(mysqli_error($this->connection), mysqli_errno($this->connection));
 		}
+
 		$this->connection->set_charset('utf8');
 	}
 
@@ -46,9 +47,8 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 	{
 		//		debug(gettype2($res));
 		if ($res instanceof mysqli_result) {
-			$data = (array)$res->fetch_assoc();
 			//			debug(gettype2($res), $data);
-			return $data;
+			return (array)$res->fetch_assoc();
 		} elseif (is_string($res)) {
 			$res = $this->perform($res);
 			return $res->fetch_assoc();
@@ -65,27 +65,23 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param       $query
-	 * @param array $params
-	 * @return bool|mysqli_result
-	 * @throws DatabaseException
-	 */
-	public function perform($query, array $params = [])
+     * @param       $query
+     * @return bool|mysqli_result
+     * @throws DatabaseException
+     */
+    public function perform($query, array $params = [])
 	{
 		$this->lastQuery = $query;
 
-		if ($params) {
+		if ($params !== []) {
 			$stmt = $this->prepare($query);
 			if ($stmt) {
-				$types = str_repeat('s', sizeof($params));
+				$types = str_repeat('s', count($params));
 				//			debug($types, $params, $query.'');
-				call_user_func_array(
-					[$stmt, 'bind_param'],
-					array_merge(
+				$stmt->bind_param(...array_merge(
 						[$types],
 						$this->makeValuesReferenced($params)
-					)
-				);
+					));
 				$stmt->execute();
 				$stmt->store_result();
 				debug($stmt);
@@ -99,15 +95,18 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 						$this->columns[$field->name] = &$data[$field->name];
 						// pass by reference
 					}
+
 					//debug($data, $meta, $field, $this->columns);
-					$ok = call_user_func_array([$stmt, 'bind_result'], $this->columns);
+					$ok = $stmt->bind_result(...$this->columns);
 				}
+
 				if (!$ok) {
 					throw new DatabaseException(mysqli_error($this->connection));
 				}
 			} else {
 				throw new DatabaseException(mysqli_error($this->connection));
 			}
+
 			//debug($query, $params, $stmt->num_rows);
 		} else {
 			$stmt = $this->connection->query($query);
@@ -118,20 +117,25 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 			debug($query . '', $params);
 			throw new DatabaseException($this->connection->error, $this->connection->errno);
 		}
+
 		return $stmt;
 	}
 
-	public function prepare($sql)
+	public function prepare($sql): \mysqli_stmt|false
 	{
 		return mysqli_prepare($this->connection, $sql);
 	}
 
-	private function makeValuesReferenced(array $arr)
+	/**
+     * @return mixed[]
+     */
+    private function makeValuesReferenced(array $arr): array
 	{
 		$refs = [];
-		foreach ($arr as $key => $value) {
+		foreach (array_keys($arr) as $key) {
 			$refs[$key] = &$arr[$key];
 		}
+
 		return $refs;
 	}
 
@@ -140,22 +144,21 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 		return $this->connection->affected_rows;
 	}
 
-	public function escape($string)
+	public function escape($string): string
 	{
 		return $this->connection->escape_string($string);
 	}
 
-	public function escapeBool($value)
+	public function escapeBool($value): int
 	{
-		return intval(!!$value);
+		return intval((bool) $value);
 	}
 
 	/**
-	 * @param resource $res
-	 * @param null $table
-	 * @return mixed
-	 */
-	public function lastInsertID($res, $table = null)
+     * @param resource $res
+     * @return mixed
+     */
+    public function lastInsertID($res, $table = null)
 	{
 		return $this->connection->insert_id;
 	}
@@ -170,7 +173,7 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 		return $res->num_rows;
 	}
 
-	public function getPlaceholder($field)
+	public function getPlaceholder($field): string
 	{
 		//		$slug = ?URL::getSlug($field);
 		//		$slug = str_replace('-', '_', $slug);
@@ -178,7 +181,7 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 		return '?';
 	}
 
-	public function getInfo()
+	public function getInfo(): array
 	{
 		return [
 			$this->connection->host_info,
@@ -190,20 +193,18 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param string $table Table name
-	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
-	 * @return string
-	 */
-	public function getReplaceQuery($table, $columns)
+     * @param string $table Table name
+     * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
+     */
+    public function getReplaceQuery($table, $columns): string
 	{
 		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
 		$values = implode(", ", $this->quoteValues(array_values($columns)));
 		$table = $this->quoteKey($table);
-		$q = "REPLACE INTO {$table} ({$fields}) VALUES ({$values})";
-		return $q;
+		return sprintf('REPLACE INTO %s (%s) VALUES (%s)', $table, $fields, $values);
 	}
 
-	public function getVersion()
+	public function getVersion(): void
 	{
 		// TODO: Implement getVersion() method.
 	}

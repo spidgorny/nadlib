@@ -38,7 +38,7 @@ abstract class IteratorMemberCollection extends CollectionMock implements Iterat
 	public function count(): int
 	{
 		$this->objectify();
-		return sizeof($this->members);
+		return count($this->members);
 	}
 
 }

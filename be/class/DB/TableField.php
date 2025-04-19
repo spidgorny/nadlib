@@ -21,7 +21,7 @@ class TableField
 
 	public $references;
 
-	public static function init(array $row)
+	public static function init(array $row): self
 	{
 		//debug($row); exit();
 		if (isset($row['cid']) || isset($row['pk'])) {
@@ -33,20 +33,19 @@ class TableField
 		} else {
 			throw new Exception(__METHOD__ . ' Unable to identify DB type');
 		}
+
 		return $self;
 	}
 
 	/**
-	 * Field    string[2]    id
-	 * Type    string[7]    int(11)
-	 * Null    string[2]    NO
-	 * Key    string[3]    PRI
-	 * Default    NULL
-	 * Extra    string[14]    auto_increment
-	 * @param array $row
-	 * @return TableField
-	 */
-	public static function initMySQL(array $row)
+     * Field    string[2]    id
+     * Type    string[7]    int(11)
+     * Null    string[2]    NO
+     * Key    string[3]    PRI
+     * Default    NULL
+     * Extra    string[14]    auto_increment
+     */
+    public static function initMySQL(array $row): self
 	{
 		$self = new self();
 		$self->field = $row['Field'];
@@ -59,24 +58,22 @@ class TableField
 	}
 
 	/**
-	 * cid    string[1]    0
-	 * name    string[2]    id
-	 * type    string[7]    integer
-	 * notnull    string[1]    1
-	 * dflt_value    NULL
-	 * pk    string[1]    1
-	 * Field    string[2]    id
-	 * Type    string[7]    integer
-	 * Null    string[2]    NO
-	 * @param array $desc
-	 * @return TableField
-	 */
-	public static function initSQLite(array $desc)
+     * cid    string[1]    0
+     * name    string[2]    id
+     * type    string[7]    integer
+     * notnull    string[1]    1
+     * dflt_value    NULL
+     * pk    string[1]    1
+     * Field    string[2]    id
+     * Type    string[7]    integer
+     * Null    string[2]    NO
+     */
+    public static function initSQLite(array $desc): self
 	{
 		$self = new self();
 		$self->field = $desc['name'];
 		$self->type = $desc['type'];
-		$self->isNull = $desc['notnull'] ? false : true;
+		$self->isNull = !(bool) $desc['notnull'];
 		$self->default = self::unQuote($desc['dflt_value']);
 		$self->key = $desc['pk'] ? 'PRIMARY_KEY' : '';
 		//debug($desc, $self); exit();
@@ -84,19 +81,17 @@ class TableField
 	}
 
 	/**
-	 * array(8) {
-	 * 'num'  =>  int(15)
-	 * 'type'  =>  string(4) "int4"
-	 * 'len'  =>  int(4)
-	 * 'not null'  =>  bool(false)
-	 * 'has default'  =>  bool(false)
-	 * 'array dims'  =>  int(0)
-	 * 'is enum'  =>  bool(false)
-	 * 'pg_field'  =>  string(12) "id_publisher"
-	 * @param array $desc
-	 * @return TableField
-	 */
-	public static function initPostgreSQL(array $desc)
+     * array(8) {
+     * 'num'  =>  int(15)
+     * 'type'  =>  string(4) "int4"
+     * 'len'  =>  int(4)
+     * 'not null'  =>  bool(false)
+     * 'has default'  =>  bool(false)
+     * 'array dims'  =>  int(0)
+     * 'is enum'  =>  bool(false)
+     * 'pg_field'  =>  string(12) "id_publisher"
+     */
+    public static function initPostgreSQL(array $desc): self
 	{
 		$self = new self();
 		$self->field = $desc['pg_field'];
@@ -113,10 +108,11 @@ class TableField
 		if ($first == '"' || $first == "'") {
 			$string = str_replace($first, '', $string);
 		}
+
 		return $string;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		$copy = get_object_vars($this);
 		$copy['isNull'] = $copy['isNull'] ? 'is NULL' : 'NOT NULL';
@@ -125,7 +121,7 @@ class TableField
 		return implode(' ', $copy);
 	}
 
-	public function isBoolean()
+	public function isBoolean(): bool
 	{
 		return in_array($this->type, ['bool', 'boolean', 'binary(1)']);
 	}
@@ -135,7 +131,7 @@ class TableField
 		return $this->isNull;
 	}
 
-	public function isInt()
+	public function isInt(): bool
 	{
 		return in_array($this->type, [
 			'int', 'integer', 'INTEGER',
@@ -143,17 +139,17 @@ class TableField
 			'tinyint(1)', 'tinyint(4)']);
 	}
 
-	public function isText()
+	public function isText(): bool
 	{
 		return in_array($this->type, ['text', 'varchar(255)', 'tinytext', 'string']);
 	}
 
-	public function isTime()
+	public function isTime(): bool
 	{
 		return in_array($this->type, ['numeric', 'timestamp', 'datetime']);
 	}
 
-	public function isFloat()
+	public function isFloat(): bool
 	{
 		return in_array($this->type, ['real', 'double', 'float']);
 	}

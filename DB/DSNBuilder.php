@@ -3,7 +3,7 @@
 class DSNBuilder
 {
 
-	public static function make($scheme, $host, $user = null, $pass = null, $db = null, $port = null)
+	public static function make($scheme, $host, $user = null, $pass = null, $db = null, $port = null): \DSNBuilderMySQL|\DSNBuilderPostgreSQL|\DSNBuilderSQLite|\DSNBuilderMSSQL
 	{
 		$classMap = [
 			'mysql' => DSNBuilderMySQL::class,
@@ -12,11 +12,10 @@ class DSNBuilder
 			'mssql' => DSNBuilderMSSQL::class,
 		];
 		$dsnClass = $classMap[$scheme];
-		$builder = new $dsnClass($host, $user, $pass, $db, $port);
-		return $builder;
+		return new $dsnClass($host, $user, $pass, $db, $port);
 	}
 
-	public function getDSN(array $params)
+	public function getDSN(array $params): string
 	{
 		$url = http_build_query($params, null, ';', PHP_QUERY_RFC3986);
 		$url = str_replace('%20', ' ', $url);    // back convert

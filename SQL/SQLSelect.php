@@ -26,23 +26,24 @@ class SQLSelect
 		}
 	}
 
-	public function injectDB(DBInterface $db)
+	public function injectDB(DBInterface $db): void
 	{
 		$this->db = $db;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return implode(', ', $this->parts);
 	}
 
-	public function contains($string)
+	public function contains($string): bool
 	{
 		foreach ($this->parts as $p) {
 			if (str_contains($p . '', $string)) {
 				return true;
 			}
 		}
+
 		return false;
 	}
 

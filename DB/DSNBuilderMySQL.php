@@ -4,9 +4,13 @@ class DSNBuilderMySQL extends DSNBuilder
 {
 
 	public $host;
+
 	public $user;
+
 	public $pass;
+
 	public $db;
+
 	public $port;
 
 	public function __construct($host, $user, $pass, $db, $port = 3306)
@@ -18,7 +22,7 @@ class DSNBuilderMySQL extends DSNBuilder
 		$this->port = $port;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		$aDSN = [
 			'DATABASE' => $this->db,

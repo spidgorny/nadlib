@@ -11,7 +11,7 @@ class SessionView extends AppControllerBE
 		$this->index->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . 'js/keepScrollPosition.js');
 	}
 
-	public function render()
+	public function render(): string
 	{
 		$this->performAction($this->detectAction());
 		$content = '';
@@ -28,24 +28,27 @@ class SessionView extends AppControllerBE
 			</h4>' .
 				getDebug($val);
 		}
+
 		return $content;
 	}
 
-	public function delAction()
+	public function delAction(): void
 	{
 		$del = $this->request->getTrim('del');
 		unset($_SESSION[$del]);
 		$this->index->message('Deleted ' . $del);
 		$this->index->content->saveMessages();
+
 		$this->request->redirect($this->request->getRefererController());
 	}
 
-	public function sidebar()
+	public function sidebar(): array
 	{
 		$keys = array_keys($_SESSION);
 		foreach ($keys as &$key) {
 			$key = '<a href="#' . $key . '">' . $key . '</a>';
 		}
+
 		$content[] = implode('<br />', $keys);
 
 		$content[] = BR;

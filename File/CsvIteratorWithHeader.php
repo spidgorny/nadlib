@@ -11,7 +11,7 @@ class CsvIteratorWithHeader extends CsvIterator
 	 */
 	public $columns;
 
-	public function __construct($filename, $delimiter = ',', $convertUTF8 = false)
+	public function __construct(string $filename, $delimiter = ',', $convertUTF8 = false)
 	{
 		parent::__construct($filename, $delimiter);
 		$this->doConvertToUTF8 = $convertUTF8;
@@ -26,11 +26,13 @@ class CsvIteratorWithHeader extends CsvIterator
 		parent::current();
 		//debug($this->columns, $this->currentElement);
 		if ($this->currentElement) {
-			if (sizeof($this->currentElement) != sizeof($this->columns)) {
+			if (count($this->currentElement) != count($this->columns)) {
 				debug($this->currentElement, $this->columns);
 			}
+
 			$this->currentElement = array_combine($this->columns, $this->currentElement);
 		}
+
 		return $this->currentElement;
 	}
 
@@ -39,10 +41,8 @@ class CsvIteratorWithHeader extends CsvIterator
 		parent::next();
 		//debug($this->columns, $this->currentElement);
 		$return = $this->current();
-		if ($return !== false && $this->currentElement) {
-			if (sizeof($this->currentElement) == sizeof($this->columns)) {
-				$this->currentElement = array_combine($this->columns, $this->currentElement);
-			}
+		if ($return !== false && $this->currentElement && count($this->currentElement) == count($this->columns)) {
+			$this->currentElement = array_combine($this->columns, $this->currentElement);
 		}
 	}
 
@@ -54,7 +54,7 @@ class CsvIteratorWithHeader extends CsvIterator
 //		debug(__METHOD__, $this->current());
 	}
 
-	public function ftell()
+	public function ftell(): int|false
 	{
 		return ftell($this->filePointer);
 	}

@@ -8,23 +8,23 @@ class HtmlString implements ToStringable
 {
 	use DirectDataAccess;
 
-	protected $value = '';
+	protected string $value;
 
 	public function __construct($input, array $props = [])
 	{
 		if (is_array($input)) {
 			$input = implode(PHP_EOL, $input);
 		}
+
 		$this->value = $input . '';
 		$this->data = $props;
 	}
 
 	/**
-	 * htmlspecialchars which knows about HtmlString()
-	 * @param string $string
-	 * @return string|HtmlString
-	 */
-	public static function hsc($string)
+     * htmlspecialchars which knows about HtmlString()
+     * @param string $string
+     */
+    public static function hsc($string): \HtmlString|string
 	{
 		if ($string instanceof self) {
 			return $string;
@@ -33,23 +33,23 @@ class HtmlString implements ToStringable
 		return htmlspecialchars($string);
 	}
 
-	public function replace($one, $two)
+	public function replace($one, $two): void
 	{
-		$new = new HtmlString(
+		new HtmlString(
 			str_replace($one, $two, $this->value));
 	}
 
-	public function cli()
+	public function cli(): string
 	{
 		return trim(strip_tags($this->render()));
 	}
 
-	public function render()
+	public function render(): string
 	{
 		return $this->__toString();
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->value . '';
 	}

@@ -23,15 +23,14 @@ class HTMLFormLocation extends HTMLFormType
 	}
 
 	/**
-	 * @param int $value
-	 * @return mixed|void
-	 */
-	public function setValue($value)
+     * @param int $value
+     */
+    public function setValue($value): void
 	{
 		$this->value = $value;
 	}
 
-	public function render()
+	public function render(): array
 	{
 		$content = [];
 		$content[] = $this->form->getInput('input', $this->field, $this->value, [
@@ -46,8 +45,10 @@ class HTMLFormLocation extends HTMLFormType
 			if ($this->size) {
 				$map->size = $this->size;
 			}
+            
 			$content[] = '<div class="text-center p-3">' . $map->render() . '</div>';
 		}
+        
 		return $content;
 	}
 

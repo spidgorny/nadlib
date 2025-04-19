@@ -3,7 +3,7 @@
 class SimpleMenu extends Menu
 {
 
-	public function render()
+	public function render(): string
 	{
 		$content = '<ul>' . PHP_EOL;
 		$items = $this->items;
@@ -11,7 +11,7 @@ class SimpleMenu extends Menu
 			$link = HTMLTag::a(cap($this->basePath) . $class, $name);
 			$content .= '<li>' . $link . '</li>' . PHP_EOL;
 		}
-		$content .= '</ul>' . PHP_EOL;
-		return $content;
+
+		return $content . ('</ul>' . PHP_EOL);
 	}
 }

@@ -8,28 +8,31 @@ class SQLTest extends PHPUnit\Framework\TestCase
 	 */
 	protected $db;
 
-	public function setUp(): void
+	protected function setUp(): void
 	{
 		self::markTestSkipped('PG dependent');
 		$this->db = Config::getInstance()->getDB();
 	}
 
-	public function test_SQLNow_PG()
+	public function test_SQLNow_PG(): void
 	{
 		$now = new SQLNow();
 		$now->injectDB($this->db);
+
 		$string = $now . '';
 
 		$this->assertEquals('now()', $string);
 	}
 
-	public function test_SQLNow_PG_update_no_quote()
+	public function test_SQLNow_PG_update_no_quote(): void
 	{
 		if ($this->db instanceof DBPlacebo) {
 			$this->markTestSkipped('DBPlacebo has different SQL');
 		}
+
 		$now = new SQLNow();
 		$now->injectDB($this->db);
+
 		$update = [
 			'mtime' => $now,
 		];
@@ -43,23 +46,24 @@ WHERE
 //		$this->assertEquals($expected, $query);
 	}
 
-	public function normalize($s)
+	public function normalize($s): string
 	{
 		return implode(PHP_EOL, trimExplode("\n", $s));
 	}
 
-	public function test_SQLNow_PG_insert_no_quote()
+	public function test_SQLNow_PG_insert_no_quote(): void
 	{
 		if ($this->db instanceof DBPlacebo) {
 			$this->markTestSkipped('DBPlacebo has different SQL');
 		}
+
 		$now = new SQLNow();
 		$update = [
 			'mtime' => $now,
 		];
 		$query = $this->db->getInsertQuery('asd', $update);
 
-		$expected = "INSERT INTO \"asd\" (\"mtime\") VALUES (now())";
+		$expected = 'INSERT INTO "asd" ("mtime") VALUES (now())';
 		$expected = str_replace("\r", '', $expected);
 		$this->assertEquals($expected, $query);
 	}

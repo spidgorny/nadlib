@@ -13,7 +13,11 @@
 class MergedContent implements ArrayAccess
 {
 
-	public $content = [];
+	/**
+     * @var mixed[]
+     */
+    public $content = [];
+
 	protected $combined = [];
 
 	public function __construct(array $parts = [])
@@ -22,17 +26,18 @@ class MergedContent implements ArrayAccess
 	}
 
 	/**
-	 * @param string|string[]|mixed $render
-	 * @return string
-	 */
-	public static function mergeStringArrayRecursive($render): string
+     * @param string|string[]|mixed $render
+     */
+    public static function mergeStringArrayRecursive($render): string
 	{
-		if (is_array($render) && empty($render)) {
+		if ($render === []) {
 			return '';
 		}
+
 		if (!$render) {
 			return $render . '';
 		}
+
 		if (is_string($render) || is_scalar($render)) {
 			return $render;
 		}
@@ -64,7 +69,7 @@ class MergedContent implements ArrayAccess
 			$render = $combined;
 		} elseif (is_object($render)) {
 			try {
-				$render = $render . '';
+				$render .= '';
 			} catch (ErrorException $e) {
 				debug_pre_print_backtrace();
 //				debug('Object of class ', get_class($render), 'could not be converted to string');
@@ -72,12 +77,13 @@ class MergedContent implements ArrayAccess
 				$render = '?[' . get_class($render) . ']?';
 			}
 		} else {
-			$render = $render . '';    // just in case
+			$render .= '';    // just in case
 		}
+
 		return $render;
 	}
 
-	public static function stringify(array $objects)
+	public static function stringify(array $objects): array
 	{
 		foreach ($objects as &$element) {
 //			$debug = '-= ' . typ($element) . ' =-' . BR;
@@ -87,10 +93,11 @@ class MergedContent implements ArrayAccess
 				? $element . ''
 				: $element;
 		}
+
 		return $objects;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 //		debug_pre_print_backtrace();
 		return $this->getContent();
@@ -116,16 +123,17 @@ class MergedContent implements ArrayAccess
 		}
 	}
 
-	public function add($value)
+	public function add($value): void
 	{
 		$this->content[] = $value;
 	}
 
-	public function addSub($key, $value)
+	public function addSub($key, $value): void
 	{
 		if (isset($this->content[$key]) && is_string($this->content[$key])) {
 			$this->content[$key] = [$this->content[$key]];
 		}
+
 		$this->content[$key][] = $value;
 	}
 
@@ -182,7 +190,7 @@ class MergedContent implements ArrayAccess
 		unset($this->content[$key]);
 	}
 
-	public function clear()
+	public function clear(): void
 	{
 		debug('clear');
 		$this->content = [];

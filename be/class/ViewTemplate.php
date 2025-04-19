@@ -3,7 +3,7 @@
 class ViewTemplate extends AppController
 {
 
-	public function sidebar()
+	public function sidebar(): array
 	{
 		$folder = AutoLoad::getInstance()->appRoot . 'template';
 		$content[] = $folder . BR;

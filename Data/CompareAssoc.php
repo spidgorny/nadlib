@@ -3,7 +3,10 @@
 class CompareAssoc
 {
 
-	public $keys;
+	/**
+     * @var \list<(int | string)>
+     */
+    public $keys;
 
 	public $assoc1;
 
@@ -22,7 +25,7 @@ class CompareAssoc
 		$this->compare();
 	}
 
-	public function compare()
+	public function compare(): void
 	{
 		foreach ($this->keys as $key) {
 			$this->table[$key] = [
@@ -35,14 +38,14 @@ class CompareAssoc
 		}
 	}
 
-	public function render()
+	public function render(): \slTable
 	{
 		return new slTable($this->table);
 	}
 
-	public function isDifferent()
+	public function isDifferent(): float|int|array
 	{
-		return array_reduce($this->table, function ($acc, $row) {
+		return array_reduce($this->table, function ($acc, array $row): float|int|array {
 			return $acc + $row['same'];
 		}, 0);
 	}

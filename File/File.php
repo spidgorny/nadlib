@@ -17,7 +17,7 @@ class File
 	/**
 	 * @var string this is a relative path (can be absolute as well)
 	 */
-	protected $name;
+	protected string $name;
 
 	public $spl;
 
@@ -44,24 +44,18 @@ class File
 		$this->name = basename($path);
 	}
 
-	public static function fromLocal($file, string $relativeTo = null)
+	public static function fromLocal($file, string $relativeTo = null): static
 	{
 		if (!file_exists($file) && !is_dir($file)) {
 			throw new RuntimeException('File ' . $file . ' does not exists');
 		}
-		$file = new static($file, $relativeTo);
-		$file->isDir = is_dir($file);
-		return $file;
-		// relative to some unknown root should work
-//		if (!file_exists($file) && !is_dir($file)) {
-//			throw new Exception('File ' . $file . ' does not exists');
-//		}
+
 		$file = new static($file, $relativeTo);
 		$file->isDir = is_dir($file);
 		return $file;
 	}
 
-	public static function fromSpl(SplFileInfo $info)
+	public static function fromSpl(SplFileInfo $info): static
 	{
 		$file = new static($info->getPathname());
 		$file->spl = $info;
@@ -70,15 +64,15 @@ class File
 
 	public function getPathname()
 	{
-		if ($this->dir) {
+		if ($this->dir !== '' && $this->dir !== '0') {
 			return $this->dir . '/' . $this->name;
 		}
-		$absolute = path_plus($this->relativeTo, $this->name);
+
 //		llog(__METHOD__, $this->relativeTo, $this->name, $absolute);
-		return $absolute;
+		return path_plus($this->relativeTo, $this->name);
 	}
 
-	public static function fromFly(Filesystem $fly, FileAttributes $fileMeta)
+	public static function fromFly(Filesystem $fly, FileAttributes $fileMeta): static
 	{
 		$file = new static($fileMeta->path());
 		$file->fly = $fly;
@@ -86,22 +80,22 @@ class File
 		return $file;
 	}
 
-	public function getDir()
+	public function getDir(): string
 	{
 		return $this->dir;
 	}
 
-	public function getExt()
+	public function getExt(): string
 	{
 		return pathinfo($this->getName(), PATHINFO_EXTENSION);
 	}
 
-	public function getName()
+	public function getName(): string
 	{
 		return $this->name;
 	}
 
-	public function getBasename()
+	public function getBasename(): string
 	{
 		return $this->name;
 	}
@@ -111,60 +105,62 @@ class File
 		return md5_file($this->getPathname());
 	}
 
-	public function getURL()
+	public function getURL(): string|\Path
 	{
 		$path = new Path($this->getPathname());
 		return $path->getURL();
 	}
 
-	public function getSize()
+	public function getSize(): int|null|false
 	{
 		return $this->size();
 	}
 
-	public function size()
+	public function size(): int|null|false
 	{
 		if ($this->meta) {
 			return $this->meta->fileSize();
 		}
+
 		return filesize($this->getPathname());
 	}
 
-	public function time()
+	public function time(): int|null|false
 	{
 		if ($this->meta) {
 			return $this->meta->lastModified();
 		}
+
 		return filemtime($this->getPathname());
 	}
 
-	public function mime()
+	public function mime(): string
 	{
 		$mime = new MIME();
 		return $mime->get_mime_type($this->getPathname());
 	}
 
-	public function getExtension()
+	public function getExtension(): string
 	{
 		return pathinfo($this->getName(), PATHINFO_EXTENSION);
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->getPathname();
 	}
 
-	public function getCTime()
+	public function getCTime(): int|false
 	{
 		return filectime($this->getPathname());
 	}
 
-	public function getMTime()
+	public function getMTime(): int|false
 	{
 		return filemtime($this->getPathname());
 	}
 
-	public function getType()
+	public function getType(): string
 	{
 		return $this->isDir ? 'dir' : 'file';
 	}

@@ -25,18 +25,18 @@ class SQLRange extends SQLWherePart
 		$this->till = $till;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		$field = $this->db->quoteKey($this->field);
-		$sql = "($field >= '$this->from'";
+		$sql = sprintf("(%s >= '%s'", $field, $this->from);
 		if ($this->till) {
-			$sql .= " AND $field < '$this->till'";
+			$sql .= sprintf(" AND %s < '%s'", $field, $this->till);
 		}
-		$sql .= ")";
-		return $sql;
+
+		return $sql . ")";
 	}
 
-	public function debug()
+	public function debug(): array
 	{
 		return $this->__toString();
 	}

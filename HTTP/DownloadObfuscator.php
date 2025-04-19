@@ -41,19 +41,20 @@ class DownloadObfuscator
 		if (getenv('DOWNLOAD_OBFUSCATOR_SECRET')) {
 			$this->swordfish = getenv('DOWNLOAD_OBFUSCATOR_SECRET');
 		}
+
 		$this->swordfish .= date('Y-m-d-H');
 	}
 
 	public function validateFilePath($filePath)
 	{
 		$parts = trimExplode('/', $filePath);
-		return collect($parts)->every(fn($x) => $this->validateFilename($x, false));
+		return collect($parts)->every(fn($x): bool => $this->validateFilename($x, false));
 	}
 
 	public function validateFilename(string $filename, bool $allowUnicode = false): bool
 	{
 		// 1. Empty filename check
-		if (empty($filename)) {
+		if ($filename === '' || $filename === '0') {
 			return false;
 		}
 
@@ -90,15 +91,12 @@ class DownloadObfuscator
 			return false;
 		}
 
-		// 7. Check for special characters you want to exclude (e.g., control characters)
-		if (preg_match('/[\x00-\x1F\x7F]/', $filename)) { // Control characters
-			return false;
-		}
-
-		return true; // Filename is valid
+        // 7. Check for special characters you want to exclude (e.g., control characters)
+        // Control characters
+        return !preg_match('/[\x00-\x1F\x7F]/', $filename); // Filename is valid
 	}
 
-	public function getDownloadLink()
+	public function getDownloadLink(): string
 	{
 		//$link = '?id='.DownloadObfuscator::page.'&type='.DownloadObfuscator::type.'&file='.urlencode($this->filename).'&check='.$this->getHash();
 		//$link = '?id='.DownloadObfuscator::page.'&type='.DownloadObfuscator::type.'&subid='.$this->sub->submission['uid'].'&fileSuffix='.$this->fileSuffix.'&check='.$this->getHash();
@@ -109,12 +107,11 @@ class DownloadObfuscator
 				'file' => $this->file,
 				'fileSuffix' => $this->fileSuffix,
 				'check' => $this->getHash(),
-			]);
-		$link .= '&/' . basename($this->file);    // http://stackoverflow.com/a/216777
-		return $link;
+			]);    // http://stackoverflow.com/a/216777
+		return $link . ('&/' . basename($this->file));
 	}
 
-	public function getHash()
+	public function getHash(): string
 	{
 		//return md5($this->swordfish.$this->filename);
 		//t3lib_div::debug($this->sub->uploadFileLink . $this->swordfish . $this->sub->submission['uid']);
@@ -122,12 +119,12 @@ class DownloadObfuscator
 		return md5($this->getFileNameWithSuffix($this->file) . $this->swordfish);
 	}
 
-	public function getFileNameWithSuffix($file)
+	public function getFileNameWithSuffix($file): string
 	{
 		return substr($file, 0, -4) . $this->fileSuffix . substr($file, -4);
 	}
 
-	public function checkHash($check)
+	public function checkHash($check): bool
 	{
 		//debug($this->getHash(), $check);
 		return $this->getHash() === $check;
@@ -136,7 +133,7 @@ class DownloadObfuscator
 	/**
 	 * Previous name checkAndStreamFile
 	 */
-	public function render()
+	public function render(): void
 	{
 		$r = Request::getInstance();
 		if ($this->checkHash($r->getTrim('check'))) {
@@ -146,7 +143,7 @@ class DownloadObfuscator
 		}
 	}
 
-	public function fileExists($file)
+	public function fileExists($file): bool
 	{
 		//$file = str_replace(SUBMISSION_SUB_BASE, '', $file);
 		//$file = escapeshellcmd($file);
@@ -154,7 +151,7 @@ class DownloadObfuscator
 		return file_exists($file) && is_readable($file);
 	}
 
-	public function streamFile()
+	public function streamFile(): void
 	{
 		$file = $this->getFileNameWithSuffix($this->file);
 		//$file = str_replace(SUBMISSION_SUB_BASE, '', $file);
@@ -170,7 +167,7 @@ class DownloadObfuscator
 		exit();
 	}
 
-	public function forceDownload($file)
+	public function forceDownload($file): void
 	{
 		// urlencode makes is ugly
 		header('Content-Disposition: attachment; filename="' ./*urlencode*/

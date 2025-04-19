@@ -5,29 +5,35 @@
  */
 class StringTemplate
 {
-	public $filename;
+	/**
+     * @var string
+     */
+    public $filename;
+    
 	protected $content;
+    
 	protected $lines;
+    
 	protected $caller;
 
-	public function __construct($file, $self = null)
+	public function __construct(string $file, $self = null)
 	{
 		$this->filename = $file;
 		$filepath = Path::isItAbsolute($file) ? $file : 'template/' . $file;
 		if (!file_exists($filepath)) {
 			throw new RuntimeException($filepath . ' does not exist.');
 		}
+        
 		$this->content = file_get_contents($filepath);
 		$this->caller = $self;
 	}
 
 	/**
-	 * Made in order to extract the subject line from the template
-	 *
-	 * @param int $line
-	 * @return string
-	 */
-	public function getLine($line)
+     * Made in order to extract the subject line from the template
+     *
+     * @param int $line
+     */
+    public function getLine($line): string
 	{
 		$this->lines = explode("\n", $this->content);
 		$content = $this->lines[$line];
@@ -36,16 +42,14 @@ class StringTemplate
 	}
 
 	/**
-	 * In relation to the getLine();
-	 *
-	 * @return string
-	 */
-	public function getRest()
+     * In relation to the getLine();
+     */
+    public function getRest(): string
 	{
 		return implode("\n", $this->lines);
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->render();
 	}
@@ -61,6 +65,7 @@ class StringTemplate
 		if (!is_callable($method) || !method_exists($this->caller, $func)) {
 			$method = ['Controller', $func];
 		}
+        
 		return call_user_func_array($method, $args);
 	}
 

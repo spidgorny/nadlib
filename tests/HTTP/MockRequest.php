@@ -31,13 +31,17 @@ class MockRequest
 		return $this->pathAfterAppRootByPath;
 	}
 
-	public function getURLLevels()
+	/**
+     * @return mixed[]
+     */
+    public function getURLLevels(): array
 	{
 		$levels = [];
 		$path = $this->getPathAfterAppRootByPath();
 		if (strlen($path) > 1) {    // "/"
 			$levels = trimExplode('/', $path);
 		}
+
 		return $levels;
 	}
 

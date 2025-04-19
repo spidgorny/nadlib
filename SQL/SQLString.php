@@ -11,7 +11,7 @@ class SQLString extends SQLWherePart
 		$this->value = $value;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->field . " = '" . $this->db->escape($this->value) . "'";
 	}

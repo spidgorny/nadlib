@@ -8,19 +8,21 @@ class SQLBuilderTest extends NadlibTestCase
 	 */
 	protected $db;
 
-	public function setUp(): void
+	protected function setUp(): void
 	{
 		$this->db = Config::getInstance()->getDB();
 	}
 
-	public function test_getSelectQuery()
+	public function test_getSelectQuery(): void
 	{
 		if ($this->db instanceof DBLayerPDO && $this->db->isMySQL()) {
 			$this->markTestSkipped('MySQL has different SQL');
 		}
+        
 		if ($this->db instanceof DBPlacebo) {
 			$this->markTestSkipped('DBPlacebo has different SQL');
 		}
+        
 		$qb = new SQLBuilder($this->db);
 		$query = $qb->getSelectQueryString('table', [
 			'a' => 'b',
@@ -35,14 +37,16 @@ ORDER BY c";
 		$this->assertEquals($must, $query);
 	}
 
-	public function test_getSelectQueryP()
+	public function test_getSelectQueryP(): void
 	{
 		if ($this->db instanceof DBLayerPDO && $this->db->isMySQL()) {
 			$this->markTestSkipped('MySQL has different SQL');
 		}
+        
 		if ($this->db instanceof DBPlacebo) {
 			$this->markTestSkipped('DBPlacebo has different SQL');
 		}
+        
 		$query = new SQLSelectQuery($this->db, new SQLSelect('*'), new SQLFrom('table'), new SQLWhere([
 			'a' => new SQLLikeContains('b'),
 		]), null, null, null, new SQLOrder('ORDER BY c'));
@@ -53,24 +57,24 @@ WHERE
 \"a\" ILIKE '%' || $1 || '%'
 ORDER BY c";
 		$must = $this->implodeSQL($must);
+        
 		$sQuery = $query->getQuery();
 		$sQuery = $this->implodeSQL($sQuery);
 //		debug($must, $sQuery, $query->getParameters());
 		$this->assertEquals($must, $sQuery);
 	}
 
-	public function implodeSQL($sql)
+	public function implodeSQL($sql): string
 	{
-		$sql = strtr($sql, [
+		return strtr($sql, [
 			" " => '',
 			"\t" => '',
 			"\r" => '',
 			"\n" => '',
 		]);
-		return $sql;
 	}
 
-	public function testGetFirstWord()
+	public function testGetFirstWord(): void
 	{
 		$room = SQLBuilder::getFirstWord('room');
 		$this->assertEquals('room', $room);
@@ -86,22 +90,23 @@ AND something else');
 		$this->assertEquals('room', $room);
 	}
 
-	public function testGetFirstWordAgain()
+	public function testGetFirstWordAgain(): void
 	{
 		$this->expectException(InvalidArgumentException::class);
 		$room = SQLBuilder::getFirstWord(null);
 		$this->assertEquals('room', $room);
 	}
 
-	public function testGetFirstWordFromPDO()
+	public function testGetFirstWordFromPDO(): void
 	{
 		$pdo = new DBLayerPDO();
 		$pdo->setQB(new SQLBuilder($pdo));
+        
 		$room = SQLBuilder::getFirstWord('room');
 		$this->assertEquals('room', $room);
 	}
 
-	public function testGroupBy()
+	public function testGroupBy(): void
 	{
 		$qb = new SQLBuilder($this->db);
 		$query = $qb->getSelectQuery('table', [
@@ -110,7 +115,7 @@ AND something else');
 		$this->assertEquals("SELECT*FROM\"table\"WHERE\"a\"='b'GROUPBYc", $this->implodeSQL($query));
 	}
 
-	public function testTableOptions()
+	public function testTableOptions(): void
 	{
 		$qb = new SQLBuilder($this->db);
 		$options = $qb->getTableOptions('version', 'versionname', [

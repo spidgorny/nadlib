@@ -22,13 +22,15 @@ class SearchPlaceholder extends AppControllerBE
 		if (!$content) {
 			$content .= $this->renderProgressBar();
 		}
+        
 		return $content;
 	}
 
-	public function renderProgressBar()
+	public function renderProgressBar(): string
 	{
 		$pb = new ProgressBar(1);
 		$pb->destruct100 = false;
+        
 		$content = $pb->getContent();
 
 		foreach ($this->ajaxLinks as &$link) {
@@ -44,7 +46,7 @@ class SearchPlaceholder extends AppControllerBE
 		return $content;
 	}
 
-	public function sleepAction()
+	public function sleepAction(): string
 	{
 		sleep(1);
 		$time = $this->request->getInt('time');
@@ -52,11 +54,12 @@ class SearchPlaceholder extends AppControllerBE
 
 		$pb = new ProgressBar();
 		$pb->destruct100 = false;
+        
 		$pbid = $this->request->getTrim('pbid');
 		$pb->setID($pbid);
 
-		$pb->setProgressBarProgress(100 * $time / sizeof($this->ajaxLinks));
-		if ($time == sizeof($this->ajaxLinks)) {
+		$pb->setProgressBarProgress(100 * $time / count($this->ajaxLinks));
+		if ($time == count($this->ajaxLinks)) {
 			$pb->hide();
 		}
 

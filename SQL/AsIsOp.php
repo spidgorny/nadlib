@@ -22,17 +22,17 @@ class AsIsOp extends AsIs
 		parent::__construct($val);
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		$content = '';
 		if ($this->field) {
 			$content .= $this->db->quoteKey($this->field) . ' ';
 		}
-		$content .= $this->value . '';
-		return $content;
+
+		return $content . ($this->value . '');
 	}
 
-	public function debug()
+	public function debug(): array
 	{
 		return [
 			'field' => $this->field,

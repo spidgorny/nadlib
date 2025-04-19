@@ -17,23 +17,24 @@ class Percent
 		return $this->i;
 	}
 
-	public function inc()
+	public function inc(): void
 	{
 		$this->i++;
 	}
 
-	public function get($decimals = 2)
+	public function get($decimals = 2): string
 	{
 		return number_format($this->i / $this->top * 100, $decimals);
 	}
 
-	public function changed($decimals = 2)
+	public function changed($decimals = 2): bool
 	{
 		static $last;
 		if ($last != $this->get($decimals)) {
 			$last = $this->get($decimals);
 			return true;
 		}
+
 		return false;
 	}
 

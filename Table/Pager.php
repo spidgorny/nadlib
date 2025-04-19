@@ -10,40 +10,54 @@ class Pager
 	 * @var bool
 	 */
 	public static $cssOutput = false;
-	public $id;
+
+	/**
+     * @var string
+     */
+    public $id;
+
 	/**
 	 * Total amount of rows in database (with WHERE)
 	 * Originally null to detect if setNumberOfRecords was called
 	 * @var int
 	 */
-	public $numberOfRecords = null;
+	public $numberOfRecords;
+
 	/**
 	 * Page size
 	 * @var int
 	 * @use setItemsPerPage
 	 */
 	public $itemsPerPage = 20;
+
 	/**
 	 * Offset in SQL
 	 * @var int
 	 */
 	public $startingRecord = 0;
+
 	/**
 	 * Current Page (0+)
 	 * @var int
 	 */
 	public $currentPage = 0;
+
 	/**
 	 * @var URL
 	 */
 	public $url;
+
 	public $pagesAround = 3;
+
 	public $showPageJump = true;
+
 	public $showPager = true;
+
 	/**
 	 * @var PageSize
 	 */
 	public $pageSize;
+
 	/**
 	 * Mouse over tooltip text per page
 	 * @var array
@@ -100,6 +114,7 @@ class Pager
 		} else {
 			$this->pageSize = new PageSize($itemsPerPage ?: $this->itemsPerPage);
 		}
+
 		$this->setItemsPerPage($this->pageSize->get()); // only allowed amounts
 
 		$this->prefix = $prefix;
@@ -109,17 +124,19 @@ class Pager
 			$this->setUser($config->getUser());
 			$config->mergeConfig($this);
 		}
+
 		$this->request = Request::getInstance();
 		// Inject dependencies, this breaks all projects which don't have DCI class
 		//if (!$this->user) $this->user = DCI::getInstance()->user;
 		$this->url = new URL();    // just in case
 	}
 
-	public function log($action, ...$data)
+	public function log($action, ...$data): void
 	{
 		if (count($data) === 1) {
 			$data = $data[0];
 		}
+
 		$logEntry = new LogEntry($action, $data);
 		$this->log[] = $logEntry;
 	}
@@ -127,16 +144,18 @@ class Pager
 	/**
 	 * @param int $items
 	 */
-	public function setItemsPerPage($items)
+	public function setItemsPerPage($items): void
 	{
 		$this->log(__METHOD__ . '(' . $items . ')');
 		if (!$items) {
 			$items = $this->pageSize->get();
 		}
+
 		$this->itemsPerPage = $items;
 		if (ArrayPlus::create($this->log)->containsPartly('detectCurrentPage')) {
 			$this->log(__METHOD__ . ' WARNING: make sure to call detectCurrentPage again');
 		}
+
 		$this->pageSize->set($items);
 	}
 
@@ -151,12 +170,12 @@ class Pager
 	/**
 	 * @param UserModelInterface $user
 	 */
-	public function setUser($user)
+	public function setUser($user): void
 	{
 		$this->user = $user;
 	}
 
-	public function initByQuery($originalSQL)
+	public function initByQuery($originalSQL): void
 	{
 		$this->log(__METHOD__);
 		if (is_string($originalSQL)) {
@@ -168,7 +187,7 @@ class Pager
 		}
 	}
 
-	public function initByStringQuery($originalSQL)
+	public function initByStringQuery($originalSQL): void
 	{
 		$this->log(__METHOD__);
 		//debug_pre_print_backtrace();
@@ -188,6 +207,7 @@ class Pager
 		} else {
 			$countQuery = $originalSQL;
 		}
+
 		$this->countQuery = $countQuery;
 		$this->log($this->countQuery);
 		$res = $this->db->fetchAssoc($this->db->perform($countQuery));
@@ -202,7 +222,7 @@ class Pager
 	/**
 	 * @param int $i
 	 */
-	public function setNumberOfRecords($i)
+	public function setNumberOfRecords($i): void
 	{
 		$this->log(__METHOD__ . '(' . $i . ')');
 		$this->numberOfRecords = $i;
@@ -211,12 +231,12 @@ class Pager
 		}
 	}
 
-	public function getStartingRecord()
+	public function getStartingRecord(): int|float
 	{
 		return $this->getPageFirstItem($this->currentPage);
 	}
 
-	public function getPageFirstItem($page)
+	public function getPageFirstItem($page): int|float
 	{
 		return $page * $this->itemsPerPage;
 	}
@@ -225,7 +245,7 @@ class Pager
 	 * Make sure to setNumberOfRecords first(!)
 	 * @param $page
 	 */
-	public function setCurrentPage($page)
+	public function setCurrentPage($page): void
 	{
 		$this->log(__METHOD__ . '(' . $page . ')');
 		//max(0, ceil($this->numberOfRecords/$this->itemsPerPage)-1);    // 0-indexed
@@ -248,11 +268,12 @@ class Pager
 			$maxpage = 0;
 			$this->log('$this->itemsPerPage: ' . $this->itemsPerPage);
 		}
+
 		$this->log(__METHOD__ . '->' . $maxpage);
 		return $maxpage;
 	}
 
-	public function initBySelectQuery(SQLSelectQuery $originalSQL, array $parameters = [])
+	public function initBySelectQuery(SQLSelectQuery $originalSQL, array $parameters = []): void
 	{
 		$this->log(__METHOD__);
 		$key = __METHOD__ . ' (' . substr($originalSQL, 0, 300) . ')';
@@ -271,6 +292,7 @@ class Pager
 		} else {
 			$query = $originalSQL;
 		}
+
 		$this->countQuery = $query;
 		$query->injectDB($this->db);
 
@@ -297,10 +319,11 @@ class Pager
 				"\nOFFSET " . $this->getStartingRecord();
 			$query .= $limit;
 		}
+
 		return $query;
 	}
 
-	public function getEnd()
+	public function getEnd(): float|int
 	{
 		return min($this->getStartingRecord() + $this->itemsPerPage, $this->numberOfRecords);
 	}
@@ -310,17 +333,17 @@ class Pager
 		return $this->itemsPerPage;
 	}
 
-	public function isInPage($i)
+	public function isInPage($i): bool
 	{
 		return $i >= $this->getPageFirstItem($this->currentPage) &&
 			$i < ($this->getPageFirstItem($this->currentPage) + $this->itemsPerPage);
 	}
 
-	public function renderPageSelectors(?URL $url = null)
+	public function renderPageSelectors(?URL $url = null): string
 	{
 		$this->log(__METHOD__);
 		$content = '';
-		if ($url) {
+		if ($url instanceof \spidgorny\nadlib\HTTP\URL) {
 			$this->url = clone $url;  // this->url may be modified
 		}
 
@@ -330,11 +353,11 @@ class Pager
 		if ($this->showPager) {
 			$content .= $this->renderPageSize();    // will render UL inside
 		}
-		$content .= '</div>';
-		return $content;
+
+		return $content . '</div>';
 	}
 
-	public function getInlineCSS()
+	public function getInlineCSS(): string
 	{
 		$content = '';
 		if (!self::$cssOutput) {
@@ -349,12 +372,14 @@ class Pager
 			} elseif (!Request::isCLI()) {
 				$content .= $this->getCSS();    // pre-compiles LESS inline
 			}
+
 			self::$cssOutput = true;
 		}
+
 		return $content;
 	}
 
-	public function getCSS()
+	public function getCSS(): string
 	{
 		if (class_exists('lessc')) {
 			$l = new lessc();
@@ -365,7 +390,7 @@ class Pager
 		}
 	}
 
-	public function showSearchBrowser()
+	public function showSearchBrowser(): string
 	{
 		$this->log(__METHOD__);
 		$content = '';
@@ -382,6 +407,7 @@ class Pager
 		} else {
 			$content .= '<li class="disabled"><span class="disabled">&larr;</span></li>';
 		}
+
 		foreach ($pages as $k) {
 			if ($k === 'gap1' || $k === 'gap2') {
 				$content .= '<li class="disabled">
@@ -391,6 +417,7 @@ class Pager
 				$content .= $this->getSinglePageLink($k, $k + 1);
 			}
 		}
+
 		if ($this->currentPage < $maxpage) {
 			$link = $this->url->setParam('Pager_' . $this->prefix, [
 				'page' => $this->currentPage + 1,
@@ -400,6 +427,7 @@ class Pager
 		} else {
 			$content .= '<li class="disabled"><span class="disabled">&rarr;</span></li>' . "\n";
 		}
+
 		if ($this->showPageJump) {
 			$form = "<form action='" . $this->url . "' method='POST' class='anyPageForm'>
 				&nbsp;<input
@@ -413,17 +441,17 @@ class Pager
 		} else {
 			$form = '';
 		}
+
 		//debug($term);
 		$content = '<ul class="pagination">' . $content . '&nbsp;' . '</ul>' . $form;
 		return $content;
 	}
 
 	/**
-	 * @param $current
-	 * @param $max
-	 * @return array
-	 */
-	public function getPagesAround($current, $max)
+     * @param $current
+     * @param $max
+     */
+    public function getPagesAround($current, $max): array
 	{
 		$this->log(__METHOD__);
 		$size = $this->pagesAround;
@@ -431,31 +459,35 @@ class Pager
 		$k = 0;
 		for ($i = 0; $i < $size; $i++) {
 			$k = $i;
-			if ($k >= 0 && $k < $max) {
+			if ($k < $max) {
 				$pages[] = $k;
 			}
 		}
+
 		if ($k + 1 < $current - $size) {
 			$pages[] = 'gap1';
 		}
+
 		for ($i = -$size; $i <= $size; $i++) {
 			$k = $current + $i;
 			if ($k >= 0 && $k <= $max) {
 				$pages[] = $k;
 			}
 		}
+
 		if ($max - $size > $k + 1) {
 			$pages[] = 'gap2';
 		}
+
 		for ($i = $max - $size + 1; $i <= $max; $i++) {
 			$k = $i;
 			if ($k >= 0 && $k <= $max) {
 				$pages[] = $k;
 			}
 		}
-		$pages = array_unique($pages);
 
-		return $pages;
+
+		return array_unique($pages);
 	}
 
 	public function getPageSize()
@@ -463,7 +495,7 @@ class Pager
 		return $this->itemsPerPage;
 	}
 
-	public function getSinglePageLink($k, $text)
+	public function getSinglePageLink($k, string $text): string
 	{
 		$link = $this->url->setParam('Pager_' . $this->prefix, [
 			'page' => $k,
@@ -479,20 +511,21 @@ class Pager
 			title="' . htmlspecialchars(ifsetor($this->pageTitles[$k], ''), ENT_QUOTES) . '"
 			>' . $text . '</a></li>';
 		}
+
 		return $content;
 	}
 
-	public function renderPageSize()
+	public function renderPageSize(): string
 	{
 		$this->log(__METHOD__);
 		$this->pageSize->setURL(new URL(null, []));
 		$this->pageSize->set($this->itemsPerPage);
-		$content = '<div class="pageSize pull-right floatRight">' .
+
+		return '<div class="pageSize pull-right floatRight">' .
 			$this->pageSize->render() . '&nbsp;' . __('per page') . '</div>';
-		return $content;
 	}
 
-	public function debug()
+	public function debug(): array
 	{
 		return [
 			'pager hash' => spl_object_hash($this),
@@ -517,16 +550,16 @@ class Pager
 		];
 	}
 
-	public function getPageLastItem($page)
+	public function getPageLastItem($page): float|int
 	{
 		return min($this->numberOfRecords, $page * $this->itemsPerPage + $this->itemsPerPage);
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		$properties = get_object_vars($this);
 		unset($properties['graphics']);
-		foreach ($properties as $key => &$val) {
+		foreach ($properties as &$val) {
 			if (is_object($val) && method_exists($val, '__toString')) {
 				$val = $val->__toString();
 			} elseif (is_array($val)) {
@@ -537,20 +570,21 @@ class Pager
 				}
 			}
 		}
+
 		return '<blockquote style="background-color: silver; border: solid 1px lightblue;"><pre>' . get_class($this) . ' [' . print_r($properties, true) . ']</pre></blockquote>';
 	}
 
-	public function getURL()
+	public function getURL(): string
 	{
 		return $this->url . '&pager[page]=' . ($this->currentPage);
 	}
 
-	public function getObjectInfo()
+	public function getObjectInfo(): string
 	{
 		return get_class($this) . ': "' . $this->itemsPerPage . '" (#' . spl_object_hash($this) . ')';
 	}
 
-	public function loadMoreButton($controller)
+	public function loadMoreButton($controller): string
 	{
 		$content = '';
 		//debug($pager->currentPage, $pager->getMaxPage());
@@ -565,10 +599,11 @@ class Pager
 			$f->submit(__('Load more'), ['class' => 'btn']);
 			$content .= '<div id="loadMorePage' . $loadPage . '">' . $f . '</div>';
 		}
+
 		return $content;
 	}
 
-	public function setIterator(Iterator|Countable $iterator)
+	public function setIterator(Iterator|Countable $iterator): void
 	{
 		$this->log(__METHOD__);
 		$this->iterator = $iterator;
@@ -579,11 +614,12 @@ class Pager
 	/**
 	 * To be called only after setNumberOfRecords()
 	 */
-	public function detectCurrentPage()
+	public function detectCurrentPage(): void
 	{
 		if (null === $this->numberOfRecords) {
 			throw new InvalidArgumentException('Pager->detectCurrentPage() called before Pager->setNumberOfRecords()');
 		}
+
 		$pagerData = ifsetor(
 			$_REQUEST['Pager.' . $this->prefix],
 			ifsetor($_REQUEST['Pager_' . $this->prefix])
@@ -596,6 +632,7 @@ class Pager
 				//Debug::debug_args($pagerData);
 				$pagerData['page']--;
 			}
+
 			$this->setCurrentPage($pagerData['page']);
 			$this->saveCurrentPage();
 		} elseif ($this->user && method_exists($this->user, 'getPref')) {
@@ -609,7 +646,7 @@ class Pager
 		}
 	}
 
-	public function saveCurrentPage()
+	public function saveCurrentPage(): void
 	{
 		$this->log(__METHOD__);
 		//debug(__METHOD__, $this->prefix, $this->currentPage);
@@ -620,12 +657,15 @@ class Pager
 		}
 	}
 
-	public function setRequestedPage($page)
+	public function setRequestedPage($page): void
 	{
 		$this->requestedPage = $page;
 	}
 
-	public function getPageData()
+	/**
+     * @return mixed[]
+     */
+    public function getPageData(): array
 	{
 		$data = [];
 
@@ -645,21 +685,21 @@ class Pager
 		return $data;
 	}
 
-	public function getStart()
+	public function getStart(): int|float
 	{
 		return $this->getStartingRecord();
 	}
 
-	public function slice(array $data)
+	public function slice(array $data): array
 	{
 		$this->log(__METHOD__);
-		$this->setNumberOfRecords(sizeof($data));
+		$this->setNumberOfRecords(count($data));
 		$this->detectCurrentPage();
 		return array_slice($data,
 			$this->getStart(), $this->pageSize->get(), true);
 	}
 
-	public function bulma()
+	public function bulma(): string
 	{
 		$prevPageLink = URL::getCurrent()->addParams(['page' => $this->currentPage - 1]);
 		$nextPageLink = URL::getCurrent()->addParams(['page' => $this->currentPage + 1]);
@@ -685,13 +725,14 @@ class Pager
     </li>';
 			}
 		}
+
 		$content[] = '
   </ul>
 </nav>';
 		return implode(PHP_EOL, $content);
 	}
 
-	public function getVisiblePages()
+	public function getVisiblePages(): array
 	{
 		return $this->getPagesAround($this->currentPage, $this->getMaxPage());
 	}

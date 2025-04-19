@@ -4,7 +4,9 @@ class CollectionQueryMySQL extends CollectionQuery
 {
 
 	public $count;
+
 	public $parentID;
+
 	public $parentField;
 
 	/**
@@ -39,13 +41,14 @@ class CollectionQueryMySQL extends CollectionQuery
 			$res = $this->db->perform($this->query);
 		}
 
-		if ($this->pager) {
+		if ($this->pager instanceof \Pager) {
 			$this->pager->setNumberOfRecords(PHP_INT_MAX);
 			$this->pager->detectCurrentPage();
 			//$this->pager->debug();
 		}
-		$start = $this->pager ? $this->pager->getStart() : 0;
-		$limit = $this->pager ? $this->pager->getLimit() : PHP_INT_MAX;
+
+		$start = $this->pager instanceof \Pager ? $this->pager->getStart() : 0;
+		$limit = $this->pager instanceof \Pager ? $this->pager->getLimit() : PHP_INT_MAX;
 
 		//debug($sql.'', $start, $limit);
 		$data = $this->db->fetchPartition($res, $start, $limit);
@@ -54,11 +57,12 @@ class CollectionQueryMySQL extends CollectionQuery
 		$countRow = $this->db->fetchAssoc($resFoundRows);
 		$this->count = $countRow['count'];
 
-		if ($this->pager) {
+		if ($this->pager instanceof \Pager) {
 			$this->pager->setNumberOfRecords($this->count);
 			$this->pager->detectCurrentPage();
 			//$this->pager->debug();
 		}
+
 		TaylorProfiler::stop($taylorKey);
 		return $data;
 	}

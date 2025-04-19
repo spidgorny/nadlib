@@ -25,10 +25,7 @@ class PageSize extends Controller
 
 	protected $selected;
 
-	/**
-	 * @var URL
-	 */
-	protected $url;
+	protected \spidgorny\nadlib\HTTP\URL $url;
 
 	/**
 	 * @var int - default for all instances
@@ -64,17 +61,17 @@ class PageSize extends Controller
 		$this->url = new URL();    // some default to avoid fatal error
 	}
 
-	public function setURL(URL $url)
+	public function setURL(URL $url): void
 	{
 		$this->url = $url;
 	}
 
-	public function update()
+	public function update(): void
 	{
 		$this->selected = $this->get();
 	}
 
-	public function set($value)
+	public function set($value): void
 	{
 		$this->selected = $value;
 		$this->options[$this->selected] = $value;
@@ -84,7 +81,7 @@ class PageSize extends Controller
 	 * Returns the $this->selected value making sure it's not too big
 	 * @return int
 	 */
-	public function get()
+	public function get(): mixed
 	{
 		return min($this->selected, max($this->options));
 	}
@@ -98,21 +95,23 @@ class PageSize extends Controller
 		}
 	}
 
-	public function render()
+	public function render(): string
 	{
 		$content = '';
 		foreach ($this->options as $o) {
 			$content .= '<option ' . ($this->selected == $o ? 'selected' : '') . '>' . $o . '</option>' . "\n";
 		}
+
 		$this->url->unsetParam('pageSize');
-		$this->url->setParam('pageSize', '');    // will end with pageSize=
+		$this->url->setParam('pageSize', '');
+            // will end with pageSize=
 		$content = '<select
 			onchange="location = \'' . $this->url . '\'+this.options[this.selectedIndex].value;"
 			class="input-small">' . $content . '</select>';
 		return $content;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->render() . '';
 	}

@@ -67,7 +67,7 @@ class ElasticaQuery
 		$this->elasticaQuery = new Query();
 	}
 
-	public function setOrderBy($orderBy)
+	public function setOrderBy($orderBy): void
 	{
 		foreach ($orderBy as $by => $ascDesc) {
 			$this->elasticaQuery->setSort([
@@ -76,18 +76,18 @@ class ElasticaQuery
 		}
 	}
 
-	public function setPager(Pager $pager)
+	public function setPager(Pager $pager): void
 	{
 		$this->pager = $pager;
 		$this->elasticaQuery->setFrom($pager->getStart());
 		$this->elasticaQuery->setSize($pager->getLimit());
 	}
 
-	public function setWhere(array $where)
+	public function setWhere(array $where): void
 	{
 		foreach ($where as $field => $condition) {
 			$elasticaCondition = $this->switchCondition($field, $condition);
-			if ($elasticaCondition) {
+			if ($elasticaCondition !== null) {
 				if ($elasticaCondition instanceof AbstractQuery) {
 					$elasticaQueryString = $elasticaCondition;
 				} else {
@@ -101,9 +101,9 @@ class ElasticaQuery
 
 	public function fetchSelectQuery($type)
 	{
-		/** @var Elastica\Query\Filtered $fq */
 		$this->filteredQuery->setQuery($this->queryString);
 		$this->filteredQuery->setFilter($this->elasticaFilterAnd);
+        
 		$this->elasticaQuery->setQuery($this->filteredQuery);
 		if ($this->facets) {
 			$this->elasticaQuery->addFacet($this->facets);
@@ -112,10 +112,12 @@ class ElasticaQuery
 		$search = new Elastica\Search($this->client);
 		$search->addIndex($this->indexName);
 		$search->addType($type);
+        
 		$resultSet = $search->search($this->elasticaQuery);
 		if ($this->pager) {
 			$this->pager->setNumberOfRecords($resultSet->getTotalHits());
 		}
+        
 		//debug('getLastRequest', $this->client->getLastRequest());
 		//debug('getLastResponse', $this->client->getLastResponse());
 		//debug('query', $this->client->getLastRequest()->getData());
@@ -129,7 +131,7 @@ class ElasticaQuery
 	 * @param mixed $condition
 	 * @return AbstractQuery
 	 */
-	public function switchCondition($field, $condition)
+	public function switchCondition($field, $condition): \Elastica\Query\QueryString|\Elastica\Filter\Range|\Elastica\Filter\Term|null
 	{
 		$res = null;
 		$type = is_object($condition)
@@ -165,6 +167,7 @@ class ElasticaQuery
 				$res->setQuery($condition->string);
 				break;
 		}
+        
 		return $res;
 	}
 
@@ -172,8 +175,9 @@ class ElasticaQuery
 	{
 		if (is_object($obj)) {
 			//$obj->injectQB($this);
-			$obj = $obj . '';
+			$obj .= '';
 		}
+        
 		return $obj;
 	}
 
@@ -189,9 +193,11 @@ class ElasticaQuery
 		//$elasticaTerm->setTerm('_id', $id);
 		$elasticaQuery = new Term();
 		$elasticaQuery->setTerm('_id', $id);
+        
 		$search = new Elastica\Search($this->client);
 		$search->addIndex($this->indexName);
 		$search->addType($type);
+        
 		$resultSet = $search->search($elasticaQuery);
 		$aResults = $resultSet->getResults();
 		//debug($search->getClient()->getLastRequest()->getData());
@@ -200,6 +206,7 @@ class ElasticaQuery
 			$first = first($aResults);
 			$row = $first->getData();
 		}
+        
 		//debug($row); exit();
 		return $row;
 	}

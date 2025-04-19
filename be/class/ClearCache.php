@@ -12,11 +12,11 @@ class ClearCache extends AppControllerBE
 		$this->dir = $mf->folder;
 	}
 
-	public function render()
+	public function render(): string
 	{
 		$content = $this->performAction($this->detectAction());
 		$files = $this->getFiles();
-		$content .= '<h1>Files in ' . $this->dir . ' (' . sizeof($files) . ')</h1>';
+		$content .= '<h1>Files in ' . $this->dir . ' (' . count($files) . ')</h1>';
 		$s = new slTable($files, '', [
 			'filelink' => [
 				'name' => 'file',
@@ -29,8 +29,7 @@ class ClearCache extends AppControllerBE
 				'format' => 'Y-m-d H:i:s',
 			],
 		]);
-		$content .= $s;
-		return $content;
+		return $content . $s;
 	}
 
 	public function getFiles()
@@ -44,7 +43,7 @@ class ClearCache extends AppControllerBE
 		return $this->getActionButton('Clear Cache', 'clearCache');
 	}
 
-	public function clearCacheAction()
+	public function clearCacheAction(): void
 	{
 		$ccs = new ClearCacheService();
 		$ccs->clearCacheIn($this->dir);

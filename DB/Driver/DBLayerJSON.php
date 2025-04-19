@@ -18,7 +18,7 @@ class DBLayerJSON extends DBLayerBase implements DBInterface
 		$this->folderName = $folderName;
 	}
 
-	public function fetchAll($res_or_query, $index_by_key = null)
+	public function fetchAll($res_or_query, $index_by_key = null): void
 	{
 		if ($res_or_query instanceof DBLayerJSONTable) {
 			return $res_or_query->fetchAll($res_or_query, $index_by_key);
@@ -42,9 +42,9 @@ class DBLayerJSON extends DBLayerBase implements DBInterface
 		for ($tok = strtok($res_or_query, $del); $tok !== false; $tok = strtok($del)) {
 			$tokens[] = $tok;
 		}
-		$iFROM = array_search('FROM', $tokens);
-		$table = ifsetor($tokens[$iFROM + 1]);
-		return $table;
+
+		$iFROM = array_search('FROM', $tokens, true);
+		return ifsetor($tokens[$iFROM + 1]);
 	}
 
 	/**
@@ -57,6 +57,7 @@ class DBLayerJSON extends DBLayerBase implements DBInterface
 		if (!isset($this->tables[$name])) {
 			$this->tables[$name] = new DBLayerJSONTable(cap($this->folderName) . $name . '.json');
 		}
+
 		return $this->tables[$name];
 	}
 
@@ -69,7 +70,7 @@ class DBLayerJSON extends DBLayerBase implements DBInterface
 		}
 	}
 
-	public function numRows($res = null)
+	public function numRows($res = null): int
 	{
 		//debug(gettype2($res));
 		if (!($res instanceof DBLayerJSONTable)) {
@@ -83,6 +84,7 @@ class DBLayerJSON extends DBLayerBase implements DBInterface
 			/** @var DBLayerJSONTable $t */
 			$t = $res;
 		}
+
 		return $t->numRows($res);
 	}
 
@@ -108,14 +110,13 @@ class DBLayerJSON extends DBLayerBase implements DBInterface
 		return $t;
 	}
 
-	public function runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+	public function runSelectQuery($table, array $where = [], $order = '', $addSelect = ''): \DBLayerJSONTable
 	{
 		$t = $this->getTable($table);
-		$res = $t->runSelectQuery($table, $where, $order, $addSelect);
-		return $res;
+		return $t->runSelectQuery($table, $where, $order, $addSelect);
 	}
 
-	public function __call($method, array $params)
+	public function __call(string $method, array $params)
 	{
 //		echo $method, BR;
 		return parent::__call($method, $params);
@@ -131,20 +132,21 @@ class DBLayerJSON extends DBLayerBase implements DBInterface
 		} else {
 			$t = $query;
 		}
+
 		return $t;
 	}
 
-	public function getInfo()
+	public function getInfo(): array
 	{
 		return ['class' => get_class($this)];
 	}
 
-	public function getVersion()
+	public function getVersion(): void
 	{
 		// TODO: Implement getVersion() method.
 	}
 
-	public function getPlaceholder($field)
+	public function getPlaceholder($field): void
 	{
 		// TODO: Implement getPlaceholder() method.
 	}

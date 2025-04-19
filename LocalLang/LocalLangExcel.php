@@ -7,7 +7,9 @@
 class LocalLangExcel extends LocalLang
 {
 	protected $filename = 'lib/LocalLang.object';
+
 	protected $excel = 'lib/translation.xml';
+
 	protected $isCache = true;
 
 	public function __construct($forceLang = null)
@@ -20,29 +22,32 @@ class LocalLangExcel extends LocalLang
 				$this->savePersistant($this->ll);
 			}
 		}
+
 		$this->ll = $this->ll[$this->lang];
 	}
 
 	public function readPersistant()
 	{
 		$data = [];
-		if (file_exists($this->filename)) {
-			if (filemtime($this->filename) > filemtime($this->excel) && $this->isCache) {
-				$data = file_get_contents($this->filename);
-				$data = unserialize($data);
-			}
-		}
+		if (file_exists($this->filename) && (filemtime($this->filename) > filemtime($this->excel) && $this->isCache)) {
+            $data = file_get_contents($this->filename);
+            $data = unserialize($data);
+        }
+
 		return $data;
 	}
 
-	public function savePersistant($data)
+	public function savePersistant($data): void
 	{
 		$data = serialize($data);
-		$data = file_put_contents($this->filename, $data);
+		file_put_contents($this->filename, $data);
 		//debug('save');
 	}
 
-	public function readExcel(array $keys)
+	/**
+     * @return non-empty-array<int, \non-falsy-string>[]
+     */
+    public function readExcel(array $keys): array
 	{
 		//debug($keys);
 		$data = [];
@@ -55,6 +60,7 @@ class LocalLangExcel extends LocalLang
 			foreach ($namespaces as $prefix => $ns) {
 				$xml->registerXPathNamespace($prefix, $ns);
 			}
+
 			$s = $xml->Worksheet[0]->Table;
 			foreach ($s->Row as $row) {
 				//debug($row);
@@ -73,34 +79,38 @@ class LocalLangExcel extends LocalLang
 							$cellText = strip_tags($cellText);
 							//debug($cellText);
 						}
+
 						//$cellText = mb_convert_encoding($cellText, 'Windows-1251', 'UTF-8');
 						$cellText = trim($cellText);
 						$cellIndex = $cell['ss:Index'] + 0;
 						//debug($cell->attributes()->asXML(), $i);
 						if (!$cellIndex) {
-							$cellIndex = sizeof($data[$key]);
+							$cellIndex = count($data[$key]);
 						}
-						if ($cellText) {
+
+						if ($cellText !== '' && $cellText !== '0') {
 							$data[$key][$cellIndex] = $cellText;
 						}
 					}
 				}
+
 				//debug($dataLine);
 			}
 		}
+
 		//debug($data);
 		foreach ($data as $lang => &$trans) {
 			if ($lang != 'code') {
 				//$trans = array_unique($trans);
 				//debug(sizeof($trans));
-				$trans = array_slice($trans, 0, sizeof($data['code']));
+				$trans = array_slice($trans, 0, count($data['code']));
 				/*				debug(array(
 									'array_combine',
 									$data['code'],
 									$trans,
 								));
 				*/
-				if (sizeof($data['code']) == sizeof($trans)) {
+				if (count($data['code']) === count($trans)) {
 					$trans = array_combine($data['code'], $trans);
 				} else {
 					$diff = array_diff_key($data['code'], $trans);
@@ -108,6 +118,7 @@ class LocalLangExcel extends LocalLang
 				}
 			}
 		}
+
 		//debug($data);
 		return $data;
 	}
@@ -118,28 +129,27 @@ class LocalLangExcel extends LocalLang
 		if (!$instance) {
 			$instance = new LocalLangExcel();
 		}
+
 		return $instance;
 	}
 
-	public function saveMissingMessage($text)
-	{
-		if (DEVELOPMENT) {
-			$missingWords = [];
-			$fp = fopen('lib/missing.txt', 'r');
-			while (!feof($fp)) {
+	public function saveMissingMessage($text): void
+    {
+        $missingWords = [];
+        $fp = fopen('lib/missing.txt', 'r');
+        while (!feof($fp)) {
 				$line = fgets($fp);
 				$line = trim($line);
 				$missingWords[$line] = $line;
 			}
-			fclose($fp);
-			//debug($missingWords);
 
-			if (!isset($missingWords[$text])) {
+        fclose($fp);
+        //debug($missingWords);
+        if (!isset($missingWords[$text])) {
 				$fp = fopen('lib/missing.txt', 'a');
-				fputs($fp, $text . "\n");
+				fwrite($fp, $text . "\n");
 				fclose($fp);
 			}
-		}
-	}
+    }
 
 }

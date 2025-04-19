@@ -49,7 +49,7 @@ class CollectionMM extends Collection
 	/**
 	 * @param $id
 	 */
-	public function getField1Values($id)
+	public function getField1Values($id): void
 	{
 		$this->idField = $this->field1;
 		$this->where[$this->field2] = $id;
@@ -59,7 +59,7 @@ class CollectionMM extends Collection
 	/**
 	 * @param $id
 	 */
-	public function getField2Values($id)
+	public function getField2Values($id): void
 	{
 		$this->idField = $this->field2;
 		$this->where[$this->field1] = $id;
@@ -80,13 +80,10 @@ class CollectionMM extends Collection
 		if (!$this->members) {
 			foreach ($this->getData() as $row) {
 				$key = $row[$this->idField];
-				if ($byInstance) {
-					$this->members[$key] = call_user_func($class . '::getInstance', $key);
-				} else {
-					$this->members[$key] = new $class($key);
-				}
+				$this->members[$key] = $byInstance ? call_user_func($class . '::getInstance', $key) : new $class($key);
 			}
 		}
+
 		return $this->members;
 	}
 

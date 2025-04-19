@@ -3,7 +3,9 @@
 class DigestAuth
 {
 	protected $realm;
+    
 	public $userAssoc = [];
+    
 	public $username;
 
 	public function __construct($realm)
@@ -12,7 +14,7 @@ class DigestAuth
 	}
 
 	// maryna.sigayeva@web.de
-	public function run()
+	public function run(): bool
 	{
 		$digestString = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?: $_SERVER['HTTP_AUTORIZATION'];
 		$digestString = $digestString ?: $_SERVER['PHP_AUTH_DIGEST'];
@@ -49,7 +51,7 @@ class DigestAuth
 		return true;
 	}
 
-	public function headers()
+	public function headers(): void
 	{
 		header('HTTP/1.1 401 Unauthorized');
 		header('WWW-Authenticate: Digest realm="' . $this->realm .
@@ -57,7 +59,7 @@ class DigestAuth
 	}
 
 	// function to parse the http auth header
-	public function http_digest_parse($txt)
+	public function http_digest_parse($txt): array|false
 	{
 		// protect against missing data
 		$needed_parts = [
@@ -78,7 +80,7 @@ class DigestAuth
 			unset($needed_parts[$m[1]]);
 		}
 
-		return $needed_parts ? false : $data;
+		return $needed_parts !== [] ? false : $data;
 	}
 
 	/**
@@ -89,7 +91,7 @@ class DigestAuth
 	{
 		$length = strlen($content);
 
-		$headers[] = "Content-Length: $length";
+		$headers[] = 'Content-Length: ' . $length;
 
 		$poster = curl_init($url);
 

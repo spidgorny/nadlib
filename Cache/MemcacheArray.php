@@ -28,7 +28,7 @@ class MemcacheArray implements ArrayAccess
 	 */
 	public $data;
 
-	protected $state;
+	protected string $state;
 
 	public static $instances = [];
 
@@ -58,7 +58,7 @@ class MemcacheArray implements ArrayAccess
 	 * @param string $file - filename inside /cache/ folder
 	 * @param int $expire - seconds to keep the cache active
 	 */
-	public function __construct($file, $expire = 0)
+	public function __construct(string $file, $expire = 0)
 	{
 		TaylorProfiler::start(__METHOD__ . ' (' . $file . ')');
 		//debug(__METHOD__.' ('.$file.')');
@@ -69,11 +69,13 @@ class MemcacheArray implements ArrayAccess
 		if (!is_array($this->data)) {
 			$this->data = [];
 		}
+
 		//debug($file);		debug_pre_print_backtrace();
 		$this->state = serialize($this->data);
 		if (self::$debug) {
-			echo __METHOD__ . '(' . $file . ', ' . $expire . '). Sizeof: ' . sizeof($this->data) . BR;
+			echo __METHOD__ . '(' . $file . ', ' . $expire . '). Sizeof: ' . count($this->data) . BR;
 		}
+
 		TaylorProfiler::stop(__METHOD__ . ' (' . $file . ')');
 	}
 
@@ -87,12 +89,13 @@ class MemcacheArray implements ArrayAccess
 		if ($this->onDestruct) {
 			call_user_func($this->onDestruct, $this);
 		}
+
 		$this->save();
 		//debug(sizeof($this->data));
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	public function save()
+	public function save(): void
 	{
 		if (false) {
 			print_r($this->file);
@@ -102,6 +105,7 @@ class MemcacheArray implements ArrayAccess
 			//echo '<pre>'; var_dump($this->data); echo '</pre>';
 			//serialize($this->data);
 		}
+
 		$serialized = serialize($this->data);
 		if ($this->fc && strcmp($this->state, $serialized)) {
 			//debug(__METHOD__, $this->fc->map($this->file), sizeof($this->data), array_keys($this->data));
@@ -109,13 +113,10 @@ class MemcacheArray implements ArrayAccess
 		}
 	}
 
-	public function clearCache()
+	public function clearCache(): void
 	{
 		TaylorProfiler::start(__METHOD__);
-		$prev = sizeof(self::$instances);
-		$prevKeys = array_keys(self::$instances);
 		self::unsetInstance($this->file);
-		$curr = sizeof(self::$instances);
 		//debug(__METHOD__, $this->file, $prev, $curr, $prevKeys, array_keys(self::$instances));
 		$this->fc->clearCache($this->file);
 		TaylorProfiler::stop(__METHOD__);
@@ -166,21 +167,24 @@ class MemcacheArray implements ArrayAccess
 		if (self::$debug) {
 			//echo __METHOD__.'('.$file.')'.BR;
 		}
+
 		return self::$instances[$file] ?? (self::$instances[$file] = new self($file, $expire));
 	}
 
-	public static function unsetInstance($file)
+	public static function unsetInstance($file): void
 	{
 		if (ifsetor(self::$instances[$file])) {
 			if (ifsetor(self::$instances[$file]->fc)) {
 				self::$instances[$file]->fc->clearCache(self::$instances[$file]->file);
 			}
+
 			self::$instances[$file]->__destruct();
 		}
+
 		unset(self::$instances[$file]);
 	}
 
-	public static function enableDebug()
+	public static function enableDebug(): void
 	{
 		self::$debug = true;
 	}

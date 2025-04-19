@@ -13,10 +13,12 @@ class FlotPie extends AppControllerBE
 	 * @var array
 	 */
 	public $data;
+    
 	/**
 	 * @var string
 	 */
 	public $flotPath = 'components/flot/flot/';
+    
 	protected $colors = [
 		'#edc240',
 		'#afd8f8',
@@ -38,14 +40,13 @@ class FlotPie extends AppControllerBE
 		$this->data = $data;
 	}
 
-	public function render()
+	public function render(): string
 	{
 		$content = '';
-		$content .= $this->showChart('chart1');
-		return $content;
+		return $content . $this->showChart('chart1');
 	}
 
-	public function showChart($divID)
+	public function showChart(string $divID): string
 	{
 		Index::getInstance()->addJQuery();
 		Index::getInstance()->footer['flot'] = '

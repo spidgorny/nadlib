@@ -37,66 +37,49 @@ class AlterDB extends AppControllerBE
 			//throw new AccessDeniedException('Access Denied to '.__CLASS__);
 			// access controlled by AlterDB::$public which is false
 		}
+
 		$this->file = $this->request->getTrim('file');
 		$this->linker->linkVars['file'] = $this->file;
 	}
 
-	public function wrongApproach()
+	public function wrongApproach(): void
 	{
-		$query = "CREATE TABLE app_appointment (
-  id int(11) NOT NULL auto_increment,
-  ctime timestamp NOT NULL default CURRENT_TIMESTAMP,
-  mtime timestamp NOT NULL default '2009-06-14 00:00:00',
-  id_service integer(11) NOT NULL,
-  from datetime NOT NULL,
-  till datetime NOT NULL,
-  canceled tinyint(1) NOT NULL default '0',
-  id_client integer(11) default NULL,
-  id_user integer(11) default NULL,
-  comment text NOT NULL,
-  PRIMARY KEY  (id),
-  KEY id_client (id_client),
-  KEY id_service (id_service),
-  KEY id_user (id_user)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8 AUTO_INCREMENT=31 ;
-";
 		/*$query = "CREATE TABLE tx_ehoi_ship (
-	uid int(11) NOT NULL auto_increment,
-	pid int(11) DEFAULT '0' NOT NULL,
-	tstamp int(11) DEFAULT '0' NOT NULL,
-	crdate int(11) DEFAULT '0' NOT NULL,
-	cruser_id int(11) DEFAULT '0' NOT NULL,
-	sys_language_uid int(11) DEFAULT '0' NOT NULL,
-	l10n_parent int(11) DEFAULT '0' NOT NULL,
-	l10n_diffsource mediumtext,
-	deleted tinyint(4) DEFAULT '0' NOT NULL,
-	hidden tinyint(4) DEFAULT '0' NOT NULL,
-	name tinytext,
-	image text,
-	desctiption text,
+        	uid int(11) NOT NULL auto_increment,
+        	pid int(11) DEFAULT '0' NOT NULL,
+        	tstamp int(11) DEFAULT '0' NOT NULL,
+        	crdate int(11) DEFAULT '0' NOT NULL,
+        	cruser_id int(11) DEFAULT '0' NOT NULL,
+        	sys_language_uid int(11) DEFAULT '0' NOT NULL,
+        	l10n_parent int(11) DEFAULT '0' NOT NULL,
+        	l10n_diffsource mediumtext,
+        	deleted tinyint(4) DEFAULT '0' NOT NULL,
+        	hidden tinyint(4) DEFAULT '0' NOT NULL,
+        	name tinytext,
+        	image text,
+        	desctiption text,
 
-	PRIMARY KEY (uid),
-	KEY parent (pid)
-);";*/
-		$query = $this->getQueryFrom('some file.sql');
-//		$SQLparser = new t3lib_sqlparser();
+        	PRIMARY KEY (uid),
+        	KEY parent (pid)
+        );";*/
+        $this->getQueryFrom('some file.sql');
+        //		$SQLparser = new t3lib_sqlparser();
 //		$parsedQuery = $SQLparser->parseSQL($query);
 		//debug($parsedQuery);
 		//debug(substr($query, 0, 1000));
 	}
 
-	public function getQueryFrom($file)
+	public function getQueryFrom($file): ?string
 	{
 		$query = file_get_contents($file);
 		$query = str_replace('`', '', $query);
 		$query = preg_replace('/^--.*$/m', '', $query);
 		$query = preg_replace('/^SET.*$/m', '', $query);
 		$query = preg_replace('/^DROP.*$/m', '', $query);
-		$query = preg_replace('/CONSTRAINT.*$/m', '', $query);
-		return $query;
+		return preg_replace('/CONSTRAINT.*$/m', '', $query);
 	}
 
-	public function render()
+	public function render(): string
 	{
 		$content = '';
 		$content .= $this->getFileChoice();
@@ -130,16 +113,18 @@ class AlterDB extends AppControllerBE
 
 			//$this->installerSql->performUpdateQueries($update_statements['add'],
 		}
+
 		return $content;
 	}
 
-	public function getFileChoice()
+	public function getFileChoice(): string
 	{
 		$menu = [];
 		$sqlFolder = Config::getInstance()->appRoot . '/sql/';
 		if (!is_dir($sqlFolder)) {
 			return '<div class="error">No ' . $sqlFolder . '</div>';
 		}
+
 		/** @var $file SplFileInfo */
 		foreach (new RecursiveDirectoryIterator($sqlFolder) as $file) {
 			//debug($file);
@@ -147,6 +132,7 @@ class AlterDB extends AppControllerBE
 				$menu[$file->getPathname()] = $file->getFilename();
 			}
 		}
+
 		foreach ($menu as $key => &$name) {
 			$name = new HTMLTag('a', [
 				'href' => new URL('', [
@@ -155,14 +141,14 @@ class AlterDB extends AppControllerBE
 				])
 			], $name);
 		}
-		$content = '<ul><li>' . implode('</li><li>', $menu) . '</li></ul>';
-		return $content;
+
+		return '<ul><li>' . implode('</li><li>', $menu) . '</li></ul>';
 	}
 
-	public function initInstallerSQL()
+	public function initInstallerSQL(): void
 	{
 		TaylorProfiler::start(__METHOD__);
-		$config = Config::getInstance();
+		Config::getInstance();
 
 		//$GLOBALS['TYPO3_DB'] = $t3db = new t3lib_DB();
 //		$GLOBALS['TYPO3_DB'] = $t3db = new TYPO3\CMS\Core\Database\DatabaseConnection();
@@ -190,10 +176,10 @@ class AlterDB extends AppControllerBE
 		return $diff;
 	}
 
-	public function filterDifferencesFile(array $FDfile)
+	public function filterDifferencesFile(array $FDfile): array
 	{
-		foreach ($FDfile as $table => &$desc) {
-			foreach ($desc['fields'] as $field => &$type) {
+		foreach ($FDfile as &$desc) {
+			foreach ($desc['fields'] as &$type) {
 				$type = str_replace('AUTO_INCREMENT', 'auto_increment', $type);
 				$type = str_replace('default NULL', '', $type);
 				$type = str_replace('NOT NULL', '', $type);
@@ -201,10 +187,11 @@ class AlterDB extends AppControllerBE
 				$type = trim($type);
 			}
 		}
+
 		return $FDfile;
 	}
 
-	public function filterDifferencesDB(array $FDdb)
+	public function filterDifferencesDB(array $FDdb): array
 	{
 		foreach ($FDdb as $table => &$desc) {
 			$info = $this->db->getTableColumns($table);
@@ -221,19 +208,19 @@ class AlterDB extends AppControllerBE
 				$type = trim($type);
 			}
 		}
+
 		return $FDdb;
 	}
 
-	public function showDifferences(array $diff)
+	public function showDifferences(array $diff): string
 	{
 		$content = '';
 		$content .= $this->showCreate();
 		$content .= $this->showChanges($diff);
-		$content .= $this->showExtras($diff);
-		return $content;
+		return $content . $this->showExtras($diff);
 	}
 
-	public function showCreate()
+	public function showCreate(): string
 	{
 		$content = '';
 		$update_statements = $this->update_statements;
@@ -249,41 +236,46 @@ class AlterDB extends AppControllerBE
 				$content .= '</pre>';
 			}
 		}
+
 		return $content;
 	}
 
-	public function showChanges(array $diff)
+	public function showChanges(array $diff): string
 	{
 		$content = '';
 		$update_statements = $this->update_statements;
-		//debug($diff['extra'], $update_statements['add']);
-		if ($diff['diff']) foreach ($diff['diff'] as $table => $desc) {
-			$list = [];
-			foreach ($desc['fields'] as $field => $type) {
-				$current = $diff['diff_currentValues'][$table]['fields'][$field];
-				if ($type != $current) {
-					//debug($type, $current); exit();
-					$list[] = [
-						'field' => $field,
-						'file' => $type,
-						'current' => $current,
-						'sql' => $sql = $this->findStringWith($update_statements['change'], [$table, $field]),
-						'do' => $this->makeRelLink('CHANGE', [
-							'action' => 'do',
-							'file' => $this->file,
-							'key' => 'change',
-							'query' => md5($sql),
-						]),
-					];
-				}
-			}
-			$content .= $this->showTable($list, $table);
-		}
+        //debug($diff['extra'], $update_statements['add']);
+        if ($diff['diff']) {
+            foreach ($diff['diff'] as $table => $desc) {
+    			$list = [];
+    			foreach ($desc['fields'] as $field => $type) {
+    				$current = $diff['diff_currentValues'][$table]['fields'][$field];
+    				if ($type != $current) {
+    					//debug($type, $current); exit();
+    					$list[] = [
+    						'field' => $field,
+    						'file' => $type,
+    						'current' => $current,
+    						'sql' => $sql = $this->findStringWith($update_statements['change'], [$table, $field]),
+    						'do' => $this->makeRelLink('CHANGE', [
+    							'action' => 'do',
+    							'file' => $this->file,
+    							'key' => 'change',
+    							'query' => md5($sql),
+    						]),
+    					];
+    				}
+    			}
+
+    			$content .= $this->showTable($list, $table);
+    		}
+        }
+
 		return $content;
 	}
 
 
-	public function showExtras(array $diff)
+	public function showExtras(array $diff): string
 	{
 		$content = '';
 		$update_statements = $this->update_statements;
@@ -305,9 +297,11 @@ class AlterDB extends AppControllerBE
 						];
 					}
 				}
+
 				$content .= $this->showTable($list, $table);
 			}
 		}
+
 		//debug($update_statements, Debug::LEVELS, 1);
 		//debug($update_statements['create_table']);
 		return $content;
@@ -316,7 +310,7 @@ class AlterDB extends AppControllerBE
 	public function showTable(array $list, $table)
 	{
 		$content = [];
-		if ($list) {
+		if ($list !== []) {
 			$s = new slTable($list, 'class="table"', [
 				'field' => 'field',
 				'file' => 'file',
@@ -329,6 +323,7 @@ class AlterDB extends AppControllerBE
 			]);
 			$content = $this->encloseInAA($s, $table, 'h2');
 		}
+
 		return $content;
 	}
 
@@ -342,13 +337,16 @@ class AlterDB extends AppControllerBE
 					continue;
 				}
 			}
+
 			if (!$false) {
 				return $el;
 			}
 		}
+
+        return null;
 	}
 
-	public function doAction()
+	public function doAction(): void
 	{
 		$md5 = $this->request->getTrim('query');
 		$key = $this->request->getTrim('key');

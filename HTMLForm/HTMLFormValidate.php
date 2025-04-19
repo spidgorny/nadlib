@@ -4,10 +4,9 @@ class HTMLFormValidate
 {
 
 	/**
-	 * Reference to the form object which contains the $desc as well as other vars
-	 * @var HTMLFormTable
-	 */
-	protected $form;
+     * Reference to the form object which contains the $desc as well as other vars
+     */
+    protected \HTMLFormTable $form;
 
 	/**
 	 * Reference to the $desc in the form
@@ -21,7 +20,7 @@ class HTMLFormValidate
 		$this->desc = &$this->form->desc;
 	}
 
-	public function validate()
+	public function validate(): bool
 	{
 		$error = false;
 		foreach ($this->desc as $field => &$d) {
@@ -41,10 +40,12 @@ class HTMLFormValidate
 				if (ifsetor($d['mustBint'])) {
 					$d['value'] = intval($d['value']);
 				}
+
 				$type = ifsetor($d['type']);
 				if (is_object($type)) {
 					$type = get_class($type);
 				}
+
 				$isCheckbox = !is_object($type) && in_array($type, [
 						'check',
 						'checkbox',
@@ -59,10 +60,11 @@ class HTMLFormValidate
 				$error = $error || ifsetor($d['error']);
 			}
 		}
+
 		return !$error;
 	}
 
-	public function validateField($field, array $d, $type, $isCheckbox)
+	public function validateField($field, array $d, $type, $isCheckbox): array
 	{
 		$value = ifsetor($d['value']);
 		$label = ifsetor($d['label'], $field);
@@ -81,9 +83,9 @@ class HTMLFormValidate
 		} elseif (($type == 'email' || $field == 'email') && $value && !self::validEmail($value)) {
 			$d['error'] = __('Not a valid e-mail in field "%1"', $label);
 		} elseif ($field === 'password' && strlen($value) < ifsetor($d['minlen'], 6)) {
-			$d['error'] = __('Password is too short. Min %s characters, please. It\'s for your own safety', ifsetor($d['minlen'], 6));
+			$d['error'] = __("Password is too short. Min %s characters, please. It's for your own safety", ifsetor($d['minlen'], 6));
 		} elseif ($field === 'securePassword' && !$this->securePassword($value)) {
-			$d['error'] = 'Password must contain at least 8 Characters. One number and one upper case letter. It\'s for your own safety';
+			$d['error'] = "Password must contain at least 8 Characters. One number and one upper case letter. It's for your own safety";
 		} elseif (ifsetor($d['min']) && ($value < $d['min'])) {
 			//debug(__METHOD__, $value, $d['min']);
 			$d['error'] = __('Value in field "%1" is too small. Minimum: %2', $label, $d['min']);
@@ -115,11 +117,9 @@ class HTMLFormValidate
 		} else {
 			unset($d['error']);
 			//debug($field, $value, strval(intval($value)), $value == strval(intval($value)));
-			if ($field === 'xsrf') {
-				//debug($value, $_SESSION['HTMLFormTable']['xsrf'][$this->form->class]);
-				if ($value != $_SESSION['HTMLFormTable']['xsrf'][$this->form->class]) {
-					$d['error'] = __('XSRF token validation failed.');
-				}
+            //debug($value, $_SESSION['HTMLFormTable']['xsrf'][$this->form->class]);
+            if ($field === 'xsrf' && $value != $_SESSION['HTMLFormTable']['xsrf'][$this->form->class]) {
+				$d['error'] = __('XSRF token validation failed.');
 			}
 		}
 
@@ -132,10 +132,11 @@ class HTMLFormValidate
 				$d['error'] = implode("<br />\n", $fv->getErrorList());
 			}
 		}
+
 		return $d;
 	}
 
-	public function securePassword($value)
+	public function securePassword($value): int|false
 	{
 		/*
 		* REGEX used for password strength check
@@ -182,7 +183,7 @@ class HTMLFormValidate
 			} elseif ($domainLen < 1 || $domainLen > 255) {
 				// domain part length exceeded
 				$isValid = false;
-			} elseif ($local[0] == '.' || $local[$localLen - 1] == '.') {
+			} elseif ($local[0] === '.' || $local[$localLen - 1] === '.') {
 				// local part starts or ends with '.'
 				$isValid = false;
 			} elseif (preg_match('/\\.\\./', $local)) {
@@ -204,15 +205,20 @@ class HTMLFormValidate
 					$isValid = false;
 				}
 			}
-			if ($isValid && !(checkdnsrr($domain, "MX") || checkdnsrr($domain, "A"))) {
+
+			if ($isValid && (!checkdnsrr($domain, "MX") && !checkdnsrr($domain, "A"))) {
 				// domain not found in DNS
 				$isValid = false;
 			}
 		}
+
 		return $isValid;
 	}
 
-	public function getErrorList()
+	/**
+     * @return mixed[]
+     */
+    public function getErrorList(): array
 	{
 		$list = [];
 		foreach ($this->desc as $key => $desc) {
@@ -220,6 +226,7 @@ class HTMLFormValidate
 				$list[$key] = $desc['error'];
 			}
 		}
+
 		return $list;
 	}
 
@@ -233,7 +240,7 @@ class HTMLFormValidate
 	public static function validateEmailAddresses($value, &$invalid = [])
 	{
 		$value = trim($value);
-		if (empty($value)) {
+		if ($value === '' || $value === '0') {
 			return true;
 		}
 
@@ -244,6 +251,7 @@ class HTMLFormValidate
 				$invalid[] = $emailAddress;
 			}
 		}
+
 		return empty($invalid);
 	}
 }

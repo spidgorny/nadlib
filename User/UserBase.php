@@ -3,8 +3,11 @@
 abstract class UserBase extends OODBase implements UserModelInterface
 {
 	public static $instances = [];
+
 	public $table = 'user';
+
 	public $idField = 'id';
+
 	protected $prefs = [];
 
 	/**
@@ -20,7 +23,7 @@ abstract class UserBase extends OODBase implements UserModelInterface
 		parent::__construct($id);
 	}
 
-	public static function unsetInstance($id)
+	public static function unsetInstance($id): void
 	{
 		unset(self::$instances[$id]);
 		//debug(self::$instances);
@@ -37,7 +40,7 @@ abstract class UserBase extends OODBase implements UserModelInterface
 		//debug($this->prefs);
 		//debug($this->db);
 		//debug($this->id);
-		if (isset($this->db) && $this->db->isConnected() && $this->id && $this->prefs) {
+		if ($this->db !== null && $this->db->isConnected() && $this->id && $this->prefs) {
 
 			// this is just an example - move it to the app class
 			//$this->update(array('prefs' => serialize($this->prefs)));
@@ -61,18 +64,17 @@ abstract class UserBase extends OODBase implements UserModelInterface
 		if ($ok) {
 			$this->init($row);
 		}
+
 		return $ok;
 	}
 
 	/**
-	 * Will md5 password inside.
-	 * Will NOT md5 password inside as Client is UserBased.
-	 *
-	 * @param array $data
-	 * @return void
-	 * @throws Exception
-	 */
-	public function insertUniqEmail(array $data)
+     * Will md5 password inside.
+     * Will NOT md5 password inside as Client is UserBased.
+     *
+     * @throws Exception
+     */
+    public function insertUniqEmail(array $data): void
 	{
 		//debug($data);
 		if ($data['email']) {
@@ -90,7 +92,7 @@ abstract class UserBase extends OODBase implements UserModelInterface
 		}
 	}
 
-	public function insertNoUserCheck(array $data)
+	public function insertNoUserCheck(array $data): void
 	{
 		$data['ctime'] = new SQLDateTime();
 		$data['email'] = ifsetor($data['email']) ? $data['email'] : null;        /// will set '' to NULL IMPORTANT!
@@ -108,7 +110,7 @@ abstract class UserBase extends OODBase implements UserModelInterface
 	 * @param string $key
 	 * @param mixed $val
 	 */
-	public function setPref($key, $val)
+	public function setPref($key, $val): void
 	{
 		$this->prefs[$key] = $val;
 	}
@@ -133,6 +135,7 @@ abstract class UserBase extends OODBase implements UserModelInterface
 		} else {
 			$val = $prio3;
 		}
+
 		/*		debug(array(
 					$prio1,
 					$prio2,
@@ -147,7 +150,7 @@ abstract class UserBase extends OODBase implements UserModelInterface
 	public function isAuth()
 	{
 		//debug($this);
-		return !!$this->id;
+		return (bool) $this->id;
 	}
 
 	public function getHTML()

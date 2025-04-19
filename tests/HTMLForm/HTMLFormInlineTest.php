@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 class HTMLFormInlineTest extends TestCase
 {
 
-	public function testSimple()
+	public function testSimple(): void
 	{
 		$f = new HTMLFormInline([
 			'name' => [
@@ -34,7 +34,7 @@ class HTMLFormInlineTest extends TestCase
 '), $this->normalize($html->getContent()));
 	}
 
-	public function normalize($string)
+	public function normalize($string): string|array
 	{
 //	echo chunk_split(bin2hex($string), 32);
 //	echo PHP_EOL;

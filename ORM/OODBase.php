@@ -31,7 +31,7 @@ abstract class OODBase implements ArrayAccess
 	/**
 	 * @var int database ID
 	 */
-	public $id = null;
+	public $id;
 
 	/**
 	 * @var array data from DB
@@ -100,6 +100,7 @@ abstract class OODBase implements ArrayAccess
 		foreach ($this->thes as &$val) {
 			$val = is_array($val) ? $val : ['name' => $val];
 		}
+
 		if (!($id instanceof DBInterface)) {
 			$this->init($id);
 		}
@@ -111,22 +112,21 @@ abstract class OODBase implements ArrayAccess
 //		}
 	}
 
-	public function guessDB($id)
+	public function guessDB($id): void
 	{
 		if ($id instanceof DBInterface) {
-			$this->db = $id;
-		} else {
-			if (class_exists('Config')) {
-				$config = Config::getInstance();
-				$this->table = $config->prefixTable($this->table);
-				if (!$this->db) {
+            $this->db = $id;
+        } elseif (class_exists('Config')) {
+            $config = Config::getInstance();
+            $this->table = $config->prefixTable($this->table);
+            if (!$this->db) {
 					$this->db = $config->getDB();
 				}
-				//debug(get_class($this), $this->table, gettype2($this->db));
-			} else {
+
+            //debug(get_class($this), $this->table, gettype2($this->db));
+        } else {
 				$this->db = $GLOBALS['db'] ?? null;
 			}
-		}
 	}
 
 	public function getDB()
@@ -134,7 +134,7 @@ abstract class OODBase implements ArrayAccess
 		return $this->db;
 	}
 
-	public function setDB(DBInterface $db)
+	public function setDB(DBInterface $db): void
 	{
 		$this->db = $db;
 	}
@@ -145,7 +145,7 @@ abstract class OODBase implements ArrayAccess
 	 * @param int|array|SQLWhere $id
 	 * @throws Exception
 	 */
-	public function init($id)
+	public function init($id): void
 	{
 		if (is_array($id)) {
 			$this->initByRow($id);
@@ -172,7 +172,7 @@ abstract class OODBase implements ArrayAccess
 		}
 	}
 
-	public function initByRow(array $row)
+	public function initByRow(array $row): void
 	{
 		// to prevent $this->>update() to loose all fields calculated
 		$this->data = array_merge($this->data, $row);
@@ -190,6 +190,7 @@ abstract class OODBase implements ArrayAccess
 			foreach ($idField as $field) {
 				$this->id[$field] = $this->data[$field];
 			}
+
 			//} else if (igorw\get_in($this->data, array($this->idField))) {   // not ifsetor
 		} elseif (isset($this->data[$idField]) && $this->data[$idField]) {
 			$this->id = $this->data[$idField];
@@ -206,7 +207,7 @@ abstract class OODBase implements ArrayAccess
 		}
 	}
 
-	public function log($action, $data = null)
+	public function log($action, ?array $data = null): void
 	{
 		if ($this->logger) {
 			$this->logger->info($action, $data);
@@ -214,13 +215,12 @@ abstract class OODBase implements ArrayAccess
 	}
 
 	/**
-	 * Returns $this
-	 *
-	 * @param array $data
-	 * @return OODBase
-	 * @throws Exception
-	 */
-	public function insert(array $data)
+     * Returns $this
+     *
+     * @return OODBase
+     * @throws Exception
+     */
+    public function insert(array $data)
 	{
 		TaylorProfiler::start(__METHOD__);
 //		$this->log(static::class . '::' . __FUNCTION__, $data);
@@ -252,22 +252,23 @@ abstract class OODBase implements ArrayAccess
 				$errorMessage .= $this->db->getConnection()->errorInfo();
 				$errorCode = $this->db->getConnection()->errorCode();
 			}
+
 			$e = new DatabaseException($errorMessage, $errorCode);
 			$e->setQuery($query);
 			throw $e;
 		}
+
 		TaylorProfiler::stop(__METHOD__);
 		return $this;
 	}
 
 	/**
-	 * Updates current record ($this->id)
-	 *
-	 * @param array $data
-	 * @return PDOStatement|false result from the runUpdateQuery
-	 * @throws Exception
-	 */
-	public function update(array $data)
+     * Updates current record ($this->id)
+     *
+     * @return PDOStatement|false result from the runUpdateQuery
+     * @throws Exception
+     */
+    public function update(array $data)
 	{
 		if (!$this->id) {
 			//$this->db->rollback();
@@ -281,7 +282,7 @@ abstract class OODBase implements ArrayAccess
 		}
 
 		TaylorProfiler::start(__METHOD__);
-		$action = static::class . '::' . __FUNCTION__ . '(id: ' . json_encode($this->id, JSON_THROW_ON_ERROR) . ')';
+		json_encode($this->id, JSON_THROW_ON_ERROR);
 //		$this->log($action, $data);
 		$where = [];
 		if (is_array($this->idField)) {
@@ -323,17 +324,16 @@ abstract class OODBase implements ArrayAccess
 				$this->idField => $this->id,
 			]);
 		}
+
 		TaylorProfiler::stop(__METHOD__);
 		return $res;
 	}
 
 	/**
-	 * @param array|NULL $where
-	 * @return null
-	 * @throws MustBeStringException
-	 * @throws DatabaseException
-	 */
-	public function delete(?array $where = null)
+     * @throws MustBeStringException
+     * @throws DatabaseException
+     */
+    public function delete(?array $where = null)
 	{
 		if (!$where) {
 			if ($this->id) {
@@ -342,6 +342,7 @@ abstract class OODBase implements ArrayAccess
 				return null;
 			}
 		}
+
 //		$this->log(static::class . '::' . __FUNCTION__, $where);
 		$query = $this->db->getDeleteQuery($this->table, $where);
 		$this->lastQuery = $query;
@@ -352,15 +353,13 @@ abstract class OODBase implements ArrayAccess
 	}
 
 	/**
-	 * Retrieves a record from the DB and calls $this->init()
-	 * But it's rarely called directly.
-	 * @param array $where
-	 * @param string $orderByLimit
-	 * @param null $selectPlus
-	 * @return array of the found record
-	 * @throws Exception
-	 */
-	public function findInDB(array $where, $orderByLimit = '', $selectPlus = null)
+     * Retrieves a record from the DB and calls $this->init()
+     * But it's rarely called directly.
+     * @param string $orderByLimit
+     * @return array of the found record
+     * @throws Exception
+     */
+    public function findInDB(array $where, $orderByLimit = '', $selectPlus = null)
 	{
 		$row = $this->db->fetchOneSelectQuery(
 			$this->table,
@@ -374,13 +373,12 @@ abstract class OODBase implements ArrayAccess
 //		$this->log(__METHOD__, $this->lastSelectQuery . '');
 //		debug($rows, $this->lastSelectQuery);
 		if (is_array($row) && $row) {
-			$row = $this->fixRowDataTypes($row);
-			$this->initByRow($row);
-		} else {
-			if ($this->forceInit) {
-				$this->initByRow([]);
-			}
-		}
+            $row = $this->fixRowDataTypes($row);
+            $this->initByRow($row);
+        } elseif ($this->forceInit) {
+            $this->initByRow([]);
+        }
+
 		return $this->data;
 	}
 
@@ -389,16 +387,18 @@ abstract class OODBase implements ArrayAccess
 	{
 		// fix data types, as array_contains will fail due to wrong data type
 		$i = 0;
-		foreach ($row as $k => &$v) {
+		foreach ($row as &$v) {
 			$dbFieldType = pg_field_type($this->db->lastResult, $i++);
 //				llog($k, get_debug_type($v), $v, $dbFieldType);
 			if ($dbFieldType === 'int4' && get_debug_type($v) === 'string') {
 				$v = (int)$v;
 			}
+
 			if ($dbFieldType === 'bool' && get_debug_type($v) === 'string') {
 				$v = $v === 't';
 			}
 		}
+
 //		llog('afterFixRowDataTypes', $row);
 		return $row;
 	}
@@ -416,14 +416,12 @@ abstract class OODBase implements ArrayAccess
 	}
 
 	/**
-	 * Still searches in DB with findInDB, but makes a new object for you
-	 *
-	 * @param array $where
-	 * @param null $static
-	 * @return mixed
-	 * @throws Exception
-	 */
-	public static function findInstance(array $where, $static = null)
+     * Still searches in DB with findInDB, but makes a new object for you
+     *
+     * @return mixed
+     * @throws Exception
+     */
+    public static function findInstance(array $where, $static = null)
 	{
 		if (!$static) {
 			if (function_exists('get_called_class')) {
@@ -432,11 +430,13 @@ abstract class OODBase implements ArrayAccess
 				throw new Exception('__METHOD__ requires object specifier until PHP 5.3.');
 			}
 		}
+
 		$obj = new $static();
 		$obj->findInDB($where);
 		if ($obj->id) {
 			self::$instances[$static][$obj->id] = $obj;
 		}
+
 		return $obj;
 	}
 
@@ -446,7 +446,7 @@ abstract class OODBase implements ArrayAccess
 	 * @return mixed
 	 * @throws Exception
 	 */
-	public static function getInstanceCached($id)
+	public static function getInstanceCached(string $id)
 	{
 		if (true) {
 			$file = 'cache/' . URL::friendlyURL(__METHOD__) . '-' . $id . '.serial';
@@ -466,17 +466,17 @@ abstract class OODBase implements ArrayAccess
 		} else {
 			$graph = self::getInstanceByID($id);
 		}
+
 		return $graph;
 	}
 
 	/**
-	 * Used by bijou.
-	 * @param array $insert
-	 * @param $class
-	 * @return int|null
-	 * @throws Exception
-	 */
-	public static function createRecord(array $insert, $class = null)
+     * Used by bijou.
+     * @param $class
+     * @return int|null
+     * @throws Exception
+     */
+    public static function createRecord(array $insert, $class = null)
 	{
 		TaylorProfiler::start(__METHOD__);
 		//$insert = $this->db->getDefaultInsertFields() + $insert; // no overwriting?
@@ -492,29 +492,26 @@ abstract class OODBase implements ArrayAccess
 			$id = $db->lastInsertID($res, constant($class . '::table'));
 			//t3lib_div::debug($id);
 
-			if ($class) {
-				$object = new $class($id);
-			} else {
-				$object = $id;
-			}
+			$object = $class ? new $class($id) : $id;
 		} else {
 			$object = null;
 		}
+
 		TaylorProfiler::stop(__METHOD__);
 		return $object;
 	}
 
 	/**
-	 * Give it array of IDs and it will give you an array of objects
-	 * @param array $ids
-	 * @return ArrayPlus
-	 * @throws Exception
-	 */
-	public static function makeInstances(array $ids)
+     * Give it array of IDs and it will give you an array of objects
+     * @return ArrayPlus
+     * @throws Exception
+     */
+    public static function makeInstances(array $ids)
 	{
 		foreach ($ids as &$id) {
 			$id = static::getInstance($id);
 		}
+
 		return new ArrayPlus($ids);
 	}
 
@@ -539,6 +536,7 @@ abstract class OODBase implements ArrayAccess
 			/** @noinspection UnserializeExploitsInspection */
 			$data = unserialize($data);
 		}
+
 		$el = (object)$data;
 		$class = $el->class;
 		$obj = new $class();
@@ -546,41 +544,39 @@ abstract class OODBase implements ArrayAccess
 			if (is_array($val) && isset($val['class'])) {
 				$val = self::hydrate($val);
 			}
+
 			/** @noinspection PhpVariableVariableInspection */
 			$obj->$key = $val;
 		}
+
 		unset($obj->class);    // special case, see above
 		return $obj;
 	}
 
 	/**
-	 *
-	 * @param SQLWhere $where
-	 * @param string $orderBy
-	 * @return bool (id) of the found record
-	 * @throws Exception
-	 */
-	public function findInDBbySQLWhere(SQLWhere $where, $orderBy = '')
+     *
+     * @param string $orderBy
+     * @return bool (id) of the found record
+     * @throws Exception
+     */
+    public function findInDBbySQLWhere(SQLWhere $where, $orderBy = '')
 	{
 		$rows = $this->db->fetchSelectQuerySW($this->table, $where, $orderBy);
-		//debug($rows);
-		if ($rows) {
-			$this->data = $rows[0];
-		} else {
-			$this->data = [];
-		}
+        //debug($rows);
+        $this->data = $rows ? $rows[0] : [];
+
 		$this->init($this->data); // array, otherwise infinite loop
 		return $this->id;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		try {
 			return $this->getName() . '';
-		} catch (Exception $e) {
+		} catch (Exception $exception) {
 			debug_pre_print_backtrace();
-			echo $e->getFile() . '#' . $e->getLine(), BR;
-			die($e->getMessage());
+			echo $exception->getFile() . '#' . $exception->getLine(), BR;
+			die($exception->getMessage());
 		}
 	}
 
@@ -598,19 +594,19 @@ abstract class OODBase implements ArrayAccess
 			$this->insert($this->data);
 			$action = 'INS';
 		}
+
 		//debug($action, $this->db->lastQuery); exit();
 		return $action;
 	}
 
 	/**
-	 * Uses $this->thes if available
-	 * Hides fields without values
-	 * @param array|null $assoc
-	 * @param bool $recursive
-	 * @param bool $skipEmpty
-	 * @return slTable
-	 */
-	public function renderAssoc(?array $assoc = null, $recursive = false, $skipEmpty = true)
+     * Uses $this->thes if available
+     * Hides fields without values
+     * @param bool $recursive
+     * @param bool $skipEmpty
+     * @return slTable
+     */
+    public function renderAssoc(?array $assoc = null, $recursive = false, $skipEmpty = true)
 	{
 		$assoc = $assoc ?: $this->data;
 		//debug($this->thes);
@@ -626,6 +622,7 @@ abstract class OODBase implements ArrayAccess
 					];
 				}
 			}
+
 			$s = new slTable($assoc, 'class="table table-striped"', [
 				0 => '',
 				'' => ['no_hsc' => true]
@@ -638,18 +635,18 @@ abstract class OODBase implements ArrayAccess
 					$val = self::renderAssoc($val, $recursive);
 				}
 			}
+
 			$s = slTable::showAssoc($assoc);
 		}
+
 		return $s;
 	}
 
 	/**
-	 * Only works when $this->thes is defined or provided
-	 * @param array $thes
-	 * @param null $title
-	 * @return ShowAssoc
-	 */
-	public function showAssoc(
+     * Only works when $this->thes is defined or provided
+     * @return ShowAssoc
+     */
+    public function showAssoc(
 		array $thes = [
 			'id' => 'ID',
 			'name' => 'Name'
@@ -669,15 +666,14 @@ abstract class OODBase implements ArrayAccess
 	}
 
 	/**
-	 * Prevents infinite loop Sigi->Ruben->Sigi->Ruben
-	 * by adding a new Person object to the self::$instances registry
-	 * BEFORE calling init().
-	 * @param array $where
-	 * @param string $orderByLimit
-	 * @return array
-	 * @throws Exception
-	 */
-	public function findInDBsetInstance(array $where, $orderByLimit = '')
+     * Prevents infinite loop Sigi->Ruben->Sigi->Ruben
+     * by adding a new Person object to the self::$instances registry
+     * BEFORE calling init().
+     * @param string $orderByLimit
+     * @return array
+     * @throws Exception
+     */
+    public function findInDBsetInstance(array $where, $orderByLimit = '')
 	{
 //		llog(__METHOD__, $this->where);
 //		llog(__METHOD__, $this->where.'');
@@ -691,11 +687,13 @@ abstract class OODBase implements ArrayAccess
 			if ($id) {
 				self::$instances[$className][$id] = $this;   //!!!
 			}
+
 			nodebug(__METHOD__, $className, $id,
-				sizeof(self::$instances[$className]),
+				count(self::$instances[$className]),
 				isset(self::$instances[$className][$id]));
 			$this->init($data);
 		}
+
 		return $data;
 	}
 
@@ -706,20 +704,15 @@ abstract class OODBase implements ArrayAccess
 	public function getParent()
 	{
 		$id = ifsetor($this->data[$this->parentField]);
-		if ($id) {
-			$obj = self::getInstance($id);
-		} else {
-			$obj = null;
-		}
-		return $obj;
+
+		return $id ? self::getInstance($id) : null;
 	}
 
 	/**
-	 * Override if collection name is different
-	 * @param array $where
-	 * @return DatabaseResultIteratorAssoc|array
-	 */
-	public function getChildren(array $where = [])
+     * Override if collection name is different
+     * @return DatabaseResultIteratorAssoc|array
+     */
+    public function getChildren(array $where = [])
 	{
 		$collection = get_class($this) . 'Collection';
 		if (class_exists($collection)) {
@@ -731,7 +724,7 @@ abstract class OODBase implements ArrayAccess
 		return $iterator;
 	}
 
-	public function getJson()
+	public function getJson(): array
 	{
 		return [
 			'class' => get_class($this),
@@ -739,12 +732,12 @@ abstract class OODBase implements ArrayAccess
 		];
 	}
 
-	public function getSingleLink()
+	public function getSingleLink(): string
 	{
 		return get_class($this) . '/' . $this->id;
 	}
 
-	public function getNameLink()
+	public function getNameLink(): \HTMLTag
 	{
 		return new HTMLTag('a', [
 			'href' => $this->getSingleLink(),
@@ -752,10 +745,9 @@ abstract class OODBase implements ArrayAccess
 	}
 
 	/**
-	 * @param array $where
-	 * @throws Exception
-	 */
-	public function ensure(array $where)
+     * @throws Exception
+     */
+    public function ensure(array $where): void
 	{
 		$this->findInDB($where);
 		if (!$this->id) {
@@ -764,18 +756,17 @@ abstract class OODBase implements ArrayAccess
 	}
 
 	/**
-	 * It was called getCollection in the past
-	 * @param array $where
-	 * @param null $orderBy
-	 * @return mixed
-	 * @throws Exception
-	 */
-	public function queryInstances(array $where, $orderBy = null)
+     * It was called getCollection in the past
+     * @return mixed
+     * @throws Exception
+     */
+    public function queryInstances(array $where, $orderBy = null)
 	{
 		$data = $this->db->fetchAllSelectQuery($this->table, $where, $orderBy);
 		foreach ($data as &$row) {
 			$row = static::getInstance($row);
 		}
+
 		return $data;
 	}
 
@@ -783,6 +774,7 @@ abstract class OODBase implements ArrayAccess
 	{
 		$collection = Collection::createForTable($this->db, $this->table, $where, $orderBy);
 		$collection->idField = $this->idField;
+
 		$static = get_called_class();
 		$collection->itemClassName = $static;
 		return $collection;
@@ -793,7 +785,7 @@ abstract class OODBase implements ArrayAccess
 	 * @param $name
 	 * @param $value
 	 */
-	public function createProperty($name, $value = null)
+	public function createProperty($name, $value = null): void
 	{
 		if (isset($this->{$name}) && $value === null) {
 			//$this->{$name} = $this->{$name};
@@ -803,11 +795,10 @@ abstract class OODBase implements ArrayAccess
 	}
 
 	/**
-	 * @param array|NULL $where
-	 * @return resource|string
-	 * @throws Exception
-	 */
-	public function save(?array $where = null)
+     * @return resource|string
+     * @throws Exception
+     */
+    public function save(?array $where = null)
 	{
 		if ($this->id) {
 			$res = $this->update($this->data);
@@ -815,20 +806,19 @@ abstract class OODBase implements ArrayAccess
 			// this 99.9% insert
 			$res = $this->insertUpdate($this->data, $where ?: $this->data, $this->data, $this->data);
 		}
+
 		return $res;
 	}
 
 	/**
-	 * Searches for the record defined in $where and then creates or updates.
-	 *
-	 * @param array $fields
-	 * @param array $where
-	 * @param array $insert - additional insert fields not found in $fields
-	 * @param array $update - additional update fields not found in $fields
-	 * @return string whether the record already existed
-	 * @throws Exception
-	 */
-	public function insertUpdate(array $fields,
+     * Searches for the record defined in $where and then creates or updates.
+     *
+     * @param array $insert - additional insert fields not found in $fields
+     * @param array $update - additional update fields not found in $fields
+     * @return string whether the record already existed
+     * @throws Exception
+     */
+    public function insertUpdate(array $fields,
 															 array $where = [],
 															 array $insert = [],
 															 array $update = []
@@ -837,15 +827,16 @@ abstract class OODBase implements ArrayAccess
 		TaylorProfiler::start(__METHOD__);
 		//echo get_class($this), '::', __FUNCTION__, ' begin', BR;
 		$this->db->transaction();
-		if ($where) {
+		if ($where !== []) {
 			$this->findInDB($where);
 		}
+
 		//debug($this->id, $this->data);
 		if ($this->id) { // found
 			$left = array_intersect_key($this->data, $fields);        // keys need to have same capitalization
 			$right = array_intersect_key($fields, $this->data);
 			//debug($left, $right); exit();
-			if ($left == $right) {
+			if ($left === $right) {
 				$op = 'SKIP';
 			} else {
 				$this->update($fields + $update);
@@ -855,27 +846,29 @@ abstract class OODBase implements ArrayAccess
 			//debug($this->id, $this->data);
 			$this->insert($fields + $where + $insert);
 			//debug($where, $this->id, $this->data, $fields + $where + $insert, $this->lastQuery);
-			if ($this->id) {
+			if ($this->id !== 0) {
 				$op = 'INSERT ' . $this->id;
 			} else {
 				debug($this->lastQuery);
 				$op = $this->db->lastQuery;    // for debug
 			}
+
 //			debug($this->id, $this->data, $op, $this->db->lastQuery);
 //			exit();
 		}
+
 		$this->db->commit();
 		//echo get_class($this), '::', __FUNCTION__, ' commit', BR;
 		TaylorProfiler::stop(__METHOD__);
 		return $op;
 	}
 
-	public function setLogger($log)
+	public function setLogger($log): void
 	{
 		$this->logger = $log;
 	}
 
-	public function getID()
+	public function getID(): int
 	{
 		return (int)$this->id;
 	}
@@ -912,12 +905,12 @@ abstract class OODBase implements ArrayAccess
 		return false;
 	}
 
-	public function hash()
+	public function hash(): string
 	{
 		return spl_object_hash($this);
 	}
 
-	public function oid()
+	public function oid(): string
 	{
 		return get_class($this) . '-' . $this->getID() . '-' . substr(md5($this->hash()), 0, 8);
 	}

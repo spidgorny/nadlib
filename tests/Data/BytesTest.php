@@ -9,7 +9,7 @@
 class BytesTest extends PHPUnit\Framework\TestCase
 {
 
-	public function test_return_bytes()
+	public function test_return_bytes(): void
 	{
 		$mb = ini_get('memory_limit');
 		$b = new Bytes($mb);

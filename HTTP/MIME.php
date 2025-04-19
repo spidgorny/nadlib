@@ -8,7 +8,7 @@ class MIME
 	 */
 	public $mimeMethod;
 
-	function test_mime()
+	public function test_mime(): array
 	{
 		return [
 			'finfo' => class_exists('finfo'),
@@ -18,11 +18,10 @@ class MIME
 	}
 
 	/**
-	 * Tries different methods
-	 * @param $filename
-	 * @return string
-	 */
-	function get_mime_type($filename)
+     * Tries different methods
+     * @param $filename
+     */
+    public function get_mime_type($filename): string
 	{
 		$mime = null;
 		if (is_file($filename)) {
@@ -46,31 +45,30 @@ class MIME
 		if (!$mime) {
 			$mime = $this->mime_by_ext($filename);
 			$this->mimeMethod = 'mime_by_ext';
-		}
-
-		$mime = trim($mime);    // necessary !!!
+		}    // necessary !!!
 		//debug($mime, $this->mimeMethod);
-		return $mime;
+		return trim($mime);
 	}
 
 	/**
-	 * http://www.php.net/manual/en/function.finfo-open.php#78927
-	 * @param $filepath
-	 * @return string
-	 */
-	protected function get_mime_type_system($filepath)
+     * http://www.php.net/manual/en/function.finfo-open.php#78927
+     * @param $filepath
+     */
+    protected function get_mime_type_system(string $filepath): string
 	{
 		ob_start();
-		system("file --mime-type -i --mime -b {$filepath}");
+		system('file --mime-type -i --mime -b ' . $filepath);
 		$output = ob_get_clean();
 		$output = explode("; ", $output);    // text/plain; charset=us-ascii
 		if (is_array($output)) {
 			$output = $output[0];
 		}
+
 		$output = explode(" ", $output);    // text/plain charset=us-ascii
 		if (is_array($output)) {
 			$output = $output[0];
 		}
+
 		return $output;
 	}
 
@@ -79,7 +77,7 @@ class MIME
 	 * @param $filename
 	 * @return mixed|string
 	 */
-	public function mime_by_ext($filename)
+	public function mime_by_ext($filename): string
 	{
 		$mime_types = [
 			'txt' => 'text/plain',

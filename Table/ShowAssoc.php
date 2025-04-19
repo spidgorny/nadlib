@@ -3,7 +3,10 @@
 class ShowAssoc
 {
 
-	public $data = [];
+	/**
+     * @var mixed[]
+     */
+    public $data = [];
 
 	public $thes = [];
 
@@ -14,12 +17,12 @@ class ShowAssoc
 		$this->data = $assoc;
 	}
 
-	public function setThes(array $thes)
+	public function setThes(array $thes): void
 	{
 		$this->thes = $thes;
 	}
 
-	public function setTitle($title)
+	public function setTitle($title): static
 	{
 		$this->title = $title;
 		return $this;
@@ -32,15 +35,18 @@ class ShowAssoc
 		if ($this->title) {
 			$content[] = '<h3>' . ($this->title) . ':</h3>';
 		}
+
 		$assoc = [];
 		foreach ($this->thes as $key => $name) {
 			$val = ifsetor($this->data[$key]);
 			if (is_array($name)) {
 				$val = $this->getValue($name, $val);
 			}
+
 			$niceName = is_array($name) ? $name['name'] : $name;
 			$assoc[(string)$niceName] = $val ?: '&nbsp;';
 		}
+
 		$content[] = UL::DL($assoc)->render();
 		$content[] = '</div>';
 		TaylorProfiler::stop(__METHOD__);
@@ -64,16 +70,18 @@ class ShowAssoc
 			if (ifsetor($desc['t/f'])) {
 				$val = $val == 't';
 			}
+
 			$val = $desc['bool'][$val];  // yes/no
 		} elseif (is_callable(ifsetor($desc['render']))) {
 			$val = call_user_func($desc['render'], $this->data, $val);
 		} else {
 //			$val = $val;
 		}
+
 		return $val;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return MergedContent::mergeStringArrayRecursive($this->render());
 	}

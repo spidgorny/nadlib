@@ -8,12 +8,13 @@ class SQLNow extends AsIs
 		parent::__construct('');
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		if (!$this->db) {
 			debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 			trigger_error(__CLASS__ . ' has no $db', E_USER_ERROR);
 		}
+
 		$map = [
 			'sqlite' => "datetime('now')",
 			'mysql' => 'now()',
@@ -27,8 +28,8 @@ class SQLNow extends AsIs
 		if (!isset($map[$schema])) {
 			trigger_error('[' . $schema . '] is not supported by SQLNow', E_USER_ERROR);
 		}
-		$content = $map[$schema] ?: end($map);
-		return $content;    // should not be quoted
+
+		return $map[$schema] ?: end($map);    // should not be quoted
 	}
 
 }

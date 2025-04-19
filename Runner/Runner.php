@@ -18,7 +18,7 @@ class Runner
 		$this->db = Config::getInstance()->getDB();
 	}
 
-	public function run()
+	public function run(): void
 	{
 		echo 'Ready...', BR;
 		while (true) {
@@ -29,14 +29,15 @@ class Runner
 			} else {
 				echo 'Nothing to do for ' . TaylorProfiler::getElapsedTimeString() . ' :-(', BR;
 			}
+            
 			sleep(1);
 		}
 	}
 
-	public function getNextCommand()
+	public function getNextCommand(): ?\RunnerTask
 	{
 		$task = RunnerTask::getNext();
-		if ($task) {
+		if ($task instanceof \RunnerTask) {
 			$task->reserve();
 			$this->currentTask = $task;
 			if ($task->isValid()) {
@@ -46,30 +47,29 @@ class Runner
 				$task->failed($e);
 			}
 		}
+        
 		return null;
 	}
 
 	public function getPendingTasks()
 	{
-		$rows = $this->db->fetchAllSelectQuery('runner', [
+		//debug($this->db->lastQuery);
+		return $this->db->fetchAllSelectQuery('runner', [
 			'status' => new SQLOr([
 				'status' => new SQLNotIn(['done', 'failed', 'killed']),
 				'status ' => null,
 			]),
 		], 'ORDER BY ctime');
-		//debug($this->db->lastQuery);
-		return $rows;
 	}
 
 	public function getTaskQueue()
 	{
-		$rows = $this->db->fetchAllSelectQuery('runner', [
+		return $this->db->fetchAllSelectQuery('runner', [
 			'status' => new SQLOr([
 				'status' => '',
 				'status ' => null,
 			]),
 		], 'ORDER BY ctime');
-		return $rows;
 	}
 
 }

@@ -3,7 +3,7 @@
 class MockPreferences
 {
 
-	protected $user;
+	protected \UserModelInterface $user;
 
 	protected $data = [];
 
@@ -12,7 +12,7 @@ class MockPreferences
 		$this->user = $user;
 	}
 
-	public function set($key, $val)
+	public function set($key, $val): void
 	{
 		$this->data[$key] = $val;
 	}

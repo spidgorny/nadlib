@@ -7,9 +7,16 @@
 class HTMLTag implements ArrayAccess, ToStringable
 {
 	public $tag;
-	public $attr = [];
+
+	/**
+     * @var mixed[]
+     */
+    public $attr = [];
+
 	public $content;
+
 	public $isHTML = false;
+
 	public $closingTag = true;
 
 
@@ -29,6 +36,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 		if ($key !== '' && is_numeric($key[0])) {
 			$key = '_' . $key;
 		}
+
 		return $key;
 	}
 
@@ -38,27 +46,27 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return new static($name, $arguments[0], $arguments[1], $arguments[2]);
 	}
 
-	public static function div($content, array $param = [])
+	public static function div($content, array $param = []): \HTMLTag
 	{
 		return new HTMLTag('div', $param, $content);
 	}
 
-	public static function span($content, array $param = [])
+	public static function span($content, array $param = []): \HTMLTag
 	{
 		return new HTMLTag('span', $param, $content);
 	}
 
-	public static function pre($content, array $params = [])
+	public static function pre($content, array $params = []): self
 	{
 		return new self('pre', $params, $content);
 	}
 
-	public static function tag(string $tag, array $attr, $content = null)
+	public static function tag(string $tag, array $attr, $content = null): self
 	{
 		return new self($tag, $attr, $content);
 	}
 
-	public function render()
+	public function render(): string
 	{
 		if (is_array($this->content) || $this->content instanceof MergedContent) {
 			$content = MergedContent::mergeStringArrayRecursive($this->content);
@@ -69,6 +77,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 				? $this->content . ''
 				: htmlspecialchars($this->content ?? '', ENT_QUOTES);
 		}
+
 		$attribs = self::renderAttr($this->attr);
 		$xmlClose = $this->closingTag ? '' : '/';
 		$tag = '<' . trim($this->tag . ' ' . $attribs) . $xmlClose . '>';
@@ -76,6 +85,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 		if ($this->closingTag) {
 			$tag .= '</' . $this->tag . '>' . "\n";
 		}
+
 		return $tag;
 	}
 
@@ -84,7 +94,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 		return $this->content;
 	}
 
-	public static function renderAttr(array $attr)
+	public static function renderAttr(array $attr): string
 	{
 		$set = [];
 		foreach ($attr as $key => $val) {
@@ -96,6 +106,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 				if (ArrayPlus::isRecursive($val)) {
 					debug($val);
 				}
+
 				$val = implode(' ', $val);        // for class="a b c"
 			}
 
@@ -104,6 +115,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 				$set[] = $key . '="' . htmlspecialchars($val ?? '', ENT_QUOTES | PHP_QUERY_RFC3986) . '"';
 			}
 		}
+
 		return implode(' ', $set);
 	}
 
@@ -119,16 +131,17 @@ class HTMLTag implements ArrayAccess, ToStringable
 			$this->attr[$name] = $value;
 			return $this;
 		}
+
 		return ifsetor($this->attr[$name]);
 	}
 
-	public function setAttr($name, $value)
+	public function setAttr($name, $value): static
 	{
 		$this->attr[$name] = $value;
 		return $this;
 	}
 
-	public function hasAttr($name)
+	public function hasAttr($name): bool
 	{
 		return isset($this->attr[$name]);
 	}
@@ -139,17 +152,17 @@ class HTMLTag implements ArrayAccess, ToStringable
 	}
 
 	/**
-	 * <a href="file/20131128/Animal-Planet.xml" target="_blank" class="nolink">32</a>
-	 * @param string $str
-	 * @param bool $recursive
-	 * @return HTMLTag|null
-	 */
-	public static function parse($str, $recursive = false)
+     * <a href="file/20131128/Animal-Planet.xml" target="_blank" class="nolink">32</a>
+     * @param string $str
+     * @param bool $recursive
+     */
+    public static function parse($str, $recursive = false): ?\HTMLTag
 	{
 		$str = trim($str);
 		if ($str !== '' && $str[0] !== '<') {
 			return null;
 		}
+
 		preg_match('/^(<[^>]*>)(.*?)?(<\/[^>]*>)?$/m', $str, $matches);
 		//debug($matches);
 		if (!isset($matches[1])) {
@@ -165,6 +178,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 		if (str_endsWith($tag, '>')) {
 			$tag = substr($tag, 0, -1);
 		}
+
 //		echo $tag, BR;
 		$obj = new HTMLTag($tag);
 		$obj->attr = self::parseAttributes($attributes);
@@ -179,19 +193,20 @@ class HTMLTag implements ArrayAccess, ToStringable
 		} else {
 			$obj->content = strip_tags($str);
 		}
+
 		return $obj;
 	}
 
 	/**
-	 * https://gist.github.com/rodneyrehm/3070128
-	 * @param string $text
-	 * @return array
-	 */
-	public static function parseAttributes(string $text)
+     * https://gist.github.com/rodneyrehm/3070128
+     * @return array
+     */
+    public static function parseAttributes(string $text)
 	{
 		if (is_array($text)) {
 			return $text;
 		}
+
 		$attributes = [];
 		$pattern = '#(?(DEFINE)
 (?<name>[a-zA-Z][a-zA-Z0-9-:]*)
@@ -209,10 +224,14 @@ class HTMLTag implements ArrayAccess, ToStringable
 					: null;
 			}
 		}
+
 		return $attributes;
 	}
 
-	public static function parseDOM($html)
+	/**
+     * @return \HTMLTag[]
+     */
+    public static function parseDOM($html): array
 	{
 		$content = [];
 		if (is_string($html)) {
@@ -225,6 +244,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 			debug($html);
 			return $content;
 		}
+
 		/** @var DOMElement $child */
 		foreach ($doc->childNodes as $child) {
 			//echo gettype2($child), BR;
@@ -244,7 +264,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 					}
 				}
 
-				if ($hasChildNodes) {
+				if ($hasChildNodes !== 0) {
 					$content[] = new HTMLTag(
 						$child->tagName,
 						$attributes,
@@ -258,6 +278,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 				}
 			}
 		}
+
 		return $content;
 	}
 
@@ -267,20 +288,21 @@ class HTMLTag implements ArrayAccess, ToStringable
 		foreach ($properties as $key => $val) {
 			$a->$key = $val;
 		}
+
 		return $a;
 	}
 
-	public static function a($href, $name, array $more = [], $isHTML = false)
+	public static function a($href, $name, array $more = [], $isHTML = false): self
 	{
 		return new self('a', ['href' => $href] + $more, $name, $isHTML);
 	}
 
-	public static function img($src, array $params = [])
+	public static function img($src, array $params = []): self
 	{
 		return new self('img', ['src' => $src] + $params);
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->render();
 	}
@@ -305,17 +327,18 @@ class HTMLTag implements ArrayAccess, ToStringable
 		unset($this->attr[$offset]);
 	}
 
-	public function getHash($length = null)
+	public function getHash($length = null): string
 	{
 		$hash = spl_object_hash($this);
 		if ($length) {
 			$hash = sha1($hash);
 			$hash = substr($hash, 0, $length);
 		}
+
 		return '#' . $hash;
 	}
 
-	public function cli()
+	public function cli(): string
 	{
 		return trim(strip_tags($this->render()));
 	}

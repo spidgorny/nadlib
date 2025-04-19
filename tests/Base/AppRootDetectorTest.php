@@ -17,7 +17,7 @@ class AppRootDetectorTest extends TestCase
 	/**
 	 * Only works in Windows - Jenkins ignored
 	 */
-	public function test_run()
+	public function test_run(): void
 	{
 		$this->markTestSkipped();
 //		echo 'isCLI: ', Request::isCLI(), BR;

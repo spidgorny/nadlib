@@ -60,6 +60,7 @@ class LazyFetchAssoc implements ArrayAccess
 		if (!isset($this->data[$offset])) {
 			$this->data[$offset] = $this->fetch($offset);
 		}
+        
 		return $this->data[$offset];
 	}
 

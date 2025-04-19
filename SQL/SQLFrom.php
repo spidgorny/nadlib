@@ -16,7 +16,7 @@ class SQLFrom extends SQLWherePart
 		$this->parts[] = trim($from);
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 //		$config = Config::getInstance();
 //		debug(

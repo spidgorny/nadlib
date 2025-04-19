@@ -7,6 +7,7 @@ class PayPalPDT
 
 	// real
 	protected $auth_token = "BqL-aA4wiboHHmyImOagKm9kXwMslvZnahgs2CpqMcuoINc1b8c6A4YV4Te";
+
 	protected $sandbox = '';
 
 	// sandbox
@@ -21,7 +22,7 @@ class PayPalPDT
 		$this->req .= "&tx=" . $tx_token . "&at=" . $this->auth_token;
 	}
 
-	public function validate()
+	public function validate(): bool
 	{
 		$url = 'www.' . $this->sandbox . 'paypal.com';
 		// post back to PayPal system to validate
@@ -36,7 +37,7 @@ class PayPalPDT
 		if (!$fp) {
 			throw new Exception('HTTP ERROR');
 		} else {
-			fputs($fp, $header . $this->req);
+			fwrite($fp, $header . $this->req);
 			// read the body data
 			$res = '';
 			$headerdone = false;
@@ -55,14 +56,16 @@ class PayPalPDT
 			$lines = explode("\n", $res);
 			$keyarray = [];
 			if (strcmp($lines[0], "SUCCESS") == 0) {
-				for ($i = 1; $i < count($lines); $i++) {
+                $counter = count($lines);
+                for ($i = 1; $i < $counter; $i++) {
 					list($key, $val) = explode("=", $lines[$i]);
 					$keyarray[urldecode($key)] = urldecode($val);
 				}
-				//d($url, $header, $this->req, /*$res,*/ $keyarray);
-				$this->response = $keyarray;
-				return true;
-			} elseif (strcmp($lines[0], "FAIL") == 0) {
+
+                //d($url, $header, $this->req, /*$res,*/ $keyarray);
+                $this->response = $keyarray;
+                return true;
+            } elseif (strcmp($lines[0], "FAIL") == 0) {
 				throw new Exception($res);
 				//d($url, $header, $this->req, $res);
 			}

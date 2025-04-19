@@ -4,12 +4,16 @@ class HTMLInputWithOptions extends HTMLFormField
 {
 
 	public $field;
+
 	/**
 	 * @var HTMLForm
 	 */
 	public $form;
+
 	public $value;
-	protected $options = [];
+
+	protected array $options;
+
 	protected $listName;
 
 	public function __construct($field, $value, array $options, $listName = 'browsers')
@@ -21,10 +25,9 @@ class HTMLInputWithOptions extends HTMLFormField
 	}
 
 	/**
-	 * Shows the form element in the form
-	 * @return mixed
-	 */
-	public function render()
+     * Shows the form element in the form
+     */
+    public function render(): void
 	{
 		$content[] = '<input name="' . $this->field . '"
 		list="' . $this->listName . '"
@@ -33,26 +36,24 @@ class HTMLInputWithOptions extends HTMLFormField
 		foreach ($this->options as $option => $description) {
 			$content[] = '<option value="' . htmlspecialchars($option) . '">' . htmlspecialchars($description) . '</option>';
 		}
+
 		$content[] = '</datalist>';
 		return $content;
 	}
 
 	/**
-	 * Whet's the key name
-	 * @param $fieldName
-	 * @return mixed
-	 */
-	public function setField($fieldName)
+     * Whet's the key name
+     * @param $fieldName
+     */
+    public function setField($fieldName): void
 	{
 		$this->field = $fieldName;
 	}
 
 	/**
-	 * Inject form for additional function calls
-	 * @param HTMLForm $form
-	 * @return mixed
-	 */
-	public function setForm(HTMLForm $form)
+     * Inject form for additional function calls
+     */
+    public function setForm(HTMLForm $form): void
 	{
 		$this->form = $form;
 	}
@@ -61,7 +62,7 @@ class HTMLInputWithOptions extends HTMLFormField
 	 * Set current field value
 	 * @param $value
 	 */
-	public function setValue($value)
+	public function setValue($value): void
 	{
 		$this->value = $value;
 	}

@@ -34,9 +34,13 @@
 class DebugPanel
 {
 	protected static $instance;
+    
 	public $header = 'h6';
+    
 	protected $name = 'DebugPanel';
+    
 	protected $content = '';
+    
 	protected $panels = [];
 
 	protected function __construct($name = null, $content = null)
@@ -46,6 +50,7 @@ class DebugPanel
 			$name .= ' (' . $params['typeName'] . ')';
 			$this->name = $name;
 		}
+        
 		if (is_array($content)) {
 			$this->content = $this->viewArray($content);
 		} elseif (is_object($content) && !($content instanceof HtmlString)) {
@@ -55,7 +60,10 @@ class DebugPanel
 		}
 	}
 
-	public function getVarParams($var)
+	/**
+     * @return int[]|string[]
+     */
+    public function getVarParams($var): array
 	{
 		$params = [];
 		$type = gettype($var);
@@ -63,7 +71,7 @@ class DebugPanel
 		if (is_array($var)) {
 			$params['size'] = count($var);
 			$params['typeName'] = $type . '[' . count($var) . ']';
-		} elseif ($type == 'object') {
+		} elseif ($type === 'object') {
 			$params['class'] = get_class($var);
 			$params['hash'] = spl_object_hash($var);
 			//$params['methods'] = get_class_methods(get_class($var));
@@ -72,21 +80,22 @@ class DebugPanel
 				$params['extends'] = $extends;
 				$params['typeName'] .= ':' . $extends;
 			}
-		} elseif ($type == 'NULL') {
+		} elseif ($type === 'NULL') {
 			$params['typeName'] = $type;
-		} elseif ($type == 'string') {
+		} elseif ($type === 'string') {
 			$params['length'] = strlen($var);
 			$params['typeName'] = $type . '(' . strlen($var) . ')';
-		} elseif ($type == 'boolen') {
+		} elseif ($type === 'boolen') {
 			$params['typeName'] = $type;
 		} else {
 			$params['length'] = strlen($var);
 			$params['typeName'] = $type . '(' . strlen($var) . ')';
 		}
+        
 		return $params;
 	}
 
-	public function viewArray($array)
+	public function viewArray($array): \slTable
 	{
 		$table = [];
 		foreach ($array as $key => $val) {
@@ -107,8 +116,10 @@ class DebugPanel
 			} else {
 				$row['value'] = new HTMLTag('td', ['class' => $type . ' overflow'], $val);
 			}
+            
 			$table[] = $row;
 		}
+        
 		return new slTable($table, 'class="view_array array"');
 	}
 
@@ -117,29 +128,28 @@ class DebugPanel
 		if (!self::$instance) {
 			self::$instance = new self();
 		}
+        
 		return self::$instance;
 	}
 
-	public function render()
+	public function render(): string
 	{
 		$content = $this->getHeader();
 		$this->header = 'h5';
-		$content .= '<div class="DebugPanel">' . $this->__toString() . '</div>';
-		return $content;
+		return $content . ('<div class="DebugPanel">' . $this->__toString() . '</div>');
 	}
 
-	public function getHeader()
+	public function getHeader(): string
 	{
 		$content = '<link rel="stylesheet" type="text/css" href="css/debugPanel.css">';
 		//$content .= '<script src="js/jquery-1.3.2.min.js"></script>';
 		//$content .= '<script src="js/jquery-ui-1.7.2.custom.min.js"></script>';
 		//$content .= '<script src="js/jquery.cookie.js"></script>';
 		$content .= '<script src="js/jquery.json-2.2.min.js"></script>';
-		$content .= '<script src="js/debugPanel.js"></script>';
-		return $content;
+		return $content . '<script src="js/debugPanel.js"></script>';
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		$h6 = $this->header;
 		$content = '<div class="panel">
@@ -149,13 +159,14 @@ class DebugPanel
 			foreach ($this->panels as $panel) {
 				$content .= $panel;
 			}
+            
 			$content .= $this->content . '</div>';
 		}
-		$content .= '</div>';
-		return $content;
+		
+		return $content . '</div>';
 	}
 
-	public function addPanel($name, $content)
+	public function addPanel($name, $content): void
 	{
 		$dp = new DebugPanel($name, $content);
 		$this->panels[$name] = $dp;

@@ -4,18 +4,20 @@ class ChangePassword extends HTMLFormProcessor
 {
 
 	public $title = 'Change Password';
+
 	protected $minLength = 8;
+
 	protected $submitButton = 'Change';
 
 	private DCILoginUser|null|NoUser|DCICLIUser $user;
 
-	public function __construct($default = [])
+	public function __construct(array $default = [])
 	{
 		parent::__construct($default);
 		$this->user = Config::getInstance()->getUser();
 	}
 
-	public function getDesc()
+	public function getDesc(): array
 	{
 		$desc = [];
 		$desc['action'] = [
@@ -35,7 +37,7 @@ class ChangePassword extends HTMLFormProcessor
 		return $desc;
 	}
 
-	public function onSuccess(array $data)
+	public function onSuccess(array $data): string
 	{
 		$content = '';
 		if (strlen($data['password']) >= $this->minLength) {
@@ -52,6 +54,7 @@ class ChangePassword extends HTMLFormProcessor
 		} else {
 			throw new \RuntimeException(__('Minimum password length is %s characters.', $this->minLength));
 		}
+
 		return $content;
 	}
 

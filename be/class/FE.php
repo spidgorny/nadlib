@@ -3,7 +3,7 @@
 class FE extends AppControllerBE
 {
 
-	public function render()
+	public function render(): string
 	{
 		return '';
 	}

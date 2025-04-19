@@ -25,36 +25,35 @@ class Filter extends ArrayObject
 		$this->setRequest($input);
 	}
 
-	public function setPreferences(array $_preferences = null)
+	public function setPreferences(array $_preferences = null): void
 	{
 		if ($_preferences) {
 			$this->_preferences = $_preferences;
 		}
 	}
 
-	public function setRequest(array $_request)
+	public function setRequest(array $_request): void
 	{
 		$this->_request = $_request;
 	}
 
-	public function setDefault(array $_default)
+	public function setDefault(array $_default): void
 	{
 		$this->_default = $_default;
 	}
 
-	public function get($index)
+	public function get($index): mixed
 	{
 		return $this->offsetGet($index);
 	}
 
-	public function getArray($index)
+	public function getArray($index): array
 	{
 		$value = $this->offsetGet($index);
-		$value = (array)$value;
-		return $value;
+		return (array)$value;
 	}
 
-	public function set($index, $newval)
+	public function set($index, $newval): void
 	{
 		$this->offsetSet($index, $newval);
 	}
@@ -82,6 +81,7 @@ class Filter extends ArrayObject
 		if (isset($this->_default[$index])) {
 			return $this->_default[$index];
 		}
+        
 		return null;
 	}
 
@@ -104,7 +104,7 @@ class Filter extends ArrayObject
 		return new ArrayIterator($this->getArrayCopy());
 	}
 
-	public function clear()
+	public function clear(): void
 	{
 		$this->_set = [];
 		$this->_request = [];
@@ -112,7 +112,7 @@ class Filter extends ArrayObject
 		$this->_default = [];    // maybe it should remain?
 	}
 
-	public function getDebug()
+	public function getDebug(): array
 	{
 		return [
 			'set' => $this->_set,
@@ -127,7 +127,7 @@ class Filter extends ArrayObject
 		return $this->getDebug();
 	}
 
-	public function ensure($field, array $allowedOptions, $default = null)
+	public function ensure($field, array $allowedOptions, $default = null): void
 	{
 		$value = $this[$field];
 		if ($value) {

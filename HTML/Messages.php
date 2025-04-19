@@ -7,7 +7,7 @@ use MergedContent;
 class Messages extends MergedContent
 {
 
-	public function message($text)
+	public function message($text): string
 	{
 		$text = \MergedContent::mergeStringArrayRecursive($text);
 		$msg = '<div class="message alert alert-info ui-state-message alert alert-notice padding">' . $text . '</div>';
@@ -16,10 +16,11 @@ class Messages extends MergedContent
 		} else {
 			$this->content .= $msg;
 		}
+
 		return $msg;
 	}
 
-	public function error($text)
+	public function error($text): string
 	{
 		$text = \MergedContent::mergeStringArrayRecursive($text);
 		$msg = '<div class="error error_top ui-state-error alert alert-error alert-danger padding">' . $text . '</div>';
@@ -28,11 +29,12 @@ class Messages extends MergedContent
 		} else {
 			$this->content .= $msg;
 		}
+
 //		debug($this->content);
 		return $msg;
 	}
 
-	public function success($text)
+	public function success($text): string
 	{
 		$text = \MergedContent::mergeStringArrayRecursive($text);
 		$msg = '<div class="alert alert-success padding">' . $text . '</div>';
@@ -41,10 +43,11 @@ class Messages extends MergedContent
 		} else {
 			$this->content .= $msg;
 		}
+
 		return $msg;
 	}
 
-	public function info($text)
+	public function info($text): string
 	{
 		$text = \MergedContent::mergeStringArrayRecursive($text);
 		$msg = '<div class="alert alert-info padding">' . $text . '</div>';
@@ -53,15 +56,16 @@ class Messages extends MergedContent
 		} else {
 			$this->content .= $msg;
 		}
+
 		return $msg;
 	}
 
-	public function saveMessages()
+	public function saveMessages(): void
 	{
 		$_SESSION[__CLASS__]['messages'] = $this->content;
 	}
 
-	public function restoreMessages()
+	public function restoreMessages(): void
 	{
 //		debug('restoring');
 		if (isset($_SESSION[__CLASS__])) {

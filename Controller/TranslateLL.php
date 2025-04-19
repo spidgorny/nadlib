@@ -13,7 +13,9 @@ class TranslateLL extends HTMLFormProcessor
 	 * @var CookieUser|User|LoginUser
 	 */
 	public $user;
+    
 	protected $submitButton = 'Update';
+    
 	private Config $config;
 
 	public function __construct()
@@ -26,7 +28,7 @@ class TranslateLL extends HTMLFormProcessor
 		}
 	}
 
-	public function getDesc()
+	public function getDesc(): array
 	{
 		$ll = $this->config->getLL();
 		$code = $this->request->getTrim('code');
@@ -56,28 +58,26 @@ class TranslateLL extends HTMLFormProcessor
 		];
 	}
 
-	public function render()
+	public function render(): string
 	{
 		$content = parent::render();
-		$content .= '<iframe
-			src="http://dict.leo.org/ende?search=' .
-			urlencode($this->request->getTrim('code')) . '"
+		return $content . ('<iframe
+			src="http://dict.leo.org/ende?search=' . urlencode($this->request->getTrim('code')) . '"
 			width="100%"
-			height="500"></iframe>';
-		return $content;
+			height="500"></iframe>');
 	}
 
-	public function onSuccess(array $data)
+	public function onSuccess(array $data): string
 	{
 		$ll = $this->config->getLL();
 		$ll->updateMessage($data);
+        
 		$content = '<div class="message">Updated.</div>';
-		$content .= '<script>
+		//debug($ll->ll, json_encode($ll->ll));
+		return $content . '<script>
 			window.opener.location.href = window.opener.location.href;
 			window.close();
 		</script>';
-		//debug($ll->ll, json_encode($ll->ll));
-		return $content;
 	}
 
 }

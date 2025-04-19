@@ -64,16 +64,15 @@ class URL
 	 */
 	public $proxy;
 
-	public static function from($url = null, array $params = [])
+	public static function from($url = null, array $params = []): self
 	{
 		return new self($url, $params);
 	}
 
 	/**
-	 * @param string $url - if not specified then the current page URL is reconstructed
-	 * @param array $params
-	 */
-	public function __construct($url = null, array $params = [])
+     * @param string $url - if not specified then the current page URL is reconstructed
+     */
+    public function __construct($url = null, array $params = [])
 	{
 		if ($url instanceof URL) {
 			//return $url;	// doesn't work
@@ -90,13 +89,16 @@ class URL
 			} else {
 				$url = $http . '://' . (gethostname() ?: 'localhost') . '/';
 			}
+
 			$this->parseURL($url);
 		} else {
 			$this->parseURL($url);
 		}
-		if ($params) {
+
+		if ($params !== []) {
 			$this->addParams($params);    // setParams was deleting all filters from the URL
 		}
+
 //		if (class_exists('Config')) {
 //			$this->setDocumentRoot(Config::getInstance()->documentRoot);
 //		}
@@ -108,7 +110,7 @@ class URL
 	/**
 	 * @param $url string
 	 */
-	public function parseURL($url)
+	public function parseURL(string $url): void
 	{
 		$this->components = @parse_url($url);
 		//pre_print_r($this->components);
@@ -122,10 +124,12 @@ class URL
 				foreach ($callStack as &$call) {
 					$call = ifsetor($call['class']) . ifsetor($call['type']) . $call['function'];
 				}
+
 				if (ifsetor($_COOKIE['d'])) {
 					print_r($callStack);
 					ob_end_flush();
 				}
+
 				// prevent infinite loop
 				if (!in_array('Request::getLocation', $callStack) &&
 					!in_array('Request->getLocation', $callStack)
@@ -136,6 +140,7 @@ class URL
 				}
 			}
 		}
+
 		//debug($url, $request ? 'Request::getExistingInstance' : '');
 		if (isset($this->components['path'])) {
 			$this->path = new Path($this->components['path']);
@@ -145,12 +150,13 @@ class URL
 		} else {
 			$this->path = new Path('/');
 		}
+
 		if (isset($this->components['query'])) {
 			parse_str($this->components['query'], $this->params);
 		}
 	}
 
-	public static function make(array $params = [])
+	public static function make(array $params = []): self
 	{
 		$url = new self();
 		$url->setParams($params);
@@ -158,18 +164,17 @@ class URL
 	}
 
 	/**
-	 * @param $param
-	 * @param $value
-	 * @return static
-	 */
-	public function setParam($param, $value)
+     * @param $param
+     * @param $value
+     */
+    public function setParam($param, $value): static
 	{
 		$this->params[$param] = $value;
 		$this->components['query'] = $this->buildQuery();
 		return $this;
 	}
 
-	public function unsetParam($param)
+	public function unsetParam($param): static
 	{
 		unset($this->params[$param]);
 		$this->components['query'] = $this->buildQuery();
@@ -182,11 +187,10 @@ class URL
 	}
 
 	/**
-	 * Replaces parameters completely (with empty array?)
-	 * @param array $params
-	 * @return $this
-	 */
-	public function setParams(array $params = [])
+     * Replaces parameters completely (with empty array?)
+     * @return $this
+     */
+    public function setParams(array $params = []): static
 	{
 		$this->params = $params;
 		$this->components['query'] = $this->buildQuery();
@@ -194,31 +198,30 @@ class URL
 	}
 
 	/**
-	 * New params have priority
-	 * @param array $params
-	 * @return $this
-	 */
-	public function addParams(array $params = [])
+     * New params have priority
+     * @return $this
+     */
+    public function addParams(array $params = []): static
 	{
 		$this->params = $params + $this->params;
 		$this->components['query'] = $this->buildQuery();
 		return $this;
 	}
 
-	public function forceParams(array $params = [])
+	public function forceParams(array $params = []): static
 	{
 		$this->params = array_merge($this->params, $params);    // keep default order but overwrite
 		$this->components['query'] = $this->buildQuery();
 		return $this;
 	}
 
-	public function clearParams()
+	public function clearParams(): static
 	{
 		$this->setParams([]);
 		return $this;
 	}
 
-	public function appendParams(array $params)
+	public function appendParams(array $params): void
 	{
 		$this->params += $params;
 		$this->components['query'] = $this->buildQuery();
@@ -239,13 +242,13 @@ class URL
 			debug(gettype($path), get_class($path), get_object_vars($path));
 			debug_pre_print_backtrace();
 		}
+
 		assert($path instanceof Path);
 		if ($this->documentRoot !== '/') {
 			//$path = str_replace($this->documentRoot, '', $path);	// WHY???
 		}
-		if (!$path instanceof Path) {
-			$this->path = new Path($path);
-		}
+
+
 		nodebug([
 			'class($this->path)' => get_class($this->path),
 			'$this->path' => $this->path . '',
@@ -260,14 +263,14 @@ class URL
 	 * @param string|Path $path
 	 * @return $this
 	 */
-	public function setPath($path)
+	public function setPath($path): static
 	{
 		$this->components['path'] = $path instanceof Path ? $path : new Path($path);
 		$this->path = $this->components['path'];
 		return $this;
 	}
 
-	public function reset()
+	public function reset(): void
 	{
 		$this->components['path'] = $this->documentRoot;
 		$this->components['query'] = '';
@@ -279,18 +282,18 @@ class URL
 	 * @param $name
 	 * @return $this
 	 */
-	public function setBasename($name)
+	public function setBasename($name): static
 	{
 		$this->path->setFile($name);
 		return $this;
 	}
 
-	public function getBasename()
+	public function getBasename(): string
 	{
 		return basename($this->getPath());
 	}
 
-	public function getExtension()
+	public function getExtension(): string
 	{
 		$basename = $this->getBasename();
 		return pathinfo($basename, PATHINFO_EXTENSION);
@@ -300,45 +303,43 @@ class URL
 	 * Lowercase guaranteed
 	 * @return mixed|string
 	 */
-	public function getExtensionLC()
+	public function getExtensionLC(): string
 	{
 		$ext = $this->getExtension();
 		return mb_strtolower($ext);
 	}
 
-	public function setDocumentRoot($root)
+	public function setDocumentRoot($root): static
 	{
 		$this->documentRoot = $root;
 		//debug($this);
 		return $this;
 	}
 
-	public function setFragment($name)
+	public function setFragment($name): static
 	{
 		if ($name[0] === '#') {
 			$name = substr($name, 1);
 		}
+
 		$this->components['fragment'] = $name;
 		return $this;
 	}
 
-	public function buildQuery()
+	public function buildQuery(): string
 	{
 		$queryString = http_build_query($this->params, '_');
-		$queryString = str_replace('#', '%23', $queryString);
 		//parse_str($queryString, $queryStringTest);
 		//debug($this->params, $queryStringTest);
-		return $queryString;
+		return str_replace('#', '%23', $queryString);
 	}
 
 	/**
-	 * http://de2.php.net/manual/en/function.parse-url.php#85963
-	 *
-	 * @param null $parsed
-	 * @return string
-	 * @throws \Exception
-	 */
-	public function buildURL($parsed = null)
+     * http://de2.php.net/manual/en/function.parse-url.php#85963
+     *
+     * @throws \Exception
+     */
+    public function buildURL($parsed = null): string
 	{
 		if (!$parsed) {
 			// to make sure manual manipulations are not possible (although it's already protected?)
@@ -346,6 +347,7 @@ class URL
 			$this->components['path'] = $this->path->__toString();
 			$parsed = $this->components;
 		}
+
 		invariant(is_array($parsed), 'Parsed URL must be an array');
 
 		$uri = isset($parsed['scheme'])
@@ -360,19 +362,18 @@ class URL
 
 		if (isset($parsed['path'])) {
 			$uri .= (str_starts_with($parsed['path'], '/')) ?
-				$parsed['path'] : ((!empty($uri) ? '/' : '') . $parsed['path']);
+				$parsed['path'] : (($uri === '' || $uri === '0' ? '' : '/') . $parsed['path']);
 		}
 
 		$uri .= $parsed['query'] ? '?' . $parsed['query'] : '';
-		$uri .= isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
 
-		return $uri;
+		return $uri . isset($parsed['fragment']) !== '' ? '#' . $parsed['fragment'] : '';
 	}
 
 	/**
 	 * @throws \Exception
 	 */
-	public function __toString()
+	public function __toString(): string
 	{
 		if (ifsetor($this->components['host'])) {
 			return $this->buildURL();
@@ -387,9 +388,11 @@ class URL
 		if (ifsetor($this->components['query'])) {
 			$url .= '?' . $this->components['query'];
 		}
+
 		if (ifsetor($this->components['fragment'])) {
 			$url .= '#' . $this->components['fragment'];
 		}
+
 		//debug($this->components, $url);
 		return $url . '';
 	}
@@ -402,25 +405,25 @@ class URL
 	}
 
 	/**
-	 * @static
-	 * @return URL
-	 */
-	public static function getCurrent()
+     * @static
+     */
+    public static function getCurrent(): \spidgorny\nadlib\HTTP\URL
 	{
 		return new URL();
 	}
 
-	public function GET()
+	public function GET(): string|false
 	{
 		return file_get_contents($this->buildURL());
 	}
 
-	public function POST($login = null, $password = null)
+	public function POST($login = null, $password = null): string|false
 	{
 		$auth = null;
 		if ($login) {
 			$auth = "Authorization: Basic " . base64_encode($login . ':' . $password) . PHP_EOL;
 		}
+
 		$stream = [
 			'http' => [
 				'method' => 'POST',
@@ -436,7 +439,7 @@ class URL
 		return file_get_contents($url, false, $context);
 	}
 
-	public function getCURL()
+	public function getCURL(): \CurlHandle|false
 	{
 		$process = curl_init($this->__toString());
 		curl_setopt($process, CURLOPT_HTTPHEADER, $this->headers);
@@ -445,14 +448,17 @@ class URL
 		if ($this->cookies == true) {
 			curl_setopt($process, CURLOPT_COOKIEFILE, $this->cookie_file);
 		}
+
 		if ($this->cookies == true) {
 			curl_setopt($process, CURLOPT_COOKIEJAR, $this->cookie_file);
 		}
+
 		curl_setopt($process, CURLOPT_ENCODING, $this->compression);
 		curl_setopt($process, CURLOPT_TIMEOUT, 30);
 		if ($this->proxy) {
 			curl_setopt($process, CURLOPT_PROXY, $this->proxy);
 		}
+
 		curl_setopt($process, CURLOPT_POSTFIELDS, $this->buildQuery());
 		curl_setopt($process, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($process, CURLOPT_FOLLOWLOCATION, 1);
@@ -460,7 +466,7 @@ class URL
 		return $process;
 	}
 
-	public function CURL()
+	public function CURL(): bool|string
 	{
 		$process = $this->getCURL();
 		$return = curl_exec($process);
@@ -468,26 +474,25 @@ class URL
 		return $return;
 	}
 
-	public function getURLGet()
+	public function getURLGet(): \URLGet
 	{
 		return new URLGet($this->__toString());
 	}
 
-	public function exists()
+	public function exists(): int|false
 	{
 		$AgetHeaders = @get_headers($this->buildURL());
 		return preg_match("|200|", $AgetHeaders[0]);
 	}
 
 	/**
-	 * Works well when both paths are absolute.
-	 * Comparing server path to URL path does not work.
-	 * http://stackoverflow.com/a/2638272/417153
-	 * @param string $from
-	 * @param string $to
-	 * @return string
-	 */
-	public static function getRelativePath($from, $to)
+     * Works well when both paths are absolute.
+     * Comparing server path to URL path does not work.
+     * http://stackoverflow.com/a/2638272/417153
+     * @param string $from
+     * @param string $to
+     */
+    public static function getRelativePath($from, $to): string
 	{
 		0 && debug(
 			$_SERVER['DOCUMENT_ROOT'],
@@ -519,11 +524,12 @@ class URL
 					break;
 				}
 
-				if (is_array($relPath) && isset($relPath[0])) {
+				if (isset($relPath[0])) {
 					$relPath[0] = './' . $relPath[0];
 				}
 			}
 		}
+
 		//debug($from, $to, $relPath);
 		return implode('/', $relPath);
 	}
@@ -554,6 +560,7 @@ class URL
 			// in virtual environments (symlink)
 			$scriptWithPath = realpath($scriptWithPath);
 		}
+
 		return $scriptWithPath;
 	}
 
@@ -566,36 +573,33 @@ class URL
 	}
 
 	/**
-	 * "asd/qwe\zxc/" => ['asd', 'qwe', 'zxc']
-	 * Takes care of Windows path and removes empty
-	 * @param $from
-	 * @return array
-	 */
-	public static function getPathFolders($from)
+     * "asd/qwe\zxc/" => ['asd', 'qwe', 'zxc']
+     * Takes care of Windows path and removes empty
+     * @param $from
+     */
+    public static function getPathFolders($from): array
 	{
 		//		ob_start();
 		//		debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 		if (!ini_get('open_basedir')) {
 			$from = is_dir($from) ? rtrim($from, '\/') . '/' : $from;
 		}
+
 		$from = str_replace('\\', '/', $from);
 		$from = explode('/', $from);
-		$from = array_filter($from);
-		return $from;
+		return array_filter($from);
 	}
 
 	/**
-	 * @param string $path1
-	 * @param string $path2
-	 * @return array
-	 */
-	public static function getCommonRoot($path1, $path2)
+     * @param string $path1
+     * @param string $path2
+     */
+    public static function getCommonRoot($path1, $path2): array
 	{
 		$path1 = self::getPathFolders($path1);
 		$path2 = self::getPathFolders($path2);
-		$common = array_intersect($path1, $path2);
 		//debug($path1, $path2, $common);
-		return $common;
+		return array_intersect($path1, $path2);
 	}
 
 	/**
@@ -603,7 +607,7 @@ class URL
 	 * @param $address
 	 * @return array|mixed|string
 	 */
-	public function canonicalize($address)
+	public function canonicalize($address): string
 	{
 		$address = explode('/', $address);
 		$keys = array_keys($address, '..');
@@ -613,8 +617,7 @@ class URL
 		}
 
 		$address = implode('/', $address);
-		$address = str_replace('./', '', $address);
-		return $address;
+		return str_replace('./', '', $address);
 	}
 
 	protected function log($action, $data = null)
@@ -622,18 +625,17 @@ class URL
 		$this->log[] = new LogEntry($action, $data);
 	}
 
-	public function resolve($relativeURL)
+	public function resolve($relativeURL): string|false
 	{
 		return $this->url_to_absolute($this->__toString(), $relativeURL);
 	}
 
 	/**
-	 * http://nadeausoftware.com/articles/2008/05/php_tip_how_convert_relative_url_absolute_url
-	 * @param $baseUrl
-	 * @param $relativeUrl
-	 * @return mixed
-	 */
-	private function url_to_absolute($baseUrl, $relativeUrl)
+     * http://nadeausoftware.com/articles/2008/05/php_tip_how_convert_relative_url_absolute_url
+     * @param $baseUrl
+     * @param $relativeUrl
+     */
+    private function url_to_absolute(string $baseUrl, $relativeUrl): false|string
 	{
 		// If relative URL has a scheme, clean path and return.
 		$r = $this->split_url($relativeUrl);
@@ -641,10 +643,12 @@ class URL
 			$this->log('Unable to split', $relativeUrl);
 			return false;
 		}
+
 		if (!empty($r['scheme'])) {
 			if (!empty($r['path']) && $r['path'][0] == '/') {
 				$r['path'] = $this->url_remove_dot_segments($r['path']);
 			}
+
 			return $this->join_url($r);
 		}
 
@@ -654,6 +658,7 @@ class URL
 			$this->log('unable to split', $baseUrl);
 			return false;
 		}
+
 		$r['scheme'] = $b['scheme'];
 
 		// If relative URL has an authority, clean path and return.
@@ -661,8 +666,10 @@ class URL
 			if (!empty($r['path'])) {
 				$r['path'] = $this->url_remove_dot_segments($r['path']);
 			}
+
 			return $this->join_url($r);
 		}
+
 		unset($r['port']);
 		unset($r['user']);
 		unset($r['pass']);
@@ -672,9 +679,11 @@ class URL
 		if (isset($b['port'])) {
 			$r['port'] = $b['port'];
 		}
+
 		if (isset($b['user'])) {
 			$r['user'] = $b['user'];
 		}
+
 		if (isset($b['pass'])) {
 			$r['pass'] = $b['pass'];
 		}
@@ -684,9 +693,11 @@ class URL
 			if (!empty($b['path'])) {
 				$r['path'] = $b['path'];
 			}
+
 			if (!isset($r['query']) && isset($b['query'])) {
 				$r['query'] = $b['query'];
 			}
+
 			return $this->join_url($r);
 		}
 
@@ -697,52 +708,57 @@ class URL
 			if ($base === false) {
 				$base = '';
 			}
+
 			$r['path'] = $base . '/' . $r['path'];
 		}
+
 		$r['path'] = $this->url_remove_dot_segments($r['path']);
 		return $this->join_url($r);
 	}
 
-	public function url_remove_dot_segments($path)
+	public function url_remove_dot_segments($path): string
 	{
 		// multi-byte character explode
 		$inSegs = preg_split('!/!u', $path);
 		$outSegs = [];
 		foreach ($inSegs as $seg) {
-			if ($seg == '' || $seg == '.') {
+			if ($seg === '' || $seg === '.') {
 				continue;
 			}
-			if ($seg == '..') {
+
+			if ($seg === '..') {
 				array_pop($outSegs);
 			} else {
-				array_push($outSegs, $seg);
-			}
+                $outSegs[] = $seg;
+            }
 		}
+
 		$outPath = implode('/', $outSegs);
 		if ($path[0] == '/') {
 			$outPath = '/' . $outPath;
 		}
+
 		// compare last multi-byte character against '/'
-		if ($outPath != '/' && (mb_strlen($path) - 1) == mb_strrpos($path, '/', 'UTF-8')
+		if ($outPath !== '/' && (mb_strlen($path) - 1) == mb_strrpos($path, '/', 'UTF-8')
 		) {
 			$outPath .= '/';
 		}
+
 		return $outPath;
 	}
 
 	/**
-	 * PHP's standard parse_url( ) looks useful. It splits apart a URL and returns an associative array containing the
-	 * scheme, host, path, and so on. It works well on simple URLs like "http://example.com/index.htm". However, it has
-	 * problems parsing complex URLs, like "http://example.com/redirect?url=http://elsewhere.com". It is confused by
-	 * some relative URLs, such as "//example.com/index.htm". And it doesn't properly handle URLs using IPv6 addresses.
-	 * The parser also is not as strict as it should be and will allow illegal characters and invalid URL structure.
-	 * This makes it hard to use parse_url( ) reliably for validating links in link checkers and other tools.
-	 * http://nadeausoftware.com/articles/2008/05/php_tip_how_parse_and_build_urls
-	 * @param      $url
-	 * @param bool $decode
-	 * @return mixed
-	 */
-	public function split_url($url, $decode = true)
+     * PHP's standard parse_url( ) looks useful. It splits apart a URL and returns an associative array containing the
+     * scheme, host, path, and so on. It works well on simple URLs like "http://example.com/index.htm". However, it has
+     * problems parsing complex URLs, like "http://example.com/redirect?url=http://elsewhere.com". It is confused by
+     * some relative URLs, such as "//example.com/index.htm". And it doesn't properly handle URLs using IPv6 addresses.
+     * The parser also is not as strict as it should be and will allow illegal characters and invalid URL structure.
+     * This makes it hard to use parse_url( ) reliably for validating links in link checkers and other tools.
+     * http://nadeausoftware.com/articles/2008/05/php_tip_how_parse_and_build_urls
+     * @param      $url
+     * @param bool $decode
+     */
+    public function split_url($url, $decode = true): false|array
 	{
 		$parts = [];
 		$xunressub = 'a-zA-Z\d\-._~\!$&\'()*+,;=';
@@ -782,87 +798,96 @@ class URL
 			return false;
 		}
 
-		if (!empty($m[2])) {
+		if (isset($m[2]) && ($m[2] !== '' && $m[2] !== '0')) {
 			$parts['scheme'] = strtolower($m[2]);
 		}
 
-		if (!empty($m[7])) {
-			if (isset($m[9])) {
-				$parts['user'] = $m[9];
-			} else {
-				$parts['user'] = '';
-			}
-		}
-		if (!empty($m[10])) {
+        if (isset($m[7]) && ($m[7] !== '' && $m[7] !== '0')) {
+            $parts['user'] = isset($m[9]) ? $m[9] : '';
+        }
+
+		if (isset($m[10]) && ($m[10] !== '' && $m[10] !== '0')) {
 			$parts['pass'] = $m[11];
 		}
 
-		if (!empty($m[13])) {
+		if (isset($m[13]) && ($m[13] !== '' && $m[13] !== '0')) {
 			$h = $parts['host'] = $m[13];
-		} elseif (!empty($m[14])) {
+		} elseif (isset($m[14]) && ($m[14] !== '' && $m[14] !== '0')) {
 			$parts['host'] = $m[14];
-		} elseif (!empty($m[16])) {
+		} elseif (isset($m[16]) && ($m[16] !== '' && $m[16] !== '0')) {
 			$parts['host'] = $m[16];
-		} elseif (!empty($m[5])) {
+		} elseif (isset($m[5]) && ($m[5] !== '' && $m[5] !== '0')) {
 			$parts['host'] = '';
 		}
-		if (!empty($m[17])) {
+
+		if (isset($m[17]) && ($m[17] !== '' && $m[17] !== '0')) {
 			$parts['port'] = $m[18];
 		}
 
-		if (!empty($m[19])) {
+		if (isset($m[19]) && ($m[19] !== '' && $m[19] !== '0')) {
 			$parts['path'] = $m[19];
-		} elseif (!empty($m[21])) {
+		} elseif (isset($m[21]) && ($m[21] !== '' && $m[21] !== '0')) {
 			$parts['path'] = $m[21];
-		} elseif (!empty($m[25])) {
+		} elseif (isset($m[25]) && ($m[25] !== '' && $m[25] !== '0')) {
 			$parts['path'] = $m[25];
 		}
 
-		if (!empty($m[27])) {
+		if (isset($m[27]) && ($m[27] !== '' && $m[27] !== '0')) {
 			$parts['query'] = $m[28];
 		}
-		if (!empty($m[29])) {
+
+		if (isset($m[29]) && ($m[29] !== '' && $m[29] !== '0')) {
 			$parts['fragment'] = $m[30];
 		}
 
 		if (!$decode) {
 			return $parts;
 		}
-		if (!empty($parts['user'])) {
+
+		if (isset($parts['user']) && ($parts['user'] !== '' && $parts['user'] !== '0')) {
 			$parts['user'] = rawurldecode($parts['user']);
 		}
-		if (!empty($parts['pass'])) {
+
+		if (isset($parts['pass']) && ($parts['pass'] !== '' && $parts['pass'] !== '0')) {
 			$parts['pass'] = rawurldecode($parts['pass']);
 		}
-		if (!empty($parts['path'])) {
+
+		if (isset($parts['path']) && ($parts['path'] !== '' && $parts['path'] !== '0')) {
 			$parts['path'] = rawurldecode($parts['path']);
 		}
+
 		if (isset($h)) {
 			$parts['host'] = rawurldecode($parts['host']);
 		}
-		if (!empty($parts['query'])) {
+
+		if (isset($parts['query']) && ($parts['query'] !== '' && $parts['query'] !== '0')) {
 			$parts['query'] = rawurldecode($parts['query']);
 		}
-		if (!empty($parts['fragment'])) {
+
+		if (isset($parts['fragment']) && ($parts['fragment'] !== '' && $parts['fragment'] !== '0')) {
 			$parts['fragment'] = rawurldecode($parts['fragment']);
 		}
+
 		return $parts;
 	}
 
-	public function join_url($parts, $encode = true)
+	public function join_url($parts, $encode = true): string
 	{
 		if ($encode) {
 			if (isset($parts['user'])) {
 				$parts['user'] = rawurlencode($parts['user']);
 			}
+
 			if (isset($parts['pass'])) {
 				$parts['pass'] = rawurlencode($parts['pass']);
 			}
+
 			if (isset($parts['host']) &&
 				!preg_match('!^(\[[\da-f.:]+\]])|([\da-f.:]+)$!ui', $parts['host'])
 			) {
 				$parts['host'] = rawurlencode($parts['host']);
 			}
+
 			if (!empty($parts['path'])) {
 				$parts['path'] = preg_replace(
 					'!%2F!ui',
@@ -870,9 +895,11 @@ class URL
 					rawurlencode($parts['path'])
 				);
 			}
+
 			if (isset($parts['query'])) {
 				$parts['query'] = rawurlencode($parts['query']);
 			}
+
 			if (isset($parts['fragment'])) {
 				$parts['fragment'] = rawurlencode($parts['fragment']);
 			}
@@ -882,6 +909,7 @@ class URL
 		if (!empty($parts['scheme'])) {
 			$url .= $parts['scheme'] . ':';
 		}
+
 		if (isset($parts['host'])) {
 			$url .= '//';
 			if (isset($parts['user'])) {
@@ -889,34 +917,43 @@ class URL
 				if (isset($parts['pass'])) {
 					$url .= ':' . $parts['pass'];
 				}
+
 				$url .= '@';
 			}
+
 			if (preg_match('!^[\da-f]*:[\da-f.:]+$!ui', $parts['host'])) {
 				$url .= '[' . $parts['host'] . ']';
 			} // IPv6
 			else {
 				$url .= $parts['host'];
-			}             // IPv4 or name
+			}
+
+                         // IPv4 or name
 			if (isset($parts['port'])) {
 				$url .= ':' . $parts['port'];
 			}
+
 			if (!empty($parts['path']) && $parts['path'][0] != '/') {
 				$url .= '/';
 			}
 		}
+
 		if (!empty($parts['path'])) {
 			$url .= $parts['path'];
 		}
+
 		if (isset($parts['query'])) {
 			$url .= '?' . $parts['query'];
 		}
+
 		if (isset($parts['fragment'])) {
 			$url .= '#' . $parts['fragment'];
 		}
+
 		return $url;
 	}
 
-	public function setRelativePath($pathPlus)
+	public function setRelativePath($pathPlus): void
 	{
 		$newPath = $this->url_to_absolute($this->__toString(), $pathPlus);
 		//debug($this->__toString(), $pathPlus, $newPath);
@@ -928,7 +965,7 @@ class URL
 	 * @param bool $preserveSpaces - leaves spaces
 	 * @return string                - converted to URL friendly name
 	 */
-	public static function friendlyURL($string, $preserveSpaces = false)
+	public static function friendlyURL($string, $preserveSpaces = false): string
 	{
 		$string = preg_replace("`\[.*\]`U", "", $string);
 		$string = preg_replace('`&(amp;)?#?[a-z0-9]+;`i', '-', $string);
@@ -937,10 +974,11 @@ class URL
 		if (!$preserveSpaces) {
 			$string = preg_replace(["`[^a-z0-9]`i", "`[-]+`"], "-", $string);
 		}
+
 		return strtolower(trim($string, '-'));
 	}
 
-	public static function getSlug($string)
+	public static function getSlug($string): string
 	{
 		$string = mb_strtolower($string);
 		$string = preg_replace("` +`", "-", $string);
@@ -948,23 +986,25 @@ class URL
 		$string = str_replace('\\', '-', $string);
 		$string = str_replace('"', '-', $string);
 		$string = str_replace("'", '-', $string);
-		$string = trim($string);
-		return $string;
+		return trim($string);
 	}
 
-	public function makeAbsolute()
+	public function makeAbsolute(): static
 	{
 		if (!ifsetor($this->components['scheme'])) {
 			$this->components['scheme'] = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on'
 				? 'https'
 				: 'http';
 		}
+
 		if (!ifsetor($this->components['host'])) {
 			$this->components['host'] = $_SERVER['HTTP_HOST'];
 		}
+
 		if (!ifsetor($this->components['path'])) {
 			$this->components['path'] = $_SERVER['REQUEST_URI'];
 		}
+
 		return $this;
 	}
 
@@ -978,7 +1018,7 @@ class URL
 		return ifsetor($this->components['host']);
 	}
 
-	public function setHost($host)
+	public function setHost($host): void
 	{
 		$this->components['host'] = $host;
 	}
@@ -1006,23 +1046,25 @@ class URL
 	/**
 	 * @param array $queryString - array of objects with (->name, ->value)
 	 */
-	public function setParamsFromHAR($queryString)
+	public function setParamsFromHAR($queryString): void
 	{
 		foreach ($queryString as $pair) {
 			$this->setParam($pair->name, $pair->value);
 		}
 	}
 
-	public function replaceController($newController)
+	public function replaceController($newController): static
 	{
 		if (is_array($newController)) {
 			$newController = implode('/', $newController);
 		}
+
 		$path = $this->getPath();
 		$diff = '';
 		if ($this->documentRoot != '/') {
 			$diff = str_replace($this->documentRoot, '', $path);
 		}
+
 		debug([
 			'original' => $path . '',
 			'docroot' => $this->documentRoot,
@@ -1039,7 +1081,7 @@ class URL
 		return $this->params;
 	}
 
-	public function makeRelative()
+	public function makeRelative(): static
 	{
 		$al = AutoLoad::getInstance();
 		$path = $this->getPath();
@@ -1050,16 +1092,17 @@ class URL
 			$new = array_diff($path->aPath, $al->getAppRoot()->aPath);
 			$this->setPath(new Path(implode('/', $new)));
 		}
+
 		return $this;
 	}
 
-	public function appendString(string $path)
+	public function appendString(string $path): static
 	{
 		$this->path->appendString($path);
 		return $this;
 	}
 
-	public function toString()
+	public function toString(): string
 	{
 		return $this->__toString();
 	}

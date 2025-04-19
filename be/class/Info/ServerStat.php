@@ -3,8 +3,11 @@
 class ServerStat extends AppControllerBE
 {
 	public $start_time;
+
 	public $LOG = [];
+
 	public $COUNTQUERIES = 0;
+
 	public $totalTime;
 
 	/**
@@ -22,17 +25,15 @@ class ServerStat extends AppControllerBE
 	}
 
 	/**
-	 * AJAX
-	 * @return string
-	 */
-	public function updateHereAction()
+     * AJAX
+     */
+    public function updateHereAction(): string
 	{
 		$content = $this->renderEverything();
-		$content .= '<script> updateHere(); </script>';
-		return $content;
+		return $content . '<script> updateHere(); </script>';
 	}
 
-	public function renderEverything()
+	public function renderEverything(): string
 	{
 		$content = '<div class="col-md-5">';
 		$content .= '<fieldset><legend>PHP Info</legend>' . $this->getPHPInfo() . '</fieldset>';
@@ -47,8 +48,7 @@ class ServerStat extends AppControllerBE
 			' . $this->getServerInfo() . '
 		</fieldset>';
 		$content .= '<fieldset><legend>Query Log</legend>' . $this->getQueryLog() . '</fieldset>';
-		$content .= '</div>';
-		return $content;
+		return $content . '</div>';
 	}
 
 	public function getPHPInfo()
@@ -78,17 +78,21 @@ class ServerStat extends AppControllerBE
 			//$conf[] = array('param' => 'Session File',		'value' => $sessionFile);
 			$conf['Sess. size'] = @filesize($sessionFile);
 		}
+
 		$s = slTable::showAssoc($conf);
 		$s->more = ['class' => "table table-striped table-condensed"];
 		return $s;
 	}
 
-	public function getBarURL($percent)
+	public function getBarURL($percent): string
 	{
 		return AutoLoad::getInstance()->nadlibFromDocRoot . 'bar.php?rating=' . round($percent) . '&!border=0&height=25';
 	}
 
-	public function getPerformanceInfo()
+	/**
+     * @return mixed[]
+     */
+    public function getPerformanceInfo(): array
 	{
 		$this->LOG = is_array($this->LOG) ? $this->LOG : [];
 
@@ -97,6 +101,7 @@ class ServerStat extends AppControllerBE
 		foreach ($this->LOG as $i => $row) {
 			$totalTime += $row['total'];
 		}
+
 		$totalTime = number_format($totalTime, 3);
 		$this->totalTime = $totalTime; // @used getQueryLog
 
@@ -106,6 +111,7 @@ class ServerStat extends AppControllerBE
 			$this->LOG[$i]['query'] = '<span title="' . $this->LOG[$i]['title'] . '">' . $this->LOG[$i]['query'] . '</span>';
 			$this->LOG[$i]['###TD_CLASS###'] = 'invisible';
 		}
+
 		usort($this->LOG, [$this, 'sortLog']);
 
 		$allTime = microtime(true) - $this->start_time;
@@ -119,27 +125,28 @@ class ServerStat extends AppControllerBE
 		$conf['SQL Time'] = number_format($sqlTime, 3, '.', '');
 		$conf['SQL Time %'] = $this->getBarWith(number_format($sqlTime / $allTime * 100, 3, '.', ''));
 		if ($this->COUNTQUERIES) {
-			$conf['Unique Q'] = sizeof($this->LOG) . '/' . $this->COUNTQUERIES;
+			$conf['Unique Q'] = count($this->LOG) . '/' . $this->COUNTQUERIES;
 			$conf['All queries'] = $this->COUNTQUERIES;
-			$conf['Unique Q'] = $this->getBar(sizeof($this->LOG) / $this->COUNTQUERIES * 100);
+			$conf['Unique Q'] = $this->getBar(count($this->LOG) / $this->COUNTQUERIES * 100);
 		}
+
 		//debug($conf);
 		return $conf;
 	}
 
-	public function getBarWith($value)
+	public function getBarWith(string $value): \HTMLTag
 	{
 		return new HTMLTag('td', [
 			'style' => 'width: 100px; background: no-repeat url(' . $this->getBarURL($value) . ');',
 		], $value . ' %');
 	}
 
-	public function getBar($percent)
+	public function getBar($percent): string
 	{
 		return '<img src="' . $this->getBarURL($percent) . '" />';
 	}
 
-	public function getServerInfo()
+	public function getServerInfo(): \slTable
 	{
 		$conf = [];
 		$total = @disk_total_space('/');
@@ -147,6 +154,7 @@ class ServerStat extends AppControllerBE
 		if ($total) {
 			$diskpercent = ($total - @disk_free_space('/')) / $total * 100;
 		}
+
 		$conf[] = [
 			'param' => 'Disk space',
 			'value' => number_format($dts = $total / 1024 / 1024 / 1024, 3, '.', '') . ' GB',
@@ -212,7 +220,10 @@ class ServerStat extends AppControllerBE
 		return $s;
 	}
 
-	function getCpuUsage($_statPath = '/proc/stat')
+	/**
+     * @return float[]|int[]|null[]
+     */
+    public function getCpuUsage($_statPath = '/proc/stat'): array
 	{
 		TaylorProfiler::start(__METHOD__);
 		$percentages = [
@@ -236,15 +247,16 @@ class ServerStat extends AppControllerBE
 				$percentages[$k] = $v / $deltaTotal * 100;
 			}
 		}
+
 		TaylorProfiler::stop(__METHOD__);
 		return $percentages;
 	}
 
-	protected function getStat($_statPath = '/proc/stat')
+	protected function getStat($_statPath = '/proc/stat'): false|array
 	{
 		$stat = @file_get_contents($_statPath);
 
-		if (substr($stat, 0, 3) == 'cpu') {
+		if (substr($stat, 0, 3) === 'cpu') {
 			$parts = explode(" ", preg_replace("!cpu +!", "", $stat));
 		} else {
 			return false;
@@ -258,7 +270,7 @@ class ServerStat extends AppControllerBE
 		return $return;
 	}
 
-	public function getRAMInfo()
+	public function getRAMInfo(): array
 	{
 		$meminfo = "/proc/meminfo";
 		if (@file_exists($meminfo)) {
@@ -267,27 +279,29 @@ class ServerStat extends AppControllerBE
 			if (preg_match('/MemTotal\:\s+(\d+) kB/', $mem, $matches)) {
 				$totalp = $matches[1];
 			}
+
 			unset($matches);
 
 			$freep = 0;
 			if (preg_match('/MemFree\:\s+(\d+) kB/', $mem, $matches)) {
 				$freep = $matches[1];
 			}
+
 			$freiq = $freep;
 			$insgesamtq = $totalp;
 			$belegtq = $insgesamtq - $freiq;
 			$prozent_belegtq = 100 * $belegtq / $insgesamtq;
 		}
-		$res = [
+
+		return [
 			'total' => ifsetor($totalp),
 			'used' => ifsetor($belegtq),
 			'free' => ifsetor($freiq),
 			'percent' => ifsetor($prozent_belegtq),
 		];
-		return $res;
 	}
 
-	public function format_uptime($seconds)
+	public function format_uptime($seconds): string
 	{
 		$secs = intval($seconds % 60);
 		$mins = intval($seconds / 60 % 60);
@@ -297,11 +311,10 @@ class ServerStat extends AppControllerBE
 		$uptimeString = $days . "D ";
 		$uptimeString .= str_pad($hours, 2, '0', STR_PAD_LEFT) . ":";
 		$uptimeString .= str_pad($mins, 2, '0', STR_PAD_LEFT) . ":";
-		$uptimeString .= str_pad($secs, 2, '0', STR_PAD_LEFT);
-		return $uptimeString;
+		return $uptimeString . str_pad($secs, 2, '0', STR_PAD_LEFT);
 	}
 
-	public function getQueryLog()
+	public function getQueryLog(): \slTable
 	{
 		$s = new slTable('dumpQueries', 'width="100%"');
 		$s->thes([
@@ -320,7 +333,7 @@ class ServerStat extends AppControllerBE
 		return $s;
 	}
 
-	public function sortLog($a, $b)
+	public function sortLog(array $a, array $b): int
 	{
 		$a = $a['total'];
 		$b = $b['total'];
@@ -341,7 +354,7 @@ class ServerStat extends AppControllerBE
 		}
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->s($this->render());
 	}
@@ -357,6 +370,7 @@ class ServerStat extends AppControllerBE
 				src="?c=ServerStat&ajax=1&action=updateHere">' . $this->renderEverything() . '</div>';
 
 		}
+
 		return $content;
 	}
 

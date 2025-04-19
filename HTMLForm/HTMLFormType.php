@@ -36,37 +36,34 @@ abstract class HTMLFormType implements HTMLFormFieldInterface
 	public $desc;
 
 	/**
-	 * Feel free to create any constructor you like
-	 * HTMLFormType constructor.
-	 */
-//	function __construct() {
-//	}
-
-	/**
-	 * @param $fieldName
-	 * @return mixed|void
-	 */
-	public function setField($fieldName)
+     * Feel free to create any constructor you like
+     * HTMLFormType constructor.
+     */
+    //	function __construct() {
+    //	}
+    /**
+     * @param $fieldName
+     */
+    public function setField($fieldName): void
 	{
 		$this->field = $fieldName;
 	}
 
-	public function setForm(HTMLForm $f)
+	public function setForm(HTMLForm $f): void
 	{
 		$this->form = $f;
 		$this->fullName = $this->form->getName($this->field, '', true);
 	}
 
 	/**
-	 * @param string $value
-	 * @return mixed|void
-	 */
-	public function setValue($value)
+     * @param string $value
+     */
+    public function setValue($value): void
 	{
 		$this->value = $value;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return MergedContent::mergeStringArrayRecursive($this->render()) . '';
 	}
@@ -74,16 +71,15 @@ abstract class HTMLFormType implements HTMLFormFieldInterface
 	/**
 	 * Can't inherit abstract function HTMLFormFieldInterface::render() (previously declared abstract in HTMLFormType)
 	 */
-	public function render()
+	public function render(): void
 	{
 		die(__METHOD__ . ' is abstract');
 	}
 
 	/**
-	 * Return error message
-	 * @return null
-	 */
-	public function validate()
+     * Return error message
+     */
+    public function validate()
 	{
 		return null;
 	}

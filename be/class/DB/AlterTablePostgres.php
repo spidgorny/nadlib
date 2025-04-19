@@ -8,7 +8,7 @@ class AlterTablePostgres extends AlterTableHandler implements AlterTableInterfac
 	 * @param TableField[] $columns
 	 * @return mixed|string
 	 */
-	public function getCreateQuery($table, array $columns)
+	public function getCreateQuery($table, array $columns): string
 	{
 		$set = [];
 		foreach ($columns as $col) {
@@ -17,31 +17,31 @@ class AlterTablePostgres extends AlterTableHandler implements AlterTableInterfac
 			if ($col->references) {
 				$sCol .= 'REFERENCES ' . $col->references . ' ';
 			}
+
 			$set[] = $sCol;
 			//debug($col);
 		}
+
 		return 'CREATE TABLE ' . $table . ' (' . PHP_EOL .
 			implode(",\n", $set) . ');';
 	}
 
-	public function getAlterQuery($table, $oldName, TableField $index)
+	public function getAlterQuery($table, $oldName, TableField $index): string
 	{
-		$query = "ALTER TABLE {$table} ALTER COLUMN $oldName " . $index->field .
+		return sprintf('ALTER TABLE %s ALTER COLUMN %s ', $table, $oldName) . $index->field .
 			' ' . $index->type .
 			' ' . (($index['len'] > 0) ? ' (' . $index['len'] . ')' : '') .
 			' ' . ($index['not null'] ? 'NOT NULL' : 'NULL');
-		return $query;
 	}
 
-	public function getAddQuery($table, TableField $index)
+	public function getAddQuery($table, TableField $index): string
 	{
-		$query = 'ALTER TABLE ' . $table . ' ADD COLUMN ' . $index->field .
+		return 'ALTER TABLE ' . $table . ' ADD COLUMN ' . $index->field .
 			' ' . $index->type .
 			' ' . $this->getFieldParams($index);
-		return $query;
 	}
 
-	public function getFieldParams(TableField $index)
+	public function getFieldParams(TableField $index): string
 	{
 		return
 			' ' . ($index->isNull ? 'NULL' : 'NOT NULL');

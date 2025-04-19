@@ -17,11 +17,10 @@ class FilterBetween
 		$this->till = $till;
 	}
 
-	public function apply($value)
+	public function apply($value): bool
 	{
-		$ok = ($this->from <= $value) && ($value <= $this->till);
-//		var_dump($ok, $this->from, $value, $this->till);
-		return $ok;
+		//		var_dump($ok, $this->from, $value, $this->till);
+		return ($this->from <= $value) && ($value <= $this->till);
 	}
 
 }

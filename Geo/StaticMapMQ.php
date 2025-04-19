@@ -32,7 +32,7 @@ class StaticMapMQ
 		$this->lon = $lon;
 	}
 
-	public function render()
+	public function render(): \HTMLTag
 	{
 		list($width, $height) = trimExplode('x', $this->size);
 		$params = [
@@ -42,11 +42,10 @@ class StaticMapMQ
 		];
 		$src = 'https://beta.mapquestapi.com/staticmap/v5/map?' . http_build_query($params);
 		$html = new HTML();
-		$img = $html->img($src, [
+		return $html->img($src, [
 			'width' => $width,
 			'height' => $height,
 		]);
-		return $img;
 	}
 
 }

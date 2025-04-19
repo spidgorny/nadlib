@@ -26,6 +26,7 @@ class PHPRewrite extends AppControllerBE
 		} else {
 			throw new Exception404($controller);
 		}
+
 		return $content;
 	}
 

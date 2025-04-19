@@ -9,10 +9,11 @@ class TestConfig extends ConfigBase
 			$this->db = new DBPlacebo();
 			$this->db->qb = $this->getQB();
 		}
+
 		return $this->db;
 	}
 
-	public function getQB()
+	public function getQB(): \SQLBuilder
 	{
 		return new SQLBuilder($this->getDB());
 	}

@@ -16,7 +16,7 @@ class FilterTest extends PHPUnit\Framework\TestCase
 	 */
 	protected $f;
 
-	public function test_init()
+	public function test_init(): void
 	{
 //		$this->assertEquals(10, $this->f->default);
 //		$this->assertEquals(20, $this->f->request);
@@ -33,7 +33,7 @@ class FilterTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals('cascade', $this->f->two);
 	}
 
-	public function test_arrayCopy()
+	public function test_arrayCopy(): void
 	{
 		$this->assertEquals([
 			'a' => 'request',
@@ -44,7 +44,7 @@ class FilterTest extends PHPUnit\Framework\TestCase
 		], $this->f->getArrayCopy());
 	}
 
-	public function setUp(): void
+	protected function setUp(): void
 	{
 		$f = new Filter();
 		$f->setDefault([

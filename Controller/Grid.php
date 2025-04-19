@@ -43,7 +43,7 @@ abstract class Grid extends AppController
 		$this->initPageSize();
 	}
 
-	public function initFilter()
+	public function initFilter(): void
 	{
 		$cn = $this->request->getControllerString();
 		$allowEdit = $cn === get_class($this);
@@ -54,11 +54,10 @@ abstract class Grid extends AppController
 	}
 
 	/**
-	 * Only get filter if it's not need to be cleared
-	 * @param string $cn
-	 * @throws LoginException
-	 */
-	public function setFilter($cn = __CLASS__)
+     * Only get filter if it's not need to be cleared
+     * @throws LoginException
+     */
+    public function setFilter(string $cn = __CLASS__): void
 	{
 		$this->filter = new Filter();
 //		$action = $this->request->getTrim('action');
@@ -67,6 +66,7 @@ abstract class Grid extends AppController
 		if ($this->request->isSubmit() || $this->request->getArray('filter')) {
 			$this->filter->setRequest($this->request->getArray('filter'));
 		}
+
 		if (method_exists($this->user, 'getPref')) {
 			$prefFilter = $this->user->getPref('Filter.' . $cn);
 //				debug($prefFilter);
@@ -75,6 +75,7 @@ abstract class Grid extends AppController
 				$this->filter->setPreferences($prefFilter);
 			}
 		}
+
 //			d($cn, $this->filter,
 //				array_keys($_SESSION), gettypes($_SESSION),
 //				$_SESSION
@@ -89,7 +90,7 @@ abstract class Grid extends AppController
 		]);
 	}
 
-	public function initPageSize()
+	public function initPageSize(): void
 	{
 		$sizeFromPreferences = $this->user->getSetting(get_class($this) . '.pageSize');
 //		$this->log(__METHOD__, 'sizeFromPreferences', $sizeFromPreferences);
@@ -101,7 +102,7 @@ abstract class Grid extends AppController
 	/**
 	 * Either take from URL or take from preferences, not both
 	 */
-	public function getSetRequest()
+	public function getSetRequest(): void
 	{
 		if ($this->request->getAll()) {
 			$this->user->setPref(get_class($this) . '.Request', $this->request);
@@ -123,18 +124,16 @@ abstract class Grid extends AppController
 	 * @throws LoginException
 	 * @deprecated - use saveFilterColumnsSort() instead
 	 */
-	public function mergeRequest($subname = null)
+	public function mergeRequest($subname = null): void
 	{
 		//echo '<div class="error">'.__METHOD__.get_class($this).'</div>';
-		if ($subname) {
-			$r = $this->request->getSubRequest($subname);
-		} else {
-			$r = $this->request;
-		}
-		$default = $this->user->getPref(get_class($this) . '.Request');
+        $r = $subname ? $this->request->getSubRequest($subname) : $this->request;
+
+        $default = $this->user->getPref(get_class($this) . '.Request');
 		if ($default instanceof Request) {
 			$r->append($default->getAll());
 		}
+
 		$this->user->setPref(get_class($this) . '.Request', $r);
 		if ($subname) {
 			$this->request->set($subname, $r->getAll());
@@ -146,35 +145,33 @@ abstract class Grid extends AppController
 	 * or it should be called after $this->collection is initialized
 	 * @throws LoginException
 	 */
-	public function saveFilterAndSort($cn = null)
+	public function saveFilterAndSort($cn = null): void
 	{
 		if (!$cn) {
 			$cn = get_class($this);
 		}
+
 //		$this->log(__METHOD__, $cn);
 		// why do we inject collection
 		// before we have detected the filter (=where)?
 		if (!$this->collection) {
 			//$this->injectCollection();
 		}
+
 		$cn = $cn ?: get_class($this->collection);
 		//debug($cn);
 		assert($cn > '');
 
-		if ($this->filter) {
-			if (method_exists($this->user, 'setPref')) {
-//				$this->log(__METHOD__, 'setPref', $this->filter->getArrayCopy());
-				$this->user->setPref('Filter.' . $cn, $this->filter->getArrayCopy());
-			}
+		if ($this->filter && method_exists($this->user, 'setPref')) {
+			//				$this->log(__METHOD__, 'setPref', $this->filter->getArrayCopy());
+            $this->user->setPref('Filter.' . $cn, $this->filter->getArrayCopy());
 		}
 
 		//debug(spl_object_hash(Index::getInstance()->controller), spl_object_hash($this));
 		//if (Index::getInstance()->controller == $this) {	// Menu may make instance of multiple controllers
 
-		if (method_exists($this->user, 'setPref')) {
-			if ($this->request->is_set('slTable')) {
-				$this->user->setPref('Sort.' . $cn, $this->request->getArray('slTable'));
-			}
+		if (method_exists($this->user, 'setPref') && $this->request->is_set('slTable')) {
+			$this->user->setPref('Sort.' . $cn, $this->request->getArray('slTable'));
 		}
 
 		// SORTING
@@ -191,6 +188,7 @@ abstract class Grid extends AppController
 		if (!$this->collection) {
 			$this->injectCollection();
 		}
+
 		$content[] = $this->collection->render();
 		$content[] = '<hr />';
 		return $this->encloseInAA(
@@ -200,13 +198,14 @@ abstract class Grid extends AppController
 		);
 	}
 
-	public function injectCollection()
+	public function injectCollection(): void
 	{
 		$class = new ReflectionObject($this);
 		$col = $class->getProperty('collection');
 		$comment = $col->getDocComment();
 		$parser = new DocCommentParser();
 		$parser->parseDocComment($comment);
+
 		$colName = $parser->getFirstTagValue('var');
 		if ($colName) {
 			$this->collection = new $colName();
@@ -242,6 +241,7 @@ abstract class Grid extends AppController
 			$f->submit('Filter', ['class' => 'btn btn-primary']);
 			$content[] = $f->getContent();
 		}
+
 		return $content;
 	}
 
@@ -256,15 +256,15 @@ abstract class Grid extends AppController
 				}
 			}
 		}
+
 		return $where;
 	}
 
 	/**
-	 * @param string $cn
-	 * @param bool $allowEdit
-	 * @throws LoginException
-	 */
-	public function setColumns($cn, $allowEdit)
+     * @param bool $allowEdit
+     * @throws LoginException
+     */
+    public function setColumns(string $cn, $allowEdit): void
 	{
 //		$this->log(__METHOD__, $cn);
 		// request
@@ -286,7 +286,7 @@ abstract class Grid extends AppController
 			// default
 			$gridColumns = array_keys($this->getGridColumns());
 //			llog(__METHOD__, ['getGridColumns' => $gridColumns]);
-			if ($gridColumns) {
+			if ($gridColumns !== []) {
 				$this->columns = new VisibleColumns($gridColumns);
 //				llog(__METHOD__, 'Columns set from getGridColumns');
 			}

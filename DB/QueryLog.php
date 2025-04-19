@@ -13,15 +13,12 @@ class QueryLog
 	 */
 	public $queryLog = [];
 
-	public function log($query, $diffTime, int $results = null, $ok = null)
+	public function log(string $query, $diffTime, int $results = null, $ok = null): void
 	{
 		$key = md5(trim($query));
-//		debug(__METHOD__, $query, $diffTime, $key, array_keys($this->queryLog));
-		if (isset($this->queryLog[$key])) {
-			$old = $this->queryLog[$key];
-		} else {
-			$old = [];
-		}
+        //		debug(__METHOD__, $query, $diffTime, $key, array_keys($this->queryLog));
+        $old = isset($this->queryLog[$key]) ? $this->queryLog[$key] : [];
+
 		$this->queryLog[$key] = [
 			'query' => $query . '',
 			'sumtime' => ifsetor($old['sumtime']) + $diffTime,
@@ -33,10 +30,9 @@ class QueryLog
 	}
 
 	/**
-	 * Renders the list of queries accumulated
-	 * @return string
-	 */
-	public function dumpQueries()
+     * Renders the list of queries accumulated
+     */
+    public function dumpQueries(): string
 	{
 		$q = $this->queryLog;
 		arsort($q);
@@ -52,6 +48,7 @@ class QueryLog
 				//'func' => $this->QUERYFUNC[$query],
 			];
 		}
+
 		$q = new slTable($q, 'class="view_array table" width="1024"', [
 			'times' => 'Times',
 			'time' => [
@@ -66,15 +63,14 @@ class QueryLog
 			'func' => 'Caller',
 		]);
 		$q->isOddEven = false;
-		$content = '<div class="profiler">' . $q . '</div>';
-		return $content;
+
+		return '<div class="profiler">' . $q . '</div>';
 	}
 
-	public function getDBTime()
+	public function getDBTime(): float|int
 	{
-		$sumtime = ArrayPlus::create($this->queryLog)->column('sumtime')->sum();
 		//debug(sizeof($this->queryLog), $sumtime);
-		return $sumtime;
+		return ArrayPlus::create($this->queryLog)->column('sumtime')->sum();
 	}
 
 	public function dumpQueriesBijou(array $log, $totalTime)
@@ -88,13 +84,16 @@ class QueryLog
 			} else {
 				$row['query'] = substr($row['query'], 0, 100);
 			}
+
 			if ($row['results'] >= 1000) {
 				$row['results'] = new HtmlString('<font color="red">' . $row['results'] . '</font>');
 			}
+
 			if ($row['count'] >= 3) {
 				$row['count'] = new HtmlString('<font color="red">' . $row['count'] . '</font>');
 			}
 		}
+
 		$s = new slTable(null, 'width="100%" class="table"');
 		$s->thes([
 			'query' => [
@@ -112,11 +111,11 @@ class QueryLog
 		$s->data = $log;
 		$s->isOddEven = true;
 		$s->more = ['class' => "nospacing"];
-		$content = $s->getContent();
-		return $content;
+
+		return $s->getContent();
 	}
 
-	public function dumpQueriesTP()
+	public function dumpQueriesTP(): \slTable
 	{
 		$queryLog = ArrayPlus::create($this->queryLog);
 		//debug($queryLog);
@@ -139,7 +138,8 @@ class QueryLog
 				'results' => $set['results'],
 			];
 		}
-		$s = new slTable($log, 'class="table"', [
+
+		return new slTable($log, 'class="table"', [
 			'times' => 'times',
 			'sumtime' => [
 				'name' => 'sumtime (' . number_format($sumTime, 3) . ')',
@@ -162,7 +162,6 @@ class QueryLog
 				'name' => 'Results',
 			]
 		]);
-		return $s;
 	}
 
 }

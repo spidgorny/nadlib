@@ -4,12 +4,14 @@ class SVGChart
 {
 
 	protected $width;
+
 	protected $height;
+
 	protected $data = [];
 
 	public $text_size = 14;
 
-	protected $id;
+	protected string $id;
 
 	public function __construct($width = '100%', $height = '50', array $data = [])
 	{
@@ -19,24 +21,24 @@ class SVGChart
 		$this->id = uniqid();
 	}
 
-	public function setData(array $data)
+	public function setData(array $data): void
 	{
 		$this->data = $data;
 	}
 
-	public function render()
+	public function render(): string
 	{
 		$content = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1"
 		width="' . $this->width . '"
 		height="' . $this->height . '">' . "\n";
 		$height = $this->height;
-		if (sizeof($this->data)) {
+		if (count($this->data) !== 0) {
 			$max = max($this->data);
-			$width = max(2, round($this->width / sizeof($this->data)));
+			$width = max(2, round($this->width / count($this->data)));
 			$labels = array_keys($this->data);
 			$every = 0;
 			$data = array_values($this->data);
-			$often = ceil(sizeof($data) / 4);
+			$often = ceil(count($data) / 4);
 			foreach ($data as $i => $height) {
 				$x = $i * $width;
 				$height = round(($this->height - $this->text_size) * $height / $max);
@@ -47,23 +49,25 @@ class SVGChart
 					width="' . ($width - 1) . '"
 					height="' . max(1, $height) . '"
 					style="fill:#a9d1df;stroke-width:0;stroke:rgb(0,0,0)" />' . "\n";
-				if (!($every++ % $often)) {
+				if ($every++ % $often === 0) {
 					$content .= '<text
 						x="' . ($x) . '"
 						y="' . ($this->height - 5) . '"
 						font-size="' . ($this->text_size - 3) . '">' . $labels[$i] . '</text>' . "\n";
 				}
 			}
-			$diff = (max($this->data) - min($this->data)) / sizeof($this->data);
+
+			$diff = (max($this->data) - min($this->data)) / count($this->data);
 			foreach ($data as $i => $times) {
 				$x = $i * $width;
 				$y = $this->height - max(1, $height) - 7;
 				$height = round(($this->height - 20) * $times / $max);
 				$i2 = round($labels[$i + 1]);
 				$text = $labels[$i];
-				if ($i2) {
+				if ($i2 !== 0.0) {
 					$text .= ' - ' . $i2;
 				}
+
 				$text .= ': ' . $times . ' times';
 				$x = 0;
 				$y = $this->text_size;
@@ -78,11 +82,11 @@ class SVGChart
 				</text>';
 			}
 		}
-		$content .= '</svg>';
-		return $content;
+
+		return $content . '</svg>';
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->render() . '';
 	}

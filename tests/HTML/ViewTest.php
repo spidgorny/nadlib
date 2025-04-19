@@ -9,15 +9,16 @@
 class ViewTest extends PHPUnit\Framework\TestCase
 {
 
-	public function test_render()
+	public function test_render(): void
 	{
 		$v = new View(__DIR__ . '/ViewTemplate.phtml');
 		$v->content = 'asd';
+
 		$content = $v->render();
 		$this->assertContains('asd', $content);
 	}
 
-	public function test_cleanComment()
+	public function test_cleanComment(): void
 	{
 		if (class_exists('HTMLPurifier_Config')) {
 			$v = new HTMLProcessor('whatever');
@@ -28,11 +29,12 @@ class ViewTest extends PHPUnit\Framework\TestCase
 		}
 	}
 
-	public function test_extractScripts()
+	public function test_extractScripts(): void
 	{
 		if (!class_exists('AdvancedHtmlDom')) {
 			$this->markTestSkipped('AdvancedHtmlDom not installed');
 		}
+
 		$html = '<html><h1>bla</h1>
 <script>
 alert("xss");
@@ -40,6 +42,7 @@ alert("xss");
 <div>bla</div></html>';
 		$view = new View('');
 		$view->setHTML($html);
+
 		$scripts = $view->extractScripts();
 		//debug($scripts);
 		$this->assertEquals("<h1>bla</h1>
@@ -49,9 +52,9 @@ alert("xss");
 </script>', $scripts);
 	}
 
-	public function test_double()
+	public function test_double(): void
 	{
-		$c = new MockController();
+		new MockController();
 		$i = new MockIndexDCI();
 		$v = new View(__DIR__ . '/template.phtml', $i);
 		$html = $v->render();

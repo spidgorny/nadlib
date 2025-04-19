@@ -3,7 +3,7 @@
 class AlterTableSQLite extends AlterTableHandler implements AlterTableInterface
 {
 
-	public function getCreateQuery($table, array $columns)
+	public function getCreateQuery($table, array $columns): string
 	{
 		$set = [];
 		foreach ($columns as $row) {
@@ -11,11 +11,12 @@ class AlterTableSQLite extends AlterTableHandler implements AlterTableInterface
 			$set[] = $col->field . ' ' . $col->type . ' '
 				. ($col->isNull ? 'NULL' : 'NOT NULL');
 		}
+        
 		//debug($col);
 		return 'CREATE TABLE ' . $table . ' (' . implode(",\n", $set) . ');';
 	}
 
-	public function getFieldParams(TableField $index)
+	public function getFieldParams(TableField $index): string
 	{
 		$default = $index->default
 			? (in_array($index->default, $this->db->getReserved())
@@ -31,20 +32,18 @@ class AlterTableSQLite extends AlterTableHandler implements AlterTableInterface
 				' ' . implode(' ', $index->extra));
 	}
 
-	public function getAlterQuery($table, $oldName, TableField $index)
+	public function getAlterQuery($table, $oldName, TableField $index): string
 	{
-		$query = 'ALTER TABLE ' . $table . ' ADD COLUMN ' . $oldName . ' ' . $index->field .
+		return 'ALTER TABLE ' . $table . ' ADD COLUMN ' . $oldName . ' ' . $index->field .
 			' ' . $index->type .
 			$this->getFieldParams($index);
-		return $query;
 	}
 
-	public function getAddQuery($table, TableField $index)
+	public function getAddQuery($table, TableField $index): string
 	{
-		$query = 'ALTER TABLE ' . $table . ' ADD COLUMN ' . $index->field .
+		return 'ALTER TABLE ' . $table . ' ADD COLUMN ' . $index->field .
 			' ' . $index->type .
 			$this->getFieldParams($index);
-		return $query;
 	}
 
 }

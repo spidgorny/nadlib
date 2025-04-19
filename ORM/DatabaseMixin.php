@@ -14,7 +14,7 @@ trait DatabaseMixin
 		return null;
 	}
 
-	public static function findByID(DBInterface $db, $id)
+	public static function findByID(DBInterface $db, $id): ?self
 	{
 		$row = $db->fetchOneSelectQuery(static::getTableName(), [
 			'id' => $id,
@@ -23,39 +23,39 @@ trait DatabaseMixin
 		if (!$row) {
 			return null;
 		}
+
 		$instance = new static($row);
 		$instance->db = $db;
 		return $instance;
 	}
 
-	public static function findOne(DBInterface $db, array $where, $orderBy = '')
+	public static function findOne(DBInterface $db, array $where, $orderBy = ''): ?self
 	{
 		$row = $db->fetchOneSelectQuery(static::getTableName(), $where, $orderBy);
 		if (!$row) {
 			return null;
 		}
+
 		$instance = new static($row);
 		$instance->db = $db;
 		return $instance;
 	}
 
-	public static function findAll(DBInterface $db, array $where = [], $orderBy = '')
+	public static function findAll(DBInterface $db, array $where = [], $orderBy = ''): array
 	{
 		$rows = $db->fetchAllSelectQuery(static::getTableName(), $where, $orderBy);
-		$instances = array_map(static function ($row) use ($db) {
+		return array_map(static function ($row) use ($db): static {
 			$instance = new static($row);
 			$instance->db = $db;
 			return $instance;
 		}, $rows);
-		return $instances;
 	}
 
 	/**
-	 * DatabaseMixin constructor.
-	 * @override me
-	 * @param array $data
-	 */
-	public function __construct(array $data)
+     * DatabaseMixin constructor.
+     * @override me
+     */
+    public function __construct(array $data)
 	{
 		throw new Exception('Override me ' . __METHOD__);
 	}

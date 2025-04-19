@@ -11,12 +11,10 @@ trait ArrayAccessData
 	}
 
 	/**
-	 * ifsetor() here will not work:
-	 * Only variable references should be returned by reference
-	 * @param mixed $offset
-	 * @return mixed
-	 */
-	public function &offsetGet(mixed $offset): mixed
+     * ifsetor() here will not work:
+     * Only variable references should be returned by reference
+     */
+    public function &offsetGet(mixed $offset): mixed
 	{
 		$ref = $this->data[$offset] ?? null;
 		return $ref;

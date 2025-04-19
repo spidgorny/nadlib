@@ -40,16 +40,14 @@ abstract class SimpleController
 
 	public $log = [];
 
-	/**
-	 * @var HTML
-	 */
-	protected $html;
+	protected \HTML $html;
 
 	public function __construct()
 	{
 		if (ifsetor($_REQUEST['d']) === 'log') {
 			echo get_class($this) . '::' . __METHOD__ . BR;
 		}
+
 		$this->index = class_exists('Index', false)
 			? Index::getInstance() : null;
 		$this->request = Request::getInstance();
@@ -80,11 +78,12 @@ abstract class SimpleController
 				$result = new $static();
 			}
 		}
+
 		//debug($isset, get_class($index), get_class($result));
 		return $result;
 	}
 
-	public function __call($method, array $arguments)
+	public function __call(string $method, array $arguments)
 	{
 		if (method_exists($this->html, $method)) {
 			return call_user_func_array($this->html->$method, $arguments);
@@ -94,21 +93,20 @@ abstract class SimpleController
 	}
 
 	/**
-	 * Combines params with $this->linkVars
-	 * Use makeURL() for old functionality
-	 * @param array $params
-	 * @param null $prefix
-	 * @return URL
-	 */
-	public function getURL(array $params = [], $prefix = null)
+     * Combines params with $this->linkVars
+     * Use makeURL() for old functionality
+     * @return URL
+     */
+    public function getURL(array $params = [], $prefix = null)
 	{
 		if ($params || $prefix) {
 			throw new InvalidArgumentException('Use makeURL() instead of ' . __METHOD__);
 		}
+
 		//		$params = $params + $this->linkVars;
 		//		debug($params);
 		//		return $this->makeURL($params, $prefix);
-		return ClosureCache::getInstance(spl_object_hash($this), static function () {
+		return ClosureCache::getInstance(spl_object_hash($this), static function (): \spidgorny\nadlib\HTTP\URL {
 			return new URL();
 		})->get();
 	}
@@ -191,10 +189,8 @@ abstract class SimpleController
 		$proxy = $this;
 		// used to call an $action on PrepareGive, PrepareBurn instead of direct PrepareRequest class
 		$proxyClassName = $this->request->getTrim('proxy');
-		if ($proxyClassName) {
-			if (get_class($this) === $this->request->getTrim('proxyOf')) {
-				$proxy = new $proxyClassName($this);
-			}
+		if ($proxyClassName && get_class($this) === $this->request->getTrim('proxyOf')) {
+			$proxy = new $proxyClassName($this);
 		}
 
 //		llog('SimpleController->performAction', [
@@ -237,26 +233,27 @@ abstract class SimpleController
 		if ($action) {
 			return $action;
 		}
+
 		if (count($this->request->getURLLevels()) >= 2) {
 			$secondSlug = $this->request->getLastNameless();
 			if (method_exists($this, $secondSlug . 'Action')) {
 				return $secondSlug;
 			}
 		}
+
 		return 'index';
 	}
 
 	/**
-	 * Wraps the content in a div/section with a header.
-	 * The header is linkable.
-	 * @param string|array|ToStringable $content
-	 * @param string $caption
-	 * @param string $h
-	 * @param array $more
-	 * @return ToStringable
-	 * @throws Exception
-	 */
-	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
+     * Wraps the content in a div/section with a header.
+     * The header is linkable.
+     * @param string|array|ToStringable $content
+     * @param string $caption
+     * @param string $h
+     * @return ToStringable
+     * @throws Exception
+     */
+    public function encloseInAA($content, $caption = '', $h = null, array $more = [])
 	{
 		$h = $h ?: $this->encloseTag;
 		$content = $this->s($content);
@@ -266,6 +263,7 @@ abstract class SimpleController
 				$content
 			];
 		}
+
 		$more['class'] = ifsetor($more['class'], 'padding clearfix');
 		$more['class'] .= ' ' . get_class($this);
 		return new HTMLTag('section', $more, $content, true);
@@ -276,19 +274,20 @@ abstract class SimpleController
 		return MergedContent::mergeStringArrayRecursive($something);
 	}
 
-	public function getCaption($caption, $hTag)
+	public function getCaption(string $caption, string $hTag)
 	{
 		return '<' . $hTag . '>' .
 			$caption .
 			'</' . $hTag . '>';
 	}
 
-	public function log($action, ...$data)
+	public function log($action, ...$data): void
 	{
 		llog($action, ...$data);
 		if (count($data) === 1) {
 			$data = $data[0];
 		}
+
 		$this->log[] = new LogEntry($action, $data);
 	}
 

@@ -4,21 +4,16 @@ if (!function_exists('__')) {    // conflict with cakePHP
 
 	function __($code, $r1 = null, $r2 = null, $r3 = null)
 	{
-		if (class_exists('Config')) {
-			$config = Config::getInstance();
-		} else {
-			$config = null;
-		}
-		nodebug($code, !!$config,
+		$config = class_exists('Config') ? Config::getInstance() : null;
+
+        nodebug($code, (bool) $config,
 			is_object($config) ? get_class($config) : gettype($config),
-			!!$config->getLL());
+			(bool) $config->getLL());
 		if (!empty($config) && $config->getLL()) {
-			$text = $config->getLL()->T($code, $r1, $r2, $r3);
 			//echo '<pre>', get_class($index->ll), "\t", $code, "\t", $text, '</pre><br />', "\n";
-			return $text;
+			return $config->getLL()->T($code, $r1, $r2, $r3);
 		} else {
-			$code = LocalLang::Tp($code, $r1, $r2, $r3);
-			return $code;
+			return LocalLang::Tp($code, $r1, $r2, $r3);
 		}
 	}
 
@@ -36,11 +31,11 @@ if (!function_exists('__')) {    // conflict with cakePHP
 		if (class_exists('Config')) {
 			$index = Config::getInstance();
 		}
+
 		//debug(!!$index, get_class($index), !!$index->ll, get_class($index->ll));
 		if ($index && $index->getLL()) {
-			$text = $index->getLL()->Tp($code, $r1, $r2, $r3);
 			//echo '<pre>', get_class($index->ll), "\t", $code, "\t", $text, '</pre><br />', "\n";
-			return $text;
+			return $index->getLL()->Tp($code, $r1, $r2, $r3);
 		} else {
 			return $code;
 		}

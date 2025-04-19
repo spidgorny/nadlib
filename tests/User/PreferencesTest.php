@@ -14,7 +14,7 @@ use Preferences;
 class PreferencesTest extends TestCase
 {
 
-	public function testGet()
+	public function testGet(): void
 	{
 		$user = (object)[
 			'data' => [

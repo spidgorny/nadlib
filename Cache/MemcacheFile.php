@@ -31,6 +31,7 @@ class MemcacheFile implements MemcacheInterface
 		if (MemcacheArray::$debug) {
 			echo __METHOD__ . BR;
 		}
+
 		$this->folder = $folder ?: self::$defaultFolder;
 		if (!Path::isItAbsolute($this->folder)) {
 			// if relative, add current app
@@ -86,11 +87,12 @@ class MemcacheFile implements MemcacheInterface
 				}
 			}
 		}
+
 		TaylorProfiler::stop(__METHOD__);
 		return $val;
 	}
 
-	public function map($key)
+	public function map($key): string
 	{
 		$key = str_replace('(', '-', $key);
 		$key = str_replace(')', '-', $key);
@@ -99,8 +101,9 @@ class MemcacheFile implements MemcacheInterface
 		if (strpos($key, ' ') !== false || strpos($key, '/') !== false) {
 			$key = md5($key);
 		}
-		$file = $this->folder . $key . '.cache'; // str_replace('(', '-', str_replace(')', '-', $key))
-		return $file;
+
+		 // str_replace('(', '-', str_replace(')', '-', $key))
+		return $this->folder . $key . '.cache';
 	}
 
 	public function isValid($key = null, $expire = 0)
@@ -113,10 +116,11 @@ class MemcacheFile implements MemcacheInterface
 		if ($this->key === 'OvertimeChart::getStatsCached') {
 //			debug($this->key, $file, $mtime, $expire, $bigger);
 		}
+
 		return /*!$expire ||*/ $bigger;
 	}
 
-	public function setValue($value)
+	public function setValue($value): void
 	{
 		$this->set($this->key, $value);
 	}
@@ -126,7 +130,7 @@ class MemcacheFile implements MemcacheInterface
 	 * @param mixed $val
 	 * @throws Exception
 	 */
-	public function set($key, $val)
+	public function set($key, $val): void
 	{
 		TaylorProfiler::start(__METHOD__);
 		$file = $this->map($key);
@@ -137,10 +141,11 @@ class MemcacheFile implements MemcacheInterface
 			TaylorProfiler::stop(__METHOD__);
 			throw new Exception($file . ' write access denied.');
 		}
+
 		TaylorProfiler::stop(__METHOD__);
 	}
 
-	public function clearCache($key = null)
+	public function clearCache($key = null): void
 	{
 		$file = $this->map($key ?: $this->key);
 		if (file_exists($file)) {
@@ -150,11 +155,10 @@ class MemcacheFile implements MemcacheInterface
 	}
 
 	/**
-	 * @param string $key
-	 * @return Duration
-	 * @throws Exception
-	 */
-	public function getAge($key)
+     * @param string $key
+     * @throws Exception
+     */
+    public function getAge($key): \Duration
 	{
 		$file = $this->map($key);
 		return new Duration(time() - @filemtime($file));

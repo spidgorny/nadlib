@@ -16,21 +16,21 @@ class ErrorLog extends AppControllerBE
 
 		$content[] = "<strong>" . $this->file . "</strong>" . BR;
 		$fsize = round(filesize($this->file) / 1024 / 1024, 2);
-		$content[] = "File size is {$fsize} megabytes" . BR;
+		$content[] = sprintf('File size is %s megabytes', $fsize) . BR;
 		$lines = $this->read_file($this->file, 50);
 		foreach ($lines as $line) {
 			$content[] = $line . BR;
 		}
+
 		return $content;
 	}
 
 	/**
-	 * http://tekkie.flashbit.net/php/tail-functionality-in-php
-	 * @param string $file
-	 * @param int $lines
-	 * @return array
-	 */
-	public function read_file($file, $lines)
+     * http://tekkie.flashbit.net/php/tail-functionality-in-php
+     * @param string $file
+     * @param int $lines
+     */
+    public function read_file($file, $lines): array
 	{
 		$text = [];
 		$handle = fopen($file, "r");
@@ -45,20 +45,25 @@ class ErrorLog extends AppControllerBE
 						$beginning = true;
 						break;
 					}
+
 					$t = fgetc($handle);
 					$pos--;
 				}
+
 				$linecounter--;
 				if ($beginning) {
 					rewind($handle);
 				}
+
 				$text[$lines - $linecounter - 1] = fgets($handle);
 				if ($beginning) {
 					break;
 				}
 			}
+
 			fclose($handle);
 		}
+
 		return array_reverse($text);
 	}
 

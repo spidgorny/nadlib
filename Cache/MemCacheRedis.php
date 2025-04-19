@@ -3,7 +3,7 @@
 class MemCacheRedis implements MemcacheInterface
 {
 
-	protected $predis;
+	protected \Predis\Client $predis;
 
 	public function __construct(Predis\Client $predis)
 	{
@@ -15,7 +15,7 @@ class MemCacheRedis implements MemcacheInterface
 		$value = $this->predis->get($key);
 		try {
 			return json_decode($value, false, 512, JSON_THROW_ON_ERROR);
-		} catch(Exception $e) {
+		} catch(Exception $exception) {
 			return $value;
 		}
 	}

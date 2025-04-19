@@ -16,6 +16,7 @@ class ControllerTest extends TestCase
 {
 
 	protected $location = 'http://mock.request.tld';
+
 	protected $globalPrefix = '/some/folder';
 
 	/**
@@ -23,13 +24,13 @@ class ControllerTest extends TestCase
 	 */
 	protected $request;
 
-	public function setUp(): void
+	protected function setUp(): void
 	{
 		self::markTestSkipped('PG dependent');
 		$this->request = new MockRequest();
 	}
 
-	public function test_getLocation()
+	public function test_getLocation(): void
 	{
 		$byRequest = $this->request->getDocumentRootByRequest();
 		$this->assertEquals('/', $byRequest);
@@ -44,61 +45,67 @@ class ControllerTest extends TestCase
 		$this->assertEquals($this->location . $this->globalPrefix . '/', $location . '');
 	}
 
-	public function test_makeLinkSimple()
+	public function test_makeLinkSimple(): void
 	{
 		$c = new AppController4Test();
 		$c->linker->useRouter = false;
 		$c->request = $this->request;
+
 		$link = $c->makeURL(['a' => 'b']);
 		$link->setHost(null);
 		$this->assertEquals($this->globalPrefix . '/?a=b', $link . '');
 	}
 
-	public function test_makeLinkSimpleWithPrefix()
+	public function test_makeLinkSimpleWithPrefix(): void
 	{
 		$c = new AppController4Test();
 		$c->linker->useRouter = false;
 		$c->request = $this->request;
+
 		$link = $c->makeURL(['a' => 'b'], 'prefix');
 		$link->setHost(null);
 		$this->assertEquals($this->globalPrefix . '/prefix?a=b', $link . '');
 	}
 
-	public function test_makeLinkRouter()
+	public function test_makeLinkRouter(): void
 	{
 		$c = new AppController4Test();
 		$c->linker->useRouter = true;
 		$c->request = $this->request;
+
 		$link = $c->makeURL(['a' => 'b'], 'prefix');
 		$link->setHost(null);
 		$this->assertEquals($this->globalPrefix . '/prefix?a=b', $link . '');
 	}
 
-	public function test_makeLinkRouterWithPrefix()
+	public function test_makeLinkRouterWithPrefix(): void
 	{
 		$c = new AppController4Test();
 		$c->linker->useRouter = true;
 		$c->request = $this->request;
+
 		$link = $c->makeURL(['a' => 'b'], 'prefix');
 		$link->setHost(null);
 		$this->assertEquals($this->globalPrefix . '/prefix?a=b', $link . '');
 	}
 
-	public function test_makeLinkCSimple()
+	public function test_makeLinkCSimple(): void
 	{
 		$c = new AppController4Test();
 		$c->linker->useRouter = false;
 		$c->request = $this->request;
+
 		$link = $c->makeURL(['a' => 'b', 'c' => 'Controller']);
 		$link->setHost(null);
 		$this->assertEquals($this->globalPrefix . '/?a=b&c=Controller', $link . '');
 	}
 
-	public function test_makeLinkCRouter()
+	public function test_makeLinkCRouter(): void
 	{
 		$c = new AppController4Test();
 		$c->linker->useRouter = true;
 		$c->request = $this->request;
+
 		$link = $c->makeURL(['a' => 'b', 'c' => 'Controller']);
 		$link->setHost(null);
 		$this->assertEquals($this->globalPrefix . '/Controller?a=b', $link . '');

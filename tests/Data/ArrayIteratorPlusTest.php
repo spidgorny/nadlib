@@ -8,7 +8,7 @@ class ArrayIteratorPlusTest extends PHPUnit\Framework\TestCase
 	 */
 	protected $ai;
 
-	public function setUp(): void
+	protected function setUp(): void
 	{
 		$this->ai = new ArrayIterator([
 			0 => 'a',
@@ -17,22 +17,24 @@ class ArrayIteratorPlusTest extends PHPUnit\Framework\TestCase
 		]);
 	}
 
-	public function test_ArrayIterator_foreach()
+	public function test_ArrayIterator_foreach(): void
 	{
 		$ai = new ArrayIterator($this->ai->getArrayCopy());
 		$content = '';
-		foreach ($ai as $i => $a) {
+		foreach ($ai as $a) {
 			$content .= $a;
 		}
+
 		$this->assertEquals('abtest', $content);
 	}
 
-	public function test_ArrayIteratorPlus_foreach()
+	public function test_ArrayIteratorPlus_foreach(): void
 	{
 		$content = '';
-		foreach ($this->ai as $i => $a) {
+		foreach ($this->ai as $a) {
 			$content .= $a;
 		}
+
 		$this->assertEquals('abtest', $content);
 	}
 

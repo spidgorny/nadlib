@@ -21,7 +21,7 @@ abstract class FullGrid extends Grid
 		// calls $this->initFilter();
 	}
 
-	public function initFilter()
+	public function initFilter(): void
 	{
 		// menu is making an instance of each class because of tryMenuSuffix
 		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
@@ -49,7 +49,7 @@ abstract class FullGrid extends Grid
 	 * @throws LoginException
 	 * @throws ReflectionException
 	 */
-	public function postInit($collectionName = null)
+	public function postInit($collectionName = null): void
 	{
 		if (!($this->collection instanceof Collection)) {
 			$this->collection = $this->makeCollection($collectionName);
@@ -66,6 +66,7 @@ abstract class FullGrid extends Grid
 			$this->collection->pager->setNumberOfRecords($this->collection->getCount());
 			$this->collection->pager->detectCurrentPage();
 		}
+
 		// after collection is made, to run getGridColumns
 		$allowEdit = $this->request->getControllerString() === get_class($this);
 //		llog('allowEdit', get_class($this), get_class($this->collection), $allowEdit);
@@ -86,6 +87,7 @@ abstract class FullGrid extends Grid
 			$this->log(__METHOD__ . ' new collection by reflection', $collectionName);
 			$collection = new $collectionName();
 		}
+
 		return $collection;
 	}
 
@@ -103,6 +105,7 @@ abstract class FullGrid extends Grid
 			ifsetor($this->model->thes[$sortBy]['source'])) {
 			$sortBy = $this->model->thes[$sortBy]['source'];
 		}
+
 		if ($this->collection && $this->collection instanceof Collection && $this->collection->thes) {
 			$desc = ifsetor($this->collection->thes[$sortBy]);
 			//debug(array_keys($this->collection->thes), $desc);
@@ -111,22 +114,25 @@ abstract class FullGrid extends Grid
 				ifsetor($desc['sortable']) !== false) {
 				$sortBy = $desc['source'];
 			}
+
 			if (ifsetor($desc['sortable']) === false) {
 				$sortBy = null;
 			}
 		}
-		if (!$sortBy) {
-//			$sortBy = new SQLOrder($this->collection->orderBy);
-//			$sortBy = $sortBy->getField();
-			if (!$sortBy) {
-				// don't do default, because a Collection has it's own default
-				//$sortBy = ifsetor($this->model->idField);
-			}
+
+		//			$sortBy = new SQLOrder($this->collection->orderBy);
+        //			$sortBy = $sortBy->getField();
+        if (!$sortBy && !$sortBy) {
+// don't do default, because a Collection has it's own default
+            //$sortBy = ifsetor($this->model->idField);
+
 		}
+
 		if ($sortBy) {
 			$ret = 'ORDER BY ' . $this->db->quoteKey($sortBy) . ' ' .
 				(ifsetor($this->sort['sortOrder']) ? 'DESC' : 'ASC');
 		}
+
 		//debug($this->sort, $sortBy);
 		return $ret;
 	}
@@ -138,7 +144,7 @@ abstract class FullGrid extends Grid
 		return parent::render();
 	}
 
-	public function setVisibleColumns()
+	public function setVisibleColumns(): void
 	{
 		if ($this->columns) {
 			foreach ($this->collection->thes as $cn => $_) {
@@ -168,11 +174,10 @@ abstract class FullGrid extends Grid
 	}
 
 	/**
-	 * @param array $fields
-	 * @return HTMLForm
-	 * @throws Exception
-	 */
-	public function getFilterForm(array $fields = [])
+     * @return HTMLForm
+     * @throws Exception
+     */
+    public function getFilterForm(array $fields = [])
 	{
 		if (method_exists($this, 'getFilterDesc')) {
 			$this->filterController->desc = $this->getFilterDesc($fields);
@@ -180,19 +185,19 @@ abstract class FullGrid extends Grid
 			$fields = $fields ?: $this->collection->thes;
 			$this->filterController->setFields($fields);
 		}
+
 		$this->filterController->linker->linkVars['c'] = get_class($this);
 		return $this->filterController->render();
 	}
 
 	/**
-	 * Make sure you fill the 'value' fields with data from $this->filter manually.
-	 * Why manually? I don't know, it could change.
-	 *
-	 * @param array $fields
-	 * @return array
-	 * @throws Exception
-	 */
-	public function getFilterDesc(array $fields = null)
+     * Make sure you fill the 'value' fields with data from $this->filter manually.
+     * Why manually? I don't know, it could change.
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function getFilterDesc(array $fields = null)
 	{
 		return $this->filterController->getFilterDesc($fields);
 	}
@@ -226,7 +231,7 @@ abstract class FullGrid extends Grid
 	/**
 	 * @throws Exception
 	 */
-	public function injectCollection()
+	public function injectCollection(): void
 	{
 		parent::injectCollection();
 //		debug($this->collection->where,

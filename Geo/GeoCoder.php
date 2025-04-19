@@ -3,7 +3,7 @@
 class GeoCoder
 {
 
-	function query($address)
+	public function query($address): mixed
 	{
 		$url = 'https://maps.googleapis.com/maps/api/geocode/json?&address=' . urlencode($address);
 		$json = file_get_contents($url);
@@ -17,6 +17,7 @@ class GeoCoder
 		if ($json->status == 'OK') {
 			return $json->results[0];
 		}
+
 		return null;
 	}
 

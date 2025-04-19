@@ -73,7 +73,7 @@ class LazyTreeOptions {
 
 	public $where = array();
 
-	function __construct($table = NULL, $class = NULL) {
+	public function __construct($table = NULL, $class = NULL) {
 		$this->table = $table;
 		$this->class = $class;
 	}
@@ -81,17 +81,12 @@ class LazyTreeOptions {
 	/**
 	 * @return LazyTreeBase
 	 */
-	function getTreeInstance() {
-		/** @var OODBase $class */
-		$class = $this->class;
-//		if (ifsetor($class::$instances[$class][$this->requestRoot])) {
-//			return $class::$instances[$class][$this->requestRoot];
-//		}
-		if (is_array($this->requestRoot)) {
-			$start = NULL;
-		} else {
-			$start = $this->requestRoot;
-		}
+	public function getTreeInstance() {
+		//		if (ifsetor($class::$instances[$class][$this->requestRoot])) {
+        //			return $class::$instances[$class][$this->requestRoot];
+        //		}
+        $start = is_array($this->requestRoot) ? NULL : $this->requestRoot;
+
 		/** @var LazyTreeBase $obj */
 		$obj = new $this->class($start, $this);
 		$obj->id = $this->requestRoot;

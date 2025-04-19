@@ -10,7 +10,7 @@
 class UploaderTest extends PHPUnit\Framework\TestCase
 {
 
-	public function test_GetPostedFiles_single()
+	public function test_GetPostedFiles_single(): void
 	{
 		$source = [
 			'file' => [
@@ -26,7 +26,7 @@ class UploaderTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals($source, $result);
 	}
 
-	public function test_GetPostedFiles()
+	public function test_GetPostedFiles(): void
 	{
 		$source = [
 			'files' => [
@@ -52,7 +52,7 @@ class UploaderTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals($source, $result);
 	}
 
-	public function test_GetPostedFiles_on_broken()
+	public function test_GetPostedFiles_on_broken(): void
 	{
 		$source = [
 			'files' => [
@@ -102,14 +102,16 @@ class UploaderTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals($must, $result);
 	}
 
-	public function test_moveUploadFly()
+	public function test_moveUploadFly(): void
 	{
-		if (!class_exists('League\Flysystem\Filesystem')) {
+		if (!class_exists(\League\Flysystem\Filesystem::class)) {
 			$this->markTestSkipped('League\Flysystem\Filesystem not installed');
 		}
+
 		if (getenv('USER') == 'jenkins') {
 			$this->markTestSkipped('Fill fail when run from Jenkins anyway');
 		}
+
 		$u = new Uploader();
 		$fly = new League\Flysystem\Filesystem(new League\Flysystem\InMemory\InMemoryFilesystemAdapter());
 		$_FILES['test'] = [
@@ -122,8 +124,8 @@ class UploaderTest extends PHPUnit\Framework\TestCase
 		try {
 			$result = $u->moveUploadFly('test', $fly, 'desktop.png');
 			$this->assertTrue($result);
-		} catch (UploadException $e) {
-			$this->fail($e->getMessage());
+		} catch (UploadException $uploadException) {
+			$this->fail($uploadException->getMessage());
 		}
 	}
 

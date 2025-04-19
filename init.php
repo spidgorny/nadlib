@@ -16,7 +16,7 @@ if (!function_exists('parseFloat')) {
 		return ifsetor($floats[0]);
 	}
 
-	function parseFloat2($str)
+	function parseFloat2($str): float
 	{
 		return (float)filter_var($str, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
 	}
@@ -40,6 +40,7 @@ if (!function_exists('parseFloat')) {
 				$variable = $default;    // prevent setting NULL
 				$tmp = $default;
 			}
+
 			return $tmp;
 		}
 	}
@@ -52,16 +53,11 @@ if (!function_exists('parseFloat')) {
 	 */
 	function ifvalor(&$variable, $default = null)
 	{
-		if (isset($variable) && $variable) {
-			$tmp = $variable;
-		} else {
-			$tmp = $default;
-		}
-		return $tmp;
+		return isset($variable) && $variable ? $variable : $default;
 	}
 
 	if (!function_exists('boolval')) {
-		function boolval($val)
+		function boolval($val): bool
 		{
 			return (bool)$val;
 		}

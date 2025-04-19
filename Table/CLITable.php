@@ -3,9 +3,15 @@
 class CLITable
 {
 
-	public $data = [];
+	/**
+     * @var mixed[]
+     */
+    public $data = [];
 
-	public $thes = [];
+	/**
+     * @var mixed[]
+     */
+    public $thes = [];
 
 	public $footer = [];
 
@@ -22,7 +28,7 @@ class CLITable
 		}
 	}
 
-	public function render($cutTooLong = false, $useAvg = false)
+	public function render($cutTooLong = false, $useAvg = false): string
 	{
 		$widthMax = [];
 		$widthAvg = [];
@@ -32,6 +38,7 @@ class CLITable
 				? mb_strlen(ifsetor($name['name']))
 				: (mb_strlen($name) ?: mb_strlen($field));
 		}
+
 		//print_r($widthMax);
 		foreach ($this->data as $row) {
 			foreach ($this->thes as $field => $name) {
@@ -43,14 +50,16 @@ class CLITable
 				$widthAvg[$field] = ifsetor($widthAvg[$field]) + mb_strlen($value);
 			}
 		}
+
 		if ($useAvg) {
 			foreach ($this->thes as $field => $name) {
-				$widthAvg[$field] /= sizeof($this->data);
+				$widthAvg[$field] /= count($this->data);
 				//$avgLen = round(($widthMax[$field] + $widthAvg[$field]) / 2);
 				$avgLen = $widthAvg[$field];
 				$widthMax[$field] = max(8, 1 + $avgLen);
 			}
 		}
+
 		//print_r($widthMax);
 
 		$dataWithHeader = array_merge(
@@ -70,20 +79,26 @@ class CLITable
 				if ($cutTooLong) {
 					$value = substr($value, 0, $widthMax[$field]);
 				}
+
 				$value = str_pad($value, $widthMax[$field], ' ', STR_PAD_RIGHT);
 				$padRow[] = $value;
 			}
+
 			$content .= implode(" ", $padRow) . "\n";
 		}
+
 		return $content;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->render();
 	}
 
-	public function getThesNames()
+	/**
+     * @return mixed[]
+     */
+    public function getThesNames(): array
 	{
 		$names = [];
 		foreach ($this->thes as $field => $thv) {
@@ -94,8 +109,10 @@ class CLITable
 			} else {
 				$thvName = $thv;
 			}
+
 			$names[$field] = $thvName;
 		}
+
 		return $names;
 	}
 

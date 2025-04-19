@@ -28,17 +28,17 @@ class SQLBetween extends SQLWherePart
 		$this->end = $end;
 	}
 
-	public function toString($field)
+	public function toString(string $field): string
 	{
 		return /*$this->db->quoteKey*/ ($field) . ' BETWEEN ' . $this->db->quoteSQL($this->start) . ' AND ' . $this->db->quoteSQL($this->end);
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->toString($this->field);
 	}
 
-	public function debug()
+	public function debug(): array
 	{
 		return $this->__toString();
 	}

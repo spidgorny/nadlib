@@ -19,7 +19,7 @@ class SQLSubquery extends SQLFrom
 		$this->alias = $alias;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return '(' . $this->parts[0] . ') AS ' . $this->alias;
 	}
@@ -35,7 +35,7 @@ class SQLSubquery extends SQLFrom
 		}
 	}
 
-	public function setParameters(array $p)
+	public function setParameters(array $p): void
 	{
 		$this->parameters = $p;
 	}

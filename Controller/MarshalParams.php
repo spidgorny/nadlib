@@ -55,17 +55,15 @@ class MarshalParams
 		} else {
 			$instance = new $class();
 		}
+
 		return $instance;
 	}
 
 	/**
-	 * @param ReflectionMethod $constructor
-	 * @return array
-	 * @throws ReflectionException
-	 */
-	public function getFunctionArguments(ReflectionMethod $constructor)
+     * @throws ReflectionException
+     */
+    public function getFunctionArguments(ReflectionMethod $constructor): array
 	{
-		$container = $this->container;
 		$init = []; // parameter values to the constructor
 		$params = $constructor->getParameters();
 		foreach ($params as $param) {
@@ -73,22 +71,16 @@ class MarshalParams
 			if ($param->isArray() || $param->isDefaultValueAvailable()) {
 				$init[$name] = $param->getDefaultValue();
 			} else {
-				if (method_exists($param, 'getType')) {
-					$type = $param->getType();
-				} else {
-					$type = $param->getClass()->name;
-				}
-				if ($type) {
-					$init[$name] = $this->getParameterValue($param, $type);
-				} else {
-					$init[$name] = null;
-				}
-			}
+                $type = method_exists($param, 'getType') ? $param->getType() : $param->getClass()->name;
+
+                $init[$name] = $type ? $this->getParameterValue($param, $type) : null;
+            }
 		}
+
 		return $init;
 	}
 
-	public function getParameterValue($param, $type)
+	public function getParameterValue($param, string $type)
 	{
 		$container = $this->container;
 		$typeClass = method_exists($type, 'getName')
@@ -110,12 +102,9 @@ class MarshalParams
 			}
 		} elseif (is_array($container)) {
 			$injector = ifsetor($container[$typeClass]);
-			if (is_callable($injector)) {
-				$value = $injector();
-			} else {
-				$value = $injector;
-			}
+			$value = is_callable($injector) ? $injector() : $injector;
 		}
+
 		return $value;
 	}
 
@@ -139,7 +128,7 @@ class MarshalParams
 	private function callMethodByReflection($proxy, $method)
 	{
 		$r = new ReflectionMethod($proxy, $method);
-		if ($r->getNumberOfParameters()) {
+		if ($r->getNumberOfParameters() !== 0) {
 			$assoc = [];
 			foreach ($r->getParameters() as $param) {
 				$name = $param->getName();
@@ -151,11 +140,13 @@ class MarshalParams
 					$assoc[$name] = null;
 				}
 			}
+
 			//debug($assoc);
 			$content = call_user_func_array([$proxy, $method], $assoc);
 		} else {
 			$content = $proxy->$method();
 		}
+
 		return $content;
 	}
 
@@ -184,6 +175,7 @@ class MarshalParams
 
 			return new $paramClass(/*$assoc[$name]*/);
 		}
+
 		return $return;
 	}
 

@@ -3,14 +3,9 @@
 class SQLWhereEqualText extends SQLWhereEqual
 {
 
-	public function __toString()
+	public function __toString(): string
 	{
-		if (is_null($this->val)) {
-			$sql = $this->field . ' IS NULL';
-		} else {
-			$sql = $this->field . ' = ' . $this->db->quoteSQL($this->val);
-		}
-		return $sql;
+		return is_null($this->val) ? $this->field . ' IS NULL' : $this->field . ' = ' . $this->db->quoteSQL($this->val);
 	}
 
 }

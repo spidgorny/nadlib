@@ -26,7 +26,7 @@ class AnyPage /*extends AppController */
 		$this->request = Request::getInstance();
 	}
 
-	public function detect()
+	public function detect(): bool
 	{
 		$file = $this->request->getPathAfterDocRoot()->basename();
 		//debug($file);
@@ -37,6 +37,7 @@ class AnyPage /*extends AppController */
 			$this->template = $files[0];
 			return true;
 		}
+        
 		return false;
 	}
 
@@ -45,11 +46,11 @@ class AnyPage /*extends AppController */
 		$this->request->set('ajax', true);
 		$v = new View($this->template, $this);
 		$v->baseHref = $this->request->getLocation();
+        
 		$html = $v->render();
-		$html = str_replace('<!-- base.href -->', '<base href="dev-jobz/" />', $html);
 //		debug(substr($html, 0, 256));
 //		exit;
-		return $html;
+		return str_replace('<!-- base.href -->', '<base href="dev-jobz/" />', $html);
 	}
 
 }

@@ -30,7 +30,7 @@ class MockSession implements SessionInterface
 		file_put_contents($this->file, serialize($this->data));
 	}
 
-	public function save($key, $val)
+	public function save($key, $val): void
 	{
 		$this->data[$key] = $val;
 	}
@@ -40,9 +40,9 @@ class MockSession implements SessionInterface
 		return ifsetor($this->data[$key]);
 	}
 
-	public function has($key)
+	public function has($key): bool
 	{
-		return !!ifsetor($this->data[$key]);
+		return (bool) ifsetor($this->data[$key]);
 	}
 
 	public function getAll()
@@ -50,7 +50,7 @@ class MockSession implements SessionInterface
 		return $this->data;
 	}
 
-	public function delete($key)
+	public function delete($key): void
 	{
 		unset($this->data[$key]);
 	}

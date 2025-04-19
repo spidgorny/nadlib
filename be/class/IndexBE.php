@@ -14,12 +14,9 @@ class IndexBE extends IndexBase
 	 */
 	public $menu;
 
-	/**
-	 * @var AutoLoad
-	 */
-	protected $al;
+	protected \AutoLoad $al;
 
-	protected $nadlibFromDocRoot;
+	protected string $nadlibFromDocRoot;
 
 	protected $nadlibFromCWD;
 
@@ -27,9 +24,10 @@ class IndexBE extends IndexBase
 	{
 		//debug_pre_print_backtrace();
 		if (!class_exists('Config')) {
-			require_once 'ConfigBE.php';
+			require_once __DIR__ . '/ConfigBE.php';
 			$this->config = ConfigBE::getInstance();
 		}
+        
 		parent::__construct($this->config);
 
 		$this->config->defaultController = HomeBE::class;
@@ -91,11 +89,8 @@ class IndexBE extends IndexBase
 		$this->menu->basePath->setPath($docRoot);
 	}
 
-	/**
-	 * @return array
-	 */
-	public static function getMenu() {
-		$menu = [
+	public static function getMenu(): array {
+		return [
 			'HomeBE'         => 'Home',
 			'ServerStat'     => new Recursive('Info', [
 				SysInfo::class  => 'Sys Info',
@@ -130,31 +125,24 @@ class IndexBE extends IndexBase
 				'JumpFrontend' => '<- Frontend',
 			]),
 		];
-		return $menu;
 	}
 
-	function loadBEmenu(array $menu) {
-		if (class_exists('Spyc')) {
-			if (file_exists('class/config.yaml')) {
-				$c = Spyc::YAMLLoad('../../../../class/config.yaml');
-				//debug($c['BEmenu']);
-				if ($c['BEmenu']) {
+	public function loadBEmenu(array $menu): array {
+		if (class_exists('Spyc') && file_exists('class/config.yaml')) {
+            $c = Spyc::YAMLLoad('../../../../class/config.yaml');
+            //debug($c['BEmenu']);
+            if ($c['BEmenu']) {
 					//$c['BEmenu'] = array('FE' => $c['BEmenu']);
 					foreach ($c['BEmenu'] as $key => $sub) {
-						if (is_array($sub)) {
-							$menu['ClearCache']->elements[$key] = new Recursive($key, $sub);
-						} else {
-							$menu['ClearCache']->elements[$key] = $sub;
-						}
+						$menu['ClearCache']->elements[$key] = is_array($sub) ? new Recursive($key, $sub) : $sub;
 					}
 				}
-			}
-		}
+        }
 
 		return $menu;
 	}
 
-	public function renderController()
+	public function renderController(): string|array
 	{
 		$c = get_class($this->controller);
 		/** @var $c Controller */
@@ -177,10 +165,11 @@ class IndexBE extends IndexBase
 				Login first <a href="vendor/spidgorny/nadlib/be/">here</a>');
 			*/
 		}
+        
 		return $content;
 	}
 
-	public function renderTemplate($content)
+	public function renderTemplate($content): \View
 	{
 		$v = new View($this->template, $this);
 		$v->content = $this->content . $content;
@@ -189,6 +178,7 @@ class IndexBE extends IndexBase
 			: null;
 		$v->sidebar = $this->showSidebar();
 		$v->version = @file_get_contents('VERSION');
+        
 		$lf = new LoginForm('inlineForm');  // too specific - in subclass
 		$v->loginForm = $lf->dispatchAjax();
 		// is the root of the project
@@ -198,7 +188,7 @@ class IndexBE extends IndexBase
 		return $content;
 	}
 
-	public function showSidebar()
+	public function showSidebar(): string
 	{
 		$m = new Menu($this->menu->items->getData(), 1);
 		$m->recursive = false;

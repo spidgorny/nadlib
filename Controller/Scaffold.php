@@ -15,36 +15,43 @@ abstract class Scaffold extends AppControllerBE
 	 * @var OODBase
 	 */
 	public $model;
+
 	/**
 	 * Either from the <FORM> or default from DB?
 	 * @var array
 	 */
 	public $data = [];
+
 	/**
 	 * @var string
 	 */
 	protected $table = 'sometable in Scaffold';
-	/** @var HTMLFormTable */
-	protected $form;
+
+	protected \HTMLFormTable $form;
+
 	/**
 	 * Name of the form fields: scaffold[asd]
 	 */
 	protected $formPrefix = 'scaffold';
+
 	/**
 	 * @var array
 	 * @deprecated    - why? Use Collection instead?
 	 */
 	protected $thes = [];
+
 	/**
 	 * Button label
 	 * @var string
 	 */
 	protected $addButton = 'Add';
+
 	/**
 	 * Button label
 	 * @var string
 	 */
 	protected $updateButton = 'Save';
+
 	/**
 	 * Default function to display.
 	 * showForm
@@ -54,16 +61,19 @@ abstract class Scaffold extends AppControllerBE
 	 * @var string
 	 */
 	protected $action = '';
+
 	/**
 	 * extra attributes for the form like onSubmit
 	 * @var string
 	 */
 	protected $formMore = '';
+
 	/**
 	 * edited element
 	 * @var int
 	 */
 	protected $id;
+
 	protected $editIcon = '<img src="../../img/stock-edit-16.png" alt="Edit"/>';
 
 	/**
@@ -82,6 +92,7 @@ abstract class Scaffold extends AppControllerBE
 		if (!$this->id) {
 			$this->id = $this->request->getInt($this->table . '.id'); // NON AJAX POST
 		}
+
 		if (!$this->id) {
 			// don't do it. It can be ID of anything (parent record)
 			//$this->id = $this->request->getInt('id');
@@ -91,12 +102,9 @@ abstract class Scaffold extends AppControllerBE
 		$this->setModel();    // uses $this->id
 
 		$this->form = new HTMLFormTable();
-		//debug($this->request->isSubmit(), $this->formPrefix, $this->request->getArray($this->formPrefix));
-		if ($this->request->isSubmit()) {
-			$this->data = $this->subRequest->getAll();
-		} else {
-			$this->data = $this->model->data;
-		}
+        //debug($this->request->isSubmit(), $this->formPrefix, $this->request->getArray($this->formPrefix));
+        $this->data = $this->request->isSubmit() ? $this->subRequest->getAll() : $this->model->data;
+
 //		debug($this->data);
 		$this->form->desc = $this->getDesc((array)$this->data);
 		//debug($this->form->desc);
@@ -111,10 +119,10 @@ abstract class Scaffold extends AppControllerBE
 	/**
 	 * @deprecated
 	 */
-	public function translateThes()
+	public function translateThes(): void
 	{
 		// translate thes
-		foreach ($this->thes as $key => &$trans) {
+		foreach ($this->thes as &$trans) {
 			if (is_string($trans) && $trans) {
 				$trans = __($trans);
 			} elseif (is_array($trans) && ifsetor($trans['name'])) {
@@ -167,8 +175,10 @@ abstract class Scaffold extends AppControllerBE
 				} else {
 					$content[] = $this->showDefault();
 				}
+
 				break;
 		}
+
 		return $content;
 	}
 
@@ -183,6 +193,7 @@ abstract class Scaffold extends AppControllerBE
 				'class' => 'btn btn-primary',
 			]);
 		}
+
 		return $f;
 	}
 
@@ -205,6 +216,7 @@ abstract class Scaffold extends AppControllerBE
 		foreach ($override as $key => $val) {
 			$f->hidden($key, $val);
 		}
+
 		$f->button('<span class="glyphicon glyphicon-floppy-disk"></span> ' . $this->updateButton, [
 			'type' => 'submit',
 			'class' => 'btn btn-primary',
@@ -266,6 +278,7 @@ abstract class Scaffold extends AppControllerBE
 		} else {
 			$content[] = $this->showFormWithValidation();
 		}
+
 		return $content;
 	}
 
@@ -303,6 +316,7 @@ abstract class Scaffold extends AppControllerBE
 			$content[] = $v->getErrorList();
 			$content[] = $this->showForm();
 		}
+
 		return $content;
 	}
 
@@ -334,6 +348,7 @@ abstract class Scaffold extends AppControllerBE
 		} else {
 			$content = '<div class="message">No data found.</div>';
 		}
+
 		return $content;
 	}
 
@@ -342,6 +357,7 @@ abstract class Scaffold extends AppControllerBE
 		foreach ($data as &$row) {
 			$row['edit'] = $this->getEditIcon($row['id']);
 		}
+
 		return $data;
 	}
 
@@ -363,12 +379,11 @@ abstract class Scaffold extends AppControllerBE
 
 	protected function showButtons()
 	{
-		$content = $this->makeAjaxLink('<button>' . $this->addButton . '</button>', [
+		return $this->makeAjaxLink('<button>' . $this->addButton . '</button>', [
 			'c' => get_class($this),
 			'ajax' => true,
 			'action' => 'showForm',
 		], $this->formPrefix, '', ['class' => "button"]);
-		return $content;
 	}
 
 	public function getDescFromThes()
@@ -394,6 +409,7 @@ abstract class Scaffold extends AppControllerBE
 				}
 			}
 		}
+
 		return $desc;
 	}
 

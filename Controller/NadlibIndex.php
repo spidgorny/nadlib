@@ -7,14 +7,13 @@ class NadlibIndex
 	 * @var NadlibIndex
 	 */
 	public static $instance;
+
 	/**
 	 * @var Request
 	 */
 	protected $request;
-	/**
-	 * @var DIContainer
-	 */
-	protected $dic;
+
+	protected \DIContainer $dic;
 
 	public function __construct()
 	{
@@ -24,16 +23,15 @@ class NadlibIndex
 		$this->dic = new DIContainer();
 		$this->dic->index = function ($c) {
 			require_once __DIR__ . '/../be/class/IndexBE.php';
-			$indexBE = IndexBE::getInstance(true);
-			return $indexBE;
+			return IndexBE::getInstance(true);
 		};
-		$this->dic->debug = function ($c) {
+		$this->dic->debug = function ($c): \Debug {
 			return new Debug($c->index);
 		};
 		$this->dic->config = function ($c) {
 			return ConfigBE::getInstance();
 		};
-		$this->dic->autoload = function ($c) {
+		$this->dic->autoload = function ($c): \AutoLoad {
 			return AutoLoad::getInstance();
 		};
 
@@ -41,12 +39,15 @@ class NadlibIndex
 			require_once __DIR__ . '/../be/class/ConfigBE.php';
 //			class_alias('ConfigBE', 'Config');
 		}
+
 		if (!class_exists('AppController', false)) {
 			if (!class_exists('AppController')) {
 				//class_alias('Controller', 'AppController');
 			}
+
 //			class_alias('AppController', 'AppControllerME');
 		}
+
 		if (!class_exists('Index')) {
 //			class_alias('IndexBE', 'Index');
 		}
@@ -54,12 +55,13 @@ class NadlibIndex
 		if (!file_exists('vendor/autoload.php')) {
 			//throw new Exception('Run "composer update"');
 		}
+
 		$this->dic->config->defaultController = 'HomeBE';
 
 		self::$instance = $this;
 	}
 
-	public function render()
+	public function render(): string
 	{
 		if (Request::isCLI()) {
 			$content[] = $this->cliMode();
@@ -74,11 +76,11 @@ class NadlibIndex
 			//echo get_class($i), BR, class_exists('Index'), BR, get_class(Index::getInstance());
 			$content[] = $i->render();
 		}
-		$content = $this->s($content);
-		return $content;
+
+		return $this->s($content);
 	}
 
-	public function cliMode()
+	public function cliMode(): array
 	{
 		$content[] = 'Nadlib CLI mode';
 		$this->request->importCLIparams();
@@ -90,15 +92,16 @@ class NadlibIndex
 		} else {
 			throw new InvalidArgumentException('"' . $cmd . '" is unknown');
 		}
+
 		return $content;
 	}
 
-	public function s($content)
+	public function s($content): string
 	{
 		return MergedContent::mergeStringArrayRecursive($content);
 	}
 
-	public function initAction()
+	public function initAction(): string
 	{
 		return 'initAction';
 	}

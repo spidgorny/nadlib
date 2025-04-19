@@ -3,68 +3,72 @@
 if (!function_exists('str_startsWith')) {
 
 	/**
-	 * Whether string starts with some chars
-	 * @param string|null $haystack
-	 * @param string|string[] $needle
-	 * @return bool
-	 */
-	function str_startsWith(string $haystack, string $needle)
+     * Whether string starts with some chars
+     * @param string|null $haystack
+     * @param string|string[] $needle
+     */
+    function str_startsWith(string $haystack, string $needle): bool
 	{
 		if (!is_array($needle)) {
 			$needle = [$needle];
 		}
+
 		foreach ($needle as $need) {
 			if (str_starts_with($haystack ?? '', $need)) {
 				return true;
 			}
 		}
+
 		return false;
 	}
 
 }
+
 /**
  * Whether string ends with some chars
  * @param string $haystack
  * @param string $needle
- * @return bool
  */
-function str_endsWith($haystack, $needle)
+function str_endsWith($haystack, $needle): bool
 {
 	return strrpos($haystack, $needle) === (strlen($haystack) - strlen($needle));
 }
 
 if (!function_exists('str_contains')) {
-	function str_contains($haystack, $needle)
+	function str_contains($haystack, $needle): bool
 	{
 		if (is_array($haystack)) {
 			debug_pre_print_backtrace();
 		}
+
 		return false !== strpos($haystack, $needle);
 	}
 }
 
-function str_icontains($haystack, $needle)
+function str_icontains($haystack, $needle): bool
 {
 	if (is_array($haystack)) {
 		debug_pre_print_backtrace();
 	}
+
 	return false !== stripos($haystack, $needle);
 }
 
 if (!function_exists('contains')) {
-	function contains($haystack, $needle)
+	function contains($haystack, $needle): bool
 	{
 		return str_contains($haystack, $needle);
 	}
 }
 
-function containsAny($haystack, array $needle)
+function containsAny($haystack, array $needle): bool
 {
 	foreach ($needle as $n) {
 		if (contains($haystack, $n)) {
 			return true;
 		}
 	}
+
 	return false;
 }
 
@@ -74,29 +78,28 @@ function containsAny($haystack, array $needle)
  * @param string $sep
  * @param string|object $str
  * @param int $max
- * @return array
  */
-function trimExplode($sep, $str, $max = 0)
+function trimExplode($sep, $str, $max = 0): array
 {
-	if (is_object($str)) {
-		$is_string = method_exists($str, '__toString');
-	} else {
-		$is_string = is_string($str) || is_int($str);
-	}
-	if (!$is_string) {
+	$is_string = is_object($str) ? method_exists($str, '__toString') : is_string($str) || is_int($str);
+
+    if (!$is_string) {
 		throw new RuntimeException('trimExplode: must be string, but got ' . new HtmlString(typ($str)));
 	}
+
 	if ($max) {
 		$parts = explode($sep, $str, $max); // checked by isset so NULL makes it 0
 	} else {
 		$parts = explode($sep, $str);
 	}
+
 	$parts = array_map('trim', $parts);
 	$parts = array_filter($parts);
 	$parts = array_values($parts);
 	if ($max) {
 		$parts = array_pad($parts, $max, null);
 	}
+
 	return $parts;
 }
 
@@ -105,48 +108,48 @@ function trimExplode($sep, $str, $max = 0)
  *
  * @param string $text
  * @param int $tabDepth
- * @return mixed
  */
-function tab2nbsp($text, $tabDepth = 4)
+function tab2nbsp($text, $tabDepth = 4): string
 {
 	$tabSpaces = str_repeat('&nbsp;', $tabDepth);
 	return str_replace("\t", $tabSpaces, $text);
 }
 
-function tabify(array $fields)
+function tabify(array $fields): string
 {
 	static $lengths = [];
 	foreach ($fields as $i => $f) {
 		$len = mb_strlen($f);
 		$lengths[$i] = max(ifsetor($lengths[$i]), $len);
 	}
+
 	foreach ($fields as $i => &$f) {
 		$f = str_pad($f, $lengths[$i], ' ', STR_PAD_RIGHT);
 	}
+
 	return implode(TAB, $fields);
 }
 
-function cap($string, $with = '/')
+function cap($string, string $with = '/'): string
 {
 	$string .= '';
 	if (!str_endsWith($string, $with)) {
 		$string .= $with;
 	}
+
 	return $string;
 }
 
-function get_path_separator($path)
+function get_path_separator($path): string
 {
 	$freq = array_count_values(str_split($path));
-	$separator = ifsetor($freq['/']) >= ifsetor($freq['\\']) ? '/' : '\\';
 //		llog($separator);
-	return $separator;
+	return ifsetor($freq['/']) >= ifsetor($freq['\\']) ? '/' : '\\';
 }
 
 /**
  * @param string $path
  * @param string $plus
- * @param null $plus2
  * @return string
  */
 function path_plus($path, $plus, $plus2 = null)
@@ -172,6 +175,7 @@ function path_plus($path, $plus, $plus2 = null)
 	} elseif ($isAbs) {
 		$root = $char1 === ':' ? ''/*$char0 . $char1*/ : '/';
 	}
+
 	$string = $root . implode($separator, $parts);
 
 	if ($plus2) {
@@ -181,41 +185,46 @@ function path_plus($path, $plus, $plus2 = null)
 	return $string;
 }
 
-function unquote($value, $start = ['\'', '"'], $end = ['\'', '"'])
+function unquote($value, $start = ["'", '"'], $end = ["'", '"'])
 {
 	if (is_string($start)) {
 		$start = [$start];
 	}
+
 	if (is_string($end)) {
 		$end = [$end];
 	}
+
 	if (!$value) {
 		return $value;
 	}
+
 	if (!is_string($value)) {
 		return $value;
 	}
+
 	foreach ($start as $s) {
 		if ($value[0] == $s) {
 			$value = trim($value, $s);
 		}
 	}
+
 	foreach ($end as $e) {
 		if ($value[strlen($value) - 1] === $e) {
 			$value = trim($value, $e);
 		}
 	}
+
 	return $value;
 }
 
 /**
  * http://php.net/manual/en/function.str-replace.php#86177
  * @param string $search
- * @param string $replace
  * @param string $subject
  * @return string
  */
-function str_replace_once($search, $replace, $subject)
+function str_replace_once($search, string $replace, $subject)
 {
 	$firstChar = strpos($subject, $search);
 	if ($firstChar !== false) {
@@ -236,24 +245,23 @@ function str_replace_once($search, $replace, $subject)
  * @return string
  *   Camel-case string.
  */
-function toCamelCase($string)
+function toCamelCase($string): string
 {
 	$string = str_replace('-', ' ', $string);
 	$string = str_replace('_', ' ', $string);
 	$string = ucwords(strtolower($string));
-	$string = str_replace(' ', '', $string);
-	return $string;
+	return str_replace(' ', '', $string);
 }
 
 /**
  * @param string $string
- * @return string
  */
-function toDatabaseKey($string)
+function toDatabaseKey($string): string
 {
 	if (strtoupper($string) === $string) {
 		return strtolower($string);
 	}
+
 	$out = '';
 	$chars = preg_split('//u', $string, -1, PREG_SPLIT_NO_EMPTY);
 	foreach ($chars as $i => $ch) {
@@ -262,26 +270,26 @@ function toDatabaseKey($string)
 				$out .= '_';
 			}
 		} elseif (strtoupper($ch) === $ch) {
-			if ($i) {
-				if (strlen($out) && $out[strlen($out) - 1] !== '_') {
-					$out .= '_';
-				}
+			if ($i !== 0 && (strlen($out) && $out[strlen($out) - 1] !== '_')) {
+				$out .= '_';
 			}
+
 			$out .= strtolower($ch);
 		} else {
 			$out .= $ch;
 		}
 	}
+
 	return $out;
 }
 
-function stripNamespace($className)
+function stripNamespace($className): mixed
 {
 	return last(trimExplode('\\', $className));
 }
 
 // https://stackoverflow.com/a/74876203/417153
-function str_contains_any($haystack, $needles, $case_sensitive = false)
+function str_contains_any($haystack, $needles, $case_sensitive = false): bool
 {
 	foreach ($needles as $needle) {
 		if (str_contains($haystack, $needle) || (($case_sensitive === false) && str_contains(strtolower($haystack), strtolower($needle)))) {

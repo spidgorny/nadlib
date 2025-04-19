@@ -9,12 +9,15 @@ class AjaxLogin extends AppControllerBE
 	 * @var bool - true to be able to login when you're not yet logged-in
 	 */
 	public static $public = true;
+
 	public $action;
+
 	public $mailHeaders = "Content-type: text/plain; charset=\"UTF-8\"\r\nFrom: Wagner-Verlag <info@wagner-verlag.de>\r\n";
 
 	public $openable = true;
 
 	public $withRegister = true;
+
 	/**
 	 * Remove to disable jQuery dependency
 	 * @var string
@@ -24,18 +27,22 @@ class AjaxLogin extends AppControllerBE
 			target: \'#AjaxLogin\',
 			//url: \'buch.php\'
 			}); return false;"';
-	var $encloseTag = 'h3';
+
+	public $encloseTag = 'h3';
+
 	/**
 	 * Used for hashing password.
 	 * Better override.
 	 * @var string
 	 */
 	protected $secret = 'fdhgfjklgfdhj';
+
 	/**
 	 * Activation message saved to be shown on the center div
 	 * @var string
 	 */
 	protected $message = '';
+
 	protected $allowedActions = [
 		'login',
 		'forgotPassword',
@@ -49,15 +56,17 @@ class AjaxLogin extends AppControllerBE
 		parent::__construct();
 		$config = Config::getInstance();
 		$config->mergeConfig($this);
+
 		$action = $action ?: $this->request->getTrim('action');    // don't reverse this line as it will call mode=login twice
 		if ($action) {
 			$this->action = $action;
 			//debug($this->action);
 		}
+
 		//$this->createDB();
 	}
 
-	public function createDB()
+	public function createDB(): void
 	{
 		$this->db->perform("CREATE TABLE IF NOT EXISTS `user` (
   `id` int(11) NOT NULL auto_increment,
@@ -73,28 +82,33 @@ class AjaxLogin extends AppControllerBE
 )");
 	}
 
-	public function dispatchAjax()
+	/**
+     * @return mixed[]
+     */
+    public function dispatchAjax(): array
 	{
 		$content = [];
 		if ($this->action) {
-			$content[] = $this->performAction($this->detectAction());
-			/*			if ($this->mode != 'activate') { // activate is NOT to be processed with AJAX
-							header('Content-type: text/html; charset=ISO-8859-1');
-							echo $content;
-							exit();
-						}
-			*/
-		} else {
-			if ($_SESSION['pageBeforeRegister_show']/* && $_SESSION['pageBeforeRegister']*/) {
-				$redirect = $_SESSION['pageBeforeRegister'];
-				echo '<div class="absMessage">' . __('Account activated.') . '</div>';
-				unset($_SESSION['pageBeforeRegister']);
-			}
-		}
+            $content[] = $this->performAction($this->detectAction());
+            /*			if ($this->mode != 'activate') { // activate is NOT to be processed with AJAX
+            							header('Content-type: text/html; charset=ISO-8859-1');
+            							echo $content;
+            							exit();
+            						}
+            			*/
+        } elseif ($_SESSION['pageBeforeRegister_show']) {
+            $redirect = $_SESSION['pageBeforeRegister'];
+            echo '<div class="absMessage">' . __('Account activated.') . '</div>';
+            unset($_SESSION['pageBeforeRegister']);
+        }
+
 		return $content;
 	}
 
-	public function performAction($action = null)
+	/**
+     * @return mixed[]
+     */
+    public function performAction($action = null): array
 	{
 		$content = [];
 		$action = $action ?: $this->action;
@@ -110,20 +124,20 @@ class AjaxLogin extends AppControllerBE
 				$content[] = '<div class="error alert alert-danger">' . __('Not logged in.') . '</div>';
 			}
 		}
+
 		return $content;
 	}
 
 	/**
-	 * $this->user->try2login() should been called already
-	 * @return array
-	 */
-	public function render()
+     * $this->user->try2login() should been called already
+     */
+    public function render(): array
 	{
 		$content = [];
 		$this->getScript();
 		try {
 			$contentPlus = $this->performAction($this->action);
-			if ($contentPlus) {
+			if ($contentPlus !== []) {
 				$content[] = $contentPlus;
 			} elseif ($this->user && $this->user->isAuth()) {
 				$content[] = $this->menuAction();
@@ -133,17 +147,17 @@ class AjaxLogin extends AppControllerBE
 					$content[] = $this->registerAction();
 				}
 			}
+
 			$content = ['<div id="AjaxLogin" ' . ($this->openable ? 'rel="toggle"' : '') . '>', $content, '</div>'];
-		} catch (Exception $e) {
-			$content[] = '<div class="error_top alert alert-danger">' . __($e->getMessage()) . '</div>';
-			if (DEVELOPMENT) {
-				$content[] = $e->getTraceAsString();
-			}
+		} catch (Exception $exception) {
+			$content[] = '<div class="error_top alert alert-danger">' . __($exception->getMessage()) . '</div>';
+			$content[] = $exception->getTraceAsString();
 		}
+
 		return $content;
 	}
 
-	public function getScript()
+	public function getScript(): void
 	{
 		//$content = '<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>';
 		//$content = '<script src="http://code.jquery.com/jquery-1.8.1.min.js"></script>';
@@ -154,7 +168,7 @@ class AjaxLogin extends AppControllerBE
 			->addCSS($nadlibFromDocRoot . 'CSS/ajaxLogin.css');
 	}
 
-	public function menuAction()
+	public function menuAction(): string
 	{
 		$linkEdit = $this->getURL([
 			'c' => get_class($this),
@@ -168,8 +182,7 @@ class AjaxLogin extends AppControllerBE
 			'c' => get_class($this),
 			'action' => 'logout',
 		]);
-
-		$content = '<div id="loginMenu">
+		return '<div id="loginMenu">
 			<a href="http://de.gravatar.com/" class="gravatar">
 				<img src="' . $this->user->getGravatarURL(25) . '" align="left" border="0">
 			</a>' .
@@ -182,22 +195,19 @@ class AjaxLogin extends AppControllerBE
 				<li><a href="' . $linkLogout . '" class="ajax">' . __('Logout') . '</a></li>
 			</ul>
 		</div>';
-		return $content;
 	}
 
 	public function formAction(array $desc = null)
 	{
 		$f = $this->getLoginForm($desc);
-		$content = $this->encloseInAA($f, __('Login'));
-		return $content;
+		return $this->encloseInAA($f, __('Login'));
 	}
 
 	/**
-	 * Full screen - not for navbar
-	 * @param array|NULL $desc
-	 * @return HTMLFormTable
-	 */
-	public function getLoginForm(array $desc = null)
+     * Full screen - not for navbar
+     * @param array|NULL $desc
+     */
+    public function getLoginForm(array $desc = null): \HTMLFormTable
 	{
 		$f = new HTMLFormTable();
 		$f->action('');     // specify action otherwise will logout
@@ -207,6 +217,7 @@ class AjaxLogin extends AppControllerBE
 		if (!$desc) {
 			$desc = $this->getLoginDesc();
 		}
+
 		$f->desc = $desc;
 		$f->showForm();
 		$f->hidden('action', 'login');
@@ -219,25 +230,22 @@ class AjaxLogin extends AppControllerBE
 		return $f;
 	}
 
-	public function getLoginDesc()
-	{
-		$desc = [];
-		$desc['username'] = [
+	public function getLoginDesc(): array
+    {
+        return ['username' => [
 			'label' => __('E-mail'),
 			'class' => 'form-control',
 			'placeholder' => 'E-mail address',
 			'required' => '',
 			'autofocus' => '',
-		];
-		$desc['password'] = [
+		], 'password' => [
 			'label' => __('Password'),
 			'type' => 'password',
 			'class' => 'form-control',
 			'placeholder' => 'Password',
 			'required' => '',
-		];
-		return $desc;
-	}
+		]];
+    }
 
 	public function registerAction(array $desc = null)
 	{
@@ -268,53 +276,47 @@ class AjaxLogin extends AppControllerBE
 				'</a-->' . $content .
 				'</div>';
 		}
+
 		return $content;
 	}
 
-	public function getRegisterDesc()
-	{
-		$desc = [];
-		$desc['email'] = [
+	public function getRegisterDesc(): array
+    {
+        return ['email' => [
 			'label' => __('E-mail'),
 			'class' => 'form-control',
 			'placeholder' => 'Your e-mail',
 			'required' => '',
 			'autofocus' => '',
-		];
-		$desc['name'] = [
+		], 'name' => [
 			'label' => __('Name'),
 			'class' => 'form-control',
 			'placeholder' => 'Your name',
 			'required' => '',
-		];
-		$desc['surname'] = [
+		], 'surname' => [
 			'label' => __('Surname'),
 			'class' => 'form-control',
 			'placeholder' => 'Your surname',
 			'required' => '',
-		];
-		$desc['username'] = [
+		], 'username' => [
 			'label' => __('Username'),
 			'class' => 'form-control',
 			'placeholder' => 'Your username (nickname on this site)',
 			'required' => '',
-		];
-		$desc['password'] = [
+		], 'password' => [
 			'label' => __('Password'),
 			'type' => 'password',
 			'class' => 'form-control',
 			'placeholder' => 'Password',
 			'required' => '',
-		];
-		return $desc;
-	}
+		]];
+    }
 
 	/**
-	 * It's called "mode" for historical reasons, but it's good so that it's not overlapping with the possible "action"
-	 * Both Login and Password fields - not used
-	 * @return string
-	 */
-	public function inlineFormAction()
+     * It's called "mode" for historical reasons, but it's good so that it's not overlapping with the possible "action"
+     * Both Login and Password fields - not used
+     */
+    public function inlineFormAction(): string
 	{
 		if ($this->user && $this->user->isAuth()) {
 			$linkLogout = $this->getURL([
@@ -346,6 +348,7 @@ class AjaxLogin extends AppControllerBE
 			</div>
 			</form>';
 		}
+
 		return $content;
 	}
 
@@ -353,7 +356,7 @@ class AjaxLogin extends AppControllerBE
 	 * Taken as a default from wagner-verlag login. Should most likely be overwritten in a subclass.
 	 * @return string
 	 */
-	public function loginAction()
+	public function loginAction(): array
 	{
 		$content = [];
 		$username = $this->request->getTrim('username');
@@ -386,10 +389,14 @@ class AjaxLogin extends AppControllerBE
 				$content[] = $this->registerAction();
 			}
 		}
+
 		return $content;
 	}
 
-	public function saveProfileAction()
+	/**
+     * @return mixed[]
+     */
+    public function saveProfileAction(): array
 	{
 		$content = [];
 		$data = $this->request->getArray('profile');
@@ -405,10 +412,11 @@ class AjaxLogin extends AppControllerBE
 		} else {
 			$content[] = $this->profileAction($val->getDesc());
 		}
+
 		return $content;
 	}
 
-	public function getProfileDesc()
+	public function getProfileDesc(): array
 	{
 		$desc = [];
 		$desc['username']['label'] = __('E-mail');
@@ -418,7 +426,7 @@ class AjaxLogin extends AppControllerBE
 		return $desc;
 	}
 
-	public function profileAction(array $desc = null)
+	public function profileAction(array $desc = null): \HTMLFormTable
 	{
 		$f = new HTMLFormTable();
 		$f->formMore['onsubmit'] = "jQuery(this).ajaxSubmit({
@@ -439,11 +447,14 @@ class AjaxLogin extends AppControllerBE
 		$f->prefix('');
 		$f->hidden('action', 'saveProfile');
 		$f->submit(__('Save'));
-		$content = $f;
-		return $content;
+
+		return $f;
 	}
 
-	public function savePasswordAction()
+	/**
+     * @return mixed[]
+     */
+    public function savePasswordAction(): array
 	{
 		$content = [];
 		$password = $this->request->getTrim('password');
@@ -461,10 +472,11 @@ class AjaxLogin extends AppControllerBE
 		} else {
 			$content[] = $this->passwordAction($val->getDesc());
 		}
+
 		return $content;
 	}
 
-	public function getPasswordDesc()
+	public function getPasswordDesc(): array
 	{
 		$desc = [];
 		$desc['password']['label'] = __('Password');
@@ -472,7 +484,7 @@ class AjaxLogin extends AppControllerBE
 		return $desc;
 	}
 
-	public function passwordAction(array $desc = null)
+	public function passwordAction(array $desc = null): \HTMLFormTable
 	{
 		$f = new HTMLFormTable();
 		$f->formMore['onsubmit'] = "jQuery(this).ajaxSubmit({
@@ -492,24 +504,21 @@ class AjaxLogin extends AppControllerBE
 		return $f;
 	}
 
-	public function navbarLoginForm()
+	public function navbarLoginForm(): void
 	{
 		throw new RuntimeException('Not implemented');
 //		return '<a href="' . LoginService::class . '" class="btn btn-primary navbar-btn">Login</a>';
 	}
 
-	function logoutForm()
+	public function logoutForm(): \HTMLTag
 	{
-		$a = new HTMLTag('a', [
+		//		$content = '
+//			<div class="navbar-form">'.$a.'</div>
+//		';
+		return new HTMLTag('a', [
 			'href' => get_class($this) . '?action=logout',
 			'class' => 'btn btn-default',
 		], __('Logout'));
-
-		$content = $a;
-//		$content = '
-//			<div class="navbar-form">'.$a.'</div>
-//		';
-		return $content;
 	}
 
 	public function logoutAction()
@@ -521,10 +530,11 @@ class AjaxLogin extends AppControllerBE
 		if ($this->withRegister) {
 			$content[] = $this->registerAction();
 		}
+
 		return $content;
 	}
 
-	public function forgotPasswordAction()
+	public function forgotPasswordAction(): array
 	{
 		$content = [];
 		$email = $this->request->getTrim('username');
@@ -542,10 +552,12 @@ class AjaxLogin extends AppControllerBE
 						'%3' => $password,
 					])), $this->mailHeaders);
 			}
+
 			$content[] = '<div class="message alert alert-warning">' . __('If we have found this e-mail then we have sent you your new password.') . '</div>';
 		} else {
 			$content[] = '<div class="error alert alert-danger">' . __('Enter you e-mail before asking for a new password.') . '</div>';
 		}
+
 		$desc = $this->getLoginDesc();
 		$desc['username']['value'] = $email;
 		$desc['password']['cursor'] = true;
@@ -553,10 +565,14 @@ class AjaxLogin extends AppControllerBE
 		if ($this->withRegister) {
 			$content[] = $this->registerAction();
 		}
+
 		return $content;
 	}
 
-	public function saveRegisterAction()
+	/**
+     * @return mixed[]
+     */
+    public function saveRegisterAction(): array
 	{
 		$content = [];
 		$data = $this->request->getArray('profile');
@@ -571,22 +587,24 @@ class AjaxLogin extends AppControllerBE
 			$desc = $val->getDesc(); // with error message
 			$content[] = $this->registerAction($desc);
 		}
+
 		//unset($_SESSION['pageBeforeRegister']);
 		$_SESSION['pageBeforeRegister'] = $_SERVER['HTTP_REFERER'];
 		//debug($_SESSION['pageBeforeRegister']);
 		return $content;
 	}
 
-	public function createUser(array $data)
+	public function createUser(array $data): string
 	{
 		$data['password'] = md5($this->secret . $data['password']);
 		$data['activated'] = 0;
 		try {
 			$this->user->insert($data);
-		} catch (UserAlreadyExistsException $e) {
+		} catch (UserAlreadyExistsException $userAlreadyExistsException) {
 			// ok - continue
 			$this->user->findInDB([$this->user->loginField => $data['username']]);
 		}
+
 		//debug($this->user->data);
 		$activateURL = $this->getActivateURL();
 		mail($this->user->data[$this->user->loginField],
@@ -599,7 +617,7 @@ class AjaxLogin extends AppControllerBE
 		return '<div class="message alert alert-info">' . __('You need to activate your account with the link sent to your e-mail address.') . '</div>';
 	}
 
-	public function getActivateURL()
+	public function getActivateURL(): string
 	{
 		//$activateURL = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'&'.http_build_query($params);
 		$params = [
@@ -610,9 +628,8 @@ class AjaxLogin extends AppControllerBE
 		$u = new URL();
 		$u->appendParams($params);
 		//$u->setComponent('path', 'buch.php');
-		$activateURL = $u . '';
-		$activateURL = str_replace('&form=1', '', $activateURL); // for anmeldung on warenkorb.php
-		return $activateURL;
+		$activateURL = $u . ''; // for anmeldung on warenkorb.php
+		return str_replace('&form=1', '', $activateURL);
 	}
 
 	/**
@@ -632,7 +649,7 @@ class AjaxLogin extends AppControllerBE
 		return $this->user;
 	}
 
-	public function renderBigMessage()
+	public function renderBigMessage(): void
 	{
 		echo '<big>' . $this->message . '</big>';
 	}

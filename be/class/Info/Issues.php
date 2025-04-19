@@ -5,7 +5,7 @@ class Issues extends AppControllerBE
 
 	public $bitbucketID;
 
-	public function render()
+	public function render(): array
 	{
 		//debug($this->config->config);
 		//debug($this->bitbucketID);
@@ -41,6 +41,7 @@ class Issues extends AppControllerBE
 			$json = $ug->getContent();
 			$content[] = $json;
 		}
+
 		return $content;
 	}
 

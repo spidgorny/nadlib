@@ -6,26 +6,36 @@ class Color
 	/**
 	 * @var int
 	 */
-	public $r, $g, $b;
+	public $r;
 
-	public static function fromRGBArray(array $rgb)
+    /**
+     * @var int
+     */
+    public $g;
+
+    /**
+     * @var int
+     */
+    public $b;
+
+	public static function fromRGBArray(array $rgb): \Color
 	{
 		return new Color($rgb);
 	}
 
-	public static function fromRGB($r, $g, $b)
+	public static function fromRGB($r, $g, $b): \Color
 	{
 		return new Color([$r, $g, $b]);
 	}
 
-	public static function fromHEX($rgb)
+	public static function fromHEX($rgb): \Color
 	{
 		assert($rgb[0] === '#');
 		assert(strlen($rgb) === 7);
 		return new Color($rgb);
 	}
 
-	public function __construct($init)
+	public function __construct(string $init)
 	{
 		if ($init[0] === '#') {
 			$colourstr = str_replace('#', '', $init);
@@ -36,10 +46,10 @@ class Color
 			$this->r = hexdec($rhex);
 			$this->g = hexdec($ghex);
 			$this->b = hexdec($bhex);
-		} elseif (is_array($init) && sizeof($init) == 3) {
-			if (gettype(first($init)) == 'integer') {
+		} elseif (is_array($init) && count($init) == 3) {
+			if (gettype(first($init)) === 'integer') {
 				list($this->r, $this->g, $this->b) = $init;
-			} elseif (gettype(first($init)) == 'double') {
+			} elseif (gettype(first($init)) === 'double') {
 				throw new InvalidArgumentException('Please use static constructors for HSL and HSV');
 			}
 		} else {
@@ -48,11 +58,10 @@ class Color
 	}
 
 	/**
-	 * http://stackoverflow.com/questions/5199783/help-needed-with-php-function-brightness-making-rgb-colors-darker-brighter
-	 * @param int $steps
-	 * @return string
-	 */
-	public function alter_brightness($steps)
+     * http://stackoverflow.com/questions/5199783/help-needed-with-php-function-brightness-making-rgb-colors-darker-brighter
+     * @param int $steps
+     */
+    public function alter_brightness($steps): string
 	{
 		$r = max(0, min(255, $this->r + $steps));
 		$g = max(0, min(255, $this->g + $steps));
@@ -62,12 +71,11 @@ class Color
 	}
 
 	/**
-	 * @param int $deltaHue [0..360]
-	 * @param int $deltaSaturation [0..100]
-	 * @param int $deltaLightness [0..100]
-	 * @return string
-	 */
-	public function alter_color($deltaHue = 0, $deltaSaturation = 0, $deltaLightness = 0)
+     * @param int $deltaHue [0..360]
+     * @param int $deltaSaturation [0..100]
+     * @param int $deltaLightness [0..100]
+     */
+    public function alter_color($deltaHue = 0, $deltaSaturation = 0, $deltaLightness = 0): string
 	{
 		$hsv = $this->RGB_TO_HSV($this->r, $this->g, $this->b);
 		$hsl = $this->hsv_to_hsl($hsv['H'], $hsv['S'], $hsv['V']);
@@ -90,12 +98,12 @@ class Color
 		return $this->getCSS($rgb);
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->getCSS([$this->r, $this->g, $this->b]);
 	}
 
-	public function getCSS($rgb = null)
+	public function getCSS($rgb = null): string
 	{
 		$rgb = array_values($rgb ?: [$this->r, $this->g, $this->b]);
 		return '#' .
@@ -105,13 +113,12 @@ class Color
 	}
 
 	/**
-	 * http://stackoverflow.com/questions/1773698/rgb-to-hsv-in-php
-	 * @param int $R
-	 * @param int $G
-	 * @param int $B
-	 * @return array
-	 */
-	public function RGB_TO_HSV($R, $G, $B)  // RGB Values:Number 0-255
+     * http://stackoverflow.com/questions/1773698/rgb-to-hsv-in-php
+     * @param int $R
+     * @param int $G
+     * @param int $B
+     */
+    public function RGB_TO_HSV($R, $G, $B): array  // RGB Values:Number 0-255
 	{                                 // HSV Results:Number 0-1
 		$HSL = [];
 
@@ -147,6 +154,7 @@ class Color
 			if ($H < 0) {
 				$H++;
 			}
+
 			if ($H > 1) {
 				$H--;
 			}
@@ -160,15 +168,13 @@ class Color
 	}
 
 	/**
-	 * http://stackoverflow.com/questions/3597417/php-hsv-to-rgb-formula-comprehension
-	 * @param array $hsv
-	 * @return array
-	 */
-	public function HSVtoRGB(array $hsv)
+     * http://stackoverflow.com/questions/3597417/php-hsv-to-rgb-formula-comprehension
+     */
+    public function HSVtoRGB(array $hsv): array
 	{
 		list($H, $S, $V) = $hsv;
 		//0
-		$H = $H - floor($H);    // not bigger than 360 grad
+		$H -= floor($H);    // not bigger than 360 grad
 		//1
 		$H *= 6;
 		//2
@@ -202,17 +208,17 @@ class Color
 			default:
 				die(__METHOD__ . '#' . __LINE__ . ' ' . $I . ' ' . $H);
 		}
+
 		return [$R * 255, $G * 255, $B * 255];
 	}
 
 	/**
-	 * http://ariya.blogspot.de/2008/07/converting-between-hsl-and-hsv.html
-	 * @param int $h
-	 * @param int $s
-	 * @param int $v
-	 * @return array
-	 */
-	public function hsv_to_hsl($h, $s, $v)
+     * http://ariya.blogspot.de/2008/07/converting-between-hsl-and-hsv.html
+     * @param int $h
+     * @param int $s
+     * @param int $v
+     */
+    public function hsv_to_hsl($h, $s, $v): array
 	{
 		$hh = $h;
 		$ll = (2 - $s) * $v;
@@ -222,7 +228,7 @@ class Color
 		return [$hh, $ss, $ll];
 	}
 
-	public function hsl_to_hsv($hh, $ss, $ll)
+	public function hsl_to_hsv($hh, $ss, $ll): array
 	{
 		$h = $hh;
 		$ll *= 2;
@@ -232,27 +238,24 @@ class Color
 		return [$h, $s, $v];
 	}
 
-	public function getComplement255()
+	public function getComplement255(): self
 	{
-		$c = new self([
+		return new self([
 			255 - $this->r,
 			255 - $this->g,
 			255 - $this->b]);
-		return $c;
 	}
 
-	public function getComplement()
+	public function getComplement(): string
 	{
-		$c = $this->alter_color(180, 0, 0);
-		return $c;
+		return $this->alter_color(180, 0, 0);
 	}
 
 	/**
-	 * https://sighack.com/post/averaging-rgb-colors-the-right-way
-	 * https://youtu.be/LKnqECcg6Gw
-	 * @param array $colors
-	 */
-	public static function average(array $colors)
+     * https://sighack.com/post/averaging-rgb-colors-the-right-way
+     * https://youtu.be/LKnqECcg6Gw
+     */
+    public static function average(array $colors): array
 	{
 		$sumSquared = [0, 0, 0];    // rgb
 		foreach ($colors as $color) {
@@ -260,7 +263,8 @@ class Color
 			$sumSquared[1] += $color[1] * $color[1];
 			$sumSquared[2] += $color[2] * $color[2];
 		}
-		$amount = sizeof($colors);
+
+		$amount = count($colors);
 		return [
 			intval(sqrt($sumSquared[0] / $amount)),
 			intval(sqrt($sumSquared[1] / $amount)),

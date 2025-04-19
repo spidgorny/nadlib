@@ -7,7 +7,8 @@ class NamespaceResolver implements ResolverInterface
 	 * @var Request
 	 */
 	public $request;
-	protected $ns;
+
+	protected array $ns;
 
 	public function __construct(array $tryNS = [])
 	{
@@ -27,18 +28,16 @@ class NamespaceResolver implements ResolverInterface
 					break;
 				}
 			}
-			if ($last) {
-				$controller = $last;
-			} else {
-				$controller = $this->getDefault($returnDefault);
-			}
+
+            $controller = $last ? $last : $this->getDefault($returnDefault);
 		} else {
 			$controller = $this->getDefault($returnDefault);
 		}
+
 		return $controller;
 	}
 
-	public function tryNamespaces($class)
+	public function tryNamespaces(string $class): ?string
 	{
 		$last = null;
 		foreach ($this->ns as $prefix) {
@@ -48,6 +47,7 @@ class NamespaceResolver implements ResolverInterface
 				break;
 			}
 		}
+
 		return $last;
 	}
 

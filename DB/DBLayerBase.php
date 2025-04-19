@@ -20,61 +20,70 @@
 abstract class DBLayerBase implements DBInterface
 {
 
-	/**
+	public $db;
+
+    /**
 	 * @var SQLBuilder
 	 */
 	public $qb;
 
-	public $AFFECTED_ROWS = null;
+	public $AFFECTED_ROWS;
+
 	/**
 	 * @var resource
 	 */
 	public $connection;
+
 	/**
 	 * @var string
 	 */
 	public $lastQuery;
+
 	/**
 	 * @var int
 	 */
 	public $queryCount = 0;
+
 	/**
 	 * @var int Time in seconds
 	 */
 	public $queryTime = 0;
+
 	/**
 	 * @var string DB name (file name)
 	 */
 	public $dbName;
+
 	/**
 	 * List of reserved words for each DB
 	 * which can't be used as field names and must be quoted
 	 * @var array
 	 */
 	protected $reserved = [];
+
 	/**
 	 * set to NULL for disabling
 	 * @var QueryLog
 	 */
 	protected $queryLog;
+
 	/**
 	 * @var bool Allows logging every query to the error.log.
 	 * Helps to detect the reason for white screen problems.
 	 */
 	protected $logToLog = false;
 
-	public function setQB(SQLBuilder $qb = null)
+	public function setQB(SQLBuilder $qb = null): void
 	{
 		$this->qb = $qb;
 	}
 
-	public function __call($method, array $params)
+	public function __call(string $method, array $params)
 	{
-		if (!$this->qb) {
-			if (!$this->qb) {
-				throw new DatabaseException(__CLASS__ . ' has no QB');
-			}
+		if (!$this->qb && !$this->qb) {
+			throw new DatabaseException(__CLASS__ . ' has no QB');
 		}
+
 		if (method_exists($this->qb, $method)) {
 			return call_user_func_array([$this->qb, $method], $params);
 		}
@@ -82,7 +91,7 @@ abstract class DBLayerBase implements DBInterface
 		throw new RuntimeException($method . ' not found in ' . get_class($this) . ' and SQLBuilder');
 	}
 
-	public function logQuery($query)
+	public function logQuery($query): void
 	{
 		if ($this->logToLog) {
 			$query = preg_replace('/\s+/', ' ',
@@ -103,6 +112,7 @@ abstract class DBLayerBase implements DBInterface
 	{
 		$max = $start + $limit;
 		$max = min($max, $this->numRows($res));
+
 		$data = [];
 		for ($i = $start; $i < $max; $i++) {
 			$this->dataSeek($res, $i);
@@ -133,7 +143,7 @@ abstract class DBLayerBase implements DBInterface
 		return null;
 	}
 
-	public function saveQueryLog($query, $time)
+	public function saveQueryLog($query, $time): void
 	{
 		$this->queryCount++;
 		$this->queryTime += $time;
@@ -169,7 +179,7 @@ abstract class DBLayerBase implements DBInterface
 		return 0;
 	}
 
-	public function free($res)
+	public function free($res): void
 	{
 		// TODO: Implement free() method.
 	}
@@ -196,7 +206,7 @@ abstract class DBLayerBase implements DBInterface
 
 	public function isConnected()
 	{
-		return !!$this->connection;
+		return (bool) $this->connection;
 	}
 
 	public function getTableColumns($table)
@@ -209,6 +219,7 @@ abstract class DBLayerBase implements DBInterface
 		if (!$this->queryLog) {
 			$this->queryLog = new QueryLog();
 		}
+
 		return $this->queryLog;
 	}
 
@@ -237,12 +248,12 @@ abstract class DBLayerBase implements DBInterface
 		return $this->getScheme() == 'sqlite';
 	}
 
-	public function clearQueryLog()
+	public function clearQueryLog(): void
 	{
 		$this->queryLog = null;
 	}
 
-	public function fetchAll($res_or_query, $index_by_key = null)
+	public function fetchAll($res_or_query, $index_by_key = null): void
 	{
 		// TODO: Implement fetchAll() method.
 	}
@@ -253,6 +264,7 @@ abstract class DBLayerBase implements DBInterface
 		foreach ($a as $b) {
 			$c[] = $this->quoteKey($b);
 		}
+
 		return $c;
 	}
 
@@ -262,6 +274,7 @@ abstract class DBLayerBase implements DBInterface
 		if (in_array(strtoupper($key), $reserved)) {
 			$key = $this->db->quoteKey($key);
 		}
+
 		return $key;
 	}
 
@@ -277,12 +290,11 @@ abstract class DBLayerBase implements DBInterface
 	}
 
 	/**
-	 * @param string $table
-	 * @param array $set
-	 * @return array
-	 * @throws Exception
-	 */
-	public function fixDataTypes($table, array $set)
+     * @param string $table
+     * @return array
+     * @throws Exception
+     */
+    public function fixDataTypes($table, array $set)
 	{
 		$tableDesc = $this->getTableFields($table);
 		foreach ($set as $key => &$val) {
@@ -298,6 +310,7 @@ abstract class DBLayerBase implements DBInterface
 				$val = null;
 			}
 		}
+
 		return $set;
 	}
 
@@ -312,6 +325,7 @@ abstract class DBLayerBase implements DBInterface
 		foreach ($fields as $field => &$set) {
 			$set = TableField::init($set + ['pg_field' => $field]);
 		}
+
 		return $fields;
 	}
 

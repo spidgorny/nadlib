@@ -58,11 +58,10 @@ class Mailer implements MailerInterface
 		$from = new SendGrid\Email(null, $config->mailFrom);
 		$to = new SendGrid\Email(null, $this->to);
 		$content = new SendGrid\Content('text/plain', $this->getPlainText());
-		$mail = new SendGrid\Mail($from, $this->subject, $to, $content);
-		return $mail;
+		return new SendGrid\Mail($from, $this->subject, $to, $content);
 	}
 
-	public function attach($name, $mime, $content)
+	public function attach($name, $mime, $content): void
 	{
 		$this->attachments[] = [
 			'name' => $name,
@@ -71,19 +70,17 @@ class Mailer implements MailerInterface
 		];
 	}
 
-	public function getSubject()
+	public function getSubject(): string
 	{
-		$subject = '=?utf-8?B?' . base64_encode($this->subject) . '?=';
-		return $subject;
+		return '=?utf-8?B?' . base64_encode($this->subject) . '?=';
 	}
 
-	public function getBodyText()
+	public function getBodyText(): string
 	{
-		$bodyText = str_replace("\n.", "\n..", $this->bodytext);
-		return $bodyText;
+		return str_replace("\n.", "\n..", $this->bodytext);
 	}
 
-	public function debug()
+	public function debug(): \slTable
 	{
 		$assoc = [];
 		$assoc['to'] = $this->to;
@@ -95,13 +92,13 @@ class Mailer implements MailerInterface
 		return slTable::showAssoc($assoc);
 	}
 
-	public static function isHTML($bodyText)
+	public static function isHTML($bodyText): bool
 	{
 //		return strpos($bodyText, '<') !== FALSE;
 		return $bodyText !== '' && $bodyText[0] === '<';
 	}
 
-	public function from($from)
+	public function from($from): void
 	{
 		$this->sendFrom = $from;
 	}
@@ -117,7 +114,8 @@ class Mailer implements MailerInterface
 		foreach ($emails as $e) {
 			$validEmails += HTMLFormValidate::validEmail($e);
 		}
-		if ($validEmails === sizeof($emails)) {
+
+		if ($validEmails === count($emails)) {
 			$res = mail(
 				implode(', ', $this->to),
 				$this->getSubject(),
@@ -131,6 +129,7 @@ class Mailer implements MailerInterface
 		} else {
 			throw new MailerException('Invalid email address: ' . implode(', ', $this->to));
 		}
+
 		return $res;
 	}
 
@@ -142,7 +141,7 @@ class Mailer implements MailerInterface
 		$this->sendFrom = Config::getInstance()->mailFrom;
 	}
 
-	public function getPlainText()
+	public function getPlainText(): string
 	{
 		return strip_tags($this->bodytext);
 	}

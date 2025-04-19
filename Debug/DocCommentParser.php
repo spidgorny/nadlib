@@ -14,6 +14,7 @@ class DocCommentParser
 	 * @var string
 	 */
 	protected $description = '';
+
 	/**
 	 * An array of tag names and their values (multiple values are possible)
 	 * @var array
@@ -29,14 +30,13 @@ class DocCommentParser
 	}
 
 	/**
-	 * Parses the given doc comment and saves the result (description and
-	 * tags) in the parser's object. They can be retrieved by the
-	 * getTags() getTagValues() and getDescription() methods.
-	 *
-	 * @param string $docComment A doc comment as returned by the reflection getDocComment() method
-	 * @return DocCommentParser
-	 */
-	public function parseDocComment($docComment = null)
+     * Parses the given doc comment and saves the result (description and
+     * tags) in the parser's object. They can be retrieved by the
+     * getTags() getTagValues() and getDescription() methods.
+     *
+     * @param string $docComment A doc comment as returned by the reflection getDocComment() method
+     */
+    public function parseDocComment($docComment = null): static
 	{
 		$docComment = $docComment ?: $this->text;
 		$this->description = '';
@@ -47,12 +47,14 @@ class DocCommentParser
 			if ($line === '*/') {
 				break;
 			}
+
 			if (strlen($line) > 0 && strpos($line, '* @') !== false) {
 				$this->parseTag(substr($line, strpos($line, '@')));
 			} elseif (count($this->tags) === 0) {
 				$this->description .= preg_replace('/\s*\\/?[\\\\*]*\s?(.*)$/', '$1', $line) . chr(10);
 			}
 		}
+
 		$this->description = trim($this->description);
 		return $this;
 	}
@@ -72,12 +74,14 @@ class DocCommentParser
 		} else {
 			array_shift($tagAndValue);
 		}
+
 		$tag = strtolower(trim($tagAndValue[0], '@'));
 		if (count($tagAndValue) > 1) {
 			$this->tags[$tag][] = trim($tagAndValue[1], ' "');
 		} else {
 			$this->tags[$tag] = [];
 		}
+
 		//debug($this->tags);
 	}
 
@@ -120,7 +124,7 @@ class DocCommentParser
 		return $this->tags;
 	}
 
-	public function is_set($tagName)
+	public function is_set($tagName): bool
 	{
 		// isset() will not work
 		return array_key_exists($tagName, $this->tags);

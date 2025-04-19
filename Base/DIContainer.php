@@ -24,6 +24,7 @@ class DIContainer
 			throw new InvalidArgumentException(sprintf(
 				__METHOD__ . ': value "%s" is not defined.', $id));
 		}
+
 		$v = $this->values[$id];
 		/*		print_r(array(
 					'id' => $id,

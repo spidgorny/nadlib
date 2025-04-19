@@ -29,12 +29,12 @@ class LoginForm extends AjaxLogin
 		$this->layout = new Wrap('<div class="col-md-10">', '</div>' . "\n");
 	}
 
-	public function render()
+	public function render(): array
 	{
 		return '';
 	}
 
-	public function loginAction()
+	public function loginAction(): array
 	{
 		//debug($this->request);
 		$content = '';
@@ -42,7 +42,7 @@ class LoginForm extends AjaxLogin
 		$password = $this->request->getTrim('password');
 		$passwordHash = $this->secret;
 		if ($username == 'nadlib' && $password == $passwordHash) {
-			$this->user->saveLogin($username, $passwordHash);
+			$this->user->saveLogin();
 			$content .= '<div class="message">' . __('You are logged in.') . '</div>';
 			$content .= $this->menuAction();
 		} else {
@@ -53,6 +53,7 @@ class LoginForm extends AjaxLogin
 			$desc['password']['cursor'] = true;
 			$content .= $this->formAction($desc);
 		}
+
 		return $content;
 	}
 

@@ -3,11 +3,10 @@
 if (!function_exists('first')) {
 
 	/**
-	 * Complements the built-in end() function
-	 * @param array $list
-	 * @return array|mixed
-	 */
-	function first(array $list)
+     * Complements the built-in end() function
+     * @return array|mixed
+     */
+    function first(array $list): mixed
 	{
 		reset($list);
 		return current($list);
@@ -16,11 +15,10 @@ if (!function_exists('first')) {
 
 if (!function_exists('last')) {
 	/**
-	 * Complements the built-in end() function
-	 * @param array $list
-	 * @return array|mixed
-	 */
-	function last(array $list)
+     * Complements the built-in end() function
+     * @return array|mixed
+     */
+    function last(array $list): mixed
 	{
 		return end($list);
 	}
@@ -29,7 +27,6 @@ if (!function_exists('last')) {
 /**
  * This is equal to return next(each($list))
  *
- * @param array $list
  * @return mixed
  */
 function eachv(array &$list)
@@ -42,11 +39,8 @@ function eachv(array &$list)
 /**
  * Array_combine only works when both arrays are indexed by numbers
  * @used FullGrid
- * @param array $a
- * @param array $b
- * @return array
  */
-function array_combine_stringkey(array $a, array $b)
+function array_combine_stringkey(array $a, array $b): array
 {
 	$ret = [];
 	reset($b);
@@ -54,15 +48,15 @@ function array_combine_stringkey(array $a, array $b)
 		$ret[$key] = current($b);
 		next($b);
 	}
+
 	return $ret;
 }
 
 /**
  * http://stackoverflow.com/questions/173400/php-arrays-a-good-way-to-check-if-an-array-is-associative-or-sequential
  * @param array $arr
- * @return bool
  */
-function is_assoc($arr)
+function is_assoc($arr): bool
 {
 	return array_keys($arr) !== range(0, count($arr) - 1);
 }
@@ -70,10 +64,8 @@ function is_assoc($arr)
 /**
  * Makes it unique on a first level only
  * http://php.net/manual/en/function.array-unique.php#116302
- * @param array $matriz
- * @return array
  */
-function unique_multidim_array(array $matriz)
+function unique_multidim_array(array $matriz): array
 {
 	$aux_ini = [];
 	foreach ($matriz as $n => $source) {
@@ -87,12 +79,13 @@ function unique_multidim_array(array $matriz)
 		$entrega[$n] = unserialize($serial);
 
 	}
+
 	return $entrega;
 }
 
-function unique_multidim_array_thru(array $matriz)
+function unique_multidim_array_thru(array $matriz): array
 {
-	foreach ($matriz as $n => &$source) {
+	foreach ($matriz as &$source) {
 		if (is_array($source)) {
 			$source = unique_multidim_array_thru($source);
 		}
@@ -103,25 +96,20 @@ function unique_multidim_array_thru(array $matriz)
 
 /**
  * Will call __toString() on every object in array
- * @param array $a
- * @return array
  */
-function array_to_string(array $a)
+function array_to_string(array $a): array
 {
 	foreach ($a as &$val) {
-		if (is_array($val)) {
-			$val = array_to_string($val);
-		} else {
-			$val = $val . '';
-		}
+		$val = is_array($val) ? array_to_string($val) : $val . '';
 	}
+
 	return $a;
 }
 
-function without(array $source, $remove)
+function without(array $source, $remove): array
 {
 	if (phpversion() > 5.6) {
-		return array_filter($source, function ($el, $key) use ($remove) {
+		return array_filter($source, function ($el, $key) use ($remove): bool {
 			if (is_array($remove)) {
 				return !in_array($key, $remove);
 			}
@@ -135,10 +123,9 @@ function without(array $source, $remove)
 
 /**
  * @param $callback - return both keys and values
- * @param array $array
  * @return array|false
  */
-function array_map_keys($callback, array $array)
+function array_map_keys($callback, array $array): array
 {
 	$keys = array_keys($array);
 	$temp = array_map($callback, $keys, $array);    // return ['key', 'value']
@@ -147,34 +134,40 @@ function array_map_keys($callback, array $array)
 	return array_combine($keys, $values);
 }
 
-function array_widths(array $arr)
+/**
+ * @return int[]
+ */
+function array_widths(array $arr): array
 {
 	$widths = [];
 	foreach ($arr as $key => $row) {
-		$widths[$key] = sizeof($row);
+		$widths[$key] = count($row);
 	}
+
 	return $widths;
 }
 
-function recursive_array_diff($a1, $a2)
+/**
+ * @return mixed[]
+ */
+function recursive_array_diff($a1, array $a2): array
 {
 	$r = [];
 	foreach ($a1 as $k => $v) {
 		if (array_key_exists($k, $a2)) {
 			if (is_array($v)) {
-				$rad = recursive_array_diff($v, $a2[$k]);
-				if (count($rad)) {
+                $rad = recursive_array_diff($v, $a2[$k]);
+                if ($rad !== []) {
 					$r[$k] = $rad;
 				}
-			} else {
-				if ($v != $a2[$k]) {
-					$r[$k] = $v;
-				}
-			}
+            } elseif ($v != $a2[$k]) {
+                $r[$k] = $v;
+            }
 		} else {
 			$r[$k] = $v;
 		}
 	}
+
 	return $r;
 }
 
@@ -186,7 +179,7 @@ function recursive_array_diff($a1, $a2)
  *
  * @return  object
  */
-function arrayToObject($array)
+function arrayToObject($array): mixed
 {
 	// First we convert the array to a json string
 	$json = json_encode($array, JSON_THROW_ON_ERROR);
@@ -203,7 +196,7 @@ function arrayToObject($array)
  *
  * @return  array
  */
-function objectToArray($object)
+function objectToArray($object): mixed
 {
 	// First we convert the object into a json string
 	$json = json_encode($object, JSON_THROW_ON_ERROR);
@@ -213,7 +206,7 @@ function objectToArray($object)
 }
 
 if (!function_exists('array_find')) {
-	function array_find($array, $callback)
+	function array_find($array, $callback): mixed
 	{
 		return current(array_filter($array, $callback));
 	}
@@ -227,30 +220,29 @@ function array_find_fast(callable $callback, array $array)
 			return $value;
 		}
 	}
+
+    return null;
 }
 
 if (!function_exists('array_flatten')) {
 	/**
-	 * Convert a multi-dimensional array into a single-dimensional array.
-	 * @param array $array The multi-dimensional array.
-	 * @return array
-	 * @author Sean Cannon, LitmusBox.com | seanc@litmusbox.com
-	 * @see https://gist.github.com/SeanCannon/6585889
-	 * @noinspection SlowArrayOperationsInLoopInspection
-	 */
-	function array_flatten($array)
+     * Convert a multi-dimensional array into a single-dimensional array.
+     * @param array $array The multi-dimensional array.
+     * @author Sean Cannon, LitmusBox.com | seanc@litmusbox.com
+     * @see https://gist.github.com/SeanCannon/6585889
+     * @noinspection SlowArrayOperationsInLoopInspection
+     */
+    function array_flatten($array): array
 	{
 		if (!is_array($array)) {
 			return [];
 		}
+
 		$result = [];
 		foreach ($array as $key => $value) {
-			if (is_array($value)) {
-				$result = array_merge($result, array_flatten($value));
-			} else {
-				$result = array_merge($result, [$key => $value]);
-			}
+			$result = is_array($value) ? array_merge($result, array_flatten($value)) : array_merge($result, [$key => $value]);
 		}
+
 		return $result;
 	}
 }

@@ -12,34 +12,34 @@ class SQLWhereTest extends NadlibTestCase
 	/** @var DBInterface */
 	protected $db;
 
-	public function setUp(): void
+	protected function setUp(): void
 	{
 		parent::setUp();
 		self::markTestSkipped('PG dependent');
 		$this->db = Config::getInstance()->getDB();
 	}
 
-	public function test_add()
+	public function test_add(): void
 	{
 		$sq = new SQLWhere();
 		$sq->injectDB($this->db);
 		$sq->add(new SQLWhereEqual('deleted', false));
+
 		$sql = $sq->__toString();
 		$sql = $this->trim($sql);
-		$this->assertEquals("WHERE NOT \"deleted\"", $sql);
+		$this->assertEquals('WHERE NOT "deleted"', $sql);
 	}
 
-	public function trim($sql)
+	public function trim($sql): string
 	{
 		$sql = str_replace("\n", ' ', $sql);
 		$sql = str_replace("\t", ' ', $sql);
 		$sql = preg_replace('/ +/', ' ', $sql);
-		$sql = trim($sql);
 //		echo $sql, BR;
-		return $sql;
+		return trim($sql);
 	}
 
-	public function test_addArray()
+	public function test_addArray(): void
 	{
 		$sq = new SQLWhere();
 		$sq->injectDB($this->db);
@@ -51,7 +51,7 @@ class SQLWhereTest extends NadlibTestCase
 		$this->assertEquals("WHERE \"a\" = 'b'", $sql);
 	}
 
-	public function test_InvalidArgumentException()
+	public function test_InvalidArgumentException(): void
 	{
 		$this->expectException(InvalidArgumentException::class);
 		$sq = new SQLWhere();
@@ -60,7 +60,7 @@ class SQLWhereTest extends NadlibTestCase
 		]);
 	}
 
-	public function setExpectedException($exceptionName)
+	public function setExpectedException(string $exceptionName): void
 	{
 		$this->expectException($exceptionName);
 	}

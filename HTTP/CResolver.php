@@ -19,8 +19,9 @@ class CResolver implements ResolverInterface
 		$tmp = $ptr;
 		$ptr = false;
 		if ($controller && class_exists($controller . 'Controller')) {
-			$controller = $controller . 'Controller';
+			$controller .= 'Controller';
 		}
+
 		$ptr = $tmp;
 
 		$Scontroller = new Path($controller);
@@ -28,16 +29,13 @@ class CResolver implements ResolverInterface
 			$dir = dirname($Scontroller);
 			$parts = trimExplode('/', $controller);
 			//debug($dir, $parts, file_exists($dir));
-			if (file_exists($dir)) {
-				$controller = end($parts);
-			} else {
-				$controller = first($parts);
-			}
+			$controller = file_exists($dir) ? end($parts) : first($parts);
 		} else {
 			//debug($controller);
 			//die(__METHOD__);
-			$controller = $controller . '';    // OK
+			$controller .= '';    // OK
 		}
+
 		return $controller;
 	}
 

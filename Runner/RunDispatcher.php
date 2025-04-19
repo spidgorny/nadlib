@@ -11,7 +11,10 @@ class RunDispatcher extends AppControllerBE
 
 	public static $public = true;
 
-	public $runner;
+	/**
+     * @var \Runner
+     */
+    public $runner;
 
 	public $parallelism = 3;
 
@@ -26,7 +29,7 @@ class RunDispatcher extends AppControllerBE
 		$this->runner = new Runner();
 	}
 
-	public function render()
+	public function render(): void
 	{
 		while (true) {
 			$queue = $this->runner->getTaskQueue();
@@ -35,7 +38,7 @@ class RunDispatcher extends AppControllerBE
 			TAB, 'Max: ', $this->parallelism,
 			TAB, 'Queue: ', count($queue), BR;
 			$command = RunnerTask::getNext();  // without reserve()
-			if ($command) {
+			if ($command instanceof \RunnerTask) {
 				$command->release();  // we are not going to process it
 				$this->start($command);
 			}
@@ -48,7 +51,7 @@ class RunDispatcher extends AppControllerBE
 		}
 	}
 
-	public function start(RunnerTask $task)
+	public function start(RunnerTask $task): string
 	{
 		echo '> ', $task->getName(), '(', implode(', ', $task->getParams()), ')', BR;
 //		$cmd = $this->getTaskCommandLine();
@@ -71,7 +74,7 @@ class RunDispatcher extends AppControllerBE
 		return $cmd;
 	}
 
-	public function checkLiveProcesses()
+	public function checkLiveProcesses(): void
 	{
 		echo 'Active Processes: ', TAB, 'max: ', $this->parallelism, BR;
 		/**
@@ -98,7 +101,7 @@ class RunDispatcher extends AppControllerBE
 		}
 	}
 
-	public function getTaskCommandLine(RunnerTask $task)
+	public function getTaskCommandLine(RunnerTask $task): string
 	{
 		$cmd = 'php index.php ' . get_class($task->obj) . ' ' . $task->method;
 		$params = $task->getParams();
@@ -108,13 +111,14 @@ class RunDispatcher extends AppControllerBE
 				$cmd .= ' -' . $param->getName() . ' ' . $params[$i];
 			}
 		}
+        
 		return $cmd;
 	}
 
 	/**
 	 * Used for testing
 	 */
-	public function spam()
+	public function spam(): void
 	{
 		foreach (range(30, 40) as $s) {
 			$task = RunnerTask::schedule(__CLASS__, 'sleepFor', [$s]);
@@ -122,7 +126,7 @@ class RunDispatcher extends AppControllerBE
 		}
 	}
 
-	public function sleepFor($seconds)
+	public function sleepFor(string $seconds): void
 	{
 		echo __METHOD__ . '(' . $seconds . ')', ' PID: ', getmypid(), BR;
 		$start = microtime(true);
@@ -131,6 +135,7 @@ class RunDispatcher extends AppControllerBE
 			$duration = microtime(true) - $start;
 			echo 'Duration: ', $duration, BR;
 		} while ($duration < $seconds);
+        
 		echo 'Done. Bye-bye', BR;
 	}
 

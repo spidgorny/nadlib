@@ -2,8 +2,13 @@
 
 class HTMLFormTimeRange extends HTMLFormType
 {
-	public $div = '1';
+	/**
+     * @var string
+     */
+    public $div = '1';
+
 	public $min = 0;
+
 	public $max = 1440;        // 24*60
 
 	/**
@@ -26,9 +31,10 @@ class HTMLFormTimeRange extends HTMLFormType
 	{
 //		parent::__construct();
 		$this->field = $field;
-		if (is_array($value) && sizeof($value) == 2) {
+		if (count($value) == 2) {
 			list($this->start, $this->end) = $value;
 		}
+
 		$this->div = uniqid();
 
 		// to load libs in the NON-AJAX page request
@@ -42,7 +48,7 @@ class HTMLFormTimeRange extends HTMLFormType
 	 *
 	 * @param string $value - 10:00-13:30
 	 */
-	public function setValue($value)
+	public function setValue($value): void
 	{
 		if ($value) {
 			list($this->start, $this->end) = $this->parseRange($value);
@@ -54,11 +60,11 @@ class HTMLFormTimeRange extends HTMLFormType
 	 * @return array[IndTime, IndTime]
 	 * @throws Exception
 	 */
-	public static function parseRange($value)
+	public static function parseRange(string $value): array
 	{
 		if (strlen($value) == 11) {
 			$parts = explode('-', $value);
-			if (sizeof($parts) == 2) {
+			if (count($parts) == 2) {
 				$s = new Time($parts[0]);
 				$e = new Time($parts[1]);
 			} else {
@@ -67,10 +73,11 @@ class HTMLFormTimeRange extends HTMLFormType
 		} else {
 			throw new Exception('Unable to parse time range: ' . $value);
 		}
+
 		return [$s, $e];
 	}
 
-	public function render()
+	public function render(): \View
 	{
 		assert($this->step);
 		$al = AutoLoad::getInstance();
@@ -78,6 +85,7 @@ class HTMLFormTimeRange extends HTMLFormType
 		$fieldString = $this->form->getName($this->field, '', true);
 		$fieldString = str_replace('[', '\\[', $fieldString);
 		$fieldString = str_replace(']', '\\]', $fieldString);
+
 		$content->fieldEscaped = $fieldString;
 		return $content;
 	}

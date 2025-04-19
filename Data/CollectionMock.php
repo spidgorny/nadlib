@@ -9,8 +9,11 @@ class CollectionMock
 {
 
 	public $pid;
+    
 	public $where;
+    
 	public $order;
+    
 	public $members;
 
 	public function __construct($pid = null, $where = [], $order = '')

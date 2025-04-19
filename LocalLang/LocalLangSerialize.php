@@ -10,7 +10,7 @@ class LocalLangSerialize extends LocalLang
 		$this->ll = unserialize($data);
 	}
 
-	public function saveMissingMessage($text)
+	public function saveMissingMessage($text): void
 	{
 		// TODO: Implement saveMissingMessage() method.
 	}

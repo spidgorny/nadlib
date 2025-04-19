@@ -9,11 +9,6 @@ class Mixer
 
 	public $methodPerformers = [];
 
-	public function __construct()
-	{
-		$this->methodPerformers = [];
-	}
-
 	public function __call($method, $args)
 	{
 		if (array_key_exists($method, $this->methodPerformers)) {
@@ -27,7 +22,7 @@ class Mixer
 		}
 	}
 
-	private function copyInternals($from, $to)
+	private function copyInternals($from, $to): void
 	{
 		$properties = get_object_vars($from);
 		$target = new ReflectionClass(get_class($to));
@@ -39,7 +34,7 @@ class Mixer
 		}
 	}
 
-	public function inject($behaviour)
+	public function inject($behaviour): void
 	{
 		$methods = get_class_methods(get_class($behaviour));
 		foreach ($methods as $method) {

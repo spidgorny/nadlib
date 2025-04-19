@@ -21,34 +21,39 @@ class BarImage
 
 	public $symmetric = false;
 
-	public $withBorder = true;
+	/**
+     * @var bool
+     */
+    public $withBorder = true;
 
 	public function __construct()
 	{
 		$this->width = $_GET['width'] ?? 100;
 		$this->height = $_GET['height'] ?? 15;
 		$color = $_GET['color'] ?? null;
-		$this->color = $color ? $this->html2rgb($color) : [0x43, 0xB6, 0xDF]; #43B6DF
+		$this->color = $color ? $this->html2rgb($color) : [0x43, 0xB6, 0xDF];
+         #43B6DF
 		$bg = $_GET['bg'] ?? null;
 		$this->backColor = $bg ? $this->html2rgb($bg) : [0xFF, 0xFF, 0xFF];
 		$this->symmetric = ifsetor($_REQUEST['symmetric']);
 		$this->withBorder = !ifsetor($_GET['!border']);
 	}
 
-	public function html2rgb($color)
+	public function html2rgb($color): false|array
 	{
 		if ($color[0] === '#') {
 			$color = substr($color, 1);
 		}
 
-		if (strlen($color) === 6)
-			list($r, $g, $b) = [$color[0] . $color[1],
+		if (strlen($color) === 6) {
+            list($r, $g, $b) = [$color[0] . $color[1],
 				$color[2] . $color[3],
 				$color[4] . $color[5]];
-		elseif (strlen($color) === 3)
-			list($r, $g, $b) = [$color[0] . $color[0], $color[1] . $color[1], $color[2] . $color[2]];
-		else
-			return false;
+        } elseif (strlen($color) === 3) {
+            list($r, $g, $b) = [$color[0] . $color[0], $color[1] . $color[1], $color[2] . $color[2]];
+        } else {
+            return false;
+        }
 
 		$r = hexdec($r);
 		$g = hexdec($g);
@@ -57,7 +62,7 @@ class BarImage
 		return [$r, $g, $b];
 	}
 
-	public function setHeaders()
+	public function setHeaders(): void
 	{
 		error_reporting(E_ALL);
 		//ini_set('display_errors', false);
@@ -67,10 +72,10 @@ class BarImage
 		header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $this->expires) . ' GMT');
 	}
 
-	public function drawRating($rating)
+	public function drawRating($rating): void
 	{
 		$ratingbar = (int)(($rating / 100) * ($this->width - 5));
-		$ratingbar = (int)$ratingbar;
+
 		$barDX = 2;
 		$image = imagecreate($this->width, $this->height);
 
@@ -97,6 +102,7 @@ class BarImage
 		} else {
 			imagefilledrectangle($image, $barDX, $barDX, $barDX + $ratingbar, $this->height - $barDX - 1, $fill);
 		}
+
 		imagepng($image);
 		imagedestroy($image);
 	}

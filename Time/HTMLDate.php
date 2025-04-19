@@ -3,7 +3,7 @@
 class HTMLDate extends DateTime
 {
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return new HTMLTag('time', [
 				'datetime' => $this->format('Y-m-d H:i:s'),

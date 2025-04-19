@@ -11,26 +11,26 @@
 class StaticMapGM
 {
 
-	var $location;
+	public $location;
 
-	var $lat;
+	public $lat;
 
-	var $lon;
+	public $lon;
 
-	var $size = '640x480';
+	public $size = '640x480';
 
-	var $path;
+	public $path;
 
-	var $zoom;
+	public $zoom;
 
-	function __construct($location = '', $lat = null, $lon = null)
+	public function __construct($location = '', $lat = null, $lon = null)
 	{
 		$this->location = $location;
 		$this->lat = $lat;
 		$this->lon = $lon;
 	}
 
-	function render()
+	public function render(): \HTMLTag
 	{
 		$params = [
 			'size' => $this->size,
@@ -46,14 +46,14 @@ class StaticMapGM
 		} else {
 			$params['center'] = $this->location;
 		}
+
 		$src = 'https://maps.googleapis.com/maps/api/staticmap?' . http_build_query($params);
 		$html = new HTML();
 		list($width, $height) = trimExplode('x', $this->size);
-		$img = $html->img($src, [
+		return $html->img($src, [
 			'width' => $width,
 			'height' => $height,
 		]);
-		return $img;
 	}
 
 }

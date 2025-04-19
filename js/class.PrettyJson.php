@@ -7,7 +7,7 @@ class PrettyJson
 	 * Pretty print some JSON
 	 * http://www.php.net/manual/en/function.json-encode.php#80339
 	 */
-	public function json_format($json)
+	public function json_format($json): false|string
 	{
 		$tab = "  ";
 		$new_json = "";
@@ -16,8 +16,9 @@ class PrettyJson
 
 		$json_obj = json_decode($json);
 
-		if ($json_obj === false)
-			return false;
+		if ($json_obj === false) {
+            return false;
+        }
 
 		$json = json_encode($json_obj);
 		$len = strlen($json);
@@ -33,6 +34,7 @@ class PrettyJson
 					} else {
 						$new_json .= $char;
 					}
+
 					break;
 				case '}':
 				case ']':
@@ -42,6 +44,7 @@ class PrettyJson
 					} else {
 						$new_json .= $char;
 					}
+
 					break;
 				case ',':
 					if (!$in_string) {
@@ -49,6 +52,7 @@ class PrettyJson
 					} else {
 						$new_json .= $char;
 					}
+
 					break;
 				case ':':
 					if (!$in_string) {
@@ -56,9 +60,10 @@ class PrettyJson
 					} else {
 						$new_json .= $char;
 					}
+
 					break;
 				case '"':
-					if ($c > 0 && $json[$c - 1] != '\\') {
+					if ($c > 0 && $json[$c - 1] !== '\\') {
 						$in_string = !$in_string;
 					}
 				default:

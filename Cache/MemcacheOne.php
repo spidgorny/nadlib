@@ -13,10 +13,7 @@ class MemcacheOne
 	 */
 	protected $expires;
 
-	/**
-	 * @var MemcacheFile
-	 */
-	protected $mf;
+	protected \MemcacheFile $mf;
 
 	/**
 	 * @var mixed
@@ -31,9 +28,9 @@ class MemcacheOne
 		$this->value = $this->mf->get($this->key, $this->expires);
 	}
 
-	public function is_Set()
+	public function is_Set(): bool
 	{
-		return !!$this->value;
+		return (bool) $this->value;
 	}
 
 	public function getValue()
@@ -41,18 +38,18 @@ class MemcacheOne
 		return $this->value;
 	}
 
-	public function set($newValue)
+	public function set($newValue): void
 	{
 		$this->mf->set($this->key, $newValue);
 		$this->value = $newValue;
 	}
 
-	public function getAge()
+	public function getAge(): \Duration
 	{
 		return $this->mf->getAge($this->key);
 	}
 
-	public function map()
+	public function map(): string
 	{
 		return $this->mf->map($this->key);
 	}

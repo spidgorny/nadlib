@@ -3,7 +3,7 @@
 class RestController extends AppControllerBE
 {
 
-	public function loginBasic()
+	public function loginBasic(): void
 	{
 		$this->request->set('ajax', true);
 		$login = ifsetor($_SERVER['PHP_AUTH_USER']);
@@ -19,26 +19,18 @@ class RestController extends AppControllerBE
 		$this->user->login();  // again
 	}
 
-	public function render()
+	public function render(): string|false
 	{
 		$this->request->set('ajax', true);
 		$verb = $this->request->getMethod();
 		$id = $this->request->getURLLevel(1);
 		$data = $this->request->getPOST();
 
-		if ($id) {
-			$method = $verb . '1';
-		} else {
-			$method = $verb;
-		}
+		$method = $id ? $verb . '1' : $verb;
 
 		if (method_exists($this, $method)) {
-			if ($id) {
-				$content = $this->$method($id, $data);
-			} else {
-				$content = $this->$method($data);
-			}
-		} else {
+            $content = $id ? $this->$method($id, $data) : $this->$method($data);
+        } else {
 			throw new HttpInvalidParamException('Method ' . $verb . ' not found');
 		}
 
@@ -46,6 +38,7 @@ class RestController extends AppControllerBE
 			if (!headers_sent()) {
 				header('Content-Type: application/json; charset=UTF-8');
 			}
+            
 			$content = json_encode($content, JSON_PRETTY_PRINT);
 		} elseif ($content instanceof OODBase) {
 			$content = [
@@ -56,6 +49,7 @@ class RestController extends AppControllerBE
 			if (!headers_sent()) {
 				header('Content-Type: application/json; charset=UTF-8');
 			}
+            
 			$content = json_encode($content, JSON_PRETTY_PRINT);
 		} elseif ($content instanceof Collection) {
 			$content = [
@@ -67,27 +61,27 @@ class RestController extends AppControllerBE
 			if (!headers_sent()) {
 				header('Content-Type: application/json; charset=UTF-8');
 			}
+            
 			$content = json_encode($content, JSON_PRETTY_PRINT);
 		} else {
 			//pre_print_r($this->request->getURLLevels(), $id, $data);
 			//throw new HttpInvalidParamException('Unknown method/action');
-			$content = $content . '';
+			$content .= '';
 		}
 
 		return $content;
 	}
 
 	/**
-	 * Returns documentation - what can be done by this end-point
-	 * @return array
-	 */
-	public function OPTIONS()
+     * Returns documentation - what can be done by this end-point
+     */
+    public function OPTIONS(): array
 	{
 		$allows = [];
 		$about = [];
 		$rc = new ReflectionClass($this);
 		foreach ($rc->getMethods() as $method) {
-			if ($method->getName() == strtoupper($method->getName())) {
+			if ($method->getName() === strtoupper($method->getName())) {
 				$allows[] = str_replace('1', '', $method->getName());
 				$dc = new DocCommentParser();
 				$dc->parseDocComment($method->getDocComment());
@@ -97,6 +91,7 @@ class RestController extends AppControllerBE
 				];
 			}
 		}
+        
 		header('Allow: ' . implode(', ', $allows));
 		return $about;
 	}

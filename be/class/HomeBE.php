@@ -10,7 +10,7 @@ class HomeBE extends AppControllerBE
 		parent::__construct();
 	}
 
-	public function render()
+	public function render(): string
 	{
 		$content = '';
 		$content .= new MarkdownView('Home.md');
@@ -21,7 +21,7 @@ class HomeBE extends AppControllerBE
 
 		$cmd = 'hg log -l1';
 		@exec($cmd, $output);
-		if ($output) {
+		if ($output !== []) {
 			$content .= implode('<br />', $output);
 		}
 
@@ -34,8 +34,7 @@ class HomeBE extends AppControllerBE
 
 	public function sidebar()
 	{
-		$content = SysInfo::getInstance()->render();
-		return $content;
+		return SysInfo::getInstance()->render();
 	}
 
 }

@@ -35,12 +35,12 @@ class DBPlacebo extends DBLayerBase
 		return $asd;
 	}
 
-	public function perform($query, array $params = [])
+	public function perform($query, array $params = []): string
 	{
 		return '';
 	}
 
-	public function fetchOptions($a)
+	public function fetchOptions($a): string
 	{
 		return '';
 	}
@@ -55,32 +55,32 @@ class DBPlacebo extends DBLayerBase
 		}
 	}
 
-	public function numRows($res = null)
+	public function numRows($res = null): int
 	{
 		return count($this->returnNextTime);
 	}
 
-	public function affectedRows($res = null)
+	public function affectedRows($res = null): void
 	{
 		// TODO: Implement affectedRows() method.
 	}
 
-	public function getTables()
+	public function getTables(): void
 	{
 		// TODO: Implement getTables() method.
 	}
 
-	public function lastInsertID($res = null, $table = null)
+	public function lastInsertID($res = null, $table = null): int
 	{
 		return rand();
 	}
 
-	public function free($res)
+	public function free($res): void
 	{
 		// TODO: Implement free() method.
 	}
 
-	public function quoteKey($key)
+	public function quoteKey($key): string
 	{
 		return '"' . $key . '"';
 	}
@@ -90,7 +90,7 @@ class DBPlacebo extends DBLayerBase
 		return $string;
 	}
 
-	public function escapeBool($value)
+	public function escapeBool($value): void
 	{
 		// TODO: Implement escapeBool() method.
 	}
@@ -102,42 +102,42 @@ class DBPlacebo extends DBLayerBase
 		return $return;
 	}
 
-	public function transaction()
+	public function transaction(): void
 	{
 		// TODO: Implement transaction() method.
 	}
 
-	public function commit()
+	public function commit(): void
 	{
 		// TODO: Implement commit() method.
 	}
 
-	public function rollback()
+	public function rollback(): void
 	{
 		// TODO: Implement rollback() method.
 	}
 
-	public function getScheme()
+	public function getScheme(): string
 	{
 		return get_class($this) . '://';
 	}
 
-	public function getTablesEx()
+	public function getTablesEx(): void
 	{
 		// TODO: Implement getTablesEx() method.
 	}
 
-	public function getTableColumnsEx($table)
+	public function getTableColumnsEx($table): void
 	{
 		// TODO: Implement getTableColumnsEx() method.
 	}
 
-	public function getIndexesFrom($table)
+	public function getIndexesFrom($table): void
 	{
 		// TODO: Implement getIndexesFrom() method.
 	}
 
-	public function fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
+	public function fetchOneSelectQuery($table, array $where = [], $order = '', $selectPlus = '')
 	{
 		$query = $this->getSelectQuery($table, $where, $order, $selectPlus);
 		$this->lastQuery = $query;
@@ -151,7 +151,7 @@ class DBPlacebo extends DBLayerBase
 		return $query;
 	}
 
-	public function fetchAll($res_or_query, $index_by_key = null)
+	public function fetchAll($res_or_query, $index_by_key = null): void
 	{
 		$return = $this->returnNextTime;
 		//debug(__METHOD__, typ($this), $return);
@@ -168,31 +168,32 @@ class DBPlacebo extends DBLayerBase
 		return $query;
 	}
 
-	public function getPlaceholder($field)
+	public function getPlaceholder($field): string
 	{
 		return '?';
 	}
 
-	public function getInfo()
+	public function getInfo(): array
 	{
 		return ['class' => get_class($this)];
 	}
 
-	public function returnNextTime(array $rows)
+	public function returnNextTime(array $rows): void
 	{
 		$this->returnNextTime = $rows;
 	}
 
-	public function runInsertQuery($table, array $columns)
+	public function runInsertQuery($table, array $columns): void
 	{
 		if (!ifsetor($columns['id'])) {
 			$columns['id'] = rand();
 		}
+
 		$this->insertedRow = $columns;
 		$this->returnNextTime = $columns;
 	}
 
-	public function getVersion()
+	public function getVersion(): void
 	{
 		// TODO: Implement getVersion() method.
 	}

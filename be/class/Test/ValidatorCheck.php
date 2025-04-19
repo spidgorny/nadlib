@@ -3,7 +3,7 @@
 class ValidatorCheck extends AppControllerBE
 {
 
-	public function render()
+	public function render(): \HTMLFormTable
 	{
 		$f = new HTMLFormTable([
 			'obligatory' => [
@@ -61,8 +61,8 @@ class ValidatorCheck extends AppControllerBE
 		$f->validate();
 		$f->showForm();
 		$f->submit();
-		$content = $f;
-		return $content;
+
+		return $f;
 	}
 
 }

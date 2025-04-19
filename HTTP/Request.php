@@ -15,23 +15,22 @@ class Request
 	 * @var Request
 	 */
 	protected static $instance;
+
 	/**
 	 * @var URL
 	 */
 	public $url;
-	/**
-	 * Assoc array of URL parameters
-	 * @var array
-	 */
-	protected $data = [];
-	protected $proxy;
 
 	/**
-	 * @param array|null $array
-	 */
+     * Assoc array of URL parameters
+     */
+    protected array $data;
+
+	protected $proxy;
+
 	public function __construct(?array $array = null)
 	{
-		$this->data = !is_null($array) ? $array : $_REQUEST;
+		$this->data = is_null($array) ? $_REQUEST : $array;
 		$this->url = new URL(
 			$_SERVER['SCRIPT_URL'] ?? ($_SERVER['REQUEST_URI'] ?? null),
 			$this->data
@@ -48,7 +47,7 @@ class Request
 		return ifsetor($_SERVER['BUILD_NUMBER'], getenv('BUILD_NUMBER'));
 	}
 
-	public static function getLocationDebug()
+	public static function getLocationDebug(): void
 	{
 		$docRoot = self::getDocRoot();
 		ksort($_SERVER);
@@ -57,7 +56,7 @@ class Request
 			'PHP_SELF' => $_SERVER['PHP_SELF'],
 			'cwd' => getcwd(),
 			'url' => self::getLocation() . '',
-			'server' => array_filter($_SERVER, static function ($el) {
+			'server' => array_filter($_SERVER, static function ($el): bool {
 				return is_string($el) && strpos($el, '/') !== false;
 			}),
 		]);
@@ -73,9 +72,11 @@ class Request
 			$c = Config::getInstance();
 			$docRoot = $c->documentRoot;
 		}
+
 		if (!$docRoot) {
 			$docRoot = self::getDocumentRoot();
 		}
+
 		//pre_print_r($docRoot);
 
 		if (!str_startsWith($docRoot, '/')) {
@@ -94,17 +95,17 @@ class Request
 		if (!static::$instance) {
 			static::$instance = new static($cons);
 		}
+
 		return static::$instance;
 	}
 
 	/**
-	 * [DOCUMENT_ROOT]      => U:/web
-	 * [SCRIPT_FILENAME]    => C:/Users/DEPIDSVY/NetBeansProjects/merged/index.php
-	 * [PHP_SELF]           => /merged/index.php
-	 * [cwd]                => C:\Users\DEPIDSVY\NetBeansProjects\merged
-	 * @return Path
-	 */
-	public static function getDocumentRoot()
+     * [DOCUMENT_ROOT]      => U:/web
+     * [SCRIPT_FILENAME]    => C:/Users/DEPIDSVY/NetBeansProjects/merged/index.php
+     * [PHP_SELF]           => /merged/index.php
+     * [cwd]                => C:\Users\DEPIDSVY\NetBeansProjects\merged
+     */
+    public static function getDocumentRoot(): \Path
 	{
 		// PHP Warning:  strpos(): Empty needle in /var/www/html/vendor/spidgorny/nadlib/HTTP/class.Request.php on line 706
 
@@ -145,11 +146,12 @@ class Request
 		} else {
 			$docRoot = '/';
 		}
+
 		//		pre_print_r($script, $request, strpos($script, $request), $docRoot);
 		return $docRoot;
 	}
 
-	public static function getDocumentRootByDocRoot()
+	public static function getDocumentRootByDocRoot(): string|array|null
 	{
 		$docRoot = null;
 		$script = $_SERVER['SCRIPT_FILENAME'];
@@ -161,6 +163,7 @@ class Request
 			$beginTheSame = false;
 			$contains = false;
 		}
+
 		if ($docRootRaw
 			&& $beginTheSame
 			&& $contains
@@ -168,6 +171,7 @@ class Request
 			$docRoot = str_replace($docRootRaw, '', dirname($script) . '/');    // slash is important
 			//pre_print_r($docRoot);
 		}
+
 		0 && pre_print_r([
 			'script' => $script,
 			'docRootRaw' => $docRootRaw,
@@ -180,13 +184,11 @@ class Request
 	}
 
 	//
-
-	/**
-	 * Returns the full URL to the document root of the current site
-	 * @param bool $isUTF8
-	 * @return URL
-	 */
-	public static function getLocation($isUTF8 = false)
+    /**
+     * Returns the full URL to the document root of the current site
+     * @param bool $isUTF8
+     */
+    public static function getLocation($isUTF8 = false): \spidgorny\nadlib\HTTP\URL
 	{
 		$docRoot = self::getDocRoot();
 //		llog($docRoot.'');
@@ -200,34 +202,38 @@ class Request
 		if (self::isCLI()) {
 			return gethostname();
 		}
+
 		$host = ifsetor($_SERVER['HTTP_X_ORIGINAL_HOST']);
 		if (!$host) {
 			$host = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? ($_SERVER['HTTP_HOST'] ?? null);
 		}
+
 		if (function_exists('idn_to_utf8') && $isUTF8) {
 			if (phpversion() >= 7.3) {
 				$try = idn_to_utf8($host, 0, defined('INTL_IDNA_VARIANT_UTS46') ? INTL_IDNA_VARIANT_UTS46 : 1);
 			} else {
 				$try = idn_to_utf8($host);
 			}
+
 			//debug($host, $try);
 			if ($try) {
 				$host = $try;
 			}
 		}
+
 		return $host;
 	}
 
-	public static function isCLI()
+	public static function isCLI(): bool
 	{
 		//return isset($_SERVER['argc']);
-		return php_sapi_name() == 'cli';
+		return PHP_SAPI === 'cli';
 	}
 
 	/**
 	 * http://www.zen-cart.com/forum/showthread.php?t=164174
 	 */
-	public static function getRequestType()
+	public static function getRequestType(): string
 	{
 		$HTTPS = ifsetor($_SERVER['HTTPS'], getenv('HTTPS'));
 		$HTTP_X_FORWARDED_HOST = ifsetor($_SERVER['HTTP_X_FORWARDED_HOST']);
@@ -257,11 +263,11 @@ class Request
 		return $host[1];
 	}
 
-	public static function removeCookiesFromRequest()
+	public static function removeCookiesFromRequest(): void
 	{
 		if (str_contains(ini_get('variables_order'), 'C')) {
 			//debug($_COOKIE, ini_get('variables_order'));
-			foreach ($_COOKIE as $key => $_) {
+			foreach (array_keys($_COOKIE) as $key) {
 				if (!isset($_GET[$key]) && !isset($_POST[$key])) {
 					unset($_REQUEST[$key]);
 				}
@@ -269,16 +275,15 @@ class Request
 		}
 	}
 
-	public static function isCURL()
+	public static function isCURL(): bool
 	{
 		return str_contains(ifsetor($_SERVER['HTTP_USER_AGENT']), 'curl');
 	}
 
 	/**
-	 * http://stackoverflow.com/questions/190759/can-php-detect-if-its-run-from-a-cron-job-or-from-the-command-line
-	 * @return bool
-	 */
-	public static function isCron()
+     * http://stackoverflow.com/questions/190759/can-php-detect-if-its-run-from-a-cron-job-or-from-the-command-line
+     */
+    public static function isCron(): bool
 	{
 		return !self::isPHPUnit()
 			&& self::isCLI()
@@ -286,29 +291,28 @@ class Request
 			&& !self::isWindows();
 	}
 
-	public static function isPHPUnit()
+	public static function isPHPUnit(): bool
 	{
 		//debug($_SERVER); exit();
 		$phpunit = defined('PHPUnit');
-		$phar = !!ifsetor($_SERVER['IDE_PHPUNIT_PHPUNIT_PHAR']);
-		$loader = !!ifsetor($_SERVER['IDE_PHPUNIT_CUSTOM_LOADER']);
-		$phpStorm = basename($_SERVER['PHP_SELF']) == 'ide-phpunit.php';
-		$phpStorm2 = basename($_SERVER['PHP_SELF']) == 'phpunit';
+		$phar = (bool) ifsetor($_SERVER['IDE_PHPUNIT_PHPUNIT_PHAR']);
+		$loader = (bool) ifsetor($_SERVER['IDE_PHPUNIT_CUSTOM_LOADER']);
+		$phpStorm = basename($_SERVER['PHP_SELF']) === 'ide-phpunit.php';
+		$phpStorm2 = basename($_SERVER['PHP_SELF']) === 'phpunit';
 		return $phar || $loader || $phpStorm || $phpStorm2 || $phpunit;
 	}
 
 	/**
-	 * http://stackoverflow.com/questions/738823/possible-values-for-php-os
-	 * @return bool
-	 */
-	public static function isWindows()
+     * http://stackoverflow.com/questions/738823/possible-values-for-php-os
+     */
+    public static function isWindows(): bool
 	{
 		//$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
 		//return $os == 'Windows_NT';
 		return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 	}
 
-	public static function printDocumentRootDebug()
+	public static function printDocumentRootDebug(): void
 	{
 		pre_print_r([
 			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
@@ -327,21 +331,19 @@ class Request
 	 * @return mixed|string
 	 * //~depidsvy/something
 	 */
-	private static function getDocumentRootByScript()
+	private static function getDocumentRootByScript(): array|string
 	{
 		$script = $_SERVER['SCRIPT_FILENAME'];
 		$pos = strpos($script, '/public_html');
 		if ($pos !== false) {
 			$docRoot = substr(dirname($script), $pos);
-			$docRoot = str_replace('public_html', '~depidsvy', $docRoot);
-			return $docRoot;
+			return str_replace('public_html', '~depidsvy', $docRoot);
 		}
 
-		$docRoot = dirname($_SERVER['PHP_SELF']);
-		return $docRoot;
+		return dirname($_SERVER['PHP_SELF']);
 	}
 
-	public static function getDocumentRootByIsDir()
+	public static function getDocumentRootByIsDir(): string
 	{
 		$result = self::dir_of_file(
 			self::firstExistingDir(
@@ -352,11 +354,10 @@ class Request
 	}
 
 	/**
-	 * dirname('/53/') = '/' which is a problem
-	 * @param $path
-	 * @return string
-	 */
-	public static function dir_of_file($path)
+     * dirname('/53/') = '/' which is a problem
+     * @param $path
+     */
+    public static function dir_of_file($path): string
 	{
 		if ($path[strlen($path) - 1] == '/') {
 			return substr($path, 0, -1);
@@ -365,7 +366,7 @@ class Request
 		return dirname($path);
 	}
 
-	public static function firstExistingDir($path)
+	public static function firstExistingDir(string $path)
 	{
 		$check = $_SERVER['DOCUMENT_ROOT'] . $path;
 		//		error_log($check);
@@ -373,7 +374,7 @@ class Request
 			return cap(rtrim($path, '\\'), '/');
 		}
 
-		if ($path) {
+		if ($path !== '' && $path !== '0') {
 			//echo $path, BR;
 			return self::firstExistingDir(self::dir_of_file($path));
 		}
@@ -381,12 +382,12 @@ class Request
 		return '/';
 	}
 
-	public static function isHTTPS()
+	public static function isHTTPS(): bool
 	{
 		return self::getRequestType() === 'https';
 	}
 
-	public static function isCalledScript($__FILE__)
+	public static function isCalledScript($__FILE__): bool
 	{
 		if (ifsetor($_SERVER['SCRIPT_FILENAME'])) {
 			return $__FILE__ == $_SERVER['SCRIPT_FILENAME'];
@@ -401,11 +402,9 @@ class Request
 		if (in_array($host, ['localhost', '127.0.0.1'])) {
 			return true;
 		}
+
 		$hostname = gethostname();
-		if ($host == $hostname) {
-			return true;
-		}
-		return false;
+        return $host == $hostname;
 	}
 
 	public static function getOnlyHost()
@@ -414,6 +413,7 @@ class Request
 		if (str_contains($host, ':')) {
 			$host = first(trimExplode(':', $host));    // localhost:8081
 		}
+
 		return $host;
 	}
 
@@ -422,42 +422,41 @@ class Request
 	 * @param $var
 	 * @param $val
 	 */
-	public function set($var, $val)
+	public function set($var, $val): void
 	{
 		$this->data[$var] = $val;
 	}
 
-	public function un_set($name)
+	public function un_set($name): void
 	{
 		unset($this->data[$name]);
 	}
 
-	public function string($name)
+	public function string($name): string
 	{
 		return $this->getString($name);
 	}
 
-	public function getString($name)
+	public function getString($name): string
 	{
 		return isset($this->data[$name]) ? strval($this->data[$name]) : '';
 	}
 
-	public function getTrimLower($name)
+	public function getTrimLower($name): string
 	{
 		return strtolower($this->trim($name));
 	}
 
-	public function trim($name)
+	public function trim($name): string
 	{
 		return $this->getTrim($name);
 	}
 
 	/**
-	 * General filtering function
-	 * @param $name
-	 * @return string
-	 */
-	public function getTrim($name)
+     * General filtering function
+     * @param $name
+     */
+    public function getTrim($name): string
 	{
 		$value = $this->getString($name);
 		$value = strip_tags($value);
@@ -465,90 +464,91 @@ class Request
 	}
 
 	/**
-	 * Will strip tags
-	 * @param $name
-	 * @return string
-	 * @throws Exception
-	 */
-	public function getTrimRequired($name)
+     * Will strip tags
+     * @param $name
+     * @throws Exception
+     */
+    public function getTrimRequired(string $name): string
 	{
 		$value = $this->getString($name);
 		$value = strip_tags($value);
 		$value = trim($value);
-		if (!$value) {
+		if ($value === '' || $value === '0') {
 			throw new InvalidArgumentException('Parameter ' . $name . ' is required.');
 		}
+
 		return $value;
 	}
 
 	/**
-	 * Checks that trimmed value isset in the supplied array
-	 * @param $name
-	 * @param array $options
-	 * @return string
-	 * @throws Exception
-	 */
-	public function getOneOf($name, array $options)
+     * Checks that trimmed value isset in the supplied array
+     * @param $name
+     * @throws Exception
+     */
+    public function getOneOf($name, array $options): string
 	{
 		$value = $this->getTrim($name);
 		if (!isset($options[$value])) {
 			//debug($value, $options);
 			throw new Exception(__METHOD__ . ' is throwing an exception.');
 		}
+
 		return $value;
 	}
 
 	/**
-	 * Checks for keys, not values
-	 *
-	 * @param $name
-	 * @param array $assoc - only array keys are used in search
-	 * @return int|null
-	 */
-	public function getIntIn($name, array $assoc)
+     * Checks for keys, not values
+     *
+     * @param $name
+     * @param array $assoc - only array keys are used in search
+     */
+    public function getIntIn($name, array $assoc): ?int
 	{
 		$id = $this->getIntOrNULL($name);
 		if (!is_null($id) && !in_array($id, array_keys($assoc))) {
 			$id = null;
 		}
+
 		return $id;
 	}
 
-	public function getIntOrNULL($name)
+	public function getIntOrNULL($name): ?int
 	{
 		return $this->is_set($name) ? $this->int($name) : null;
 	}
 
-	public function is_set($name)
+	public function is_set($name): bool
 	{
 		return isset($this->data[$name]);
 	}
 
-	public function int($name)
+	public function int($name): int
 	{
 		return isset($this->data[$name]) ? (int)$this->data[$name] : 0;
 	}
 
-	public function getIntInException($name, array $assoc)
+	public function getIntInException(string $name, array $assoc): ?int
 	{
 		$id = $this->getIntOrNULL($name);
 		if (!is_null($id) && !in_array($id, array_keys($assoc))) {
 			debug($id, array_keys($assoc));
 			throw new InvalidArgumentException($name . ' is not part of allowed collection.');
 		}
+
 		return $id;
 	}
 
-	public function getIntRequired($name)
+	public function getIntRequired(string $name): int
 	{
 		$id = $this->getIntOrNULL($name);
 		if (!$id) {
 			throw new InvalidArgumentException($name . ' parameter is required.');
 		}
+
 		return $id;
 	}
 
-	public function getFloat($name)
+	public function getFloat($name): float
 	{
 		return (float)$this->data[$name];
 	}
@@ -561,41 +561,42 @@ class Request
 	 * @return int
 	 * @throws Exception
 	 */
-	public function getTimestampFromString($name)
+	public function getTimestampFromString($name): int|false
 	{
 		$string = $this->getTrim($name);
 		$val = strtotime($string);
 		if ($val == -1) {
-			throw new Exception("Invalid input for date ($name): $string");
+			throw new Exception(sprintf('Invalid input for date (%s): %s', $name, $string));
 		}
+
 		return $val;
 	}
 
-	public function getTrimArray($name)
+	public function getTrimArray($name): array|int|float|string|false|null
 	{
 		$list = $this->getArray($name);
-		if ($list) {
+		if ($list !== []) {
 			$list = array_map('trim', $list);
 		}
+
 		return $list;
 	}
 
 	/**
-	 * @param $name
-	 * @return array
-	 */
-	public function getArray($name)
+     * @param $name
+     */
+    public function getArray($name): array
 	{
 		return isset($this->data[$name]) ? (array)($this->data[$name]) : [];
 	}
 
-	public function getArrayByPath(array $name)
+	public function getArrayByPath(array $name): array
 	{
 		$subRequest = $this->getSubRequestByPath($name);
 		return $subRequest->getAll();
 	}
 
-	public function getSubRequestByPath(array $name)
+	public function getSubRequestByPath(array $name): self
 	{
 		$current = $this;
 		reset($name);
@@ -604,67 +605,66 @@ class Request
 			$current = $current->getSubRequest($next);
 			//debug($name, $next, $current->getAll());
 		} while (next($name));
+
 		return $current;
 	}
 
 	/**
-	 * Similar to getArray() but the result is an object of a Request
-	 * @param $name
-	 * @return Request
-	 */
-	public function getSubRequest($name)
+     * Similar to getArray() but the result is an object of a Request
+     * @param $name
+     */
+    public function getSubRequest($name): \Request
 	{
 		return new Request($this->getArray($name));
 	}
 
-	public function getAll()
+	public function getAll(): array
 	{
 		return $this->data;
 	}
 
 	/**
-	 * Makes sure it's an integer
-	 * @param string $name
-	 * @return int
-	 */
-	public function getTimestamp($name)
+     * Makes sure it's an integer
+     * @param string $name
+     */
+    public function getTimestamp($name): int
 	{
 		return $this->getInt($name);
 	}
 
-	public function getInt($name)
+	public function getInt($name): int
 	{
 		return $this->int($name);
 	}
 
 	/**
-	 * Will return Time object
-	 *
-	 * @param string $name
-	 * @param null $rel
-	 * @return Time
-	 * @throws Exception
-	 */
-	public function getTime($name, $rel = null)
+     * Will return Time object
+     *
+     * @param string $name
+     * @return Time
+     * @throws Exception
+     */
+    public function getTime($name, $rel = null): ?\Time
 	{
 		if ($this->is_set($name) && $this->getTrim($name)) {
 			return new Time($this->getTrim($name), $rel);
 		}
+
 		return null;
 	}
 
 	/**
-	 * Will return Date object
-	 *
-	 * @param string $name
-	 * @param null $rel
-	 * @return Date
-	 */
-	public function getDate($name, $rel = null)
+     * Will return Date object
+     *
+     * @param string $name
+     * @return Date
+     */
+    public function getDate($name, $rel = null): ?\Date
 	{
 		if ($this->is_set($name) && $this->getTrim($name)) {
 			return new Date($this->getTrim($name), $rel);
 		}
+
 		return null;
 	}
 
@@ -677,26 +677,28 @@ class Request
 				$row = $row[$prefix2];
 			}
 		}
+
 		if ($files) {
 			foreach ($files as &$row) {
 				$row = $row[$name];
 			}
 		}
+
 		//debug($files);
 		return $files;
 	}
 
 	/**
-	 * Opposite of getSubRequest. It's a way to reimplement a subrequest
-	 * @param $name
-	 * @param Request $subrequest
-	 * @return $this
-	 */
-	public function import($name, Request $subrequest)
+     * Opposite of getSubRequest. It's a way to reimplement a subrequest
+     * @param $name
+     * @return $this
+     */
+    public function import($name, Request $subrequest): static
 	{
 		foreach ($subrequest->data as $key => $val) {
 			$this->data[$name][$key] = $val;
 		}
+
 		return $this;
 	}
 
@@ -723,15 +725,16 @@ class Request
 		if ($this->is_set($a)) {
 			return $this->getTrim($a);    // returns even if empty
 		}
+
 		return $default;
 	}
 
-	public function setNewController($class)
+	public function setNewController($class): void
 	{
 		$this->data['c'] = $class;
 	}
 
-	public function getRefererIfNotSelf()
+	public function getRefererIfNotSelf(): ?\spidgorny\nadlib\HTTP\URL
 	{
 		$referer = $this->getReferer();
 		$rController = $this->getRefererController();
@@ -739,30 +742,26 @@ class Request
 		$cController = $index->controller
 			? get_class($index->controller)
 			: Config::getInstance()->defaultController;
-		$ok = (($rController != $cController) && ($referer . '' != new URL() . ''));
+		$ok = (($rController != $cController) && ($referer . '' !== new URL() . ''));
 		//debug($rController, __CLASS__, $ok);
 		return $ok ? $referer : null;
 	}
 
-	public function getReferer()
+	public function getReferer(): ?\spidgorny\nadlib\HTTP\URL
 	{
-		if (ifsetor($_SERVER['HTTP_REFERER'])) {
-			$url = new URL($_SERVER['HTTP_REFERER']);
-		} else {
-			$url = null;
-		}
-		return $url;
+		return ifsetor($_SERVER['HTTP_REFERER']) ? new URL($_SERVER['HTTP_REFERER']) : null;
 	}
 
 	public function getRefererController()
 	{
 		$return = null;
 		$url = $this->getReferer();
-		if ($url) {
+		if ($url instanceof \spidgorny\nadlib\HTTP\URL) {
 			$url->setParams([]);   // get rid of any action
 			$rr = $url->getRequest();
 			$return = $rr->getControllerString();
 		}
+
 		//debug($_SERVER['HTTP_REFERER'], $url, $rr, $return);
 		return $return;
 	}
@@ -775,13 +774,12 @@ class Request
 		}
 
 		$c = $this->getTrim('c');
-		if ($c) {
+		if ($c !== '' && $c !== '0') {
 			$resolver = new CResolver($c);
 			return $resolver->getController();
 		}
 
-		$resolver = new PathResolver();
-		$controller = $resolver->getController($returnDefault);   // cli
+		$resolver = new PathResolver();   // cli
 //		llog([
 //			'getControllerString',
 //			'result' => $controller,
@@ -791,7 +789,7 @@ class Request
 //				? Config::getInstance()->defaultController
 //				: null,
 //			'data' => $this->data]);
-		return $controller;
+		return $resolver->getController($returnDefault);
 	}
 
 	/**
@@ -800,31 +798,30 @@ class Request
 	 * @return SimpleController|Controller
 	 * `   * @throws Exception
 	 */
-	public function getController()
+	public function getController(): ?object
 	{
 		$ret = null;
 		$c = $this->getControllerString();
 		if (!$c) {
 			$c = Index::getInstance()->controller; // default
 		}
+
 		if (!is_object($c)) {
 			if (class_exists($c)) {
 				$ret = new $c();
 			} elseif ($c) {
-				throw new \RuntimeException('Class ' . $c . ' can\'t be found.');
+				throw new \RuntimeException('Class ' . $c . " can't be found.");
 			}
 		}
+
 		return $ret;
 	}
 
-	public function redirectFromAjax($relative)
+	public function redirectFromAjax(string $relative): void
 	{
-		if (str_startsWith($relative, 'http')) {
-			$link = $relative;
-		} else {
-			$link = self::getLocation() . $relative;
-		}
-		if (!headers_sent()) {
+		$link = str_startsWith($relative, 'http') ? $relative : self::getLocation() . $relative;
+
+        if (!headers_sent()) {
 			header('X-Redirect: ' . $link);    // to be handled by AJAX callback
 			exit();
 		}
@@ -833,9 +830,9 @@ class Request
 	}
 
 	public function redirectJS(
-		$controller, $delay = 0, $message =
+		string $controller, $delay = 0, $message =
 	'Redirecting to %1'
-	)
+	): void
 	{
 		echo __($message, '<a href="' . $controller . '">' . $controller . '</a>') . '
 			<script>
@@ -846,72 +843,74 @@ class Request
 	}
 
 	/**
-	 * http://php.net/manual/en/function.apache-request-headers.php#70810
-	 * @return bool
-	 */
-	public function isAjax()
+     * http://php.net/manual/en/function.apache-request-headers.php#70810
+     */
+    public function isAjax(): bool
 	{
 		$headers = function_exists('apache_request_headers') ? apache_request_headers() : [];
-		if (!$headers) {
+		if ($headers === []) {
 			$headers = [
 				'X-Requested-With' => ifsetor($_SERVER['HTTP_X_REQUESTED_WITH'])
 			];
 		}
+
 		$headers = array_change_key_case($headers, CASE_LOWER);
 
 		$isXHR = false;
 		if (isset($headers['x-requested-with'])) {
 			$isXHR = $headers['x-requested-with'] === 'XMLHttpRequest';
 		}
+
 		return $this->getBool('ajax') || $isXHR;
 	}
 
-	public function getBool($name)
+	public function getBool($name): bool
 	{
 		return $this->bool($name);
 	}
 
-	public function bool($name)
+	public function bool($name): bool
 	{
-		return (isset($this->data[$name]) && $this->data[$name]) ? true : false;
+		return isset($this->data[$name]) && $this->data[$name];
 	}
 
-	public function getJson($name, $array = true)
+	public function getJson($name, $array = true): mixed
 	{
 		return json_decode($this->getTrim($name), $array);
 	}
 
-	public function getJSONObject($name)
+	public function getJSONObject($name): mixed
 	{
 		return json_decode($this->getTrim($name), false);
 	}
 
-	public function isSubmit()
+	public function isSubmit(): bool
 	{
 		return $this->isPOST() || $this->getBool('submit') || $this->getBool('btnSubmit');
 	}
 
-	public function isPOST()
+	public function isPOST(): bool
 	{
 		return ifsetor($_SERVER['REQUEST_METHOD']) === 'POST';
 	}
 
-	public function getDateFromYMD($name)
+	public function getDateFromYMD($name): ?\Date
 	{
 		$date = $this->getInt($name);
-		if ($date) {
+		if ($date !== 0) {
 			$y = substr($date, 0, 4);
 			$m = substr($date, 4, 2);
 			$d = substr($date, 6, 2);
-			$date = strtotime("$y-$m-$d");
+			$date = strtotime(sprintf('%s-%s-%s', $y, $m, $d));
 			$date = new Date($date);
 		} else {
 			$date = null;
 		}
+
 		return $date;
 	}
 
-	public function getDateFromY_M_D($name)
+	public function getDateFromY_M_D($name): int|false
 	{
 		$date = $this->getTrim($name);
 		return strtotime($date);
@@ -923,10 +922,9 @@ class Request
 	}
 
 	/**
-	 * Will overwrite one by one.
-	 * @param array $plus
-	 */
-	public function setArray(array $plus)
+     * Will overwrite one by one.
+     */
+    public function setArray(array $plus): void
 	{
 		foreach ($plus as $key => $val) {
 			$this->data[$key] = $val;
@@ -965,17 +963,17 @@ class Request
 			} elseif ($al->documentRoot instanceof Path) {        // works in ORS
 				$path->remove(clone $al->documentRoot);
 			}
+
 			//			debug($url.'', $path.'', $al->documentRoot.'');
 		}
+
 		return $path;
 	}
 
 	/**
-	 * Overwriting - no
-	 * @param array $plus
-	 * @return Request
-	 */
-	public function append(array $plus)
+     * Overwriting - no
+     */
+    public function append(array $plus): static
 	{
 		$this->data += $plus;
 		return $this;
@@ -1003,7 +1001,7 @@ class Request
 		return $path;
 	}
 
-	public function baseHrefFromServer()
+	public function baseHrefFromServer(): \Path
 	{
 		$al = AutoLoad::getInstance();
 		$appRoot = $al->getAppRoot()->normalize()->realPath();
@@ -1017,39 +1015,39 @@ class Request
 		return $path;
 	}
 
-	public function baseHref()
+	public function baseHref(): string
 	{
 		$path = new Path($_SERVER['SCRIPT_FILENAME']);
 		$url = new URL($_SERVER['REQUEST_URI']);
 		$urlPath = $url->getPath();
 		$intersect = array_intersect($path->aPath, $urlPath->aPath);
 		llog($path . '', $urlPath . '', $intersect);
-		if (count($intersect)) {
+		if ($intersect !== []) {
 			return '/' . implode('/', $intersect) . '/xxx';
 		}
+
 		return '/';
 	}
 
-	public function setPath($path)
+	public function setPath($path): void
 	{
 		$this->url->setPath($path);
 	}
 
-	public function setBasename($path)
+	public function setBasename($path): void
 	{
 		$this->url->setBasename($path);
 	}
 
 	/**
-	 * Overwriting - yes
-	 * @param array $plus
-	 * @return Request
-	 */
-	public function overwrite(array $plus)
+     * Overwriting - yes
+     */
+    public function overwrite(array $plus): static
 	{
 		foreach ($plus as $key => $val) {
 			$this->data[$key] = $val;
 		}
+
 		return $this;
 	}
 
@@ -1064,12 +1062,13 @@ class Request
 			//debug($modules);
 			$mod_rewrite = in_array('mod_rewrite', $modules);
 		} else {
-			$mod_rewrite = getenv('HTTP_MOD_REWRITE') === 'On' ? true : false;
+			$mod_rewrite = getenv('HTTP_MOD_REWRITE') === 'On';
 		}
+
 		return $mod_rewrite;
 	}
 
-	public function debug()
+	public function debug(): array
 	{
 		return get_object_vars($this);
 	}
@@ -1087,45 +1086,43 @@ class Request
 	}
 
 	/**
-	 * Just cuts the folders with basename()
-	 * @param $name
-	 * @return string
-	 */
-	public function getFilename($name)
+     * Just cuts the folders with basename()
+     * @param $name
+     */
+    public function getFilename($name): string
 	{
 		//filter_var($this->getTrim($name), ???)
 		$filename = $this->getTrim($name);
 		return basename($filename);
 	}
 
-	public function importCLIparams($noopt = [])
+	public function importCLIparams($noopt = []): static
 	{
 		$this->data += $this->parseParameters($noopt);
 		return $this;
 	}
 
 	/**
-	 * Parses $GLOBALS['argv'] for parameters and assigns them to an array.
-	 * @see http://www.php.net/manual/en/function.getopt.php#83414
-	 *
-	 * Supports:
-	 * -e
-	 * -e <value>
-	 * --long-param
-	 * --long-param=<value>
-	 * --long-param <value>
-	 * <value>
-	 *
-	 * @param array $noopt List of parameters without values
-	 * @return array
-	 */
-	public function parseParameters($noopt = [])
+     * Parses $GLOBALS['argv'] for parameters and assigns them to an array.
+     * @see http://www.php.net/manual/en/function.getopt.php#83414
+     *
+     * Supports:
+     * -e
+     * -e <value>
+     * --long-param
+     * --long-param=<value>
+     * --long-param <value>
+     * <value>
+     *
+     * @param array $noopt List of parameters without values
+     */
+    public function parseParameters($noopt = []): array
 	{
 		$result = [];
 		$params = $_SERVER['argv'] ?? [];
 		// could use getopt() here (since PHP 5.3.0), but it doesn't work reliably
 		reset($params);
-		foreach ($params as $tmp => $p) {
+		foreach ($params as $p) {
 			if ($p[0] === '-') {
 				$pname = substr($p, 1);
 				$value = true;
@@ -1137,48 +1134,50 @@ class Request
 						[$pname, $value] = explode('=', substr($p, 2), 2);
 					}
 				}
+
 				// check if next parameter is a descriptor or a value
 				$nextparm = current($params);
 				if (!in_array($pname, $noopt) && $value === true && $nextparm !== false && $nextparm[0] !== '-') {
 					$value = next($params);
 				}
+
 				$result[$pname] = $value;
 			} else {
 				// param doesn't belong to any option
 				$result[] = $p;
 			}
 		}
+
 		return $result;
 	}
 
 	/**
-	 * http://stackoverflow.com/a/6127748/417153
-	 * @return bool
-	 */
-	public function isRefresh()
+     * http://stackoverflow.com/a/6127748/417153
+     */
+    public function isRefresh(): bool
 	{
 		return isset($_SERVER['HTTP_CACHE_CONTROL']) &&
 			$_SERVER['HTTP_CACHE_CONTROL'] === 'max-age=0';
 	}
 
-	public function isCtrlRefresh()
+	public function isCtrlRefresh(): bool
 	{
 		return isset($_SERVER['HTTP_CACHE_CONTROL']) &&
 			$_SERVER['HTTP_CACHE_CONTROL'] === 'no-cache';
 	}
 
-	public function getIntArray($name)
+	public function getIntArray($name): array
 	{
 		$array = $this->getArray($name);
 		return array_map('intval', $array);
 	}
 
-	public function getFields(array $desc)
+	public function getFields(array $desc): array
 	{
 		return filter_var_array($this->data, $desc);
 	}
 
-	public function clear()
+	public function clear(): void
 	{
 		$this->data = [];
 	}
@@ -1186,7 +1185,7 @@ class Request
 	/**
 	 * @param int $age - seconds
 	 */
-	public function setCacheable($age = 60)
+	public function setCacheable($age = 60): void
 	{
 		if (!headers_sent()) {
 			header('Pragma: cache');
@@ -1196,12 +1195,12 @@ class Request
 		}
 	}
 
-	public function header($name, $value)
+	public function header(string $name, string $value): void
 	{
 		header($name . ': ' . $value);
 	}
 
-	public function noCache()
+	public function noCache(): void
 	{
 		if (!headers_sent()) {
 			header('Pragma: no-cache');
@@ -1211,21 +1210,20 @@ class Request
 	}
 
 	/**
-	 * getNameless(1) doesn't provide validation.
-	 * Use importNameless() to associate parameters 1, 2, 3, with their names
-	 * @param array $keys
-	 */
-	public function importNameless(array $keys)
+     * getNameless(1) doesn't provide validation.
+     * Use importNameless() to associate parameters 1, 2, 3, with their names
+     */
+    public function importNameless(array $keys): void
 	{
 		foreach ($keys as $k => $val) {
 			$available = $this->getNameless($k);
-			if ($available) {
+			if ($available !== '' && $available !== '0') {
 				$this->data[$val] = $available;
 			}
 		}
 	}
 
-	public function getNameless($index, $alternative = null)
+	public function getNameless($index, $alternative = null): string
 	{
 		$levels = $this->getURLLevels();
 
@@ -1242,7 +1240,7 @@ class Request
 				/* } */
 
 		if ($index < 0) {
-			$index = sizeof($levels) + $index;    // negative index
+			$index = count($levels) + $index;    // negative index
 		}
 
 		return ifsetor($levels[$index])
@@ -1271,6 +1269,7 @@ class Request
 		} else {
 			$levels = [];
 		}
+
 //		if (false) {
 //			llog([
 //				'cwd' => getcwd(),
@@ -1304,15 +1303,15 @@ class Request
 		return $fullPath;
 	}
 
-	public function getPOST()
+	public function getPOST(): string|false
 	{
 		return file_get_contents("php://input");
 	}
 
-	public function forceDownload($contentType, $filename, $attachment = 'attachment')
+	public function forceDownload(string $contentType, string $filename, $attachment = 'attachment'): void
 	{
 		header('Content-Type: ' . $contentType);
-		header("Content-Disposition: $attachment; filename=\"" . $filename . "\"");
+		header(sprintf('Content-Disposition: %s; filename="', $attachment) . $filename . '"');
 	}
 
 	public function getKeys()
@@ -1320,7 +1319,7 @@ class Request
 		return array_keys($this->data);
 	}
 
-	public function getGeoLocation()
+	public function getGeoLocation(): array
 	{
 		$info = $this->getGeoIP();
 		return trimExplode(',', $info->loc);
@@ -1346,6 +1345,7 @@ class Request
 				}
 			}
 		}
+
 		return $json;
 	}
 
@@ -1368,10 +1368,11 @@ class Request
 			])) {
 			$ip = $this->fetch('http://ipecho.net/plain');
 		}
+
 		return $ip;
 	}
 
-	public function fetch($url)
+	public function fetch($url): string|false
 	{
 		if ($this->proxy) {
 			$context = stream_context_create([
@@ -1389,28 +1390,32 @@ class Request
 			]);
 			$data = file_get_contents($url, null, $context);
 		}
+
 		return $data;
 	}
 
-	public function goBack()
+	public function goBack(): bool
 	{
 		$ref = $this->getReferer();
-		if ($ref) {
+		if ($ref instanceof \spidgorny\nadlib\HTTP\URL) {
 			$this->redirect($ref);
 		}
+
 		return true;
 	}
 
-	public function redirect($controller, $exit = true, array $params = [])
+	public function redirect(string $controller, $exit = true, array $params = []): string
 	{
 		if (class_exists('Index')
 			&& Index::getInstance()
 			&& method_exists(Index::getInstance(), '__destruct')) {
 			Index::getInstance()->__destruct();
 		}
-		if ($params) {
+
+		if ($params !== []) {
 			$controller .= '?' . http_build_query($params);
 		}
+
 		if ($this->canRedirect($controller)) {
 			if (!headers_sent()) {
 				ob_start();
@@ -1426,32 +1431,35 @@ class Request
 				header('X-Memory: ' . memory_get_usage() . '/' . memory_get_peak_usage());
 				header('Location: ' . $controller);
 			}
+
 			echo '<meta http-equiv="refresh" content="0; url=' . $controller . '">';
 			echo 'Redirecting to <a href="' . $controller . '">' . $controller . '</a>';
 		} else {
 			$this->redirectJS($controller, DEVELOPMENT ? 10000 : 0);
 		}
+
 		if ($exit && !self::isPHPUnit()) {
 			// to preserve the session
 			session_write_close();
 			exit();
 		}
+
 		return $controller;
 	}
 
-	public function canRedirect($to)
+	public function canRedirect(string $to)
 	{
 		if ($this->isGET()) {
 			$absURL = $this->getURL();
 			$absURL->makeAbsolute();
 			//debug($absURL.'', $to.''); exit();
-			return $absURL . '' != $to . '';
+			return $absURL . '' !== $to . '';
 		}
 
 		return true;
 	}
 
-	public function isGET()
+	public function isGET(): bool
 	{
 		return ifsetor($_SERVER['REQUEST_METHOD'], 'GET') === 'GET';
 	}
@@ -1466,18 +1474,18 @@ class Request
 		return $this->url;
 	}
 
-	public function setProxy($proxy)
+	public function setProxy($proxy): void
 	{
 		$this->proxy = $proxy;
 	}
 
-	public function getZipped($string)
+	public function getZipped($string): string|false
 	{
 		$base = $this->getBase64($string);
 		return gzuncompress($base);
 	}
 
-	public function getBase64($string)
+	public function getBase64($string): string
 	{
 		$base = $this->getTrim($string);
 		return base64_decode($base);
@@ -1498,6 +1506,7 @@ class Request
 		if (!$value) {
 			throw new InvalidArgumentException('ID is required.');
 		}
+
 		return $value;
 	}
 
@@ -1507,7 +1516,7 @@ class Request
 //			['nameless id' => $this->getNamelessID(),
 //				'int id' => $this->getInt('id'),
 //				'levels' => $this->getURLLevels()]);
-		$last = sizeof($this->getURLLevels()) - 1;
+		$last = count($this->getURLLevels()) - 1;
 		return $this->getNamelessID()
 			?: $this->getInt('id')
 				?: $this->getNameless($last);
@@ -1521,12 +1530,13 @@ class Request
 				return $n;
 			}
 		}
+
 		return null;
 	}
 
-	public function getHidden(array $limit = [])
+	public function getHidden(array $limit = []): array
 	{
-		return array_reduce(array_keys($this->data), function ($total, $key) {
+		return array_reduce(array_keys($this->data), function ($total, string $key): array {
 			$item = $this->data[$key];
 			if (is_array($item)) {
 				$item = $this->getSubRequest($key)->getHidden();
@@ -1535,11 +1545,12 @@ class Request
 					'<input type="hidden" name="' . $key . '" value="' . $item . '" />',
 				];
 			}
+
 			return array_merge($total, $item);
 		}, []);
 	}
 
-	public function json(array $data)
+	public function json(array $data): void
 	{
 		header('Content-Type: application/json');
 		$json = json_encode($data, JSON_PRETTY_PRINT);
@@ -1551,9 +1562,10 @@ class Request
 	public function getAction()
 	{
 		$action = $this->getTrim('action');
-		if (!$action) {
+		if ($action === '' || $action === '0') {
 			$action = $this->getURLLevel(1);
 		}
+
 		return $action;
 	}
 
@@ -1577,10 +1589,11 @@ class Request
 		if ($contentType === 'application/json') {
 			return json_decode($postData, false, 512, JSON_THROW_ON_ERROR);
 		}
+
 		return $postData;
 	}
 
-	public function getRawPost()
+	public function getRawPost(): string|false
 	{
 		if (defined('STDIN')) {
 			return stream_get_contents(STDIN);
@@ -1603,6 +1616,7 @@ class Request
 				return $value;
 			}
 		}
+
 		return null;
 	}
 
@@ -1611,11 +1625,12 @@ class Request
 		if (function_exists('apache_request_headers')) {
 			return apache_request_headers();
 		}
+
 		if (function_exists('getallheaders')) {
 			return getallheaders();
 		}
 
-		return collect($_SERVER)->filter(static function ($val, $key) {
+		return collect($_SERVER)->filter(static function ($val, $key): bool {
 			return str_startsWith($key, 'HTTP_');
 		})->mapWithKeys(static function ($val, $key) {
 			$newKey = strtolower($key);
@@ -1624,7 +1639,7 @@ class Request
 		})->toArray();
 	}
 
-	public function showStackTraceAsHeaders(array $bt, $prefix = 'Redirect-From-')
+	public function showStackTraceAsHeaders(array $bt, string $prefix = 'Redirect-From-'): void
 	{
 		foreach ($bt as $i => $line) {
 			$ii = str_pad($i, 2, '0', STR_PAD_LEFT);
@@ -1632,7 +1647,7 @@ class Request
 		}
 	}
 
-	public function getLastNameless()
+	public function getLastNameless(): mixed
 	{
 		$levels = $this->getURLLevels();
 		return end($levels);

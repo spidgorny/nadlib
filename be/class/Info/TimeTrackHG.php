@@ -3,7 +3,10 @@
 class TimeTrackHG extends AppControllerBE
 {
 
-	public $cacheFile;
+	/**
+     * @var string
+     */
+    public $cacheFile;
 
 	public function __construct()
 	{
@@ -23,6 +26,7 @@ class TimeTrackHG extends AppControllerBE
 			$content[] = $this->inTable([$total, $who]);
 			$content[] = $this->listTimes($times);
 		}
+
 		return $content;
 	}
 
@@ -40,7 +44,7 @@ class TimeTrackHG extends AppControllerBE
 		return $content;
 	}
 
-	public function showByWho(array $times)
+	public function showByWho(array $times): array
 	{
 		$ap = ArrayPlus::create($times);
 		$groups = $ap->groupBy('who')->sumGroups('time');
@@ -50,11 +54,12 @@ class TimeTrackHG extends AppControllerBE
 		return $content;
 	}
 
-	public function listTimes(array $times)
+	public function listTimes(array $times): \slTable
 	{
 		foreach ($times as &$line) {
 			$line['what'] = preg_replace("/#(\w+)/", "<a href=\"\\1\">#\\1</a>", $line['what']);
 		}
+
 		$s = new slTable($times, 'class="table table=striped"');
 		$s->generateThes();
 		$s->thes['what'] = [
@@ -70,25 +75,24 @@ class TimeTrackHG extends AppControllerBE
 		return $content;
 	}
 
-	public function parseAction()
+	public function parseAction(): array
 	{
 		$content = [];
 		$cmd = 'hg log';
 		@exec($cmd, $output);
-		if ($output) {
+		if ($output !== []) {
 			$lines = $this->readFile($output);
 			$times = $this->parseTime($lines);
 			file_put_contents($this->cacheFile, json_encode($times));
 		}
+
 		return $content;
 	}
 
 	/**
-	 * From HYBH
-	 * @param array $file
-	 * @return array
-	 */
-	public function readFile(array $file)
+     * From HYBH
+     */
+    public function readFile(array $file): array
 	{
 		$i = 0;
 		$iEmpty = 0;
@@ -103,10 +107,14 @@ class TimeTrackHG extends AppControllerBE
 				$i = 0;
 			}
 		}
+
 		return $table;
 	}
 
-	public function parseTime(array $lines)
+	/**
+     * @return array{who: mixed, when: mixed, time: mixed, what: mixed}[]
+     */
+    public function parseTime(array $lines): array
 	{
 		$times = [];
 		foreach ($lines as $line) {
@@ -115,7 +123,7 @@ class TimeTrackHG extends AppControllerBE
 			foreach ($summaryLines as $sumLine) {
 				preg_match('/\[(.*)\]/', $sumLine, $squares);
 				foreach ($squares as $i => $candidate) {
-					if ($i) {
+					if ($i !== 0) {
 						$dur = Duration::fromHuman($candidate);
 						//debug($sumLine, $candidate, $dur);
 						if ($dur->getTimestamp()) {
@@ -130,6 +138,7 @@ class TimeTrackHG extends AppControllerBE
 				}
 			}
 		}
+
 		return $times;
 	}
 

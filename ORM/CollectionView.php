@@ -5,10 +5,7 @@ use spidgorny\nadlib\HTTP\URL;
 class CollectionView
 {
 
-	/**
-	 * @var Collection
-	 */
-	protected $collection;
+	protected \Collection $collection;
 
 	public $noDataMessage = 'No data';
 
@@ -30,7 +27,7 @@ class CollectionView
 		$this->collection = $col;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return MergedContent::mergeStringArrayRecursive($this->renderMembers());
 	}
@@ -46,6 +43,7 @@ class CollectionView
 				'</' . $tag . '>'
 			];
 		}
+
 		return $content;
 	}
 
@@ -67,15 +65,18 @@ class CollectionView
 					$content[] = getDebug(__METHOD__, $key, $obj);
 				}
 			}
+
 			$content = $this->wrap($content);
 		} elseif ($this->noDataMessage) {
 			//Index::getInstance()->ll->debug = true;
 			$content[] = '<div class="message alert alert-warning">' . __($this->noDataMessage) . '</div>';
 		}
+
 		if ($this->collection->pager) {
 			$pages = $this->collection->pager->renderPageSelectors();
 			$content = [$pages, $content, $pages];
 		}
+
 		return $content;
 	}
 
@@ -87,7 +88,7 @@ class CollectionView
 	{
 		$count = $this->collection->getCount();
 //		llog($this->collection->getQueryWithLimit() . '', $count);
-		if (!$count) {
+		if ($count === 0) {
 			return '<div class="message alert alert-warning">' . __($this->noDataMessage) . '</div>';
 		}
 
@@ -105,10 +106,11 @@ class CollectionView
 		} else {
 			$content[] = $s;
 		}
+
 		return $this->wrap($content);
 	}
 
-	public function prepareRender()
+	public function prepareRender(): void
 	{
 		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '()');
 		$data = $this->collection->getProcessedData();
@@ -118,12 +120,13 @@ class CollectionView
 			$row = $this->collection->prepareRenderRow($row);
 			$data[$i] = $row;
 		}
+
 		$this->collection->setData($data);
 		$this->collection->count = $count;
 		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '() done');
 	}
 
-	public function getDataTable()
+	public function getDataTable(): \slTable
 	{
 		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '()');
 		$data = $this->collection->getData()->getData();
@@ -146,6 +149,7 @@ class CollectionView
 						: []);
 			}
 		}
+
 		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '() done');
 		return $s;
 	}

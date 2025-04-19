@@ -14,7 +14,10 @@ class Recursive
 	 */
 	public $value;
 
-	public $elements = [];
+	/**
+     * @var mixed[]
+     */
+    public $elements = [];
 
 	public function __construct($value, array $elements = [])
 	{
@@ -22,12 +25,12 @@ class Recursive
 		$this->elements = $elements;
 	}
 
-	public function setValue($value)
+	public function setValue($value): void
 	{
 		$this->value = $value;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->value;
 	}
@@ -38,13 +41,12 @@ class Recursive
 	}
 
 	/**
-	 * @param array $path
-	 * @return Recursive
-	 */
-	public function findPath(array $path)
+     * @return Recursive
+     */
+    public function findPath(array $path)
 	{
 		//debug($path);
-		if ($path) {
+		if ($path !== []) {
 			$current = array_shift($path);
 			/** @var Recursive $find */
 			$find = ifsetor($this->elements[$current]);
@@ -54,53 +56,48 @@ class Recursive
 		} else {
 			$find = $this;    // Recursive
 		}
+
 		return $find;
 	}
 
 	/**
-	 * Callback = function ($value, [$index]) {}
-	 * NOT TESTED
-	 * @param callable $callback
-	 * @return Recursive
-	 */
-	public function eachRecursive($callback)
+     * Callback = function ($value, [$index]) {}
+     * NOT TESTED
+     * @param callable $callback
+     */
+    public function eachRecursive($callback): static
 	{
 		foreach ($this->elements as $i => &$el) {
-			if ($el instanceof Recursive) {
-				$el = $el->eachRecursive($callback);
-			} else {
-				$el = call_user_func($callback, $el, $i);
-			}
+			$el = $el instanceof Recursive ? $el->eachRecursive($callback) : call_user_func($callback, $el, $i);
 		}
+
 		unset($el);
 		return $this;
 	}
 
 	/**
-	 * Callback = function ($value, [$index]) {}
-	 *
-	 * @param callable $callback
-	 * @param int $level
-	 * @return Recursive
-	 */
-	public function eachRecursiveKey($callback, $level = 0)
+     * Callback = function ($value, [$index]) {}
+     *
+     * @param callable $callback
+     * @param int $level
+     */
+    public function eachRecursiveKey($callback, $level = 0): static
 	{
 		$new = [];
 		foreach ($this->elements as $i => $el) {
-			if ($el instanceof Recursive) {
-				$val = $el->eachRecursiveKey($callback, $level + 1);
-			} else {
-				$val = null;
-			}
-			$res = call_user_func($callback, $val, $i);
+			$val = $el instanceof Recursive ? $el->eachRecursiveKey($callback, $level + 1) : null;
+
+            $res = call_user_func($callback, $val, $i);
 			if (!is_null($res)) {
 				list($val, $key) = $res;
 				$new[$key] = $val;
 			} else {
 				// unset
 			}
+
 			unset($el);
 		}
+
 		//debug(__METHOD__, $level, $this->elements, $new);
 		$this->elements = $new;
 		return $this;

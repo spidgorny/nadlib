@@ -3,7 +3,10 @@
 class UL implements ToStringable
 {
 
-	public $items = [];
+	/**
+     * @var mixed[]
+     */
+    public $items = [];
 
 	public $before = '<ul>';
 
@@ -42,7 +45,7 @@ class UL implements ToStringable
 		$this->activeClass = key($this->items);
 	}
 
-	public function add($value, $key = null)
+	public function add($value, $key = null): void
 	{
 		if ($key) {
 			$this->items[$key] = $value;
@@ -51,20 +54,23 @@ class UL implements ToStringable
 		}
 	}
 
-	public function makeClickable($urlPrefix = '')
+	public function makeClickable(string $urlPrefix = ''): void
 	{
 		$this->linkWrap = '<a href="' . $urlPrefix . '###LINK###">|</a>';
 		$this->links = array_keys($this->items);
 		$this->links = array_combine($this->links, $this->links);
 	}
 
-	public function render()
+	public function render(): string
 	{
 		$out = $this->withoutUL();
 		return $this->before . implode("\n", $out) . $this->after;
 	}
 
-	public function withoutUL()
+	/**
+     * @return mixed[][]|string[]
+     */
+    public function withoutUL(): array
 	{
 		$out = [];
 		foreach ($this->items as $class => $li) {
@@ -77,6 +83,7 @@ class UL implements ToStringable
 				if (is_array($li)) {
 					$li = MergedContent::mergeStringArrayRecursive($li);
 				}
+
 				$li = $wrap->wrap($li);
 			} else {
 				$link = null;
@@ -87,20 +94,22 @@ class UL implements ToStringable
 				$line = str_replace('%23%23%23LINK%23%23%23', $link, $line);
 				$line = str_replace('###LINK###', $link, $line);
 			}
+
 			$line = str_replace('###CLASS###', $class, $line);
 			$line = str_replace('###TEXT###', $li, $line);
 			$line = str_replace('###ACTIVE###', $class == $this->activeClass ? $this->active : '', $line);
 			$out[] = $line;
 		}
+
 		return $out;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->render();
 	}
 
-	public static function DL(array $assoc)
+	public static function DL(array $assoc): \UL
 	{
 		$ul = new UL($assoc);
 		$links = array_keys($assoc);
@@ -112,18 +121,18 @@ class UL implements ToStringable
 		return $ul;
 	}
 
-	public static function recursive(array $epesEmployees)
+	public static function recursive(array $epesEmployees): \UL
 	{
 		foreach ($epesEmployees as &$el) {
 			if ($el instanceof Recursive) {
 				$el = $el->value . UL::recursive($el->getChildren());
 			}
 		}
-		$ul = new UL($epesEmployees);
-		return $ul;
+
+		return new UL($epesEmployees);
 	}
 
-	public function cli()
+	public function cli(): void
 	{
 		foreach ($this->items as $class => $li) {
 			echo '* ', strip_tags($li);
@@ -149,10 +158,11 @@ class UL implements ToStringable
 		} else {
 			$link = $class;
 		}
+
 		return $link;
 	}
 
-	public function clear()
+	public function clear(): void
 	{
 		$this->before = '';
 		$this->after = '';

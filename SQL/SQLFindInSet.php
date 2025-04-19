@@ -11,7 +11,7 @@ class SQLFindInSet extends SQLWherePart
 		$this->value = $value;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		if (is_array($this->value)) {
 			return "

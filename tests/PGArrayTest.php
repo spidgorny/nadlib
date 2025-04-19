@@ -19,7 +19,7 @@ class PGArrayTest extends PHPUnit\Framework\TestCase
 	 */
 	protected $sut;
 
-	public function setUp(): void
+	protected function setUp(): void
 	{
 		self::markTestSkipped('PG dependent');
 		$config = Config::getInstance();
@@ -27,23 +27,25 @@ class PGArrayTest extends PHPUnit\Framework\TestCase
 		if (!$this->db instanceof DBLayer) {
 			$this->markTestSkipped('Only for PGSQL');
 		}
+
 		$pga = new PGArray($this->db);
 		$this->sut = $pga;
 	}
 
-	public function test_setPGArray_simple()
+	public function test_setPGArray_simple(): void
 	{
 		$str = $this->sut->setPGArray([1, "a", '/"\\']);
 //		echo $str, BR;
 		if (!($str instanceof AsIs)) {
 			$str = "'" . $str . "'";
 		}
+
 		$row = $this->db->fetchAssoc("select " . $str . "::varchar[] as array");
 //		debug($row['array']);
 		$this->assertEquals('{1,a,"/\\"\\\\"}', $row['array']);
 	}
 
-	public function test_lineBreak()
+	public function test_lineBreak(): void
 	{
 		$pga = new PGArray($this->db);
 		$fixture = [
@@ -63,7 +65,7 @@ e",
 e']", $string . '');
 	}
 
-	public function test_lineBreak_decode()
+	public function test_lineBreak_decode(): void
 	{
 		$pga = new PGArray($this->db);
 		$decode = $pga->getPGArray('{"b","d
@@ -80,15 +82,14 @@ e",
 		$this->assertEquals($fixture, $decode);
 	}
 
-	public function serialize($var)
+	public function serialize($var): string
 	{
 		$serial = serialize($var);
 		$serial = str_replace("\n", '{0x0A}', $serial);
-		$serial = str_replace("\r", '{0x0D}', $serial);
-		return $serial;
+		return str_replace("\r", '{0x0D}', $serial);
 	}
 
-	public function test_PGArray_toString()
+	public function test_PGArray_toString(): void
 	{
 		$fixture = [
 			1,
@@ -106,7 +107,7 @@ line"
 line'])", $insert);
 	}
 
-	public function test_pg_array_parse()
+	public function test_pg_array_parse(): void
 	{
 		$pga = new PGArray($this->db);
 		$v1 = $pga->pg_array_parse('{{1,2},{3,4},{5}}');
@@ -123,7 +124,7 @@ line'])", $insert);
 		$this->assertEquals(null, $pga->pg_array_parse(''));
 	}
 
-	public function test_upload_request()
+	public function test_upload_request(): void
 	{
 		$pga = new PGArray($this->db);
 		$res = $pga->getPGArray(file_get_contents(__DIR__ . '/upload_request.json'));

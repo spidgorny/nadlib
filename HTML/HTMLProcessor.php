@@ -19,7 +19,7 @@ class HTMLProcessor
 		$this->source = $source;
 	}
 
-	public function purifyLinkify()
+	public function purifyLinkify(): string
 	{
 		$comment = preg_replace(
 			"/([<&].+?>[^&<>]*?)#(\w+)([^<>]*?<.+?>)/",
@@ -30,11 +30,12 @@ class HTMLProcessor
 		$comment = trim($comment);
 		// remove double empty lines
 		// https://stackoverflow.com/questions/4475042/replacing-multiple-blank-lines-with-one-blank-line-using-regex-search-and-replac
-		$pureHtml = preg_replace('/\n\s*\n\s*/', PHP_EOL, $comment);
+		preg_replace('/\n\s*\n\s*/', PHP_EOL, $comment);
 		$comment = nl2br($comment, true);
-		if (class_exists('Essence\Essence')) {
+		if (class_exists(\Essence\Essence::class)) {
 			$comment .= $this->getEmbeddables($comment);
 		}
+
 		return $comment;
 	}
 
@@ -55,23 +56,23 @@ class HTMLProcessor
 		if (ifsetor($this->allowedTags['a[href]'])) {
 			$config->set('AutoFormat.Linkify', true);
 		}
+
 		$config->set('HTML.TargetBlank', true);
 		$config->set('HTML.Nofollow', true);
+
 		$purifier = new HTMLPurifier($config);
-		$clean_html = $purifier->purify($comment);
-		return $clean_html;
+		return $purifier->purify($comment);
 	}
 
 	/**
-	 * composer require essence/essence
-	 * @param $comment
-	 * @return string
-	 */
-	public function getEmbeddables($comment)
+     * composer require essence/essence
+     * @param $comment
+     */
+    public function getEmbeddables($comment): string
 	{
 		$content = '';
 		$links = $this->getLinks($comment);
-		foreach ($links as $link => $_) {
+		foreach (array_keys($links) as $link) {
 			$Essence = Essence::instance();
 			$Media = $Essence->extract($link);
 
@@ -79,14 +80,14 @@ class HTMLProcessor
 				$content .= $Media->html;
 			}
 		}
+
 		return $content;
 	}
 
 	/**
-	 * @param $comment
-	 * @return array
-	 */
-	public function getLinks($comment)
+     * @param $comment
+     */
+    public function getLinks($comment): array
 	{
 		return View::_autolink_find_URLS($comment);
 	}

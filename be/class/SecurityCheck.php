@@ -3,7 +3,10 @@
 class SecurityCheck extends AppControllerBE
 {
 
-	public function render()
+	/**
+     * @return mixed[]
+     */
+    public function render(): array
 	{
 		$content = [];
 		$folder = AutoLoad::getInstance()->getAppRoot();
@@ -15,10 +18,14 @@ class SecurityCheck extends AppControllerBE
 			$content[] = $this->checkFolder($folder . '/');
 			break;
 		}
+
 		return $content;
 	}
 
-	public function checkFolder($folder)
+	/**
+     * @return mixed[]
+     */
+    public function checkFolder(string $folder): array
 	{
 		$content = [];
 		$files = glob($folder . '*.php');
@@ -37,23 +44,28 @@ class SecurityCheck extends AppControllerBE
 				}
 			}
 		}
+
 		return $content;
 	}
 
-	public function findClass(array $lines)
+	public function findClass(array $lines): mixed
 	{
 		$lines = array_map(function ($line) {
 			if (str_startsWith($line, 'class')) {
 				$words = trimExplode(' ', $line);
 				return $words[1];    // class Something
 			}
+
 			return null;
 		}, $lines);
 		$lines = array_filter($lines);
 		return first($lines);
 	}
 
-	public function checkClass(ReflectionClass $rc)
+	/**
+     * @return mixed[]
+     */
+    public function checkClass(ReflectionClass $rc): array
 	{
 		$content = [];
 		$constructor = $rc->getConstructor();
@@ -72,17 +84,15 @@ class SecurityCheck extends AppControllerBE
 						$content[] = ifsetor($contentParent[1]['throws']);
 					}
 				}
+
 				$rc = $pc;
 			} while ($pc);
 		}
+
 		return $content;
 	}
 
-	/**
-	 * @param ReflectionMethod $constructor
-	 * @return array
-	 */
-	public function checkMethod(ReflectionMethod $constructor)
+	public function checkMethod(ReflectionMethod $constructor): array
 	{
 		$from = $constructor->getStartLine();
 		$till = $constructor->getEndLine();
@@ -96,15 +106,16 @@ class SecurityCheck extends AppControllerBE
 			$content['checks'] = ArrayPlus::create($checks)
 				->wrap('<div class="label label-danger">', '</div>');
 		}
+
 		if ($throws) {
 			$content['throws'] = ArrayPlus::create($throws)
 				->wrap('<div class="label label-success">', '</div>');
 		}
-		$content = ['<h4>', $content, '</h4>'];
-		return $content;
+
+		return ['<h4>', $content, '</h4>'];
 	}
 
-	public function findCheckInFunction(array $lines)
+	public function findCheckInFunction(array $lines): array
 	{
 		$checks = [];
 		$throws = [];
@@ -113,21 +124,26 @@ class SecurityCheck extends AppControllerBE
 				preg_match('/->can\(([^)])\)/', $line, $match);
 				$checks[] = unquote($match[1]);
 			}
+
 			if (str_contains($line, '->isAuth()')) {
 				$checks[] = 'isAuth';
 			}
+
 			if (str_contains($line, '->isAdmin()')) {
 				$checks[] = 'isAdmin';
 			}
+
 			if (str_contains($line, 'DEVELOPMENT')) {
 				$checks[] = 'DEVELOPMENT';
 			}
+
 			if (str_contains($line, 'throw new')) {
 				$words = trimExplode(' ', $line);
 				$exception = trimExplode('(', $words[2]);
 				$throws[] = $exception[0];
 			}
 		}
+
 		return [$checks, $throws];
 	}
 

@@ -18,7 +18,7 @@ class PHPDebug
 		/// end of IE
 	}
 
-	public function debug($name, $var = null, $type = LOG)
+	public function debug(string $name, $var = null, $type = LOG): void
 	{
 		echo '<script type="text/javascript">' . NL;
 		switch ($type) {
@@ -42,7 +42,7 @@ class PHPDebug
 				$object = json_encode($var);
 				//debug($object); exit();
 				$jsName = preg_replace('~[^A-Z|0-9]~i', "_", $name);
-				echo 'var object' . $jsName . ' = \'' . str_replace("'", "'", $object) . '\';' . NL;
+				echo 'var object' . $jsName . " = '" . str_replace("'", "'", $object) . "';" . NL;
 				echo 'var val' . $jsName . ' = eval("(" + object' . $jsName . ' + ")" );' . NL;
 				switch ($type) {
 					case LOG:
@@ -77,6 +77,7 @@ class PHPDebug
 		} else {
 			echo 'console.log("<empty>");' . NL;
 		}
+
 		echo '</script>' . NL;
 	}
 

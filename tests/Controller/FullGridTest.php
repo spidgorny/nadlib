@@ -10,14 +10,14 @@ use PHPUnit\Framework\TestCase;
 class FullGridTest extends TestCase
 {
 
-	public function setUp(): void
+	protected function setUp(): void
 	{
 		self::markTestSkipped('PG dependent');
 		$config = Config::getInstance();
 		$config->setDB(new DBPlacebo());
 	}
 
-	public function testGetColumnsForm()
+	public function testGetColumnsForm(): void
 	{
 		$fg = new FullGrid4Test();
 		$fg->postInit();

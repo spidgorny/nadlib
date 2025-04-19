@@ -21,7 +21,7 @@ class NoUser extends UserBase implements UserModelInterface
 		$this->prefs = new MockPreferences($this);
 	}
 
-	public function setAccess($name, $value)
+	public function setAccess($name, $value): void
 	{
 		$this->access[$name] = $value;
 	}
@@ -31,7 +31,7 @@ class NoUser extends UserBase implements UserModelInterface
 		return $this->access[$name];
 	}
 
-	public function renderMessages()
+	public function renderMessages(): string
 	{
 		return '';
 	}
@@ -41,30 +41,27 @@ class NoUser extends UserBase implements UserModelInterface
 		return $this->prefs->get($key);
 	}
 
-	public function setPref($key, $val)
+	public function setPref($key, $val): void
 	{
 		$this->prefs->set($key, $val);
 	}
 
-	/**
-	 * @return null
-	 */
 	public function getUnreadMessages()
 	{
 		return null;
 	}
 
-	public function getAllSettings()
+	public function getAllSettings(): array
 	{
 		return [];
 	}
 
-	public function getSelfAndBackupID()
+	public function getSelfAndBackupID(): array
 	{
 		return [$this->id];
 	}
 
-	public function getAllSubordinates()
+	public function getAllSubordinates(): array
 	{
 		return [];
 	}
@@ -73,17 +70,17 @@ class NoUser extends UserBase implements UserModelInterface
 	{
 	}
 
-	public function isAdmin()
+	public function isAdmin(): bool
 	{
 		return false;
 	}
 
-	public function getLogin()
+	public function getLogin(): string
 	{
 		return 'nobody';
 	}
 
-	public function getAvatarURL()
+	public function getAvatarURL(): string
 	{
 		return 'http://avatar.com/';
 	}
@@ -103,17 +100,17 @@ class NoUser extends UserBase implements UserModelInterface
 		return null;
 	}
 
-	public function isDev()
+	public function isDev(): bool
 	{
 		return false;
 	}
 
-	public function getGroup()
+	public function getGroup(): void
 	{
 		// TODO: Implement getGroup() method.
 	}
 
-	public function loginFromHTTP()
+	public function loginFromHTTP(): void
 	{
 		// do nothing, we failed to login with a session
 	}
@@ -123,7 +120,7 @@ class NoUser extends UserBase implements UserModelInterface
 		return null;
 	}
 
-	public function updatePassword($newPassword)
+	public function updatePassword($newPassword): void
 	{
 		// TODO: Implement updatePassword() method.
 	}

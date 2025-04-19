@@ -10,7 +10,9 @@ class AlterTable extends AlterIndex
 {
 
 	public $different = 0;
+
 	public $same = 0;
+
 	public $missing = 0;
 
 	/**
@@ -24,7 +26,7 @@ class AlterTable extends AlterIndex
 		$this->setHandler();
 	}
 
-	public function setHandler()
+	public function setHandler(): void
 	{
 		$class = $this->getDBclass();
 		if ($class === 'mysql') {
@@ -38,25 +40,21 @@ class AlterTable extends AlterIndex
 		}
 	}
 
-	public function sidebar()
-	{
-		$content = [];
-		$content[] = $this->showDBInfo();
-		$content[] = $this->listFiles();
-		return $content;
-	}
+	public function sidebar(): array
+    {
+        return [$this->showDBInfo(), $this->listFiles()];
+    }
 
-	public function renderTableStruct(array $struct, array $local)
+	public function renderTableStruct(array $struct, array $local): string
 	{
 		$class = $this->getDBclass();
-		$func = 'renderTableStruct';
 		$func = 'compareStruct';
 		$content[] = '<h5>' . $func . ' (' . $class . ')</h5>';
 		$content[] = call_user_func([$this, $func], $struct, $local);
 		return $content;
 	}
 
-	public function compareStruct(array $struct, array $local)
+	public function compareStruct(array $struct, array $local): string
 	{
 		$content = '';
 		//debug(array_keys($local));
@@ -75,6 +73,7 @@ class AlterTable extends AlterIndex
 					),
 				]];
 			}
+
 			$s = new slTable($indexCompare, 'class="table" width="100%"', [
 				'same' => [
 					'name' => 'same',
@@ -89,10 +88,14 @@ class AlterTable extends AlterIndex
 			]);
 			$content .= $s;
 		}
+
 		return $content;
 	}
 
-	public function compareTables($table, array $fromFile, array $fromDatabase)
+	/**
+     * @return array{same: 'same', '###TR_MORE###': 'style="background: yellow"', fromFile: string, fromDB: string}[]|array{same: 'diff', '###TR_MORE###': 'style="background: pink"', fromFile: string, fromDB: string, action: HTMLTag}[]|array{same: 'new', '###TR_MORE###': 'style="background: red"', fromFile: string, fromDB: '-', action: HTMLTag}[]
+     */
+    public function compareTables($table, array $fromFile, array $fromDatabase): array
 	{
 		$indexCompare = [];
 		foreach ($fromFile as $i => $index) {
@@ -133,28 +136,22 @@ class AlterTable extends AlterIndex
 				];
 			}
 		}
+
 		return $indexCompare;
 	}
 
 	public function click($table, $query)
 	{
-		$link = $this->a($this->makeURL([
+		return $this->a($this->makeURL([
 			'c' => get_class($this),
 			'file' => basename($this->jsonFile),
 			'action' => 'runSQL',
 			'table' => $table,
 			'sql' => $query,
 		]), $query);
-		return $link;
 	}
 
-	/**
-	 *
-	 * @param array $struct
-	 * @param array $local
-	 * @return string
-	 */
-	public function renderTableStructdbLayerBL(array $struct, array $local)
+	public function renderTableStructdbLayerBL(array $struct, array $local): string
 	{
 		$content = '';
 		foreach ($struct as $table => $desc) {
@@ -197,10 +194,11 @@ class AlterTable extends AlterIndex
 			$s = new slTable($indexCompare, 'class="table"');
 			$content .= $s;
 		}
+
 		return $content;
 	}
 
-	public function renderTableStructdbLayerSQLite(array $struct, array $local)
+	public function renderTableStructdbLayerSQLite(array $struct, array $local): string
 	{
 		$content = '';
 		foreach ($struct as $table => $desc) {
@@ -262,22 +260,22 @@ class AlterTable extends AlterIndex
 			$s = new slTable($indexCompare, 'class="table nospacing"');
 			$content .= $s;
 		}
+
 		return $content;
 	}
 
 	/**
-	 * TODO
-	 * @param array $a
-	 * @param array $b
-	 * @return bool
-	 * @see AlterTableHandler
-	 */
-	public function sameType($a, $b)
+     * TODO
+     * @param array $a
+     * @param array $b
+     * @see AlterTableHandler
+     */
+    public function sameType($a, $b): bool
 	{
 		return false;
 	}
 
-	public function runSQLAction()
+	public function runSQLAction(): void
 	{
 		$table = $this->request->getTrimRequired('table');
 		$sql = $this->request->getTrim('sql');
@@ -298,14 +296,15 @@ class AlterTable extends AlterIndex
 	protected function getDBclass()
 	{
 		$class = get_class($this->db);
-		if ($class == 'DBLayerPDO') {
+		if ($class === 'DBLayerPDO') {
 			$class = $this->db->getScheme();
 			if ($class == 'sqlite') {
-				$class = 'DBLayerSQLite';
-				return $class;
+				return 'DBLayerSQLite';
 			}
+
 			return $class;
 		}
+
 		return $class;
 	}
 

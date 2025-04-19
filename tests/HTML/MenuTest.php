@@ -4,7 +4,7 @@
 class MenuTest extends PHPUnit\Framework\TestCase
 {
 
-	public function test__construct()
+	public function test__construct(): void
 	{
 		$m = new Menu([
 			'Page1' => 'Page 1',
@@ -13,7 +13,7 @@ class MenuTest extends PHPUnit\Framework\TestCase
 		$this->assertStringContainsString('?c=Page1', $html);
 	}
 
-	public function test_recursive()
+	public function test_recursive(): void
 	{
 		$m = new Menu([
 			'Page1' => 'Page 1',
@@ -44,13 +44,14 @@ class MenuTest extends PHPUnit\Framework\TestCase
 		$m->renderOnlyCurrent = true;
 		$m->basePath->reset();
 		$m->setCurrent(0);
+
 		$html = $m->render();
 //		debug($html);
 //		debug($m->debug());
 		$this->assertStringContainsString('/level1/Page1', $html);
 	}
 
-	public function test_less_recursive()
+	public function test_less_recursive(): void
 	{
 		$localhost = gethostname() ?: 'localhost';
 		$m = new Menu([
@@ -76,18 +77,18 @@ class MenuTest extends PHPUnit\Framework\TestCase
 
 		$link = $m->getClassPath('level2', $m->getRootpath());
 //		pre_print_r($link);
-		$this->assertEquals("http://$localhost/level1/level2", $link);
+		$this->assertEquals(sprintf('http://%s/level1/level2', $localhost), $link);
 
 		$level = $m->renderLevel((array)$m->items, $m->getRootpath());
 //		pre_print_r($level);
-		$this->assertStringContainsString("http://$localhost/level1/Page1", $level);
+		$this->assertStringContainsString(sprintf('http://%s/level1/Page1', $localhost), $level);
 
 		$html = $m->render();
 //		debug($m->debug());
-		$this->assertStringContainsString("$localhost/Page1", $html);
+		$this->assertStringContainsString($localhost . '/Page1', $html);
 	}
 
-	public function test_getClassPath()
+	public function test_getClassPath(): void
 	{
 		$localhost = gethostname() ?: 'localhost';
 		$m = new Menu([]);
@@ -96,7 +97,7 @@ class MenuTest extends PHPUnit\Framework\TestCase
 
 		$path1 = $m->getClassPath('Class1', []);
 //		debug($path1.'');
-		$this->assertEquals("http://$localhost/?c=Class1", $path1 . '');
+		$this->assertEquals(sprintf('http://%s/?c=Class1', $localhost), $path1 . '');
 
 		$path1 = $m->getClassPath('http://someshit/', []);
 //		debug($path1.'');
@@ -108,7 +109,7 @@ class MenuTest extends PHPUnit\Framework\TestCase
 //		$m->useRecursiveURL = true;
 		$path1 = $m->getClassPath('Class1', ['level1']);
 //		debug($path1.'');
-		$this->assertEquals("http://$localhost/level1/Class1", $path1 . '');
+		$this->assertEquals(sprintf('http://%s/level1/Class1', $localhost), $path1 . '');
 	}
 
 }

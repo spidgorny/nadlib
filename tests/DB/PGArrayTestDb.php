@@ -14,12 +14,12 @@ class PGArrayTestDb extends PHPUnit\Framework\TestCase
 	 */
 	public $db;
 
-	public function setUp(): void
+	protected function setUp(): void
 	{
 		$this->db = Config::getInstance()->getDB();
 	}
 
-	public function test_lineBreak()
+	public function test_lineBreak(): void
 	{
 		$pga = new PGArray($this->db);
 		$fixture = [
@@ -46,15 +46,14 @@ e"}', $string);
 		$this->assertEquals($fixture, $decode);
 	}
 
-	public function serialize($var)
+	public function serialize($var): string
 	{
 		$serial = serialize($var);
 		$serial = str_replace("\n", '{0x0A}', $serial);
-		$serial = str_replace("\r", '{0x0D}', $serial);
-		return $serial;
+		return str_replace("\r", '{0x0D}', $serial);
 	}
 
-	public function test_PGArray_toString()
+	public function test_PGArray_toString(): void
 	{
 		$fixture = [
 			1,

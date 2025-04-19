@@ -20,7 +20,7 @@ class BEUser extends UserBase
 		}
 	}
 
-	public function try2login($user, $password = null)
+	public function try2login($user, $password = null): void
 	{
 		//debug('session_start');
 		if (session_status() != PHP_SESSION_ACTIVE && !Request::isCLI() && !headers_sent()) {
@@ -34,17 +34,17 @@ class BEUser extends UserBase
 		return $this->acl[$something];
 	}
 
-	public function saveLogin()
+	public function saveLogin(): void
 	{
 		$_SESSION[__CLASS__]['login'] = $this->id;
 	}
 
-	public function isAuth()
+	public function isAuth(): bool
 	{
 		return isset($_SESSION[__CLASS__]['login']) && ($_SESSION[__CLASS__]['login'] == $this->id);
 	}
 
-	public function logout()
+	public function logout(): void
 	{
 		unset($_SESSION[__CLASS__]['login']);
 	}
@@ -54,12 +54,12 @@ class BEUser extends UserBase
 		// do nothing
 	}
 
-	public function isAdmin()
+	public function isAdmin(): bool
 	{
 		return true;
 	}
 
-	public function getLogin()
+	public function getLogin(): string
 	{
 		return 'Nadlib Admin';
 	}
@@ -69,12 +69,12 @@ class BEUser extends UserBase
 		return null;
 	}
 
-	public function prefs()
+	public function prefs(): void
 	{
 		// TODO: Implement prefs() method.
 	}
 
-	public function getAllSettings()
+	public function getAllSettings(): void
 	{
 		// TODO: Implement getAllSettings() method.
 	}
@@ -84,12 +84,12 @@ class BEUser extends UserBase
 		return null;
 	}
 
-	public function getSetting($key)
+	public function getSetting($key): void
 	{
 		// TODO: Implement getSetting() method.
 	}
 
-	public function updatePassword($newPassword)
+	public function updatePassword($newPassword): void
 	{
 		// TODO: Implement updatePassword() method.
 	}

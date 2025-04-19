@@ -3,7 +3,10 @@
 class RunnerTask
 {
 
-	public $data = [];
+	/**
+     * @var mixed[]
+     */
+    public $data = [];
 
 	public $obj;
 
@@ -23,13 +26,11 @@ class RunnerTask
 	}
 
 	/**
-	 * Use this function to insert a new task.
-	 * @param $class
-	 * @param $method
-	 * @param array $params
-	 * @return RunnerTask
-	 */
-	public static function schedule($class, $method, array $params = [])
+     * Use this function to insert a new task.
+     * @param $class
+     * @param $method
+     */
+    public static function schedule($class, $method, array $params = []): self
 	{
 		$task = new self([]);
 		$id = $task->insert([
@@ -50,6 +51,7 @@ class RunnerTask
 		} else {
 			$id = $res;
 		}
+
 		return $id;
 	}
 
@@ -68,11 +70,11 @@ class RunnerTask
 		}
 	}
 
-	public function isValid()
+	public function isValid(): bool
 	{
 		$command = $this->data['command'];
 		$command = json_decode($command);
-		if (sizeof($command) == 2) {
+		if (count($command) == 2) {
 			$class = $command[0];
 			$method = $command[1];
 			if (class_exists($class)) {
@@ -83,13 +85,15 @@ class RunnerTask
 				}
 			}
 		}
+
 		return false;
 	}
 
-	public static function getNext()
+	public static function getNext(): ?\RunnerTask
 	{
 		$task = new RunnerTask([]);
 		$task->db->transaction();
+
 		$row = $task->db->fetchOneSelectQuery('runner', [
 			'status' => new SQLOr([
 				'status' => '',
@@ -106,12 +110,12 @@ class RunnerTask
 		return null;
 	}
 
-	public function release()
+	public function release(): void
 	{
 		$this->db->commit();
 	}
 
-	public function reserve()
+	public function reserve(): void
 	{
 		echo __METHOD__, BR;
 		$this->db->runUpdateQuery($this->table,
@@ -131,7 +135,7 @@ class RunnerTask
 		return $this->data['id'];
 	}
 
-	public function __invoke()
+	public function __invoke(): void
 	{
 		try {
 			echo '#' . $this->id() . ' >> ' . get_class($this->obj), '->', $this->method, BR;
@@ -140,22 +144,19 @@ class RunnerTask
 			TaylorProfiler::getInstance()->clearMemory();
 			call_user_func_array($command, $params);
 			$this->done();
-		} catch (Exception $e) {
-			echo '!!!', get_class($e), '!!!', $e->getMessage(), BR;
-			echo $e->getTraceAsString(), BR;
-			$this->failed($e);
+		} catch (Exception $exception) {
+			echo '!!!', get_class($exception), '!!!', $exception->getMessage(), BR;
+			echo $exception->getTraceAsString(), BR;
+			$this->failed($exception);
 		}
 	}
 
-	/**
-	 * @return mixed
-	 */
-	public function getParams()
+	public function getParams(): mixed
 	{
 		return json_decode($this->data['params']);
 	}
 
-	private function done()
+	private function done(): void
 	{
 		echo __METHOD__, BR;
 		$this->db->runUpdateQuery($this->table,
@@ -166,7 +167,7 @@ class RunnerTask
 			['id' => $this->id()]);
 	}
 
-	public function failed(Exception $e)
+	public function failed(Exception $e): void
 	{
 		echo __METHOD__, BR;
 		echo '[', get_class($e), '] ', $e->getMessage(), BR;
@@ -179,7 +180,7 @@ class RunnerTask
 		$this->db->commit();
 	}
 
-	public function kill()
+	public function kill(): void
 	{
 		echo __METHOD__, BR;
 		$this->db->runUpdateQuery($this->table, [
@@ -188,7 +189,7 @@ class RunnerTask
 		], ['id' => $this->id()]);
 	}
 
-	public function render()
+	public function render(): string
 	{
 		return '<div class="message ' . __CLASS__ . '">' .
 			'Task #' . $this->id() . ' is ' . $this->getStatus() . ' since ' . $this->getTime() . '.</div>';
@@ -204,7 +205,7 @@ class RunnerTask
 		return $this->data['ctime'];
 	}
 
-	public function setProgress($p)
+	public function setProgress($p): void
 	{
 		$this->db->runUpdateQuery($this->table,
 			[
@@ -228,7 +229,7 @@ class RunnerTask
 		return $content;
 	}
 
-	public function getName()
+	public function getName(): string
 	{
 		$command = json_decode($this->get('command'));
 		$class = $this->obj ? get_class($this->obj) : $command[0];
@@ -241,7 +242,7 @@ class RunnerTask
 		return ifsetor($this->data[$name]);
 	}
 
-	public function getMTime()
+	public function getMTime(): \Time
 	{
 		return new Time($this->data['mtime']);
 	}
@@ -259,10 +260,11 @@ class RunnerTask
 		], '', 'count(*) as count')['count'];
 	}
 
-	public function getInfoBox($controller = '')
+	public function getInfoBox(string $controller = ''): array
 	{
 		$pb = new ProgressBar();
 		$pb->getCSS();
+
 		$content = ['<div class="message">',
 			'<a href="' . $controller . '?action=kill&id=' . $this->id() . '">',
 			'<span class="octicon octicon-x flash-close js-flash-close"></span></a>',
@@ -301,15 +303,16 @@ class RunnerTask
 		} else {
 			$content[] = '</div>';
 		}
+
 		return $content;
 	}
 
-	public function isDone()
+	public function isDone(): bool
 	{
 		return $this->getStatus() == 'done';
 	}
 
-	public function isKilled()
+	public function isKilled(): bool
 	{
 		return $this->getStatus() == 'killed';
 	}

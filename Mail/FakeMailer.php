@@ -16,12 +16,9 @@ class FakeMailer implements MailerInterface
 		$this->body = $body;
 	}
 
-	public function send()
+	public function send(): void
 	{
-		$emails = is_array($this->emails)
-			? implode('; ', $this->emails)
-			: $this->emails;
-//		echo 'Sending mail "' . $this->subject . '" to [' . $emails . ']', BR;
+		//		echo 'Sending mail "' . $this->subject . '" to [' . $emails . ']', BR;
 	}
 
 	public function sendSwiftMailerEmail($cc = null, $bcc = null, array $attachments = [], array $additionalSenders = [])
@@ -37,7 +34,7 @@ class FakeMailer implements MailerInterface
 		return count($failedRecipients) ? $failedRecipients : $sent;
 	}
 
-	public function getSwiftMessage($cc, $bcc, array $attachments, $additionalSenders)
+	public function getSwiftMessage($cc, $bcc, array $attachments, array $additionalSenders): \Swift_Message
 	{
 		$orsMailer = new SwiftMailer($this->emails, $this->subject, $this->body);
 		return $orsMailer->getSwiftMessage($cc, $bcc, $attachments, $additionalSenders);

@@ -13,7 +13,7 @@ class UnitTestReport extends AppControllerBE
 		$this->file = $this->request->getCoalesce('file', $this->file);
 	}
 
-	public function render()
+	public function render(): string
 	{
 		$content = [];
 		if (file_exists($this->htmlRoot . $this->file)) {
@@ -25,6 +25,7 @@ class UnitTestReport extends AppControllerBE
 		} else {
 			$this->index->error('phpunit report is not generated');
 		}
+
 		return implode("\n", $content);
 	}
 

@@ -13,7 +13,7 @@ if (!defined('DEVELOPMENT')) {
 class ArrayFunctionsTest extends PHPUnit\Framework\TestCase
 {
 
-	public function test_unique_multidim_array_thru()
+	public function test_unique_multidim_array_thru(): void
 	{
 		$fixture = [
 			'a' => 'b',
@@ -33,14 +33,14 @@ class ArrayFunctionsTest extends PHPUnit\Framework\TestCase
 		], $unique);
 	}
 
-	function test_array_find()
+	public function test_array_find(): void
 	{
 		$data = [
 			'asd',
 			'qwe',
 			'123',
 		];
-		$this->assertEquals('qwe', array_find_fast(static fn($line) => str_startsWith($line, 'q'), $data));
+		$this->assertEquals('qwe', array_find_fast(static fn($line): bool => str_startsWith($line, 'q'), $data));
 	}
 
 }

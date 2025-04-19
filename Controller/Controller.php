@@ -142,17 +142,17 @@ abstract class Controller extends SimpleController
 	}
 
 	/**
-	 * @param array $data
-	 * @return array
-	 * @deprecated
-	 * @see slTable::showAssoc()
-	 */
-	public function getAssocTable(array $data)
+     * @return array
+     * @deprecated
+     * @see slTable::showAssoc()
+     */
+    public function getAssocTable(array $data)
 	{
 		$table = [];
 		foreach ($data as $key => $val) {
 			$table[] = ['key' => $key, 'val' => $val];
 		}
+
 		return $table;
 	}
 
@@ -170,15 +170,14 @@ abstract class Controller extends SimpleController
 	}
 
 	/**
-	 * Wraps the content in a div/section with a header.
-	 * The header is linkable.
-	 * @param $content
-	 * @param string $caption
-	 * @param string|null $h
-	 * @param array $more
-	 * @return array|string|string[]
-	 */
-	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
+     * Wraps the content in a div/section with a header.
+     * The header is linkable.
+     * @param $content
+     * @param string $caption
+     * @param string|null $h
+     * @return array|string|string[]
+     */
+    public function encloseInAA($content, $caption = '', $h = null, array $more = [])
 	{
 		$h = $h ?: $this->encloseTag;
 		$content = $this->s($content);
@@ -188,6 +187,7 @@ abstract class Controller extends SimpleController
 				$content
 			];
 		}
+
 		$more['class'] = ifsetor($more['class'], 'padding clearfix');
 		$more['class'] .= ' ' . get_class($this);
 		return new HTMLTag('section', $more, $content, true);
@@ -209,7 +209,7 @@ abstract class Controller extends SimpleController
 			'</' . $hTag . '>';
 	}
 
-	public function encloseInToggle($content, $title, $height = 'auto', $isOpen = null, $tag = 'h3')
+	public function encloseInToggle($content, string $title, string $height = 'auto', $isOpen = null, string $tag = 'h3')
 	{
 		if ($content) {
 			// buggy: prevents all clicks on the page in KA.de
@@ -232,10 +232,11 @@ abstract class Controller extends SimpleController
 					' . ($isOpen ? '' : 'display: none;') . '">' . $content . '</div>
 			</div>';
 		}
+
 		return $content;
 	}
 
-	public function preventDefault()
+	public function preventDefault(): void
 	{
 		$this->noRender = true;
 	}
@@ -258,6 +259,7 @@ abstract class Controller extends SimpleController
 			$html = $this->s($html);
 			$content .= '<div class="flex-box flex-equal">' . $html . '</div>';
 		}
+
 		return '<div class="display-box">' . $content . '</div>';
 	}
 
@@ -276,14 +278,16 @@ abstract class Controller extends SimpleController
 			$html = $this->s($html);
 			$content .= '<div class="flex-box flex-equal">' . $html . '</div>';
 		}
+
 		return '<div class="display-box equal">' . $content . '</div>';
 	}
 
 	public function encloseInTableHTML3(array $cells, array $more = [], array $colMore = [])
 	{
-		if (!$more) {
+		if ($more === []) {
 			$more['class'] = "encloseInTable";
 		}
+
 		$content[] = '<table ' . HTMLTag::renderAttr($more) . '>';
 		$content[] = '<tr>';
 		foreach ($cells as $i => $info) {
@@ -291,6 +295,7 @@ abstract class Controller extends SimpleController
 			$content[] = $this->s($info);
 			$content[] = '</td>';
 		}
+
 		$content[] = '</tr>';
 		$content[] = '</table>';
 		return $content;
@@ -308,10 +313,9 @@ abstract class Controller extends SimpleController
 	 * Use HTMLTag to do manual wrapping
 	 * @return string
 	 */
-	public function encloseInTable()
+	public function encloseInTable(...$elements)
 	{
 		$this->index->addCSS(AutoLoad::getInstance()->nadlibFromDocRoot . 'CSS/columnContainer.less');
-		$elements = func_get_args();
 		$content = '<div class="columnContainer">';
 		foreach ($elements as &$el) {
 			if (!$el instanceof HTMLTag) {
@@ -321,9 +325,9 @@ abstract class Controller extends SimpleController
 				], $el, true);
 			}
 		}
+
 		$content .= implode("\n", $elements);
-		$content .= '</div>';
-		return $content;
+		return $content . '</div>';
 	}
 
 	public function encloseInRow(array $elements = [], array $attrs = [])
@@ -338,9 +342,9 @@ abstract class Controller extends SimpleController
 					] + ifsetor($attrs[$i]), $el, true);
 			}
 		}
+
 		$content .= implode("\n", $elements);
-		$content .= '</div>';
-		return $content;
+		return $content . '</div>';
 	}
 
 	/**
@@ -352,14 +356,12 @@ abstract class Controller extends SimpleController
 	}
 
 	/**
-	 * Returns content wrapped in bootstrap .row .col-md-3/4/5 columns
-	 * @param array $parts
-	 * @param array $widths
-	 * @return string
-	 */
-	public function inTable(array $parts, array $widths = [])
+     * Returns content wrapped in bootstrap .row .col-md-3/4/5 columns
+     * @return string
+     */
+    public function inTable(array $parts, array $widths = [])
 	{
-		$size = sizeof($parts);
+		$size = count($parts);
 		$equal = round(12 / $size);
 		$content = '<div class="row">';
 		foreach ($parts as $i => $c) {
@@ -367,8 +369,8 @@ abstract class Controller extends SimpleController
 			$x = ifsetor($widths[$i], $equal);
 			$content .= '<div class="col-md-' . $x . '">' . $c . '</div>';
 		}
-		$content .= '</div>';
-		return $content;
+
+		return $content . '</div>';
 	}
 
 	public function attr($s)
@@ -378,20 +380,22 @@ abstract class Controller extends SimpleController
 			foreach ($s as $k => $v) {
 				$content[] = $k . '="' . $this->attr($v) . '"';
 			}
+
 			$content = implode(' ', $content);
 		} else {
 			$content = htmlspecialchars($s, ENT_QUOTES);
 		}
+
 		return $content;
 	}
 
-	public function noRender()
+	public function noRender(): void
 	{
 		$this->noRender = true;
 		$this->request->set('ajax', 1);
 	}
 
-	public function script($file)
+	public function script($file): string
 	{
 		$mtime = filemtime($file);
 		$file .= '?' . $mtime;
@@ -405,26 +409,25 @@ abstract class Controller extends SimpleController
 
 	public static function buildQuery(array $params = [])
 	{
-		if (!$params) {
+		if ($params === []) {
 			return '';
 		}
+
 		return '?' . http_build_query($params);
 	}
 
-	public function log($action, ...$data)
+	public function log($action, ...$data): void
 	{
 		$this->log[] = new LogEntry($action, $data);
 	}
 
 	/**
-	 * @param string $caption
-	 * @param string $h
-	 * @return string
-	 * @throws Exception
-	 */
-	public function getCaptionWithHashLink($caption, $h)
+     * @return string
+     * @throws Exception
+     */
+    public function getCaptionWithHashLink(string $caption, string $h)
 	{
-		$al = AutoLoad::getInstance();
+		AutoLoad::getInstance();
 		// optional, use it in a project
 //		Index::getInstance()->addCSS($al->nadlibFromDocRoot . 'CSS/header-link.less');
 		$slug = $this->request->getURL() . URL::friendlyURL($caption);
@@ -447,7 +450,7 @@ abstract class Controller extends SimpleController
 		return $className::getInstance($id);
 	}
 
-	public function setDB(DBInterface $db)
+	public function setDB(DBInterface $db): void
 	{
 		$this->db = $db;
 	}

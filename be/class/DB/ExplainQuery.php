@@ -30,6 +30,7 @@ class ExplainQuery extends AppControllerBE
 			} catch (Exception $e) {
 				$this->result = '<div class="error alert alert-error alert-danger">' . $e->getMessage() . '</div>';
 			}
+            
 			$this->time = $p->elapsed();
 
 			$this->profiles = $this->db->fetchAll('SHOW PROFILES');
@@ -55,6 +56,7 @@ class ExplainQuery extends AppControllerBE
 		];
 		$f->fill($_REQUEST);
 		$f->showForm();
+        
 		$content = $f;
 
 		$content .= new slTable($this->explain);
@@ -64,9 +66,8 @@ class ExplainQuery extends AppControllerBE
 		} else {
 			$content .= $this->result;
 		}
-
-		$content = $this->encloseInFieldset($this->title = 'Explain Query', $content);
-		return $content;
+        
+		return $this->encloseInFieldset($this->title = 'Explain Query', $content);
 	}
 
 	public function sidebar()

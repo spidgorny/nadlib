@@ -10,7 +10,7 @@
 class MailerTest extends PHPUnit\Framework\TestCase
 {
 
-	public function test_getShortFilename()
+	public function test_getShortFilename(): void
 	{
 		$sut = new SwiftMailer('asd@qwe.com', 'test', 'test');
 		$filename = './request/97777/RP EA3P40 The Legend of Zelda Tri Force Heroes Some Text Checklists.zip';
@@ -18,7 +18,7 @@ class MailerTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals('RP_EA3P40_The_Legend_of_Zelda_Tri_Force_Heroes_Some_Text_Ch.zip', $short);
 	}
 
-	public function test_getShortFilename2()
+	public function test_getShortFilename2(): void
 	{
 		$sut = new SwiftMailer('asd@qwe.com', 'test', 'test');
 		$filename = './request/97777/RP EA3P40 The Рашшан Шит.zip';
@@ -26,7 +26,7 @@ class MailerTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals('RP_EA3P40_The_.zip', $short);
 	}
 
-	public function test_getShortFilename3()
+	public function test_getShortFilename3(): void
 	{
 		// from RequestInfoEPES?id=102865
 		$fixture = [
@@ -43,7 +43,7 @@ class MailerTest extends PHPUnit\Framework\TestCase
 		}
 	}
 
-	public function test_to_split()
+	public function test_to_split(): void
 	{
 		$to = ['test@asd.de', 'asd@asd.co.jp', 'asd@asd.co.jp'];
 		$mailer = new Mailer($to, '', '');

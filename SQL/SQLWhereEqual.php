@@ -20,44 +20,46 @@ class SQLWhereEqual extends SQLWherePart
 		$this->val = $val;
 	}
 
-	public function debug()
+	public function debug(): array
 	{
 		return $this->__toString();
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		//llog(__METHOD__, $this->field);
-		if (0) {
+		if (0 !== 0) {
 			debug(__METHOD__, $this->field, $this->val);
 //			die;
 		}
+
 		if (is_numeric($this->val)) {    // leading 0 leads to problems
 			$field = $this->db->quoteKey($this->field);
 			//$sql = "({$field} = ".$this->val."
 			//OR {$field} = '".$this->val."')";
-			$sql = "{$field} = '" . $this->val . "'";
+			$sql = $field . " = '" . $this->val . "'";
 		} elseif (is_null($this->val)) {
 			$sql = $this->field . ' IS NULL';
 		} elseif (is_numeric($this->field)) {
 			if ($this->val instanceof SQLWherePart) {
 				$this->val->injectDB($this->db);
 			}
+
 			$sql = $this->val . '';
 		} else {
 			$sql = $this->getWhereItem($this->field, $this->val);
 		}
+
 		return $sql;
 	}
 
 	/**
-	 * @param string $key
-	 * @param mixed $val
-	 * @param array $where
-	 * @return string
-	 * @throws MustBeStringException
-	 */
-	public function getWhereItem($key, $val, array $where = [])
+     * @param string $key
+     * @param mixed $val
+     * @return string
+     * @throws MustBeStringException
+     */
+    public function getWhereItem($key, $val, array $where = []): mixed
 	{
 		$set = [];
 //		llog(__METHOD__, $key);
@@ -86,6 +88,7 @@ class SQLWhereEqual extends SQLWherePart
 			if (!is_numeric($key)) {
 				$val->injectField($key);
 			}
+
 			$set[] = $val->__toString();
 		} elseif ($val instanceof SimpleXMLElement) {
 			$set[] = $val->asXML();
@@ -99,15 +102,15 @@ class SQLWhereEqual extends SQLWherePart
 				$set[] = '(' . $key . ' ' . $val . ')';    // for GloRe compatibility - may contain OR
 			}
 		} elseif ($val === null) {
-			$set[] = "$key IS NULL";
+			$set[] = $key . ' IS NULL';
 		} elseif ($val === 'NOTNULL') {
-			$set[] = "$key IS NOT NULL";
+			$set[] = $key . ' IS NOT NULL';
 		} elseif (in_array($key[strlen($key) - 1], ['>', '<'])
 			|| in_array(substr($key, -2), ['!=', '<=', '>=', '<>'])) {
 			[$key, $sign] = explode(' ', $key); // need to quote separately
 			// TODO: quoteKey was done already?
 			$key = $this->db->quoteKey($key);
-			$set[] = "$key $sign '$val'";
+			$set[] = sprintf("%s %s '%s'", $key, $sign, $val);
 		} elseif (is_bool($val)) {
 			$set[] = ($val ? '' : 'NOT ') . $key;
 		} elseif (is_numeric($key)) {        // KEY!!!
@@ -116,12 +119,9 @@ class SQLWhereEqual extends SQLWherePart
 			$set[] = $key . " IN ('" . implode("', '", $val) . "')";
 		} elseif (is_array($val) && ifsetor($where[$key . '.']['makeOR'])) {
 			foreach ($val as &$row) {
-				if (is_null($row)) {
-					$row = $key . ' IS NULL';
-				} else {
-					$row = $key . " = '" . $row . "'";
-				}
+				$row = is_null($row) ? $key . ' IS NULL' : $key . " = '" . $row . "'";
 			}
+
 			$or = new SQLOr($val);
 			$or->injectQB($this->db->getQb());
 			$set[] = $or;
@@ -133,12 +133,14 @@ class SQLWhereEqual extends SQLWherePart
 				debug(__METHOD__, $key, $val);
 				throw $e;
 			}
-			$set[] = "$key = $val";
+
+			$set[] = sprintf('%s = %s', $key, $val);
 		}
+
 		return first($set);
 	}
 
-	public function injectField($field)
+	public function injectField($field): void
 	{
 //		debug(__METHOD__, $field);
 		parent::injectField($field);

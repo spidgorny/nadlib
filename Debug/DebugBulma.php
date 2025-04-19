@@ -13,23 +13,23 @@ class DebugBulma extends DebugHTML
 		$this->helper = $helper;
 	}
 
-	public static function canBulma()
+	public static function canBulma(): bool
 	{
 		return true;
 	}
 
-	public static function printStyles()
+	public static function printStyles(): string
 	{
 //		echo '!!', __METHOD__, '!!';
 		return '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css" />';
 	}
 
-	public function debug($params)
+	public function debug($params): mixed
 	{
-		return call_user_func_array([$this, 'render'], func_get_args());
+		return $this->render(...func_get_args());
 	}
 
-	public function renderProps(array $props)
+	public function renderProps(array $props): string
 	{
 		$rows = ['<table class="table">'];
 		foreach ($props as $key => $val) {
@@ -38,11 +38,12 @@ class DebugBulma extends DebugHTML
 				<td>' . $val . '</td>
 			</tr>';
 		}
+
 		$rows[] = '</table>';
 		return implode(PHP_EOL, $rows);
 	}
 
-	public function renderHTMLView(array $db, $a, $levels)
+	public function renderHTMLView(array $db, $a, $levels): string
 	{
 		$props = $this->getProps($db, $a);
 

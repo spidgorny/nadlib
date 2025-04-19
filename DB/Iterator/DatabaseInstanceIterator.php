@@ -21,8 +21,10 @@ class DatabaseInstanceIterator extends DatabaseResultIteratorAssoc
 			} else {
 				$obj = new $this->className($row);
 			}
+
 			return $obj;
 		}
+
 		return false;    // @see isValid()
 	}
 

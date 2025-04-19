@@ -11,12 +11,21 @@ class HTMLFormInput extends HTMLFormField
 {
 
 	public $prefix;
+
 	public $label;
+
 	public $name;
+
 	public $placeholder;
+
 	public $value;
+
 	public $type = 'text';
-	public $attr = [];
+
+	/**
+     * @var mixed[]
+     */
+    public $attr = [];
 
 	public function __construct($name, array $attr = ['type' => 'text'])
 	{
@@ -29,23 +38,22 @@ class HTMLFormInput extends HTMLFormField
 	}
 
 	/**
-	 * @param array $attr
-	 * @deprecated
-	 */
-	public function assign(array $attr)
+     * @deprecated
+     */
+    public function assign(array $attr): void
 	{
-		array_walk($attr, function ($value, $key) {
+		array_walk($attr, function ($value, $key): void {
 			/** @noinspection PhpVariableVariableInspection */
 			$this->$key = $value;
 		});
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return MergedContent::mergeStringArrayRecursive($this->render()) . '';
 	}
 
-	public function render()
+	public function render(): string
 	{
 		$name = $this->form->getName($this->field, '', true);
 		llog($this->name, $this->form->getPrefix(), $name);
@@ -58,7 +66,7 @@ class HTMLFormInput extends HTMLFormField
 		return MergedContent::mergeStringArrayRecursive($input);
 	}
 
-	public function getContent()
+	public function getContent(): string
 	{
 		return $this->render();
 	}
@@ -73,6 +81,7 @@ class HTMLFormInput extends HTMLFormField
 		if (isset($this->$offset)) {
 			return $this->$offset;
 		}
+
 		return $this->attr[$offset];
 	}
 

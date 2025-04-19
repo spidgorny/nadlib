@@ -10,7 +10,7 @@
 class DBLayerTest extends PHPUnit\Framework\TestCase
 {
 
-	public function testQuoteKey()
+	public function testQuoteKey(): void
 	{
 		$db = new DBLayer();
 		$quoted = $db->quoteKey('login');

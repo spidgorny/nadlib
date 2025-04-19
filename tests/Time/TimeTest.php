@@ -3,12 +3,12 @@
 class TimeTest extends PHPUnit\Framework\TestCase
 {
 
-	public function setUp(): void
+	protected function setUp(): void
 	{
 		self::markTestSkipped('PG dependent');
 	}
 
-	public function test_Time_add_Duration()
+	public function test_Time_add_Duration(): void
 	{
 		$t = new Date('2011-08-01');
 		$d = new Duration('1d');
@@ -16,14 +16,14 @@ class TimeTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals($t->getSystem(), '2011-08-02', '2011-08-01 + 1d');
 	}
 
-	public function test_Time_constructor()
+	public function test_Time_constructor(): void
 	{
 		$t = new Time();
 		//debug($t);
 		$this->assertEquals($t->getTimestamp(), time());
 	}
 
-	public function test_Time_plus()
+	public function test_Time_plus(): void
 	{
 		$source = '1970-01-01 12:34:56';
 		$t = new Time($source);
@@ -31,7 +31,7 @@ class TimeTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals($t->getSystem(), $source);
 	}
 
-	public function test_Time_add()
+	public function test_Time_add(): void
 	{
 		$source = '1970-01-01 12:34:56';
 		$t = new Time($source);
@@ -39,7 +39,7 @@ class TimeTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals($t->getSystem(), '1970-01-01 12:34:57');
 	}
 
-	public function test_Time_plus_Duration()
+	public function test_Time_plus_Duration(): void
 	{
 		$source = '1970-01-01 12:34:56';
 		$t = new Time($source);
@@ -47,7 +47,7 @@ class TimeTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals($t->getSystem(), '1970-01-01 12:34:57');
 	}
 
-	public function test_Time_earlier()
+	public function test_Time_earlier(): void
 	{
 		$source = '1970-01-01 12:34:56';
 		$t = new Time($source);
@@ -56,7 +56,7 @@ class TimeTest extends PHPUnit\Framework\TestCase
 		$this->assertTrue($t->earlierOrEqual(new Time($source)));
 	}
 
-	public function test_Time_addError()
+	public function test_Time_addError(): void
 	{
 		$source = '1970-01-01 00:45:00';
 		$sourceTS = strtotime($source);
@@ -65,7 +65,7 @@ class TimeTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals(date('Y-m-d H:i:s', $target) . '~' . $target, '1970-01-01 01:00:00~0');
 	}
 
-	public function test_Time_addErrorTime()
+	public function test_Time_addErrorTime(): void
 	{
 		$source = '1970-01-01 00:45:00';
 		$sourceT = new Time($source);
@@ -75,7 +75,7 @@ class TimeTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals($target->getSystem(), '1970-01-01 01:00:00');
 	}
 
-	public function test_Time_addRelative()
+	public function test_Time_addRelative(): void
 	{
 		$source = '1970-01-01 00:45:00';
 		$sourceT = new Time($source);
@@ -87,7 +87,7 @@ class TimeTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals($target->getSystem(), '1970-01-01 00:55:00');
 	}
 
-	public function test_Time_minus()
+	public function test_Time_minus(): void
 	{
 		$source = '1970-01-01 00:45:00';
 		$sourceT = new Time($source);
@@ -97,7 +97,7 @@ class TimeTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals($target->getSystem(), '1970-01-01 00:35:00');
 	}
 
-	public function test_addTime()
+	public function test_addTime(): void
 	{
 		$t = new Time('2016-03-08 15:05');
 		$sTime = '01:12:34';
@@ -105,7 +105,7 @@ class TimeTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals('2016-03-08 16:17:34', $t->getISODateTime());
 	}
 
-	public function test_getAge1()
+	public function test_getAge1(): void
 	{
 		$t = new Time('2016-03-08 15:05');
 		$age = $t->getAge();
@@ -114,7 +114,7 @@ class TimeTest extends PHPUnit\Framework\TestCase
 		$this->assertTrue($olderThan30);
 	}
 
-	public function test_getAge2()
+	public function test_getAge2(): void
 	{
 		$t = new Time('2016-03-08 15:05');
 		$age = $t->getAge();

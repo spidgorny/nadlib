@@ -58,7 +58,7 @@ class URLGet
 		];
 	}
 
-	public function log($method, $message)
+	public function log($method, $message): void
 	{
 		if ($this->logger) {
 			$this->logger->log($method, $message);
@@ -70,7 +70,7 @@ class URLGet
 		return $this->url;
 	}
 
-	public function setProxy($host, $username, $password)
+	public function setProxy(string $host, string $username, string $password): void
 	{
 		$this->proxy = new Proxy([
 			'id' => -1,
@@ -84,7 +84,7 @@ class URLGet
 	 * @internal param bool|Proxy $proxy - it was a proxy object, but now it's boolean
 	 * as a new proxy will get generation
 	 */
-	public function fetch($retries = 1)
+	public function fetch($retries = 1): string|null|false
 	{
 		$start = microtime(true);
 		$this->log(__METHOD__, '<a href="' . $this->url . '">' . $this->url . '</a>');
@@ -101,12 +101,13 @@ class URLGet
 				break;
 			}
 		}
+
 		$this->log(__METHOD__, $this->url . ' (' . number_format(microtime(true) - $start, 3, '.', '') . ' sec)');
 		$this->html = $html;
 		return $this->html;
 	}
 
-	public function fetchAny()
+	public function fetchAny(): string|false
 	{
 		if (function_exists('curl_init')) {
 			$this->log(__METHOD__, 'CURL is enabled');
@@ -115,23 +116,27 @@ class URLGet
 				if (!($this->proxy instanceof Proxy)) {
 					$this->proxy = Proxy::getRandomOrBest();
 				}
+
 				$curlParams[CURLOPT_PROXY] = $this->proxy . '';
 			} else {
 				$this->log(__METHOD__, 'No Proxy');
 			}
+
 			$html = $this->fetchCURL($this->curlParams);
 		} else {
 			$this->log(__METHOD__, 'CURL is disabled');
 			$html = $this->fetchFOpen();
 		}
+
 		return $html;
 	}
 
-	public function fetchFOpen()
+	public function fetchFOpen(): string|false
 	{
 		if ($this->headers) {
 			$this->context['http']['header'] = ArrayPlus::create($this->headers)->getHeaders("\r\n");
 		}
+
 		//debug($this->context);
 		$ctx = stream_context_create($this->context);
 		$html = file_get_contents($this->url, 0, $ctx);
@@ -139,7 +144,7 @@ class URLGet
 		return $html;
 	}
 
-	public function fetchCURL(array $options = [])
+	public function fetchCURL(array $options = []): string
 	{
 		$this->log(__METHOD__, $this->url . '');
 		$process = curl_init($this->url);
@@ -165,7 +170,7 @@ class URLGet
 		$headers = substr($response, 0, $header_size);
 		$headlines = explode("\n", $headers);
 		$headlines = array_map('trim', $headlines); // empty line
-		if (array_search("sorry, untested", $headlines)) {
+		if (array_search("sorry, untested", $headlines, true)) {
 //			$header_size += strlen($headlines[0]);  // Proxy response
 //			$headers = substr($response, 0, $header_size);
 			$html = substr($response, $header_size);
@@ -183,9 +188,10 @@ class URLGet
 		$this->log(__METHOD__, 'URLGet HTTP code: ' . $this->info['http_code']);
 		$this->log(__METHOD__, 'URLGet Headers: ' . $headers);
 		//debug($this->info);
-		if (curl_errno($process)) {
+		if (curl_errno($process) !== 0) {
 			debug('Curl error: ' . curl_error($process));
 		}
+
 		curl_close($process);
 
 		$this->html = $html;
@@ -193,26 +199,21 @@ class URLGet
 			//debug($this->info);
 			throw new Exception('failed to read URL: ' . $this->url);
 		}
+
 		return $html;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function __toString()
+	public function __toString(): string
 	{
 		return strval($this->html) . '';
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getContent()
+	public function getContent(): string
 	{
 		return strval($this->html) . '';
 	}
 
-	public function setProxyObject(Proxy $useProxy)
+	public function setProxyObject(Proxy $useProxy): void
 	{
 		$this->proxy = $useProxy;
 	}

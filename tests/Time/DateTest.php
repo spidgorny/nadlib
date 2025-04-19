@@ -3,13 +3,13 @@
 class DateTest extends PHPUnit\Framework\TestCase
 {
 
-	public function test_Date()
+	public function test_Date(): void
 	{
 		$d = new Date(1306879200);
 		$this->assertEquals($d, '01.06.2011');
 	}
 
-	public function test_Date_preserveTimestamp()
+	public function test_Date_preserveTimestamp(): void
 	{
 		$d = new Date(1306879200);
 		$this->assertEquals($d->getTimestamp(), 1306879200);
@@ -25,7 +25,7 @@ class DateTest extends PHPUnit\Framework\TestCase
 		return $this->assertEqual($d->getTimestamp(), 1306879200);
 	}*/
 
-	public function test_NewDateNewDate()
+	public function test_NewDateNewDate(): void
 	{
 		$d = new Date('2011-11-11');
 		$d2 = new Date($d);

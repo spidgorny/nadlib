@@ -2,7 +2,7 @@
 
 class JumpFrontend extends AppControllerBE {
 
-	function render() {
+	public function render(): void {
 		$this->request->redirect('../../../../');
 	}
 

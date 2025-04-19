@@ -3,7 +3,7 @@
 class ClearCacheService
 {
 
-	public function clearCacheIn($folder)
+	public function clearCacheIn(string $folder): void
 	{
 		$files = $this->getFiles($folder);
 		foreach ($files as $file) {
@@ -14,10 +14,11 @@ class ClearCacheService
 				//echo '.';
 			}
 		}
+
 		//echo "\n";
 	}
 
-	function getFiles($dir)
+	public function getFiles(string $dir)
 	{
 		$files = scandir($dir);
 		//debug(sizeof($files));
@@ -33,6 +34,7 @@ class ClearCacheService
 				unset($files[$f]);
 			}
 		}
+
 		return $files;
 	}
 

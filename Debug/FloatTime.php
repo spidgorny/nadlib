@@ -12,11 +12,12 @@ class FloatTime
 		$this->withCSS = $withCSS;
 	}
 
-	public function render()
+	public function render(): string|false
 	{
 		if (Request::isCLI()) {
 			return '';
 		}
+
 		$totalTime = TaylorProfiler::getElapsedTime();
 		$dbTime = $this->getDBTime();
 		if (Session::isActive()) {
@@ -24,6 +25,7 @@ class FloatTime
 			if (is_scalar($_SESSION[__CLASS__])) {
 				$_SESSION[__CLASS__] = [];
 			}
+
 			// total
 			$totalMax = floatval(ifsetor($_SESSION[__CLASS__]['totalMax'], 0));
 			if ($totalMax > 0) {
@@ -31,6 +33,7 @@ class FloatTime
 			} else {
 				$totalBar = '<img src="' . ProgressBar::getBar(0) . '" />';
 			}
+
 			$_SESSION[__CLASS__]['totalMax'] = max(ifsetor($_SESSION[__CLASS__]['totalMax']), $totalTime);
 
 			// db
@@ -41,8 +44,9 @@ class FloatTime
 				$db = class_exists('Config')
 					? Config::getInstance()->getDB() : null;
 				$ql = $db ? $db->getQueryLog() : null;
-				$dbBar = $ql ? sizeof($ql->queryLog) : typ($ql);
+				$dbBar = $ql ? count($ql->queryLog) : typ($ql);
 			}
+
 			$_SESSION[__CLASS__]['dbMax'] = max(ifsetor($_SESSION[__CLASS__]['dbMax']), $dbTime);
 		} else {
 			$totalBar = 'no session';
@@ -66,6 +70,7 @@ class FloatTime
 					dirname(__FILE__) . '/../CSS/TaylorProfiler.css'
 				) . '</style>';
 		}
+
 		return $content;
 	}
 
@@ -89,6 +94,7 @@ class FloatTime
 			$dbTime = $db->queryTime;
 			$dbTime = number_format($dbTime, 3, '.', '');
 		}
+
 		//debug($dbTime, gettype2($db), $db->queryLog, $db->queryTime);
 		return $dbTime;
 	}

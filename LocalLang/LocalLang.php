@@ -65,13 +65,14 @@ abstract class LocalLang
 					$this->$key = $val;
 				}
 			}
+
 			//debug($c->config, $c->config[__CLASS__], $this);
 		}
 
 		// Read language data from somewhere in a subclass
 	}
 
-	public function detectLang()
+	public function detectLang(): void
 	{
 		$l = new LanguageDetect();
 //		debug($this->ll);
@@ -85,6 +86,7 @@ abstract class LocalLang
 				break;
 			}
 		}
+
 		if (!$replace) {
 			/*			$firstKey = array_keys($this->ll);
 						reset($firstKey);
@@ -94,6 +96,7 @@ abstract class LocalLang
 			$this->lang = $this->defaultLang;
 			//debug('firstKey: '.$firstKey);
 		}
+
 		//debug($this->ll);
 
 		// allow to force a language by cookie
@@ -112,6 +115,7 @@ abstract class LocalLang
 		if (!self::$instance) {
 			self::$instance = new static($forceLang, $filename);
 		}
+
 		return self::$instance;
 	}
 
@@ -132,26 +136,27 @@ abstract class LocalLang
 		if (!is_scalar($text)) {
 			throw new InvalidArgumentException('[' . $text . ']');
 		}
+
 		if (is_array($replace)) {
-			$trans = ifsetor($replace[$this->lang]);
-			$trans = $this->Tp($trans, $s2, $s3);
-		} else {
-			if (isset($this->ll[$text])) {
-				$trans = ifsetor($this->ll[$text], $text);
-				$trans = $this->Tp($trans, $replace, $s2, $s3);
-				$trans = $this->getEditLinkMaybe($trans, $text, '');
-				//if ($text == 'Search') { debug($text, $trans); }
-			} else {
+            $trans = ifsetor($replace[$this->lang]);
+            $trans = $this->Tp($trans, $s2, $s3);
+        } elseif (isset($this->ll[$text])) {
+            $trans = ifsetor($this->ll[$text], $text);
+            $trans = $this->Tp($trans, $replace, $s2, $s3);
+            $trans = $this->getEditLinkMaybe($trans, $text, '');
+            //if ($text == 'Search') { debug($text, $trans); }
+        } else {
 				//debug($this->ll);
 				//debug($text, $this->ll[$text], spl_object_hash($this));
 				$this->saveMissingMessage($text);
 				$trans = $this->Tp($text, $replace, $s2, $s3);
 				$trans = $this->getEditLinkMaybe($trans);
 			}
-		}
+
 		if ($this->debug = $text == 'asd') {
 			//debug($text, isset($this->ll[$text]), $this->ll[$text], $trans);
 		}
+
 		return $trans;
 	}
 
@@ -175,10 +180,11 @@ abstract class LocalLang
 			$trans = str_replace('%2', $s2, $trans);
 			$trans = str_replace('%3', $s3, $trans);
 		}
+
 		return $trans;
 	}
 
-	public function getEditLinkMaybe($text, $id = null, $class = 'untranslatedMessage')
+	public function getEditLinkMaybe(string $text, $id = null, string $class = 'untranslatedMessage')
 	{
 		if ($this->editMode && $id) {
 			$trans = '<span class="' . $class . ' clickTranslate" rel="' . htmlspecialchars($id) . '">' . $text . '</span>';
@@ -192,6 +198,7 @@ abstract class LocalLang
 		} else {
 			$trans = $text;
 		}
+
 		return $trans;
 	}
 
@@ -224,6 +231,7 @@ abstract class LocalLang
 			$selected = $this->lang == $code ? ' selected="selected"' : '';
 			$options .= '<option value="' . $code . '"' . $selected . '>' . __($code) . '</option>';
 		}
+
 		$content = '
 		<form action="' . $_SERVER['REQUEST_URI'] . '" method="POST">
 			<select class="input-small langMenu" name="setLangCookie">' . $options . '
@@ -235,7 +243,7 @@ abstract class LocalLang
 		return $content;
 	}
 
-	public function log($method, $data)
+	public function log($method, $data): void
 	{
 //		error_log('['.$method.'] '. (is_scalar($data) ? $data : json_encode($data)));
 	}

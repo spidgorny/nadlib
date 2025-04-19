@@ -29,15 +29,12 @@ class Linker
 	}
 
 	/**
-	 * Returns '<a href="$page?$params" $more">$text</a>
-	 * @param string $text
-	 * @param array $params
-	 * @param string $page
-	 * @param array $more
-	 * @param bool $isHTML
-	 * @return HTMLTag
-	 */
-	public function makeLink($text, array $params, $page = '', array $more = [], $isHTML = false)
+     * Returns '<a href="$page?$params" $more">$text</a>
+     * @param string $text
+     * @param string $page
+     * @param bool $isHTML
+     */
+    public function makeLink($text, array $params, $page = '', array $more = [], $isHTML = false): \HTMLTag
 	{
 		//debug($text, $params, $page, $more, $isHTML);
 		$content = new HTMLTag('a', [
@@ -47,13 +44,10 @@ class Linker
 	}
 
 	/**
-	 * @param array $params
-	 * @param null $prefix
-	 * @return URL
-	 * @public for View::link
-	 * use getURL() for retrieving current URL
-	 */
-	public function makeURL(array $params, $prefix = null)
+     * @public for View::link
+     * use getURL() for retrieving current URL
+     */
+    public function makeURL(array $params, $prefix = null): \spidgorny\nadlib\HTTP\URL
 	{
 		if (!$prefix && $this->useRouter) { // default value is = mod_rewrite
 			$class = ifsetor($params['c']);
@@ -73,6 +67,7 @@ class Linker
 		if (!str_startsWith($prefix, 'http')) {
 			$location = $this->request->getLocation();
 		}
+
 		$url = new URL($prefix
 			? $location . $prefix
 			: $location, $params);
@@ -81,6 +76,7 @@ class Linker
 			$path->setFile($class);
 			$path->setAsFile();
 		}
+
 		//debug($prefix, get_class($path));
 		$url->setPath($path);
 		nodebug([
@@ -98,26 +94,23 @@ class Linker
 		return $url;
 	}
 
-	public function makeAjaxLink($text, array $params, $div, $jsPlus = '', $aMore = [], $prefix = '')
+	public function makeAjaxLink($text, array $params, string $div, string $jsPlus = '', $aMore = [], $prefix = ''): \HTMLTag
 	{
 		$url = $this->makeURL($params, $prefix);
-		$link = new HTMLTag('a', $aMore + [
+		return new HTMLTag('a', $aMore + [
 				'href' => $url,
 				'onclick' => '
-			jQuery(\'#' . $div . '\').load(\'' . $url . '\');
+			jQuery(\'#' . $div . "').load('" . $url . '\');
 			return false;
 			' . $jsPlus,
 			], $text, true);
-		return $link;
 	}
 
 	/**
-	 * @param array $params
-	 * @return URL
-	 * @throws Exception
-	 * @see makeRelURL
-	 */
-	public function adjustURL(array $params)
+     * @throws Exception
+     * @see makeRelURL
+     */
+    public function adjustURL(array $params): \spidgorny\nadlib\HTTP\URL
 	{
 		return URL::getCurrent()->addParams([
 				'c' => $this->controllerName,
@@ -125,13 +118,11 @@ class Linker
 	}
 
 	/**
-	 * Just appends $this->linkVars
-	 * @param string $text
-	 * @param array $params
-	 * @param string $page
-	 * @return HTMLTag
-	 */
-	public function makeRelLink($text, array $params, $page = '?')
+     * Just appends $this->linkVars
+     * @param string $text
+     * @param string $page
+     */
+    public function makeRelLink($text, array $params, $page = '?'): \HTMLTag
 	{
 		return new HTMLTag('a', [
 			'href' => $this->makeRelURL($params, $page)
@@ -139,13 +130,11 @@ class Linker
 	}
 
 	/**
-	 * Only appends $this->linkVars to the URL.
-	 * Use this one if your linkVars is defined.
-	 * @param array $params
-	 * @param string $page
-	 * @return URL
-	 */
-	public function makeRelURL(array $params = [], $page = null)
+     * Only appends $this->linkVars to the URL.
+     * Use this one if your linkVars is defined.
+     * @param string $page
+     */
+    public function makeRelURL(array $params = [], $page = null): \spidgorny\nadlib\HTTP\URL
 	{
 		return $this->makeURL(
 			$params                           // 1st priority
@@ -156,17 +145,14 @@ class Linker
 	}
 
 	/**
-	 * There is no $formMore parameter because you get the whole form returned.
-	 * You can modify it after returning as you like.
-	 * @param string|HtmlString $name - if object then will be used as is
-	 * @param string|null $action
-	 * @param string $formAction
-	 * @param array $hidden
-	 * @param string $submitClass
-	 * @param array $submitParams
-	 * @return HTMLForm
-	 */
-	public function getActionButton($name, $action, $formAction = null, array $hidden = [], $submitClass = '', array $submitParams = [])
+     * There is no $formMore parameter because you get the whole form returned.
+     * You can modify it after returning as you like.
+     * @param string|HtmlString $name - if object then will be used as is
+     * @param string|null $action
+     * @param string $formAction
+     * @param string $submitClass
+     */
+    public function getActionButton($name, $action, $formAction = null, array $hidden = [], $submitClass = '', array $submitParams = []): \HTMLForm
 	{
 		$f = new HTMLForm();
 		if ($formAction) {
@@ -178,15 +164,18 @@ class Linker
 			// better provide $formAction = '?c=SomeController'
 			$f->hidden('c', get_class($bt[2]['object']));
 		}
+
 		$f->formHideArray($hidden);
 		if (false) {    // this is too specific, not and API
 //			if ($id = $this->request->getInt('id')) {
 //				$f->hidden('id', $id);
 //			}
 		}
+
 		if (!is_null($action)) {
 			$f->hidden('action', $action);
 		}
+
 		if ($name instanceof HtmlString) {
 			$f->button($name, [
 					'type' => "submit",
@@ -199,14 +188,16 @@ class Linker
 					'class' => $submitClass,
 				] + $submitParams);
 		}
+
 		return $f;
 	}
 
-	public function linkToAction($action = '', array $params = [], $controller = null)
+	public function linkToAction($action = '', array $params = [], $controller = null): \spidgorny\nadlib\HTTP\URL
 	{
 		if (!$controller) {
 			$controller = $this->controllerName;
 		}
+
 		$params = [
 				'c' => $controller,
 			] + $params;
@@ -215,10 +206,11 @@ class Linker
 				'action' => $action,
 			];
 		}
+
 		return $this->makeURL($params);
 	}
 
-	public function linkPage($className, array $params = [])
+	public function linkPage($className, array $params = []): \HTMLTag
 	{
 		/** @var AppController $obj */
 		$obj = new $className();
@@ -228,7 +220,7 @@ class Linker
 		return $html->a($href, $title);
 	}
 
-	public function makeActionURL($action = '', array $params = [], $path = '')
+	public function makeActionURL($action = '', array $params = [], $path = ''): \spidgorny\nadlib\HTTP\URL
 	{
 		$urlParams = [
 				'c' => $params['c'] ?? $this->controllerName,

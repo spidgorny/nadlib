@@ -11,7 +11,7 @@ use spidgorny\nadlib\HTTP\URL;
 class URLTest extends PHPUnit\Framework\TestCase
 {
 
-	public function test_resolve_append()
+	public function test_resolve_append(): void
 	{
 		$url = new URL('http://www.thueringer-wald.com/urlaub-wandern-winter/trusetaler-wasserfall-104618.html');
 		$abs = $url->resolve('image.png');
@@ -19,7 +19,7 @@ class URLTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals('http://www.thueringer-wald.com/urlaub-wandern-winter/image.png', $abs);
 	}
 
-	public function test_resolve_parent()
+	public function test_resolve_parent(): void
 	{
 		$url = new URL('http://www.thueringer-wald.com/urlaub-wandern-winter/trusetaler-wasserfall-104618.html');
 		$abs = $url->resolve('../image.png');
@@ -27,7 +27,7 @@ class URLTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals('http://www.thueringer-wald.com/image.png', $abs);
 	}
 
-	public function test_resolve_root()
+	public function test_resolve_root(): void
 	{
 		$url = new URL('http://www.thueringer-wald.com/urlaub-wandern-winter/trusetaler-wasserfall-104618.html');
 		$abs = $url->resolve('/image.png');
@@ -35,14 +35,14 @@ class URLTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals('http://www.thueringer-wald.com/image.png', $abs);
 	}
 
-	public function test_absolute_constructor()
+	public function test_absolute_constructor(): void
 	{
 		$original = 'http://www.thueringer-wald.com/urlaub-wandern-winter/trusetaler-wasserfall-104618.html';
 		$url = new URL($original);
 		$this->assertEquals($original, $url . '');
 	}
 
-	public function test_absolute_constructor_setDocumentRoot()
+	public function test_absolute_constructor_setDocumentRoot(): void
 	{
 		$original = 'https://ors.nintendo.de/slawa/SoftwareGrid/VersionGrid/VersionInfo?id=1966562';
 		$url = new URL($original);
@@ -51,7 +51,7 @@ class URLTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals($original, $url . '');
 	}
 
-	public function test_replaceController()
+	public function test_replaceController(): void
 	{
 		$this->markTestSkipped();
 		$url = new URL('http://localhost/level1/level2/level3');

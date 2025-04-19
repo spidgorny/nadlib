@@ -32,19 +32,19 @@ class PathResolver implements ResolverInterface
 					$last = $class . 'Controller';
 					break;
 				}
+
 				if (class_exists($class)) {
 					$last = $class;
 					break;
 				}
-			}    // foreach
-			if ($last) {
-				$controller = $last;
-			} else {
-				$controller = $this->getDefault($returnDefault);
 			}
+
+            // foreach
+            $controller = $last ? $last : $this->getDefault($returnDefault);
 		} else {
 			$controller = $this->getDefault($returnDefault);
 		}
+
 		return $controller;
 	}
 
@@ -58,6 +58,7 @@ class PathResolver implements ResolverInterface
 		} else {
 			$controller = null;
 		}
+
 		return $controller;
 	}
 

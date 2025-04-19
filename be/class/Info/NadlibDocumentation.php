@@ -11,7 +11,7 @@ class NadlibDocumentation extends AppControllerBE
 
 	protected $method;
 
-	public function render()
+	public function render(): string
 	{
 		$content = '';
 		$this->folder = $this->request->getTrim('folder');
@@ -23,10 +23,14 @@ class NadlibDocumentation extends AppControllerBE
 				$content .= $this->renderClass();
 			}
 		}
+
 		return $content;
 	}
 
-	public function getFiles($folder)
+	/**
+     * @return mixed[]
+     */
+    public function getFiles($folder): array
 	{
 		$files = [];
 		$it = new DirectoryIterator($folder);
@@ -39,10 +43,11 @@ class NadlibDocumentation extends AppControllerBE
 				}
 			}
 		}
+
 		return $files;
 	}
 
-	public function listFiles(array $files)
+	public function listFiles(array $files): string
 	{
 		foreach ($files as $path => &$file) {
 			$class = str_replace('class.', '', $file);
@@ -56,11 +61,11 @@ class NadlibDocumentation extends AppControllerBE
 				'class' => $this->class == $class ? 'bold' : '',
 			], $file);
 		}
-		$content = '<ul style="-moz-column-count: 2"><li>' . implode('</li><li>', $files) . '</li></ul>';
-		return $content;
+
+		return '<ul style="-moz-column-count: 2"><li>' . implode('</li><li>', $files) . '</li></ul>';
 	}
 
-	public function renderClass()
+	public function renderClass(): string
 	{
 		$content = '';
 		$content .= '<hr><h4 style="display: inline-block;">' . $this->class . '</h4>';
@@ -76,10 +81,11 @@ class NadlibDocumentation extends AppControllerBE
 		if ($this->method) {
 			$content .= $this->renderMethod($rc);
 		}
+
 		return $content;
 	}
 
-	public function getParentClassLinks(ReflectionClass $rc, $level = 0)
+	public function getParentClassLinks(ReflectionClass $rc, $level = 0): string
 	{
 		$content = '';
 		if ($rc->getParentClass()) {
@@ -94,13 +100,15 @@ class NadlibDocumentation extends AppControllerBE
 				);
 			$content .= $this->getParentClassLinks($rc->getParentClass(), $level + 1);
 		}
+
 		if (!$level) {
 			$content = '<h5>' . $content . '</h5>';
 		}
+
 		return $content;
 	}
 
-	public function listMethods($folder, $class, array $methods)
+	public function listMethods($folder, $class, array $methods): string
 	{
 		foreach ($methods as &$method) {
 			$method = $method->getName();
@@ -114,11 +122,11 @@ class NadlibDocumentation extends AppControllerBE
 				'class' => $this->method == $method ? 'bold' : '',
 			], $method);
 		}
-		$content = '<ul style="-moz-column-count: 3"><li>' . implode('</li><li>', $methods) . '</li></ul>';
-		return $content;
+
+		return '<ul style="-moz-column-count: 3"><li>' . implode('</li><li>', $methods) . '</li></ul>';
 	}
 
-	public function renderMethod(ReflectionClass $rc)
+	public function renderMethod(ReflectionClass $rc): string
 	{
 		$content = '';
 		$rf = $rc->getMethod($this->method);
@@ -132,15 +140,18 @@ class NadlibDocumentation extends AppControllerBE
 				if ($param->isDefaultValueAvailable()) {
 					//$line .= ' = '.var_export($param->getDefaultValue(), true);
 				}
+
 				$line .= substr(substr($param->__toString(), 14), 0, -1);
 				$param = $line;
 			}
+
 			$content .= '<ul><li>' . implode('</li><li>', $params) . '</li></ul>';
 		}
+
 		return $content;
 	}
 
-	public function sidebar()
+	public function sidebar(): string
 	{
 		$content = '';
 		$folders = $this->getFolders();
@@ -153,11 +164,14 @@ class NadlibDocumentation extends AppControllerBE
 				'class' => $this->folder === $path ? 'bold' : '',
 			], $file);
 		}
-		$content .= '<ul><li>' . implode('</li><li>', $folders) . '</li></ul>';
-		return $content;
+
+		return $content . ('<ul><li>' . implode('</li><li>', $folders) . '</li></ul>');
 	}
 
-	public function getFolders()
+	/**
+     * @return mixed[]
+     */
+    public function getFolders(): array
 	{
 		$folders = [];
 		$it = new DirectoryIterator('../');
@@ -170,6 +184,7 @@ class NadlibDocumentation extends AppControllerBE
 				}
 			}
 		}
+
 		return $folders;
 	}
 

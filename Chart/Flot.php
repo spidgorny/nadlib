@@ -27,7 +27,9 @@ class Flot extends Controller
 	public $data;
 
 	protected $keyKey;
+
 	protected $timeKey;
+
 	protected $amountKey;
 
 	/**
@@ -118,12 +120,12 @@ class Flot extends Controller
 		//$this->max = $this->getChartMax($this->cumulative);
 	}
 
-	public function setFlotPath($path)
+	public function setFlotPath($path): void
 	{
 		$this->flotPath = $path;
 	}
 
-	public function setMinMax()
+	public function setMinMax(): void
 	{
 		$this->jsConfig['colors'] = $this->colors;
 
@@ -151,30 +153,30 @@ class Flot extends Controller
 	 * 1    integer    39
 	 * @throws Exception
 	 */
-	public function render($divID = 'chart1')
+	public function render($divID = 'chart1'): string
 	{
 		$content = '';
 		if (!is_dir($this->flotPath)) {
 			throw new Exception($this->flotPath . ' is not correct');
 		}
-		$content .= $this->showChart($divID, $this->chart);
-		return $content;
+
+		return $content . $this->showChart($divID, $this->chart);
 	}
 
-	public function renderCumulative($divID = 'chart1')
+	public function renderCumulative(string $divID = 'chart1'): string
 	{
 		$content = '';
-		$content .= $this->showChart($divID, $this->chart, $this->cumulative);
-		return $content;
+		return $content . $this->showChart($divID, $this->chart, $this->cumulative);
 	}
 
-	public function appendCumulative(array $data)
+	public function appendCumulative(array $data): array
 	{
 		//debug($this->cumulative, $data);
 		$cumulative2 = [];
 		foreach ($this->cumulative as $series) {
 			$cumulative2 = array_merge($cumulative2, $series);
 		}
+
 		//$cumulative = array_values($cumulative2);
 		$dataClass = [];
 		foreach ($data as $i => &$row) {
@@ -186,25 +188,24 @@ class Flot extends Controller
 			$jsTime = strtotime($i) * 1000;
 			$row['cumulative'] = $this->cumulative['Total'][$jsTime][1];
 		}
+
 		return $data;
 	}
 
 	/**
-	 * http://bytes.com/topic/php/answers/747586-calculate-moving-average
-	 * @return string
-	 */
-	public function renderMovingAverage()
+     * http://bytes.com/topic/php/answers/747586-calculate-moving-average
+     */
+    public function renderMovingAverage(): string
 	{
 		$content = '';
 		$charts = $this->getChartTable($this->data);
 		$this->movingAverage = $this->getMovingAverage($charts);
-		$content .= $this->showChart('chart1', $charts, $this->movingAverage);
-		return $content;
+		return $content . $this->showChart('chart1', $charts, $this->movingAverage);
 	}
 
-	public function getMovingAverage(array $charts)
+	public function getMovingAverage(array $charts): array
 	{
-		foreach ($charts as $s => &$series) {
+		foreach ($charts as &$series) {
 			$res = [];
 			foreach ($series as $pair) {
 				$res[$pair[0]] = $pair[1];
@@ -224,23 +225,23 @@ class Flot extends Controller
 			foreach ($res as $key => &$val) {
 				$val = [$key, $val];
 			}
+
 			$series = $res;
 		}
+
 		return $charts;
 	}
 
 	/**
-	 * Return a multitude of rows which are extracted by the $keyKey.
-	 * Each row is an assoc array with $timeKey keys and $amountKey values.
-	 * Uses strtotime() so the $timeKey values should be PHP parsable
-	 *
-	 * @param array $rows
-	 * @return array
-	 * @internal param string $timeKey
-	 * @internal param string $amountKey
-	 * @internal param string $keyKey
-	 */
-	public function getChartTable(array $rows)
+     * Return a multitude of rows which are extracted by the $keyKey.
+     * Each row is an assoc array with $timeKey keys and $amountKey values.
+     * Uses strtotime() so the $timeKey values should be PHP parsable
+     *
+     * @internal param string $timeKey
+     * @internal param string $amountKey
+     * @internal param string $keyKey
+     */
+    public function getChartTable(array $rows): array
 	{
 		$chart = [];
 		foreach ($rows as $i => $row) {
@@ -252,20 +253,18 @@ class Flot extends Controller
 				if (is_string($barHeight)) {
 					$barHeight = strtotime($barHeight);
 				}
-				if ($time != -1 && $time > 100) {
-					$chart[$key][$time] = [$time * 1000, $barHeight];
-				} else {
-					$chart[$key][$time] = [$timeMaybe, $barHeight];
-				}
+
+                $chart[$key][$time] = $time != -1 && $time > 100 ? [$time * 1000, $barHeight] : [$timeMaybe, $barHeight];
 			} else {
 				unset($rows[$i]);
 			}
 		}
+
 		//debug($chart);
 		return $chart;
 	}
 
-	public function getChartCumulative(array $chart)
+	public function getChartCumulative(array $chart): array
 	{
 		foreach ($chart as &$sub) {
 			ksort($sub);
@@ -274,8 +273,10 @@ class Flot extends Controller
 				$sum += $val[1];
 				$val[1] = $sum;
 			}
+
 			unset($val);
 		}
+
 		return $chart;
 	}
 
@@ -287,14 +288,16 @@ class Flot extends Controller
 				$max = $min ? min($max, $pair[1]) : max($max, $pair[1]);
 			}
 		}
+
 		return $max;
 	}
 
-	public function showChart($divID, array $charts, array $cumulative = [])
+	public function showChart(string $divID, array $charts, array $cumulative = []): string
 	{
-		if (!$charts) {
+		if ($charts === []) {
 			return '';
 		}
+
 		$this->index->addJQuery();
 		$this->index->footer['flot'] = '
 		<!--[if lte IE 8]><script language="javascript" type="text/javascript"
@@ -361,6 +364,7 @@ class Flot extends Controller
 				yaxis: 2
 			};';
 		}
+
 		//$max *= 2;
 
 		$config = json_encode($this->jsConfig, defined('JSON_PRETTY_PRINT')
@@ -370,6 +374,7 @@ class Flot extends Controller
 			$this->index->addJS($al->nadlibFromDocRoot . 'js/flot-weeks.js');
 			$config = str_replace('"ticksWeeks"', 'ticksWeeks', $config); // hack
 		}
+
 		$this->index->footer[$divID] = '
     	<script type="text/javascript">
 var deferCounter = 0;

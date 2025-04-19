@@ -13,7 +13,9 @@ class Lesser extends AppControllerBE
 	 * @var bool
 	 */
 	public static $public = true;
+
 	public $layout = 'none';
+
 	protected $output = 'cache/merge.css';
 
 	public function __construct()
@@ -23,6 +25,7 @@ class Lesser extends AppControllerBE
 		} else {
 			$_COOKIE['debug'] = 1;
 		}
+
 		parent::__construct();
 		$appRoot = AutoLoad::getInstance()->getAppRoot();
 		$this->output = Path::make($appRoot)->appendString($this->output);
@@ -43,10 +46,11 @@ class Lesser extends AppControllerBE
 				throw new RuntimeException('Cache dir not existing, can not be created. ' . $cacheDir);
 			}
 		}
+
 		@set_time_limit(30);  // compiling bootstrap
 	}
 
-	public function render()
+	public function render(): void
 	{
 		session_write_close();
 		//$less->importDir[] = '../../';
@@ -60,6 +64,7 @@ class Lesser extends AppControllerBE
 				//echo $cssFile.BR;
 			}
 		}
+
 		if ($cssFile) {
 			$cssFileName = $this->request->getFilename('css');
 			$this->output = dirname($this->output) . '/' . str_replace('.less', '.css', $cssFileName);
@@ -109,6 +114,7 @@ class Lesser extends AppControllerBE
 			echo getDebug($_REQUEST);
 			echo 'error which file?';
 		}
+
 		$this->request->set('ajax', true);    // avoid any HTML
 	}
 

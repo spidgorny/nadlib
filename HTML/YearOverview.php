@@ -35,7 +35,7 @@ class YearOverview extends Controller
 		}
 	}
 
-	public function addActivity($day, $count)
+	public function addActivity($day, $count): void
 	{
 		$day = strtotime($day);
 		$day = date('Y-m-d', $day);
@@ -45,7 +45,7 @@ class YearOverview extends Controller
 	/**
 	 * The values in $this->days are supposed to be in [0, 100] range
 	 */
-	public function normalize()
+	public function normalize(): void
 	{
 		$max = max($this->days);
 		if ($max) {
@@ -91,6 +91,7 @@ class YearOverview extends Controller
 					} else {
 						$style = '';
 					}
+
 					$inTD = date('d', $date) == 1 ? '01' : '';
 					$inTD = date('d', $date) == 31 ? '31' : $inTD;
 					$inTD = $dow == 1 ? date('d', $date) : $inTD;
@@ -98,11 +99,14 @@ class YearOverview extends Controller
 					$style = '';
 					$inTD = '';
 				}
+
 				$content[] = '<td style="' . $style . '">' . $inTD . '</td>';
 				$date = strtotime('+7 days', $date);
 			}
+
 			$content[] = '</tr>';
 		}
+
 		$content[] = '</table>';
 		return $content;
 	}

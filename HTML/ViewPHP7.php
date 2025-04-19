@@ -7,12 +7,12 @@ class ViewPHP7
 	 * PHP 5.6
 	 * @param array ...$variables
 	 */
-	public function set(...$variables)
+	public function set(...$variables): void
 	{
 		// returns just ['variables']
 		$ReflectionMethod = new ReflectionMethod(__CLASS__, __FUNCTION__);
 		$params = $ReflectionMethod->getParameters();
-		$paramNames = array_map(function ($item) {
+		$paramNames = array_map(function ($item): string {
 			/** @var $item ReflectionParameter */
 			return $item->getName();
 		}, $params);
@@ -26,6 +26,7 @@ class ViewPHP7
 		preg_match('#\((.*?)\)#', $line, $match);
 		$varList = $match[1];
 		$varList = str_replace('$', '', $varList);
+
 		$paramNames = trimExplode(',', $varList);
 //		debug($line, $paramNames);
 		$variables = array_combine($paramNames, $variables);

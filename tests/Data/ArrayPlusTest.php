@@ -17,7 +17,7 @@ class ArrayPlusTest extends IteratorArrayAccessTest
 		]);
 	}
 
-	public function test_typoscript()
+	public function test_typoscript(): void
 	{
 		$a = [
 			'a' => 'b',
@@ -37,7 +37,7 @@ class ArrayPlusTest extends IteratorArrayAccessTest
 		], $b);
 	}
 
-	public function test_unset()
+	public function test_unset(): void
 	{
 		unset($this->ai[1]);
 		$this->assertEquals([
@@ -46,7 +46,7 @@ class ArrayPlusTest extends IteratorArrayAccessTest
 		], $this->ai->getData());
 	}
 
-	public function test_addColumn()
+	public function test_addColumn(): void
 	{
 		$this->ai->makeTable('col1');
 		$this->ai->addColumn('nr', function ($row, $i) {
@@ -68,7 +68,7 @@ class ArrayPlusTest extends IteratorArrayAccessTest
 		], (array)$this->ai);
 	}
 
-	public function test_remap()
+	public function test_remap(): void
 	{
 		$a = ArrayPlus::create([
 			'a' => 'b',
@@ -83,7 +83,7 @@ class ArrayPlusTest extends IteratorArrayAccessTest
 		], $remap->getData());
 	}
 
-	public function test_mapBoth()
+	public function test_mapBoth(): void
 	{
 		$a = ArrayPlus::create([
 			'a' => 'b',
@@ -96,21 +96,21 @@ class ArrayPlusTest extends IteratorArrayAccessTest
 		], $b->getKeys()->getData());
 	}
 
-	public function test_insertBefore()
+	public function test_insertBefore(): void
 	{
 		$a = ArrayPlus::create(['asd', 'split' => 'a', 'after']);
 		$a->insertBefore('split', 'someshit');
 		$this->assertEquals(['asd', 'someshit', 'split' => 'a', 'after'], $a->getData());
 	}
 
-	public function test_without()
+	public function test_without(): void
 	{
 		$a = ArrayPlus::create(['asd' => 1, 'qwe' => 2]);
 		$b = $a->without(['asd']);
 		$this->assertEquals(['qwe' => 2], $b->getArrayCopy());
 	}
 
-	public function test_any()
+	public function test_any(): void
 	{
 		$fixture01 = ArrayPlus::create([0, 1]);
 		$this->assertTrue($fixture01->any(function ($x) {
@@ -126,7 +126,7 @@ class ArrayPlusTest extends IteratorArrayAccessTest
 		}));
 	}
 
-	public function test_all()
+	public function test_all(): void
 	{
 		$fixture01 = ArrayPlus::create([0, 1]);
 		$this->assertFalse($fixture01->all(function ($x) {
@@ -142,7 +142,7 @@ class ArrayPlusTest extends IteratorArrayAccessTest
 		}));
 	}
 
-	public function test_none()
+	public function test_none(): void
 	{
 		$fixture01 = ArrayPlus::create([0, 1]);
 		$this->assertFalse($fixture01->none(function ($x) {

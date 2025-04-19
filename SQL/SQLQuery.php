@@ -17,7 +17,7 @@ class SQLQuery extends PHPSQLParser
 		}
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->getQuery();
 	}
@@ -45,7 +45,7 @@ class SQLQuery extends PHPSQLParser
 		], $query);
 	}
 
-	public function appendCalcRows()
+	public function appendCalcRows(): void
 	{
 		//debug($sql->parsed['SELECT']);
 		array_unshift($this->parsed['SELECT'], [
@@ -57,6 +57,7 @@ class SQLQuery extends PHPSQLParser
 		if ($this->parsed['ORDER'] && $this->parsed['ORDER'][0]['base_expr'] !== 'FIELD') {
 			$this->parsed['ORDER'][0]['expr_type'] = 'colref';
 		}
+        
 		//debug($sql->parsed);
 	}
 

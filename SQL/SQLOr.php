@@ -8,7 +8,7 @@
 class SQLOr extends SQLWherePart
 {
 
-	protected $or = [];
+	protected array $or;
 
 	/**
 	 * @var DBInterface
@@ -24,12 +24,11 @@ class SQLOr extends SQLWherePart
 	}
 
 	/**
-	 * Please make SQLOrBijou, SQLOrORS and so on classes.
-	 * This one should be just simple general.
-	 * @return string
-	 * @throws MustBeStringException
-	 */
-	public function __toString()
+     * Please make SQLOrBijou, SQLOrORS and so on classes.
+     * This one should be just simple general.
+     * @throws MustBeStringException
+     */
+    public function __toString(): string
 	{
 		$ors = [];
 //		llog(typ($this->db)->cli());
@@ -48,16 +47,12 @@ class SQLOr extends SQLWherePart
 //			llog($this->or, $ors);
 		}
 
-		if ($ors) {
-			$res = '(' . implode($this->join, $ors) . ')';
-		} else {
-			$res = '/* EMPTY OR */';
-		}
+
 		//debug($this, $ors, $res);
-		return $res;
+		return $ors ? '(' . implode($this->join, $ors) . ')' : '/* EMPTY OR */';
 	}
 
-	public function dciStyle()
+	public function dciStyle(): mixed
 	{
 		$ors = [];
 		// DCI, ORS
@@ -76,7 +71,7 @@ class SQLOr extends SQLWherePart
 				$ors[] = implode('', $tmp);
 			}
 		} elseif (!is_int($this->field)) {
-			foreach ($this->or as $field => $or) {
+			foreach ($this->or as $or) {
 				$tmp = $this->db->quoteWhere(
 					[trim($this->field) => $or]
 				//$or
@@ -90,12 +85,14 @@ class SQLOr extends SQLWherePart
 					$p->injectDB($this->db);
 				}
 			}
+
 			$ors = $this->db->quoteWhere($this->or);
 		}
+
 		return first($ors);
 	}
 
-	public function bijouStyle()
+	public function bijouStyle(): mixed
 	{
 		// bijou
 		$ors = [];
@@ -107,20 +104,21 @@ class SQLOr extends SQLWherePart
 				], false);
 			}
 		}
+
 		return first($ors);
 	}
 
-	private function is_main($key)
+	private function is_main(int|string $key): bool
 	{
-		return $key[0] != '.';
+		return $key[0] !== '.';
 	}
 
-	public function debug()
+	public function debug(): array
 	{
 		return [$this->field => $this->or];
 	}
 
-	public function getParameter()
+	public function getParameter(): array
 	{
 		$params = [];
 		/**
@@ -134,6 +132,7 @@ class SQLOr extends SQLWherePart
 				}
 			}
 		}
+
 		return $params;
 	}
 

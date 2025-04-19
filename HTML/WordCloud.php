@@ -26,7 +26,9 @@
 class WordCloud
 {
 	public $version = '2.0';
+
 	public $wordsArray = [];
+
 	/**
 	 * @var array
 	 */
@@ -53,12 +55,12 @@ class WordCloud
 			if (is_string($words)) {
 				$this->addString($words);
 			} elseif (count($words)) {
-				foreach ($words as $key => $value) {
+				foreach ($words as $value) {
 					$this->addWord($value);
 				}
 			}
 		}
-		return;
+
 	}
 
 	/*
@@ -69,7 +71,7 @@ class WordCloud
 	 * @return void
 	 */
 
-	public function wordCloud($words = false)
+	public function wordCloud($words = false): static
 	{
 		$this->__construct($words);
 		return $this;
@@ -82,17 +84,14 @@ class WordCloud
 	 * @return void
 	 */
 
-	public function addString($string)
+	public function addString($string): void
 	{
 		// remove all other chars apart from a-z
 		$string = preg_replace('[^a-z]', '', strip_tags(strtolower($string)));
-		$words = [];
 		$words = explode(' ', $string);
-		if (count($words)) {
-			foreach ($words as $key => $value) {
+		foreach ($words as $value) {
 				$this->addWord($value);
 			}
-		}
 	}
 
 	/*
@@ -104,7 +103,7 @@ class WordCloud
 	 * @return bool
 	 */
 
-	public function notify($string, $value)
+	public function notify($string, $value): bool
 	{
 		echo '<pre>';
 		print_r($string);
@@ -126,21 +125,26 @@ class WordCloud
 		if (is_string($wordAttributes)) {
 			$wordAttributes = ['word' => $wordAttributes];
 		}
+
 		if (!array_key_exists('size', $wordAttributes)) {
 			$wordAttributes = array_merge($wordAttributes, ['size' => 1]);
 		}
+
 		if (!array_key_exists('word', $wordAttributes)) {
 			return $this->notify('no word attribute', print_r($wordAttributes, true));
 		}
+
 		$word = strtolower($wordAttributes['word']);
 		if (empty($this->wordsArray[$word])) {
 			$this->wordsArray[$word] = [];
 		}
+
 		if (!empty($this->wordsArray[$word]['size']) && !empty($wordAttributes['size'])) {
 			$wordAttributes['size'] = ($this->wordsArray[$word]['size'] + $wordAttributes['size']);
 		} elseif (!empty($this->wordsArray[$word]['size'])) {
 			$wordAttributes['size'] = $this->wordsArray[$word]['size'];
 		}
+
 		$this->wordsArray[$word] = $wordAttributes;
 		return $this->wordsArray[$word];
 	}
@@ -158,10 +162,11 @@ class WordCloud
 		if (count($keys) && is_array($keys)) {
 			$tmpArray = $this->wordsArray;
 			$this->wordsArray = [];
-			foreach ($keys as $key => $value) {
+			foreach ($keys as $value) {
 				$this->wordsArray[$value] = $tmpArray[$value];
 			}
 		}
+
 		return $this->wordsArray;
 	}
 
@@ -171,29 +176,31 @@ class WordCloud
 	 * @returns int $class
 	 */
 
-	public function getClassFromPercent($percent)
+	public function getClassFromPercent($percent): int
 	{
-		if ($percent >= 99)
-			$class = 9;
-		elseif ($percent >= 70)
-			$class = 8;
-		elseif ($percent >= 60)
-			$class = 7;
-		elseif ($percent >= 50)
-			$class = 6;
-		elseif ($percent >= 40)
-			$class = 5;
-		elseif ($percent >= 30)
-			$class = 4;
-		elseif ($percent >= 20)
-			$class = 3;
-		elseif ($percent >= 10)
-			$class = 2;
-		elseif ($percent >= 5)
-			$class = 1;
-		else
-			$class = 0;
-		return $class;
+		if ($percent >= 99) {
+            $class = 9;
+        } elseif ($percent >= 70) {
+            $class = 8;
+        } elseif ($percent >= 60) {
+            $class = 7;
+        } elseif ($percent >= 50) {
+            $class = 6;
+        } elseif ($percent >= 40) {
+            $class = 5;
+        } elseif ($percent >= 30) {
+            $class = 4;
+        } elseif ($percent >= 20) {
+            $class = 3;
+        } elseif ($percent >= 10) {
+            $class = 2;
+        } elseif ($percent >= 5) {
+            $class = 1;
+        } else {
+            $class = 0;
+        }
+
+        return $class;
 	}
 
 	/*
@@ -209,6 +216,7 @@ class WordCloud
 		if (!empty($limit)) {
 			$this->limitAmount = $limit;
 		}
+
 		return $this->limitAmount;
 	}
 
@@ -222,13 +230,14 @@ class WordCloud
 	{
 		$wordsArray = [];
 		$i = 1;
-		foreach ($this->wordsArray as $key => $value) {
+		foreach ($this->wordsArray as $value) {
 			if ($this->limitAmount < $i) {
 				$wordsArray[$value['word']] = $value;
 			}
+
 			$i++;
 		}
-		$this->wordsArray = [];
+
 		$this->wordsArray = $wordsArray;
 		return $this->wordsArray;
 	}
@@ -241,7 +250,7 @@ class WordCloud
 	 * @returns void
 	 */
 
-	public function removeWord($word)
+	public function removeWord($word): void
 	{
 		$this->removeWords[] = strtolower($word);
 	}
@@ -255,11 +264,12 @@ class WordCloud
 	public function removeWords()
 	{
 		$wordsArray = [];
-		foreach ($this->wordsArray as $key => $value) {
+		foreach ($this->wordsArray as $value) {
 			if (!in_array($value['word'], $this->removeWords)) {
 				$wordsArray[$value['word']] = $value;
 			}
 		}
+
 		$this->wordsArray = $wordsArray;
 		return $this->wordsArray;
 	}
@@ -296,9 +306,11 @@ class WordCloud
 				$sortedArray[$key][$uniqid] = strtolower($value);
 			}
 		}
+
 		if ($sortWay) {
 			array_multisort($sortedArray[$sortField], constant($sortWay), $unsortedArray);
 		}
+
 		return $unsortedArray;
 	}
 
@@ -313,7 +325,7 @@ class WordCloud
 		$max = 0;
 		if (!empty($this->wordsArray)) {
 			$p_size = 0;
-			foreach ($this->wordsArray as $cKey => $cVal) {
+			foreach ($this->wordsArray as $cVal) {
 				$c_size = $cVal['size'];
 				if ($c_size > $p_size) {
 					$max = $c_size;
@@ -322,6 +334,7 @@ class WordCloud
 				}
 			}
 		}
+
 		return $max;
 	}
 
@@ -336,15 +349,18 @@ class WordCloud
 		if (empty($this->orderBy)) {
 			$this->shuffleCloud();
 		} else {
-			$orderDirection = strtolower($this->orderBy['direction']) == 'desc' ? 'SORT_DESC' : 'SORT_ASC';
+			$orderDirection = strtolower($this->orderBy['direction']) === 'desc' ? 'SORT_DESC' : 'SORT_ASC';
 			$this->wordsArray = $this->orderCloud($this->wordsArray, $this->orderBy['field'], $orderDirection);
 		}
+
 		if (!empty($this->limitAmount)) {
 			$this->limitCloud();
 		}
-		if (!empty($this->removeWords)) {
+
+		if ($this->removeWords !== []) {
 			$this->removeWords();
 		}
+
 		$this->max = $this->getMax();
 		if (is_array($this->wordsArray)) {
 			$return = ($returnType == 'html' ? '' : ($returnType == 'array' ? [] : ''));
@@ -354,10 +370,13 @@ class WordCloud
 				if ($returnType == 'array') {
 					$return [$word] = $arrayInfo;
 				} elseif ($returnType == 'html') {
-					$return .= "<span class='word size{$sizeRange}'> &nbsp; {$arrayInfo['word']} &nbsp; </span>";
+					$return .= sprintf("<span class='word size%s'> &nbsp; %s &nbsp; </span>", $sizeRange, $arrayInfo['word']);
 				}
 			}
+
 			return $return;
 		}
+
+        return null;
 	}
 }

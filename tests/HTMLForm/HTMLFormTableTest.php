@@ -9,7 +9,7 @@
 class HTMLFormTableTest extends PHPUnit\Framework\TestCase
 {
 
-	public function test_fillValues()
+	public function test_fillValues(): void
 	{
 		$f = new HTMLFormTable([
 			'name' => 'Name',
@@ -27,7 +27,7 @@ class HTMLFormTableTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals($fixture, $values);
 	}
 
-	public function test_fillValues_with_force()
+	public function test_fillValues_with_force(): void
 	{
 		$f = new HTMLFormTable([
 			'name' => 'Name',
@@ -44,7 +44,7 @@ class HTMLFormTableTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals($fixture, $values);
 	}
 
-	public function test_fillValues_twice()
+	public function test_fillValues_twice(): void
 	{
 		$f = new HTMLFormTable([
 			'name' => 'Name',
@@ -64,7 +64,7 @@ class HTMLFormTableTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals($fixture, $values);
 	}
 
-	public function test_htmlspecialchars()
+	public function test_htmlspecialchars(): void
 	{
 		$f = new HTMLFormTable([
 			'field' => [
@@ -72,6 +72,7 @@ class HTMLFormTableTest extends PHPUnit\Framework\TestCase
 			]
 		]);
 		$f->showForm();
+
 		$html = $f->getContent();
 //		echo $html;
 		$this->assertContains('value="asd"', $html);
@@ -82,6 +83,7 @@ class HTMLFormTableTest extends PHPUnit\Framework\TestCase
 			]
 		]);
 		$f->showForm();
+
 		$html = $f->getContent();
 //		echo $html;
 		$this->assertContains('value="asd &amp; &quot;qwe&quot;"', $html);

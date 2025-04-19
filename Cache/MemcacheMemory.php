@@ -4,12 +4,11 @@ class MemcacheMemory extends Memcache
 {
 
 	/**
-	 * https://coderwall.com/p/imot3w/php-memcache-list-keys
-	 * @ param int $limit
-	 * @param int $limit
-	 * @return array
-	 */
-	public function getKeys($limit = 10000)
+     * https://coderwall.com/p/imot3w/php-memcache-list-keys
+     * @ param int $limit
+     * @param int $limit
+     */
+    public function getKeys($limit = 10000): array
 	{
 		$keysFound = [];
 		$slabs = $this->getExtendedStats('slabs');
@@ -46,14 +45,18 @@ class MemcacheMemory extends Memcache
 		return $keysFound;
 	}
 
-	public function getKeysStarting($begin)
+	/**
+     * @return mixed[]
+     */
+    public function getKeysStarting($begin): array
 	{
 		$keys = $this->getKeys();
-		foreach ($keys as $key => $_) {
+		foreach (array_keys($keys) as $key) {
 			if (!str_startsWith($key, $begin)) {
 				unset($keys[$key]);
 			}
 		}
+
 		return $keys;
 	}
 

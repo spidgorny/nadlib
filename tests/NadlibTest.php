@@ -3,7 +3,7 @@
 class NadlibTest extends PHPUnit\Framework\TestCase
 {
 
-	public function test_requireAll()
+	public function test_requireAll(): void
 	{
 
 		$this->markTestSkipped(
@@ -16,7 +16,7 @@ class NadlibTest extends PHPUnit\Framework\TestCase
 			'DBInterface',
 			'SQLQuery',
 		];
-		require_once 'AppController4Test.php';
+		require_once __DIR__ . '/AppController4Test.php';
 //		class_alias('AppController4Test', 'AppController');
 
 		$files = glob('**/*');
@@ -24,15 +24,14 @@ class NadlibTest extends PHPUnit\Framework\TestCase
 			if (preg_match('/class\..*\.php$/', $file)) {
 				$class = trimExplode('.', basename($file));
 				$class = $class[1];
-				if (!in_array($class, $skip)) {
-					//echo $class."\n";
-					if (!class_exists($class, false)) {
-						/** @noinspection PhpIncludeInspection */
-						require_once $file;
-					}
+				//echo $class."\n";
+                if (!in_array($class, $skip) && !class_exists($class, false)) {
+					/** @noinspection PhpIncludeInspection */
+                    require_once $file;
 				}
 			}
 		}
+
 		$this->assertTrue(true);
 	}
 

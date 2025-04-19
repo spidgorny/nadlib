@@ -27,11 +27,12 @@ class GroupSwitch extends Controller
 		if ($this->detectAction() === 'setGroup') {
 			return $this->setGroupAction();
 		}
+
 		$this->groups = $this->fetchGroups();
 		return $this->renderGroups();
 	}
 
-	public function canSwitchGroup()
+	public function canSwitchGroup(): bool
 	{
 		return in_array($this->user->getLogin(), $this->allowedUsers);
 	}
@@ -41,7 +42,7 @@ class GroupSwitch extends Controller
 		return $this->groups;
 	}
 
-	public function renderGroups()
+	public function renderGroups(): string
 	{
 		$items = [];
 		foreach ($this->groups as $groupID => $groupName) {
@@ -52,17 +53,19 @@ class GroupSwitch extends Controller
 			if ($this->isCurrentGroup($groupID)) {
 				$el = '<b>' . $el . '</b>';
 			}
+
 			$items[] = $el;
 		}
+
 		return implode(' | ', $items);
 	}
 
-	public function isCurrentGroup($groupID)
+	public function isCurrentGroup($groupID): bool
 	{
 		return $this->user->rights->groupID == $groupID;
 	}
 
-	public function setGroupAction()
+	public function setGroupAction(): void
 	{
 		$this->user->pretendOtherDepartment($this->request->getInt('groupID'));
 		$referer = new URL($_SERVER['HTTP_REFERER']);

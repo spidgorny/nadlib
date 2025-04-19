@@ -67,32 +67,29 @@ class Excel_XML
 	xmlns:html=\"http://www.w3.org/TR/REC-html40\">";
 
 	/**
-	 * Footer of excel document (appended to the rows)
-	 *
-	 * Copied from the excel xml-specs.
-	 *
-	 * @access private
-	 * @var string
-	 */
-	private $footer = "</Workbook>";
+     * Footer of excel document (appended to the rows)
+     *
+     * Copied from the excel xml-specs.
+     *
+     * @access private
+     */
+    private string $footer = "</Workbook>";
 
 	/**
-	 * Document lines (rows in an array)
-	 *
-	 * @access private
-	 * @var array
-	 */
-	private $lines = [];
+     * Document lines (rows in an array)
+     *
+     * @access private
+     */
+    private array $lines = [];
 
 	/**
-	 * Worksheet title
-	 *
-	 * Contains the title of a single worksheet
-	 *
-	 * @access private
-	 * @var string
-	 */
-	private $worksheet_title = "Table1";
+     * Worksheet title
+     *
+     * Contains the title of a single worksheet
+     *
+     * @access private
+     */
+    private string $worksheet_title = "Table1";
 
 	/**
 	 * Add a single row to the $document string
@@ -101,19 +98,21 @@ class Excel_XML
 	 * @param array 1-dimensional array
 	 * @todo Row-creation should be done by $this->addArray
 	 */
-	public function addRow($array)
+	public function addRow($array): void
 	{
 		// initialize all cells for this row
 		$cells = "";
 
 		// foreach key -> write value into cells
-		foreach ($array as $k => $v) {
+		foreach ($array as $v) {
 			$dataType = "String";
 			if (is_numeric($v)) {
 				$dataType = 'Number';
 			}
-			$cells .= "<Cell><Data ss:Type=\"$dataType\">" . htmlspecialchars($v) . "</Data></Cell>\n";
+
+			$cells .= sprintf('<Cell><Data ss:Type="%s">', $dataType) . htmlspecialchars($v) . "</Data></Cell>\n";
 		}
+
 		// transform $cells content into one row
 		$this->lines[] = "<Row>\n" . $cells . "</Row>\n";
 	}
@@ -128,10 +127,10 @@ class Excel_XML
 	 * @param array 2-dimensional array
 	 * @todo Can be transfered to __construct() later on
 	 */
-	public function addArray($array)
+	public function addArray($array): void
 	{
 		// run through the array and add them into rows
-		foreach ($array as $k => $v) {
+		foreach ($array as $v) {
 			$this->addRow($v);
 		}
 	}
@@ -147,7 +146,7 @@ class Excel_XML
 	 * @access public
 	 * @param string $title Designed title
 	 */
-	public function setWorksheetTitle($title)
+	public function setWorksheetTitle($title): void
 	{
 
 		// strip out special chars first
@@ -170,11 +169,11 @@ class Excel_XML
 	 * @access public
 	 * @param string $filename Name of excel file to generate (...xls)
 	 */
-	public function generateXML($filename)
+	public function generateXML(string $filename): void
 	{
 		// deliver header (as recommended in php manual)
 		header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
-		header("Content-Disposition: inline; filename=\"" . $filename . ".xls\"");
+		header('Content-Disposition: inline; filename="' . $filename . '.xls"');
 
 		// print out document to the browser
 		// need to use stripslashes for the damn ">"

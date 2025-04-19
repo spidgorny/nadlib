@@ -9,7 +9,7 @@
 class RunTask extends AppControllerBE
 {
 
-	public function render()
+	public function render(): void
 	{
 		$id = ifsetor($_SERVER['argv'][2]);
 		if ($id) {

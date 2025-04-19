@@ -7,12 +7,12 @@ use spidgorny\nadlib\HTTP\URL;
 
 class URLSpec extends ObjectBehavior
 {
-	public function it_is_initializable()
+	public function it_is_initializable(): void
 	{
 		$this->shouldHaveType(URL::class);
 	}
 
-	public function it_appends_string_to_path_in_url()
+	public function it_appends_string_to_path_in_url(): void
 	{
 		$this->beConstructedWith("https://asd.com/");
 		$this->appendString('/HealthCheck');

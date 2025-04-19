@@ -24,7 +24,7 @@ class StaticMapOSM
 		$this->lon = $lon;
 	}
 
-	public function render()
+	public function render(): string
 	{
 		list($width, $height) = explode('x', $this->size);
 		if ($this->lat && $this->lon) {
@@ -38,10 +38,11 @@ class StaticMapOSM
 			<figcaption>' . $this->location . '</figcaption>
 		</figure>';
 		}
+
 		return $content;
 	}
 
-	public function getImagePath()
+	public function getImagePath(): string
 	{
 		if ($this->lat && $this->lon) {
 			return 'http://staticmap.openstreetmap.de/staticmap.php?center=' . $this->lat . ',' . $this->lon . '&zoom=11&size=' . $this->size;

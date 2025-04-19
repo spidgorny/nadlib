@@ -9,21 +9,21 @@
 class HTMLTagTest extends PHPUnit\Framework\TestCase
 {
 
-	public function test_parse_simple()
+	public function test_parse_simple(): void
 	{
 		$str = '<a>';
 		$tag = HTMLTag::parse($str);
 		$this->assertEquals('a', $tag->tag);
 	}
 
-	public function test_parse_simple_space()
+	public function test_parse_simple_space(): void
 	{
 		$str = ' <a > ';
 		$tag = HTMLTag::parse($str);
 		$this->assertEquals('a', $tag->tag);
 	}
 
-	public function test_parse_attrib()
+	public function test_parse_attrib(): void
 	{
 		$str = '<a href="http://asd.com/">';
 		$tag = HTMLTag::parse($str);
@@ -31,7 +31,7 @@ class HTMLTagTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals('http://asd.com/', $tag->attr['href']);
 	}
 
-	public function test_parse_inner()
+	public function test_parse_inner(): void
 	{
 		$str = '<a href="http://asd.com/">Text</a>';
 		$tag = HTMLTag::parse($str);
@@ -40,7 +40,7 @@ class HTMLTagTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals('Text', $tag->content);
 	}
 
-	public function test_parse_recursive()
+	public function test_parse_recursive(): void
 	{
 		$str = '<a href="http://asd.com/"><b>Text</b></a>';
 		$tag = HTMLTag::parse($str, true);
@@ -50,7 +50,7 @@ class HTMLTagTest extends PHPUnit\Framework\TestCase
 		//pre_print_r($tag);
 	}
 
-	public function test_parse_recursive_back()
+	public function test_parse_recursive_back(): void
 	{
 		$str = "<a href=\"http://asd.com/\"><b>Text</b>\n</a>\n";
 		$tag = HTMLTag::parse($str, true);
@@ -62,7 +62,7 @@ class HTMLTagTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals($str, $back);
 	}
 
-	public function test_pre()
+	public function test_pre(): void
 	{
 		$title = HTMLTag::pre(json_encode('something', JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT), ['style' => [
 			'white-space' => 'pre-wrap'
@@ -70,7 +70,7 @@ class HTMLTagTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals('<pre style="white-space: pre-wrap">&quot;something&quot;</pre>' . "\n", $title . '');
 	}
 
-	public function test_div_with_array_content()
+	public function test_div_with_array_content(): void
 	{
 		$tag = HTMLTag::div([
 			HTMLTag::span(['a', 'c']),

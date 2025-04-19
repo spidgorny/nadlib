@@ -51,19 +51,14 @@ class ACL
 		//debug($this->callStack);
 
 		$source = file($this->callStack['file']);
-		for ($i = -sizeof($this->andConditions) - 1; $i < -1; $i++) {
+		for ($i = -count($this->andConditions) - 1; $i < -1; $i++) {
 			$this->source[] = trim($source[$this->callStack['line'] + $i]);
 		}
 	}
 
-	/**
-	 * @return ACL
-	 */
-	public static function make()
+	public static function make(...$params): \ACL
 	{
-		$params = func_get_args();
-		$acl = new ACL($params);
-		return $acl;
+		return new ACL($params);
 	}
 
 	public function getAND()
@@ -71,14 +66,16 @@ class ACL
 		if (ifsetor($_REQUEST['acl'])) {
 			$this->debug();
 		}
+        
 		$and = true;
 		foreach ($this->andConditions as $cond) {
 			$and = $and && $cond;
 		}
+        
 		return $and;
 	}
 
-	public function debug()
+	public function debug(): void
 	{
 		$table = [];
 		foreach ($this->andConditions as $i => $_) {
@@ -87,6 +84,7 @@ class ACL
 				'value' => $this->andConditions[$i],
 			];
 		}
+        
 		echo '<div style="background: #EEEEEE; border: solid 1px silver;">',
 		'<div style="background: silver;">', basename($this->callStack['file']),
 			'#' . $this->callStack['line'],

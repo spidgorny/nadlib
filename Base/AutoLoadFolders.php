@@ -12,11 +12,14 @@ class AutoLoadFolders
 	 * If set $this->log will collect output here
 	 * @var null|array
 	 */
-	public $collectDebug = null;
+	public $collectDebug;
 
 	public $debug = false;
 
-	public $al;
+	/**
+     * @var \AutoLoad
+     */
+    public $al;
 
 	/**
 	 * @var Debug
@@ -41,20 +44,24 @@ class AutoLoadFolders
 			$this->al->stat['folders'] = 'fromConfig';
 			$this->folders[null] = $this->getFolders();
 		}
+
 		$this->folders = unique_multidim_array($this->folders);
-		if (0) {
+		if (0 !== 0) {
 			pre_print_r([
 				$this->folders, $this->al->stat
 			]);
 		}
 	}
 
-	public function getFoldersFromSession()
+	public function getFoldersFromSession(): array
 	{
 		return [];
 	}
 
-	public function getFolders()
+	/**
+     * @return mixed[]
+     */
+    public function getFolders(): array
 	{
 		TaylorProfiler::start(__METHOD__);
 		require_once __DIR__ . '/../HTTP/Request.php';
@@ -66,7 +73,7 @@ class AutoLoadFolders
 		//$folders = array_merge($folders, $plus);		// should come first to override /be/
 
 		$plus = $this->getFoldersFromConfigBase();
-		$this->al->stat['folders'] .= ', ' . sizeof($plus);
+		$this->al->stat['folders'] .= ', ' . count($plus);
 		$folders = array_merge($folders, $plus);
 		//debug($folders);
 		//debug($this->classFileMap, $_SESSION[__CLASS__]);
@@ -91,6 +98,7 @@ class AutoLoadFolders
 			foreach ($folders as &$el) {
 				$this->addFolder($el);
 			}
+
 			if ($this->debug) {
 //				pre_print_r($folders, $this->folders);
 				echo __METHOD__ . ': Added folders', BR;
@@ -100,11 +108,12 @@ class AutoLoadFolders
 			// that's ok. relax. be quiet.
 			//echo 'Config not found'.BR;
 		}
+
 		TaylorProfiler::stop(__METHOD__);
 		return $folders;
 	}
 
-	public function loadConfig()
+	public function loadConfig(): void
 	{
 		if ($this->debug) {
 			debug_pre_print_backtrace();
@@ -117,21 +126,24 @@ class AutoLoadFolders
 				'exists(appRoot.class)' => file_exists($this->al->getAppRoot() . 'class'),
 			]);
 		}
+
 		if (!class_exists('ConfigBase')) {
 			require_once __DIR__ . '/ConfigBase.php';
 		}
+
 		if (!class_exists('Config', false)) {
-			if ($this->debug) {
+            if ($this->debug) {
 				echo __METHOD__ . ': Config class is found', BR;
 			}
-			//$configPath = dirname(URL::getScriptWithPath()).'/class/class.Config.php';
-			$configPath1 = $this->al->getAppRoot() . 'class' . DIRECTORY_SEPARATOR . 'class.Config.php';
-			$configPath2 = $this->al->getAppRoot() . 'class' . DIRECTORY_SEPARATOR . 'Config.php';
-			$this->al->stat['configPath'] = $configPath1;
-//			pre_print_r($configPath1, file_exists($configPath1));
-//			pre_print_r($configPath2, file_exists($configPath2));
-//			exit();
-			if (file_exists($configPath1)) {
+
+            //$configPath = dirname(URL::getScriptWithPath()).'/class/class.Config.php';
+            $configPath1 = $this->al->getAppRoot() . 'class' . DIRECTORY_SEPARATOR . 'class.Config.php';
+            $configPath2 = $this->al->getAppRoot() . 'class' . DIRECTORY_SEPARATOR . 'Config.php';
+            $this->al->stat['configPath'] = $configPath1;
+            //			pre_print_r($configPath1, file_exists($configPath1));
+            //			pre_print_r($configPath2, file_exists($configPath2));
+            //			exit();
+            if (file_exists($configPath1)) {
 				/** @noinspection PhpIncludeInspection */
 				include_once $configPath1;
 				if ($this->debug) {
@@ -144,21 +156,17 @@ class AutoLoadFolders
 				if ($this->debug) {
 					echo __METHOD__ . ': Config in ' . $configPath2, BR;
 				}
-			} else {
-				// some projects don't need Config
-				//print('<div class="error">'.$configPath.' not found.</div>'.BR);
-				if ($this->debug) {
-					echo __METHOD__ . ': Config class is found but file is unknown ', BR;
-					debug($configPath1, $configPath2);
-				}
-			}
-		} else {
-			if ($this->debug) {
-				echo __METHOD__ . ': Config class is found', BR;
-				$rc = new ReflectionClass('Config');
-				echo __METHOD__ . ': ' . $rc->getFileName(), BR;
-			}
-		}
+			} elseif ($this->debug) {
+                // some projects don't need Config
+                //print('<div class="error">'.$configPath.' not found.</div>'.BR);
+                echo __METHOD__ . ': Config class is found but file is unknown ', BR;
+                debug($configPath1, $configPath2);
+            }
+        } elseif ($this->debug) {
+            echo __METHOD__ . ': Config class is found', BR;
+            $rc = new ReflectionClass('Config');
+            echo __METHOD__ . ': ' . $rc->getFileName(), BR;
+        }
 	}
 
 	public function getFoldersFromConfigBase()
@@ -171,6 +179,7 @@ class AutoLoadFolders
 		foreach ($folders as &$el) {
 			$el = $this->al->nadlibRoot . $el;
 		}
+
 		/*} else {
 			foreach ($folders as &$el) {
 				$el = '../'. $el;
@@ -182,12 +191,13 @@ class AutoLoadFolders
 		return $folders;
 	}
 
-	public function addFolder($path, $namespace = null)
+	public function addFolder($path, $namespace = null): void
 	{
 		TaylorProfiler::start(__METHOD__);
 		if (!Path::isItAbsolute($path)) {
 			$path = getcwd() . '/' . $path;
 		}
+
 		$this->folders[$namespace][] = realpath($path);
 		$sub = glob(cap($path) . '*', GLOB_ONLYDIR);
 		//debug($this->folders, $path, $sub);
@@ -196,18 +206,17 @@ class AutoLoadFolders
 				$this->addFolder($s, $namespace);
 			}
 		}
+
 		$this->folders = unique_multidim_array_thru($this->folders);
 		//pre_print_r($path, $namespace, $this->folders);
 		TaylorProfiler::stop(__METHOD__);
 	}
 
 	/**
-	 * Called to autoload a class from a namespace
-	 * @param string $className
-	 * @param string $namespace
-	 * @return string
-	 */
-	public function findInFolders($className, $namespace)
+     * Called to autoload a class from a namespace
+     * @return string
+     */
+    public function findInFolders(string $className, string $namespace): string|array|null
 	{
 		TaylorProfiler::start(__METHOD__ . ' - ' . $className);
 		//pre_var_dump($className, $namespace);
@@ -217,12 +226,12 @@ class AutoLoadFolders
 			$this->folders[$namespace],
 			$this->folders[null]
 		);
-		assert(sizeof($map));
+		assert(count($map));
 //		pre_print_r(
 //			array_keys($this->folders),
 //			$map,
 //			sizeof($map));
-		$this->log('Searching for ' . $className . ' [' . $namespace . '] between ' . sizeof($map) . ' folders');
+		$this->log('Searching for ' . $className . ' [' . $namespace . '] between ' . count($map) . ' folders');
 //		pre_print_r($map);
 		foreach ($map as $path) {
 			$file =
@@ -240,8 +249,8 @@ class AutoLoadFolders
 			if (!file_exists($file)) {
 				if (file_exists($file2)
 					&& !(
-						basename($file2) == 'Index.php'
-						&& basename(dirname(realpath($file2))) == 'nadlib'
+						basename($file2) === 'Index.php'
+						&& basename(dirname(realpath($file2))) === 'nadlib'
 					)
 				) {    // on windows exclude index.php
 					$file = $file2;
@@ -253,11 +262,9 @@ class AutoLoadFolders
 			}
 
 			// Index != index.php on Windows
-			if ($className === 'Index') {
-//				pre_print_r([$className, $file, basename($file)]);
-				if (basename(realpath($file)) != ($className . '.php')) {
-					$file = null;
-				}
+            //				pre_print_r([$className, $file, basename($file)]);
+            if ($className === 'Index' && basename(realpath($file)) !== $className . '.php') {
+$file = null;
 			}
 
 			//echo $file, ': ', file_exists($file) ? 'YES' : '-', BR;
@@ -271,15 +278,17 @@ class AutoLoadFolders
 				$this->logError($className . ' ' . $file2 . ': no');
 			}
 		}
+
 		if ($this->debug) {
 			//debug($className, $namespace, $map);
 			$this->log(__METHOD__ . ': Attempt to find ' . $namespace . '\\' . $className . ' failed');
 		}
+
 		TaylorProfiler::stop(__METHOD__);
 		return null;
 	}
 
-	public function log($debugLine)
+	public function log($debugLine): void
 	{
 		if ($this->collectDebug !== null) {
 			$this->collectDebug[] = $debugLine;
@@ -292,19 +301,19 @@ class AutoLoadFolders
 		}
 	}
 
-	public function logSuccess($message)
+	public function logSuccess($message): void
 	{
 		$message = '<span style="color: red;">' . $message . '</span>';
 		$this->log($message);
 	}
 
-	public function logError($message)
+	public function logError($message): void
 	{
 		$message = '<span style="color: red;">' . $message . '</span>';
 		$this->log($message);
 	}
 
-	public function clearCache()
+	public function clearCache(): void
 	{
 		// __destruct will overwrite
 		$this->saveFolders = false;
@@ -312,11 +321,7 @@ class AutoLoadFolders
 
 	public function __destruct()
 	{
-		if ($this->saveFolders) {
-			$_SESSION[__CLASS__]['folders'] = $this->folders;
-		} else {
-			$_SESSION[__CLASS__]['folders'] = null;
-		}
+		$_SESSION[__CLASS__]['folders'] = $this->saveFolders ? $this->folders : null;
 	}
 
 }

@@ -5,16 +5,15 @@ class TestQueue extends AppController
 
 	public function render()
 	{
-		$content = $this->performAction();
-		return $content;
+		return $this->performAction();
 	}
 
-	public function processDeleteUserAction()
+	public function processDeleteUserAction(): string
 	{
 		return $this->processTask('DeleteUser');
 	}
 
-	private function processTask($type) {
+	private function processTask(string $type): string {
 		$content = '';
 		$counter = 0;
 		$msgQ = new MessageQueue($type);
@@ -28,14 +27,15 @@ class TestQueue extends AppController
 				$msgQ->setStatus(MessageQueue::STATUS_FAILED);
 			}
 		}
+
 		return $content;
 	}
 
-	public function processNotifyUserAction() {
+	public function processNotifyUserAction(): string {
 		return $this->processTask('NotifyUser');
 	}
 
-	public function createAction() {
+	public function createAction(): void {
 		$taskData = '{"array":[1,2,3],"boolean":true,"null":null,"number":123,"object":{"a":"b","c":"d","e":"f"},"string":"Hello World"}';
 
 		$msgQ = new MessageQueue('DeleteUser');

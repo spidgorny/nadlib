@@ -15,6 +15,7 @@ class BaseFactory
 		if (!ifsetor(self::$instances[$class])) {
 			self::$instances[$class] = new $class();
 		}
+
 		return self::$instances[$class];
 	}
 

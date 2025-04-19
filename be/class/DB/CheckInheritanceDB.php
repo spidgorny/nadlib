@@ -12,7 +12,7 @@ class CheckInheritanceDB extends AppController
 		return $content;
 	}
 
-	public function getClassOverview()
+	public function getClassOverview(): \slTable
 	{
 		$table = [];
 		$folder = 'vendor/spidgorny/nadlib/DB/';
@@ -20,19 +20,22 @@ class CheckInheritanceDB extends AppController
 		if (class_exists('dbLayerDCI')) {
 			$files[] = 'dbLayerDCI.php';
 		}
+
 		if (class_exists('dbLayerBijou')) {
 			$files[] = 'dbLayerBijou.php';
 		}
+
 		if (class_exists('dbLayerBL')) {
 			$files[] = 'dbLayerBL.php';
 		}
+
 		$files[] = 'SQLBuilder.php';
 		foreach ($files as $file) {
 			$row = [];
 			$file = basename($file);
 			$row['file'] = $file;
 			$parts = trimExplode('.', $file);
-			$class = sizeof($parts) == 2 ? $parts[0] : $parts[1];
+			$class = count($parts) == 2 ? $parts[0] : $parts[1];
 			$row['class'] = $class;
 			if ($class) {
 				$rc = new ReflectionClass($class);
@@ -42,10 +45,11 @@ class CheckInheritanceDB extends AppController
 					$this->basedOnBase[] = $class;
 				}
 			}
+
 			$table[] = $row;
 		}
-		$content = new slTable($table);
-		return $content;
+
+		return new slTable($table);
 	}
 
 	public function getMethodOverview()
@@ -69,6 +73,7 @@ class CheckInheritanceDB extends AppController
 					} else {
 						$color = 'inherit';
 					}
+
 					$isDeprecated = $rm->isDeprecated() ||
 						contains($rm->getDocComment(), '@deprecated');
 					$table[$method][$class] = new HTMLTag('td', [
@@ -78,6 +83,7 @@ class CheckInheritanceDB extends AppController
 				}
 			}
 		}
+
 		$s = new slTable($table);
 		$s->setSortBy('method');
 		$s->sortable = true;

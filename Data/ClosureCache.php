@@ -22,10 +22,11 @@ class ClosureCache
 		if (!$this->result) {
 			$this->result = call_user_func($this->function);
 		}
+        
 		return $this->result;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->get() . '';
 	}

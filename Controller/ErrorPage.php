@@ -78,7 +78,7 @@ class ErrorPage extends AppControllerBE
 		599 => "Network connect timeout error"
 	];
 
-	public function render()
+	public function render(): string
 	{
 		//debug($_REQUEST);
 		$code = ifsetor($_REQUEST['code']);

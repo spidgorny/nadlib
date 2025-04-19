@@ -9,18 +9,18 @@
 class PathTest extends PHPUnit\Framework\TestCase
 {
 
-	public function test_Windows()
+	public function test_Windows(): void
 	{
 		//$p = new Path(getcwd());
 		$p = new Path("C:\\folderone\\two\\three");
 
 		//debug($p->aPath, $p->sPath);
-		$this->assertGreaterThan(3, sizeof($p->aPath));
+		$this->assertGreaterThan(3, count($p->aPath));
 		$this->assertEquals('C:', $p->aPath[0]);
 		$this->assertStringStartsWith('C:/', $p . '');
 	}
 
-	public function test_cap_Windows()
+	public function test_cap_Windows(): void
 	{
 		$source = cap(getcwd());
 		$p = new Path($source);
@@ -30,7 +30,7 @@ class PathTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals($source, $p->implode());
 	}
 
-	public function test_isAbsolute()
+	public function test_isAbsolute(): void
 	{
 		$path = new Path('asd/qwe');
 		$this->assertFalse($path->isAbsolute());
@@ -38,16 +38,16 @@ class PathTest extends PHPUnit\Framework\TestCase
 		$this->assertFalse($path->isAbsolute());
 	}
 
-	public function test_appRoot()
+	public function test_appRoot(): void
 	{
 		$al = AutoLoad::getInstance();
-		$appRoot = $al->getAppRoot();
+		$al->getAppRoot();
 //		debug($appRoot . '');
 //		$this->assertEquals(dirname(dirname(dirname(__FILE__))), $appRoot.'');
 		$this->markTestSkipped();
 	}
 
-	public function test_relativeFromAppRoot()
+	public function test_relativeFromAppRoot(): void
 	{
 		$this->markTestSkipped(
 			'Cannot work from nadlib as a standalone.'
@@ -66,55 +66,55 @@ class PathTest extends PHPUnit\Framework\TestCase
 		]);
 	}
 
-	public function test_append()
+	public function test_append(): void
 	{
 		$path = new Path('/var/www/htdocs/');
 		$path->append(new Path('ftp'));
 		$this->assertEquals('/var/www/htdocs/ftp', $path . '');
 	}
 
-	public function test_append_capped()
+	public function test_append_capped(): void
 	{
 		$path = new Path('/var/www/htdocs/');
 		$path->append(new Path('ftp/'));
 		$this->assertEquals('/var/www/htdocs/ftp/', $path . '');
 	}
 
-	public function test_back_path()
+	public function test_back_path(): void
 	{
 		$path = new Path('../ftp');
 		$this->assertEquals(['..', 'ftp'], $path->aPath);
 	}
 
-	public function test_append_back()
+	public function test_append_back(): void
 	{
 		$path = new Path('/var/www/htdocs/');
 		$path->append(new Path('../ftp'));
 		$this->assertEquals('/var/www/ftp', $path . '');
 	}
 
-	public function test_append_back_twice()
+	public function test_append_back_twice(): void
 	{
 		$path = new Path('/var/www/htdocs/');
 		$path->append(new Path('../../ftp'));
 		$this->assertEquals('/var/ftp', $path . '');
 	}
 
-	public function test_remove()
+	public function test_remove(): void
 	{
 		$path = new Path('/var/www/htdocs/');
 		$path->remove('/var/www');
 		$this->assertEquals('/htdocs/', $path . '');
 	}
 
-	public function test_setFile()
+	public function test_setFile(): void
 	{
 		$path = new Path('xxx');
 		$path->setFile('yyy');
 		$this->assertEquals('yyy', $path . '');
 	}
 
-	public function test_setFile_empty()
+	public function test_setFile_empty(): void
 	{
 		$path = new Path('xxx');
 		$path->setFile('');

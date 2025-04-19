@@ -3,11 +3,13 @@
 trait FieldAccessTrait
 {
 
-	public $id = null;
+	public $id;
+
 	public $data = [];
+
 	protected $titleColumn = 'name';
 
-	public function getObjectInfo()
+	public function getObjectInfo(): string
 	{
 		return get_class($this) . ': "' . $this->getName() . '" (id:' . $this->id . ' ' . $this->getHash() . ')';
 	}
@@ -15,28 +17,29 @@ trait FieldAccessTrait
 	public function getName()
 	{
 		if (is_array($this->titleColumn)) {
-			$names = array_reduce($this->titleColumn, function ($initial, $key) {
+			return array_reduce($this->titleColumn, function (?string $initial, $key): string {
 				return ($initial
 						? $initial . ' - '
 						: '')
 					. ifsetor($this->data[$key]);
 			}, '');
-			return $names;
 		}
+
 		return ifsetor($this->data[$this->titleColumn], $this->id);
 	}
 
-	public function getHash($length = null)
+	public function getHash($length = null): string
 	{
 		$hash = spl_object_hash($this);
 		if ($length) {
 			$hash = sha1($hash);
 			$hash = substr($hash, 0, $length);
 		}
+
 		return '#' . $hash;
 	}
 
-	public function getJson()
+	public function getJson(): array
 	{
 		return [
 			'class' => get_class($this),
@@ -44,14 +47,14 @@ trait FieldAccessTrait
 		];
 	}
 
-	public function getNameLink()
+	public function getNameLink(): \HTMLTag
 	{
 		return new HTMLTag('a', [
 			'href' => $this->getSingleLink(),
 		], $this->getName());
 	}
 
-	public function getSingleLink()
+	public function getSingleLink(): string
 	{
 		return get_class($this) . '/' . $this->id;
 	}
@@ -64,7 +67,7 @@ trait FieldAccessTrait
 			return $value;
 		}
 
-		if (is_integer($value)) {
+		if (is_int($value)) {
 			return $value !== 0;
 		}
 
@@ -80,27 +83,26 @@ trait FieldAccessTrait
 		return false;
 	}
 
-	public function oid()
+	public function oid(): string
 	{
 		return get_class($this) . '-' . $this->getID() . '-' . substr(md5($this->hash()), 0, 8);
 	}
 
-	public function getID()
+	public function getID(): int
 	{
 		return (int)$this->id;
 	}
 
-	public function hash()
+	public function hash(): string
 	{
 		return spl_object_hash($this);
 	}
 
 	/**
-	 * @param $name
-	 * @return string
-	 * @throws ReflectionException
-	 */
-	public function getVarType($name)
+     * @param $name
+     * @throws ReflectionException
+     */
+    public function getVarType($name): string
 	{
 		$r = new ReflectionClass($this);
 		$p = $r->getProperty($name);
@@ -110,12 +112,13 @@ trait FieldAccessTrait
 		$content .= ' ' . gettype($this->$name);
 		switch (gettype($this->$name)) {
 			case 'array':
-				$content .= '[' . sizeof($this->$name) . ']';
+				$content .= '[' . count($this->$name) . ']';
 				break;
 			case 'object':
 				$content .= ' ' . get_class($this->$name);
 				break;
 		}
+
 		return $content;
 	}
 

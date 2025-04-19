@@ -3,72 +3,72 @@
 class CLIUser implements UserModelInterface
 {
 
-	public function try2login($login, $email = null)
+	public function try2login($login, $email = null): void
 	{
 		// TODO: Implement try2login() method.
 	}
 
-	public function isAuth()
+	public function isAuth(): void
 	{
 		// TODO: Implement isAuth() method.
 	}
 
-	public function isAdmin()
+	public function isAdmin(): void
 	{
 		// TODO: Implement isAdmin() method.
 	}
 
-	public function getLogin()
+	public function getLogin(): void
 	{
 		// TODO: Implement getLogin() method.
 	}
 
-	public function insert(array $data)
+	public function insert(array $data): void
 	{
 		// TODO: Implement insert() method.
 	}
 
-	public function getAvatarURL()
+	public function getAvatarURL(): void
 	{
 		// TODO: Implement getAvatarURL() method.
 	}
 
-	public function prefs()
+	public function prefs(): void
 	{
 		// TODO: Implement prefs() method.
 	}
 
-	public function can($acl)
+	public function can($acl): bool
 	{
 		return false;
 	}
 
-	public function getID()
+	public function getID(): void
 	{
 		// TODO: Implement getID() method.
 	}
 
-	public function getAllSettings()
+	public function getAllSettings(): void
 	{
 		// TODO: Implement getAllSettings() method.
 	}
 
-	public function getSetting($key)
+	public function getSetting($key): void
 	{
 		// TODO: Implement getSetting() method.
 	}
 
-	public function getGroup()
+	public function getGroup(): void
 	{
 		// TODO: Implement getGroup() method.
 	}
 
-	public function getGravatarURL($size = 32)
+	public function getGravatarURL($size = 32): void
 	{
 		// TODO: Implement getGravatarURL() method.
 	}
 
-	public function updatePassword($newPassword)
+	public function updatePassword($newPassword): void
 	{
 		// TODO: Implement updatePassword() method.
 	}

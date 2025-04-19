@@ -38,12 +38,12 @@ class WordReader
 		$this->inputNameWrap = new Wrap('|');
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->content;
 	}
 
-	public function parse()
+	public function parse(): void
 	{
 		$s = simplexml_load_file($this->filename);
 		//$ns = $s->getNamespaces();
@@ -53,7 +53,7 @@ class WordReader
 		$this->content = $content;
 	}
 
-	protected function parseSections(array $sect)
+	protected function parseSections(array $sect): string
 	{
 		$content = '';
 		foreach ($sect as $s) {
@@ -70,6 +70,7 @@ class WordReader
 						$content .= '<h3>' . $this->parseSections($s->xpath('*')) . '</h3>';
 						$this->wasHeader = true;
 					}
+
 					break;
 				case 'pBdrGroup':
 					//debug($s->asXML());
@@ -85,15 +86,14 @@ class WordReader
 					//$content .= 'cr: '.$this->collapseRows;
 					break;
 				case 'instrText':
-					switch (trim($s)) {
-						case 'FORMCHECKBOX':
-							$content .= '<input
+					if (trim($s) === 'FORMCHECKBOX') {
+                        $content .= '<input
 							type="hidden"
 							name="' . $this->inputNameWrap->wrap($this->label) . '"
 							value="0">';
-							break;
-					}
-					// delayed label
+                    }
+
+                    // delayed label
 					if ($this->label) {
 						$content .= '<label name="' . $this->inputNameWrap->wrap($this->label) . '">';
 						$this->wasLabel = true;
@@ -117,6 +117,7 @@ class WordReader
 								break;
 						}
 					}
+
 					break;
 				case 't':
 					$content .= $s . '';
@@ -127,6 +128,7 @@ class WordReader
 						$content .= '</label>';
 						$this->structText = '';
 					}
+
 					break;
 				case 'tab':
 					$wx = $s->attributes('wx', true);
@@ -153,6 +155,7 @@ class WordReader
 					} else {
 						debug($s->asXML());
 					}
+
 					break;
 				case 'tbl':
 					$content .= '<table class="xmlTable">' . $this->parseSections($s->xpath('*')) . '</table>';
@@ -168,6 +171,7 @@ class WordReader
 					break;
 			}
 		}
+
 		return $content;
 	}
 

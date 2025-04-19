@@ -5,9 +5,9 @@ class IteratorImplementation
 
 	public $data = [];
 
-	private $position = 0;
+	private int $position = 0;
 
-	public function rewind()
+	public function rewind(): void
 	{
 		$this->position = 0;
 	}
@@ -17,17 +17,17 @@ class IteratorImplementation
 		return $this->data[$this->position];
 	}
 
-	public function key()
+	public function key(): int
 	{
 		return $this->position;
 	}
 
-	public function next()
+	public function next(): void
 	{
 		++$this->position;
 	}
 
-	public function valid()
+	public function valid(): bool
 	{
 		return isset($this->data[$this->position]);
 	}

@@ -22,6 +22,7 @@ class AlterCharset extends AppControllerBE
 			debug($this->db);
 			return 'No db object';
 		}
+
 		$tables = $this->db->getTables();
 		foreach ($tables as $table) {
 			$charset = current($this->db->getTableCharset($table));
@@ -35,14 +36,16 @@ class AlterCharset extends AppControllerBE
 						'table' => $table,
 					]) . '">ALTER</a>';
 			}
+
 			$content .= $this->renderTableColumns($table);
 
 			$content .= '<br />';
 		}
+
 		return $content;
 	}
 
-	public function renderTableColumns($table)
+	public function renderTableColumns(string $table): \slTable
 	{
 		$badList = [];
 		$columns = $this->db->getTableColumns($table);
@@ -58,7 +61,10 @@ class AlterCharset extends AppControllerBE
 				$badList[] = $row;
 			}
 		}
-		$s = new slTable($badList, '', [
+
+		//$s->generateThes();
+		//var_export($s->thes);
+		return new slTable($badList, '', [
 			'Field' =>
 				[
 					'name' => 'Field',
@@ -101,12 +107,9 @@ class AlterCharset extends AppControllerBE
 					'no_hsc' => true,
 				],
 		]);
-		//$s->generateThes();
-		//var_export($s->thes);
-		return $s;
 	}
 
-	public function alterTableCharsetAction()
+	public function alterTableCharsetAction(): void
 	{
 		$table = $this->request->getTrim('table');
 		$query = "ALTER TABLE " . $table . " DEFAULT COLLATE = '" . $this->desired . "'";
@@ -116,10 +119,10 @@ class AlterCharset extends AppControllerBE
 	/**
 	 * Possibly dangerous if we don't recreate the complete column definition as it was
 	 */
-	public function alterColumnCharsetAction()
+	public function alterColumnCharsetAction(): void
 	{
 		$table = $this->request->getTrim('table');
-		$column = $this->request->getTrim('column');
+		$this->request->getTrim('column');
 		$query = "ALTER TABLE " . $table . " CHANGE `identifier` `identifier` varchar(250) COLLATE '" . $this->desired . "' NOT NULL DEFAULT ''";
 		$this->db->perform($query);
 	}

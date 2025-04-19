@@ -31,14 +31,13 @@ class SessionDatabase implements DBInterface
 	 * @var static
 	 */
 	protected static $instance;
+    
 	/**
 	 * @var array
 	 */
 	public $data = [];
-	/**
-	 * @var \Session
-	 */
-	protected $session;
+    
+	protected \nadlib\HTTP\Session $session;
 
 	/**
 	 * @phpstan-consistent-constructor
@@ -57,6 +56,7 @@ class SessionDatabase implements DBInterface
 		if (!self::$instance) {
 			self::$instance = new static();
 		}
+        
 		return self::$instance;
 	}
 
@@ -72,7 +72,7 @@ class SessionDatabase implements DBInterface
 		return $query;
 	}
 
-	public function numRows($res = null)
+	public function numRows($res = null): void
 	{
 		if (is_string($res)) {
 			debug($res);
@@ -80,7 +80,7 @@ class SessionDatabase implements DBInterface
 		}
 	}
 
-	public function affectedRows($res = null)
+	public function affectedRows($res = null): void
 	{
 		debug(__METHOD__);
 	}
@@ -90,12 +90,12 @@ class SessionDatabase implements DBInterface
 		return array_keys($this->data);
 	}
 
-	public function lastInsertID($res, $table = null)
+	public function lastInsertID($res, $table = null): void
 	{
 		debug(__METHOD__);
 	}
 
-	public function free($res)
+	public function free($res): void
 	{
 		debug(__METHOD__);
 	}
@@ -105,62 +105,62 @@ class SessionDatabase implements DBInterface
 		return $key;
 	}
 
-	public function quoteKeys(array $keys)
+	public function quoteKeys(array $keys): array
 	{
 		return $keys;
 	}
 
-	public function escapeBool($value)
+	public function escapeBool($value): void
 	{
 		debug(__METHOD__);
 	}
 
-	public function fetchAssoc($res)
+	public function fetchAssoc($res): void
 	{
 		debug(__METHOD__);
 	}
 
-	public function transaction()
+	public function transaction(): void
 	{
 		debug(__METHOD__);
 	}
 
-	public function commit()
+	public function commit(): void
 	{
 		debug(__METHOD__);
 	}
 
-	public function rollback()
+	public function rollback(): void
 	{
 		debug(__METHOD__);
 	}
 
-	public function getScheme()
+	public function getScheme(): void
 	{
 		debug(__METHOD__);
 	}
 
-	public function getTablesEx()
+	public function getTablesEx(): void
 	{
 		debug(__METHOD__);
 	}
 
-	public function getTableColumnsEx($table)
+	public function getTableColumnsEx($table): void
 	{
 		debug(__METHOD__);
 	}
 
-	public function getIndexesFrom($table)
+	public function getIndexesFrom($table): void
 	{
 		debug(__METHOD__);
 	}
 
-	public function dataSeek($resource, $index)
+	public function dataSeek($resource, $index): void
 	{
 		debug(__METHOD__);
 	}
 
-	public function escape($string)
+	public function escape($string): void
 	{
 		debug(__METHOD__);
 	}
@@ -174,21 +174,23 @@ class SessionDatabase implements DBInterface
 			//throw new NotImplementedException(__METHOD__);
 			debug($res_or_query);
 		}
+
+        return null;
 	}
 
-	public function isConnected()
+	public function isConnected(): bool
 	{
 		return true;
 	}
 
-	public function runInsertQuery($table, array $data)
+	public function runInsertQuery($table, array $data): void
 	{
 //		debug('runInsertQuery', sizeof($this->data[$table]));
 		$this->data[$table][] = $data;
 //		debug('runInsertQuery', sizeof($this->data[$table]));
 	}
 
-	public function runUpdateQuery($table, array $set, array $where)
+	public function runUpdateQuery($table, array $set, array $where): void
 	{
 		$data = ArrayPlus::create($this->data[$table]);
 		$data->filterBy($where);
@@ -197,25 +199,26 @@ class SessionDatabase implements DBInterface
 		}
 	}
 
-	public function getSelectQuery($table, array $where, $orderBy = null)
+	public function getSelectQuery($table, array $where, $orderBy = null): never
 	{
 //		return SQLSelectQuery::getSelectQueryP($this, $table, $where, $orderBy);
 		throw new \RuntimeException('Not implemented');
 	}
 
-	public function getSelectQuerySW($table, SQLWhere $where, $orderBy = '', $addSelect = '')
+	public function getSelectQuerySW($table, SQLWhere $where, $orderBy = '', $addSelect = ''): never
 	{
 //		return SQLSelectQuery::getSelectQueryP($this, $table, $where->getAsArray(), $orderBy);
 		throw new \RuntimeException('Not implemented');
 	}
 
-	public function getCount(SQLSelectQuery $query)
+	public function getCount(SQLSelectQuery $query): int
 	{
 		$table = first($query->getFrom()->getAll());
 		$where = $query->getWhere();
 		if ($where->getAsArray()) {
 			//throw new NotImplementedException(__METHOD__);
 		}
+        
 		return count($this->data[$table]);
 	}
 
@@ -223,7 +226,7 @@ class SessionDatabase implements DBInterface
 	{
 		$data = ArrayPlus::create($this->data[$table]);
 		$data->filterBy($where);
-		return $data->count() ? $data->first() : null;
+		return $data->count() !== 0 ? $data->first() : null;
 	}
 
 	public function fetchAllSelectQuery($table, array $where = [])
@@ -233,73 +236,72 @@ class SessionDatabase implements DBInterface
 		if (!is_array($rows)) {
 			$rows = [];
 		}
+        
 		$data = ArrayPlus::create($rows);
 		$data->filterBy($where);
 		return $data;
 	}
 
-	public function createTable($table)
+	public function createTable($table): void
 	{
 		if (!isset($this->data[$table])) {
 			$this->data[$table] = [];
 		}
 	}
 
-	public function getRowsIn($table)
+	public function getRowsIn($table): int
 	{
 		return count(ifsetor($this->data[$table], []));
 	}
 
-	public function hasData()
+	public function hasData(): float|int
 	{
-		$totalRows = array_reduce($this->data, function ($acc, array $rows) {
-			return $acc + sizeof($rows);
+		return array_reduce($this->data, function ($acc, array $rows): float|int {
+			return $acc + count($rows);
 		}, 0);
-		return $totalRows;
 	}
 
 	/**
 	 * Don't set the whole data to [] because in this case session will not be updated.
 	 */
-	public function clearAll()
+	public function clearAll(): void
 	{
 		foreach ($this->data as $table => $_) {
 			$this->data[$table] = [];
 		}
 	}
 
-	public function quoteSQL($value, $key = null)
+	public function quoteSQL($value, $key = null): void
 	{
 		// TODO: Implement quoteSQL() method.
 	}
 
-	public function clearQueryLog()
+	public function clearQueryLog(): void
 	{
 		// TODO: Implement clearQueryLog() method.
 	}
 
-	public function getLastQuery()
+	public function getLastQuery(): void
 	{
 		// TODO: Implement getLastQuery() method.
 	}
 
-	/** @return string */
-	public function getDSN()
+	public function getDSN(): string
 	{
 		return '';
 	}
 
-	public function getInfo()
+	public function getInfo(): array
 	{
 		return ['class' => get_class($this)];
 	}
 
-	public function getDatabaseName()
+	public function getDatabaseName(): string
 	{
 		return get_class($this);
 	}
 
-	public function getVersion()
+	public function getVersion(): void
 	{
 		// TODO: Implement getVersion() method.
 	}
@@ -309,7 +311,7 @@ class SessionDatabase implements DBInterface
 		// TODO: Implement @method  runDeleteQuery($table, array $where)
 	}
 
-	public function getPlaceholder($field)
+	public function getPlaceholder($field): void
 	{
 		// TODO: Implement getPlaceholder() method.
 	}

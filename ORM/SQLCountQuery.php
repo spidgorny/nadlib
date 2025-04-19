@@ -8,7 +8,7 @@ class SQLCountQuery
 	 */
 	public $cq;
 
-	protected $db;
+	protected ?\DBInterface $db;
 
 	public function __construct(CollectionQuery $cq, DBInterface $db = null)
 	{
@@ -16,7 +16,7 @@ class SQLCountQuery
 		$this->db = $db;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		$query = new SQLSelectQuery($this->db,
 			new SQLSelect('count(*) AS count'),
@@ -48,21 +48,24 @@ class SQLCountQuery
 			if (is_string($query)) {
 				throw new RuntimeException(__METHOD__);
 			}
+
 			$res = $query->perform();
 			$count = $this->cq->db->numRows($res);
 		}
+
 		return $count;
 	}
 
-	public function alternative()
+	public function alternative(): void
 	{
 		$countCollection = new Collection();
 		$countCollection->select = 'count(*) as id';
 //		$countCollection->where = $this->cq->where;
 		$countCollection->orderBy = '';
 		$countCollection->orderBy = str_replace('LIMIT 50', '', $countCollection->orderBy);
-		$countCollection->allowMerge = true;    // count() can = 0
+		$countCollection->allowMerge = true;
+            // count() can = 0
 		$firstRow = $this->cq->db->fetchAssoc($countCollection->getQueryWithLimit() . '');
-		$count = first($firstRow);
+		first($firstRow);
 	}
 }

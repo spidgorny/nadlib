@@ -7,11 +7,10 @@
 class OptimizeDB extends AppControllerBE
 {
 
-	public function render()
+	public function render(): string
 	{
 		$tables = $this->db->getTables();
-		$content = getDebug($tables);
-		return $content;
+		return getDebug($tables);
 	}
 
 	public function sidebar()
@@ -19,7 +18,7 @@ class OptimizeDB extends AppControllerBE
 		return $this->getActionButton('Optimize DB', 'optimize');
 	}
 
-	public function optimizeAction()
+	public function optimizeAction(): void
 	{
 		$tables = $this->db->getTables();
 		$pb = new ProgressBar();
@@ -28,7 +27,7 @@ class OptimizeDB extends AppControllerBE
 			echo $query;
 			$this->db->perform($query);
 			echo "\n";
-			$pb->setProgressBarProgress($i * 100 / sizeof($tables));
+			$pb->setProgressBarProgress($i * 100 / count($tables));
 		}
 	}
 

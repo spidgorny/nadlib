@@ -29,12 +29,18 @@ by Denis O.Philippov, webmaster@atlant.ru, http://www.atlant.ru
 class zipfile
 {
 
-	public $datasec = []; // array to store compressed data
-	public $ctrl_dir = []; // central directory
-	public $eof_ctrl_dir = "\x50\x4b\x05\x06\x00\x00\x00\x00"; //end of Central directory record
+	public $datasec = [];
+
+     // array to store compressed data
+	public $ctrl_dir = [];
+
+     // central directory
+	public $eof_ctrl_dir = "\x50\x4b\x05\x06\x00\x00\x00\x00";
+
+     //end of Central directory record
 	public $old_offset = 0;
 
-	public function add_dir($name)
+	public function add_dir($name): void
 
 		// adds "directory" to archive - do this before putting any files in directory!
 		// $name - name of directory... like this: "path/"
@@ -85,9 +91,7 @@ class zipfile
 		$cdrec .= pack("v", 0); //extra field length
 		$cdrec .= pack("v", 0); //file comment length
 		$cdrec .= pack("v", 0); //disk number start
-		$cdrec .= pack("v", 0); //internal file attributes
-		$ext = "\x00\x00\x10\x00";
-		$ext = "\xff\xff\xff\xff";
+		$cdrec .= pack("v", 0);
 		$cdrec .= pack("V", 16); //external file attributes  - 'directory' bit set
 
 		$cdrec .= pack("V", $this->old_offset); //relative offset of local header
@@ -102,7 +106,7 @@ class zipfile
 	}
 
 
-	public function add_file($data, $name)
+	public function add_file($data, $name): void
 
 		// adds "file" to archive
 		// $data - file contents
@@ -121,7 +125,8 @@ class zipfile
 		$unc_len = strlen($data);
 		$crc = crc32($data);
 		$zdata = gzcompress($data);
-		$zdata = substr(substr($zdata, 0, strlen($zdata) - 4), 2); // fix crc bug
+		$zdata = substr(substr($zdata, 0, strlen($zdata) - 4), 2);
+         // fix crc bug
 		$c_len = strlen($zdata);
 		$fr .= pack("V", $crc); // crc32
 		$fr .= pack("V", $c_len); //compressed filesize
@@ -171,7 +176,7 @@ class zipfile
 		$this->ctrl_dir[] = $cdrec;
 	}
 
-	public function file()
+	public function file(): string
 	{ // dump out file
 		$data = implode("", $this->datasec);
 		$ctrldir = implode("", $this->ctrl_dir);
@@ -180,8 +185,8 @@ class zipfile
 			$data .
 			$ctrldir .
 			$this->eof_ctrl_dir .
-			pack("v", sizeof($this->ctrl_dir)) .     // total # of entries "on this disk"
-			pack("v", sizeof($this->ctrl_dir)) .     // total # of entries overall
+			pack("v", count($this->ctrl_dir)) .     // total # of entries "on this disk"
+			pack("v", count($this->ctrl_dir)) .     // total # of entries overall
 			pack("V", strlen($ctrldir)) .             // size of central dir
 			pack("V", strlen($data)) .                 // offset to start of central dir
 			"\x00\x00";                             // .zip file comment length

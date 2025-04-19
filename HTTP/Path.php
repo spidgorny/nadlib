@@ -12,14 +12,17 @@ class Path
 
 	public $isFile = false;
 
-	public $isAbsolute;
+	/**
+     * @var bool
+     */
+    public $isAbsolute;
 
 	public static function slash($path)
 	{
 		return str_replace('\\', '/', $path);
 	}
 
-	public function __construct($sPath)
+	public function __construct(string $sPath)
 	{
 		$this->sPath = $sPath . '';
 		$this->isDir = str_endsWith($this->sPath, '/');
@@ -29,22 +32,21 @@ class Path
 		$this->implode();   // to prevent '//'
 	}
 
-	public static function isItAbsolute($sPath)
+	public static function isItAbsolute(string $sPath): bool
 	{
 		return str_startsWith($sPath, '/')        // Linux
 			|| (isset($sPath[1]) && $sPath[1] === ':');    // Windows c:
 	}
 
-	public function isAbsolute()
+	public function isAbsolute(): bool
 	{
 		return self::isItAbsolute($this->sPath);
 	}
 
 	/**
-	 * @param $sPath
-	 * @return Path
-	 */
-	public static function make($sPath)
+     * @param $sPath
+     */
+    public static function make($sPath): self
 	{
 		return new self($sPath);
 	}
@@ -52,7 +54,7 @@ class Path
 	/**
 	 * Modifies the array path after string modification
 	 */
-	public function explode()
+	public function explode(): void
 	{
 		$forwardSlash = str_replace('\\', '/', $this->sPath);
 		$this->aPath = trimExplode('/', $forwardSlash);
@@ -61,7 +63,7 @@ class Path
 	/**
 	 * Modifies the string path after array modification
 	 */
-	public function implode()
+	public function implode(): string
 	{
 		$notSlash = $this->aPath != ['/'];
 		if ($this->isWindows()) {
@@ -69,41 +71,40 @@ class Path
 		} else {
 			$prefix = (($this->isAbsolute && $notSlash) ? '/' : '');
 		}
+
 		$this->sPath = $prefix . implode('/', $this->aPath);
-		if ($this->isDir && sizeof($this->aPath)) {    // avoid "//"
+		if ($this->isDir && count($this->aPath)) {    // avoid "//"
 			$this->sPath .= '/';
 		}
+
 		return $this->sPath;
 	}
 
 	/**
-	 * Check for ":" in C:...
-	 * @return bool
-	 */
-	public function isWindows()
+     * Check for ":" in C:...
+     */
+    public function isWindows(): bool
 	{
 		return (isset($this->aPath[0][1]) && $this->aPath[0][1] === ':');
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->isDir ? $this->getCapped() : $this->getUncapped();
 	}
 
 	/**
-	 * @param string $dirname
-	 * @return bool
-	 */
-	public function contains($dirname)
+     * @param string $dirname
+     */
+    public function contains($dirname): bool
 	{
 		return in_array($dirname, $this->aPath);
 	}
 
 	/**
-	 * @param Path $plus
-	 * @return $this
-	 */
-	public function append(Path $plus)
+     * @return $this
+     */
+    public function append(Path $plus): static
 	{
 		foreach ($plus->aPath as $name) {
 			if ($name === '.') {
@@ -116,6 +117,7 @@ class Path
 				$this->aPath[] = $name;
 			}
 		}
+
 		$this->isDir = $plus->isDir;
 		$this->isFile = $plus->isFile;
 		$this->implode();
@@ -123,10 +125,9 @@ class Path
 	}
 
 	/**
-	 * @param string $plus
-	 * @return $this
-	 */
-	public function appendString(string $plus)
+     * @return $this
+     */
+    public function appendString(string $plus): static
 	{
 		$pPlus = new Path($plus);
 		$this->append($pPlus);
@@ -137,7 +138,7 @@ class Path
 	 * @param string $plus
 	 * @return $this
 	 */
-	public function prependString($plus)
+	public function prependString($plus): static
 	{
 		$pPlus = new Path($plus);
 		$this->aPath = array_merge($pPlus->aPath, $this->aPath);
@@ -145,10 +146,9 @@ class Path
 	}
 
 	/**
-	 * @param $plus string|Path
-	 * @return bool
-	 */
-	public function appendIfExists($plus)
+     * @param $plus string|Path
+     */
+    public function appendIfExists($plus): bool
 	{
 		$pPlus = $plus instanceof Path
 			? $plus
@@ -161,6 +161,7 @@ class Path
 			$this->sPath = $new->sPath;
 			return true;
 		}
+
 		return false;
 	}
 
@@ -172,79 +173,78 @@ class Path
 		if (ini_get('open_basedir')) {
 			return false;
 		}
+
 		return is_dir($this->sPath) || file_exists($this->sPath);
 	}
 
-	public function trim()
+	public function trim(): void
 	{
 		array_pop($this->aPath);
 		$this->implode();
 	}
 
-	public function trimIf($dirname)
+	public function trimIf($dirname): void
 	{
 		if (end($this->aPath) == $dirname) {
 			$this->trim();
 		}
 	}
 
-	public function getUncapped()
+	public function getUncapped(): string
 	{
 		return $this->implode();
 	}
 
-	public function getCapped()
+	public function getCapped(): string
 	{
-		if (!sizeof($this->aPath) && $this->isAbsolute()) {
+		if (!count($this->aPath) && $this->isAbsolute()) {
 			return $this->implode();    // absolute empty has slash already
 		}
+
 		return cap($this->implode());
 	}
 
 	/**
-	 * @param $with
-	 * @return bool
-	 */
-	public function ends($with)
+     * @param $with
+     */
+    public function ends($with): bool
 	{
 		return end($this->aPath) == $with;
 	}
 
-	/**
-	 * @return self
-	 */
-	public function up()
+	public function up(): static
 	{
 		if ($this->aPath) {
 			array_pop($this->aPath);
 		} else {
-			array_push($this->aPath, '..');
-		}
+            $this->aPath[] = '..';
+        }
+
 		$this->implode();
 		return $this;
 	}
 
 	/**
-	 * @param $that
-	 * @return self
-	 */
-	public function upIf($that)
+     * @param $that
+     */
+    public function upIf($that): static
 	{
 		if (end($this->aPath) == $that) {
 			return $this->up();
 		}
+
 		return $this;
 	}
 
 	/**
-	 * @param $that
-	 * @return self
-	 */
-	public function upIfNot($that)
+     * @param $that
+     */
+    public function upIfNot($that): static
 	{
 		if (end($this->aPath) != $that) {
 			return $this->up();
 		}
+
 		return $this;
 	}
 
@@ -253,16 +253,17 @@ class Path
 	 * @param $minus
 	 * @return $this
 	 */
-	public function remove($minus)
+	public function remove($minus): static
 	{
 		$minus = $minus instanceof Path ? $minus : new Path($minus);
-		foreach ($minus->aPath as $i => $sub) {
+		foreach ($minus->aPath as $sub) {
 			if (ifsetor($this->aPath[0]) == $sub) {  // 0 because shift
 				array_shift($this->aPath);
 			} else {
 				break;
 			}
 		}
+
 		// remove empty paths which lead to //
 		$this->aPath = array_filter($this->aPath);
 		$this->implode();
@@ -275,17 +276,14 @@ class Path
 	 * @param $minus
 	 * @return $this
 	 */
-	public function removeWithLinks($minus)
+	public function removeWithLinks($minus): static
 	{
 		$minus = $minus instanceof Path ? $minus : new Path($minus);
-		foreach ($minus->aPath as $i => $sub) {
+		foreach ($minus->aPath as $sub) {
 			$sameName = ifsetor($this->aPath[0]) == $sub;
 			d($this->sPath);
-			if (is_link($this->sPath)) {
-				$linkTarget = readlink($this->sPath);
-			} else {
-				$linkTarget = $this->sPath;
-			}
+            $linkTarget = is_link($this->sPath) ? readlink($this->sPath) : $this->sPath;
+
 			d(__METHOD__, $linkTarget, $minus->sPath);
 			$sameLink = $linkTarget == $minus->sPath;
 			if ($sameName || $sameLink) {
@@ -295,25 +293,28 @@ class Path
 				break;
 			}
 		}
+
 		$this->implode();
 		return $this;
 	}
 
-	public function reverse()
+	public function reverse(): static
 	{
 		if (!$this->isAbsolute() && !empty($this->aPath)) {
-			$this->aPath = array_fill(0, sizeof($this->aPath), '..');
+			$this->aPath = array_fill(0, count($this->aPath), '..');
 			$this->implode();
 		}
+
 		return $this;
 	}
 
-	public function resolveLink()
+	public function resolveLink(): void
 	{
 		if (is_link($this->sPath)) {
 			$this->sPath = readlink($this->sPath);
 			$this->explode();
 		}
+
 		$this->realPath();
 	}
 
@@ -322,7 +323,7 @@ class Path
 	 * Reason is that readlink() fails if the final part is not a link
 	 * @return $this
 	 */
-	public function resolveLinks()
+	public function resolveLinks(): static
 	{
 		foreach ($this->aPath as $i => $part) {
 			$assembled = '/' . implode('/', array_slice($this->aPath, 0, $i));
@@ -338,10 +339,11 @@ class Path
 				break;
 			}
 		}
+
 		return $this;
 	}
 
-	public function resolveLinksSimple()
+	public function resolveLinksSimple(): static
 	{
 		foreach ($this->aPath as $i => $part) {
 			$assembled = '/' .
@@ -350,16 +352,18 @@ class Path
 			if (ini_get('open_basedir')) {
 				continue;
 			}
+
 			if (@is_link($assembled)) {
 				$this->aPath[$i - 1] = trim(readlink($assembled), '/');
 			}
 		}
+
 		$this->aPath = array_filter($this->aPath);
 		$this->implode();
 		return $this;
 	}
 
-	public function onlyExisting()
+	public function onlyExisting(): static
 	{
 		$assembled = '';
 		foreach ($this->aPath as $i => $part) {
@@ -369,15 +373,13 @@ class Path
 				break;
 			}
 		}
+
 		$this->__construct($assembled);
 		$this->up();
 		return $this;
 	}
 
-	/**
-	 * @return Path
-	 */
-	public function relativeFromDocRoot()
+	public function relativeFromDocRoot(): self
 	{
 		$this->makeAbsolute();
 		$al = AutoLoad::getInstance();
@@ -393,10 +395,7 @@ class Path
 		return $relative;
 	}
 
-	/**
-	 * @return Path
-	 */
-	public function relativeFromAppRoot()
+	public function relativeFromAppRoot(): self
 	{
 		$this->makeAbsolute();
 		$al = AutoLoad::getInstance();
@@ -410,10 +409,11 @@ class Path
 		} else {
 			$relative = $this;
 		}
+
 		return $relative;
 	}
 
-	public function makeAbsolute()
+	public function makeAbsolute(): void
 	{
 		if (!$this->isAbsolute()) {
 			//debug(getcwd(), $this);
@@ -431,17 +431,16 @@ class Path
 	 * because we can force it to be a file or dir
 	 * with setAsFile() and setAsDir().
 	 */
-	public function checkFileDir()
+	public function checkFileDir(): void
 	{
 		$this->isFile = is_file($this->sPath);
 		$this->isDir = is_dir($this->sPath);
 	}
 
 	/**
-	 * It should not cap() the result, we don't know if it's a file or dir
-	 * @return Path|string
-	 */
-	public function getURL()
+     * It should not cap() the result, we don't know if it's a file or dir
+     */
+    public function getURL(): string|\Path
 	{
 		//$self = new Path(AutoLoad::getInstance()->appRoot);
 		$self = new Path(URL::getScriptWithPath());
@@ -453,10 +452,11 @@ class Path
 		} else {
 			$relative = URL::getRelativePath($self, $this->sPath);
 		}
+
 		return $relative;
 	}
 
-	public static function fromArray(array $parts)
+	public static function fromArray(array $parts): \Path
 	{
 		$path = new Path('');
 		$path->aPath = $parts;
@@ -464,34 +464,35 @@ class Path
 		return $path;
 	}
 
-	public function setFile($name)
+	public function setFile($name): void
 	{
 		if ($this->isFile) {
-			$this->aPath[sizeof($this->aPath) - 1] = $name;
+			$this->aPath[count($this->aPath) - 1] = $name;
 		} else {
 			$this->aPath[] = $name;
 		}
+
 		$this->implode();
 	}
 
-	public function setAsDir()
+	public function setAsDir(): void
 	{
 		$this->isDir = true;
 		$this->isFile = false;
 	}
 
-	public function setAsFile()
+	public function setAsFile(): void
 	{
 		$this->isDir = false;
 		$this->isFile = true;
 	}
 
-	public function length()
+	public function length(): int
 	{
-		return sizeof($this->aPath);
+		return count($this->aPath);
 	}
 
-	public function getDebug()
+	public function getDebug(): array
 	{
 		return [
 			'sPath' => $this->sPath,
@@ -514,12 +515,9 @@ class Path
 	}
 
 	/**
-	 * @param array $long
-	 * @param array $short
-	 * @return array
-	 * @internal param $al
-	 */
-	private function cutArrayFromArray(array $long, array $short)
+     * @internal param $al
+     */
+    private function cutArrayFromArray(array $long, array $short): array
 	{
 		$new = [];
 		$different = false;
@@ -528,31 +526,33 @@ class Path
 			if ($value != $other) {
 				$different = true;
 			}
+
 			if ($different) {
 				$new[] = $value;
 			}
 		}
+
 		return $new;
 	}
 
 	/**
-	 * http://php.net/manual/en/function.realpath.php#112367
-	 * @return string
-	 */
-	public function getNormalized()
+     * http://php.net/manual/en/function.realpath.php#112367
+     */
+    public function getNormalized(): string
 	{
 		$path = $this->__toString();
 		$parts = [];// Array to build a new path from the good parts
 		$path = str_replace('\\', '/', $path);// Replace backslashes with forwardslashes
-		$path = preg_replace('/\/+/', '/', $path);// Combine multiple slashes into a single slash
+		$path = preg_replace('/\/+/', '/', $path);
+        // Combine multiple slashes into a single slash
 		$segments = explode('/', $path);// Collect path segments
 		$test = '';// Initialize testing variable
 		foreach ($segments as $segment) {
-			if ($segment != '.') {
+			if ($segment !== '.') {
 				$test = array_pop($parts);
 				if (is_null($test)) {
 					$parts[] = $segment;
-				} elseif ($segment == '..') {
+				} elseif ($segment === '..') {
 					if ($test == '..') {
 						$parts[] = $test;
 					}
@@ -566,55 +566,58 @@ class Path
 				}
 			}
 		}
+
 		$parts = array_filter($parts);    // avoid "//"
 		$prefix = $this->isAbsolute() ? '/' : '';
 		return $prefix . implode('/', $parts);
 	}
 
-	public function normalize()
+	public function normalize(): static
 	{
 		$this->__construct($this->getNormalized());
 		return $this;
 	}
 
-	public function getFiles()
+	public function getFiles(): array
 	{
 		$files = glob(cap($this->sPath) . '*');
-		$basenames = array_map(function ($file) {
+		$basenames = array_map(function ($file): string {
 			return basename($file);
 		}, $files);
 		return array_combine($basenames, $files);
 	}
 
-	public function hasFile($file)
+	public function hasFile($file): bool
 	{
 		$files = $this->getFiles();
 		//debug($files);
-		return !!ifsetor($files[$file]);
+		return (bool) ifsetor($files[$file]);
 	}
 
-	public function debugPathExists()
+	public function debugPathExists(): void
 	{
 		$debug = [];
 		$sPath = $this->isAbsolute() ? '/' : '';
 		foreach ($this->aPath as $i => $section) {
 			$sPath .= $section;
-			if ($i < sizeof($this->aPath)) {
+			if ($i < count($this->aPath)) {
 				$sPath .= '/';
 			}
+
 			$debug[$sPath] = file_exists($sPath);
 		}
+
 		debug($debug);
 	}
 
-	public function realPath()
+	public function realPath(): static
 	{
 		$this->sPath = realpath($this->sPath);
 		$this->explode();
 		return $this;
 	}
 
-	public function normalizeHomePage()
+	public function normalizeHomePage(): static
 	{
 		$this->realPath();
 		//debug(__METHOD__, $this->sPath, $this->aPath);
@@ -626,11 +629,12 @@ class Path
 				//				debug($el, $username, $this->aPath);
 			}
 		}
+
 		$this->implode();
 		return $this;
 	}
 
-	public function basename()
+	public function basename(): mixed
 	{
 		return end($this->aPath);
 	}

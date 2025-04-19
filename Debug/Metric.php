@@ -26,7 +26,7 @@ class Metric
 //		$this->testPercentage();
 	}
 
-	public function render()
+	public function render(): void
 	{
 		$this->save = true;
 
@@ -42,6 +42,7 @@ class Metric
 			$p1 = $this->showTotalProgress($last);
 			echo 'Metric from prev. run: ', $p1, PHP_EOL;
 		}
+        
 		$p2 = $this->showTotalProgress($props);
 		echo 'Single quality metric: ', $p2, PHP_EOL;
 		if ($last) {
@@ -77,12 +78,14 @@ class Metric
 		if ($last) {
 			$last = json_decode($last, true);
 		}
+        
 		if ($last == $combined) {
-			$last = $logLines[sizeof($logLines) - 2];  // prev last
+			$last = $logLines[count($logLines) - 2];  // prev last
 			$last = json_decode($last, true);
 			$this->save = false;
 			echo 'Saving is disabled', PHP_EOL;
 		}
+        
 		return $last;
 	}
 
@@ -107,6 +110,7 @@ class Metric
 			if (ifsetor($last[$name]) != $value) {
 				$lastTime = 'was ' . $last[$name];
 			}
+            
 			echo tabify([$name,
 				$limits ? '[' . $limits[0] . '..' . $limits[2] . ']'
 					: TAB . TAB,
@@ -114,17 +118,14 @@ class Metric
 		}
 	}
 
-	protected function getPercentage($value, array $limits)
+	protected function getPercentage($value, array $limits): int|float
 	{
 //		if (($value >= $limits[0]) && ($value <= $limits[2])) {
 		$range = $limits[2] - $limits[1];
-		$num = -1 + ($value - $limits[0]) / $range;
-		return $num;
-//		}
-		return null;
+		return -1 + ($value - $limits[0]) / $range;
 	}
 
-	protected function showTotalProgress(array $props)
+	protected function showTotalProgress(array $props): string
 	{
 		$progress = array_reduce(array_keys($props),
 			function ($acc, $code) use ($props) {
@@ -136,24 +137,21 @@ class Metric
 						return $acc * $percent;
 					}
 				}
+                
 				return $acc;
 			}, 1);
 		return sqrt(abs($progress)) * 100 . '%';
 	}
 
 	/**
-	 * Computes the proportions between the given metrics.
-	 *
-	 * @param array $metrics The aggregated project metrics.
-	 * @return array(string => float)
-	 */
-	protected function computeProportions(array $metrics)
+     * Computes the proportions between the given metrics.
+     *
+     * @param array $metrics The aggregated project metrics.
+     * @return array(string => float)
+     * @return int[]|float[]
+     */
+    protected function computeProportions(array $metrics): array
 	{
-		$orders = [
-			['cyclo', 'loc', 'nom', 'noc', 'nop'],
-			['fanout', 'calls', 'nom'],
-		];
-
 		$proportions = [];
 		foreach ($this->thresholds as $names => $_) {
 			$names = trimExplode('-', $names);
@@ -161,7 +159,7 @@ class Metric
 				$value1 = $metrics[$names[$i]];
 				$value2 = $metrics[$names[$i - 1]];
 
-				$identifier = "{$names[$i - 1]}-{$names[$i]}";
+				$identifier = sprintf('%s-%s', $names[$i - 1], $names[$i]);
 
 				$proportions[$identifier] = 0;
 				if ($value1 > 0) {

@@ -9,7 +9,7 @@
 class CollectionTest extends NadlibTestCase
 {
 
-	public function test_lazyMemeberIterator()
+	public function test_lazyMemeberIterator(): void
 	{
 		$this->markTestSkipped(
 			'RequestCollection was not found.'
@@ -17,6 +17,7 @@ class CollectionTest extends NadlibTestCase
 
 		$rc = new RequestCollection();
 		$rc->orderBy = 'ORDER BY ctime DESC LIMIT 10';
+
 		$iterator = $rc->getLazyMemberIterator('ORSRequest');
 		$current = $iterator->current();
 		debug($current);
@@ -27,10 +28,11 @@ class CollectionTest extends NadlibTestCase
 	 * @throws MustBeStringException
 	 * @throws Exception
 	 */
-	public function test_immutability_with_count()
+	public function test_immutability_with_count(): void
 	{
 		$db = new DBPlacebo();
 		$db->setQB(new SQLBuilder($db));
+
 		$c = new Collection(null, [], '', $db);
 		$query100 = $c->getQueryWithLimit();
 		$this->assertEqualsIngnoreSpaces('SELECT

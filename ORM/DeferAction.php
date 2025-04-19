@@ -3,8 +3,11 @@
 class DeferAction extends OODBase
 {
 	const table = 'defer_action';
+
 	const idField = 'id';
+
 	public $table = self::table;
+
 	public $idField = self::idField;
 
 	public $queue;
@@ -47,6 +50,7 @@ class DeferAction extends OODBase
 
 			$this->update(['done' => true]);
 		}
+
 		$this->db->commit();
 		return $content;
 	}

@@ -39,11 +39,14 @@ class InitNADLIB
 				define('BR', "<br />\n");
 			}
 		}
+
 		if (!defined('TAB')) {
 			define('TAB', "\t");
 		}
+
 		$this->al = AutoLoad::getInstance();
 		$this->al->useCookies = $this->useCookies;
+
 		$this->development = Request::isWindows()
 			|| ifsetor($_COOKIE['debug']) === ifsetor($_SERVER['HTTP_HOST'])
 			|| ini_get('debug')
@@ -51,13 +54,13 @@ class InitNADLIB
 			|| getenv('DEVELOPMENT');
 	}
 
-	public function disableAutoload()
+	public function disableAutoload(): static
 	{
 		$this->al = null;
 		return $this;
 	}
 
-	public function init()
+	public function init(): static
 	{
 		// maybe InitNADLIB was loaded by composer autoload
 		require_once __DIR__ . '/../init.php';
@@ -84,7 +87,7 @@ class InitNADLIB
 		return $this;
 	}
 
-	private function setDefaults()
+	private function setDefaults(): void
 	{
 		//debug($_COOKIE);
 		if (!defined('DEVELOPMENT')) {
@@ -105,12 +108,13 @@ class InitNADLIB
 //			echo 'Ini file: ', php_ini_loaded_file(), BR;
 //			phpinfo();
 		}
+
 		setlocale(LC_ALL, 'UTF-8');
 	}
 
 	/**
 	 */
-	private function setErrorReporting()
+	private function setErrorReporting(): void
 	{
 		if (DEVELOPMENT) {
 			$isCLI = Request::isCLI();
@@ -118,6 +122,7 @@ class InitNADLIB
 				// debug() not loaded yet
 				pre_print_r('Output has started', $file, $line);
 			}
+
 			@header('X-nadlib: DEVELOPMENT');
 			@header('X-PHP-version: ' . PHP_VERSION);
 			error_reporting(-1);
@@ -137,6 +142,7 @@ padding: 1em;
 border-radius: 5px;">');
 				ini_set('error_append_string', '</pre>');
 			}
+
 			ini_set('xdebug.file_link_format', 'phpstorm://open?file=%f&line=%l');
 			if (false) {
 				trigger_error('test');
@@ -152,7 +158,7 @@ border-radius: 5px;">');
 		}
 	}
 
-	private function setCache()
+	private function setCache(): void
 	{
 		if (DEVELOPMENT) {
 			TaylorProfiler::getInstance(!ifsetor($_REQUEST['fast']));    // usually true
@@ -163,6 +169,7 @@ border-radius: 5px;">');
 				$timeLimit = Config::getInstance()->timeLimit ?? 5;
 				@set_time_limit($timeLimit);    // small enough to notice if the site is having perf. problems
 			}
+
 			$_REQUEST['d'] = $_REQUEST['d'] ?? null;
 			if (!Request::isCLI() && !headers_sent()) {
 				header('Cache-Control: no-cache, no-store, max-age=0');
@@ -177,7 +184,7 @@ border-radius: 5px;">');
 	/**
 	 * Autoloading done by composer only
 	 */
-	public function initWithComposer()
+	public function initWithComposer(): void
 	{
 		$this->setDefaults();
 		$this->setErrorReporting();
@@ -186,30 +193,12 @@ border-radius: 5px;">');
 		$this->endTime = microtime(true) - ifsetor($_SERVER['REQUEST_TIME_FLOAT']);
 	}
 
-	public function initWhoops()
+	public function initWhoops(): void
 	{
 		$run = new Whoops\Run();
 		$handler = new Whoops\Handler\PrettyPageHandler();
 		$run->pushHandler($handler);
 		$run->register();
-	}
-
-	private function setupComposer()
-	{
-// in DCI for example, we don't use composer (yet!?)
-		$vendor_autoload_php = 'vendor/autoload.php';
-		$vendor_autoload_php = realpath($vendor_autoload_php);
-		// nadlib/vendor has files loaded from composer.json
-		$standaloneNadlib = str_contains($vendor_autoload_php, 'nadlib\vendor');
-		//echo 'SN: ', $standaloneNadlib, BR;
-		//echo $vendor_autoload_php, ': ', file_exists($vendor_autoload_php), BR;
-		if (!$standaloneNadlib
-			&& file_exists($vendor_autoload_php)
-		) {
-			//echo $vendor_autoload_php, BR;
-			/** @noinspection PhpIncludeInspection */
-			$this->composer = require_once $vendor_autoload_php;
-		}
 	}
 
 }

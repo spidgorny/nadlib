@@ -2,14 +2,20 @@
 
 class HTMLFormSlicer
 {
-	public $slices;
+	/**
+     * @var mixed[]
+     */
+    public $slices;
 
 	public function __construct(array $slices)
 	{
 		$this->slices = $slices;
 	}
 
-	public static function sliceFromTill(array $desc, $from, $till)
+	/**
+     * @return mixed[]
+     */
+    public static function sliceFromTill(array $desc, $from, $till): array
 	{
 		$copy = false;
 		$desc2 = [];
@@ -17,17 +23,20 @@ class HTMLFormSlicer
 			if ($key == $from) {
 				$copy = true;
 			}
+
 			if ($copy) {
 				$desc2[$key] = $val;
 			}
+
 			if ($key == $till) {
 				break;
 			}
 		}
+
 		return $desc2;
 	}
 
-	public function distributeDescIntoSlices(array $desc)
+	public function distributeDescIntoSlices(array $desc): void
 	{
 		foreach ($this->slices as &$slice) {
 			$part = $this->sliceFromTill($desc, $slice['from'], $slice['till']);
@@ -36,11 +45,9 @@ class HTMLFormSlicer
 	}
 
 	/**
-	 * Works only after distributeDescIntoSlices
-	 *
-	 * @param array $values
-	 */
-	public function fillValues(array $values)
+     * Works only after distributeDescIntoSlices
+     */
+    public function fillValues(array $values): void
 	{
 		foreach ($this->slices as &$slice) {
 			$f = new HTMLFormTable($slice['desc']);
@@ -63,16 +70,15 @@ class HTMLFormSlicer
 			$result = $v->validate() && $result;    // recursive inside // this order to force execution
 			$slice['desc'] = $v->getDesc();
 		}
+
 		//debug($this->slices);
 		return $result;
 	}
 
 	/**
-	 * Works only after distributeDescIntoSlices
-	 *
-	 * @param HTMLFormTable $f
-	 */
-	public function showSlices(HTMLFormTable $f)
+     * Works only after distributeDescIntoSlices
+     */
+    public function showSlices(HTMLFormTable $f): void
 	{
 		foreach ($this->slices as $slice) {
 			//$part = $this->sliceFromTill($this->desc, $slice['from'], $slice['till']);
@@ -82,30 +88,34 @@ class HTMLFormSlicer
 			$f2->showForm();
 			throw new Exception('TODO: test this');
 		}
+
 		//debug($slice);
 	}
 
-	public function getErrorItems()
+	public function getErrorItems(): string
 	{
 		$content = '';
 		foreach ($this->slices as $slice) {
 			$content .= $this->getErrorItemsFromDesc($slice['desc']);
 		}
+
 		return $content;
 	}
 
-	protected function getErrorItemsFromDesc(array $descList)
+	protected function getErrorItemsFromDesc(array $descList): string
 	{
 		$content = '';
-		foreach ($descList as $key => $desc) {
+		foreach ($descList as $desc) {
 			if ($desc['error']) {
 				//$content .= '<li>'.($desc['label'] ? $desc['label'] : $key) . ': '. $desc['error'].'</li>';
 				$content .= '<li>' . $desc['error'] . '</li>';
 			}
+
 			if ($desc['dependant']) {
 				$content .= $this->getErrorItemsFromDesc($desc['dependant']);
 			}
 		}
+
 		return $content;
 	}
 

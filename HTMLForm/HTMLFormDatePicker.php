@@ -31,7 +31,7 @@ class HTMLFormDatePicker extends HTMLFormField
 		$index->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . 'js/HTMLFormDatePicker.js');
 	}
 
-	public function render()
+	public function render(): string
 	{
 		$tmp = $this->form->stdout;
 		$this->form->stdout = '';
@@ -39,7 +39,7 @@ class HTMLFormDatePicker extends HTMLFormField
 //		echo __METHOD__, BR;
 		//debug($this->field, $this->value);
 		if ($this->value && $this->value !== '0000-00-00') {
-			if (is_integer($this->value) || is_numeric($this->value)) {
+			if (is_int($this->value) || is_numeric($this->value)) {
 				$val = date($this->format, $this->value);
 			} else {
 				$val = strtotime($this->value);    // hope for Y-m-d
@@ -48,6 +48,7 @@ class HTMLFormDatePicker extends HTMLFormField
 		} else {
 			$val = '';
 		}
+        
 		$this->form->input($this->field, $val, [
 				'format' => $this->jsFormat
 			] + $this->jsParams,
@@ -63,10 +64,10 @@ class HTMLFormDatePicker extends HTMLFormField
 	 * @param $value
 	 * @return int
 	 */
-	public function getISODate($value)
+	public function getISODate($value): int|null|false
 	{
 		//debug($value, is_integer($value), is_numeric($value), strtotime($value));
-		if ($value && (is_integer($value) || is_numeric($value))) {
+		if ($value && (is_int($value) || is_numeric($value))) {
 			$val = intval($value);
 		} elseif ($value && is_string($value) && $this->jsFormat == 'dd.mm.yy') {
 			$val = explode('.', $value);
@@ -79,17 +80,18 @@ class HTMLFormDatePicker extends HTMLFormField
 		} else {
 			$val = null;    // time();
 		}
+        
 		//debug($this->jsFormat, $value, $val);
 		return $val;
 	}
 
-	public function setValue($value)
+	public function setValue($value): void
 	{
 		//debug(__METHOD__, $this->field, $value);
 		parent::setValue($value);
 	}
 
-	public function getContent()
+	public function getContent(): string
 	{
 //		echo __METHOD__, BR;
 		return $this->render();

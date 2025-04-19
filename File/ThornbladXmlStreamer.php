@@ -7,19 +7,29 @@
 abstract class ThornbladXmlStreamer
 {
 	public $customChildNode;
+
 	/**
 	 * To see the amount of processed records
 	 * @var int
 	 */
 	public $counter = 0;
+
 	private $handle;
+
 	private $totalBytes;
+
 	private $readBytes = 0;
-	private $nodeIndex = 0;
-	private $chunk = "";
+
+	private int $nodeIndex = 0;
+
+	private string $chunk = "";
+
 	private $chunkSize;
-	private $readFromChunkPos;
+
+	private ?int $readFromChunkPos = null;
+
 	private $rootNode;
+
 	private $customRootNode;
 
 	/**
@@ -34,16 +44,13 @@ abstract class ThornbladXmlStreamer
 	{
 		if (is_string($mixed)) {
 			$this->handle = fopen($mixed, "r");
-			if (isset($totalBytes)) {
-				$this->totalBytes = $totalBytes;
-			} else {
-				$this->totalBytes = filesize($mixed);
-			}
+			$this->totalBytes = isset($totalBytes) ? $totalBytes : filesize($mixed);
 		} elseif (is_resource($mixed)) {
 			$this->handle = $mixed;
 			if (!isset($totalBytes)) {
 				throw new Exception("totalBytes parameter required when supplying a file handle.");
 			}
+
 			$this->totalBytes = $totalBytes;
 		}
 
@@ -88,10 +95,10 @@ abstract class ThornbladXmlStreamer
 			$continue = $this->readNextChunk();
 
 			$counter++;
-			if (!isset($this->rootNode)) {
+			if ($this->rootNode === null) {
 				// Find root node
-				if (isset($this->customRootNode)) {
-					$customRootNodePos = strpos($this->chunk, "<{$this->customRootNode}");
+				if ($this->customRootNode !== null) {
+					$customRootNodePos = strpos($this->chunk, '<' . $this->customRootNode);
 					if ($customRootNodePos !== false) {
 						// Found custom root node
 						// Support attributes
@@ -99,12 +106,12 @@ abstract class ThornbladXmlStreamer
 						$readFromChunkPos = $customRootNodePos + $closer + 1;
 
 						// Custom child node?
-						if (isset($this->customChildNode)) {
+						if ($this->customChildNode !== null) {
 							// Find it in the chunk
-							$customChildNodePos = strpos(substr($this->chunk, $readFromChunkPos), "<{$this->customChildNode}");
+							$customChildNodePos = strpos(substr($this->chunk, $readFromChunkPos), '<' . $this->customChildNode);
 							if ($customChildNodePos !== false) {
 								// Found it!
-								$readFromChunkPos = $readFromChunkPos + $customChildNodePos;
+								$readFromChunkPos += $customChildNodePos;
 							} else {
 								// Didn't find it - read a larger chunk and do everything again
 								continue;
@@ -182,7 +189,7 @@ abstract class ThornbladXmlStreamer
 						$endTag = "</" . $sElementName . ">";
 					} else {
 						$sElementName = $element;
-						$endTag = "</$sElementName>";
+						$endTag = sprintf('</%s>', $sElementName);
 					}
 
 					$endTagPos = false;
@@ -190,7 +197,7 @@ abstract class ThornbladXmlStreamer
 					// try selfclosing first!
 					// NOTE: selfclosing is inside the element
 					$lastCharPos = strlen($element) - 1;
-					if (substr($element, $lastCharPos) == "/") {
+					if (substr($element, $lastCharPos) === "/") {
 						$endTag = "/>";
 						$endTagPos = $lastCharPos;
 
@@ -234,12 +241,13 @@ abstract class ThornbladXmlStreamer
 				}
 			}
 		}
+
 		$this->counter = $counter;
 		return $this->rootNode;
 //		fclose($this->handle);
 	}
 
-	private function readNextChunk()
+	private function readNextChunk(): bool
 	{
 		$this->chunk .= fread($this->handle, $this->chunkSize);
 		$this->readBytes += $this->chunkSize;
@@ -247,6 +255,7 @@ abstract class ThornbladXmlStreamer
 			$this->readBytes = $this->totalBytes;
 			return false;
 		}
+
 		return true;
 	}
 

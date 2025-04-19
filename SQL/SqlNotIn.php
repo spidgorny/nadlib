@@ -6,22 +6,21 @@
 class SQLNotIn extends SQLWherePart
 {
 
-	public $list = [];
+	/**
+     * @var mixed[]
+     */
+    public $list = [];
 
 	/**
-	 * SQLNotIn constructor.
-	 * @param array $list
-	 */
-	public function __construct(array $list)
+     * SQLNotIn constructor.
+     */
+    public function __construct(array $list)
 	{
 		parent::__construct();
 		$this->list = $list;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function __toString()
+	public function __toString(): string
 	{
 		$field = $this->field;
 
@@ -33,9 +32,9 @@ class SQLNotIn extends SQLWherePart
 		if (!$field) {
 			//debug_pre_print_backtrace();
 		}
-		$content = $field . " NOT IN (" . implode(", ", $this->db->quoteValues($this->list)) . ")";
+
 //		debug($content); die;
-		return $content;
+		return $field . " NOT IN (" . implode(", ", $this->db->quoteValues($this->list)) . ")";
 	}
 
 }

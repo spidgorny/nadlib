@@ -4,27 +4,29 @@ class DBLayerCached extends DBLayer
 {
 	protected $cache = [];
 
-	protected function getCacheKey($method, $args)
+	protected function getCacheKey(string $method, $args): ?string
 	{
-		if (collect($args)->some(fn($x) => $x instanceof PgSql\Result)) {
+		if (collect($args)->some(fn($x): bool => $x instanceof PgSql\Result)) {
 			return null;
 		}
-		$args = collect($args)->map(fn($x) => $x instanceof SQLSelectQuery ? $x->getQuery() : $x)->toArray();
+
+		$args = collect($args)->map(fn($x): mixed => $x instanceof SQLSelectQuery ? $x->getQuery() : $x)->toArray();
 		return md5($method . serialize($args));
 	}
 
-	public function clearCache()
+	public function clearCache(): void
 	{
 		$this->cache = [];
 	}
 
-	public function fetchAll($result, $key = null)
+	public function fetchAll($result, $key = null): void
 	{
 		$cacheKey = $this->getCacheKey(__METHOD__, func_get_args());
 		if (isset($this->cache[$cacheKey])) {
 //			llog('HIT', __METHOD__, substr($result, 0, 40));
 			return $this->cache[$cacheKey];
 		}
+
 //		if ($cacheKey) {
 //			llog('MISS', __METHOD__, substr($result, 0, 40));
 //		}
@@ -33,10 +35,11 @@ class DBLayerCached extends DBLayer
 		if ($cacheKey) {
 			$this->cache[$cacheKey] = $data;
 		}
+
 		return $data;
 	}
 
-	public function fetchAssoc($res)
+	public function fetchAssoc($res): array|false
 	{
 		$cacheKey = $this->getCacheKey(__METHOD__, func_get_args());
 		if (isset($this->cache[$cacheKey])) {
@@ -47,10 +50,11 @@ class DBLayerCached extends DBLayer
 		if ($cacheKey) {
 			$this->cache[$cacheKey] = $data;
 		}
+
 		return $data;
 	}
 
-	public function fetchAssocSeek($res)
+	public function fetchAssocSeek($res): array|false
 	{
 		$cacheKey = $this->getCacheKey(__METHOD__, func_get_args());
 		if (isset($this->cache[$cacheKey])) {
@@ -61,6 +65,7 @@ class DBLayerCached extends DBLayer
 		if ($cacheKey) {
 			$this->cache[$cacheKey] = $data;
 		}
+
 		return $data;
 	}
 
@@ -75,10 +80,11 @@ class DBLayerCached extends DBLayer
 		if ($cacheKey) {
 			$this->cache[$cacheKey] = $data;
 		}
+
 		return $data;
 	}
 
-	public function getFirstRow($query)
+	public function getFirstRow($query): array|false
 	{
 		$cacheKey = $this->getCacheKey(__METHOD__, func_get_args());
 		if (isset($this->cache[$cacheKey])) {
@@ -89,10 +95,11 @@ class DBLayerCached extends DBLayer
 		if ($cacheKey) {
 			$this->cache[$cacheKey] = $data;
 		}
+
 		return $data;
 	}
 
-	public function getFirstValue($query)
+	public function getFirstValue($query): ?string
 	{
 		$cacheKey = $this->getCacheKey(__METHOD__, func_get_args());
 		if (isset($this->cache[$cacheKey])) {
@@ -103,6 +110,7 @@ class DBLayerCached extends DBLayer
 		if ($cacheKey) {
 			$this->cache[$cacheKey] = $data;
 		}
+
 		return $data;
 	}
 

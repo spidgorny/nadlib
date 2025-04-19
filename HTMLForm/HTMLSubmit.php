@@ -5,7 +5,7 @@ class HTMLSubmit extends HTMLFormField
 
 	public $value;
 
-	protected $params = [];
+	protected array $params;
 
 	/** @var HTMLForm */
 	public $form;
@@ -21,10 +21,9 @@ class HTMLSubmit extends HTMLFormField
 	}
 
 	/**
-	 * Shows the form element in the form
-	 * @return mixed
-	 */
-	public function render()
+     * Shows the form element in the form
+     */
+    public function render(): void
 	{
 		$params = $this->params;
 		$params['class'] = ifsetor($params['class'], 'submit btn');
@@ -38,31 +37,27 @@ class HTMLSubmit extends HTMLFormField
 	}
 
 	/**
-	 * Whet's the key name
-	 * @param $fieldName
-	 * @return mixed
-	 */
-	public function setField($fieldName)
+     * Whet's the key name
+     * @param $fieldName
+     */
+    public function setField($fieldName): void
 	{
 		$this->field = $fieldName;
 	}
 
 	/**
-	 * Inject form for additional function calls
-	 * @param HTMLForm $form
-	 * @return mixed
-	 */
-	public function setForm(HTMLForm $form)
+     * Inject form for additional function calls
+     */
+    public function setForm(HTMLForm $form): void
 	{
 		$this->form = $form;
 	}
 
 	/**
-	 * Set current field value
-	 * @param $value
-	 * @return mixed
-	 */
-	public function setValue($value)
+     * Set current field value
+     * @param $value
+     */
+    public function setValue($value): void
 	{
 		$this->value = $value;
 	}

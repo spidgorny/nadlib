@@ -17,17 +17,18 @@ class ReplayHAR implements Iterator
 		$this->readHAR();
 	}
 
-	public function readHAR()
+	public function readHAR(): void
 	{
 		$this->har = json_decode(file_get_contents($this->file));
 		$this->current();
 	}
 
-	public function getURL()
+	public function getURL(): \spidgorny\nadlib\HTTP\URL
 	{
 		if (!$this->request) {
 			$this->readHAR();
 		}
+
 		$url = new URL($this->request->url);
 		$url->clearParams();
 		$url->setParamsFromHAR($this->request->queryString);
@@ -42,6 +43,7 @@ class ReplayHAR implements Iterator
 		foreach ($this->request->headers as $pair) {
 			$urlget->headers[$pair->name] = $pair->value;
 		}
+
 		return $urlget;
 	}
 
@@ -90,7 +92,7 @@ class ReplayHAR implements Iterator
 	 */
 	public function valid(): bool
 	{
-		return !!($this->har->log->entries);
+		return (bool) $this->har->log->entries;
 	}
 
 	/**

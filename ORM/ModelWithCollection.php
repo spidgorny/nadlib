@@ -10,12 +10,10 @@ class ModelWithCollection extends Model
 	public $itemClassName = '?';
 
 	/**
-	 * @param array $where
-	 * @param null $orderBy
-	 * @return Collection
-	 * @deprecated
-	 */
-	public function getCollection(array $where = [], $orderBy = null)
+     * @return Collection
+     * @deprecated
+     */
+    public function getCollection(array $where = [], $orderBy = null)
 	{
 		$col = Collection::createForTable($this->db, $this->table);
 		$col->idField = $this->idField;
@@ -33,22 +31,19 @@ class ModelWithCollection extends Model
 	}
 
 	/**
-	 * @param $id
-	 * @return mixed
-	 * @deprecated
-	 */
-	public function getModel($id)
+     * @param $id
+     * @deprecated
+     */
+    public function getModel($id): mixed
 	{
-		$model = call_user_func([$this->itemClassName, 'getInstance'], $id);
-		return $model;
+		return call_user_func([$this->itemClassName, 'getInstance'], $id);
 	}
 
 	/**
-	 * TODO: implement numRows in a way to get the amount of data from the query
-	 * object.
-	 * @return int
-	 */
-	public function getCount()
+     * TODO: implement numRows in a way to get the amount of data from the query
+     * object.
+     */
+    public function getCount(): int
 	{
 		// don't uncomment as this leads to recursive calls to $this->getCollection()
 		return $this->getCollection()->getCount();

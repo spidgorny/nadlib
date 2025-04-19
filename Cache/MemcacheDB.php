@@ -23,13 +23,12 @@ class MemcacheDB implements MemcacheInterface
 
 	public function getRow($key)
 	{
-		$row = $this->db->fetchOneSelectQuery($this->table, [
+		return $this->db->fetchOneSelectQuery($this->table, [
 			'key' => $key,
 		]);
-		return $row;
 	}
 
-	public function set($key, $value)
+	public function set($key, $value): void
 	{
 		$this->db->runUpdateInsert($this->table, [
 			'value' => $value,
@@ -39,13 +38,13 @@ class MemcacheDB implements MemcacheInterface
 		]);
 	}
 
-	public function isValid($key = null, $expire = 0)
+	public function isValid($key = null, $expire = 0): bool
 	{
 		$row = $this->getRow($key);
 		return (strtotime($row['mtime']) - time()) < $expire;
 	}
 
-	public function un_set($key)
+	public function un_set($key): void
 	{
 		$this->db->runDeleteQuery($this->table, [
 			'key' => $key,

@@ -14,7 +14,7 @@ class SQLHaving extends SQLWhere
 		}
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		if ($this->parts) {
 			return 'ORDER BY ' . implode(' ', $this->parts);

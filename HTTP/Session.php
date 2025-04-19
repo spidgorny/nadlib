@@ -17,7 +17,7 @@ class Session implements SessionInterface
 		}
 	}
 
-	public static function isActive()
+	public static function isActive(): bool
 	{
 		//debug(session_id(), !!session_id(), session_status(), $_SESSION['FloatTime']);
 		if (function_exists('session_status')) {
@@ -26,21 +26,19 @@ class Session implements SessionInterface
 			return session_status() === PHP_SESSION_ACTIVE;
 		}
 
-		return !!session_id() && isset($_SESSION);
+		return (bool) session_id() && isset($_SESSION);
 	}
 
-	public function start()
+	public function start(): void
 	{
-		if (!Request::isPHPUnit() && !Request::isCLI()) {
-			if (!headers_sent()) {
-				// not using @ to see when session error happen
-				llog('session_start in Session');
-				session_start();
-			}
-		}
+		if (!Request::isPHPUnit() && !Request::isCLI() && !headers_sent()) {
+            // not using @ to see when session error happen
+            llog('session_start in Session');
+            session_start();
+        }
 	}
 
-	public static function make($prefix)
+	public static function make($prefix): self
 	{
 		return new self($prefix);
 	}
@@ -65,7 +63,7 @@ class Session implements SessionInterface
 		return $value;
 	}
 
-	public function delete($string)
+	public function delete($string): void
 	{
 		if ($this->prefix) {
 			unset($_SESSION[$this->prefix][$string]);
@@ -74,12 +72,12 @@ class Session implements SessionInterface
 		}
 	}
 
-	public function set($key, $val)
+	public function set($key, $val): void
 	{
 		$this->save($key, $val);
 	}
 
-	public function save($key, $val)
+	public function save($key, $val): void
 	{
 		if ($this->prefix) {
 			$_SESSION[$this->prefix][$key] = $val;
@@ -103,7 +101,7 @@ class Session implements SessionInterface
 		return $this->get($name);
 	}
 
-	public function clearAll()
+	public function clearAll(): void
 	{
 		unset($_SESSION[$this->prefix]);
 	}
@@ -115,7 +113,7 @@ class Session implements SessionInterface
 			: ifsetor($_SESSION[$key]);
 	}
 
-	public function append($key, $val)
+	public function append($key, $val): void
 	{
 		if ($this->prefix) {
 			$_SESSION[$this->prefix][$key][] = $val;

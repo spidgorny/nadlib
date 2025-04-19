@@ -34,7 +34,7 @@ class LocalLangDB extends LocalLang
 	 * Why is it not called from the constructor?
 	 * Because we need to specify the desired language $this->lang
 	 */
-	public function init()
+	public function init(): void
 	{
 		$config = Config::getInstance();
 		$this->db = $config->getDB();
@@ -55,6 +55,7 @@ class LocalLangDB extends LocalLang
 			$instance = new static($forceLang);
 			$instance->init();
 		}
+        
 		return $instance;
 	}
 
@@ -89,6 +90,7 @@ class LocalLangDB extends LocalLang
 			debug($this->db->lastQuery);
 			throw new Exception('No translation found in DB');
 		}
+        
 		return $rows;
 	}
 
@@ -98,7 +100,7 @@ class LocalLangDB extends LocalLang
 	 * @param $code
 	 * @throws Exception
 	 */
-	public function saveMissingMessage($code)
+	public function saveMissingMessage($code): void
 	{
 		nodebug([
 			'object' => spl_object_hash($this),
@@ -106,7 +108,7 @@ class LocalLangDB extends LocalLang
 			'DEVELOPMENT' => DEVELOPMENT,
 			'code' => $code,
 			'$this->saveMissingMessages' => $this->saveMissingMessages,
-			'$this->db' => !!$this->db,
+			'$this->db' => (bool) $this->db,
 			'$this->ll[code]' => ifsetor($this->ll[$code]),
 		]);
 		if (DEVELOPMENT && $code && $this->saveMissingMessages && $this->db) {
@@ -124,9 +126,11 @@ class LocalLangDB extends LocalLang
 				if (ifsetor($cols['cuser'])) {
 					$insert['cuser'] = $user->id;
 				}
+                
 				if (ifsetor($cols['muser'])) {
 					$insert['muser'] = $user->id;
 				}
+                
 				$res = $this->db->runInsertNew($this->table, $where, $insert);
 				//debug($code, $this->db->lastQuery, $this->db->numRows($this->db->lastResult), $this->db->affectedRows());
 				$this->ll[$code] = $code;
@@ -139,12 +143,11 @@ class LocalLangDB extends LocalLang
 	}
 
 	/**
-	 * Dangerous - may overwrite
-	 * @param array $data
-	 * @throws AccessDeniedException
-	 * @throws Exception
-	 */
-	public function updateMessage(array $data)
+     * Dangerous - may overwrite
+     * @throws AccessDeniedException
+     * @throws Exception
+     */
+    public function updateMessage(array $data): void
 	{
 		$user = Config::getInstance()->getUser();
 		if ($user->isAdmin()) {
@@ -167,11 +170,11 @@ class LocalLangDB extends LocalLang
 		return ifsetor($this->rows[$id]);
 	}
 
-	public function showLangSelection()
+	public function showLangSelection(): string
 	{
 		$content = '';
 		$stats = $this->getLangStats();
-		if (sizeof($stats) > 1) {           // don't show selection of just one language
+		if (count($stats) > 1) {           // don't show selection of just one language
 			foreach ($stats as $row) {
 				$u = URL::getCurrent();
 				$u->setParam('setLangCookie', $row['lang']);
@@ -181,24 +184,29 @@ class LocalLangDB extends LocalLang
 				</a>';
 			}
 		}
+        
 		//debug($_SERVER['REQUEST_URI'], $u, $u->buildURL());
 		return $content;
 	}
 
-	public function getLangStats()
+	/**
+     * @return mixed[]
+     */
+    public function getLangStats(): array
 	{
 		$en = $this->readDB('en');
-		$countEN = sizeof($en) ?: 1;
+		$countEN = count($en) ?: 1;
 		$langs = array_combine($this->possibleLangs, $this->possibleLangs);
 		foreach ($langs as &$lang) {
 			$rows = $this->readDB($lang);
 			$lang = [
 				'img' => new HtmlString('<img src="/img/' . $lang . '.gif" width="20" height="12" />'),
 				'lang' => $lang,
-				'rows' => sizeof($rows),
-				'percent' => number_format(sizeof($rows) / $countEN * 100, 0) . '%',
+				'rows' => count($rows),
+				'percent' => number_format(count($rows) / $countEN * 100, 0) . '%',
 			];
 		}
+        
 		return $langs;
 	}
 

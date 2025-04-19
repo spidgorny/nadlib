@@ -18,12 +18,13 @@ class LazyMemberIteratorTest extends PHPUnit\Framework\TestCase
 	 */
 	protected $sut;
 
-	public function setUp(): void
+	protected function setUp(): void
 	{
 		$set = [];
 		for ($i = 0; $i < 10; $i++) {
-			$set[] = range(10 * $i + 0, 10 * $i + 4);
+			$set[] = range(10 * $i, 10 * $i + 4);
 		}
+
 		$this->list = new ArrayIterator($set);
 		$this->sut = new LazyMemberIterator(
 			$this->list,
@@ -31,12 +32,12 @@ class LazyMemberIteratorTest extends PHPUnit\Framework\TestCase
 		);
 	}
 
-	public function test_count()
+	public function test_count(): void
 	{
 		$this->assertEquals(10, $this->sut->count());
 	}
 
-	public function test_current_function()
+	public function test_current_function(): void
 	{
 		$list = new ArrayIterator(range(0, 4));
 		$curM = $list->current();
@@ -44,7 +45,7 @@ class LazyMemberIteratorTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals(0, $curM);
 	}
 
-	public function test_current_function_this_list()
+	public function test_current_function_this_list(): void
 	{
 		$this->list->rewind();
 		$curM = $this->list->current();
@@ -56,7 +57,7 @@ class LazyMemberIteratorTest extends PHPUnit\Framework\TestCase
 	/**
 	 * @ignore
 	 */
-	public function no_test_current_function_on_lazy()
+	public function no_test_current_function_on_lazy(): void
 	{
 		$this->sut->rewind();
 		$curM = $this->sut->current();
@@ -65,14 +66,14 @@ class LazyMemberIteratorTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals($curM, $curF);
 	}
 
-	public function test_foreach_normal()
+	public function test_foreach_normal(): void
 	{
 		foreach ($this->list as $i => $el) {
 			$this->assertEquals($el, range(10 * $i + 0, 10 * $i + 4));
 		}
 	}
 
-	public function test_foreach_lazy()
+	public function test_foreach_lazy(): void
 	{
 //		debug(range(0, 4));
 		$this->sut->rewind();

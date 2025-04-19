@@ -3,35 +3,32 @@
 class HTMLFormInline extends HTMLFormTable
 {
 
-	public function s($content)
+	public function s($content): string
 	{
 		return MergedContent::mergeStringArrayRecursive($content);
 	}
 
-	public function e($content)
+	public function e($content): string
 	{
 		return htmlspecialchars($this->s($content));
 	}
 
-	public function mainFormStart()
+	public function mainFormStart(): void
 	{
 		$this->stdout .= '';
 	}
 
-	public function mainFormEnd()
+	public function mainFormEnd(): void
 	{
 		$this->stdout .= '';
 	}
 
 	/**
-	 * Remove <table>
-	 * @param array $formData
-	 * @param array $prefix
-	 * @param bool $mainForm
-	 * @param string $append
-	 * @return string
-	 */
-	public function getForm(array $formData, array $prefix = [], $mainForm = true, $append = '')
+     * Remove <table>
+     * @param bool $mainForm
+     * @param string $append
+     */
+    public function getForm(array $formData, array $prefix = [], $mainForm = true, $append = ''): string
 	{
 		$startedFieldset = false;
 		$tmp = $this->stdout;
@@ -40,17 +37,20 @@ class HTMLFormInline extends HTMLFormTable
 		if ($this->mainForm) {
 			$this->mainFormStart();
 		}
+
 		if ($this->fieldset) {
 			$this->stdout .= "<fieldset " . $this->getAttrHTML($this->fieldsetMore) . ">
 				<legend>" . $this->fieldset . "</legend>";
 			$startedFieldset = true;
 			$this->fieldset = null;
 		}
+
 		$this->stdout .= $this->s($this->renderFormRows($formData, $prefix));
 		$this->stdout .= $append;
 		if ($startedFieldset) {
 			$this->stdout .= "</fieldset>";
 		}
+
 		if ($this->mainForm) {
 			$this->mainFormEnd();
 		}
@@ -60,29 +60,35 @@ class HTMLFormInline extends HTMLFormTable
 		return $part;
 	}
 
-	public function renderFormRows(array $formData, array $prefix = [])
+	/**
+     * @return mixed[]
+     */
+    public function renderFormRows(array $formData, array $prefix = []): array
 	{
 		$content = [];
 		foreach ($formData as $fieldName => $fieldDesc) {
 			$content[] = $this->showTR(array_merge($prefix, [$fieldName]), $fieldDesc);
 		}
+
 		return $content;
 	}
 
-	public function showTR(array $prefix, array|HTMLFormFieldInterface $fieldDesc)
+	public function showTR(array $prefix, array|HTMLFormFieldInterface $fieldDesc): void
 	{
 		$wrapElement = $fieldDesc['type'] !== 'html';
 		if ($wrapElement) {
 			$content[] = '<div class="form-group">' . PHP_EOL;
 		}
+
 		$content[] = $this->showCell($prefix, $fieldDesc);
 		if ($wrapElement) {
 			$content[] = '</div>' . PHP_EOL;
 		}
+
 		return $content;
 	}
 
-	public function showCell(array $fieldName, array|HTMLFormFieldInterface $desc)
+	public function showCell(array $fieldName, array|HTMLFormFieldInterface $desc): array
 	{
 		$fieldValue = $desc['value'] ?? null;
 		$fieldObj = $this->switchType($fieldName, $fieldValue, $desc);
@@ -101,16 +107,17 @@ class HTMLFormInline extends HTMLFormTable
 				$content[] = '</div>';
 			}
 		}
+
 		return $content;
 	}
 
-	public function input($name, $value = "", array $more = [], $type = 'text', $extraClass = '')
+	public function input($name, $value = "", array $more = [], string $type = 'text', string $extraClass = ''): void
 	{
 		$extraClass = $extraClass ?: 'form-control';
 		parent::input($name, $value, $more, $type, $extraClass);
 	}
 
-	public function getCreateTable($table)
+	public function getCreateTable(string $table): string
 	{
 		$typeMap = [
 			'checkbox' => 'boolean',
@@ -122,10 +129,12 @@ class HTMLFormInline extends HTMLFormTable
 			if (is_int($field)) {
 				continue;
 			}
+
 			$type = ifsetor($desc['type']);
 			$sqlType = ifsetor($typeMap[$type], 'varchar');
 			$fields[] = $field . ' ' . $sqlType;
 		}
+
 		return 'CREATE TABLE ' . $table . ' (' . implode(',' . PHP_EOL, $fields) . ')';
 	}
 

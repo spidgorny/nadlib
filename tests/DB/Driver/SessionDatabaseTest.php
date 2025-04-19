@@ -11,7 +11,7 @@ use nadlib\SessionDatabase;
 class SessionDatabaseTest extends PHPUnit\Framework\TestCase
 {
 
-	public function test_runInsertQuery()
+	public function test_runInsertQuery(): void
 	{
 		$db = new SessionDatabase();
 		$table = 'application';

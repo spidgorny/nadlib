@@ -13,12 +13,13 @@ class SQLLimit
 		$this->offset = $offset;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		$content = 'LIMIT ' . $this->limit;
 		if ($this->offset) {
 			$content .= ' OFFSET ' . $this->offset;
 		}
+
 		return $content;
 	}
 

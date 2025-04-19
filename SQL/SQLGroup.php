@@ -16,7 +16,7 @@ class SQLGroup
 		}
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		if ($this->parts) {
 			return 'GROUP BY ' . implode(' ', $this->parts);

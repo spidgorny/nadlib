@@ -9,7 +9,7 @@
 class ClosureCacheTest extends PHPUnit\Framework\TestCase
 {
 
-	public function test_it()
+	public function test_it(): void
 	{
 		/*
 		$cc = new ClosureCache(
@@ -18,7 +18,7 @@ class ClosureCacheTest extends PHPUnit\Framework\TestCase
 			}
 		);*/
 
-		$cc = ClosureCache::getInstance('test', function () {
+		$cc = ClosureCache::getInstance('test', function (): int {
 			return rand(0, PHP_INT_MAX);
 		});
 		$first = $cc->get();

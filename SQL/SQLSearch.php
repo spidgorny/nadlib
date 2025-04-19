@@ -3,7 +3,9 @@
 class SQLSearch extends SQLWherePart
 {
 	protected $table;
+
 	protected $sword;
+
 	protected $words = [];
 
 	/**
@@ -48,11 +50,7 @@ class SQLSearch extends SQLWherePart
 	public function getSplitWords($sword)
 	{
 		$user = Config::getInstance()->getUser();
-		if ($user && $user->id) {
-			$searchAppend = ifsetor($user->data['searchAppend']);
-		} else {
-			$searchAppend = '';
-		}
+		$searchAppend = $user && $user->id ? ifsetor($user->data['searchAppend']) : '';
 
 		$sword = trim($sword);
 		$words = explode(' ', $sword . ' ' . $searchAppend);
@@ -63,22 +61,20 @@ class SQLSearch extends SQLWherePart
 		return array_values($words);
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		$where = $this->getWhere();
 		//$query = str_replace('WHERE', $queryJoins.' WHERE', $query);
 		$query = '';
-		if ($where) {
+		if ($where !== []) {
 			$whereString = $this->db->quoteWhere($where);
 			$query .= implode(' AND ', $whereString);
 		}
+
 		return $query;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getWhere()
+	public function getWhere(): array
 	{
 		$query = '';
 		$where = [];
@@ -104,10 +100,11 @@ class SQLSearch extends SQLWherePart
 				}
 			}
 		}
+
 		return $where;
 	}
 
-	public function getSearchSubquery($word, $select = null)
+	public function getSearchSubquery($word, $select = null): \SQLSelectQuery
 	{
 		$table = $this->table;
 		$select = new SQLSelect($select ?: 'DISTINCT *');
@@ -121,12 +118,13 @@ class SQLSearch extends SQLWherePart
 		// please put the table prefix into $this->searchableFields
 		$where = $this->getSearchWhere($word);
 		$where = new SQLWherePart($where);
+
 		$query->where->add($where);
 		$query->injectDB($this->db);
 		return $query;
 	}
 
-	function getSearchWhere($word, $prefix = '')
+	public function getSearchWhere($word, $prefix = ''): string
 	{
 		if ($word[0] === '!') {
 			$like = 'NOT ' . $this->likeOperator;
@@ -140,8 +138,9 @@ class SQLSearch extends SQLWherePart
 
 		$part = [];
 		foreach ($this->searchableFields as $field) {
-			$part[] = "{$prefix}{$field} {$like} '%$1%'";
+			$part[] = sprintf("%s%s %s '%%\$1%%'", $prefix, $field, $like);
 		}
+
 		$part = implode(' ' . $or . ' ', $part);
 		$part = str_replace('$1', $this->db->escape($word), $part);
 		$part = str_replace("\r\n", "\n", $part);
@@ -153,7 +152,7 @@ class SQLSearch extends SQLWherePart
 			$date1 = date('Y-m-d', $date1);
 			$date2 = date('Y-m-d', $date2);
 			$part .= "
-				$or $prefix.ctime BETWEEN '$date1' AND '$date2'
+				{$or} {$prefix}.ctime BETWEEN '{$date1}' AND '{$date2}'
 			";
 		}
 

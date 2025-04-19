@@ -14,7 +14,7 @@ class slTable implements ToStringable
 	 * <table id=""> will be generated
 	 * @var string
 	 */
-	public $ID = null;
+	public $ID;
 
 	/**
 	 * 2D array of rows and columns
@@ -70,7 +70,9 @@ class slTable implements ToStringable
 	 */
 	public $prefix = 'slTable';
 
-	public $sortBy, $sortOrder;
+	public $sortBy;
+
+    public $sortOrder;
 
 	/**
 	 * last line
@@ -106,11 +108,20 @@ class slTable implements ToStringable
 	 */
 	public $trmore;
 
-	public $arrowDesc = '<img src="/img/arrow_down.gif" align="absmiddle" alt="down"/>';
+	/**
+     * @var '&#x25bc;'
+     */
+    public $arrowDesc = '<img src="/img/arrow_down.gif" align="absmiddle" alt="down"/>';
 
-	public $arrowAsc = '<img src="/img/arrow_up.gif" align="absmiddle" alt="up"/>';
+	/**
+     * @var '&#x25b2;'
+     */
+    public $arrowAsc = '<img src="/img/arrow_up.gif" align="absmiddle" alt="up"/>';
 
-	public $isCLI = false;
+	/**
+     * @var bool
+     */
+    public $isCLI = false;
 
 	/**
 	 * @var Request
@@ -127,19 +138,23 @@ class slTable implements ToStringable
 		} else {
 			$this->ID = md5(microtime());
 		}
+
 		if ($more) {
 			$this->more = is_string($more)
 				? HTMLTag::parseAttributes($more)
 				: $more;
 		}
+
 		if (isset($this->more['id'])) {
 			$this->ID = $this->more['id'];
 		}
+
 		$this->thes($thes);
 		if (!@file_exists('img/arrow_down.gif')) {
 			$this->arrowDesc = '&#x25bc;';
 			$this->arrowAsc = '&#x25b2;';
 		}
+
 		$this->sortLinkPrefix = new URL();
 		$this->generation = new HTMLTableBuf();
 		$this->setRequest($request ?: Request::getInstance());
@@ -148,10 +163,9 @@ class slTable implements ToStringable
 	}
 
 	/**
-	 * @param array $aThes
-	 * @param string $thesMore
-	 */
-	public function thes(array $aThes, $thesMore = null)
+     * @param string $thesMore
+     */
+    public function thes(array $aThes, $thesMore = null): void
 	{
 		$this->thes = $aThes;
 		if ($thesMore !== null) {
@@ -159,12 +173,12 @@ class slTable implements ToStringable
 		}
 	}
 
-	public function setRequest(Request $request)
+	public function setRequest(Request $request): void
 	{
 		$this->request = $request;
 	}
 
-	public function detectSortBy()
+	public function detectSortBy(): void
 	{
 		$aRequest = $this->request->getArray('slTable');
 		$this->sortBy = ifsetor($aRequest['sortBy']);
@@ -175,26 +189,29 @@ class slTable implements ToStringable
 		if (!$this->sortBy && $this->sortable) {
 			$this->generateThes();
 			$old = error_reporting(0);    // undefined offset 0
-			if (sizeof($this->thes)) {
+			if (count($this->thes) !== 0) {
 				$firstElementFromThes = current(array_values($this->thes));
 				if (is_array($firstElementFromThes)) {
 					$firstElementFromThes = current(array_values($firstElementFromThes));
 				}
+
 				$this->sortBy = $firstElementFromThes;
 			}
+
 			error_reporting($old);
 		}
 	}
 
 	public function generateThes()
 	{
-		if (!sizeof($this->thes)) {
+		if (count($this->thes) === 0) {
 			$thes = [];
 			foreach ($this->data as $current) {
 				$thes = array_merge($thes, array_keys($current));
 				$thes = array_unique($thes);    // if put outside the loop may lead to out of memory error
 			}
-			if ($thes) {
+
+			if ($thes !== []) {
 				$thes = array_combine($thes, $thes);
 				foreach ($thes as $i => &$th) {
 					if (is_string($i) && (!strlen($i)
@@ -205,6 +222,7 @@ class slTable implements ToStringable
 						unset($thes[$i]);
 					}
 				}
+
 				unset($th);
 				unset($thes['###TD_CLASS###']);
 				unset($thes['###TR_MORE###']);
@@ -218,19 +236,22 @@ class slTable implements ToStringable
 				}
 			}
 		}
+
 		return $this->thes;
 	}
 
-	public static function showAssoc(array $assoc, $isRecursive = false, $showNumericKeys = true, $no_hsc = false)
+	public static function showAssoc(array $assoc, $isRecursive = false, $showNumericKeys = true, $no_hsc = false): self
 	{
 		foreach ($assoc as $key => &$val) {
 			if ($isRecursive && (is_array($val) || is_object($val))) {
 				if (is_object($val)) {
 					$val = get_object_vars($val);
 				}
+
 				$val = self::showAssoc($val, $isRecursive, $showNumericKeys, $no_hsc);
 				$val = new HtmlString($val);    // to prevent hsc later
 			}
+
 			if (!$showNumericKeys && is_numeric($key)) {
 				$key = '';
 			}
@@ -242,9 +263,8 @@ class slTable implements ToStringable
 				//debug($key, $val);
 				//throw new InvalidArgumentException('slTable array instead of scalar');
 				//return '['.implode(', ', $val).']';
-			} else {
-				if (!$no_hsc) {
-					if (is_object($val)) {
+			} elseif (!$no_hsc) {
+                if (is_object($val)) {
 						$val = '[' . get_class($val) . ']';
 					} elseif (mb_strpos($val, "\n") !== false) {
 						$val = htmlspecialchars($val);
@@ -252,12 +272,12 @@ class slTable implements ToStringable
 					} else {
 						$val = htmlspecialchars($val, ENT_NOQUOTES);
 					}
-					$no_hsc = true;
-				} else {
+
+                $no_hsc = true;
+            } else {
 					// will be done by slTable
 					//$val = htmlspecialchars($val);
 				}
-			}
 
 			$val = [
 				//0 => $key instanceof HtmlString ? $key : htmlspecialchars($key),
@@ -265,33 +285,33 @@ class slTable implements ToStringable
 				'' => $val,
 			];
 		}
+
 		return new self($assoc, 'class="visual nospacing table table-striped"', [
 			0 => '',
 			'' => ['no_hsc' => $no_hsc],
 		]);
 	}
 
-	public function addRowData($row)
+	public function addRowData($row): void
 	{
 		$this->data[] = $row;
 		$this->iRow++;
 		$this->iCol = 0;
 	}
 
-	public function add($val)
+	public function add($val): void
 	{
 		$this->data[$this->iRow][$this->iCol] = $val;
 		$this->iCol++;
 	}
 
 	/**
-	 * To sort, $this->thes with all datatypes should be known
-	 * @public to be callable
-	 * @param $a
-	 * @param $b
-	 * @return int
-	 */
-	public function tabSortByUrl($a, $b)
+     * To sort, $this->thes with all datatypes should be known
+     * @public to be callable
+     * @param $a
+     * @param $b
+     */
+    public function tabSortByUrl($a, array $b): int
 	{
 		$by = $this->sortBy;
 		$so = $this->sortOrder;
@@ -310,6 +330,7 @@ class slTable implements ToStringable
 		if (is_array($type)) {
 			$type = ifsetor($type['type']);
 		}
+
 		if ($type === 'date') {
 			$aa = strtotime($aa);
 			$bb = strtotime($bb);
@@ -329,7 +350,7 @@ class slTable implements ToStringable
 
 		//debug($by, $so, $aa, $bb);
 		// $aa && $bb are known
-		if ($aa == $bb) {
+		if ($aa === $bb) {
 			return 0;
 		}
 
@@ -348,7 +369,7 @@ class slTable implements ToStringable
 	 * @param string $by - can be array (for easy explode(' ', 'field DESC') processing
 	 * @param bool $or
 	 */
-	public function setSortBy($by = null, $or = null)
+	public function setSortBy($by = null, $or = null): void
 	{
 		if (is_array($by)) {
 			[$by, $or] = $by;
@@ -360,11 +381,11 @@ class slTable implements ToStringable
 //		$this->sort();
 	}
 
-	public function generate($caller = '')
+	public function generate($caller = ''): void
 	{
-		TaylorProfiler::start(__METHOD__ . " ({$caller})");
+		TaylorProfiler::start(__METHOD__ . sprintf(' (%s)', $caller));
 		// footer needs to be displayed
-		if ((sizeof($this->data) && $this->data != false) || $this->footer) {
+		if ((count($this->data) && $this->data != false) || $this->footer) {
 			$this->generateThes();
 
 			$this->sort();
@@ -376,26 +397,24 @@ class slTable implements ToStringable
 
 			$this->generateThead();
 			$this->generation->text('<tbody>');
+            $data = is_array($this->data) || $this->data instanceof Traversable ? $this->data : [];
 
-			if (is_array($this->data) || $this->data instanceof Traversable) {
-				$data = $this->data;
-			} else {
-				$data = [];
-			}
 			$i = -1;
 			foreach ($data as $key => $row) { // (almost $this->data)
 				if (!is_array($row)) {
 					debug($key, $row);
 					throw new RuntimeException('slTable row is not an array');
 				}
+
 				++$i;
 				$class = $this->getRowClass($row, $i, $key);
 				$trMore = [
 					'class' => implode(' ', $class),
 				];
-				if (is_array($row) && isset($row['###TR_MORE###'])) {
+				if (isset($row['###TR_MORE###'])) {
 					$trMore += HTMLTag::parseAttributes($row['###TR_MORE###']); // used in class.Loan.php	// don't use for "class"
 				}
+
 				$rowID = (is_array($row) && isset($row['id']))
 					? $row['id']
 					: '';
@@ -407,6 +426,7 @@ class slTable implements ToStringable
 				$this->genRow($t, $row);
 				$t->tre();
 			}
+
 			$this->generation->text('</tbody>');
 			$this->genFooter();
 			$t->tablee();
@@ -415,10 +435,11 @@ class slTable implements ToStringable
 			$this->generation->text('<div class="message">' .
 				__('No Data') . '</div>');
 		}
-		TaylorProfiler::stop(__METHOD__ . " ({$caller})");
+
+		TaylorProfiler::stop(__METHOD__ . sprintf(' (%s)', $caller));
 	}
 
-	public function sort()
+	public function sort(): void
 	{
 		//$this->setSortBy();	// don't use - use SQL
 		//debug('$this->sortBy', $this->sortBy);
@@ -429,6 +450,7 @@ class slTable implements ToStringable
 			} else {
 				uasort($this->data, [$this, 'tabSortByUrl']); // $this->sortBy is used inside
 			}
+
 			//print view_table($this->data);
 			//debug($this->thes[$this->sortBy]);
 			if (isset($this->thes[$this->sortBy])) {
@@ -437,6 +459,7 @@ class slTable implements ToStringable
 				} else {
 					$th = &$this->thes[$this->sortBy];
 				}
+
 				if ($th
 					&& !str_endsWith($th, $this->arrowAsc)
 					&& !str_endsWith($th, $this->arrowDesc)
@@ -445,11 +468,12 @@ class slTable implements ToStringable
 				}
 			}
 		}
+
 		//debug_pre_print_backtrace();
 		//debug($this->thes[$this->sortBy]);
 	}
 
-	public function generateThead()
+	public function generateThead(): void
 	{
 		$thes = $this->thes; //array_filter($this->thes, array($this, "noid"));
 		foreach ($thes as $key => $k) {
@@ -464,6 +488,7 @@ class slTable implements ToStringable
 			if (!is_array($thv)) {
 				$thv = ['name' => $thv];
 			}
+
 			$thvName = $thv['name'] ?? ($thv['label'] ?? null);
 			$thMore[$thk] = $thv['thmore'] ?? ($thv['more'] ?? null);
 
@@ -474,10 +499,12 @@ class slTable implements ToStringable
 			if (!is_array($thMore)) {
 				$thMore = ['' => $thMore];
 			}
+
 			if (isset($thv['align']) && $thv['align']) {
 				$thMore[$thk]['style'] = ifsetor($thMore[$thk]['style'])
 					. '; text-align: ' . $thv['align'];
 			}
+
 			if ($this->sortable) {
 				if (
 					((isset($thv['dbField'])
@@ -505,6 +532,7 @@ class slTable implements ToStringable
 					$link->setParam($thv['clickSort'], $thk);
 					$thvName = new HtmlString('<a href="' . $link . '">' . $thvName . '</a>');
 				}
+
 				$thes2[$thk] = $thvName;
 			}
 		}
@@ -520,7 +548,7 @@ class slTable implements ToStringable
 		];
 		$this->generation->addTHead('<thead>');
 //		llog('genthes', $thes, $this->sortable, $thes2, implode('', $thes2));
-		if (implode('', $thes2)) { // don't display empty
+		if (implode('', $thes2) !== '' && implode('', $thes2) !== '0') { // don't display empty
 //			debug($thMore, $this->thesMore);
 			$this->generation->thes($thes2, $thMore, $this->thesMore);
 			// $t is not $this // sorting must be done before
@@ -533,7 +561,7 @@ class slTable implements ToStringable
 		$this->generation->addTHead('</thead>');
 	}
 
-	public function getColGroup(array $thes)
+	public function getColGroup(array $thes): string
 	{
 		$colgroup = '<colgroup>';
 		$i = 0;
@@ -541,8 +569,9 @@ class slTable implements ToStringable
 			$key = strip_tags($key);    // <col class="col_E-manual<img src="/design/manual.gif">" />
 			$key = URL::getSlug($key);    // special cars and spaces
 			if ($this->isAlternatingColumns) {
-				$key .= ' ' . ((++$i % 2) ? 'even' : 'odd');
+				$key .= ' ' . ((++$i % 2 !== 0) ? 'even' : 'odd');
 			}
+
 			if (is_array($dummy)) {
 				$colClass = ifsetor($dummy['colClass']);
 			} elseif ($dummy instanceof ArrayAccess) {    // HTMLTag('td')
@@ -550,38 +579,36 @@ class slTable implements ToStringable
 			} else {
 				$colClass = '';
 			}
+
 			$key = trim($key . ' ' . $colClass);
 			$colgroup .= '<col class="col_' . $key . '" />' . "\n";
 		}
-		$colgroup .= '</colgroup>';
-		return $colgroup;
+
+		return $colgroup . '</colgroup>';
 	}
 
 	/**
-	 * @param array $row
-	 * @param int $i
-	 * @param $key
-	 * @return array
-	 */
-	public function getRowClass(array $row, int $i, $key): array
+     * @param $key
+     */
+    public function getRowClass(array $row, int $i, string $key): array
 	{
 		$class = [];
-		if (is_array($row) && isset($row['###TD_CLASS###'])) {
-			$class[] = $row['###TD_CLASS###'];
-		} else {
-			// only when not manually defined
-			if ($this->isOddEven) {
-				$class[] = ($i % 2) ? 'odd' : 'even';
-			}
-		}
+		if (isset($row['###TD_CLASS###'])) {
+            $class[] = $row['###TD_CLASS###'];
+        } elseif ($this->isOddEven) {
+            // only when not manually defined
+            $class[] = ($i % 2 !== 0) ? 'odd' : 'even';
+        }
+
 		if (isset($this->dataClass[$key]) && $this->dataClass[$key]) {
 			$class[] = $this->dataClass[$key];
 		}
+
 		$class[] = 'id_' . $key;
 		return $class;
 	}
 
-	public function genRow(HTMLTableBuf $t, array $row)
+	public function genRow(HTMLTableBuf $t, array $row): void
 	{
 		$skipCols = 0;
 		$iCol = 0;
@@ -592,6 +619,7 @@ class slTable implements ToStringable
 			if (isset($row[$col . '.']) && is_array($row[$col . '.'])) {
 				$k += $row[$col . '.'];
 			}
+
 			if (isset($row[$col]) && $row[$col] instanceof slTableValue) {
 				$k += $row[$col]->desc;
 			}
@@ -635,7 +663,7 @@ class slTable implements ToStringable
 	/**
 	 * @throws Exception
 	 */
-	public function render()
+	public function render(): void
 	{
 		echo $this->getContent();
 	}
@@ -652,23 +680,20 @@ class slTable implements ToStringable
 			$this->generation->reset();
 			$this->generate($caller);
 		}
+
 		return $this->generation->getContent();
 	}
 
 	/**
-	 * @param array $k
-	 * @param int $iCol
-	 * @param string $col
-	 * @param array $row
-	 * @return array
-	 */
-	public function getCellMore(array $k, $iCol, $col, array $row)
+     * @param int $iCol
+     */
+    public function getCellMore(array $k, $iCol, string $col, array $row): array
 	{
 		$more = [
 			'class' => [],
 		];
 		if ($this->isAlternatingColumns) {
-			$more['class'][] = (($iCol % 2) ? 'even' : 'odd');
+			$more['class'][] = (($iCol % 2 !== 0) ? 'even' : 'odd');
 		}
 
 		if (isset($k['more'])) {
@@ -683,22 +708,26 @@ class slTable implements ToStringable
 		if (isset($k['colspan'])) {
 			$more['colspan'] = $k['colspan'];
 		}
+
 		if (isset($k['align'])) {
 			$more['align'] = $k['align'];
 		}
+
 		if (isset($k['width'])) {
 			$more['width'] = $k['width'];
 		}
+
 		if (ifsetor($k['title'])) {
 			$more['title'] = $k['title'] === '###SELF###'
 				? $row[$col]
 				: $k['title'];
 		}
+
 		$more['class'][] = 'col_' . $col;
 		return $more;
 	}
 
-	public function genFooter()
+	public function genFooter(): void
 	{
 		if ($this->footer) {
 			$this->generation->tfoot('<tfoot>');
@@ -717,13 +746,12 @@ class slTable implements ToStringable
 	}
 
 	/**
-	 * Separation by "\t" is too stupid. We count how many chars are there in each column
-	 * and then pad it accordingly
-	 * @param bool $cutTooLong
-	 * @param bool $useAvg
-	 * @return string
-	 */
-	public function getCLITable($cutTooLong = false, $useAvg = false)
+     * Separation by "\t" is too stupid. We count how many chars are there in each column
+     * and then pad it accordingly
+     * @param bool $cutTooLong
+     * @param bool $useAvg
+     */
+    public function getCLITable($cutTooLong = false, $useAvg = false): string
 	{
 		$this->generateThes();
 		$ct = new CLITable($this->data, $this->thes);
@@ -731,7 +759,7 @@ class slTable implements ToStringable
 		return $ct->render($cutTooLong, $useAvg);
 	}
 
-	public function addRowWithMore($row)
+	public function addRowWithMore($row): void
 	{
 		$this->addRow();
 		foreach ($row as $col => $val) {
@@ -746,7 +774,7 @@ class slTable implements ToStringable
 	/**
 	 * @deprecated - use addRowData
 	 */
-	public function addRow()
+	public function addRow(): void
 	{
 		$this->iRow++;
 		$this->iCol = 0;
@@ -754,27 +782,25 @@ class slTable implements ToStringable
 
 	/// https://stackoverflow.com/questions/21104373/tostring-must-not-throw-an-exception-error-when-using-string/26006176
 
-	public function addVal($col, $val)
+	public function addVal($col, $val): void
 	{
 		$this->data[$this->iRow][$col] = $val;
 		$this->iCol++;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		try {
 			return $this->getContent();
-		} catch (Exception $e) {
+		} catch (Exception $exception) {
 			return get_class($this) . '@' . spl_object_hash($this);
 		}
 	}
 
 	/**
-	 * Used by GenReport to auto-generate footer
-	 *
-	 * @return array
-	 */
-	public function getTotals($isRecursive = false)
+     * Used by GenReport to auto-generate footer
+     */
+    public function getTotals($isRecursive = false): array
 	{
 		$footer = [];
 		$this->generateThes();
@@ -791,37 +817,42 @@ class slTable implements ToStringable
 					foreach ($this->data as $row) {
 						$footer[$col] += floatval(strip_tags($row[$col]));
 					}
+
 					//} else {
 					//	$footer[$col] = '&nbsp;';
 				}
+
 				$footer[$col] = $footer[$col] ? new slTableValue($footer[$col], [
 					'align' => 'right',
 				]) : '';
 			}
 		}
+
 		return $footer;
 	}
 
-	protected function is_time($val)
+	protected function is_time($val): bool
 	{
 		$parts = explode(':', $val);
-		return (sizeof($parts) == 2
+		return (count($parts) == 2
 			&& is_numeric($parts[0])
 			&& is_numeric($parts[1])
 			&& strlen($parts[0]) == 2
 			&& strlen($parts[1]) == 2);
 	}
 
-	protected function getColumnTotalTime(array $data, $col, $isRecursive = false, $showNumericKeys = false)
+	protected function getColumnTotalTime(array $data, $col, $isRecursive = false, $showNumericKeys = false): self
 	{
 		foreach ($data as $key => &$val) {
 			if ($isRecursive && (is_array($val) || is_object($val))) {
 				if (is_object($val)) {
 					$val = get_object_vars($val);
 				}
+
 				$val = slTable::showAssoc($val, $isRecursive, $showNumericKeys);
 				$val = new HtmlString($val);    // to prevent hsc later
 			}
+
 			if (!$showNumericKeys && is_numeric($key)) {
 				$key = '';
 			}
@@ -842,6 +873,7 @@ class slTable implements ToStringable
 				} else {
 					$val = htmlspecialchars($val, ENT_NOQUOTES);
 				}
+
 				$no_hsc = true;
 			}
 
@@ -851,14 +883,14 @@ class slTable implements ToStringable
 				'' => $val,
 			];
 		}
-		$s = new self($data, 'class="visual nospacing table table-striped"', [
+
+		return new self($data, 'class="visual nospacing table table-striped"', [
 			0 => '',
 			'' => ['no_hsc' => true],
 		]);
-		return $s;
 	}
 
-	public function download($filename)
+	public function download(string $filename): void
 	{
 		$content = $this->getContent();
 		header('Content-type: application/vnd.ms-excel');
@@ -869,9 +901,10 @@ class slTable implements ToStringable
 	}
 
 	/**
-	 * TODO: use getThesNames()
-	 */
-	public function prepare4XLS()
+     * TODO: use getThesNames()
+     * @return mixed[]
+     */
+    public function prepare4XLS(): array
 	{
 		$this->generateThes();
 		//debug($this->thes);
@@ -885,26 +918,29 @@ class slTable implements ToStringable
 				$val = $row[$col];
 				$line[] = strip_tags($val);
 			}
+
 			$xls[] = $line;
 		}
+
 		return $xls;
 	}
 
-	public function getThesNames()
+	/**
+     * @return mixed[]
+     */
+    public function getThesNames(): array
 	{
 		$names = [];
 		foreach ($this->thes as $field => $thv) {
-			if (is_array($thv)) {
-				$thvName = $thv['name'] ?? ($thv['label'] ?? '');
-			} else {
-				$thvName = $thv;
-			}
-			$names[$field] = $thvName;
+			$thvName = is_array($thv) ? $thv['name'] ?? ($thv['label'] ?? '') : $thv;
+
+            $names[$field] = $thvName;
 		}
+
 		return $names;
 	}
 
-	public function autoFormat()
+	public function autoFormat(): void
 	{
 		$this->generateThes();
 		foreach ($this->thes as $key => $name) {
@@ -917,6 +953,7 @@ class slTable implements ToStringable
 					break;
 				}
 			}
+
 			//debug($col, $numeric);
 			if ($numeric) {
 				$this->thes[$key]['more']['align'] = 'right';
@@ -924,7 +961,7 @@ class slTable implements ToStringable
 		}
 	}
 
-	public function hideEmptyColumns()
+	public function hideEmptyColumns(): void
 	{
 		$visible = [];
 		foreach ($this->data as $row) {
@@ -934,6 +971,7 @@ class slTable implements ToStringable
 				}
 			}
 		}
+
 		foreach ($this->thes as $th => $desc) {
 			if (!ifsetor($visible[$th])) {
 				unset($this->thes[$th]);

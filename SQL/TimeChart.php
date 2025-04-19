@@ -72,7 +72,7 @@ class TimeChart
 		}
 	}
 
-	public function fetch()
+	public function fetch(): void
 	{
 		if (!$this->data) {
 			$sqlDate = $this->getSQLForTime();
@@ -87,23 +87,25 @@ class TimeChart
 		}
 	}
 
-	public function getSQLForTime()
+	public function getSQLForTime(): string
 	{
 		$content = '';
 		$dateFormat = $this->options[$this->groupBy];
 		if (!$dateFormat) {
 			throw new Exception(__METHOD__);
 		}
+
 		$timeField = $this->db->quoteKey($this->timeField);
 		if ($this->db->getScheme() == 'mysql') {
 			$content = 'date_format(' . $timeField . ', "' . $dateFormat . '")';
 		} elseif ($this->db->getScheme() == 'sqlite') {
 			$content = 'strftime("' . $dateFormat . '", ' . $timeField . ')';
 		}
+
 		return $content;
 	}
 
-	public function render()
+	public function render(): string
 	{
 		$this->fetch();
 		if ($this->data) {
@@ -115,10 +117,11 @@ class TimeChart
 			//debug($this->query);
 			$content = '';
 		}
+
 		return $content;
 	}
 
-	public function getFlot()
+	public function getFlot(): \Flot
 	{
 		$this->fetch();
 		$f = new Flot($this->data, 'line', $this->groupBy, 'amount');
@@ -132,7 +135,7 @@ class TimeChart
 		return $f;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->render() . '';
 	}

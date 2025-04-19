@@ -7,8 +7,7 @@
 class NextPrevBrowser
 {
 
-	/** @var Collection */
-	protected $collection;
+	protected \Collection $collection;
 
 	/** @var ArrayPlus */
 	protected $data;
@@ -17,6 +16,7 @@ class NextPrevBrowser
 	protected $pager;
 
 	public $prevText = '&#x25C4;';
+
 	public $nextText = '&#x25BA;';
 
 	public function __construct(Collection $collection)
@@ -29,16 +29,14 @@ class NextPrevBrowser
 	}
 
 	/**
-	 * Only $model->id is used to do ArrayPlus::getNextKey() and $mode->getName() for display
-	 *
-	 * If pager is used then it tries to retrieve page before and after to make sure that first and last
-	 * elements on the page still have prev and next elements. But it's SLOW!
-	 *
-	 * @param OODBase $model
-	 * @return string
-	 * @throws Exception
-	 */
-	public function getNextPrevBrowser(OODBase $model)
+     * Only $model->id is used to do ArrayPlus::getNextKey() and $mode->getName() for display
+     *
+     * If pager is used then it tries to retrieve page before and after to make sure that first and last
+     * elements on the page still have prev and next elements. But it's SLOW!
+     *
+     * @throws Exception
+     */
+    public function getNextPrevBrowser(OODBase $model): string
 	{
 		if ($this->pager) {
 			//$this->pager->debug();
@@ -70,8 +68,9 @@ class NextPrevBrowser
 				$nextData = [];
 			}
 		} else {
-			$prevData = $nextData = [];
-		}
+            $prevData = [];
+            $nextData = [];
+        }
 
 		$central = ($this->data instanceof ArrayPlus)
 			? $this->data->getData()
@@ -108,6 +107,7 @@ class NextPrevBrowser
 			$this->pager->setCurrentPage($this->pager->currentPage - 1);
 			$this->pager->saveCurrentPage();
 		}
+
 		if (isset($nextData[$model->id])) {
 			$this->pager->setCurrentPage($this->pager->currentPage + 1);
 			$this->pager->saveCurrentPage();
@@ -117,12 +117,11 @@ class NextPrevBrowser
 	}
 
 	/**
-	 * Override to make links from different type of objects
-	 * @param $prev
-	 * @param $arrow
-	 * @return HTMLTag
-	 */
-	protected function getNextPrevLink(array $prev, $arrow): HTMLTag
+     * Override to make links from different type of objects
+     * @param $prev
+     * @param $arrow
+     */
+    protected function getNextPrevLink(array $prev, $arrow): HTMLTag
 	{
 		if (ifsetor($prev['singleLink'])) {
 			$content = new HTMLTag('a', [
@@ -139,16 +138,16 @@ class NextPrevBrowser
 		} else {
 			$content = new HTMLTag('span', [], $arrow, true);
 		}
+
 		return $content;
 	}
 
 	/**
-	 * @param $prev
-	 * @param $model OODBase
-	 * @param $next
-	 * @return string
-	 */
-	protected function renderPrevNext($prev, $model, $next): string
+     * @param $prev
+     * @param $model OODBase
+     * @param $next
+     */
+    protected function renderPrevNext(string $prev, $model, string $next): string
 	{
 		return $prev . ' ' . $model->getName() . ' ' . $next;
 	}

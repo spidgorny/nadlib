@@ -6,8 +6,11 @@
 class AccessRights implements AccessRightsInterface
 {
 	protected $accessTable = 'access';
+
 	protected $groupAccessTable = 'department_access';
+
 	protected $id_usergroup = 'id_department';
+
 	protected $id_useraccess = 'id_access';
 
 	public $groupID;
@@ -38,15 +41,16 @@ class AccessRights implements AccessRightsInterface
 		if ($this->groupID) {
 			$this->reload();
 		}
+
 		TaylorProfiler::stop($profiler);
 	}
 
-	public function reload()
+	public function reload(): void
 	{
 		$this->init($this->groupID);
 	}
 
-	public function init($idGroup)
+	public function init(string $idGroup): void
 	{
 		$res = $this->db->runSelectQuery(
 			$this->accessTable . ' /**/
@@ -64,8 +68,9 @@ class AccessRights implements AccessRightsInterface
 		$data = new ArrayPlus($data);
 		$data = $data->column_assoc('name', 'affirmative')->getData();
 		foreach ($data as &$affirmative) {
-			$affirmative = $affirmative ? true : false;
+			$affirmative = (bool) $affirmative;
 		}
+
 		$this->arCache = $data;
 		//debug($this->arCache);
 	}
@@ -77,9 +82,7 @@ class AccessRights implements AccessRightsInterface
 			return $this->arCache[$what];
 		}
 
-		if (DEVELOPMENT) {
-			throw new AccessDeniedException('Checking non-existing access-right: ' . $what);
-		}
+		throw new AccessDeniedException('Checking non-existing access-right: ' . $what);
 	}
 
 	public function getList()
@@ -92,7 +95,7 @@ class AccessRights implements AccessRightsInterface
 		return $this->query;
 	}
 
-	public function render()
+	public function render(): \UL
 	{
 		return new UL($this->arCache);
 	}
@@ -102,6 +105,7 @@ class AccessRights implements AccessRightsInterface
 		$vars = get_object_vars($this);
 		$keys = array_keys($vars);
 		$keys = array_combine($keys, $keys);
+
 		$types = array_map('typ', $vars);
 		unset($keys['db'], $types['db']);
 		//debug(array_combine($keys, $types));
@@ -121,15 +125,16 @@ class AccessRights implements AccessRightsInterface
 		if ($className) {
 			$accessRights = $accessRights->convertTo($className);
 		}
+
 		return $accessRights;
 	}
 
-	public function setAccess($name, $value)
+	public function setAccess($name, $value): void
 	{
 		$this->arCache[$name] = $value;
 	}
 
-	public function dehydrate()
+	public function dehydrate(): array
 	{
 		return [
 			'class' => get_class($this),

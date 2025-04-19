@@ -27,7 +27,7 @@ class AlterTableCLI extends AlterTable
 		return $this->performAction($this->detectAction());  // save, list, try
 	}
 
-	public function saveAction()
+	public function saveAction(): void
 	{
 		echo 'File: ', $this->jsonFile, BR;
 		echo 'Size: ', filesize($this->jsonFile), BR;
@@ -36,7 +36,7 @@ class AlterTableCLI extends AlterTable
 		echo 'Size: ', filesize($this->jsonFile), BR;
 	}
 
-	public function tryAction()
+	public function tryAction(): void
 	{
 		$filename = $this->jsonFile;
 		//$filename = str_replace('sql\\', '', $filename);
@@ -72,7 +72,8 @@ class AlterTableCLI extends AlterTable
 						),
 					]];
 				}
-				$this->filterChanges($table, $indexCompare);
+
+				$this->filterChanges($indexCompare);
 			}
 		} else {
 			echo 'Choose file on the left', BR;
@@ -80,23 +81,25 @@ class AlterTableCLI extends AlterTable
 		}
 	}
 
-	private function filterChanges($table, array $indexCompare)
+	private function filterChanges(array $indexCompare): array
 	{
 		$content = [];
 		foreach ($indexCompare as $row) {
 			if (ifsetor($row['same']) != 'same') {
 				$sql = $row['action']->content->content;
 				echo $sql, str_endsWith($sql, ';') ? '' : ';';
-				if (ifsetor($row['fromDB']) . '') {
+				if (ifsetor($row['fromDB']) . '' !== '') {
 					echo ' /* ', $row['fromDB'], ' */';
 				}
+
 				echo BR;
 			}
 		}
+
 		return $content;
 	}
 
-	public function listAction()
+	public function listAction(): void
 	{
 		/** @var UL $ul */
 		$ul = $this->listFiles()[0];

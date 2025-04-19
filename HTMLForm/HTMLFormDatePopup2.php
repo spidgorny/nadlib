@@ -6,12 +6,19 @@ class HTMLFormDatePopup2 extends HTMLFormType
 	 * @var $form HTMLForm
 	 */
 	public $form;
+
 	/**
 	 * @var int timestamp
 	 */
 	public $value;
+
 	public $desc;
-	public $id;
+
+	/**
+     * @var string
+     */
+    public $id;
+
 	protected $name;
 
 	public function __construct(HTMLForm $form, $name, $value, array $desc = [
@@ -27,7 +34,7 @@ class HTMLFormDatePopup2 extends HTMLFormType
 		$this->id = uniqid('', true);
 	}
 
-	public function setValue($value)
+	public function setValue($value): void
 	{
 		if ($value instanceof Time) {
 			$this->value = $value->getTimestamp();
@@ -41,15 +48,16 @@ class HTMLFormDatePopup2 extends HTMLFormType
 		} else {
 			$this->value = $value;
 		}
+
 //		debug(__METHOD__, $value, $this->value);
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->render() . '';
 	}
 
-	public function render()
+	public function render(): string
 	{
 		$fullname = $this->form->getName($this->name, '', true);
 		$printValue = $this->value
@@ -63,7 +71,7 @@ class HTMLFormDatePopup2 extends HTMLFormType
 			<link rel="stylesheet" type="text/css" href="lib/JSCal2-1.7/src/css/border-radius.css" />
 			<script type="text/javascript" src="lib/JSCal2-1.7/src/js/jscal2.js"></script>
 			<script type="text/javascript" src="lib/JSCal2-1.7/src/js/lang/en.js"></script>';
-		$content = '
+		return '
 			<input type="text" name="' . $fullname . '" id="id_field_' . $this->id . '" value="' . $printValue . '" class="datepopup2"/>
 			<button type="button" id="id_button_' . $this->id . '">...</button>
 			<script type="text/javascript">
@@ -80,7 +88,6 @@ class HTMLFormDatePopup2 extends HTMLFormType
 			$this->desc['plusConfig'] . '
 			    });
 			</script>';
-		return $content;
 	}
 
 }

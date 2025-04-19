@@ -19,7 +19,7 @@ if (!function_exists('get_overriden_methods')) {
 				new ReflectionMethod($rClass->getParentClass()->getName(),
 					$rMethod->getName());
 				// check whether method is explicitly defined in this class
-				if ($rMethod->getDeclaringClass()->getName() == $rClass->getName()
+				if ($rMethod->getDeclaringClass()->getName() === $rClass->getName()
 				) {
 					// if so, then it is overriden, so add to array
 					$array[] = $rMethod->getName();
@@ -34,7 +34,7 @@ if (!function_exists('get_overriden_methods')) {
 }
 
 // From Laravel https://github.com/illuminate/support/blob/master/helpers.php#L82
-function strip_namespace($class)
+function strip_namespace($class): string
 {
 	$class = is_object($class) ? get_class($class) : $class;
 

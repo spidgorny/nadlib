@@ -3,7 +3,10 @@
 class SQLIn extends SQLWherePart
 {
 
-	public $list = [];
+	/**
+     * @var mixed[]
+     */
+    public $list = [];
 
 	public function __construct(array $list, $field = null)
 	{
@@ -14,10 +17,11 @@ class SQLIn extends SQLWherePart
 				throw new InvalidArgumentException(__METHOD__ . ' need to have flat array');
 			}
 		}
+
 		$this->injectField($field);
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		$field = $this->field;
 
@@ -29,6 +33,7 @@ class SQLIn extends SQLWherePart
 		if (!$field) {
 			//debug_pre_print_backtrace();
 		}
+
 //		debug(__METHOD__, $this->list);
 		return $field . " IN (" . implode(", ", $this->db->quoteValues($this->list)) . ")";
 	}

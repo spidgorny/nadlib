@@ -16,7 +16,9 @@ class ConfigBase implements ConfigInterface
 	protected static $instance;
 
 	public $db_server = '127.0.0.1';
+
 	public $db_user = 'root';
+
 	protected $db_password = 'root';
 
 	public $db_database = '';
@@ -95,7 +97,10 @@ class ConfigBase implements ConfigInterface
 	 */
 	public $ll;
 
-	public $isCron = false;
+	/**
+     * @var bool
+     */
+    public $isCron = false;
 
 	/** @phpstan-consistent-constructor */
 	protected function __construct()
@@ -103,6 +108,7 @@ class ConfigBase implements ConfigInterface
 		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') {
 			echo __METHOD__ . "<br />\n";
 		}
+
 		$this->documentRoot = Request::getDocumentRoot();
 //		debug($this->documentRoot);
 
@@ -119,6 +125,7 @@ class ConfigBase implements ConfigInterface
 		if (file_exists($configYAML) && class_exists('Spyc')) {
 			$this->config = Spyc::YAMLLoad($configYAML);
 		}
+
 		$this->mergeConfig($this);
 
 		$configJSON = $appRoot . 'class/config.json';
@@ -127,6 +134,7 @@ class ConfigBase implements ConfigInterface
 			$this->config = json_decode(file_get_contents($configJSON), true);
 			$this->mergeConfig($this);
 		}
+
 		$this->isCron = Request::isCron();
 		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') {
 			echo __METHOD__ . BR;
@@ -151,6 +159,7 @@ class ConfigBase implements ConfigInterface
 			// must be called outside
 			assert(self::$instance instanceof ConfigBase);
 		}
+
 		return self::$instance;
 	}
 
@@ -158,7 +167,7 @@ class ConfigBase implements ConfigInterface
 	 * Does heavy operations during bootstrapping
 	 * @return $this
 	 */
-	public function postInit()
+	public function postInit(): static
 	{
 		//$this->getDB();
 		// init user here as he needs to access Config::getInstance()
@@ -199,8 +208,10 @@ class ConfigBase implements ConfigInterface
 			} else {
 				throw new DatabaseException('Please enable PDO');
 			}
+
 			$this->db->setQb(new SQLBuilder($this->db));
 		}
+
 		return $this->db;
 	}
 
@@ -210,22 +221,19 @@ class ConfigBase implements ConfigInterface
 	}
 
 	/**
-	 * TODO: enable FirePHP
-	 * @param string $class
-	 * @param mixed $message
-	 * @throws Exception
-	 */
-	public function log($class, $message)
+     * TODO: enable FirePHP
+     * @param mixed $message
+     * @throws Exception
+     */
+    public function log(string $class, string $message): void
 	{
-		if (DEVELOPMENT) {
-			throw new Exception($class . ' ' . $message);
-		}
+		throw new Exception($class . ' ' . $message);
 	}
 
 	/**
 	 * @param object $obj
 	 */
-	public function mergeConfig($obj)
+	public function mergeConfig($obj): void
 	{
 		$class = get_class($obj);
 		if (isset($this->config[$class]) && is_array($this->config[$class])) {
@@ -268,6 +276,7 @@ class ConfigBase implements ConfigInterface
 				// failed to login - no problem
 			}
 		}
+
 		return $this->user;
 	}
 
@@ -276,6 +285,7 @@ class ConfigBase implements ConfigInterface
 		if (!$this->ll) {
 			$this->ll = new LocalLangDummy();
 		}
+
 		return $this->ll;
 	}
 
@@ -289,7 +299,7 @@ class ConfigBase implements ConfigInterface
 		return $this->db_password;
 	}
 
-	public function setUser(UserModelInterface $user)
+	public function setUser(UserModelInterface $user): void
 	{
 		$this->user = $user;
 	}
