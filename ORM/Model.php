@@ -34,9 +34,9 @@ class Model
 	public $id;
 
 	public $lastSelectQuery;
-    
+
 	public $lastInsertQuery;
-    
+
 	public $lastUpdateQuery;
 
 	protected static $instances = [];
@@ -64,7 +64,6 @@ class Model
 		if (self::$instances[$id]) {
 			return self::$instances[$id];
 		}
-        ;
 		$obj = new static($db, []);
 		$obj->getByID($id);
 		self::$instances[$id] = $obj;
@@ -79,7 +78,7 @@ class Model
 		if ($db instanceof \DBInterface) {
 			$this->setDB($db);
 		}
-        
+
 		$this->setData($data);
 	}
 
@@ -124,7 +123,7 @@ class Model
 		if (!($data instanceof ArrayPlus)) {
 			$data = new ArrayPlus($data);
 		}
-        
+
 		return $data;
 	}
 
@@ -140,7 +139,7 @@ class Model
 		if (!($data instanceof ArrayPlus)) {
 			$data = new ArrayPlus($data);
 		}
-        
+
 		$data->map(function ($row): static {
 			return new static($this->db, $row);
 		});
@@ -163,13 +162,13 @@ class Model
 				} else {
 					$content = $this->getName();
 				}
-                
+
 				$list[$id] = $content;
 			}
-            
+
 			return new UL($list);
 		}
-        
+
 		return null;
 	}
 
@@ -178,7 +177,7 @@ class Model
 		if (!isset($data[$this->idField])) {
 			$data[$this->idField] = RandomStringGenerator::likeYouTube();
 		}
-        
+
 		$res = $this->db->runInsertQuery($this->table, $data, $where);
 		$this->lastInsertQuery = $this->db->getLastQuery();
 		$this->setData($data);
@@ -198,7 +197,7 @@ class Model
 		if ($this->db->affectedRows($res) !== 1) {
 			throw new DatabaseException($this->db->getLastQuery() . ' updated ' . $this->db->affectedRows($res) . ' rows');
 		}
-        
+
 		$this->lastUpdateQuery = $this->db->getLastQuery();
 		$this->setData($data);
 		return $res;
@@ -215,7 +214,7 @@ class Model
 		} else {
 			$this->unsetData();
 		}
-        
+
 		return $this;
 	}
 
@@ -235,7 +234,7 @@ class Model
 				'optional' => $dc->is_set('optional') || !$dc->is_set('required'),
 			];
 		}
-        
+
 		return $desc;
 	}
 
@@ -260,7 +259,7 @@ class Model
 				// skip
 			}
 		}
-        
+
 		return $fields;
 	}
 
@@ -344,10 +343,10 @@ class Model
 					: 'varchar';
 				$f->references = $type->table . '(' . $type->idField . ')';
 			}
-            
+
 			$columns[] = $f;
 		}
-        
+
 		$at = new AlterTable();
 		$handler = $at->handler;
 		return $handler->getCreateQuery($this->table, $columns);

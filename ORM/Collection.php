@@ -584,7 +584,7 @@ class Collection implements IteratorAggregate, ToStringable
 	 */
 	public function objectify($class = null, $byInstance = false)
 	{
-		$class = $class ?: $this->itemClassName;
+		$class = $class ?: static::$itemClassName;
 		if ($this->members) {
 			return $this->members;
 		}
@@ -657,7 +657,7 @@ class Collection implements IteratorAggregate, ToStringable
 
 //		llog('$this->getProcessedData()', $this->getProcessedData()->count());
 		foreach ($this->getProcessedData() as $id => $row) {
-			if ($this->itemClassName) {
+			if (static::$itemClassName) {
 				$list[$id] = $this->renderListItem($row);
 			} elseif ($this->thes) {
 				$row = $this->prepareRenderRow($row);   // add link
@@ -678,7 +678,7 @@ class Collection implements IteratorAggregate, ToStringable
 	public function renderListItem(array $row)
 	{
 		/** @var OODBase $obj */
-		$class = $this->itemClassName;
+		$class = static::$itemClassName;
 		$obj = method_exists($class, 'getInstance') ? $class::getInstance($row) : new $class($row);
 
 		if (method_exists($obj, 'render')) {
@@ -733,7 +733,7 @@ class Collection implements IteratorAggregate, ToStringable
 	public function objectifyAsPlus(): \ArrayPlus
 	{
 		return ArrayPlus::create(
-			$this->objectify($this->itemClassName, $this->objectifyByInstance)
+			$this->objectify(static::$itemClassName, $this->objectifyByInstance)
 		);
 	}
 
@@ -827,7 +827,7 @@ class Collection implements IteratorAggregate, ToStringable
 	public function getLazyMemberIterator($class = null): \LazyMemberIterator
 	{
 		if (!$class) {
-			$class = $this->itemClassName;
+			$class = static::$itemClassName;
 		}
 
 		$arrayIterator = $this->getLazyIterator();
@@ -898,7 +898,7 @@ class Collection implements IteratorAggregate, ToStringable
 	 */
 	public function getIterator(): Traversable
 	{
-		return new ArrayPlus($this->objectify($this->itemClassName, $this->objectifyByInstance));
+		return new ArrayPlus($this->objectify(static::$itemClassName, $this->objectifyByInstance));
 	}
 
 	public function get($id)

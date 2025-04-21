@@ -50,4 +50,6 @@ interface UserModelInterface
 
 	//public function findInDB(array $where = [], $orderByLimit = '', $selectPlus = null);
 
+	public function getPref($pref, $default = null);
+
 }
