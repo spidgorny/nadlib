@@ -5,6 +5,9 @@ namespace spec\spidgorny\nadlib\HTTP;
 use PhpSpec\ObjectBehavior;
 use spidgorny\nadlib\HTTP\URL;
 
+/**
+ * @mixin URL
+ */
 class URLSpec extends ObjectBehavior
 {
 	public function it_is_initializable(): void

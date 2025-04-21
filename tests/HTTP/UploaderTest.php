@@ -1,12 +1,13 @@
 <?php
+
+use League\Flysystem\Filesystem;
+
 /**
  * Created by PhpStorm.
  * User: Slawa
  * Date: 2017-08-03
  * Time: 22:28
  */
-
-
 class UploaderTest extends PHPUnit\Framework\TestCase
 {
 
@@ -104,11 +105,11 @@ class UploaderTest extends PHPUnit\Framework\TestCase
 
 	public function test_moveUploadFly(): void
 	{
-		if (!class_exists(\League\Flysystem\Filesystem::class)) {
+		if (!class_exists(Filesystem::class)) {
 			$this->markTestSkipped('League\Flysystem\Filesystem not installed');
 		}
 
-		if (getenv('USER') == 'jenkins') {
+		if (getenv('USER') === 'jenkins') {
 			$this->markTestSkipped('Fill fail when run from Jenkins anyway');
 		}
 

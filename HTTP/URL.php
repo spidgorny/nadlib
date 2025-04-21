@@ -71,6 +71,7 @@ class URL
 
 	/**
      * @param string $url - if not specified then the current page URL is reconstructed
+	 * @param array $params
      */
     public function __construct($url = null, array $params = [])
 	{
