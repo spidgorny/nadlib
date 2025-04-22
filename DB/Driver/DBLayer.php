@@ -632,7 +632,7 @@ class DBLayer extends DBLayerBase
 //		$row = $this->fetchAssoc("SELECT currval('".$table."') AS currval");
 //		return $row['currval'];
 		$pgv = pg_version($this->getConnection());
-		llog('pg_version', $pgv);
+//		llog('pg_version', $pgv);
 		if ((float)$pgv['server'] >= 8.1) {
 			return $this->lastval();
 		}
