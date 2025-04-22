@@ -70,10 +70,10 @@ class URL
 	}
 
 	/**
-     * @param string $url - if not specified then the current page URL is reconstructed
+	 * @param string $url - if not specified then the current page URL is reconstructed
 	 * @param array $params
-     */
-    public function __construct($url = null, array $params = [])
+	 */
+	public function __construct($url = null, array $params = [])
 	{
 		if ($url instanceof URL) {
 			//return $url;	// doesn't work
@@ -165,10 +165,10 @@ class URL
 	}
 
 	/**
-     * @param $param
-     * @param $value
-     */
-    public function setParam($param, $value): static
+	 * @param $param
+	 * @param $value
+	 */
+	public function setParam($param, $value): static
 	{
 		$this->params[$param] = $value;
 		$this->components['query'] = $this->buildQuery();
@@ -188,10 +188,10 @@ class URL
 	}
 
 	/**
-     * Replaces parameters completely (with empty array?)
-     * @return $this
-     */
-    public function setParams(array $params = []): static
+	 * Replaces parameters completely (with empty array?)
+	 * @return $this
+	 */
+	public function setParams(array $params = []): static
 	{
 		$this->params = $params;
 		$this->components['query'] = $this->buildQuery();
@@ -199,10 +199,10 @@ class URL
 	}
 
 	/**
-     * New params have priority
-     * @return $this
-     */
-    public function addParams(array $params = []): static
+	 * New params have priority
+	 * @return $this
+	 */
+	public function addParams(array $params = []): static
 	{
 		$this->params = $params + $this->params;
 		$this->components['query'] = $this->buildQuery();
@@ -336,11 +336,11 @@ class URL
 	}
 
 	/**
-     * http://de2.php.net/manual/en/function.parse-url.php#85963
-     *
-     * @throws \Exception
-     */
-    public function buildURL($parsed = null): string
+	 * http://de2.php.net/manual/en/function.parse-url.php#85963
+	 *
+	 * @throws \Exception
+	 */
+	public function buildURL($parsed = null): string
 	{
 		if (!$parsed) {
 			// to make sure manual manipulations are not possible (although it's already protected?)
@@ -368,7 +368,7 @@ class URL
 
 		$uri .= $parsed['query'] ? '?' . $parsed['query'] : '';
 
-		return $uri . isset($parsed['fragment']) !== '' ? '#' . $parsed['fragment'] : '';
+		return $uri . isset($parsed['fragment']) !== '' ? '#' . ($parsed['fragment'] ?? '') : '';
 	}
 
 	/**
@@ -406,9 +406,9 @@ class URL
 	}
 
 	/**
-     * @static
-     */
-    public static function getCurrent(): \spidgorny\nadlib\HTTP\URL
+	 * @static
+	 */
+	public static function getCurrent(): \spidgorny\nadlib\HTTP\URL
 	{
 		return new URL();
 	}
@@ -487,13 +487,13 @@ class URL
 	}
 
 	/**
-     * Works well when both paths are absolute.
-     * Comparing server path to URL path does not work.
-     * http://stackoverflow.com/a/2638272/417153
-     * @param string $from
-     * @param string $to
-     */
-    public static function getRelativePath($from, $to): string
+	 * Works well when both paths are absolute.
+	 * Comparing server path to URL path does not work.
+	 * http://stackoverflow.com/a/2638272/417153
+	 * @param string $from
+	 * @param string $to
+	 */
+	public static function getRelativePath($from, $to): string
 	{
 		0 && debug(
 			$_SERVER['DOCUMENT_ROOT'],
@@ -574,11 +574,11 @@ class URL
 	}
 
 	/**
-     * "asd/qwe\zxc/" => ['asd', 'qwe', 'zxc']
-     * Takes care of Windows path and removes empty
-     * @param $from
-     */
-    public static function getPathFolders($from): array
+	 * "asd/qwe\zxc/" => ['asd', 'qwe', 'zxc']
+	 * Takes care of Windows path and removes empty
+	 * @param $from
+	 */
+	public static function getPathFolders($from): array
 	{
 		//		ob_start();
 		//		debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
@@ -592,10 +592,10 @@ class URL
 	}
 
 	/**
-     * @param string $path1
-     * @param string $path2
-     */
-    public static function getCommonRoot($path1, $path2): array
+	 * @param string $path1
+	 * @param string $path2
+	 */
+	public static function getCommonRoot($path1, $path2): array
 	{
 		$path1 = self::getPathFolders($path1);
 		$path2 = self::getPathFolders($path2);
@@ -632,11 +632,11 @@ class URL
 	}
 
 	/**
-     * http://nadeausoftware.com/articles/2008/05/php_tip_how_convert_relative_url_absolute_url
-     * @param $baseUrl
-     * @param $relativeUrl
-     */
-    private function url_to_absolute(string $baseUrl, $relativeUrl): false|string
+	 * http://nadeausoftware.com/articles/2008/05/php_tip_how_convert_relative_url_absolute_url
+	 * @param $baseUrl
+	 * @param $relativeUrl
+	 */
+	private function url_to_absolute(string $baseUrl, $relativeUrl): false|string
 	{
 		// If relative URL has a scheme, clean path and return.
 		$r = $this->split_url($relativeUrl);
@@ -730,8 +730,8 @@ class URL
 			if ($seg === '..') {
 				array_pop($outSegs);
 			} else {
-                $outSegs[] = $seg;
-            }
+				$outSegs[] = $seg;
+			}
 		}
 
 		$outPath = implode('/', $outSegs);
@@ -749,17 +749,17 @@ class URL
 	}
 
 	/**
-     * PHP's standard parse_url( ) looks useful. It splits apart a URL and returns an associative array containing the
-     * scheme, host, path, and so on. It works well on simple URLs like "http://example.com/index.htm". However, it has
-     * problems parsing complex URLs, like "http://example.com/redirect?url=http://elsewhere.com". It is confused by
-     * some relative URLs, such as "//example.com/index.htm". And it doesn't properly handle URLs using IPv6 addresses.
-     * The parser also is not as strict as it should be and will allow illegal characters and invalid URL structure.
-     * This makes it hard to use parse_url( ) reliably for validating links in link checkers and other tools.
-     * http://nadeausoftware.com/articles/2008/05/php_tip_how_parse_and_build_urls
-     * @param      $url
-     * @param bool $decode
-     */
-    public function split_url($url, $decode = true): false|array
+	 * PHP's standard parse_url( ) looks useful. It splits apart a URL and returns an associative array containing the
+	 * scheme, host, path, and so on. It works well on simple URLs like "http://example.com/index.htm". However, it has
+	 * problems parsing complex URLs, like "http://example.com/redirect?url=http://elsewhere.com". It is confused by
+	 * some relative URLs, such as "//example.com/index.htm". And it doesn't properly handle URLs using IPv6 addresses.
+	 * The parser also is not as strict as it should be and will allow illegal characters and invalid URL structure.
+	 * This makes it hard to use parse_url( ) reliably for validating links in link checkers and other tools.
+	 * http://nadeausoftware.com/articles/2008/05/php_tip_how_parse_and_build_urls
+	 * @param      $url
+	 * @param bool $decode
+	 */
+	public function split_url($url, $decode = true): false|array
 	{
 		$parts = [];
 		$xunressub = 'a-zA-Z\d\-._~\!$&\'()*+,;=';
@@ -803,9 +803,9 @@ class URL
 			$parts['scheme'] = strtolower($m[2]);
 		}
 
-        if (isset($m[7]) && ($m[7] !== '' && $m[7] !== '0')) {
-            $parts['user'] = isset($m[9]) ? $m[9] : '';
-        }
+		if (isset($m[7]) && ($m[7] !== '' && $m[7] !== '0')) {
+			$parts['user'] = isset($m[9]) ? $m[9] : '';
+		}
 
 		if (isset($m[10]) && ($m[10] !== '' && $m[10] !== '0')) {
 			$parts['pass'] = $m[11];
@@ -929,7 +929,7 @@ class URL
 				$url .= $parts['host'];
 			}
 
-                         // IPv4 or name
+			// IPv4 or name
 			if (isset($parts['port'])) {
 				$url .= ':' . $parts['port'];
 			}
