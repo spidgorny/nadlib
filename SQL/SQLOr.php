@@ -93,9 +93,6 @@ class SQLOr extends SQLWherePart
 	public function dciStyle()
 	{
 		$ors = [];
-		// DCI, ORS
-		// where is it used? in ORS for sure, but make sure you don't call new SQLOr(array('a', 'b', 'c'))
-		// http://ors.nintendo.de/NotifyVersion
 		if (is_int($this->field)) {
 			// added is_int condition to solve problem
 			// with software mngmt & request (hw/sw request)  .. deklesoe 20130514
