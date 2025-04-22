@@ -53,7 +53,7 @@ class HTMLFormInput extends HTMLFormField
 		return MergedContent::mergeStringArrayRecursive($this->render()) . '';
 	}
 
-	public function render(): string
+	public function render(): string|array
 	{
 		$name = $this->form->getName($this->field, '', true);
 		llog($this->name, $this->form->getPrefix(), $name);

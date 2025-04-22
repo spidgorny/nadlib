@@ -66,7 +66,6 @@ class AutoLoadFolders
 		TaylorProfiler::start(__METHOD__);
 		require_once __DIR__ . '/../HTTP/Request.php';
 
-		$this->getFoldersFromConfig();
 		$folders = (array)ifsetor($this->folders['']);    // modified by the line above
 		//pre_print_r($this->folders);
 		//$this->al->stat['folders'] .= ', '.sizeof($plus);
@@ -77,37 +76,6 @@ class AutoLoadFolders
 		$folders = array_merge($folders, $plus);
 		//debug($folders);
 		//debug($this->classFileMap, $_SESSION[__CLASS__]);
-
-		TaylorProfiler::stop(__METHOD__);
-		return $folders;
-	}
-
-	/**
-	 * Will not return a list like before
-	 * but will actively add the folders listed
-	 * @return array
-	 */
-	public function getFoldersFromConfig()
-	{
-		TaylorProfiler::start(__METHOD__);
-		$folders = [];
-		$this->loadConfig();    // make sure (again)
-		if (class_exists('Config') && Config::$includeFolders) {
-			$folders = Config::$includeFolders;
-			// append $this->appRoot before each
-			foreach ($folders as &$el) {
-				$this->addFolder($el);
-			}
-
-			if ($this->debug) {
-//				pre_print_r($folders, $this->folders);
-				echo __METHOD__ . ': Added folders', BR;
-				pre_print_r($folders);
-			}
-		} else {
-			// that's ok. relax. be quiet.
-			//echo 'Config not found'.BR;
-		}
 
 		TaylorProfiler::stop(__METHOD__);
 		return $folders;

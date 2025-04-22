@@ -203,7 +203,7 @@ class HTMLFormTable extends HTMLForm
 		return $part;
 	}
 
-	public function renderFormRows(array $formData, array $prefix = []): string
+	public function renderFormRows(array $formData, array $prefix = []): string|array
 	{
 //		echo json_encode(array_keys($formData)), BR;
 		$tmp = $this->stdout;
@@ -267,18 +267,18 @@ class HTMLFormTable extends HTMLForm
      * @param array|HTMLFormTypeInterface $fieldDesc
      * @param array $path
      */
-    public function showTR(array $prefix, array|HTMLFormFieldInterface $fieldDesc): void
+    public function showTR(array $prefix, array|HTMLFormFieldInterface $fieldDesc): array
 	{
 		if (!isset($fieldDesc['horisontal']) || !$fieldDesc['horisontal']) {
-			$this->stdout .= "<tr " . self::getAttrHTML($fieldDesc['TRmore'] ?? null) . ">";
+			$content[] = "<tr " . self::getAttrHTML($fieldDesc['TRmore'] ?? null) . ">";
 		}
 
 		if (isset($fieldDesc['table'])) {
-			$this->stdout .= '<td class="table">';
+			$content[] = '<td class="table">';
 			$f2 = new HTMLFormTable($fieldDesc);
 			$f2->showForm($prefix, false);
-			$this->stdout .= $f2->stdout;
-			$this->stdout .= "</td>";
+			$content[] = $f2->stdout;
+			$content[] = "</td>";
 		}
 
 		if (isset($fieldDesc['dependant'])) {
@@ -291,7 +291,9 @@ class HTMLFormTable extends HTMLForm
 			$this->showCell($prefix, $fieldDesc);
 		}
 
-		$this->stdout .= "</tr>\n";
+		$content[] = "</tr>\n";
+		$this->stdout .= implode('', $content);
+		return $content;
 	}
 
 	/**
@@ -336,14 +338,15 @@ class HTMLFormTable extends HTMLForm
 		$this->stdout .= '<table class="htmlFormDiv"><tr><td>' . "\n";
 	}
 
-	public function showCell(array $fieldName, array|HTMLFormFieldInterface $desc): void
+	public function showCell(array $fieldName, array|HTMLFormFieldInterface $desc): string|array
 	{
+		$content = '';
 //		llog('showCell', $fieldName);
 		$desc['TDmore'] = (isset($desc['TDmore']) && is_array($desc['TDmore']))
 			? $desc['TDmore']
 			: [];
 		if (isset($desc['newTD'])) {
-			$this->stdout .= '</tr></table></td>
+			$content .= '</tr></table></td>
 			<td ' . $desc['TDmore'] . '><table ' . HTMLForm::getAttrHTML($this->tableMore) . '><tr>' . "\n";
 		}
 
@@ -352,7 +355,7 @@ class HTMLFormTable extends HTMLForm
 
 		if (!is_object($type) && ($type === 'hidden' || in_array($type, ['fieldset', '/fieldset']))) {
 			$field = $this->switchType($fieldName, $fieldValue, $desc);
-			$this->stdout .= $field->getContent();
+			$content .= $field->getContent();
 			return;
 		}
 
@@ -367,7 +370,7 @@ class HTMLFormTable extends HTMLForm
 			$desc['TDmore']['class'] .= ' tdlabel';
 		}
 
-		$this->stdout .= '<td ' . self::getAttrHTML($desc['TDmore'] + [
+		$content .= '<td ' . self::getAttrHTML($desc['TDmore'] + [
 					'class' => 'showCell'
 				]) . '>';
 		if ($this->withValue) {
@@ -401,22 +404,24 @@ class HTMLFormTable extends HTMLForm
 			$newContent = $desc['wrap']->wrap($newContent);
 		}
 
-		$this->stdout .= ($desc['prepend'] ?? '')
+		$content .= ($desc['prepend'] ?? '')
 			. $newContent .                                                //			<<== USED content here
 			($desc['append'] ?? '');
 
-		$this->stdout .= ifsetor($desc['afterLabel']);
+		$content .= ifsetor($desc['afterLabel']);
 
 		if (ifsetor($desc['error'])) {
-			$this->stdout .= '<div id="errorContainer[' . $this->getName($fieldName, '', true) . ']"
+			$content .= '<div id="errorContainer[' . $this->getName($fieldName, '', true) . ']"
 			class="error ui-state-error alert-error alert-danger">';
-			$this->stdout .= $desc['error'];
-			$this->stdout .= '</div>';
+			$content .= $desc['error'];
+			$content .= '</div>';
 		}
 
 		if (ifsetor($desc['newTD'])) {
-			$this->stdout .= '</td>';
+			$content .= '</td>';
 		}
+		$this->stdout .= $content;
+		return $content;
 	}
 
 	/**

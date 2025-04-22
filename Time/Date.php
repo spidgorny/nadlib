@@ -32,7 +32,7 @@ class Date extends Time
 	 * @param int $relativeTo
 	 * @return static
 	 */
-	public static function make($input = null, $relativeTo = null): self
+	public static function make($input = null, $relativeTo = null): static
 	{
 		return new self($input, $relativeTo);
 	}
@@ -147,9 +147,9 @@ class Date extends Time
 		return $this->getHTMLDate();
 	}
 
-	public function addTime($sTime): \Time
+	public function addTime($sTime): static
 	{
-		$time = new Time($this->getTimestamp());
+		$time = new self($this->getTimestamp());
 		$time->addTime($sTime);
 		return $time;
 	}

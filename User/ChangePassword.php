@@ -5,11 +5,11 @@ class ChangePassword extends HTMLFormProcessor
 
 	public $title = 'Change Password';
 
-	protected $minLength = 8;
+	protected int $minLength = 8;
 
-	protected $submitButton = 'Change';
+	protected string $submitButton = 'Change';
 
-	private DCILoginUser|null|NoUser|DCICLIUser $user;
+	private UserModelInterface $user;
 
 	public function __construct(array $default = [])
 	{

@@ -86,9 +86,7 @@ abstract class UserBase extends OODBase implements UserModelInterface
 //$data['password'] = md5($data['password']);
 			$this->insertNoUserCheck($data);
 		} else {
-			$index = Index::getInstance();
-			debug(__METHOD__);
-			$index->error('No email provided.');
+			throw new RuntimeException('No email provided.');
 		}
 	}
 
@@ -96,7 +94,7 @@ abstract class UserBase extends OODBase implements UserModelInterface
 	{
 		$data['ctime'] = new SQLDateTime();
 		$data['email'] = ifsetor($data['email']) ? $data['email'] : null;        /// will set '' to NULL IMPORTANT!
-		Index::getInstance()->log(get_called_class() . '::' . __FUNCTION__, $data);
+		llog(get_called_class() . '::' . __FUNCTION__, $data);
 		$query = $this->db->getInsertQuery($this->table, $data);
 		//debug($query);
 		$this->db->perform($query);
@@ -115,7 +113,7 @@ abstract class UserBase extends OODBase implements UserModelInterface
 		$this->prefs[$key] = $val;
 	}
 
-	public function getPref($key)
+	public function getPref($key, $default = null)
 	{
 		return ifsetor($this->prefs[$key]);
 	}

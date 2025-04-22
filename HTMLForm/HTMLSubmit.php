@@ -23,7 +23,7 @@ class HTMLSubmit extends HTMLFormField
 	/**
      * Shows the form element in the form
      */
-    public function render(): void
+    public function render(): string
 	{
 		$params = $this->params;
 		$params['class'] = ifsetor($params['class'], 'submit btn');

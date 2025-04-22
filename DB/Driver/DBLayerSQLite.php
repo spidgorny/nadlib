@@ -160,7 +160,7 @@ class DBLayerSQLite extends DBLayerBase
      * @param SQLite3Result|string $res_or_query
      * @throws Exception
      */
-    public function fetchAll($res_or_query, $index_by_key = null): void
+    public function fetchAll($res_or_query, $index_by_key = null): array
 	{
 		if (is_string($res_or_query)) {
 			$res = $this->perform($res_or_query);

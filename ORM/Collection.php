@@ -170,7 +170,10 @@ class Collection implements IteratorAggregate, ToStringable
      */
     public function __construct(
 		$pid = null, /*array/SQLWhere*/
-		$where = [], $order = '', DBInterface $db = null
+		$where = [],
+		$order = '',
+		DBInterface $db = null,
+			Controller $controller = null
 	)
 	{
 		//$taylorKey = get_class($this).'::'.__FUNCTION__." ({$this->table})";
@@ -179,6 +182,7 @@ class Collection implements IteratorAggregate, ToStringable
 		$config = Config::getInstance();
 		$this->db = $db ?: $config->getDB();
 		$this->table = $config->prefixTable($this->table);
+		$this->controller = $controller;
 
 		if (!$this->select) {
 			$firstWordFromTable = $this->db->getFirstWord($this->table);
@@ -204,7 +208,6 @@ class Collection implements IteratorAggregate, ToStringable
 		//debug($this->where);
 		$this->orderBy = $order ?: $this->orderBy;
 		$this->request = Request::getInstance();
-		$this->postInit();
 
 		foreach ($this->thes as &$val) {
 			$val = is_array($val) ? $val : ['name' => $val];
@@ -225,17 +228,6 @@ class Collection implements IteratorAggregate, ToStringable
 		}
 
 		TaylorProfiler::stop($taylorKey);
-	}
-
-	public function postInit(): void
-	{
-		//$this->pager = new Pager();
-		if (class_exists('Index', false)) {
-			$index = Index::getInstance();
-			$this->controller = &$index->controller;
-		}
-
-		//debug(get_class($this->controller));
 	}
 
 	public function log($action, $data = []): void

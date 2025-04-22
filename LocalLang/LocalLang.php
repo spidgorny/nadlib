@@ -188,11 +188,11 @@ abstract class LocalLang
 	{
 		if ($this->editMode && $id) {
 			$trans = '<span class="' . $class . ' clickTranslate" rel="' . htmlspecialchars($id) . '">' . $text . '</span>';
-			$al = AutoLoad::getInstance();
-			$index = Index::getInstance();
-			$index->addJQuery();
-			$index->addJS($al->nadlibFromDocRoot . 'js/clickTranslate.js');
-			$index->addCSS($al->nadlibFromDocRoot . 'CSS/clickTranslate.css');
+//			$al = AutoLoad::getInstance();
+//			$index = Index::getInstance();
+//			$index->addJQuery();
+//			$index->addJS($al->nadlibFromDocRoot . 'js/clickTranslate.js');
+//			$index->addCSS($al->nadlibFromDocRoot . 'CSS/clickTranslate.css');
 		} elseif ($this->indicateUntranslated) {
 			$trans = '<span class="untranslatedMessage">[' . $text . ']</span>';
 		} else {
@@ -237,8 +237,9 @@ abstract class LocalLang
 			<select class="input-small langMenu" name="setLangCookie">' . $options . '
 			</select>
 		</form>';
-		Index::getInstance()->addCSS('vendor/jquery-switch-master/jquery.switch/jquery.switch.css');
-		Index::getInstance()->addJS('vendor/jquery-switch-master/jquery.switch/jquery.switch.min.js');
+		// inject css manually
+//		Index::getInstance()->addCSS('vendor/jquery-switch-master/jquery.switch/jquery.switch.css');
+//		Index::getInstance()->addJS('vendor/jquery-switch-master/jquery.switch/jquery.switch.min.js');
 		//Index::getInstance()->addJS('vendor/jquery-switch-master/jquery.switch/jquery.switch.js');
 		return $content;
 	}

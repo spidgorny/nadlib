@@ -31,7 +31,7 @@ class AppControllerBE extends Controller
 	/**
 	 * @throws AccessDeniedException
 	 */
-	public function __construct()
+	public function __construct(public $index = null)
 	{
 		parent::__construct();
 		if (!static::$public) {
@@ -44,10 +44,6 @@ class AppControllerBE extends Controller
 			if (!$this->user->isAdmin()) {
 				throw new AccessDeniedException(__('Access denied to page %1. User is not admin.', get_class($this)));
 			}
-		}
-
-		if (class_exists('Index')) {
-			$this->index = Index::getInstance();
 		}
 
 		//debug($this->request->getAll());

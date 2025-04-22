@@ -110,7 +110,6 @@ class Syndicator
 	public function retrieveFile($retries = 1)
 	{
 		TaylorProfiler::start(__METHOD__);
-		Index::getInstance()->controller;
 		if ($this->isCaching) {
 			$this->cache = new FileCache();
 			if ($this->cache->hasKey($this->url)) {

@@ -115,18 +115,18 @@ abstract class OODBase implements ArrayAccess
 	public function guessDB($id): void
 	{
 		if ($id instanceof DBInterface) {
-            $this->db = $id;
-        } elseif (class_exists('Config')) {
-            $config = Config::getInstance();
-            $this->table = $config->prefixTable($this->table);
-            if (!$this->db) {
-					$this->db = $config->getDB();
-				}
-
-            //debug(get_class($this), $this->table, gettype2($this->db));
-        } else {
-				$this->db = $GLOBALS['db'] ?? null;
+			$this->db = $id;
+		} elseif (class_exists('Config')) {
+			$config = Config::getInstance();
+			$this->table = $config->prefixTable($this->table);
+			if (!$this->db) {
+				$this->db = $config->getDB();
 			}
+
+			//debug(get_class($this), $this->table, gettype2($this->db));
+		} else {
+			$this->db = $GLOBALS['db'] ?? null;
+		}
 	}
 
 	public function getDB()
@@ -215,12 +215,12 @@ abstract class OODBase implements ArrayAccess
 	}
 
 	/**
-     * Returns $this
-     *
-     * @return OODBase
-     * @throws Exception
-     */
-    public function insert(array $data)
+	 * Returns $this
+	 *
+	 * @return OODBase
+	 * @throws Exception
+	 */
+	public function insert(array $data)
 	{
 		TaylorProfiler::start(__METHOD__);
 //		$this->log(static::class . '::' . __FUNCTION__, $data);
@@ -263,12 +263,12 @@ abstract class OODBase implements ArrayAccess
 	}
 
 	/**
-     * Updates current record ($this->id)
-     *
-     * @return PDOStatement|false result from the runUpdateQuery
-     * @throws Exception
-     */
-    public function update(array $data)
+	 * Updates current record ($this->id)
+	 *
+	 * @return PDOStatement|false result from the runUpdateQuery
+	 * @throws Exception
+	 */
+	public function update(array $data)
 	{
 		if (!$this->id) {
 			//$this->db->rollback();
@@ -330,10 +330,10 @@ abstract class OODBase implements ArrayAccess
 	}
 
 	/**
-     * @throws MustBeStringException
-     * @throws DatabaseException
-     */
-    public function delete(?array $where = null)
+	 * @throws MustBeStringException
+	 * @throws DatabaseException
+	 */
+	public function delete(?array $where = null)
 	{
 		if (!$where) {
 			if ($this->id) {
@@ -353,13 +353,13 @@ abstract class OODBase implements ArrayAccess
 	}
 
 	/**
-     * Retrieves a record from the DB and calls $this->init()
-     * But it's rarely called directly.
-     * @param string $orderByLimit
-     * @return array of the found record
-     * @throws Exception
-     */
-    public function findInDB(array $where, $orderByLimit = '', $selectPlus = null)
+	 * Retrieves a record from the DB and calls $this->init()
+	 * But it's rarely called directly.
+	 * @param string $orderByLimit
+	 * @return array of the found record
+	 * @throws Exception
+	 */
+	public function findInDB(array $where, $orderByLimit = '', $selectPlus = null)
 	{
 		$row = $this->db->fetchOneSelectQuery(
 			$this->table,
@@ -373,11 +373,11 @@ abstract class OODBase implements ArrayAccess
 //		$this->log(__METHOD__, $this->lastSelectQuery . '');
 //		debug($rows, $this->lastSelectQuery);
 		if (is_array($row) && $row) {
-            $row = $this->fixRowDataTypes($row);
-            $this->initByRow($row);
-        } elseif ($this->forceInit) {
-            $this->initByRow([]);
-        }
+			$row = $this->fixRowDataTypes($row);
+			$this->initByRow($row);
+		} elseif ($this->forceInit) {
+			$this->initByRow([]);
+		}
 
 		return $this->data;
 	}
@@ -416,12 +416,12 @@ abstract class OODBase implements ArrayAccess
 	}
 
 	/**
-     * Still searches in DB with findInDB, but makes a new object for you
-     *
-     * @return mixed
-     * @throws Exception
-     */
-    public static function findInstance(array $where, $static = null)
+	 * Still searches in DB with findInDB, but makes a new object for you
+	 *
+	 * @return mixed
+	 * @throws Exception
+	 */
+	public static function findInstance(array $where, $static = null)
 	{
 		if (!$static) {
 			if (function_exists('get_called_class')) {
@@ -471,12 +471,12 @@ abstract class OODBase implements ArrayAccess
 	}
 
 	/**
-     * Used by bijou.
-     * @param $class
-     * @return int|null
-     * @throws Exception
-     */
-    public static function createRecord(array $insert, $class = null)
+	 * Used by bijou.
+	 * @param $class
+	 * @return int|null
+	 * @throws Exception
+	 */
+	public static function createRecord(array $insert, $class = null)
 	{
 		TaylorProfiler::start(__METHOD__);
 		//$insert = $this->db->getDefaultInsertFields() + $insert; // no overwriting?
@@ -502,11 +502,11 @@ abstract class OODBase implements ArrayAccess
 	}
 
 	/**
-     * Give it array of IDs and it will give you an array of objects
-     * @return ArrayPlus
-     * @throws Exception
-     */
-    public static function makeInstances(array $ids)
+	 * Give it array of IDs and it will give you an array of objects
+	 * @return ArrayPlus
+	 * @throws Exception
+	 */
+	public static function makeInstances(array $ids)
 	{
 		foreach ($ids as &$id) {
 			$id = static::getInstance($id);
@@ -554,16 +554,16 @@ abstract class OODBase implements ArrayAccess
 	}
 
 	/**
-     *
-     * @param string $orderBy
-     * @return bool (id) of the found record
-     * @throws Exception
-     */
-    public function findInDBbySQLWhere(SQLWhere $where, $orderBy = '')
+	 *
+	 * @param string $orderBy
+	 * @return bool (id) of the found record
+	 * @throws Exception
+	 */
+	public function findInDBbySQLWhere(SQLWhere $where, $orderBy = '')
 	{
 		$rows = $this->db->fetchSelectQuerySW($this->table, $where, $orderBy);
-        //debug($rows);
-        $this->data = $rows ? $rows[0] : [];
+		//debug($rows);
+		$this->data = $rows ? $rows[0] : [];
 
 		$this->init($this->data); // array, otherwise infinite loop
 		return $this->id;
@@ -600,13 +600,13 @@ abstract class OODBase implements ArrayAccess
 	}
 
 	/**
-     * Uses $this->thes if available
-     * Hides fields without values
-     * @param bool $recursive
-     * @param bool $skipEmpty
-     * @return slTable
-     */
-    public function renderAssoc(?array $assoc = null, $recursive = false, $skipEmpty = true)
+	 * Uses $this->thes if available
+	 * Hides fields without values
+	 * @param bool $recursive
+	 * @param bool $skipEmpty
+	 * @return slTable
+	 */
+	public function renderAssoc(?array $assoc = null, $recursive = false, $skipEmpty = true)
 	{
 		$assoc = $assoc ?: $this->data;
 		//debug($this->thes);
@@ -643,10 +643,10 @@ abstract class OODBase implements ArrayAccess
 	}
 
 	/**
-     * Only works when $this->thes is defined or provided
-     * @return ShowAssoc
-     */
-    public function showAssoc(
+	 * Only works when $this->thes is defined or provided
+	 * @return ShowAssoc
+	 */
+	public function showAssoc(
 		array $thes = [
 			'id' => 'ID',
 			'name' => 'Name'
@@ -659,21 +659,22 @@ abstract class OODBase implements ArrayAccess
 		return $ss;
 	}
 
-	public function getURL(array $params)
-	{
-		$c = Index::getInstance()->controller;
-		return $c->getURL($params);
-	}
+	// removed as it is not DI compatible
+//	public function getURL(array $params)
+//	{
+//		$c = Index::getInstance()->controller;
+//		return $c->getURL($params);
+//	}
 
 	/**
-     * Prevents infinite loop Sigi->Ruben->Sigi->Ruben
-     * by adding a new Person object to the self::$instances registry
-     * BEFORE calling init().
-     * @param string $orderByLimit
-     * @return array
-     * @throws Exception
-     */
-    public function findInDBsetInstance(array $where, $orderByLimit = '')
+	 * Prevents infinite loop Sigi->Ruben->Sigi->Ruben
+	 * by adding a new Person object to the self::$instances registry
+	 * BEFORE calling init().
+	 * @param string $orderByLimit
+	 * @return array
+	 * @throws Exception
+	 */
+	public function findInDBsetInstance(array $where, $orderByLimit = '')
 	{
 //		llog(__METHOD__, $this->where);
 //		llog(__METHOD__, $this->where.'');
@@ -709,10 +710,10 @@ abstract class OODBase implements ArrayAccess
 	}
 
 	/**
-     * Override if collection name is different
-     * @return DatabaseResultIteratorAssoc|array
-     */
-    public function getChildren(array $where = [])
+	 * Override if collection name is different
+	 * @return DatabaseResultIteratorAssoc|array
+	 */
+	public function getChildren(array $where = [])
 	{
 		$collection = get_class($this) . 'Collection';
 		if (class_exists($collection)) {
@@ -737,7 +738,7 @@ abstract class OODBase implements ArrayAccess
 		return get_class($this) . '/' . $this->id;
 	}
 
-	public function getNameLink(): \HTMLTag
+	public function getNameLink(): string|\ToStringable
 	{
 		return new HTMLTag('a', [
 			'href' => $this->getSingleLink(),
@@ -745,9 +746,9 @@ abstract class OODBase implements ArrayAccess
 	}
 
 	/**
-     * @throws Exception
-     */
-    public function ensure(array $where): void
+	 * @throws Exception
+	 */
+	public function ensure(array $where): void
 	{
 		$this->findInDB($where);
 		if (!$this->id) {
@@ -756,11 +757,11 @@ abstract class OODBase implements ArrayAccess
 	}
 
 	/**
-     * It was called getCollection in the past
-     * @return mixed
-     * @throws Exception
-     */
-    public function queryInstances(array $where, $orderBy = null)
+	 * It was called getCollection in the past
+	 * @return mixed
+	 * @throws Exception
+	 */
+	public function queryInstances(array $where, $orderBy = null)
 	{
 		$data = $this->db->fetchAllSelectQuery($this->table, $where, $orderBy);
 		foreach ($data as &$row) {
@@ -795,10 +796,10 @@ abstract class OODBase implements ArrayAccess
 	}
 
 	/**
-     * @return resource|string
-     * @throws Exception
-     */
-    public function save(?array $where = null)
+	 * @return resource|string
+	 * @throws Exception
+	 */
+	public function save(?array $where = null)
 	{
 		if ($this->id) {
 			$res = $this->update($this->data);
@@ -811,14 +812,14 @@ abstract class OODBase implements ArrayAccess
 	}
 
 	/**
-     * Searches for the record defined in $where and then creates or updates.
-     *
-     * @param array $insert - additional insert fields not found in $fields
-     * @param array $update - additional update fields not found in $fields
-     * @return string whether the record already existed
-     * @throws Exception
-     */
-    public function insertUpdate(array $fields,
+	 * Searches for the record defined in $where and then creates or updates.
+	 *
+	 * @param array $insert - additional insert fields not found in $fields
+	 * @param array $update - additional update fields not found in $fields
+	 * @return string whether the record already existed
+	 * @throws Exception
+	 */
+	public function insertUpdate(array $fields,
 															 array $where = [],
 															 array $insert = [],
 															 array $update = []

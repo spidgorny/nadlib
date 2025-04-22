@@ -734,15 +734,15 @@ class Request
 		$this->data['c'] = $class;
 	}
 
-	public function getRefererIfNotSelf(): ?\spidgorny\nadlib\HTTP\URL
+	public function getRefererIfNotSelf(Controller $controller): ?\spidgorny\nadlib\HTTP\URL
 	{
 		$referer = $this->getReferer();
 		$rController = $this->getRefererController();
-		$index = Index::getInstance();
-		$cController = $index->controller
-			? get_class($index->controller)
-			: Config::getInstance()->defaultController;
-		$ok = (($rController != $cController) && ($referer . '' !== new URL() . ''));
+//		$index = Index::getInstance();
+//		$cController = $index->controller
+//			? get_class($index->controller)
+//			: Config::getInstance()->defaultController;
+		$ok = (($rController != get_class($controller)) && ($referer . '' !== new URL() . ''));
 		//debug($rController, __CLASS__, $ok);
 		return $ok ? $referer : null;
 	}
@@ -802,9 +802,9 @@ class Request
 	{
 		$ret = null;
 		$c = $this->getControllerString();
-		if (!$c) {
-			$c = Index::getInstance()->controller; // default
-		}
+//		if (!$c) {
+//			$c = Index::getInstance()->controller; // default
+//		}
 
 		if (!is_object($c)) {
 			if (class_exists($c)) {
@@ -1406,12 +1406,6 @@ class Request
 
 	public function redirect(string $controller, $exit = true, array $params = []): string
 	{
-		if (class_exists('Index')
-			&& Index::getInstance()
-			&& method_exists(Index::getInstance(), '__destruct')) {
-			Index::getInstance()->__destruct();
-		}
-
 		if ($params !== []) {
 			$controller .= '?' . http_build_query($params);
 		}

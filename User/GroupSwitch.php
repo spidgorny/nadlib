@@ -65,12 +65,12 @@ class GroupSwitch extends Controller
 		return $this->user->rights->groupID == $groupID;
 	}
 
-	public function setGroupAction(): void
+	public function setGroupAction(): string
 	{
 		$this->user->pretendOtherDepartment($this->request->getInt('groupID'));
 		$referer = new URL($_SERVER['HTTP_REFERER']);
 		//$referer->setParams();	// uncommented to let ORS redirect to the same RequestInfo?id=123
-		$this->request->redirect($referer);
+		return $this->request->redirect($referer);
 	}
 
 }

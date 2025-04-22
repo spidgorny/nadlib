@@ -13,12 +13,12 @@ class FlotPie extends AppControllerBE
 	 * @var array
 	 */
 	public $data;
-    
+
 	/**
 	 * @var string
 	 */
 	public $flotPath = 'components/flot/flot/';
-    
+
 	protected $colors = [
 		'#edc240',
 		'#afd8f8',
@@ -68,7 +68,7 @@ class FlotPie extends AppControllerBE
 			};';
 		}
 
-		Index::getInstance()->footer[$divID] = '
+		$content[] = '
     	<script type="text/javascript">
     function labelFormatter(label, series) {
 		return "<div style=\'font-size:8pt; text-align:center; padding:2px; color:white;\'>" + label + "<br/>" + Math.round(series.percent) + "%</div>";

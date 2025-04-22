@@ -18,7 +18,7 @@ class DBLayerJSON extends DBLayerBase implements DBInterface
 		$this->folderName = $folderName;
 	}
 
-	public function fetchAll($res_or_query, $index_by_key = null): void
+	public function fetchAll($res_or_query, $index_by_key = null): array
 	{
 		if ($res_or_query instanceof DBLayerJSONTable) {
 			return $res_or_query->fetchAll($res_or_query, $index_by_key);

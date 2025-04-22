@@ -26,9 +26,9 @@ class HTMLFormDatePicker extends HTMLFormField
 	public function __construct()
 	{
 		parent::__construct([]);
-		$index = Index::getInstance();
-		$index->addJQueryUI();    // for the picker
-		$index->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . 'js/HTMLFormDatePicker.js');
+//		$index = Index::getInstance();
+//		$index->addJQueryUI();    // for the picker
+//		$index->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . 'js/HTMLFormDatePicker.js');
 	}
 
 	public function render(): string
@@ -48,7 +48,7 @@ class HTMLFormDatePicker extends HTMLFormField
 		} else {
 			$val = '';
 		}
-        
+
 		$this->form->input($this->field, $val, [
 				'format' => $this->jsFormat
 			] + $this->jsParams,
@@ -80,7 +80,7 @@ class HTMLFormDatePicker extends HTMLFormField
 		} else {
 			$val = null;    // time();
 		}
-        
+
 		//debug($this->jsFormat, $value, $val);
 		return $val;
 	}

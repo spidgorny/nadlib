@@ -23,7 +23,7 @@ class HTMLFormMonthYear extends HTMLFormType
 		$this->field = $field;
 	}
 
-	public function render(): void
+	public function render(): array
 	{
 		if (!$this->form) {
 			debug_pre_print_backtrace();

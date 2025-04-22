@@ -25,9 +25,9 @@ class HTMLFormDropZone extends HTMLFormType
 			'action' => 'upload',
 		]));
 		$this->form->formMore['class'] .= ' ' . $this->class;
-		$index = Index::getInstance();
-		$index->addJS('vendor/enyo/dropzone/dist/min/dropzone.min.js');
-		$index->addCSS('vendor/enyo/dropzone/dist/min/dropzone.min.css');
+//		$index = Index::getInstance();
+//		$index->addJS('vendor/enyo/dropzone/dist/min/dropzone.min.js');
+//		$index->addCSS('vendor/enyo/dropzone/dist/min/dropzone.min.css');
 
 		if ($this->makeFallback) {
 			//$u = new Uploader();

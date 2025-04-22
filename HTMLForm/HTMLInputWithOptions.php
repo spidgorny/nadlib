@@ -27,7 +27,7 @@ class HTMLInputWithOptions extends HTMLFormField
 	/**
      * Shows the form element in the form
      */
-    public function render(): void
+    public function render(): array
 	{
 		$content[] = '<input name="' . $this->field . '"
 		list="' . $this->listName . '"

@@ -38,18 +38,18 @@ class HTMLFormRange extends HTMLFormType
 		$this->value = $value;
 	}
 
-	public function render(): void
+	public function render(): string
 	{
-		$index = Index::getInstance();
-		$index->addJQuery();
-		$index->addJS($this->jsFile
-			?: $this->al->nadlibFromDocRoot . 'HTMLForm/HTMLFormRange.js');
+//		$index = Index::getInstance();
+//		$index->addJQuery();
+//		$index->addJS($this->jsFile
+//			?: $this->al->nadlibFromDocRoot . 'HTMLForm/HTMLFormRange.js');
 
 		$view = View::getInstance($this->al->nadlibRoot . 'HTMLForm/HTMLFormRange.phtml', $this);
 		$fieldString = $this->form->getName($this->field, '', true);
 		$fieldString = str_replace('[', '\\[', $fieldString);
 		$fieldString = str_replace(']', '\\]', $fieldString);
-        
+
 		$view->fieldEscaped = $fieldString;
 		return $view->render();
 	}

@@ -55,7 +55,7 @@ class LocalLangDB extends LocalLang
 			$instance = new static($forceLang);
 			$instance->init();
 		}
-        
+
 		return $instance;
 	}
 
@@ -90,7 +90,7 @@ class LocalLangDB extends LocalLang
 			debug($this->db->lastQuery);
 			throw new Exception('No translation found in DB');
 		}
-        
+
 		return $rows;
 	}
 
@@ -126,18 +126,18 @@ class LocalLangDB extends LocalLang
 				if (ifsetor($cols['cuser'])) {
 					$insert['cuser'] = $user->id;
 				}
-                
+
 				if (ifsetor($cols['muser'])) {
 					$insert['muser'] = $user->id;
 				}
-                
+
 				$res = $this->db->runInsertNew($this->table, $where, $insert);
 				//debug($code, $this->db->lastQuery, $this->db->numRows($this->db->lastResult), $this->db->affectedRows());
 				$this->ll[$code] = $code;
 				$this->codeID[$code] = $this->db->lastInsertID($res);
 				//debug($this->db->lastQuery);
 			} catch (Exception $e) {
-				Index::getInstance()->log(__METHOD__, ['error' => $e->getMessage()]);
+				llog(__METHOD__, ['error' => $e->getMessage()]);
 			}
 		}
 	}
@@ -184,7 +184,7 @@ class LocalLangDB extends LocalLang
 				</a>';
 			}
 		}
-        
+
 		//debug($_SERVER['REQUEST_URI'], $u, $u->buildURL());
 		return $content;
 	}
@@ -206,7 +206,7 @@ class LocalLangDB extends LocalLang
 				'percent' => number_format(count($rows) / $countEN * 100, 0) . '%',
 			];
 		}
-        
+
 		return $langs;
 	}
 

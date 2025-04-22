@@ -41,7 +41,7 @@ class HTMLFormField extends HTMLFormType
 		if ($fieldName) {
 			$this->setField($fieldName);
 		}
-        
+
 		$this->form = new HTMLForm();
 	}
 
@@ -69,11 +69,11 @@ class HTMLFormField extends HTMLFormType
 		if (is_null($type)) {
 			return null;
 		}
-        
+
 		return is_string($type) ? $type : get_class($type);
 	}
 
-	public function render(): void
+	public function render(): string|array|\ToStringable
 	{
 		$fieldName = $this->fieldName;
 		$desc = $this;
@@ -92,7 +92,7 @@ class HTMLFormField extends HTMLFormType
 			$elementID = $this->getID($this->fieldName);
 			$desc['id'] = $elementID;
 		}
-        
+
 		$this['elementID'] = $elementID;
 //		debug($elementID);
 
@@ -104,14 +104,13 @@ class HTMLFormField extends HTMLFormType
 			if (ifsetor($desc['value'])) {
 				$type->setValue($desc['value']);
 			}
-            
+
 			if (ifsetor($desc['jsParams'])) {
 				$type->jsParams = $desc['jsParams'] ?: [];
 			}
-            
+
 			$type->desc = $desc;
-			$index = Index::getInstance();
-			$this->form->stdout .= $index->s($type->render());
+			$this->form->stdout .= \MergedContent::mergeStringArrayRecursive($type->render());
 		} elseif ($type instanceof HTMLFormCollection) {
 			/** @var $type HTMLFormCollection */
 			$type->setField($fieldName);
@@ -122,7 +121,7 @@ class HTMLFormField extends HTMLFormType
 		} else {
 			$this->switchTypeRaw($type, $fieldValue, $fieldName);
 		}
-        
+
 		$this->content = $this->form->stdout;
 		return $this->content;
 	}
@@ -134,7 +133,7 @@ class HTMLFormField extends HTMLFormType
         if ($elementID === '0') {
 			$elementID = uniqid('id-', true);
 		}
-        
+
 		return $elementID;
 	}
 
@@ -216,13 +215,13 @@ class HTMLFormField extends HTMLFormType
 				if (ifsetor($desc['set0'])) {
 					$this->form->hidden($fieldName, 0);
 				}
-                
+
 				$elementID = $this['elementID'];
 				$more = ifsetor($desc['more'], []) + ['id' => $elementID];
 				if (is_string($fieldValue) && ifsetor($desc['postgresql'])) {
 					$fieldValue = $fieldValue === 't';
 				}
-                
+
 				$this->form->check($fieldName, ifsetor($desc['post-value'], 1), $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', false,*/
 					$more, ifsetor($desc['autoSubmit']), $desc->getArray());
 				break;
@@ -294,7 +293,7 @@ class HTMLFormField extends HTMLFormType
 				if (!is_array($fieldValue)) {
 					debug($fieldName, $fieldValue, $desc->getArray());
 				}
-                
+
 				$this->form->checkarray($fieldName, $desc['set'], $fieldValue, $desc->getArray());
 				break;
 			case 'radioset':
@@ -327,7 +326,7 @@ class HTMLFormField extends HTMLFormType
 						</fieldset>
 						<table><tr><td>';
 				}
-                
+
 				break;
 			/** @noinspection PhpMissingBreakStatementInspection */
 			case 'email':
@@ -343,31 +342,31 @@ class HTMLFormField extends HTMLFormType
 				if ($more && !is_array($more)) {
 					$more = HTMLTag::parseAttributes($more);
 				}
-                
+
 				if (ifsetor($desc['id'])) {
 					$more['id'] = $desc['id'];
 				}
-                
+
 				if (ifsetor($desc['size'])) {
 					$more['size'] = $desc['size'];
 				}
-                
+
 				if (ifsetor($desc['readonly'])) {
 					$more['readonly'] = 'readonly';
 				}
-                
+
 				if (ifsetor($desc['disabled'])) {
 					$more['disabled'] = 'disabled';
 				}
-                
+
 				if ($desc->isObligatory()) {
 					$more['required'] = "required";
 				}
-                
+
 				if (ifsetor($desc['autofocus'])) {
 					$more['autofocus'] = 'autofocus';
 				}
-                
+
 				$this->form->input($fieldName, $fieldValue, $more, $type === 'input' ? 'text' : $type,
 					ifsetor($desc['class'],
 						is_array(ifsetor($desc['more']))

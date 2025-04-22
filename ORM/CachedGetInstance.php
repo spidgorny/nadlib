@@ -193,7 +193,7 @@ trait CachedGetInstance
 	 * @return self|static
 	 * @throws Exception
 	 */
-	public static function getInstanceByName($name, $field = null): \OODBase|self
+	public static function getInstanceByName($name, $field = null): static
 	{
 		$self = static::class;
 		//debug(__METHOD__, $self, $name, count(self::$instances[$self]));

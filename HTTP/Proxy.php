@@ -42,22 +42,20 @@ class Proxy extends OODBase
 	{
 		$proxy = null;
 		$db = Config::getInstance()->getDB();
-		/** @var AppController $c */
-		$c = Index::getInstance()->controller;
 		if (random_int(0, 100) < $percentRandom) { // 25%
 			$row = $db->fetchSelectQuery('proxy', ['fail' => new AsIs('< ') . self::$maxFail],
 				'ORDER BY rand() LIMIT 1');
 			if ($row[0]) {
 				$proxy = new Proxy($row[0]);
-				$c->log(__METHOD__, 'Random proxy: ' . $proxy . ' (ratio: ' . $proxy->ratio . ')');
+				llog(__METHOD__, 'Random proxy: ' . $proxy . ' (ratio: ' . $proxy->ratio . ')');
 			} else {
-				$c->log(__METHOD__, 'No proxy');
+				llog(__METHOD__, 'No proxy');
 			}
 		} else {
 			$best = self::getBest();
 			$idx = random_int(0, count($best) - 1);
 			$proxy = new Proxy($best[$idx]);
-			$c->log('Best proxy (' . $idx . '): ' . $proxy . ' (ratio: ' . $proxy->ratio . ')', __METHOD__);
+			llog('Best proxy (' . $idx . '): ' . $proxy . ' (ratio: ' . $proxy->ratio . ')', __METHOD__);
 		}
 
 		return $proxy;

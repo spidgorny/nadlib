@@ -379,11 +379,11 @@ class HTMLForm implements ToStringable
 	    var cal_' . $id . ' = Calendar.setup(setobj);
 	</script>
 ';
-		if (class_exists('Index')) {
-			$index = Index::getInstance();
-			$index->footer['init_cal_' . $id] = $script;
-			return '';
-		}
+//		if (class_exists('Index')) {
+//			$index = Index::getInstance();
+//			$index->footer['init_cal_' . $id] = $script;
+//			return '';
+//		}
 
 		return $script;
 	}
@@ -541,7 +541,7 @@ class HTMLForm implements ToStringable
 		}
 
 		if (class_exists('Index')) {
-			Index::getInstance()->addJQuery();
+//			Index::getInstance()->addJQuery();
 			$this->selection($fieldName, $options, $desc['value'], false, 'onchange="jQuery(this).nextAll(\'input\').val(
 			jQuery(this).val()
 		);"', false, $desc);
@@ -714,17 +714,18 @@ class HTMLForm implements ToStringable
 			$fieldValue = strtotime($fieldValue);
 		}
 
-		$index = Index::getInstance();
-		$index->addCSS($location . "css/jscal2.css");
-		$index->addCSS($location . "css/border-radius.css");
-		$index->addCSS($location . "css/gold/gold.css");
-		$index->addJS($location . "js/jscal2.js");
-		$index->addJS($location . "js/lang/en.js");
+//		$index = Index::getInstance();
+//		$index->addCSS($location . "css/jscal2.css");
+//		$index->addCSS($location . "css/border-radius.css");
+//		$index->addCSS($location . "css/gold/gold.css");
+//		$index->addJS($location . "js/jscal2.js");
+//		$index->addJS($location . "js/lang/en.js");
 
 		$content = '<input id="calendar-' . $fieldName . '" name="' . $this->getName($fieldName) . '" value="' .
 			($fieldValue ? date('Y-m-d', $fieldValue) : '') . '"/>
 		<button id="calendar-trigger-' . $fieldName . '" onclick="return false;">...</button>';
-		$index->footer['jsCal2-' . $fieldName] = '<script defer="true">
+
+		$content .= '<script defer="true">
 document.observe("dom:loaded", () => {
     Calendar.setup({
         trigger    	: "calendar-trigger-' . $fieldName . '",

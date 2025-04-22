@@ -38,9 +38,9 @@ class HTMLFormTimeRange extends HTMLFormType
 		$this->div = uniqid();
 
 		// to load libs in the NON-AJAX page request
-		Index::getInstance()->addJQueryUI();
-		$al = AutoLoad::getInstance();
-		Index::getInstance()->addJS($al->nadlibFromDocRoot . 'HTMLForm/HTMLFormTimeRange.js');
+//		Index::getInstance()->addJQueryUI();
+//		$al = AutoLoad::getInstance();
+//		Index::getInstance()->addJS($al->nadlibFromDocRoot . 'HTMLForm/HTMLFormTimeRange.js');
 	}
 
 	/**
@@ -77,7 +77,7 @@ class HTMLFormTimeRange extends HTMLFormType
 		return [$s, $e];
 	}
 
-	public function render(): \View
+	public function render(): string|array|ToStringable
 	{
 		assert($this->step);
 		$al = AutoLoad::getInstance();

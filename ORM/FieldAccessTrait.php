@@ -47,7 +47,7 @@ trait FieldAccessTrait
 		];
 	}
 
-	public function getNameLink(): \HTMLTag
+	public function getNameLink(): string|\ToStringable
 	{
 		return new HTMLTag('a', [
 			'href' => $this->getSingleLink(),

@@ -13,9 +13,9 @@ class TranslateLL extends HTMLFormProcessor
 	 * @var CookieUser|User|LoginUser
 	 */
 	public $user;
-    
-	protected $submitButton = 'Update';
-    
+
+	protected string $submitButton = 'Update';
+
 	private Config $config;
 
 	public function __construct()
@@ -71,7 +71,7 @@ class TranslateLL extends HTMLFormProcessor
 	{
 		$ll = $this->config->getLL();
 		$ll->updateMessage($data);
-        
+
 		$content = '<div class="message">Updated.</div>';
 		//debug($ll->ll, json_encode($ll->ll));
 		return $content . '<script>

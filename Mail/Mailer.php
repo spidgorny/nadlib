@@ -98,9 +98,10 @@ class Mailer implements MailerInterface
 		return $bodyText !== '' && $bodyText[0] === '<';
 	}
 
-	public function from($from): void
+	public function from($from): array
 	{
 		$this->sendFrom = $from;
+		return $this->sendFrom;
 	}
 
 	/**

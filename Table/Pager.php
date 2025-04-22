@@ -362,16 +362,18 @@ class Pager
 		$content = '';
 		if (!self::$cssOutput) {
 			$al = AutoLoad::getInstance();
-			$index = class_exists('Index') ? Index::getInstance() : null;
-			if ($index && $this->request->apacheModuleRewrite()) {
-				//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
-				$index->addCSS($al->nadlibFromDocRoot . 'CSS/PaginationControl.less');
-			} elseif (false && $GLOBALS['HTMLHEADER']) {
-				$GLOBALS['HTMLHEADER']['PaginationControl.less']
-					= '<link rel="stylesheet" href="' . $al->nadlibFromDocRoot . 'CSS/PaginationControl.less" />';
-			} elseif (!Request::isCLI()) {
-				$content .= $this->getCSS();    // pre-compiles LESS inline
-			}
+
+			// inject pagination css manually
+//			$index = class_exists('Index') ? Index::getInstance() : null;
+//			if ($index && $this->request->apacheModuleRewrite()) {
+//				//Index::getInstance()->header['ProgressBar'] = $this->getCSS();
+//				$index->addCSS($al->nadlibFromDocRoot . 'CSS/PaginationControl.less');
+//			} elseif (false && $GLOBALS['HTMLHEADER']) {
+//				$GLOBALS['HTMLHEADER']['PaginationControl.less']
+//					= '<link rel="stylesheet" href="' . $al->nadlibFromDocRoot . 'CSS/PaginationControl.less" />';
+//			} elseif (!Request::isCLI()) {
+//				$content .= $this->getCSS();    // pre-compiles LESS inline
+//			}
 
 			self::$cssOutput = true;
 		}

@@ -39,9 +39,9 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 
     protected $password;
 
-    protected $db;
+    public $dbName;
 
-	public static function fromParams($db = null, $host = null,
+	public static function fromParams($dbName = null, $host = null,
 																		$user = null, $password = null,
 																		$scheme = 'mysql', $driver = null,
 																		$port = 3306): self
@@ -51,10 +51,10 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 			$instance->host = $host;
 			$instance->user = $user;
 			$instance->password = $password;
-			$instance->db = $db;
+			$instance->dbName = $dbName;
 			$instance->connect($user, $password,
 				$scheme, $driver,
-				$host, $db, $port);
+				$host, $dbName, $port);
 		}
 
         $instance->queryLog = new QueryLog();
@@ -296,7 +296,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 		return $this->connection->getAttribute(PDO::ATTR_DRIVER_NAME);
 	}
 
-	public function fetchAll($stringOrRes, $key = null): void
+	public function fetchAll($stringOrRes, $key = null): array
 	{
 		$res = is_string($stringOrRes) ? $this->perform($stringOrRes) : $stringOrRes;
 

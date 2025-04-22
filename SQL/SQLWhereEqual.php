@@ -140,10 +140,11 @@ class SQLWhereEqual extends SQLWherePart
 		return first($set);
 	}
 
-	public function injectField($field): void
+	public function injectField($field): static
 	{
 //		debug(__METHOD__, $field);
 		parent::injectField($field);
+		return $this;
 	}
 
 }

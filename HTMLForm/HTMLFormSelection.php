@@ -41,7 +41,7 @@ class HTMLFormSelection extends HTMLFormField
 		$this->desc = new HTMLFormField($desc);
 	}
 
-	public function render(): void
+	public function render(): string|array|\ToStringable
 	{
 		$this->form = $this->form ?: new HTMLForm();
 		$content[] = "<select " .

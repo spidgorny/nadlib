@@ -259,7 +259,7 @@ class SQLSelectQuery extends SQLWherePart
 		return $sq;
 	}
 
-	public function injectDB(DBInterface $db): void
+	public function injectDB(DBInterface $db): static
 	{
 		//debug(__METHOD__, gettype2($db));
 		$this->db = $db;
@@ -267,6 +267,7 @@ class SQLSelectQuery extends SQLWherePart
 		if ($this->where) {
 			$this->where->injectDB($this->db);
 		}
+		return $this;
 	}
 
 	public function getDistance($lat, $lon, $latitude = 'latitude', $longitude = 'longitude'): string

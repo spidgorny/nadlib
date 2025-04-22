@@ -30,7 +30,7 @@ class HTMLFormLocation extends HTMLFormType
 		$this->value = $value;
 	}
 
-	public function render(): array
+	public function render(): string|array
 	{
 		$content = [];
 		$content[] = $this->form->getInput('input', $this->field, $this->value, [
@@ -45,10 +45,10 @@ class HTMLFormLocation extends HTMLFormType
 			if ($this->size) {
 				$map->size = $this->size;
 			}
-            
+
 			$content[] = '<div class="text-center p-3">' . $map->render() . '</div>';
 		}
-        
+
 		return $content;
 	}
 

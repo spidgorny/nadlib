@@ -16,7 +16,7 @@ class HTMLFormCheckbox extends HTMLFormField
 		}
 	}
 
-	public function render(): void
+	public function render(): string
 	{
 		$this->form = $this->form instanceof HTMLForm
 			? $this->form

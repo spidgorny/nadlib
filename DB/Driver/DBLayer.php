@@ -211,7 +211,7 @@ class DBLayer extends DBLayerBase
      * @param resource|string $result
      * @throws Exception
      */
-    public function fetchAll($result, $key = null): void
+    public function fetchAll($result, $key = null): array
 	{
 		$params = [];
 		if ($result instanceof SQLSelectQuery) {

@@ -48,16 +48,12 @@ class FileCache
 			$val = serialize($val);
 		}
 
-		$con = null;
-		if (class_exists('Index')) {
-			$con = Index::getInstance()->controller;
-		}
-
 		if (strlen($val) !== 0) {
-			$con && $con->log(__METHOD__, 'Writing cache to <a href="' . $this->map($key) . '">' . $this->map($key) . ', size: ' . strlen($val));
+			llog(__METHOD__, 'Writing cache to <a href="' . $this->map($key) . '">' . $this->map($key) . ', size: ' .
+				strlen($val));
 			file_put_contents($this->map($key), $val);
 		} else {
-			$con && $con->log(__METHOD__, 'NOT writing cache because size: ' . strlen($val));
+			llog(__METHOD__, 'NOT writing cache because size: ' . strlen($val));
 		}
 	}
 

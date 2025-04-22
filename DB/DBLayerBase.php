@@ -20,8 +20,6 @@
 abstract class DBLayerBase implements DBInterface
 {
 
-	public $db;
-
     /**
 	 * @var SQLBuilder
 	 */
@@ -253,9 +251,10 @@ abstract class DBLayerBase implements DBInterface
 		$this->queryLog = null;
 	}
 
-	public function fetchAll($res_or_query, $index_by_key = null): void
+	public function fetchAll($res_or_query, $index_by_key = null): array
 	{
 		// TODO: Implement fetchAll() method.
+		return [];
 	}
 
 	public function quoteKeys(array $a)

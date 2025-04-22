@@ -925,14 +925,14 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * @param bool $regex whether $substr is a regular expression
 	 * @return String
 	 */
-	public function removeOnce($substr)
+	public function removeOnce($substr): self
 	{
 		return $this->removeRegex($substr, 1);
 	}
 
-	public function removeRegex($pattern, $limit = null): void
+	public function removeRegex($pattern, $limit = null): self
 	{
-		$this->replaceRegex($pattern, '', $limit);
+		return $this->replaceRegex($pattern, '', $limit);
 	}
 
 	public function replaceRegex($search, $replace, $limit = null): self

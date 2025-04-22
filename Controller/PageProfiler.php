@@ -23,9 +23,9 @@ class PageProfiler
 	}
 
 	/**
-     * @throws Exception
-     */
-    public function render(): array
+	 * @throws Exception
+	 */
+	public function render(): array
 	{
 		$content = [];
 		if ($this->canOutput()) {
@@ -43,7 +43,7 @@ class PageProfiler
 			$ft = new FloatTime(true);
 			$content[] = $ft->render();
 		}
-        
+
 		return $content;
 	}
 
@@ -55,7 +55,7 @@ class PageProfiler
 		} else {
 			$exceptions = false;
 		}
-        
+
 		$debug_page = isset($_COOKIE['debug_page'])
 			? $_COOKIE['debug_page']
 			: ifsetor($_COOKIE['debug']);
@@ -72,9 +72,9 @@ class PageProfiler
 		$url = clone $this->request->getURL();
 		$url->makeRelative();
 
-        $url->getParams();
+		$url->getParams();
 		$url->clearParams();
-        
+
 		$fullURL = $this->request->getLocation() . $url;
 		$urlText = $this->request->getLocation() . ' ' . $url;
 		return '<a href="' . $fullURL . '">' . $urlText . '</a>' . BR;
@@ -97,38 +97,29 @@ class PageProfiler
 	}
 
 	/**
-     * @throws Exception
-     */
-    protected function getHeader(): string
+	 * @throws Exception
+	 */
+	protected function getHeader(): string
 	{
-		if (!class_exists('Index')) {
-			return '';
-		}
-        
 		$content = '';
-		$index = Index::getInstance();
-		
 		$content .= $this->html->h4('Header');
 
 		$header = '';
-		if ($index) {
-			$header = json_encode($index->header, JSON_PRETTY_PRINT);
-		}
-        
+
 		$header = str_replace('\/', '/', $header);
 		$header = str_replace('\"', '"', $header);
 		return $content . $this->html->pre($header);
 	}
 
 	/**
-     * @throws Exception
-     */
-    protected function getFooter(): string
+	 * @throws Exception
+	 */
+	protected function getFooter(): string
 	{
 		$content = '';
-		$index = Index::getInstance();
 		$content .= $this->html->h4('Footer');
-		$footer = json_encode($index->footer, JSON_PRETTY_PRINT);
+//		$footer = json_encode($index->footer, JSON_PRETTY_PRINT);
+		$footer = '';
 		$footer = str_replace('\/', '/', $footer);
 		$footer = str_replace('\"', '"', $footer);
 		return $content . $this->html->pre($footer);
@@ -144,9 +135,9 @@ class PageProfiler
 	}
 
 	/**
-     * @return mixed[]
-     */
-    protected function getTaylorProfiler(): array
+	 * @return mixed[]
+	 */
+	protected function getTaylorProfiler(): array
 	{
 		$content = [];
 		/** @var $profiler TaylorProfiler */
@@ -157,7 +148,7 @@ class PageProfiler
 			//$content[] = $profiler->printTrace(true);
 			//$content[] = $profiler->analyzeTraceForLeak();
 		}
-        
+
 		return $content;
 	}
 

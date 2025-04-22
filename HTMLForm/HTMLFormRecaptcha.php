@@ -20,7 +20,7 @@ class HTMLFormRecaptcha
 		}
 
 		//$error = htmlspecialchars(urlencode($desc['captcha-error'] ? '' : ''), ENT_QUOTES);
-		Index::getInstance()->addJS('//www.google.com/recaptcha/api/js/recaptcha_ajax.js'); //?error=' . $error);
+//		Index::getInstance()->addJS('//www.google.com/recaptcha/api/js/recaptcha_ajax.js'); //?error=' . $error);
 	}
 
 	public function getForm(array $desc)

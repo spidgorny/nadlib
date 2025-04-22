@@ -59,9 +59,10 @@ class Duration extends Time
 		return new Duration($ini_get);
 	}
 
-	public function format($rules): void
+	public function format($rules): string
 	{
 		die(__METHOD__ . " - don't use.");
+		return 'not implemented';
 	}
 
 	public function getTime($format = 'H:i:s'): string

@@ -73,7 +73,7 @@ class HTMLFormInline extends HTMLFormTable
 		return $content;
 	}
 
-	public function showTR(array $prefix, array|HTMLFormFieldInterface $fieldDesc): void
+	public function showTR(array $prefix, array|HTMLFormFieldInterface $fieldDesc): array
 	{
 		$wrapElement = $fieldDesc['type'] !== 'html';
 		if ($wrapElement) {

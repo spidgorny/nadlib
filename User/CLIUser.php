@@ -72,4 +72,10 @@ class CLIUser implements UserModelInterface
 	{
 		// TODO: Implement updatePassword() method.
 	}
+
+	public function getPref($pref, $default = null)
+	{
+		// TODO: Implement getPref() method.
+	}
+
 }

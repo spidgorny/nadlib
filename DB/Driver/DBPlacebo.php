@@ -151,7 +151,7 @@ class DBPlacebo extends DBLayerBase
 		return $query;
 	}
 
-	public function fetchAll($res_or_query, $index_by_key = null): void
+	public function fetchAll($res_or_query, $index_by_key = null): array
 	{
 		$return = $this->returnNextTime;
 		//debug(__METHOD__, typ($this), $return);

@@ -64,7 +64,7 @@ class View extends stdClass implements ToStringable
 				$this->folder = dirname(__FILE__) . '/' . $config->config[__CLASS__]['folder'];
 			}
 		}
-        
+
 		$this->file = $file;
 		if (!is_readable($this->folder . $this->file)) {
 			llog([
@@ -74,7 +74,7 @@ class View extends stdClass implements ToStringable
 			]);
 			throw new Exception('File not readable ' . $this->file);
 		}
-        
+
 		/*nodebug(
 			$config->appRoot,
 			$config->config[__CLASS__],
@@ -86,12 +86,12 @@ class View extends stdClass implements ToStringable
 		} elseif (is_array($copyObject)) {
 			$this->caller = (object)$copyObject;
 		}
-        
+
 		$this->ll = (class_exists('Config') && Config::getInstance()->getLL())
 			? Config::getInstance()->getLL() : null;
 		$this->request = Request::getInstance();
-		$this->index = class_exists('Index')
-			? Index::getInstance() : null;
+//		$this->index = class_exists('Index')
+//			? Index::getInstance() : null;
 		TaylorProfiler::stop(__METHOD__ . ' (' . $file . ')');
 	}
 
@@ -168,7 +168,7 @@ class View extends stdClass implements ToStringable
                 $lines2[] = '<ul>';
                 $inUL = true;
             }
-            
+
 			$lines2[] = $inUL
 				? '<li>' . substr($line, 2) . '</li>'
 				: $line;
@@ -177,11 +177,11 @@ class View extends stdClass implements ToStringable
                 $inUL = false;
             }
 		}
-        
+
 		if ($inUL) {
 			$lines2[] = '</ul>';
 		}
-        
+
 		$text = implode("\n", $lines2);
 		//debug($lines2, $text);
 		//$text = str_replace("\n* ", "\n<li> ", $text);
@@ -194,7 +194,7 @@ class View extends stdClass implements ToStringable
 		if ($linkCallback) {
 			$text = preg_replace_callback('/\[\[(.*?)\]\]/', $linkCallback, $text);
 		}
-		
+
 		return preg_replace('/====(.*?)====/', '<h2>\1</h2>', $text);
 	}
 
@@ -228,7 +228,7 @@ class View extends stdClass implements ToStringable
 		if ($this->caller != null) {
 			return $this->e($this->caller->get($key));
 		}
-        
+
 		return null;
 	}
 
@@ -260,7 +260,7 @@ class View extends stdClass implements ToStringable
 		if (!$this->controller) {
 			$this->controller = Index::getInstance()->getController();
 		}
-        
+
 		return $this->controller;
 	}
 
@@ -279,7 +279,7 @@ class View extends stdClass implements ToStringable
 			$methodName = is_object($this->caller) ? get_class($this->caller) . '::' . $func : $func;
 			throw new RuntimeException('View: Method ' . $func . ' (' . $methodName . ") doesn't exists.");
 		}
-        
+
 		return call_user_func_array($method, $args);
 	}
 
@@ -289,7 +289,7 @@ class View extends stdClass implements ToStringable
 		if ($this->caller !== null) {
 			return $this->caller->$var;
 		}
-        
+
 		return $this->$var ?? $this->data[$var] ?? null;
 	}
 
@@ -298,7 +298,7 @@ class View extends stdClass implements ToStringable
 		if (!$this->caller) {
 			$this->caller = new stdClass();
 		}
-        
+
 		$this->caller->$var = &$val;
 	}
 
@@ -307,7 +307,7 @@ class View extends stdClass implements ToStringable
 		if ($this->caller !== null) {
 			return isset($this->caller->$name);
 		}
-        
+
 		return isset($this->$name);
 	}
 
@@ -333,7 +333,7 @@ class View extends stdClass implements ToStringable
 			]);
 			$text = str_replace(array_keys($urls), array_values($urls), $text);
 		}
-        
+
 		return $text;
 	}
 
@@ -350,13 +350,13 @@ class View extends stdClass implements ToStringable
 		$pattern = sprintf('%s?(?(1)(%s|(%s)?%s%s)|(%s%s%s))%s', $scheme, $ip, $subdomain, $name, $tld, $www, $name, $tld, $the_rest);
 
 		$pattern = '/' . $pattern . '/is';
-        
+
 		$c = preg_match_all($pattern, $text, $m);
 		unset($text, $scheme, $www, $ip, $subdomain, $name, $tld, $the_rest, $pattern);
 		if ($c) {
 			return (array_flip($m[0]));
 		}
-        
+
 		return ([]);
 	}
 
@@ -365,11 +365,11 @@ class View extends stdClass implements ToStringable
 		$target = null;
         $nofollow = null;
         if (is_array($other)) {
-			$target = ($other['target'] ? sprintf(' target="%s"', $other[target]) : null);
+			$target = ($other['target'] ? sprintf(' target="%s"', $other[$target]) : null);
 			// see: http://www.google.com/googleblog/2005/01/preventing-comment-spam.html
 			$nofollow = ($other['nofollow'] ? ' rel="nofollow"' : null);
 		}
-        
+
 		$value = sprintf('<a href="%s"%s%s>%s</a>', $key, $target, $nofollow, $key);
 	}
 
@@ -384,7 +384,7 @@ class View extends stdClass implements ToStringable
 		if ($noCent) {
 			$money = str_replace('.00', '.-', $money);
 		}
-        
+
 		return $money;
 	}
 
@@ -419,7 +419,7 @@ class View extends stdClass implements ToStringable
 		$config->set('AutoFormat.Linkify', true);
 		$config->set('HTML.TargetBlank', true);
 		$config->set('HTML.Nofollow', true);
-        
+
 		$purifier = new HTMLPurifier($config);
 		return $purifier->purify($comment);
 	}
@@ -436,7 +436,7 @@ class View extends stdClass implements ToStringable
 				$content .= $Media->html;
 			}
 		}
-        
+
 		return $content;
 	}
 
@@ -481,7 +481,7 @@ class View extends stdClass implements ToStringable
 			$val = eval(' return ' . $m . ';');
 			$template = str_replace('{' . $m . '}', $val, $template);
 		}
-        
+
 		return $template;
 	}
 
@@ -493,7 +493,8 @@ class View extends stdClass implements ToStringable
 	public function withoutScripts(): static
 	{
 		$scripts = $this->extractScripts();
-		$this->index->footer[basename($this->file)] = $scripts;
+		// @todo
+//		$this->index->footer[basename($this->file)] = $scripts;
 		return $this;
 	}
 
@@ -506,7 +507,7 @@ class View extends stdClass implements ToStringable
 		$dom = new AdvancedHtmlDom($html);
 		$scripts = $dom->find('script');
 		$scripts->remove();
-        
+
 		$this->processed = $dom->body->innerhtml();
 		return $scripts->__toString();
 	}
@@ -523,10 +524,10 @@ class View extends stdClass implements ToStringable
 			// Locallang replacement
 			$content = $this->localize($content);
             $content .= '<!-- View template: ' . $this->file . ' -->' . "\n";
-            
+
 			$this->processed = $content;
 		}
-        
+
 		TaylorProfiler::stop($key);
 		return $this->processed;
 	}
@@ -544,7 +545,7 @@ class View extends stdClass implements ToStringable
 				$content = str_replace('__{' . $ll . '}__', __($ll), $content);
 			}
 		}
-        
+
 		return $content;
 	}
 
@@ -569,7 +570,7 @@ class View extends stdClass implements ToStringable
 		$dom = new AdvancedHtmlDom($html);
 		$scripts = $dom->find('img');
 		$scripts->remove();
-        
+
 		$this->processed = $dom->body->innerhtml();
 		return $scripts;
 	}

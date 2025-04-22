@@ -36,9 +36,9 @@ class NoUser extends UserBase implements UserModelInterface
 		return '';
 	}
 
-	public function getPref($key)
+	public function getPref($key, $default = null)
 	{
-		return $this->prefs->get($key);
+		return $this->prefs->get($key, $default);
 	}
 
 	public function setPref($key, $val): void

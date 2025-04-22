@@ -19,7 +19,7 @@ class DBLayerCached extends DBLayer
 		$this->cache = [];
 	}
 
-	public function fetchAll($result, $key = null): void
+	public function fetchAll($result, $key = null): array
 	{
 		$cacheKey = $this->getCacheKey(__METHOD__, func_get_args());
 		if (isset($this->cache[$cacheKey])) {
