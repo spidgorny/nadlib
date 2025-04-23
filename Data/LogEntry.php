@@ -48,7 +48,7 @@ class LogEntry
 		}
 
 		return implode("\t", [
-			date('H:i:s', $this->time) . '.' . $floating,
+			date('H:i:s', (int)$this->time) . '.' . $floating,
 			new HTMLTag('strong', [], $paddedAction),
 			$this->data ? $sData : null
 		]);
