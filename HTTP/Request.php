@@ -1487,11 +1487,11 @@ class Request
 
 	public function getBrowserIP()
 	{
-		if ($_SERVER['HTTP_CLIENT_IP']) {
+		if ($_SERVER['HTTP_CLIENT_IP'] ?? null) {
 			return $_SERVER['HTTP_CLIENT_IP'];
 		}
 
-		return $_SERVER['HTTP_X_FORWARDED_FOR'] ?: $_SERVER['REMOTE_ADDR'];
+		return $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? null;
 	}
 
 	public function getIDrequired()
