@@ -271,7 +271,7 @@ abstract class DBLayerBase implements DBInterface
 	{
 		$reserved = $this->getReserved();
 		if (in_array(strtoupper($key), $reserved)) {
-			$key = $this->db->quoteKey($key);
+			$key = $this->connection->quoteKey($key);
 		}
 
 		return $key;
