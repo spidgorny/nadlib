@@ -22,9 +22,9 @@ class Request
 	public $url;
 
 	/**
-     * Assoc array of URL parameters
-     */
-    protected array $data;
+	 * Assoc array of URL parameters
+	 */
+	protected array $data;
 
 	protected $proxy;
 
@@ -100,12 +100,12 @@ class Request
 	}
 
 	/**
-     * [DOCUMENT_ROOT]      => U:/web
-     * [SCRIPT_FILENAME]    => C:/Users/DEPIDSVY/NetBeansProjects/merged/index.php
-     * [PHP_SELF]           => /merged/index.php
-     * [cwd]                => C:\Users\DEPIDSVY\NetBeansProjects\merged
-     */
-    public static function getDocumentRoot(): \Path
+	 * [DOCUMENT_ROOT]      => U:/web
+	 * [SCRIPT_FILENAME]    => C:/Users/DEPIDSVY/NetBeansProjects/merged/index.php
+	 * [PHP_SELF]           => /merged/index.php
+	 * [cwd]                => C:\Users\DEPIDSVY\NetBeansProjects\merged
+	 */
+	public static function getDocumentRoot(): \Path
 	{
 		// PHP Warning:  strpos(): Empty needle in /var/www/html/vendor/spidgorny/nadlib/HTTP/class.Request.php on line 706
 
@@ -184,11 +184,12 @@ class Request
 	}
 
 	//
-    /**
-     * Returns the full URL to the document root of the current site
-     * @param bool $isUTF8
-     */
-    public static function getLocation($isUTF8 = false): \spidgorny\nadlib\HTTP\URL
+
+	/**
+	 * Returns the full URL to the document root of the current site
+	 * @param bool $isUTF8
+	 */
+	public static function getLocation($isUTF8 = false): \spidgorny\nadlib\HTTP\URL
 	{
 		$docRoot = self::getDocRoot();
 //		llog($docRoot.'');
@@ -281,9 +282,9 @@ class Request
 	}
 
 	/**
-     * http://stackoverflow.com/questions/190759/can-php-detect-if-its-run-from-a-cron-job-or-from-the-command-line
-     */
-    public static function isCron(): bool
+	 * http://stackoverflow.com/questions/190759/can-php-detect-if-its-run-from-a-cron-job-or-from-the-command-line
+	 */
+	public static function isCron(): bool
 	{
 		return !self::isPHPUnit()
 			&& self::isCLI()
@@ -295,17 +296,17 @@ class Request
 	{
 		//debug($_SERVER); exit();
 		$phpunit = defined('PHPUnit');
-		$phar = (bool) ifsetor($_SERVER['IDE_PHPUNIT_PHPUNIT_PHAR']);
-		$loader = (bool) ifsetor($_SERVER['IDE_PHPUNIT_CUSTOM_LOADER']);
+		$phar = (bool)ifsetor($_SERVER['IDE_PHPUNIT_PHPUNIT_PHAR']);
+		$loader = (bool)ifsetor($_SERVER['IDE_PHPUNIT_CUSTOM_LOADER']);
 		$phpStorm = basename($_SERVER['PHP_SELF']) === 'ide-phpunit.php';
 		$phpStorm2 = basename($_SERVER['PHP_SELF']) === 'phpunit';
 		return $phar || $loader || $phpStorm || $phpStorm2 || $phpunit;
 	}
 
 	/**
-     * http://stackoverflow.com/questions/738823/possible-values-for-php-os
-     */
-    public static function isWindows(): bool
+	 * http://stackoverflow.com/questions/738823/possible-values-for-php-os
+	 */
+	public static function isWindows(): bool
 	{
 		//$os = isset($_SERVER['OS']) ? $_SERVER['OS'] : '';
 		//return $os == 'Windows_NT';
@@ -354,10 +355,10 @@ class Request
 	}
 
 	/**
-     * dirname('/53/') = '/' which is a problem
-     * @param $path
-     */
-    public static function dir_of_file($path): string
+	 * dirname('/53/') = '/' which is a problem
+	 * @param $path
+	 */
+	public static function dir_of_file($path): string
 	{
 		if ($path[strlen($path) - 1] == '/') {
 			return substr($path, 0, -1);
@@ -404,7 +405,7 @@ class Request
 		}
 
 		$hostname = gethostname();
-        return $host == $hostname;
+		return $host == $hostname;
 	}
 
 	public static function getOnlyHost()
@@ -453,10 +454,10 @@ class Request
 	}
 
 	/**
-     * General filtering function
-     * @param $name
-     */
-    public function getTrim($name): string
+	 * General filtering function
+	 * @param $name
+	 */
+	public function getTrim($name): string
 	{
 		$value = $this->getString($name);
 		$value = strip_tags($value);
@@ -464,11 +465,11 @@ class Request
 	}
 
 	/**
-     * Will strip tags
-     * @param $name
-     * @throws Exception
-     */
-    public function getTrimRequired(string $name): string
+	 * Will strip tags
+	 * @param $name
+	 * @throws Exception
+	 */
+	public function getTrimRequired(string $name): string
 	{
 		$value = $this->getString($name);
 		$value = strip_tags($value);
@@ -481,11 +482,11 @@ class Request
 	}
 
 	/**
-     * Checks that trimmed value isset in the supplied array
-     * @param $name
-     * @throws Exception
-     */
-    public function getOneOf($name, array $options): string
+	 * Checks that trimmed value isset in the supplied array
+	 * @param $name
+	 * @throws Exception
+	 */
+	public function getOneOf($name, array $options): string
 	{
 		$value = $this->getTrim($name);
 		if (!isset($options[$value])) {
@@ -497,12 +498,12 @@ class Request
 	}
 
 	/**
-     * Checks for keys, not values
-     *
-     * @param $name
-     * @param array $assoc - only array keys are used in search
-     */
-    public function getIntIn($name, array $assoc): ?int
+	 * Checks for keys, not values
+	 *
+	 * @param $name
+	 * @param array $assoc - only array keys are used in search
+	 */
+	public function getIntIn($name, array $assoc): ?int
 	{
 		$id = $this->getIntOrNULL($name);
 		if (!is_null($id) && !in_array($id, array_keys($assoc))) {
@@ -583,9 +584,9 @@ class Request
 	}
 
 	/**
-     * @param $name
-     */
-    public function getArray($name): array
+	 * @param $name
+	 */
+	public function getArray($name): array
 	{
 		return isset($this->data[$name]) ? (array)($this->data[$name]) : [];
 	}
@@ -610,10 +611,10 @@ class Request
 	}
 
 	/**
-     * Similar to getArray() but the result is an object of a Request
-     * @param $name
-     */
-    public function getSubRequest($name): \Request
+	 * Similar to getArray() but the result is an object of a Request
+	 * @param $name
+	 */
+	public function getSubRequest($name): \Request
 	{
 		return new Request($this->getArray($name));
 	}
@@ -624,10 +625,10 @@ class Request
 	}
 
 	/**
-     * Makes sure it's an integer
-     * @param string $name
-     */
-    public function getTimestamp($name): int
+	 * Makes sure it's an integer
+	 * @param string $name
+	 */
+	public function getTimestamp($name): int
 	{
 		return $this->getInt($name);
 	}
@@ -638,13 +639,13 @@ class Request
 	}
 
 	/**
-     * Will return Time object
-     *
-     * @param string $name
-     * @return Time
-     * @throws Exception
-     */
-    public function getTime($name, $rel = null): ?\Time
+	 * Will return Time object
+	 *
+	 * @param string $name
+	 * @return Time
+	 * @throws Exception
+	 */
+	public function getTime($name, $rel = null): ?\Time
 	{
 		if ($this->is_set($name) && $this->getTrim($name)) {
 			return new Time($this->getTrim($name), $rel);
@@ -654,12 +655,12 @@ class Request
 	}
 
 	/**
-     * Will return Date object
-     *
-     * @param string $name
-     * @return Date
-     */
-    public function getDate($name, $rel = null): ?\Date
+	 * Will return Date object
+	 *
+	 * @param string $name
+	 * @return Date
+	 */
+	public function getDate($name, $rel = null): ?\Date
 	{
 		if ($this->is_set($name) && $this->getTrim($name)) {
 			return new Date($this->getTrim($name), $rel);
@@ -689,11 +690,11 @@ class Request
 	}
 
 	/**
-     * Opposite of getSubRequest. It's a way to reimplement a subrequest
-     * @param $name
-     * @return $this
-     */
-    public function import($name, Request $subrequest): static
+	 * Opposite of getSubRequest. It's a way to reimplement a subrequest
+	 * @param $name
+	 * @return $this
+	 */
+	public function import($name, Request $subrequest): static
 	{
 		foreach ($subrequest->data as $key => $val) {
 			$this->data[$name][$key] = $val;
@@ -821,7 +822,7 @@ class Request
 	{
 		$link = str_startsWith($relative, 'http') ? $relative : self::getLocation() . $relative;
 
-        if (!headers_sent()) {
+		if (!headers_sent()) {
 			header('X-Redirect: ' . $link);    // to be handled by AJAX callback
 			exit();
 		}
@@ -843,9 +844,9 @@ class Request
 	}
 
 	/**
-     * http://php.net/manual/en/function.apache-request-headers.php#70810
-     */
-    public function isAjax(): bool
+	 * http://php.net/manual/en/function.apache-request-headers.php#70810
+	 */
+	public function isAjax(): bool
 	{
 		$headers = function_exists('apache_request_headers') ? apache_request_headers() : [];
 		if ($headers === []) {
@@ -922,9 +923,9 @@ class Request
 	}
 
 	/**
-     * Will overwrite one by one.
-     */
-    public function setArray(array $plus): void
+	 * Will overwrite one by one.
+	 */
+	public function setArray(array $plus): void
 	{
 		foreach ($plus as $key => $val) {
 			$this->data[$key] = $val;
@@ -971,9 +972,9 @@ class Request
 	}
 
 	/**
-     * Overwriting - no
-     */
-    public function append(array $plus): static
+	 * Overwriting - no
+	 */
+	public function append(array $plus): static
 	{
 		$this->data += $plus;
 		return $this;
@@ -1040,9 +1041,9 @@ class Request
 	}
 
 	/**
-     * Overwriting - yes
-     */
-    public function overwrite(array $plus): static
+	 * Overwriting - yes
+	 */
+	public function overwrite(array $plus): static
 	{
 		foreach ($plus as $key => $val) {
 			$this->data[$key] = $val;
@@ -1086,10 +1087,10 @@ class Request
 	}
 
 	/**
-     * Just cuts the folders with basename()
-     * @param $name
-     */
-    public function getFilename($name): string
+	 * Just cuts the folders with basename()
+	 * @param $name
+	 */
+	public function getFilename($name): string
 	{
 		//filter_var($this->getTrim($name), ???)
 		$filename = $this->getTrim($name);
@@ -1103,20 +1104,20 @@ class Request
 	}
 
 	/**
-     * Parses $GLOBALS['argv'] for parameters and assigns them to an array.
-     * @see http://www.php.net/manual/en/function.getopt.php#83414
-     *
-     * Supports:
-     * -e
-     * -e <value>
-     * --long-param
-     * --long-param=<value>
-     * --long-param <value>
-     * <value>
-     *
-     * @param array $noopt List of parameters without values
-     */
-    public function parseParameters($noopt = []): array
+	 * Parses $GLOBALS['argv'] for parameters and assigns them to an array.
+	 * @see http://www.php.net/manual/en/function.getopt.php#83414
+	 *
+	 * Supports:
+	 * -e
+	 * -e <value>
+	 * --long-param
+	 * --long-param=<value>
+	 * --long-param <value>
+	 * <value>
+	 *
+	 * @param array $noopt List of parameters without values
+	 */
+	public function parseParameters($noopt = []): array
 	{
 		$result = [];
 		$params = $_SERVER['argv'] ?? [];
@@ -1152,9 +1153,9 @@ class Request
 	}
 
 	/**
-     * http://stackoverflow.com/a/6127748/417153
-     */
-    public function isRefresh(): bool
+	 * http://stackoverflow.com/a/6127748/417153
+	 */
+	public function isRefresh(): bool
 	{
 		return isset($_SERVER['HTTP_CACHE_CONTROL']) &&
 			$_SERVER['HTTP_CACHE_CONTROL'] === 'max-age=0';
@@ -1210,10 +1211,10 @@ class Request
 	}
 
 	/**
-     * getNameless(1) doesn't provide validation.
-     * Use importNameless() to associate parameters 1, 2, 3, with their names
-     */
-    public function importNameless(array $keys): void
+	 * getNameless(1) doesn't provide validation.
+	 * Use importNameless() to associate parameters 1, 2, 3, with their names
+	 */
+	public function importNameless(array $keys): void
 	{
 		foreach ($keys as $k => $val) {
 			$available = $this->getNameless($k);

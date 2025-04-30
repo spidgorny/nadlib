@@ -125,7 +125,7 @@ function without(array $source, $remove): array
  * @param $callback - return both keys and values
  * @return array|false
  */
-function array_map_keys($callback, array $array): array
+function array_map_keys($callback, array $array): array|false
 {
 	$keys = array_keys($array);
 	$temp = array_map($callback, $keys, $array);    // return ['key', 'value']

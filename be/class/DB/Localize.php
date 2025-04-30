@@ -40,9 +40,9 @@ class Localize extends AppControllerBE
 
 	protected \LocalLangDB $en;
 
-    protected \LocalLangDB $de;
+	protected \LocalLangDB $de;
 
-    protected \LocalLangDB $ru;
+	protected \LocalLangDB $ru;
 
 	public function __construct()
 	{
@@ -127,7 +127,7 @@ class Localize extends AppControllerBE
 			$all = $this->from->getMessages();
 			$all += $this->de->getMessages();
 			$all += $this->ru->getMessages();
-            $search = strtolower($this->request->getTrim('search'));
+			$search = strtolower($this->request->getTrim('search'));
 			if (($search !== '' && $search !== '0')) {
 				foreach ($all as $key => $trans) {
 					if (strpos(strtolower($trans), $search) === false &&
@@ -147,9 +147,9 @@ class Localize extends AppControllerBE
 	}
 
 	/**
-     * @return non-empty-array[]
-     */
-    public function getTranslationTable(array $keys): array
+	 * @return non-empty-array[]
+	 */
+	public function getTranslationTable(array $keys): array
 	{
 		$table = [];
 		foreach ($keys as $key) {
@@ -325,9 +325,9 @@ class Localize extends AppControllerBE
 	}
 
 	/**
-     * @return \list<\non-falsy-string>
-     */
-    public function getUntranslatedCheckbox(): array
+	 * @return \list<\non-falsy-string>
+	 */
+	public function getUntranslatedCheckbox(): array
 	{
 		$content = [];
 		foreach ($this->languages as $lang) {
@@ -419,9 +419,9 @@ class Localize extends AppControllerBE
 	}
 
 	/**
-     * @return \list<\non-falsy-string>
-     */
-    public function importJSONAction(): array
+	 * @return list<non-falsy-string>
+	 */
+	public function importJSONAction(): array
 	{
 		$content = [];
 		$fileData = json_decode(file_get_contents($_FILES['file']['tmp_name']), true);
@@ -430,27 +430,27 @@ class Localize extends AppControllerBE
 			$key = $row['key'];
 			foreach ($row as $lang => $value) {
 				if ($lang == 'key') {
-                    continue;
-                }
+					continue;
+				}
 
-                $l = new LocalLangModel();
+				$l = new LocalLangModel();
 				$l->table = $this->table;
 				$l->findInDB([
 					'code' => $key,
 					'lang' => $lang,
 				], '', false);
 				if ($l->id) {
-                    if ($l->getValue() != $value) {
+					if ($l->getValue() != $value) {
 						$content[] = '<p class="text-danger">Import skipped for [' . $key . '/' . $lang . ']: "' . $value . '" exists as "' . $l->getValue() . '"</p>';
 					}
-                } elseif ($value && $value != 'nothing') {
-                    $content[] = '<p class="text-info">Importing for [' . $key . '/' . $lang . ']: "' . $value . '"' . BR;
-                    $l->insert([
-							'code' => $key,
-							'lang' => $lang,
-							'text' => $value,
-						]);
-                }
+				} elseif ($value && $value != 'nothing') {
+					$content[] = '<p class="text-info">Importing for [' . $key . '/' . $lang . ']: "' . $value . '"' . BR;
+					$l->insert([
+						'code' => $key,
+						'lang' => $lang,
+						'text' => $value,
+					]);
+				}
 			}
 		}
 
@@ -458,9 +458,9 @@ class Localize extends AppControllerBE
 	}
 
 	/**
-     * @return \list<\non-falsy-string>
-     */
-    public function addNewAction(): array
+	 * @return list<non-falsy-string>
+	 */
+	public function addNewAction(): array
 	{
 		$content = [];
 		$code = $this->request->getTrimRequired('code');

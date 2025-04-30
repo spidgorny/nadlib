@@ -3,11 +3,11 @@
 if (!function_exists('str_startsWith')) {
 
 	/**
-     * Whether string starts with some chars
-     * @param string|null $haystack
-     * @param string|string[] $needle
-     */
-    function str_startsWith(string $haystack, string $needle): bool
+	 * Whether string starts with some chars
+	 * @param string|null $haystack
+	 * @param string|string[] $needle
+	 */
+	function str_startsWith(?string $haystack, string|array $needle): bool
 	{
 		if (!is_array($needle)) {
 			$needle = [$needle];
@@ -83,7 +83,7 @@ function trimExplode($sep, $str, $max = 0): array
 {
 	$is_string = is_object($str) ? method_exists($str, '__toString') : is_string($str) || is_int($str);
 
-    if (!$is_string) {
+	if (!$is_string) {
 		throw new RuntimeException('trimExplode: must be string, but got ' . new HtmlString(typ($str)));
 	}
 

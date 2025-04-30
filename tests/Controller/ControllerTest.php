@@ -10,39 +10,39 @@ namespace nadlib\Controller;
 
 use AppController4Test;
 use nadlib\Test\MockRequest;
-use PHPUnit\Framework\TestCase;
+use Tests\RisTestCase;
 
-class ControllerTest extends TestCase
+class ControllerTest extends RisTestCase
 {
 
-	protected $location = 'http://mock.request.tld';
+	protected string $location = 'http://mock.request.tld';
 
-	protected $globalPrefix = '/some/folder';
+	protected string $globalPrefix = '/some/folder';
 
 	/**
 	 * @var MockRequest
 	 */
-	protected $request;
+	protected MockRequest $request;
 
 	protected function setUp(): void
 	{
-		self::markTestSkipped('PG dependent');
 		$this->request = new MockRequest();
+		self::markTestSkipped('PG dependent');
 	}
 
 	public function test_getLocation(): void
 	{
-		$byRequest = $this->request->getDocumentRootByRequest();
-		$this->assertEquals('/', $byRequest);
+		$byRequest = MockRequest::getDocumentRootByRequest();
+		static::assertEquals('/', $byRequest);
 
-		$byDocRoot = $this->request->getDocumentRootByDocRoot();
-		$this->assertEquals(null, $byDocRoot);
+		$byDocRoot = MockRequest::getDocumentRootByDocRoot();
+		static::assertEquals(null, $byDocRoot);
 
-		$docRoot = $this->request->getDocumentRoot();
-		$this->assertEquals('/', $docRoot);
+		$docRoot = MockRequest::getDocumentRoot();
+		static::assertEquals('/', $docRoot);
 
-		$location = $this->request->getLocation();
-		$this->assertEquals($this->location . $this->globalPrefix . '/', $location . '');
+		$location = MockRequest::getLocation();
+		static::assertEquals($this->location . $this->globalPrefix . '/', $location . '');
 	}
 
 	public function test_makeLinkSimple(): void
@@ -51,9 +51,9 @@ class ControllerTest extends TestCase
 		$c->linker->useRouter = false;
 		$c->request = $this->request;
 
-		$link = $c->makeURL(['a' => 'b']);
+		$link = $c->linker->makeURL(['a' => 'b']);
 		$link->setHost(null);
-		$this->assertEquals($this->globalPrefix . '/?a=b', $link . '');
+		static::assertEquals($this->globalPrefix . '/?a=b', $link . '');
 	}
 
 	public function test_makeLinkSimpleWithPrefix(): void
@@ -62,9 +62,9 @@ class ControllerTest extends TestCase
 		$c->linker->useRouter = false;
 		$c->request = $this->request;
 
-		$link = $c->makeURL(['a' => 'b'], 'prefix');
+		$link = $c->linker->makeURL(['a' => 'b'], 'prefix');
 		$link->setHost(null);
-		$this->assertEquals($this->globalPrefix . '/prefix?a=b', $link . '');
+		static::assertEquals($this->globalPrefix . '/prefix?a=b', $link . '');
 	}
 
 	public function test_makeLinkRouter(): void
@@ -73,9 +73,9 @@ class ControllerTest extends TestCase
 		$c->linker->useRouter = true;
 		$c->request = $this->request;
 
-		$link = $c->makeURL(['a' => 'b'], 'prefix');
+		$link = $c->linker->makeURL(['a' => 'b'], 'prefix');
 		$link->setHost(null);
-		$this->assertEquals($this->globalPrefix . '/prefix?a=b', $link . '');
+		static::assertEquals($this->globalPrefix . '/prefix?a=b', $link . '');
 	}
 
 	public function test_makeLinkRouterWithPrefix(): void
@@ -84,9 +84,9 @@ class ControllerTest extends TestCase
 		$c->linker->useRouter = true;
 		$c->request = $this->request;
 
-		$link = $c->makeURL(['a' => 'b'], 'prefix');
+		$link = $c->linker->makeURL(['a' => 'b'], 'prefix');
 		$link->setHost(null);
-		$this->assertEquals($this->globalPrefix . '/prefix?a=b', $link . '');
+		static::assertEquals($this->globalPrefix . '/prefix?a=b', $link . '');
 	}
 
 	public function test_makeLinkCSimple(): void
@@ -95,9 +95,9 @@ class ControllerTest extends TestCase
 		$c->linker->useRouter = false;
 		$c->request = $this->request;
 
-		$link = $c->makeURL(['a' => 'b', 'c' => 'Controller']);
+		$link = $c->linker->makeURL(['a' => 'b', 'c' => 'Controller']);
 		$link->setHost(null);
-		$this->assertEquals($this->globalPrefix . '/?a=b&c=Controller', $link . '');
+		static::assertEquals($this->globalPrefix . '/?a=b&c=Controller', $link . '');
 	}
 
 	public function test_makeLinkCRouter(): void
@@ -106,9 +106,9 @@ class ControllerTest extends TestCase
 		$c->linker->useRouter = true;
 		$c->request = $this->request;
 
-		$link = $c->makeURL(['a' => 'b', 'c' => 'Controller']);
+		$link = $c->linker->makeURL(['a' => 'b', 'c' => 'Controller']);
 		$link->setHost(null);
-		$this->assertEquals($this->globalPrefix . '/Controller?a=b', $link . '');
+		static::assertEquals($this->globalPrefix . '/Controller?a=b', $link . '');
 	}
 
 }

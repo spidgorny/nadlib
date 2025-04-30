@@ -29,7 +29,7 @@ class LoginForm extends AjaxLogin
 		$this->layout = new Wrap('<div class="col-md-10">', '</div>' . "\n");
 	}
 
-	public function render(): array
+	public function render(): array|string
 	{
 		return '';
 	}

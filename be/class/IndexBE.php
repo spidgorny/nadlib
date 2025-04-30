@@ -27,15 +27,18 @@ class IndexBE extends IndexBase
 			require_once __DIR__ . '/ConfigBE.php';
 			$this->config = ConfigBE::getInstance();
 		}
-        
+
 		parent::__construct($this->config);
 
-		$this->config->defaultController = HomeBE::class;
-		$this->config->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $this->config->documentRoot);
-		$this->config->documentRoot = str_replace('/nadlib/be', '', $this->config->documentRoot);
+		/** @var ConfigBE $config */
+		$config = $this->config;
+		$config->defaultController = HomeBE::class;
+		$config->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $this->config->documentRoot);
+		$config->documentRoot = str_replace('/nadlib/be', '', $this->config->documentRoot);
 		//$config->documentRoot = $this->config->documentRoot ?: '/';	// must end without slash
 		// it's not reading the config.json from /be/, but from the project root
-		$this->config->config['View']['folder'] = '../be/template/';
+
+		$config['View']['folder'] = '../be/template/';
 
 		//$c->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $c->documentRoot);	// for CSS
 		//Config::getInstance()->documentRoot .= '/vendor/spidgorny/nadlib/be';
@@ -145,7 +148,6 @@ class IndexBE extends IndexBase
 	public function renderController(): string|array
 	{
 		$c = get_class($this->controller);
-		/** @var $c Controller */
 		//$public = $c::$public;	// Parse error:  syntax error, unexpected T_PAAMAYIM_NEKUDOTAYIM
 		$vars = get_class_vars($c);
 		$public = $vars['public'];
@@ -158,14 +160,14 @@ class IndexBE extends IndexBase
 			$loginForm->withRegister = false;
 			$content = $loginForm->layout->wrap(
 				$this->content .
-				$loginForm->render()
+				$this->s($loginForm->render())
 			);
 			$this->content->clear();
 			/*throw new LoginException('
 				Login first <a href="vendor/spidgorny/nadlib/be/">here</a>');
 			*/
 		}
-        
+
 		return $content;
 	}
 
@@ -178,7 +180,7 @@ class IndexBE extends IndexBase
 			: null;
 		$v->sidebar = $this->showSidebar();
 		$v->version = @file_get_contents('VERSION');
-        
+
 		$lf = new LoginForm('inlineForm');  // too specific - in subclass
 		$v->loginForm = $lf->dispatchAjax();
 		// is the root of the project

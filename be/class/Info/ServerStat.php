@@ -102,8 +102,7 @@ class ServerStat extends AppControllerBE
 			$totalTime += $row['total'];
 		}
 
-		$totalTime = number_format($totalTime, 3);
-		$this->totalTime = $totalTime; // @used getQueryLog
+		$this->totalTime = number_format($totalTime, 3); // @used getQueryLog
 
 		// reformatting the data for output
 		foreach ($this->LOG as $i => $row) {

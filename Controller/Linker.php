@@ -29,12 +29,12 @@ class Linker
 	}
 
 	/**
-     * Returns '<a href="$page?$params" $more">$text</a>
-     * @param string $text
-     * @param string $page
-     * @param bool $isHTML
-     */
-    public function makeLink($text, array $params, $page = '', array $more = [], $isHTML = false): \HTMLTag
+	 * Returns '<a href="$page?$params" $more">$text</a>
+	 * @param string $text
+	 * @param string $page
+	 * @param bool $isHTML
+	 */
+	public function makeLink($text, array $params, $page = '', array $more = [], $isHTML = false): \HTMLTag
 	{
 		//debug($text, $params, $page, $more, $isHTML);
 		$content = new HTMLTag('a', [
@@ -44,10 +44,10 @@ class Linker
 	}
 
 	/**
-     * @public for View::link
-     * use getURL() for retrieving current URL
-     */
-    public function makeURL(array $params, $prefix = null): \spidgorny\nadlib\HTTP\URL
+	 * @public for View::link
+	 * use getURL() for retrieving current URL
+	 */
+	public function makeURL(array $params, $prefix = null): \spidgorny\nadlib\HTTP\URL
 	{
 		if (!$prefix && $this->useRouter) { // default value is = mod_rewrite
 			$class = ifsetor($params['c']);
@@ -107,10 +107,10 @@ class Linker
 	}
 
 	/**
-     * @throws Exception
-     * @see makeRelURL
-     */
-    public function adjustURL(array $params): \spidgorny\nadlib\HTTP\URL
+	 * @throws Exception
+	 * @see makeRelURL
+	 */
+	public function adjustURL(array $params): \spidgorny\nadlib\HTTP\URL
 	{
 		return URL::getCurrent()->addParams([
 				'c' => $this->controllerName,
@@ -118,11 +118,11 @@ class Linker
 	}
 
 	/**
-     * Just appends $this->linkVars
-     * @param string $text
-     * @param string $page
-     */
-    public function makeRelLink($text, array $params, $page = '?'): \HTMLTag
+	 * Just appends $this->linkVars
+	 * @param string $text
+	 * @param string $page
+	 */
+	public function makeRelLink($text, array $params, $page = '?'): \HTMLTag
 	{
 		return new HTMLTag('a', [
 			'href' => $this->makeRelURL($params, $page)
@@ -130,11 +130,11 @@ class Linker
 	}
 
 	/**
-     * Only appends $this->linkVars to the URL.
-     * Use this one if your linkVars is defined.
-     * @param string $page
-     */
-    public function makeRelURL(array $params = [], $page = null): \spidgorny\nadlib\HTTP\URL
+	 * Only appends $this->linkVars to the URL.
+	 * Use this one if your linkVars is defined.
+	 * @param string $page
+	 */
+	public function makeRelURL(array $params = [], $page = null): \spidgorny\nadlib\HTTP\URL
 	{
 		return $this->makeURL(
 			$params                           // 1st priority
@@ -145,14 +145,14 @@ class Linker
 	}
 
 	/**
-     * There is no $formMore parameter because you get the whole form returned.
-     * You can modify it after returning as you like.
-     * @param string|HtmlString $name - if object then will be used as is
-     * @param string|null $action
-     * @param string $formAction
-     * @param string $submitClass
-     */
-    public function getActionButton($name, $action, $formAction = null, array $hidden = [], $submitClass = '', array $submitParams = []): \HTMLForm
+	 * There is no $formMore parameter because you get the whole form returned.
+	 * You can modify it after returning as you like.
+	 * @param string|HtmlString $name - if object then will be used as is
+	 * @param string|null $action
+	 * @param string $formAction
+	 * @param string $submitClass
+	 */
+	public function getActionButton($name, $action, $formAction = null, array $hidden = [], $submitClass = '', array $submitParams = []): \HTMLForm
 	{
 		$f = new HTMLForm();
 		if ($formAction) {
