@@ -79,7 +79,7 @@ class Date extends Time
 	 */
 	public function math($formula): static
 	{
-		return new static(strtotime($formula, $this->time));
+		return new self(strtotime($formula, $this->time));
 	}
 
 	/**

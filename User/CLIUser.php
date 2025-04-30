@@ -83,4 +83,9 @@ class CLIUser implements UserModelInterface
 		return null;
 	}
 
+	public function getName(): string
+	{
+		return 'CLI User';
+	}
+
 }

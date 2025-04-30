@@ -32,7 +32,7 @@ class PlainSessionUser extends UserBase implements UserModelInterface
 		} else {
 			$_SESSION = [];
 		}
-        
+
 		$this->session = $session ?: new Session(get_class($this));
 		parent::__construct($id);
 	}
@@ -121,4 +121,10 @@ class PlainSessionUser extends UserBase implements UserModelInterface
 	{
 		// TODO: Implement updatePassword() method.
 	}
+
+	public function getDepartment(): ?Department
+	{
+		return null;
+	}
+
 }

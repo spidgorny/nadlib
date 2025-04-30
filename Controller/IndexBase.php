@@ -392,7 +392,6 @@ class IndexBase /*extends Controller*/
 		$this->sidebar = $this->showSidebar();
 		if ($this->controller->layout instanceof Wrap
 			&& !$this->request->isAjax()) {
-			/** @var Wrap $this->controller->layout */
 			$content = $this->controller->layout->wrap($content);
 			$content = str_replace('###SIDEBAR###', $this->showSidebar(), $content);
 		}

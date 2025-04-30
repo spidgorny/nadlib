@@ -4,7 +4,7 @@ class Wrap
 {
 	protected $wrap1;
 
-    protected $wrap2;
+	protected $wrap2;
 
 	public function __construct($strWrap, $arrWrap2 = null)
 	{
@@ -38,10 +38,10 @@ class Wrap
 	}
 
 	/**
-     * @param $w1
-     * @param $w2
-     */
-    public static function make($w1, $w2 = null): self
+	 * @param $w1
+	 * @param $w2
+	 */
+	public static function make($w1, $w2 = null): self
 	{
 		return new self($w1, $w2);
 	}
