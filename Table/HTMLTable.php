@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: Slawa
@@ -10,23 +11,23 @@ class HTMLTable
 {
 
 	/**
-     * @var mixed[]
-     */
-    public $data = [];
+	 * @var mixed[]
+	 */
+	public $data = [];
 
 	public $thes = [];
 
 	/**
-     * @var mixed[]
-     */
-    public $attributes = [];
+	 * @var mixed[]
+	 */
+	public $attributes = [];
 
 	/**
-     * HTMLTable constructor.
-     *
-     * @param array|object|null $res
-     */
-    public function __construct(array $res, array $thes = [], array $attributes = [])
+	 * HTMLTable constructor.
+	 *
+	 * @param array $res
+	 */
+	public function __construct(array $res, array $thes = [], array $attributes = [])
 	{
 		$this->data = $res;
 		$this->thes = $thes;

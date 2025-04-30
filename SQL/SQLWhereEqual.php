@@ -123,7 +123,7 @@ class SQLWhereEqual extends SQLWherePart
 			}
 
 			$or = new SQLOr($val);
-			$or->injectQB($this->db->getQb());
+			$or->injectDB($this->db);
 			$set[] = $or;
 		} else {
 			//debug_pre_print_backtrace();

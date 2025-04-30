@@ -71,8 +71,8 @@ class NadlibIndex
 			//$this->dic->autoload->nadlibFromCWD = '../'.$this->dic->autoload->nadlibFromCWD;
 			//echo ($this->dic->autoload->nadlibFromCWD);
 
+			/** @var IndexBE $i */
 			$i = $this->dic->index;
-			/** @var $i IndexBE */
 			//echo get_class($i), BR, class_exists('Index'), BR, get_class(Index::getInstance());
 			$content[] = $i->render();
 		}

@@ -59,7 +59,7 @@ class AlterIndex extends AppControllerBE
 		$li = [];
 		$files = new ListFilesIn(AutoLoad::getInstance()->getAppRoot() . '/sql/');
 		foreach ($files as $file) {
-			/** @var $file File|Recursive */
+			/** @var File|Recursive $file */
 			if ($file instanceof File && $file->getExtension() === 'json') {
 				$li[] = $this->a(new URL(null, [
 							'c' => get_class($this),

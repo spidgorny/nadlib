@@ -124,4 +124,10 @@ class NoUser extends UserBase implements UserModelInterface
 	{
 		// TODO: Implement updatePassword() method.
 	}
+
+	public function getDepartment(): ?Department
+	{
+		return null;
+	}
+
 }

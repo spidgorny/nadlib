@@ -14,7 +14,7 @@ class Proton
 	}
 
 	/**
-     * @return \list<\non-falsy-string>
+     * @return list<non-falsy-string>
      */
     public function getCities($q): array
 	{
@@ -29,7 +29,7 @@ class Proton
 				debug($place->properties);
 			}
 		}
-        
+
 		return $set;
 	}
 

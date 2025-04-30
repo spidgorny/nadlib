@@ -26,7 +26,7 @@ class Pager
 	/**
 	 * Page size
 	 * @var int
-	 * @use setItemsPerPage
+	 * Use setItemsPerPage()
 	 */
 	public $itemsPerPage = 20;
 
@@ -160,7 +160,7 @@ class Pager
 	}
 
 	/**
-	 * @return User|LoginUser
+	 * @return UserModelInterface
 	 */
 	public function getUser()
 	{
@@ -310,9 +310,7 @@ class Pager
 	public function getSQLLimit($query)
 	{
 		$scheme = $this->db->getScheme();
-		if ($scheme === 'ms') {
-			$query = $this->db->addLimit($query, $this->itemsPerPage, $this->getStartingRecord());
-		} elseif ($query instanceof SQLSelectQuery) {
+		if ($query instanceof SQLSelectQuery) {
 			$query->setLimit(new SQLLimit($this->itemsPerPage, $this->getStartingRecord()));
 		} else {
 			$limit = "\nLIMIT " . $this->itemsPerPage .
@@ -567,7 +565,7 @@ class Pager
 			} elseif (is_array($val)) {
 				foreach ($val as &$v) {
 					if (is_array($v)) {
-						$v = $v->__toString();
+						$v = json_encode($v);
 					}
 				}
 			}

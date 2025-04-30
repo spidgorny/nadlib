@@ -6,7 +6,7 @@ class AlterTablePostgres extends AlterTableHandler implements AlterTableInterfac
 	/**
 	 * @param string $table
 	 * @param TableField[] $columns
-	 * @return mixed|string
+	 * @return string
 	 */
 	public function getCreateQuery($table, array $columns): string
 	{

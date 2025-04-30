@@ -16,7 +16,7 @@ class TimeChart
 	public $where;
 
 	/**
-	 * @var
+	 * @var string
 	 */
 	public $groupBy;
 

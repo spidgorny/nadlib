@@ -140,7 +140,7 @@ class PageProfiler
 	protected function getTaylorProfiler(): array
 	{
 		$content = [];
-		/** @var $profiler TaylorProfiler */
+		/** @var TaylorProfiler $profiler */
 		$profiler = TaylorProfiler::getInstance();
 		if ($profiler) {
 			$content[] = $profiler->printTimers(true);

@@ -4,7 +4,7 @@ class AlterTableHandler
 {
 
 	/**
-	 * @var MySQL|DBLayerPDO
+	 * @var DBLayerPDO
 	 */
 	public $db;
 

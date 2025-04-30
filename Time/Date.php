@@ -75,11 +75,11 @@ class Date extends Time
 	 * Doesn't modify self
 	 *
 	 * @param string $formula
-	 * @return Time
+	 * @return static
 	 */
-	public function math($formula): self
+	public function math($formula): static
 	{
-		return new self(strtotime($formula, $this->time));
+		return new static(strtotime($formula, $this->time));
 	}
 
 	/**

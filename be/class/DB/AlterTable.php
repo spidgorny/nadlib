@@ -16,7 +16,7 @@ class AlterTable extends AlterIndex
 	public $missing = 0;
 
 	/**
-	 * @var AlterTableMySQL|AlterTablePostgres
+	 * @var AlterTablePostgres
 	 */
 	public $handler;
 
@@ -41,9 +41,9 @@ class AlterTable extends AlterIndex
 	}
 
 	public function sidebar(): array
-    {
-        return [$this->showDBInfo(), $this->listFiles()];
-    }
+	{
+		return [$this->showDBInfo(), $this->listFiles()];
+	}
 
 	public function renderTableStruct(array $struct, array $local): string
 	{
@@ -93,52 +93,52 @@ class AlterTable extends AlterIndex
 	}
 
 	/**
-     * @return array{same: 'same', '###TR_MORE###': 'style="background: yellow"', fromFile: string, fromDB: string}[]|array{same: 'diff', '###TR_MORE###': 'style="background: pink"', fromFile: string, fromDB: string, action: HTMLTag}[]|array{same: 'new', '###TR_MORE###': 'style="background: red"', fromFile: string, fromDB: '-', action: HTMLTag}[]
-     */
+	 * @return array{same: 'same', '###TR_MORE###': 'style="background: yellow"', fromFile: string, fromDB: string}[]|array{same: 'diff', '###TR_MORE###': 'style="background: pink"', fromFile: string, fromDB: string, action: HTMLTag}[]|array{same: 'new', '###TR_MORE###': 'style="background: red"', fromFile: string, fromDB: '-', action: HTMLTag}[]
+	*/
     public function compareTables($table, array $fromFile, array $fromDatabase): array
-	{
-		$indexCompare = [];
-		foreach ($fromFile as $i => $index) {
-			$localIndex = ifsetor($fromDatabase[$i]);
-			$fileField = TableField::init($index);
-			if ($localIndex) {
-				$localField = TableField::init($localIndex);
-				if (!$this->handler->sameFieldType($fileField, $localField)) {
-					$alterQuery = $this->handler->getAlterQuery($table, $localField->field, $fileField);
+		{
+			$indexCompare = [];
+			foreach ($fromFile as $i => $index) {
+				$localIndex = ifsetor($fromDatabase[$i]);
+				$fileField = TableField::init($index);
+				if ($localIndex) {
+					$localField = TableField::init($localIndex);
+					if (!$this->handler->sameFieldType($fileField, $localField)) {
+						$alterQuery = $this->handler->getAlterQuery($table, $localField->field, $fileField);
+						$indexCompare[] = [
+							'same' => 'diff',
+							'###TR_MORE###' => 'style="background: pink"',
+							'fromFile' => $fileField . '',
+							'fromDB' => $localField . '',
+							'action' => new HTMLTag('td', [
+								'colspan' => 10,
+								'class' => 'sql',
+							], $this->click($table, $alterQuery))
+						];
+					} else {
+						$indexCompare[] = [
+							'same' => 'same',
+							'###TR_MORE###' => 'style="background: yellow"',
+							'fromFile' => $fileField . '',
+							'fromDB' => $localField . '',
+						];
+					}
+				} else {
 					$indexCompare[] = [
-						'same' => 'diff',
-						'###TR_MORE###' => 'style="background: pink"',
+						'same' => 'new',
+						'###TR_MORE###' => 'style="background: red"',
 						'fromFile' => $fileField . '',
-						'fromDB' => $localField . '',
+						'fromDB' => '-',
 						'action' => new HTMLTag('td', [
 							'colspan' => 10,
 							'class' => 'sql',
-						], $this->click($table, $alterQuery))
-					];
-				} else {
-					$indexCompare[] = [
-						'same' => 'same',
-						'###TR_MORE###' => 'style="background: yellow"',
-						'fromFile' => $fileField . '',
-						'fromDB' => $localField . '',
+						], $this->click($table, $this->handler->getAddQuery($table, $fileField)))
 					];
 				}
-			} else {
-				$indexCompare[] = [
-					'same' => 'new',
-					'###TR_MORE###' => 'style="background: red"',
-					'fromFile' => $fileField . '',
-					'fromDB' => '-',
-					'action' => new HTMLTag('td', [
-						'colspan' => 10,
-						'class' => 'sql',
-					], $this->click($table, $this->handler->getAddQuery($table, $fileField)))
-				];
 			}
-		}
 
-		return $indexCompare;
-	}
+			return $indexCompare;
+		}
 
 	public function click($table, $query)
 	{
@@ -233,9 +233,10 @@ class AlterTable extends AlterIndex
 							'Field' => $i,
 							'Type' => new HTMLTag('td', [
 								'colspan' => 5,
-							], $localIndex['Type']
-								? $this->handler->getChangeQuery($table, $index)
-								: $this->handler->getAlterQuery($table, $index)
+							],
+//								$localIndex['Type']
+//								? $this->handler->getChangeQuery($table, $index) :
+								 $this->handler->getAlterQuery($table, $index)
 							)
 						];
 						$this->different++;
@@ -265,15 +266,15 @@ class AlterTable extends AlterIndex
 	}
 
 	/**
-     * TODO
-     * @param array $a
-     * @param array $b
-     * @see AlterTableHandler
-     */
+	 * TODO
+	 * @param array $a
+	 * @param array $b
+	 * @see AlterTableHandler
+	 */
     public function sameType($a, $b): bool
-	{
-		return false;
-	}
+		{
+			return false;
+		}
 
 	public function runSQLAction(): void
 	{

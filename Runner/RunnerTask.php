@@ -4,9 +4,9 @@ class RunnerTask
 {
 
 	/**
-     * @var mixed[]
-     */
-    public $data = [];
+	 * @var mixed[]
+	 */
+	public $data = [];
 
 	public $obj;
 
@@ -19,6 +19,8 @@ class RunnerTask
 	 */
 	protected $db;
 
+	public $pinfo;
+
 	public function __construct(array $row = [])
 	{
 		$this->data = $row;
@@ -26,11 +28,11 @@ class RunnerTask
 	}
 
 	/**
-     * Use this function to insert a new task.
-     * @param $class
-     * @param $method
-     */
-    public static function schedule($class, $method, array $params = []): self
+	 * Use this function to insert a new task.
+	 * @param $class
+	 * @param $method
+	 */
+	public static function schedule($class, $method, array $params = []): self
 	{
 		$task = new self([]);
 		$id = $task->insert([

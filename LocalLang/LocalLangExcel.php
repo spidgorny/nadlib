@@ -45,7 +45,7 @@ class LocalLangExcel extends LocalLang
 	}
 
 	/**
-     * @return non-empty-array<int, \non-falsy-string>[]
+     * @return non-empty-array<int, non-falsy-string>[]
      */
     public function readExcel(array $keys): array
 	{

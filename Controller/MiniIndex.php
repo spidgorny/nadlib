@@ -146,7 +146,7 @@ public function addJS(string $source): void
 	{
 		$content = '';
 		$profiler = $GLOBALS['profiler'];
-		/** @var $profiler TaylorProfiler */
+		/** @var TaylorProfiler $profiler */
 		if ($profiler) {
 			$content = $profiler->renderFloat();
 			$content .= $profiler->printTimers(true);

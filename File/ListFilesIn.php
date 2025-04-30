@@ -11,7 +11,7 @@ class ListFilesIn extends ArrayObject
 			$iterator = new RecursiveDirectoryIterator($folder, FilesystemIterator::SKIP_DOTS);
 			//$iterator = new RecursiveIteratorIterator($iterator);
 			foreach ($iterator as $file) {
-				/** @var $file SplFileInfo */
+				/** @var SplFileInfo $file */
 				$filename = $file->getFilename();
 				if ($filename[0] !== '.') {
 					$pathname = $file->getPathname();

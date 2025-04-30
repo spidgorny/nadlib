@@ -23,8 +23,6 @@ class AutoLoadBE extends AutoLoad
 		if (!$folders) {
 			$folders = ['be/class'];
 			$folders = array_merge($folders, $this->folders->getFoldersFromConfigBase());
-			// should come first to override /be/
-			$folders = array_merge($folders, $this->folders->getFoldersFromConfig());
 		}
 
 		debug($folders);

@@ -49,7 +49,7 @@ class SessionUser extends PlainSessionUser
 		} else {
 			$password = random_int(1000000, 9999999);
             print 'Generated password: ' . $password;
-            
+
 			$this->insert([
 				'email' => $email,
 				'password' => $password,
@@ -98,6 +98,11 @@ class SessionUser extends PlainSessionUser
 		unset($_SESSION[$class]);
 		session_regenerate_id(true);
 		session_destroy();
+	}
+
+	public function getDepartment(): ?Department
+	{
+		return null;
 	}
 
 }

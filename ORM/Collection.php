@@ -792,7 +792,7 @@ class Collection implements IteratorAggregate, ToStringable
 	{
 		$list = [];
 		foreach ($this->members as $obj) {
-			/** @var $obj OODBase */
+			/** @var OODBase $obj */
 			$list[] = $obj->getObjectInfo();
 		}
 

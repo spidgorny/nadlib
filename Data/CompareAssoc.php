@@ -4,7 +4,7 @@ class CompareAssoc
 {
 
 	/**
-     * @var \list<(int | string)>
+     * @var list<(int | string)>
      */
     public $keys;
 

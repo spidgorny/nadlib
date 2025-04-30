@@ -21,9 +21,6 @@ use spidgorny\nadlib\HTTP\URL;
 class AlterDB extends AppControllerBE
 {
 
-	/**
-	 * @var t3lib_install_Sql
-	 */
 	protected $installerSQL;
 
 	protected $update_statements = [];
@@ -125,7 +122,7 @@ class AlterDB extends AppControllerBE
 			return '<div class="error">No ' . $sqlFolder . '</div>';
 		}
 
-		/** @var $file SplFileInfo */
+		/** @var SplFileInfo $file */
 		foreach (new RecursiveDirectoryIterator($sqlFolder) as $file) {
 			//debug($file);
 			if ($file->getFilename() != '.' && $file->getFilename() != '..') {

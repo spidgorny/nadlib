@@ -74,4 +74,10 @@ class HTTPUser extends UserBase
 	{
 		// TODO: Implement updatePassword() method.
 	}
+
+	public function getDepartment(): ?Department
+	{
+		return null;
+	}
+
 }

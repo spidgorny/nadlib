@@ -112,7 +112,7 @@ class HTMLFormField extends HTMLFormType
 			$type->desc = $desc;
 			$this->form->stdout .= \MergedContent::mergeStringArrayRecursive($type->render());
 		} elseif ($type instanceof HTMLFormCollection) {
-			/** @var $type HTMLFormCollection */
+			/** @var HTMLFormCollection $type */
 			$type->setField($fieldName);
 			$type->setForm($this->form);
 			$type->setValue($desc['value']);
@@ -130,7 +130,7 @@ class HTMLFormField extends HTMLFormType
 	{
 		$elementID = is_array($from) ? 'id-' . implode('-', $from) : 'id-' . $from;
 
-        if ($elementID === '0') {
+		if ($elementID === '0') {
 			$elementID = uniqid('id-', true);
 		}
 

@@ -92,22 +92,6 @@ class SQLOr extends SQLWherePart
 		return first($ors);
 	}
 
-	public function bijouStyle(): mixed
-	{
-		// bijou
-		$ors = [];
-		foreach ($this->or as $key => $or) {
-			if ($this->is_main($key)) {
-				$ors[] = $this->db->getWherePart([
-					$key => $or,
-					$key . '.' => $this->or[$key . '.'],
-				], false);
-			}
-		}
-
-		return first($ors);
-	}
-
 	private function is_main(int|string $key): bool
 	{
 		return $key[0] !== '.';

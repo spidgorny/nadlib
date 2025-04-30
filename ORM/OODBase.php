@@ -249,7 +249,7 @@ abstract class OODBase implements ArrayAccess
 			$errorMessage = 'OODBase for ' . $this->table . ' no insert id after insert. ';
 			$errorCode = null;
 			if ($this->db instanceof DBLayerPDO) {
-				$errorMessage .= $this->db->getConnection()->errorInfo();
+				$errorMessage .= json_encode($this->db->getConnection()->errorInfo());
 				$errorCode = $this->db->getConnection()->errorCode();
 			}
 
@@ -521,7 +521,7 @@ abstract class OODBase implements ArrayAccess
 		$db = Config::getInstance()->getDB();
 		$collection = Collection::createForTable($db, $blanc->table, $where, $orderBy);
 		$collection->idField = $blanc->idField;
-		$collection->itemClassName = static::class;
+		Collection::$itemClassName = static::class;
 //		llog('collection', $collection);
 		return $collection;
 	}
@@ -561,7 +561,7 @@ abstract class OODBase implements ArrayAccess
 	 */
 	public function findInDBbySQLWhere(SQLWhere $where, $orderBy = '')
 	{
-		$rows = $this->db->fetchSelectQuerySW($this->table, $where, $orderBy);
+		$rows = $this->db->fetchSelectQuery($this->table, $where, $orderBy);
 		//debug($rows);
 		$this->data = $rows ? $rows[0] : [];
 
@@ -777,7 +777,7 @@ abstract class OODBase implements ArrayAccess
 		$collection->idField = $this->idField;
 
 		$static = get_called_class();
-		$collection->itemClassName = $static;
+		Collection::$itemClassName = $static;
 		return $collection;
 	}
 

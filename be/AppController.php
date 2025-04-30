@@ -3,7 +3,7 @@
 class AppController extends Controller
 {
 
-	/** @var \AppDev\DCI\UserModelInterface */
+	/** @var UserModelInterface */
 	public $user;
 
 }

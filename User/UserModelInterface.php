@@ -52,4 +52,8 @@ interface UserModelInterface
 
 	public function getPref($pref, $default = null);
 
+	public function getName(): string;
+
+	public function getDepartment(): ?Department;
+
 }

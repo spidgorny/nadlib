@@ -818,4 +818,14 @@ class SQLBuilder
 
 		return [];
 	}
+
+	public function getTableDataSql($query, $key = null, $val = null): array
+	{
+		$data = $this->fetchAll($query);
+		if ($key) {
+			$data = array_column($data, $val, $key);
+		}
+
+		return $data;
+	}
 }

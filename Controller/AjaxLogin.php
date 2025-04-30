@@ -131,7 +131,7 @@ class AjaxLogin extends AppControllerBE
 	/**
      * $this->user->try2login() should been called already
      */
-    public function render(): array
+    public function render(): array|string
 	{
 		$content = [];
 		$this->getScript();

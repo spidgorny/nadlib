@@ -47,7 +47,7 @@ class Mailer implements MailerInterface
 
 		$sg = $config->getSendGrid();
 
-		/** @var $response \SendGrid\Response */
+		/** @var \SendGrid\Response $response */
 		$response = $sg->client->mail()->send()->post($mail);
 		return $response;
 	}

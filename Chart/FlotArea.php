@@ -30,7 +30,7 @@ class FlotArea
 	}
 
 	/**
-     * @return \non-empty-list<array{int, mixed}>[]
+     * @return non-empty-list<array{int, mixed}>[]
      */
     public function getSeries(): array
 	{
@@ -41,7 +41,7 @@ class FlotArea
 				$series[$key][] = [$time * 1000, $pair[$key]];
 			}
 		}
-        
+
 		return $series;
 	}
 
@@ -54,7 +54,7 @@ class FlotArea
 				$pair[1] = $runningTotal;
 			}
 		}
-        
+
 		return $series;
 	}
 
@@ -64,7 +64,7 @@ class FlotArea
 			$set = json_encode($set);
 			$set = '[' . substr($set, 1, -1) . ']';  // json_encode => {}
 		}
-        
+
 		return $series;
 	}
 
@@ -83,12 +83,12 @@ class FlotArea
 jQuery(document).ready(function ($) {
     var d1 = " . $series[$this->series[0]] . ";
     var d2 = " . $series[$this->series[1]] . ";
- 
+
     var data1 = [
         { label: 'Reported', data: d1, points: { fillColor: '#EE3B3B', size: 5 }, color: '#EE3B3B' },
         { label: 'Resolved', data: d2, points: { fillColor: '#76EE00', size: 5 }, color: '#76EE00' }
     ];
- 
+
     $.plot(jQuery('#placeholder'), data1, {
         xaxis: {
 			//min: (new Date(2009, 12, 1)).getTime(),

@@ -78,4 +78,9 @@ class CLIUser implements UserModelInterface
 		// TODO: Implement getPref() method.
 	}
 
+	public function getDepartment(): ?Department
+	{
+		return null;
+	}
+
 }

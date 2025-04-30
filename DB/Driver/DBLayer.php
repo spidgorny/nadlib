@@ -24,11 +24,11 @@ class DBLayer extends DBLayerBase
 	public $lastResult;
 
 	/**
-     * todo: use setter & getter method
-     *
-     * contains query builder class used as mixin.
-     */
-    public $qb;
+	 * todo: use setter & getter method
+	 *
+	 * contains query builder class used as mixin.
+	 */
+	public $qb;
 
 	public $AFFECTED_ROWS;
 
@@ -84,20 +84,20 @@ class DBLayer extends DBLayerBase
 		$this->host = $host;
 		$this->port = $port;
 		//			$this->connect($dbName, $user, $pass, $host);
-        if ($dbName && ($this->isConnected() && $this->getVersion() >= 8.4)) {
-            $query = "select * from pg_get_keywords() WHERE catcode IN ('R', 'T')";
-            $words = $this->fetchAll($query, 'word');
-            $this->reserved = array_keys($words);
-            $this->reserved = array_map('strtoupper', $this->reserved);
-            // important
-        }
+		if ($dbName && ($this->isConnected() && $this->getVersion() >= 8.4)) {
+			$query = "select * from pg_get_keywords() WHERE catcode IN ('R', 'T')";
+			$words = $this->fetchAll($query, 'word');
+			$this->reserved = array_keys($words);
+			$this->reserved = array_map('strtoupper', $this->reserved);
+			// important
+		}
 
-        $this->queryLog = new QueryLog();
+		$this->queryLog = new QueryLog();
 	}
 
 	public function isConnected(): bool
 	{
-		return (bool) $this->connection
+		return (bool)$this->connection
 			&& pg_connection_status($this->connection) === PGSQL_CONNECTION_OK;
 	}
 
@@ -141,12 +141,12 @@ class DBLayer extends DBLayerBase
 	}
 
 	/**
-     * @param string $query
-     * @return Result|null|resource
-     * @throws DatabaseException
-     * @throws MustBeStringException
-     */
-    public function perform($query, array $params = [])
+	 * @param string $query
+	 * @return Result|null|resource
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
+	 */
+	public function perform($query, array $params = [])
 	{
 		$this->connect();
 		$prof = new Profiler();
@@ -207,11 +207,11 @@ class DBLayer extends DBLayerBase
 	}
 
 	/**
-     * Overrides because of pg_fetch_all
-     * @param resource|string $result
-     * @throws Exception
-     */
-    public function fetchAll($result, $key = null): array
+	 * Overrides because of pg_fetch_all
+	 * @param resource|string $result
+	 * @throws Exception
+	 */
+	public function fetchAll($result, $key = null): array
 	{
 		$params = [];
 		if ($result instanceof SQLSelectQuery) {
@@ -245,10 +245,10 @@ class DBLayer extends DBLayerBase
 	}
 
 	/**
-     * http://www.postgresql.org/docs/9.3/static/datatype-money.html
-     * @param string $source
-     */
-    public static function getMoney($source = '$1,234.56'): float
+	 * http://www.postgresql.org/docs/9.3/static/datatype-money.html
+	 * @param string $source
+	 */
+	public static function getMoney($source = '$1,234.56'): float
 	{
 		$source = str_replace('$', '', $source);
 		$source = str_replace(',', '', $source);
@@ -375,56 +375,56 @@ class DBLayer extends DBLayerBase
 	}
 
 	/**
-     * @param string $table
-     * @param string $column
-     * @param string $where
-     * @param string $order
-     * @param string $key
-     * @return array
-     * @throws Exception
-     * @throws MustBeStringException
-     * @deprecated
-     * @see SQLBuilder::getTableOptions
-     *
-     * function getTableOptions($table, $column, $where = "", $order = NULL, $key = 'id') {
-     * $tableName = $this->getFirstWord($table);
-     * if (is_array($where) && $where) {
-     * $where = $this->quoteWhere($where);
-     * $where = implode(' AND ', $where);
-     * } elseif (!$where) {
-     * $where = '1 = 1';
-     * }
-     * if ($order) {
-     * $where .= ' '.$order;
-     * }
-     * $a = $this->getTableDataEx($table, $where, $tableName.'.*, '.$column);
-     *
-     * // select login.*, coalesce(name, '') || ' ' || coalesce(surname, '') AS combined from login where relcompany = '47493'
-     * $as = trimExplode(' AS ', $column);
-     * if ($as[1]) {
-     * $column = $as[1];
-     * }
-     *
-     * $b = array();
-     * foreach ($a as $row) {
-     * $b[$row[$key]] = $row[$column];
-     * }
-     * return $b;
-     * }
-     * /**/
-    /**
-     * fetchAll() equivalent with $key and $val properties
-     * @param string $query
-     * @param string $key
-     * @param mixed $val
-     * @throws DatabaseException
-     * @throws MustBeStringException
-     */
-    public function getTableDataSql($query, $key = null, $val = null): array
+	 * @param string $table
+	 * @param string $column
+	 * @param string $where
+	 * @param string $order
+	 * @param string $key
+	 * @return array
+	 * @throws Exception
+	 * @throws MustBeStringException
+	 * @deprecated
+	 * @see SQLBuilder::getTableOptions
+	 *
+	 * function getTableOptions($table, $column, $where = "", $order = NULL, $key = 'id') {
+	 * $tableName = $this->getFirstWord($table);
+	 * if (is_array($where) && $where) {
+	 * $where = $this->quoteWhere($where);
+	 * $where = implode(' AND ', $where);
+	 * } elseif (!$where) {
+	 * $where = '1 = 1';
+	 * }
+	 * if ($order) {
+	 * $where .= ' '.$order;
+	 * }
+	 * $a = $this->getTableDataEx($table, $where, $tableName.'.*, '.$column);
+	 *
+	 * // select login.*, coalesce(name, '') || ' ' || coalesce(surname, '') AS combined from login where relcompany = '47493'
+	 * $as = trimExplode(' AS ', $column);
+	 * if ($as[1]) {
+	 * $column = $as[1];
+	 * }
+	 *
+	 * $b = array();
+	 * foreach ($a as $row) {
+	 * $b[$row[$key]] = $row[$column];
+	 * }
+	 * return $b;
+	 * }
+	 * /**/
+	/**
+	 * fetchAll() equivalent with $key and $val properties
+	 * @param string $query
+	 * @param string $key
+	 * @param mixed $val
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
+	 */
+	public function getTableDataSql($query, $key = null, $val = null): array
 	{
 		$result = is_string($query) ? $this->perform($query) : $query;
 
-        $return = [];
+		$return = [];
 		while ($row = pg_fetch_assoc($result)) {
 			$value = $val ? $row[$val] : $row;
 
@@ -618,11 +618,11 @@ class DBLayer extends DBLayerBase
 	}
 
 	/**
-     * Compatibility.
-     * @param resource $res
-     * @param string $table - optional
-     */
-    public function lastInsertID($res, $table = null)
+	 * Compatibility.
+	 * @param resource $res
+	 * @param string $table - optional
+	 */
+	public function lastInsertID($res, $table = null)
 	{
 		return $this->getLastInsertID($res, $table);
 	}
@@ -670,11 +670,11 @@ order by a.attnum';
 	}
 
 	/**
-     * @param mixed $value
-     * @return string
-     * @throws MustBeStringException
-     */
-    public function quoteSQL($value, $key = null): int|string
+	 * @param mixed $value
+	 * @return string
+	 * @throws MustBeStringException
+	 */
+	public function quoteSQL($value, $key = null): int|string
 	{
 		if ($value === null) {
 			return "NULL";
@@ -715,12 +715,12 @@ order by a.attnum';
 	}
 
 	/**
-     * Uses find_in_set function which is not built-in
-     * @param string $field
-     * @see SQLBuilder::array_intersect()
-     *
-     */
-    public function getArrayIntersect(array $options, $field = 'list_next'): string
+	 * Uses find_in_set function which is not built-in
+	 * @param string $field
+	 * @see SQLBuilder::array_intersect()
+	 *
+	 */
+	public function getArrayIntersect(array $options, $field = 'list_next'): string
 	{
 		$bigOR = [];
 		foreach ($options as $n) {
@@ -731,11 +731,11 @@ order by a.attnum';
 	}
 
 	/**
-     * @param string $method
-     * @return mixed
-     * @throws Exception
-     */
-    public function __call($method, array $params)
+	 * @param string $method
+	 * @return mixed
+	 * @throws Exception
+	 */
+	public function __call($method, array $params)
 	{
 		if (method_exists($this->getQb(), $method)) {
 			return call_user_func_array([$this->getQb(), $method], $params);
@@ -827,9 +827,9 @@ order by a.attnum';
 	}
 
 	/**
-     * @return string[]
-     */
-    public function getResultFields($res): array
+	 * @return string[]
+	 */
+	public function getResultFields($res): array
 	{
 		$fields = [];
 		for ($f = 0; $f < pg_num_fields($res); $f++) {
@@ -901,11 +901,11 @@ WHERE ccu.table_name='" . $table . "'");
 	}
 
 	/**
-     * @param string $table
-     * @throws DatabaseException
-     * @throws MustBeStringException
-     */
-    public function getReplaceQuery($table, array $columns): string
+	 * @param string $table
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
+	 */
+	public function getReplaceQuery($table, array $columns): string
 	{
 		if ($this->getVersion() < 9.5) {
 			throw new DatabaseException(__METHOD__ . ' is not working in PG < 9.5. Use runReplaceQuery()');
@@ -935,7 +935,7 @@ WHERE ccu.table_name='" . $table . "'");
 			$key .= '';
 		}
 
-        // else it can be functions (of something)
+		// else it can be functions (of something)
 		return $key;
 	}
 

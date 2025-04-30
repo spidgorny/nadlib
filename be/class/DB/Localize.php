@@ -162,8 +162,8 @@ class Localize extends AppControllerBE
 									), $this->from->M($key)),
 				*/];
 			foreach ($this->languages as $lang) {
+				/** @var LocalLangDB $lobj */
 				$lobj = $this->$lang;
-				/** @var $lobj LocalLangDB */
 				$dbID = $lobj->id($key);
 
 				$row = $this->db->fetchOneSelectQuery($this->table, ['id' => $dbID]);
@@ -325,7 +325,7 @@ class Localize extends AppControllerBE
 	}
 
 	/**
-	 * @return \list<\non-falsy-string>
+	 * @return list<non-falsy-string>
 	 */
 	public function getUntranslatedCheckbox(): array
 	{

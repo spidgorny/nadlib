@@ -233,7 +233,7 @@ class HTMLFormTable extends HTMLForm
 //				'HTMLFormFieldInterface' => $fieldDesc instanceof HTMLFormFieldInterface,
 //			]);
 			if ($sType === 'HTMLFormTable') {
-				/** @var $subForm HTMLFormTable */
+				/** @var HTMLFormTable $subForm */
 				$subForm = $fieldDesc;
 				$subForm->showForm();
 				$this->stdout .= '<tr><td colspan="2">' .
