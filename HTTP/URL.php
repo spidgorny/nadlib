@@ -1108,4 +1108,10 @@ class URL
 		return $this->__toString();
 	}
 
+	public function setPass(string $newPassword): static
+	{
+		$this->components['pass'] = $newPassword;
+		return $this;
+	}
+
 }
