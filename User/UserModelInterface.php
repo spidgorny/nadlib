@@ -54,6 +54,5 @@ interface UserModelInterface
 
 	public function getName(): string;
 
-	public function getDepartment(): ?Department;
 
 }

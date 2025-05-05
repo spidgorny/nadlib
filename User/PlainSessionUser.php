@@ -6,7 +6,7 @@ use nadlib\HTTP\Session;
  * Class PlainSessionUser
  * extends User in order to have a dependency on the application
  */
-class PlainSessionUser extends UserBase implements UserModelInterface
+class PlainSessionUser extends UserBase
 {
 
 	/**
@@ -49,7 +49,6 @@ class PlainSessionUser extends UserBase implements UserModelInterface
 	public function setPref($name, $value): void
 	{
 		$this->session->save($name, $value);
-		return $value;
 	}
 
 	public function getAllPrefs()
@@ -125,6 +124,11 @@ class PlainSessionUser extends UserBase implements UserModelInterface
 	public function getDepartment(): ?Department
 	{
 		return null;
+	}
+
+	public function getName(): string
+	{
+		return '';
 	}
 
 }

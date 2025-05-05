@@ -62,7 +62,7 @@ abstract class Controller extends SimpleController
 
 
 	/**
-	 * @var UserModelInterface
+	 * @var UserModelInterface|null
 	 */
 	public $user;
 
@@ -142,11 +142,11 @@ abstract class Controller extends SimpleController
 	}
 
 	/**
-     * @return array
-     * @deprecated
-     * @see slTable::showAssoc()
-     */
-    public function getAssocTable(array $data)
+	 * @return array
+	 * @deprecated
+	 * @see slTable::showAssoc()
+	 */
+	public function getAssocTable(array $data)
 	{
 		$table = [];
 		foreach ($data as $key => $val) {
@@ -170,14 +170,14 @@ abstract class Controller extends SimpleController
 	}
 
 	/**
-     * Wraps the content in a div/section with a header.
-     * The header is linkable.
-     * @param $content
-     * @param string $caption
-     * @param string|null $h
-     * @return array|string|string[]
-     */
-    public function encloseInAA($content, $caption = '', $h = null, array $more = [])
+	 * Wraps the content in a div/section with a header.
+	 * The header is linkable.
+	 * @param $content
+	 * @param string $caption
+	 * @param string|null $h
+	 * @return array|string|string[]
+	 */
+	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
 	{
 		$h = $h ?: $this->encloseTag;
 		$content = $this->s($content);
@@ -356,10 +356,10 @@ abstract class Controller extends SimpleController
 	}
 
 	/**
-     * Returns content wrapped in bootstrap .row .col-md-3/4/5 columns
-     * @return string
-     */
-    public function inTable(array $parts, array $widths = [])
+	 * Returns content wrapped in bootstrap .row .col-md-3/4/5 columns
+	 * @return string
+	 */
+	public function inTable(array $parts, array $widths = [])
 	{
 		$size = count($parts);
 		$equal = round(12 / $size);
@@ -422,10 +422,10 @@ abstract class Controller extends SimpleController
 	}
 
 	/**
-     * @return string
-     * @throws Exception
-     */
-    public function getCaptionWithHashLink(string $caption, string $h)
+	 * @return string
+	 * @throws Exception
+	 */
+	public function getCaptionWithHashLink(string $caption, string $h)
 	{
 		AutoLoad::getInstance();
 		// optional, use it in a project
