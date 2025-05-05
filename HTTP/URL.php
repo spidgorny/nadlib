@@ -113,7 +113,7 @@ class URL
 	 */
 	public function parseURL(string $url): void
 	{
-		$this->components = @parse_url($url);
+		$this->components = parse_url($url);
 		//pre_print_r($this->components);
 		if (!$this->components) {
 			// parse_url(/pizzavanti-gmbh/id:3/10.09.2012@10:30/488583b0e1f3d90d48906281f8e49253.html)
@@ -368,7 +368,7 @@ class URL
 
 		$uri .= $parsed['query'] ? '?' . $parsed['query'] : '';
 
-		return $uri . isset($parsed['fragment']) !== '' ? '#' . ($parsed['fragment'] ?? '') : '';
+		return $uri . (isset($parsed['fragment']) !== '' ? '#' . ($parsed['fragment'] ?? '') : '');
 	}
 
 	/**
@@ -390,7 +390,8 @@ class URL
 			$url .= '?' . $this->components['query'];
 		}
 
-		if (ifsetor($this->components['fragment'])) {
+		$fragment = ifsetor($this->components['fragment']);
+		if ($fragment && $fragment !== '#') {
 			$url .= '#' . $this->components['fragment'];
 		}
 
