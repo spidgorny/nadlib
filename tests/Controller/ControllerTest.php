@@ -8,9 +8,9 @@
 
 namespace nadlib\Controller;
 
+use App\Tests\RisTestCase;
 use AppController4Test;
 use nadlib\Test\MockRequest;
-use Tests\RisTestCase;
 
 class ControllerTest extends RisTestCase
 {

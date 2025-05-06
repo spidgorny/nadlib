@@ -134,9 +134,12 @@ abstract class OODBase implements ArrayAccess
 		return $this->db;
 	}
 
-	public function setDB(DBInterface $db): void
+	public function setDB(?DBInterface $db): static
 	{
-		$this->db = $db;
+		if ($db) {
+			$this->db = $db;
+		}
+		return $this;
 	}
 
 	/**

@@ -4,7 +4,7 @@ trait CachedGetInstance
 {
 
 	/**
-	 * array[get_called_class()][$id]
+	 * array<int, static>
 	 */
 	public static $instances = [];
 
@@ -13,9 +13,9 @@ trait CachedGetInstance
 	 * @return static
 	 * @throws Exception
 	 */
-	public static function getInstance($id)
+	public static function getInstance($id, ?DBInterface $db = null): static
 	{
-		return self::getInstanceByID($id);
+		return self::getInstanceByID($id, $db);
 	}
 
 	/**
@@ -24,7 +24,7 @@ trait CachedGetInstance
 	 * @return static
 	 * @throws Exception
 	 */
-	public static function getInstanceByID($id)
+	public static function getInstanceByID($id, ?DBInterface $db = null): static
 	{
 		/** @var mixed $static */
 		$static = get_called_class();
@@ -43,6 +43,7 @@ trait CachedGetInstance
 				//debug('new ', get_called_class(), $id, array_keys(self::$instances));
 				// don't put anything else here
 				$inst = new $static();
+				$inst->setDB($db);
 				// BEFORE init() to avoid loop
 				static::storeInstance($inst, $id);
 				// separate call to avoid infinite loop in ORS
@@ -50,6 +51,7 @@ trait CachedGetInstance
 			}
 		} elseif (is_array($id)) {
 			$inst = new $static();    // only to find ->idField
+			$inst->setDB($db);
 			$intID = $id[$inst->idField];
 			//debug($static, $intID, $id);
 			$inst = self::$instances[$static][$intID] ?? $inst;
@@ -60,6 +62,7 @@ trait CachedGetInstance
 		} elseif ($id) {
 			//debug($static, $id);
 			$inst = new $static();
+			$inst->setDB($db);
 			$inst->init($id);
 			static::storeInstance($inst, $inst->id);
 		} elseif (is_null($id)) {
@@ -97,15 +100,16 @@ trait CachedGetInstance
 	 * @return self
 	 * @throws Exception
 	 */
-	public static function tryGetInstance($id)
+	public static function tryGetInstance($id, ?DBInterface $db = null)
 	{
 		try {
-			$obj = self::getInstance($id);
+			$obj = self::getInstance($id, $db);
 //			llog(get_called_class(), $id, 'getInstance', spl_object_hash($obj));
 		} catch (InvalidArgumentException $invalidArgumentException) {
 			/** @var mixed $class */
 			$class = get_called_class();
 			$obj = new $class();
+			$obj->setDB($db);
 //			llog(get_called_class(), $id, 'new', spl_object_hash($obj));
 		}
 
