@@ -370,8 +370,8 @@ class HTMLFormField extends HTMLFormType
 				$this->form->input($fieldName, $fieldValue, $more, $type === 'input' ? 'text' : $type,
 					ifsetor($desc['class'],
 						is_array(ifsetor($desc['more']))
-							? ifsetor($desc['more']['class'])
-							: null
+							? ifsetor($desc['more']['class'], '')
+							: ''
 					)
 				);
 				//debug($desc, $desc->isObligatory(), $desc->getTypeString());
