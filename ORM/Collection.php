@@ -160,20 +160,20 @@ class Collection implements IteratorAggregate, ToStringable
 	protected $logger;
 
 	/**
-     * @param int /-1 $pid
-     *        if -1 - will not retrieve data from DB
-     *        if 00 - will retrieve all data
-     *        if >0 - will retrieve data where PID = $pid
-     * @param array|SQLWhere $where
-     * @param string $order - appended to the SQL
-     * @throws Exception
-     */
-    public function __construct(
+	 * @param int /-1 $pid
+	 *        if -1 - will not retrieve data from DB
+	 *        if 00 - will retrieve all data
+	 *        if >0 - will retrieve data where PID = $pid
+	 * @param array|SQLWhere $where
+	 * @param string $order - appended to the SQL
+	 * @throws Exception
+	 */
+	public function __construct(
 		$pid = null, /*array/SQLWhere*/
 		$where = [],
 		$order = '',
-		DBInterface $db = null,
-			Controller $controller = null
+		?DBInterface $db = null,
+		?Controller $controller = null
 	)
 	{
 		//$taylorKey = get_class($this).'::'.__FUNCTION__." ({$this->table})";
@@ -347,9 +347,9 @@ class Collection implements IteratorAggregate, ToStringable
 	}
 
 	/**
-     * @throws JsonException
-     */
-    public function getCollectionQuery(): CollectionQuery
+	 * @throws JsonException
+	 */
+	public function getCollectionQuery(): CollectionQuery
 	{
 		static $cq = [];
 		$hash = implode(':', [
@@ -410,14 +410,14 @@ class Collection implements IteratorAggregate, ToStringable
 	}
 
 	/**
-     * Don't update $this->query otherwise getData() will think we have
-     * retrieved nothing.
-     * Count can be a heavy operation, we should only query the count once.
-     * But if the query changes, the count needs to be updated.
-     * @throws DatabaseException
-     * @throws MustBeStringException
-     */
-    public function getCount(): int
+	 * Don't update $this->query otherwise getData() will think we have
+	 * retrieved nothing.
+	 * Count can be a heavy operation, we should only query the count once.
+	 * But if the query changes, the count needs to be updated.
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
+	 */
+	public function getCount(): int
 	{
 //		$this->log('this->query', $this->query.'');
 //		$this->log('getQueryWithLimit', $this->getQueryWithLimit().'');
@@ -447,9 +447,9 @@ class Collection implements IteratorAggregate, ToStringable
 	}
 
 	/**
-     * Override me to make changes
-     */
-    public function preprocessRow(array $row): array
+	 * Override me to make changes
+	 */
+	public function preprocessRow(array $row): array
 	{
 		return $row;
 	}
@@ -468,11 +468,11 @@ class Collection implements IteratorAggregate, ToStringable
 	}
 
 	/**
-     * @param string $table
-     * @param string $orderBy
-     * @throws Exception
-     */
-    public static function createForTable(DBInterface $db, $table, array $where = [], $orderBy = ''): self
+	 * @param string $table
+	 * @param string $orderBy
+	 * @throws Exception
+	 */
+	public static function createForTable(DBInterface $db, $table, array $where = [], $orderBy = ''): self
 	{
 		$c = new self();
 		$c->db = $db;
@@ -551,9 +551,9 @@ class Collection implements IteratorAggregate, ToStringable
 	}
 
 	/**
-     * @throws Exception
-     */
-    public function getLinks(): array
+	 * @throws Exception
+	 */
+	public function getLinks(): array
 	{
 		$options = [];
 		//debug(get_class($this), $this->table, $this->titleColumn, $this->getCount());
@@ -604,10 +604,10 @@ class Collection implements IteratorAggregate, ToStringable
 	}
 
 	/**
-     * @return mixed - single row
-     * @throws Exception
-     */
-    public function findInData(array $where)
+	 * @return mixed - single row
+	 * @throws Exception
+	 */
+	public function findInData(array $where)
 	{
 		//debug($where);
 		//echo new slTable($this->data);
@@ -623,10 +623,10 @@ class Collection implements IteratorAggregate, ToStringable
 	}
 
 	/**
-     * @return array - of matching rows
-     * @throws Exception
-     */
-    public function findAllInData(array $where): array
+	 * @return array - of matching rows
+	 * @throws Exception
+	 */
+	public function findAllInData(array $where): array
 	{
 		$result = [];
 		foreach ($this->getData() as $row) {
@@ -678,8 +678,8 @@ class Collection implements IteratorAggregate, ToStringable
 		} elseif (method_exists($obj, 'getSingleLink')) {
 			$link = $obj->getSingleLink();
 			$content = $link ? new HTMLTag('a', [
-					'href' => $link,
-				], $obj->getName()) : $obj->getName();
+				'href' => $link,
+			], $obj->getName()) : $obj->getName();
 		} else {
 			$content = $obj->getName();
 		}
@@ -763,17 +763,17 @@ class Collection implements IteratorAggregate, ToStringable
 			value="' . $id . '" ' . $checked . ' />';
 		}
 
-         // <form method="POST">
+		// <form method="POST">
 		$this->setData($data);
 		$this->count = $count;
 		$this->log(get_class($this) . '::' . __FUNCTION__ . ' done');
 	}
 
 	/**
-     * Uses array_merge to prevent duplicates
-     * @throws Exception
-     */
-    public function mergeData(Collection $c2): void
+	 * Uses array_merge to prevent duplicates
+	 * @throws Exception
+	 */
+	public function mergeData(Collection $c2): void
 	{
 		array_keys($this->getData()->getData());
 		//$this->data = array_merge($this->data, $c2->data);	// don't preserve keys
@@ -786,9 +786,9 @@ class Collection implements IteratorAggregate, ToStringable
 	}
 
 	/**
-     * @return mixed[]
-     */
-    public function getObjectInfo(): array
+	 * @return mixed[]
+	 */
+	public function getObjectInfo(): array
 	{
 		$list = [];
 		foreach ($this->members as $obj) {
@@ -866,10 +866,10 @@ class Collection implements IteratorAggregate, ToStringable
 	}
 
 	/**
-     * @param object $obj
-     * @throws Exception
-     */
-    public function contains($obj): bool
+	 * @param object $obj
+	 * @throws Exception
+	 */
+	public function contains($obj): bool
 	{
 		foreach ($this->objectify() as $mem) {
 			if ($mem == $obj) {

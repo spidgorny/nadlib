@@ -753,7 +753,7 @@ order by a.attnum';
 		return $this->qb;
 	}
 
-	public function setQb(SQLBuilder $qb = null): void
+	public function setQb(?SQLBuilder $qb = null): void
 	{
 		$this->qb = $qb;
 	}

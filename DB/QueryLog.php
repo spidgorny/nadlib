@@ -13,7 +13,7 @@ class QueryLog
 	 */
 	public $queryLog = [];
 
-	public function log(string $query, $diffTime, int $results = null, $ok = null): void
+	public function log(string $query, $diffTime, ?int $results = null, $ok = null): void
 	{
 		$key = md5(trim($query));
         //		debug(__METHOD__, $query, $diffTime, $key, array_keys($this->queryLog));

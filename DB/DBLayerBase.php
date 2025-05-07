@@ -71,7 +71,7 @@ abstract class DBLayerBase implements DBInterface
 	 */
 	protected $logToLog = false;
 
-	public function setQB(SQLBuilder $qb = null): void
+	public function setQB(?SQLBuilder $qb = null): void
 	{
 		$this->qb = $qb;
 	}
