@@ -172,7 +172,7 @@ class Collection implements IteratorAggregate, ToStringable
 		$pid = null, /*array/SQLWhere*/
 		$where = [],
 		$order = '',
-		DBInterface $db = null,
+		?DBInterface $db = null,
 		?Controller $controller = null
 	)
 	{
