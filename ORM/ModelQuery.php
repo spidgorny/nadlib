@@ -16,7 +16,7 @@ class ModelQuery implements IteratorAggregate
 	/**
 	 * @var string
 	 */
-	public $itemClassName;
+	public static $itemClassName;
 
 	/**
 	 * @var array
@@ -29,7 +29,7 @@ class ModelQuery implements IteratorAggregate
 	{
 		$this->db = $db;
 		$this->itemInstance = $instanceClass;
-		$this->itemClassName = get_class($instanceClass);
+		static::$itemClassName = get_class($instanceClass);
 	}
 
 	public function getQuery(array $where = [], $orderBy = 'ORDER BY id DESC')
@@ -40,25 +40,25 @@ class ModelQuery implements IteratorAggregate
 	}
 
 	/**
-     * @param string $orderBy
-     * @return array[]
-     */
-    public function queryData(array $where, $orderBy = 'ORDER BY id DESC')
+	 * @param string $orderBy
+	 * @return array[]
+	 */
+	public function queryData(array $where, $orderBy = 'ORDER BY id DESC')
 	{
 		$this->where($where);
 		return $this->db->fetchAllSelectQuery($this->itemInstance->table, $this->where, $orderBy);
 	}
 
 	/**
-     * @param string $orderBy
-     */
-    public function queryObjects(array $where = [], $orderBy = 'ORDER BY id DESC'): \ArrayPlus
+	 * @param string $orderBy
+	 */
+	public function queryObjects(array $where = [], $orderBy = 'ORDER BY id DESC'): \ArrayPlus
 	{
 		$this->where($where);
 		$data = $this->queryData($this->where, $orderBy);
 		$list = new ArrayPlus();
 		foreach ($data as $row) {
-			$list->append(new $this->itemClassName($this->db, $row));
+			$list->append(new static::$itemClassName($this->db, $row));
 		}
 
 		return $list;

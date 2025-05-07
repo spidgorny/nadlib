@@ -429,11 +429,7 @@ abstract class OODBase implements ArrayAccess
 	public static function findInstance(array $where, $static = null)
 	{
 		if (!$static) {
-			if (function_exists('get_called_class')) {
-				$static = get_called_class();
-			} else {
-				throw new Exception('__METHOD__ requires object specifier until PHP 5.3.');
-			}
+			$static = static::class;
 		}
 
 		$obj = new $static();

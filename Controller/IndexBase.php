@@ -149,22 +149,22 @@ class IndexBase /*extends Controller*/
 	}
 
 	/**
-     * TODO: Remove the boolean parameter from getInstance()
-     * TODO: And force to use makeInstance() in case it was true
-     * @return Index|IndexBE
-     * @throws Exception
-     */
-    public static function makeInstance(?Config $config = null)
+	 * TODO: Remove the boolean parameter from getInstance()
+	 * TODO: And force to use makeInstance() in case it was true
+	 * @return Index|IndexBE
+	 * @throws Exception
+	 */
+	public static function makeInstance(?Config $config = null)
 	{
 		return static::getInstance(true, $config);
 	}
 
 	/**
-     * @param bool $createNew - must be false
-     * @return Index
-     * @throws Exception
-     */
-    public static function getInstance($createNew = false, ?ConfigInterface $config = null)
+	 * @param bool $createNew - must be false
+	 * @return Index
+	 * @throws Exception
+	 */
+	public static function getInstance($createNew = false, ?ConfigInterface $config = null)
 	{
 		TaylorProfiler::start(__METHOD__);
 		$instance = self::$instance ?: null;
@@ -253,7 +253,7 @@ class IndexBase /*extends Controller*/
 			return $this->controller;
 		}
 
-        //debug($_SESSION['autoloadCache']);
+		//debug($_SESSION['autoloadCache']);
 		$exception = 'Class ' . $class . ' not found. Dev hint: try clearing autoload cache?';
 		unset($_SESSION['AutoLoad']);
 		throw new Exception404($exception);
@@ -422,11 +422,10 @@ class IndexBase /*extends Controller*/
 	}
 
 	/**
-     * Does not catch LoginException - show your login form in Index
-     * @param string $wrapClass
-     * @return string
-     */
-    public function renderException(Exception $e, $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error'): string|\JSONResponse
+	 * Does not catch LoginException - show your login form in Index
+	 * @param string $wrapClass
+	 */
+	public function renderException(Exception $e, $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error'): string|\JSONResponse|array
 	{
 		if (Request::isCLI()) {
 			echo get_class($e),
@@ -467,9 +466,9 @@ class IndexBase /*extends Controller*/
 	}
 
 	/**
-     * @return mixed[]
-     */
-    public function renderTemplateIfNotAjax($content): array
+	 * @return mixed[]
+	 */
+	public function renderTemplateIfNotAjax($content): array
 	{
 		$contentOut = [];
 //		llog('renderTemplateIfNotAjax', gettype($content));
@@ -599,9 +598,9 @@ class IndexBase /*extends Controller*/
 	}
 
 	/**
-     * @return $this
-     */
-    public function addJQuery(array $props = ['defer' => true]): static
+	 * @return $this
+	 */
+	public function addJQuery(array $props = ['defer' => true]): static
 	{
 		if (isset($this->footer['jquery.js'])) {
 			return $this;
@@ -655,13 +654,13 @@ class IndexBase /*extends Controller*/
 	}
 
 	/**
-     * @return Index|IndexBase
-     */
-    public function addJS(string $source, array $props = ['defer' => true]): static
+	 * @return Index|IndexBase
+	 */
+	public function addJS(string $source, array $props = ['defer' => true]): static
 	{
 		$called = class_exists('Debug') ? Debug::getCaller() : '';
 
-        $fileName = $source;
+		$fileName = $source;
 		if (!contains($source, '//') && !contains($source, '?')) {    // don't download URL
 			$mtime = @filemtime($source);
 			if (!$mtime) {
@@ -681,9 +680,9 @@ class IndexBase /*extends Controller*/
 	}
 
 	/**
-     * @return Index|IndexBase
-     */
-    public function addCSS(string $source): static
+	 * @return Index|IndexBase
+	 */
+	public function addCSS(string $source): static
 	{
 		if (strtolower(pathinfo($source, PATHINFO_EXTENSION)) === 'less') {
 			if ($this->request->apacheModuleRewrite() && file_exists('css/.htaccess')) {

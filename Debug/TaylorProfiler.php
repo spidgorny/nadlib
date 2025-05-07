@@ -40,9 +40,9 @@ class TaylorProfiler
 	public $endTime = [];
 
 	/**
-     * @var float
-     */
-    public $initTime;
+	 * @var float
+	 */
+	public $initTime;
 
 	public $cur_timer = "";
 
@@ -94,7 +94,7 @@ class TaylorProfiler
 	 */
 	public function startTimer($name = null, $desc = ""): void
 	{
-		$name = $name ?: $this->getName();
+		$name = $name ?: self::getName();
 		if ($this->trace_enabled) {
 			$this->trace[] = [
 				'time' => time(),
@@ -144,9 +144,9 @@ class TaylorProfiler
 	}
 
 	/**
-     * suspend  an individual timer
-     */
-    public function suspendTimer(string $name): void
+	 * suspend  an individual timer
+	 */
+	public function suspendTimer(string $name): void
 	{
 		$this->trace[] = ['time' => time(), 'function' => $name . ' }...', 'memory' => memory_get_usage()];
 		$this->endTime[$name] = $this->getMicroTime();
@@ -167,8 +167,8 @@ class TaylorProfiler
 	{
 		// This shouldn't happen, but it does once.
 		if (!array_key_exists($name, $this->startTime)) {
-            return 0;
-        }
+			return 0;
+		}
 
 		if (array_key_exists($name, $this->endTime)) {
 			return ($this->endTime[$name] - $this->startTime[$name]);
@@ -213,9 +213,9 @@ class TaylorProfiler
 	}
 
 	/**
-     * @return array{count: (float | int), mem1: int<0, max>, memory: (float | int)}[]
-     */
-    public static function getMemoryMap(): array
+	 * @return array{count: (float | int), mem1: int<0, max>, memory: (float | int)}[]
+	 */
+	public static function getMemoryMap(): array
 	{
 		$table = [];
 		foreach (self::$sos as $obj) {
@@ -332,8 +332,8 @@ class TaylorProfiler
 		$method = $method ?: self::getName();
 		$tp = TaylorProfiler::getInstance();
 		if ($tp) {
-            $tp->stopTimer($method);
-        }
+			$tp->stopTimer($method);
+		}
 	}
 
 	public static function dumpMemory($var, $path = []): void
@@ -553,7 +553,7 @@ class TaylorProfiler
 	 */
 	public function stopTimer($name = null): void
 	{
-		$name = $name ?: $this->getName();
+		$name = $name ?: self::getName();
 		if ($this->trace_enabled) {
 			$this->trace[] = ['time' => time(), 'function' => $name . ' }', 'memory' => memory_get_usage()];
 		}
@@ -566,7 +566,7 @@ class TaylorProfiler
 				$this->running[$name] += $this->elapsedTime($name);
 			}
 
-			$this->cur_timer = array_pop($this->stack);
+			$this->cur_timer = array_pop($this->stack) ?? '';
 			$this->resumeTimer($this->cur_timer);
 			if (false) {
 				$hash = md5($name);
@@ -578,9 +578,9 @@ class TaylorProfiler
 	}
 
 	/**
-     * resume  an individual timer
-     */
-    public function resumeTimer(string $name): void
+	 * resume  an individual timer
+	 */
+	public function resumeTimer(string $name): void
 	{
 		$this->trace[] = ['time' => time(), 'function' => $name . ' {...', 'memory' => memory_get_usage()];
 		$this->startTime[$name] = $this->getMicroTime();
@@ -602,19 +602,19 @@ class TaylorProfiler
 	{
 		$a = $a['perc'];
 		$b = $b['perc'];
-        if ($a > $b) {
-            return -1;
-        }
+		if ($a > $b) {
+			return -1;
+		}
 
-        if ($a < $b) {
-            return +1;
-        }
+		if ($a < $b) {
+			return +1;
+		}
 
-        if ($a == $b) {
-            return 0;
-        }
+		if ($a == $b) {
+			return 0;
+		}
 
-        return null;
+		return null;
 	}
 
 	public function printTrace($enabled = false): ?\slTable
@@ -632,7 +632,7 @@ class TaylorProfiler
 			return new slTable($this->trace);
 		}
 
-        return null;
+		return null;
 	}
 
 	public function analyzeTraceForLeak(): \slTable

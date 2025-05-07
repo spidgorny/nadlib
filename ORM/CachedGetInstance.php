@@ -42,15 +42,15 @@ trait CachedGetInstance
 			if (!$inst) {
 				//debug('new ', get_called_class(), $id, array_keys(self::$instances));
 				// don't put anything else here
-				$inst = new $static();
+				$inst = new $static(null, $db);
 				$inst->setDB($db);
 				// BEFORE init() to avoid loop
 				static::storeInstance($inst, $id);
 				// separate call to avoid infinite loop in ORS
-				$inst->init($id);
+				$inst->init($id, $db);
 			}
 		} elseif (is_array($id)) {
-			$inst = new $static();    // only to find ->idField
+			$inst = new $static(null, $db);    // only to find ->idField
 			$inst->setDB($db);
 			$intID = $id[$inst->idField];
 			//debug($static, $intID, $id);
@@ -61,12 +61,12 @@ trait CachedGetInstance
 			}
 		} elseif ($id) {
 			//debug($static, $id);
-			$inst = new $static();
+			$inst = new $static(null, $db);
 			$inst->setDB($db);
 			$inst->init($id);
 			static::storeInstance($inst, $inst->id);
 		} elseif (is_null($id)) {
-			$inst = new $static();
+			$inst = new $static(null, $db);
 		} else {
 			throw new InvalidArgumentException($static . '->' . __METHOD__ . ' id=' . $id);
 		}

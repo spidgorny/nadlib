@@ -556,7 +556,7 @@ class Collection implements IteratorAggregate, ToStringable
 	{
 		$options = [];
 		//debug(get_class($this), $this->table, $this->titleColumn, $this->getCount());
-		//debug($this->itemClassName, $this->idField, $this->titleColumn, sizeof($this->members), first($this->getData()->getData()));
+		//debug(static::$itemClassName, $this->idField, $this->titleColumn, sizeof($this->members), first($this->getData()->getData()));
 		foreach ($this->objectify() as $obj) {
 			//debug($obj->id, $obj->getName());
 			$options[$obj->id] = $obj->getNameLink();
@@ -586,9 +586,10 @@ class Collection implements IteratorAggregate, ToStringable
 			$key = $row[$this->idField];
 			if ($byInstance) {
 				//$this->members[$key] = call_user_func_array(array($class, 'getInstance'), array($row));
-				$this->members[$key] = call_user_func($class . '::getInstance', $row);
+				$this->members[$key] = call_user_func($class . '::getInstance', $row, $this->db);
 			} else {
 				$this->members[$key] = new $class($row);
+				$this->members[$key]->setDB($this->db);
 			}
 		}
 

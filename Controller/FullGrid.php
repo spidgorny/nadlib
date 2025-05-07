@@ -77,7 +77,7 @@ abstract class FullGrid extends Grid
 	{
 		if (is_string($collectionName)) {
 			$this->log(__METHOD__ . ' new collection', $collectionName);
-			$collection = new $collectionName(null, [], $this->getOrderBy());
+			$collection = new $collectionName(null, [], $this->getOrderBy(), $this->db);
 		} else {
 			$re = new ReflectionClass($this);
 			$reCol = $re->getProperty('collection');
@@ -85,7 +85,7 @@ abstract class FullGrid extends Grid
 			$collectionName = $doc->getFirstTagValue('var');
 			$collectionName = first(trimExplode('|', $collectionName));
 			$this->log(__METHOD__ . ' new collection by reflection', $collectionName);
-			$collection = new $collectionName();
+			$collection = new $collectionName(null, [], '', $this->db);
 		}
 
 		return $collection;
@@ -121,10 +121,10 @@ abstract class FullGrid extends Grid
 		}
 
 		//			$sortBy = new SQLOrder($this->collection->orderBy);
-        //			$sortBy = $sortBy->getField();
-        if (!$sortBy && !$sortBy) {
+		//			$sortBy = $sortBy->getField();
+		if (!$sortBy && !$sortBy) {
 // don't do default, because a Collection has it's own default
-            //$sortBy = ifsetor($this->model->idField);
+			//$sortBy = ifsetor($this->model->idField);
 
 		}
 
@@ -174,10 +174,10 @@ abstract class FullGrid extends Grid
 	}
 
 	/**
-     * @return HTMLForm
-     * @throws Exception
-     */
-    public function getFilterForm(array $fields = [])
+	 * @return HTMLForm
+	 * @throws Exception
+	 */
+	public function getFilterForm(array $fields = [])
 	{
 		if (method_exists($this, 'getFilterDesc')) {
 			$this->filterController->desc = $this->getFilterDesc($fields);
@@ -191,13 +191,13 @@ abstract class FullGrid extends Grid
 	}
 
 	/**
-     * Make sure you fill the 'value' fields with data from $this->filter manually.
-     * Why manually? I don't know, it could change.
-     *
-     * @return array
-     * @throws Exception
-     */
-    public function getFilterDesc(array $fields = null)
+	 * Make sure you fill the 'value' fields with data from $this->filter manually.
+	 * Why manually? I don't know, it could change.
+	 *
+	 * @return array
+	 * @throws Exception
+	 */
+	public function getFilterDesc(array $fields = null)
 	{
 		return $this->filterController->getFilterDesc($fields);
 	}

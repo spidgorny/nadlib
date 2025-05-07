@@ -368,7 +368,8 @@ class URL
 
 		$uri .= $parsed['query'] ? '?' . $parsed['query'] : '';
 
-		return $uri . (isset($parsed['fragment']) !== '' ? '#' . ($parsed['fragment'] ?? '') : '');
+		$fragmentPart = isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
+		return $uri . $fragmentPart;
 	}
 
 	/**

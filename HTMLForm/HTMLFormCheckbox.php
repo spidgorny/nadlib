@@ -36,7 +36,7 @@ class HTMLFormCheckbox extends HTMLFormField
 			+ (ifsetor($this->desc['required']) ? ["required" => true] : [])
 			+ $more;
 
-		return $this->form->getInput("checkbox", $this->field, $this->value, $more, ifsetor($more['class']));
+		return $this->form->getInput("checkbox", $this->field, $this->value, $more, ifsetor($more['class'], ''));
 	}
 
 }
