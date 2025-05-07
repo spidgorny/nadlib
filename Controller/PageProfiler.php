@@ -86,14 +86,14 @@ class PageProfiler
 		$url = $this->request->getURL();
 		$params = $url->getParams();
 		$content .= $this->html->h4('GET');
-		return $content . $this->html->pre(json_encode($params, JSON_PRETTY_PRINT));
+		return $content . $this->html->pre(json_encode($params, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
 	}
 
 	protected function getPOST(): string
 	{
 		$content = '';
 		$content .= $this->html->h4('POST');
-		return $content . $this->html->pre(json_encode($_POST, JSON_PRETTY_PRINT));
+		return $content . $this->html->pre(json_encode($_POST, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
 	}
 
 	/**

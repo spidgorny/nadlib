@@ -14,7 +14,7 @@ class RenderException
 		$this->code = $code;
 	}
 
-	public function render(string $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error'): \JSONResponse|string
+	public function render(string $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error'): \JSONResponse|array
 	{
 		$e = $this->e;
 		if (Request::isCLI()) {
@@ -22,7 +22,7 @@ class RenderException
 			' #', $e->getCode(),
 			': ', $e->getMessage(), BR;
 			echo $e->getTraceAsString(), BR;
-			return '';
+			return [''];
 		}
 
 		http_response_code($this->code ?: $e->getCode());
@@ -52,10 +52,10 @@ class RenderException
 				<h1>' . get_class($e) .
 			($e->getCode() ? ' (Code: ' . $e->getCode() . ')' : '') . '</h1>' .
 			'<h3>' . nl2br($message) . '</h3>';
-        $content .= 'In ' . $e->getFile() . ' on line ' . $e->getLine() . '<br/>';
-        $content .= $e->getPrevious() instanceof \Throwable ? 'Previous: ' . $e->getPrevious()->getMessage() . '<br/>' : '';
-        $content .= '<hr class="my-3"/><pre style="text-align: left; white-space: pre-wrap;">' .
-				htmlspecialchars($e->getTraceAsString()) . '</pre>';
+		$content .= 'In ' . $e->getFile() . ' on line ' . $e->getLine() . '<br/>';
+		$content .= $e->getPrevious() instanceof \Throwable ? 'Previous: ' . $e->getPrevious()->getMessage() . '<br/>' : '';
+		$content .= '<hr class="my-3"/><pre style="text-align: left; white-space: pre-wrap;">' .
+			htmlspecialchars($e->getTraceAsString()) . '</pre>';
 
 		if ($e instanceof LoginException) {
 			// catch this exception in your app Index class, it can't know what to do with all different apps
@@ -71,6 +71,6 @@ class RenderException
 			$content .= '<p>Query: ' . htmlspecialchars($e->getQuery()) . '</p>';
 		}
 
-		return $content . '</div>';
+		return [$content, '</div>'];
 	}
 }
