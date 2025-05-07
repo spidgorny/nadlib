@@ -1,6 +1,6 @@
 <?php
 
-class HTTPUser extends UserBase
+class HTTPUser implements UserModelInterface
 {
 
 	protected $login;
@@ -78,6 +78,36 @@ class HTTPUser extends UserBase
 	public function getDepartment(): ?Department
 	{
 		return null;
+	}
+
+	public function getID()
+	{
+		return null;
+	}
+
+	public function getGravatarURL($size = 32): string
+	{
+		return '';
+	}
+
+	public function getName(): string
+	{
+		return '';
+	}
+
+	public function getPref($key, $default = null)
+	{
+		return $default;
+	}
+
+	public function insert(array $data)
+	{
+
+	}
+
+	public function isAuth()
+	{
+
 	}
 
 }

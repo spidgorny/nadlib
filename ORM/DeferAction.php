@@ -12,9 +12,9 @@ class DeferAction extends OODBase
 
 	public $queue;
 
-	public function __construct($queue = null)
+	public function __construct($queue = null, ?DBInterface $db = null)
 	{
-		parent::__construct(null);
+		parent::__construct(null, $db);
 		$this->queue = $queue;
 		//debug($this->table);
 	}

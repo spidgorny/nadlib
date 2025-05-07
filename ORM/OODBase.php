@@ -92,10 +92,10 @@ abstract class OODBase implements ArrayAccess
 	 * as associative array
 	 * @throws Exception
 	 */
-	public function __construct($id = null)
+	public function __construct($id = null, ?DBInterface $db = null)
 	{
 //		debug(get_called_class(), __FUNCTION__, $id);
-		$this->guessDB($id);
+		$this->guessDB($db);
 		//echo get_class($this).'::'.__FUNCTION__, ' ', gettype2($this->db), BR;
 		foreach ($this->thes as &$val) {
 			$val = is_array($val) ? $val : ['name' => $val];
@@ -112,16 +112,18 @@ abstract class OODBase implements ArrayAccess
 //		}
 	}
 
-	public function guessDB($id): void
+	public function guessDB(?DBInterface $db): void
 	{
-		if ($id instanceof DBInterface) {
-			$this->db = $id;
-		} elseif (class_exists('Config')) {
-			$config = Config::getInstance();
-			$this->table = $config->prefixTable($this->table);
-			if (!$this->db) {
-				$this->db = $config->getDB();
-			}
+		if ($db instanceof DBInterface) {
+			$this->db = $db;
+
+			// @todo: use DI
+//		} elseif (class_exists('Config')) {
+//			$config = Config::getInstance();
+//			$this->table = $config->prefixTable($this->table);
+//			if (!$this->db) {
+//				$this->db = $config->getDB();
+//			}
 
 			//debug(get_class($this), $this->table, gettype2($this->db));
 		} else {

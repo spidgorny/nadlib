@@ -3,7 +3,7 @@
 /**
  * Some places require a user object which does nothing if you're not logged-in
  */
-class NoUser extends UserBase implements UserModelInterface
+class NoUser implements UserModelInterface
 {
 
 	/**
@@ -58,7 +58,7 @@ class NoUser extends UserBase implements UserModelInterface
 
 	public function getSelfAndBackupID(): array
 	{
-		return [$this->id];
+		return [$this->getID()];
 	}
 
 	public function getAllSubordinates(): array
@@ -128,6 +128,30 @@ class NoUser extends UserBase implements UserModelInterface
 	public function getDepartment(): ?Department
 	{
 		return null;
+	}
+
+	public function getID()
+	{
+		return null;
+	}
+
+	public function getName(): string
+	{
+		return 'NoUser';
+	}
+
+	public function isAuth()
+	{
+		return false;
+	}
+
+	public function getGravatarURL($size = 32): string
+	{
+		return '';
+	}
+
+	public function insert(array $data)
+	{
 	}
 
 }

@@ -19,9 +19,9 @@ class PersistantOODBase extends OODBase
 
 	// define them in a subclass for static::inserted to work
 
-	public function __construct($initer = null)
+	public function __construct($initer = null, ?DBInterface $db = null)
 	{
-		parent::__construct($initer);
+		parent::__construct($initer, $db);
 		$this->originalData = $this->data;
 		$this->stateHash = $this->getStateHash();
 		//debug($this->getStateHash(), $this->stateHash, $this->data, $this->id);

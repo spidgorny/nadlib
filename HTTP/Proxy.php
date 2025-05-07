@@ -29,10 +29,9 @@ class Proxy extends OODBase
 
 	protected $titleColumn = 'proxy';
 
-	public function __construct($row = null)
+	public function __construct($row = null, ?DBInterface $db = null)
 	{
-		parent::__construct($row);
-		$this->db = \Config::getInstance()->getDB();
+		parent::__construct($row, $db);
 		if ($this->data) {
 			$this->ratio = $this->data['ok'] / max(1, $this->data['fail']);
 		}

@@ -172,16 +172,15 @@ class Collection implements IteratorAggregate, ToStringable
 		$pid = null, /*array/SQLWhere*/
 		$where = [],
 		$order = '',
-		?DBInterface $db = null,
+		DBInterface $db = null,
 		?Controller $controller = null
 	)
 	{
 		//$taylorKey = get_class($this).'::'.__FUNCTION__." ({$this->table})";
 		$taylorKey = Debug::getBackLog(5, 0, BR, false);
 		TaylorProfiler::start($taylorKey);
-		$config = Config::getInstance();
-		$this->db = $db ?: $config->getDB();
-		$this->table = $config->prefixTable($this->table);
+		$this->db = $db;
+//		$this->table = $config->prefixTable($this->table);
 		$this->controller = $controller;
 
 		if (!$this->select) {

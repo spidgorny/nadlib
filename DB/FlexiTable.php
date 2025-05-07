@@ -48,9 +48,9 @@ class FlexiTable extends OODBase
 	 */
 	protected $columns = [];
 
-	public function __construct($id = null)
+	public function __construct($id = null, ?DBInterface $db = null)
 	{
-		parent::__construct($id);
+		parent::__construct($id, $db);
 		$config = ifsetor(Config::getInstance()->config);
 		//debug(ifsetor($config[__CLASS__]));
         if (is_array($config) && isset($config[__CLASS__]['doCheck'])) {

@@ -35,9 +35,9 @@ class MessageQueue extends OODBase
 	private $taskData = [];
 
 
-	public function __construct($type = null)
+	public function __construct($type = null, ?DBInterface $db = null)
 	{
-		parent::__construct();
+		parent::__construct($type, $db);
 
 		if (empty($type)) {
 			throw new RuntimeException('Type not set!');

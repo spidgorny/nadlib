@@ -10,19 +10,6 @@ abstract class UserBase extends OODBase implements UserModelInterface
 
 	protected $prefs = [];
 
-	/**
-	 * $id is intentionally not = NULL in order to force using getInstance()
-	 * protected will not work because OODBase::__construct is public
-	 *
-	 * @param int|array $id
-	 *
-	 * @throws Exception
-	 */
-	public function __construct($id = null)
-	{
-		parent::__construct($id);
-	}
-
 	public static function unsetInstance($id): void
 	{
 		unset(self::$instances[$id]);

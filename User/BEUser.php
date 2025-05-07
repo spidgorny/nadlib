@@ -3,9 +3,10 @@
 /**
  * UserBase not User because it's not dependent on the main app login system
  */
-class BEUser extends UserBase
+class BEUser implements UserModelInterface
 {
 
+	public $id;
 	/**
 	 * Loaded from config.json
 	 * @var array
@@ -14,7 +15,7 @@ class BEUser extends UserBase
 
 	public function __construct($id = null)
 	{
-		parent::__construct($id);
+		$this->id = $id;
 		if (class_exists('Config')) {
 			Config::getInstance()->mergeConfig($this);
 		}
@@ -36,12 +37,12 @@ class BEUser extends UserBase
 
 	public function saveLogin(): void
 	{
-		$_SESSION[__CLASS__]['login'] = $this->id;
+		$_SESSION[__CLASS__]['login'] = $this->getID();
 	}
 
 	public function isAuth(): bool
 	{
-		return isset($_SESSION[__CLASS__]['login']) && ($_SESSION[__CLASS__]['login'] == $this->id);
+		return isset($_SESSION[__CLASS__]['login']) && ($_SESSION[__CLASS__]['login'] == $this->getID());
 	}
 
 	public function logout(): void
@@ -97,6 +98,28 @@ class BEUser extends UserBase
 	public function getDepartment(): ?Department
 	{
 		return null;
+	}
+
+	public function insert(array $data)
+	{
+	}
+
+	public function getPref($key, $default = null)
+	{
+		return $default;
+	}
+
+	public function getGravatarURL($size = 32)
+	{
+	}
+
+	public function getID()
+	{
+	}
+
+	public function getName(): string
+	{
+		return '';
 	}
 
 }

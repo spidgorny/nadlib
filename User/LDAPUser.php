@@ -4,8 +4,10 @@
  * Class LDAPUser
  * @see LDAPLogin
  */
-abstract class LDAPUser extends UserBase implements UserModelInterface
+abstract class LDAPUser implements UserModelInterface
 {
+
+	public $id;
 
 	public $UserID;
 
@@ -36,7 +38,7 @@ abstract class LDAPUser extends UserBase implements UserModelInterface
 		}
 	}
 
-	public function getName()
+	public function getName(): string
 	{
 		return $this->UserName . ' (' . $this->UserID . ') <' . $this->data['mail'][0] . '>';
 	}
