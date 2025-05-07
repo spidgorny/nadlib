@@ -46,7 +46,7 @@ class Model
      * @throws DatabaseException
      * @throws Exception
      */
-    public static function getInstance(array $data, DBInterface $db = null): static
+    public static function getInstance(array $data, ?DBInterface $db = null): static
 	{
 		$obj = new static(null);
 		$obj->setDB($db ?: Config::getInstance()->getDB());
@@ -73,7 +73,7 @@ class Model
 	/**
      * @param DBInterface|null $db
      */
-    public function __construct(DBInterface $db = null, array $data = [])
+    public function __construct(?DBInterface $db = null, array $data = [])
 	{
 		if ($db instanceof \DBInterface) {
 			$this->setDB($db);
