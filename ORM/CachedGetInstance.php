@@ -117,9 +117,9 @@ trait CachedGetInstance
 	}
 
 	/**
-     * @return int[]
-     */
-    public static function getCacheStats(): array
+	 * @return int[]
+	 */
+	public static function getCacheStats(): array
 	{
 		$stats = [];
 		foreach (self::$instances as $class => $list) {
@@ -165,12 +165,12 @@ trait CachedGetInstance
 	}
 
 	/**
-     * Still searches in DB with findInDB, but makes a new object for you
-     *
-     * @return mixed
-     * @throws Exception
-     */
-    public static function findInstance(array $where, $static = null)
+	 * Still searches in DB with findInDB, but makes a new object for you
+	 *
+	 * @return mixed
+	 * @throws Exception
+	 */
+	public static function findInstance(array $where, $static = null)
 	{
 		if (!$static) {
 			if (function_exists('get_called_class')) {
@@ -194,10 +194,10 @@ trait CachedGetInstance
 	 * Is cached in instances
 	 * @param string $name
 	 * @param string|null $field
-	 * @return self|static
+	 * @return ?static
 	 * @throws Exception
 	 */
-	public static function getInstanceByName($name, $field = null): static
+	public static function getInstanceByName($name, $field = null): ?static
 	{
 		$self = static::class;
 		//debug(__METHOD__, $self, $name, count(self::$instances[$self]));
