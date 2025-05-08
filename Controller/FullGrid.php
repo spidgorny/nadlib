@@ -61,7 +61,6 @@ abstract class FullGrid extends Grid
 
 //			$this->log(__METHOD__, 'collection Where', $this->collection->where);
 
-			$this->collection->postInit();
 			$this->collection->pager = new Pager($this->pageSize?->get());
 			$this->collection->pager->setNumberOfRecords($this->collection->getCount());
 			$this->collection->pager->detectCurrentPage();

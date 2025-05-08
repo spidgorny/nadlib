@@ -495,7 +495,7 @@ class Collection implements IteratorAggregate, ToStringable
 		$object = new $class();
 		$object->count = $source->count;
 
-		$memberClass = $object->itemClassName;
+		$memberClass = self::$itemClassName;
 		foreach ($source->members as $id => $m) {
 			$child = new $memberClass();
 			$child->id = $id;

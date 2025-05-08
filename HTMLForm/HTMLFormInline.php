@@ -24,11 +24,11 @@ class HTMLFormInline extends HTMLFormTable
 	}
 
 	/**
-     * Remove <table>
-     * @param bool $mainForm
-     * @param string $append
-     */
-    public function getForm(array $formData, array $prefix = [], $mainForm = true, $append = ''): string
+	 * Remove <table>
+	 * @param bool $mainForm
+	 * @param string $append
+	 */
+	public function getForm(array $formData, array $prefix = [], $mainForm = true, $append = ''): string
 	{
 		$startedFieldset = false;
 		$tmp = $this->stdout;
@@ -61,9 +61,9 @@ class HTMLFormInline extends HTMLFormTable
 	}
 
 	/**
-     * @return mixed[]
-     */
-    public function renderFormRows(array $formData, array $prefix = []): array
+	 * @return mixed[]
+	 */
+	public function renderFormRows(array $formData, array $prefix = []): array
 	{
 		$content = [];
 		foreach ($formData as $fieldName => $fieldDesc) {
@@ -111,7 +111,7 @@ class HTMLFormInline extends HTMLFormTable
 		return $content;
 	}
 
-	public function input($name, $value = "", array $more = [], string $type = 'text', string $extraClass = ''): void
+	public function input($name, $value = "", array $more = [], string $type = 'text', $extraClass = ''): void
 	{
 		$extraClass = $extraClass ?: 'form-control';
 		parent::input($name, $value, $more, $type, $extraClass);
