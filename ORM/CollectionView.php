@@ -1,7 +1,5 @@
 <?php
 
-use spidgorny\nadlib\HTTP\URL;
-
 class CollectionView
 {
 
@@ -35,8 +33,8 @@ class CollectionView
 	public function wrap($content)
 	{
 		if ($this->wrapTag) {
-			list($tagClass, $id) = trimExplode('#', $this->wrapTag, 2);
-			list($tag, $class) = trimExplode('.', $tagClass, 2);
+			[$tagClass, $id] = trimExplode('#', $this->wrapTag, 2);
+			[$tag, $class] = trimExplode('.', $tagClass, 2);
 			$content = [
 				'<' . $tag . ' class="' . get_class($this->collection) . ' ' . $class . '" id="' . $id . '">',
 				$content,
@@ -51,26 +49,23 @@ class CollectionView
 	{
 		$content = [];
 //		llog(sizeof($this->collection->objectify()));
-		if ($this->collection->objectify()) {
-			/**
-			 * @var int $key
-			 * @var OODBase $obj
-			 */
-			foreach ($this->collection->objectify() as $key => $obj) {
-				/**  */
-				if (is_object($obj)) {
-					$content[] = $obj->render();
-					$content[] = "\n";
-				} else {
-					$content[] = getDebug(__METHOD__, $key, $obj);
-				}
+		if (!$this->collection->objectify()) {
+			if ($this->noDataMessage) {
+				//Index::getInstance()->ll->debug = true;
+				$content[] = '<div class="message alert alert-warning">' . __($this->noDataMessage) . '</div>';
 			}
-
-			$content = $this->wrap($content);
-		} elseif ($this->noDataMessage) {
-			//Index::getInstance()->ll->debug = true;
-			$content[] = '<div class="message alert alert-warning">' . __($this->noDataMessage) . '</div>';
+			return $content;
 		}
+
+		/**
+		 * @var OODBase $obj
+		 */
+		foreach ($this->collection->objectify() as $obj) {
+			$content[] = $obj->render();
+			$content[] = "\n";
+		}
+
+		$content = $this->wrap($content);
 
 		if ($this->collection->pager) {
 			$pages = $this->collection->pager->renderPageSelectors();

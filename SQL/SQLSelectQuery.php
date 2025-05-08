@@ -50,17 +50,17 @@ class SQLSelectQuery extends SQLWherePart
 	protected $limit;
 
 	/**
-     * SQLSelectQuery constructor.
-     * @param SQLSelect $select
-     * @param SQLFrom $from
-     * @param SQLWhere $where
-     * @param SQLJoin $join
-     * @param SQLGroup $group
-     * @param SQLHaving $having
-     * @param SQLOrder $order
-     * @param SQLLimit $limit
-     */
-    public function __construct(DBInterface $db, $select = null, $from = null, $where = null, $join = null, $group = null, $having = null, $order = null, $limit = null)
+	 * SQLSelectQuery constructor.
+	 * @param SQLSelect $select
+	 * @param SQLFrom $from
+	 * @param SQLWhere $where
+	 * @param SQLJoin $join
+	 * @param SQLGroup $group
+	 * @param SQLHaving $having
+	 * @param SQLOrder $order
+	 * @param SQLLimit $limit
+	 */
+	public function __construct(DBInterface $db, $select = null, $from = null, $where = null, $join = null, $group = null, $having = null, $order = null, $limit = null)
 	{
 		parent::__construct();
 		$this->db = $db;
@@ -186,12 +186,12 @@ class SQLSelectQuery extends SQLWherePart
 	}
 
 	/**
-     * @param string $table
-     * @param array|SQLWhere $where
-     * @param string $sOrder
-     * @param string $addSelect
-     */
-    public static function getSelectQueryP(
+	 * @param string $table
+	 * @param array|SQLWhere $where
+	 * @param string $sOrder
+	 * @param string $addSelect
+	 */
+	public static function getSelectQueryP(
 		DBInterface $db,
 								$table,
 								$where = [],
@@ -288,9 +288,9 @@ class SQLSelectQuery extends SQLWherePart
 		try {
 			return $this->getQuery();
 		} catch (Exception $exception) {
-			echo '<strong>', $exception->getMessage(), '</strong>', BR;
+//			echo '<strong>', $exception->getMessage(), '</strong>', BR;
 			//echo '<strong>', $e->getPrevious()->getMessage(), '</strong>', BR;
-			pre_print_r($exception->getTraceAsString());
+//			pre_print_r($exception->getTraceAsString());
 			return '<strong>' . $exception->getMessage() . '</strong>' . BR;
 		}
 	}
@@ -339,7 +339,7 @@ FROM {$this->from}
 	{
 		$params = $this->where ? $this->where->getParameters() : [];
 
-        if ($this->from instanceof SQLSubquery) {
+		if ($this->from instanceof SQLSubquery) {
 			$subParams = $this->from->getParameters();
 			//			debug($subParams);
 			$params += $subParams;
