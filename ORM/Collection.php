@@ -179,7 +179,7 @@ class Collection implements IteratorAggregate, ToStringable
 		//$taylorKey = get_class($this).'::'.__FUNCTION__." ({$this->table})";
 		$taylorKey = Debug::getBackLog(5, 0, BR, false);
 		TaylorProfiler::start($taylorKey);
-		$this->db = $db;
+		$this->setDB($db ?? Config::getInstance()->getDB());
 //		$this->table = $config->prefixTable($this->table);
 		$this->controller = $controller;
 
@@ -937,9 +937,12 @@ class Collection implements IteratorAggregate, ToStringable
 		return false;
 	}
 
-	public function setDB(DBInterface $ms): void
+	public function setDB(?DBInterface $db = null): void
 	{
-		$this->db = $ms;
+		if (!$db) {
+			return;
+		}
+		$this->db = $db;
 	}
 
 	public function unobjectify(): void

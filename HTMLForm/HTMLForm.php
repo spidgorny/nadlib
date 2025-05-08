@@ -72,11 +72,11 @@ class HTMLForm implements ToStringable
 	}
 
 	/**
-     * @param string|array $name
-     * @param array $more - may be array
-     *
-     */
-    public function getInput(string $type, $name, $value = null, array $more = [], string $extraClass = '', string $namePlus = ''): string
+	 * @param string|array $name
+	 * @param array $more - may be array
+	 *
+	 */
+	public function getInput(string $type, $name, $value = null, array $more = [], string $extraClass = '', $namePlus = ''): string
 	{
 //		debug($type, $name, $value, $more, $extraClass, $namePlus);
 		$attrs = [];
@@ -122,10 +122,10 @@ class HTMLForm implements ToStringable
 	}
 
 	/**
-     * Converts an assoc array into valid HTML name="value" string
-     *
-     */
-    public static function getAttrHTML(array $attr = null): string
+	 * Converts an assoc array into valid HTML name="value" string
+	 *
+	 */
+	public static function getAttrHTML(array $attr = null): string
 	{
 		if ($attr) {
 			return HTMLTag::renderAttr($attr);
@@ -196,13 +196,13 @@ class HTMLForm implements ToStringable
 	}
 
 	/**
-     *
-     * Table row with $text and input
-     *
-     * @param string $name
-     * @param string $value
-     */
-    public function tinput(string $text, $name, $value = "", array $more = []): void
+	 *
+	 * Table row with $text and input
+	 *
+	 * @param string $name
+	 * @param string $value
+	 */
+	public function tinput(string $text, $name, $value = "", array $more = []): void
 	{
 		$this->text('<tr><td>' . $text . '</td><td>');
 		$this->input($name, $value, $more);
@@ -215,11 +215,11 @@ class HTMLForm implements ToStringable
 	}
 
 	/**
-     * @param string $name
-     * @param string $value
-     * @param array $more - may be array
-     */
-    public function input($name, $value = "", array $more = [], string $type = 'text', string $extraClass = ''): void
+	 * @param string $name
+	 * @param string $value
+	 * @param array $more - may be array
+	 */
+	public function input($name, $value = "", array $more = [], string $type = 'text', $extraClass = ''): void
 	{
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= '<input type="'.$type.'" '.$this->getName($name).' '.$more.' value="'.$value.'" />'."\n";
@@ -232,11 +232,11 @@ class HTMLForm implements ToStringable
 	}
 
 	/**
-     * @param string $name
-     * @param string $value
-     * @param string $checked - must be value
-     */
-    public function radio($name, $value, $checked, array $more = []): void
+	 * @param string $name
+	 * @param string $value
+	 * @param string $checked - must be value
+	 */
+	public function radio($name, $value, $checked, array $more = []): void
 	{
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= "<input type=radio ".$this->getName($name)." value=\"$value\" ".($value==$checked?"checked":"")." $more>";
@@ -272,7 +272,7 @@ class HTMLForm implements ToStringable
 	{
 		$elementID = is_array($from) ? 'id-' . implode('-', $from) : 'id-' . $from;
 
-        if ($elementID === '0') {
+		if ($elementID === '0') {
 			$elementID = uniqid('id-', true);
 		}
 
@@ -296,12 +296,12 @@ class HTMLForm implements ToStringable
 	}
 
 	/**
-     * Default value is no longer "today"
-     *
-     * @param $name
-     * @param $value
-     */
-    public function date($name, $value, array $desc = []): void
+	 * Default value is no longer "today"
+	 *
+	 * @param $name
+	 * @param $value
+	 */
+	public function date($name, $value, array $desc = []): void
 	{
 //		debug($value);
 		$format = ifsetor($desc['format']) ? $desc['format'] : 'd.m.Y';
@@ -332,15 +332,15 @@ class HTMLForm implements ToStringable
 	}
 
 	/**
-     * Make sure to include the JSCal2 JS in advance.
-     * And set defer=false
-     *
-     * @param $name
-     * @param array $params
-     *
-     * @throws Exception
-     */
-    public function datepopup($name, $value = null, string $type = "input", $activator = null, $id = null, $params = []): string
+	 * Make sure to include the JSCal2 JS in advance.
+	 * And set defer=false
+	 *
+	 * @param $name
+	 * @param array $params
+	 *
+	 * @throws Exception
+	 */
+	public function datepopup($name, $value = null, string $type = "input", $activator = null, $id = null, $params = []): string
 	{
 		$id = $id ?: uniqid('datepopup', true);
 		$fullname = $this->getName($name, '', true);
@@ -418,12 +418,12 @@ class HTMLForm implements ToStringable
 	}
 
 	/**
-     * Changelog: second $more parameter was removed, please use $params instead
-     *
-     * @param string|null $value
-     *
-     */
-    public function submit($value = null, array $params = []): static
+	 * Changelog: second $more parameter was removed, please use $params instead
+	 *
+	 * @param string|null $value
+	 *
+	 */
+	public function submit($value = null, array $params = []): static
 	{
 		$field = new HTMLSubmit($value, $params);
 		$field->setForm($this);
@@ -443,9 +443,9 @@ class HTMLForm implements ToStringable
 	}
 
 	/**
-     * It was doing echo() since 2002 - in 2017 it's doing return
-     */
-    public function render(): string
+	 * It was doing echo() since 2002 - in 2017 it's doing return
+	 */
+	public function render(): string
 	{
 		return $this->getContent();
 	}
@@ -459,7 +459,7 @@ class HTMLForm implements ToStringable
 	{
 		$attributes = is_string($this->formMore) ? HTMLTag::parseAttributes($this->formMore) : $this->formMore;
 
-        if ($this->action) {
+		if ($this->action) {
 			$attributes += [
 				'action' => $this->action,
 			];
@@ -550,14 +550,14 @@ class HTMLForm implements ToStringable
 	}
 
 	/**
-     * @param string|string[] $name
-     * @param string|int|null $default
-     * @param bool $autoSubmit
-     * @param bool $multiple
-     *
-     * @see renderSelectionOptions
-     */
-    public function selection(
+	 * @param string|string[] $name
+	 * @param string|int|null $default
+	 * @param bool $autoSubmit
+	 * @param bool $multiple
+	 *
+	 * @see renderSelectionOptions
+	 */
+	public function selection(
 		$name,
 		array $aOptions = null,  // should allow null in case we load options from db
 		$default = null,
@@ -619,12 +619,12 @@ class HTMLForm implements ToStringable
 	}
 
 	/**
-     * This is checking using isset()
-     *
-     * @param $name
-     * @param array $value
-     */
-    public function keyset($name, $value = [], array $desc = []): void
+	 * This is checking using isset()
+	 *
+	 * @param $name
+	 * @param array $value
+	 */
+	public function keyset($name, $value = [], array $desc = []): void
 	{
 		if ($value) {
 			if (!is_array($value)) {
@@ -759,16 +759,16 @@ document.observe("dom:loaded", () => {
 	}
 
 	/**
-     * A set of checkboxes in a div.checkarray. Values are provided as an array
-     *
-     * @param $name
-     * @param array $selected - only keys are used
-     * @param string $more
-     * @param int $width
-     *
-     * @see set()
-     */
-    public function checkarray(array $name, array $options, array $selected, $more = [], string $height = 'auto', $width = 350): void
+	 * A set of checkboxes in a div.checkarray. Values are provided as an array
+	 *
+	 * @param $name
+	 * @param array $selected - only keys are used
+	 * @param string $more
+	 * @param int $width
+	 *
+	 * @see set()
+	 */
+	public function checkarray(array $name, array $options, array $selected, $more = [], string $height = 'auto', $width = 350): void
 	{
 		TaylorProfiler::start(__METHOD__);
 		$selected = array_keys($selected);
@@ -794,13 +794,13 @@ document.observe("dom:loaded", () => {
 	}
 
 	/**
-     * This one makes a span with a title and is showing data in a specific width
-     *
-     * @param $name
-     * @param $selected
-     * @see $this->radioset()
-     */
-    public function radioArray($name, array $options, $selected): void
+	 * This one makes a span with a title and is showing data in a specific width
+	 *
+	 * @param $name
+	 * @param $selected
+	 * @see $this->radioset()
+	 */
+	public function radioArray($name, array $options, $selected): void
 	{
 		TaylorProfiler::start(__METHOD__);
 		$this->stdout .= '<div class="radioArray">';
@@ -836,7 +836,7 @@ document.observe("dom:loaded", () => {
 	{
 		$hfr = new HTMLFormRecaptcha();
 		$r = Request::getInstance();
-        $content = $r->isAjax() ? $hfr->getFormAjax($desc) : $hfr->getForm($desc);
+		$content = $r->isAjax() ? $hfr->getFormAjax($desc) : $hfr->getForm($desc);
 
 		$this->stdout .= $content;
 
@@ -844,13 +844,13 @@ document.observe("dom:loaded", () => {
 	}
 
 	/**
-     * Make sure to implement in form onSubmit() something like
-     * $(\'input[name="recaptcha_challenge_field"]\').val(Recaptcha.get_challenge());
-     * $(\'input[name="recaptcha_response_field"]\').val(Recaptcha.get_response());
-     *
-     *
-     */
-    public function recaptchaAjax(array $desc): string
+	 * Make sure to implement in form onSubmit() something like
+	 * $(\'input[name="recaptcha_challenge_field"]\').val(Recaptcha.get_challenge());
+	 * $(\'input[name="recaptcha_response_field"]\').val(Recaptcha.get_response());
+	 *
+	 *
+	 */
+	public function recaptchaAjax(array $desc): string
 	{
 		$hfr = new HTMLFormRecaptcha();
 		$content = $hfr->getFormAjax($desc);
@@ -886,12 +886,12 @@ document.observe("dom:loaded", () => {
 	}
 
 	/**
-     * TODO
-     *
-     * @param       $fieldName
-     * @param       $fieldValue
-     */
-    public function captcha($fieldName, $fieldValue, array $params)
+	 * TODO
+	 *
+	 * @param       $fieldName
+	 * @param       $fieldValue
+	 */
+	public function captcha($fieldName, $fieldValue, array $params)
 	{
 	}
 

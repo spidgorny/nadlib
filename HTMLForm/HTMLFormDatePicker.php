@@ -52,7 +52,7 @@ class HTMLFormDatePicker extends HTMLFormField
 		$this->form->input($this->field, $val, [
 				'format' => $this->jsFormat
 			] + $this->jsParams,
-			$this->inputType, ifsetor($this->desc['class']));
+			$this->inputType, ifsetor($this->desc['class'], ''));
 
 		$this->content = $this->form->stdout;
 		$this->form->stdout = $tmp;

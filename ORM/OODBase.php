@@ -118,12 +118,12 @@ abstract class OODBase implements ArrayAccess
 			$this->db = $db;
 
 			// @todo: use DI
-//		} elseif (class_exists('Config')) {
-//			$config = Config::getInstance();
-//			$this->table = $config->prefixTable($this->table);
-//			if (!$this->db) {
-//				$this->db = $config->getDB();
-//			}
+		} elseif (class_exists('Config')) {
+			$config = Config::getInstance();
+			$this->table = $config->prefixTable($this->table);
+			if (!$this->db) {
+				$this->db = $config->getDB();
+			}
 
 			//debug(get_class($this), $this->table, gettype2($this->db));
 		} else {
