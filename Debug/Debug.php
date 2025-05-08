@@ -3,7 +3,7 @@
 class Debug
 {
 
-	protected static self $instance;
+	protected static $instance;
 
 	public $index;
 
@@ -62,20 +62,21 @@ class Debug
 
 	public function detectRenderer(): string
 	{
-		return DebugCLI::canCLI()
-			? DebugCLI::class
-			: ($this->canDebugster()
-				? 'Debugster'
-				: (DEVELOPMENT
-					? (DebugBulma::canBulma()
-						? DebugBulma::class
-						: ($this->canHTML()
-							? 'HTML'
-							: '')
-					)
-					: null
-				)
-			);
+		if (DebugCLI::canCLI()) {
+			return DebugCLI::class;
+		}
+		if ($this->canDebugster()) {
+			return 'Debugster';
+		}
+		if (DEVELOPMENT) {
+			if (DebugBulma::canBulma()) {
+				return DebugBulma::class;
+			}
+			if ($this->canHTML()) {
+				return 'HTML';
+			}
+		}
+		return '';
 	}
 
 	public function canDebugster(): bool
@@ -202,9 +203,9 @@ class Debug
 	}
 
 	/**
-     * @throws ReflectionException
-     */
-    public static function getMethod(array $first, array $next = []): string
+	 * @throws ReflectionException
+	 */
+	public static function getMethod(array $first, array $next = []): string
 	{
 //		pre_print_r($_SERVER);
 		$isPhpStorm = isset($_SERVER['IDE_PHPUNIT_CUSTOM_LOADER'])
@@ -256,10 +257,10 @@ class Debug
 	}
 
 	/**
-     * Returns a single method several steps back in trace
-     * @param int $stepBack
-     */
-    public static function getCaller($stepBack = 2): string
+	 * Returns a single method several steps back in trace
+	 * @param int $stepBack
+	 */
+	public static function getCaller($stepBack = 2): string
 	{
 		$btl = debug_backtrace();
 		reset($btl);
@@ -293,7 +294,7 @@ class Debug
 		foreach ($debug as $i => $debugLine) {
 			$object = ifsetor($debugLine['object']) ? typ($debugLine['object'], $withHash, true) : '';
 
-            $file = basename($debugLine['file'] ?? '');
+			$file = basename($debugLine['file'] ?? '');
 			$file = str_replace('class.', '', $file);
 			$file = str_replace('.php', '', $file);
 			$nextFunc = ifsetor($debug[$i + 1]['function']);
@@ -313,11 +314,11 @@ class Debug
 	}
 
 	/**
-     * http://stackoverflow.com/a/2510459/417153
-     * @param int $bytes
-     * @param int $precision
-     */
-    public static function formatBytes($bytes, $precision = 2): string
+	 * http://stackoverflow.com/a/2510459/417153
+	 * @param int $bytes
+	 * @param int $precision
+	 */
+	public static function formatBytes($bytes, $precision = 2): string
 	{
 		$units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
@@ -371,7 +372,7 @@ class Debug
 			return array_combine(array_keys($row), $types);
 		}
 
-        return null;
+		return null;
 	}
 
 	/**

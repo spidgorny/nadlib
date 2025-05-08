@@ -8,7 +8,7 @@
 class Time
 {
 
-	const HUMAN = 'H:i';
+	public const HUMAN = 'H:i';
 
 	/**
 	 * @var int
@@ -40,7 +40,7 @@ class Time
 			// 0 is 1970-01-01 00:00:00
 			if (is_string($input)) {
 				$this->time = is_null($relativeTo) ? strtotime($input) : strtotime($input, $relativeTo);
-			} elseif ($input instanceof Time) {
+			} elseif ($input instanceof self) {
 				$this->time = $input->getTimestamp(); // clone
 				//debug('clone '.$this->getHumanDateTime());
 			} elseif (is_numeric($input)) {
@@ -91,20 +91,23 @@ class Time
 
 	/**
 	 * @param string|null|int $input
+	 * @throws Exception
 	 */
 	public static function make($input = null, $relativeTo = null): static
 	{
-		return new self($input, $relativeTo);
+		return new static($input, $relativeTo);
 	}
 
 	/**
 	 * Combines date and time and creates a new Time object
 	 * @param $date
 	 * @param $time
+	 * @return Time
+	 * @throws Exception
 	 */
 	public static function combine($date, $time): self
 	{
-		if ($date instanceof Time) {
+		if ($date instanceof self) {
 			$date = $date->getISODate();
 		}
 
