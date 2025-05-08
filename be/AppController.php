@@ -1,9 +1,11 @@
 <?php
 
-class AppController extends Controller
+namespace spidgorny\nadlib\be;
+
+class AppController extends \Controller
 {
 
-	/** @var UserModelInterface */
+	/** @var \UserModelInterface */
 	public $user;
 
 }

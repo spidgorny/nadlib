@@ -8,7 +8,7 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 
 //require_once 'init.php';
 
-require_once dirname(__FILE__) . '/../AutoLoad.php';
+//require_once dirname(__FILE__) . '/../AutoLoad.php';
 
 
 //require_once 'Controller/class.IndexBase.php';	    // force this Index class
