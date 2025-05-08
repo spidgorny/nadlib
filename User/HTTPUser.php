@@ -19,10 +19,10 @@ class HTTPUser implements UserModelInterface
 	}
 
 	/**
-     * @param string $login
-     * @param string $email
-     */
-    public function try2login($login, $email = null): void
+	 * @param string $login
+	 * @param string $email
+	 */
+	public function try2login($login, $email = null): void
 	{
 		// TODO: Implement try2login() method.
 	}
@@ -43,9 +43,9 @@ class HTTPUser implements UserModelInterface
 	}
 
 	/**
-     * @param string $acl
-     */
-    public function can($acl): bool
+	 * @param string $acl
+	 */
+	public function can($acl): bool
 	{
 		return false;
 	}
@@ -95,7 +95,7 @@ class HTTPUser implements UserModelInterface
 		return '';
 	}
 
-	public function getPref($key, $default = null)
+	public function getPref($pref, $default = null)
 	{
 		return $default;
 	}

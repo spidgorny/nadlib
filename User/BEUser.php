@@ -104,7 +104,7 @@ class BEUser implements UserModelInterface
 	{
 	}
 
-	public function getPref($key, $default = null)
+	public function getPref($pref, $default = null)
 	{
 		return $default;
 	}

@@ -56,12 +56,12 @@ abstract class UserBase extends OODBase implements UserModelInterface
 	}
 
 	/**
-     * Will md5 password inside.
-     * Will NOT md5 password inside as Client is UserBased.
-     *
-     * @throws Exception
-     */
-    public function insertUniqEmail(array $data): void
+	 * Will md5 password inside.
+	 * Will NOT md5 password inside as Client is UserBased.
+	 *
+	 * @throws Exception
+	 */
+	public function insertUniqEmail(array $data): void
 	{
 		//debug($data);
 		if ($data['email']) {
@@ -100,9 +100,9 @@ abstract class UserBase extends OODBase implements UserModelInterface
 		$this->prefs[$key] = $val;
 	}
 
-	public function getPref($key, $default = null)
+	public function getPref($pref, $default = null)
 	{
-		return ifsetor($this->prefs[$key]);
+		return ifsetor($this->prefs[$pref]);
 	}
 
 	public function getAllPrefs()
@@ -135,7 +135,7 @@ abstract class UserBase extends OODBase implements UserModelInterface
 	public function isAuth()
 	{
 		//debug($this);
-		return (bool) $this->id;
+		return (bool)$this->id;
 	}
 
 	public function getHTML()

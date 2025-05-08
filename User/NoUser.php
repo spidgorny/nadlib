@@ -36,9 +36,9 @@ class NoUser implements UserModelInterface
 		return '';
 	}
 
-	public function getPref($key, $default = null)
+	public function getPref($pref, $default = null)
 	{
-		return $this->prefs->get($key, $default);
+		return $this->prefs->get($pref, $default);
 	}
 
 	public function setPref($key, $val): void
