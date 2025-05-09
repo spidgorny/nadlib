@@ -95,7 +95,7 @@ class DBLayer extends DBLayerBase
 	public function getVersion()
 	{
 		$version = pg_version($this->connection);
-		return $version['server'];
+		return (float)$version['server'];
 	}
 
 	/**
