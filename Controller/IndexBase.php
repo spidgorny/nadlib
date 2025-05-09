@@ -30,7 +30,7 @@ class IndexBase /*extends Controller*/
 	public $content;
 
 	/**
-	 * @var AppController|UserlessController
+	 * @var Controller|AppController|UserlessController
 	 */
 	public $controller;
 
