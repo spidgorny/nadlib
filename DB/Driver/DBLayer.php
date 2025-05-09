@@ -700,29 +700,6 @@ class DBLayer extends DBLayerBase
 		return $row['lastval'];
 	}
 
-	public function getComment($table, $column)
-	{
-		$query = 'select
-	 a.attname  as "colname"
-	,a.attrelid as "tableoid"
-	,a.attnum   as "columnoid"
-	,col_description(a.attrelid, a.attnum) as "comment"
-from
-	pg_catalog.pg_attribute a
-	inner join pg_catalog.pg_class c on a.attrelid = c.oid
-where
-        c.relname = ' . $this->quoteSQL($table) . '
-	and a.attnum > 0
-	and a.attisdropped is false
-	and pg_catalog.pg_table_is_visible(c.oid)
-order by a.attnum';
-		$rows = $this->fetchAll($query);
-		$assoc = ArrayPlus::create($rows)->column_assoc('colname', 'comment')->getData();
-		$comment = $assoc[$column];
-		//debug($query, $rows, $assoc, $comment);
-		return $comment;
-	}
-
 	/**
 	 * Uses find_in_set function which is not built-in
 	 * @param array $options
@@ -815,19 +792,6 @@ order by a.attnum';
 		}
 		$content = implode(' < ', $content);
 		return $content;
-	}
-
-	/**
-	 * http://www.postgresql.org/docs/9.3/static/datatype-money.html
-	 * @param string $source
-	 * @return float
-	 */
-	public function getMoney($source = '$1,234.56')
-	{
-		$source = str_replace('$', '', $source);
-		$source = str_replace(',', '', $source);
-		$source = floatval($source);
-		return $source;
 	}
 
 	/**

@@ -82,4 +82,6 @@ interface DBInterface
 
 	public function getVersion();
 
+	public function getComment($table, $column);
+
 }
