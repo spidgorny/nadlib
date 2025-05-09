@@ -32,11 +32,11 @@ class Debug
 		self::$instance = $this;
 		if (class_exists('Config')) {
 			$c = Config::getInstance();
-			if (ifsetor($c->debugRenderer)) {
-				$this->renderer = $c->debugRenderer;
-			} else {
+//			if (ifsetor($c->debugRenderer)) {
+//				$this->renderer = $c->debugRenderer;
+//			} else {
 				$this->renderer = $this->detectRenderer();
-			}
+//			}
 		} else {
 			$this->renderer = $this->detectRenderer();
 		}
