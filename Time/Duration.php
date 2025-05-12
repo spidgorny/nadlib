@@ -54,44 +54,6 @@ class Duration extends Time
 		$this->updateDebug();
 	}
 
-	public static function fromSeconds($ini_get): \Duration
-	{
-		return new Duration($ini_get);
-	}
-
-	public function format($rules): string
-	{
-		die(__METHOD__ . " - don't use.");
-		return 'not implemented';
-	}
-
-	public function getTime($format = 'H:i:s'): string
-	{
-		return gmdate($format, $this->time);
-	}
-
-	public function nice($perCount = 2): string
-	{
-		return $this->toString($perCount);
-	}
-
-	public function short(): string
-	{
-		$h = floor($this->time / 3600);
-		$m = floor($this->time % 3600 / 60);
-		$content = [];
-		if ($h !== 0.0) {
-			$content[] = $h . 'h';
-		}
-
-		if ($m !== 0.0) {
-			$content[] = $m . 'm';
-		}
-
-		$content = implode('&nbsp;', $content);
-		return $content ?: '-';
-	}
-
 	/**
      * Parses the human string like '24h 10m'
      * No spaces allowed between the number and value
@@ -162,13 +124,30 @@ class Duration extends Time
 		return new Duration($total);
 	}
 
-	/**
-     * Return human-readable time units
-     */
-    public function __toString(): string
+	public function getTimestamp()
 	{
-		//return floor($this->time / 3600/24).gmdate('\d H:i:s', $this->time).' ('.$this->time.')';
-		return $this->toString();
+		return $this->time;
+	}
+
+	public static function fromSeconds($ini_get): \Duration
+	{
+		return new Duration($ini_get);
+	}
+
+	public function format($rules): string
+	{
+		die(__METHOD__ . " - don't use.");
+		return 'not implemented';
+	}
+
+	public function getTime($format = 'H:i:s'): string
+	{
+		return gmdate($format, $this->time);
+	}
+
+	public function nice($perCount = 2): string
+	{
+		return $this->toString($perCount);
 	}
 
 	/**
@@ -196,13 +175,11 @@ class Duration extends Time
 		return $content;
 	}
 
-
 	/**
 	 * Return an array of date segments.
 	 * Must be public for Trip
 	 *
 	 * @return       mixed An array containing named segments
-	 * @internal param int $seconds Number of seconds to be parsed
 	 */
 	public function int2array()
 	{
@@ -228,7 +205,6 @@ class Duration extends Time
 		return $values;
 	}
 
-
 	/**
 	 * Return a string of time periods.
 	 *
@@ -253,9 +229,30 @@ class Duration extends Time
 		return implode(', ', $array);
 	}
 
-	public function getTimestamp()
+	public function short(): string
 	{
-		return $this->time;
+		$h = floor($this->time / 3600);
+		$m = floor($this->time % 3600 / 60);
+		$content = [];
+		if ($h !== 0.0) {
+			$content[] = $h . 'h';
+		}
+
+		if ($m !== 0.0) {
+			$content[] = $m . 'm';
+		}
+
+		$content = implode('&nbsp;', $content);
+		return $content ?: '-';
+	}
+
+	/**
+     * Return human-readable time units
+     */
+    public function __toString(): string
+	{
+		//return floor($this->time / 3600/24).gmdate('\d H:i:s', $this->time).' ('.$this->time.')';
+		return $this->toString();
 	}
 
 	public function less($sDuration)

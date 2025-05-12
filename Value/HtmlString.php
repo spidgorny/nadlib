@@ -33,9 +33,9 @@ class HtmlString implements ToStringable
 		return htmlspecialchars($string);
 	}
 
-	public function replace($one, $two): void
+	public function replace($one, $two): static
 	{
-		new HtmlString(
+		return new HtmlString(
 			str_replace($one, $two, $this->value));
 	}
 

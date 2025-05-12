@@ -12,49 +12,39 @@ class Collection implements IteratorAggregate, ToStringable
 {
 
 	/**
+	 * objectify() without parameters will try this class name
+	 * Default is NULL in order to check whether it's set or not.
+	 * @var string
+	 */
+	public static $itemClassName;
+	/**
 	 * @var string
 	 */
 	public $table = __CLASS__;
-
 	public $idField = 'uid';
-
 	public $parentID;
-
 	public $thes = [];
-
 	public $titleColumn = 'title';
-
 	/**
 	 * Basic where SQL params to be included in every SQL by default
 	 * @var array
 	 */
 	public $where = [];
-
 	/**
 	 * for LEFT OUTER JOIN queries
 	 * @var string
 	 */
 	public $join = '';
-
 	/**
 	 * Initialize in postInit() to run paged SQL
 	 * initialize if necessary with = new Pager(); in postInit()
 	 * @var Pager|null
 	 */
 	public $pager;
-
 	/**
 	 * @var PageSize
 	 */
 	public $pageSize;
-
-	/**
-	 * objectify() without parameters will try this class name
-	 * Default is NULL in order to check whether it's set or not.
-	 * @var string
-	 */
-	public static $itemClassName;
-
 	/**
 	 * SQL part
 	 * @var string
@@ -160,7 +150,7 @@ class Collection implements IteratorAggregate, ToStringable
 	protected $logger;
 
 	/**
-	 * @param int /-1 $pid
+	 * @param int $pid
 	 *        if -1 - will not retrieve data from DB
 	 *        if 00 - will retrieve all data
 	 *        if >0 - will retrieve data where PID = $pid
@@ -229,24 +219,12 @@ class Collection implements IteratorAggregate, ToStringable
 		TaylorProfiler::stop($taylorKey);
 	}
 
-	public function log($action, $data = []): void
+	public function setDB(?DBInterface $db = null): void
 	{
-		if ($this->logger) {
-			if (!is_array($data)) {
-				$data = ['data' => $data];
-			}
-
-			$this->logger->info($action, $data);
-		} else {
-			$this->log[] = new LogEntry($action, $data);
+		if (!$db) {
+			return;
 		}
-	}
-
-	public function isFetched(): bool
-	{
-		return $this->query && $this->data !== null;
-		// we may have fetched only 0 rows
-		//|| !$this->data->count())) {
+		$this->db = $db;
 	}
 
 	/**
@@ -313,6 +291,26 @@ class Collection implements IteratorAggregate, ToStringable
 		// after it was set (see $this->getData()
 		// which is called in $this->render())
 		$this->query = $this->query ?: __METHOD__;
+	}
+
+	public function log($action, $data = []): void
+	{
+		if ($this->logger) {
+			if (!is_array($data)) {
+				$data = ['data' => $data];
+			}
+
+			$this->logger->info($action, $data);
+		} else {
+			$this->log[] = new LogEntry($action, $data);
+		}
+	}
+
+	public function isFetched(): bool
+	{
+		return $this->query && $this->data !== null;
+		// we may have fetched only 0 rows
+		//|| !$this->data->count())) {
 	}
 
 	/**
@@ -539,16 +537,6 @@ class Collection implements IteratorAggregate, ToStringable
 		return $this->data;
 	}
 
-	public function prepareRenderRow(array $row)
-	{
-		if (is_callable($this->prepareRenderRow)) {
-			$closure = $this->prepareRenderRow;
-			$row = $closure($row);
-		}
-
-		return $row;
-	}
-
 	/**
 	 * @throws Exception
 	 */
@@ -669,8 +657,8 @@ class Collection implements IteratorAggregate, ToStringable
 
 	public function renderListItem(array $row)
 	{
-		/** @var OODBase $obj */
 		$class = static::$itemClassName;
+		/** @var OODBase $obj */
 		$obj = method_exists($class, 'getInstance') ? $class::getInstance($row) : new $class($row);
 
 		if (method_exists($obj, 'render')) {
@@ -679,7 +667,7 @@ class Collection implements IteratorAggregate, ToStringable
 			$link = $obj->getSingleLink();
 			$content = $link ? new HTMLTag('a', [
 				'href' => $link,
-			], $obj->getName()) : $obj->getName();
+			], (string)$obj->getName()) : (string)$obj->getName();
 		} else {
 			$content = $obj->getName();
 		}
@@ -712,6 +700,16 @@ class Collection implements IteratorAggregate, ToStringable
 		return $this;
 	}
 
+	public function prepareRenderRow(array $row)
+	{
+		if (is_callable($this->prepareRenderRow)) {
+			$closure = $this->prepareRenderRow;
+			$row = $closure($row);
+		}
+
+		return $row;
+	}
+
 	/**
 	 * Calls __toString on each member
 	 * @return string
@@ -720,7 +718,6 @@ class Collection implements IteratorAggregate, ToStringable
 	{
 		return $this->getView()->renderMembers();
 	}
-
 
 	public function objectifyAsPlus(): \ArrayPlus
 	{
@@ -799,22 +796,9 @@ class Collection implements IteratorAggregate, ToStringable
 		return $list;
 	}
 
-	public function getLazyIterator(): \DatabaseResultIteratorAssoc
-	{
-		$query = $this->getCollectionQuery()->getQuery();
-		//debug($query);
-
-		$lazy = new DatabaseResultIteratorAssoc($this->db, $this->idField);
-		$lazy->perform($query);
-
-		$this->query = $lazy->query;
-
-		return $lazy;
-	}
-
 	/**
 	 * @param string $class
-	 * @return LazyMemberIterator|$class[]
+	 * @return LazyMemberIterator
 	 */
 	public function getLazyMemberIterator($class = null): \LazyMemberIterator
 	{
@@ -826,6 +810,19 @@ class Collection implements IteratorAggregate, ToStringable
 		$memberIterator = new LazyMemberIterator($arrayIterator, $class);
 		$memberIterator->count = $arrayIterator->count();
 		return $memberIterator;
+	}
+
+	public function getLazyIterator(): \DatabaseResultIteratorAssoc
+	{
+		$query = $this->getCollectionQuery()->getQuery();
+		//debug($query);
+
+		$lazy = new DatabaseResultIteratorAssoc($this->db, $this->idField);
+		$lazy->perform($query);
+
+		$this->query = $lazy->query;
+
+		return $lazy;
 	}
 
 	public function clearInstances(): void
@@ -935,14 +932,6 @@ class Collection implements IteratorAggregate, ToStringable
 		}
 
 		return false;
-	}
-
-	public function setDB(?DBInterface $db = null): void
-	{
-		if (!$db) {
-			return;
-		}
-		$this->db = $db;
 	}
 
 	public function unobjectify(): void

@@ -9,13 +9,6 @@
 class HTMLFormTest extends PHPUnit\Framework\TestCase
 {
 
-	public function __construct(string $name = null)
-	{
-		parent::__construct($name);
-		@define('BR', Request::isWindows()
-			? "\r\n" : "\n");
-	}
-
 	public function test_id(): void
 	{
 		$f = new HTMLForm('action', __CLASS__);
@@ -105,6 +98,13 @@ class HTMLFormTest extends PHPUnit\Framework\TestCase
 //		debug($html);
 		$this->assertContains('"k1" checked', $html);
 		$this->assertContains('"k2" checked', $html);
+	}
+
+	protected function setUp(): void
+	{
+		parent::setUp();
+		@define('BR', Request::isWindows()
+			? "\r\n" : "\n");
 	}
 
 }

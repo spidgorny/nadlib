@@ -3,22 +3,18 @@
 class CollectionView
 {
 
-	protected \Collection $collection;
-
 	public $noDataMessage = 'No data';
-
 	/**
 	 * Indication to slTable
 	 * @var bool
 	 */
 	public $useSorting = true;
-
 	public $tableMore = [
 		'class' => 'nospacing table table-striped',
 		'width' => '100%',
 	];
-
 	public $wrapTag = 'div';
+	protected \Collection $collection;
 
 	public function __construct(Collection $col)
 	{
@@ -28,21 +24,6 @@ class CollectionView
 	public function __toString(): string
 	{
 		return MergedContent::mergeStringArrayRecursive($this->renderMembers());
-	}
-
-	public function wrap($content)
-	{
-		if ($this->wrapTag) {
-			[$tagClass, $id] = trimExplode('#', $this->wrapTag, 2);
-			[$tag, $class] = trimExplode('.', $tagClass, 2);
-			$content = [
-				'<' . $tag . ' class="' . get_class($this->collection) . ' ' . $class . '" id="' . $id . '">',
-				$content,
-				'</' . $tag . '>'
-			];
-		}
-
-		return $content;
 	}
 
 	public function renderMembers()
@@ -61,8 +42,10 @@ class CollectionView
 		 * @var OODBase $obj
 		 */
 		foreach ($this->collection->objectify() as $obj) {
-			$content[] = $obj->render();
-			$content[] = "\n";
+			if (method_exists($obj, 'render')) {
+				$content[] = $obj->render();
+				$content[] = "\n";
+			}
 		}
 
 		$content = $this->wrap($content);
@@ -70,6 +53,21 @@ class CollectionView
 		if ($this->collection->pager) {
 			$pages = $this->collection->pager->renderPageSelectors();
 			$content = [$pages, $content, $pages];
+		}
+
+		return $content;
+	}
+
+	public function wrap($content)
+	{
+		if ($this->wrapTag) {
+			[$tagClass, $id] = trimExplode('#', $this->wrapTag, 2);
+			[$tag, $class] = trimExplode('.', $tagClass, 2);
+			$content = [
+				'<' . $tag . ' class="' . get_class($this->collection) . ' ' . $class . '" id="' . $id . '">',
+				$content,
+				'</' . $tag . '>'
+			];
 		}
 
 		return $content;

@@ -5,28 +5,21 @@
  */
 class AccessRights implements AccessRightsInterface
 {
-	protected $accessTable = 'access';
-
-	protected $groupAccessTable = 'department_access';
-
-	protected $id_usergroup = 'id_department';
-
-	protected $id_useraccess = 'id_access';
-
 	public $groupID;
-
 	/**
 	 * @var array
 	 * @public for dehydration
 	 */
 	public $arCache = [];
-
+	public $query;
+	protected $accessTable = 'access';
+	protected $groupAccessTable = 'department_access';
+	protected $id_usergroup = 'id_department';
+	protected $id_useraccess = 'id_access';
 	/**
 	 * @var DBInterface
 	 */
 	protected $db;
-
-	public $query;
 
 	/**
 	 * AccessRights constructor.
@@ -62,7 +55,7 @@ class AccessRights implements AccessRightsInterface
 			$this->accessTable . '.*, ' . $this->groupAccessTable . '.id as affirmative'
 		);
 		$data = $this->db->fetchAll($res);
-		$this->query = $this->db->lastQuery;
+		$this->query = $this->db->getLastQuery();
 		//		debug($this->query);
 		//debug($data);
 		$data = new ArrayPlus($data);

@@ -1,5 +1,6 @@
 <?php
 
+use PgSql\Result;
 use Psr\Log\LoggerInterface;
 use spidgorny\nadlib\HTTP\URL;
 
@@ -221,19 +222,20 @@ abstract class OODBase implements ArrayAccess
 	 */
 	public function findInDB(array $where, $orderByLimit = '', $selectPlus = null)
 	{
-		$row = $this->db->fetchOneSelectQuery(
+		$res = $this->db->runSelectQuery(
 			$this->table,
 			$this->where + $where,
 			$orderByLimit,
 			$selectPlus
 		);
+		$row = $this->db->fetchAssoc($res);
 
 		//debug($this->where + $where, $this->db->lastQuery);
 		$this->lastSelectQuery = $this->db->lastQuery;
 //		$this->log(__METHOD__, $this->lastSelectQuery . '');
 //		debug($rows, $this->lastSelectQuery);
 		if (is_array($row) && $row) {
-			$row = $this->fixRowDataTypes($row);
+			$row = $this->fixRowDataTypes($res, $row);
 			$this->initByRow($row);
 		} elseif ($this->forceInit) {
 			$this->initByRow([]);
@@ -242,12 +244,12 @@ abstract class OODBase implements ArrayAccess
 		return $this->data;
 	}
 
-	public function fixRowDataTypes(array $row)
+	public function fixRowDataTypes(Result $res, array $row)
 	{
 		// fix data types, as array_contains will fail due to wrong data type
 		$i = 0;
 		foreach ($row as &$v) {
-			$dbFieldType = pg_field_type($this->db->lastResult, $i++);
+			$dbFieldType = pg_field_type($res, $i++);
 //				llog($k, get_debug_type($v), $v, $dbFieldType);
 			if ($dbFieldType === 'int4' && get_debug_type($v) === 'string') {
 				$v = (int)$v;
@@ -443,7 +445,7 @@ abstract class OODBase implements ArrayAccess
 	/**
 	 *
 	 * @param string $orderBy
-	 * @return OODBase (id) of the found record
+	 * @return static
 	 * @throws Exception
 	 */
 	public function findInDBbySQLWhere(SQLWhere $where, $orderBy = '')

@@ -7,17 +7,13 @@
 class NextPrevBrowser
 {
 
+	public $prevText = '&#x25C4;';
+	public $nextText = '&#x25BA;';
 	protected \Collection $collection;
-
 	/** @var ArrayPlus */
 	protected $data;
-
 	/** @var Pager */
 	protected $pager;
-
-	public $prevText = '&#x25C4;';
-
-	public $nextText = '&#x25BA;';
 
 	public function __construct(Collection $collection)
 	{
@@ -43,7 +39,7 @@ class NextPrevBrowser
 			if ($this->pager->currentPage > 0) {
 				$copy = clone $this->collection;
 				$copy->pager->setCurrentPage($copy->pager->currentPage - 1);
-				$copy->retrieveDataFromCache();
+				$copy->retrieveData();
 				$copy->preprocessData();
 				$prevData = $copy->getData()->getData();
 			} else {

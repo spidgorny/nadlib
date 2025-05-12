@@ -4,12 +4,13 @@
  * Class HTMLFormField
  * This represents an element of HTMLFormTable desc array
  * Do not confuse it with HTMLFormType and it's descendants.
- * @property $elementID string
  */
 class HTMLFormField extends HTMLFormType
 {
 	use MagicDataProps;
 	use ArrayAccessData;
+
+	public string $elementID;
 
 	/**
 	 * All different desc parameters for the form element.

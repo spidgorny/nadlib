@@ -6,7 +6,6 @@ use AsIs;
 use AsIsOp;
 use Config;
 use DBInterface;
-use Index;
 use OODBase;
 
 class Proxy extends OODBase
@@ -79,7 +78,8 @@ class Proxy extends OODBase
 	}
 
 	/**
-	 * @return array(342571/359601)
+	 * @return array
+	 * @throws \Exception
 	 */
 	public static function getProxies(): array
 	{

@@ -40,13 +40,13 @@ class HTMLFormLocation extends HTMLFormType
 		if ($this->value) {
 //			$map = new StaticMapOSM($this->value);
 //			$map = new StaticMapGM($this->value);
-			$config = Config::getInstance();
-			$map = $config->getStaticMapMQ($this->value);
-			if ($this->size) {
-				$map->size = $this->size;
-			}
+//			$config = Config::getInstance();
+//			$map = $config->getStaticMapMQ($this->value);
+//			if ($this->size) {
+//				$map->size = $this->size;
+//			}
 
-			$content[] = '<div class="text-center p-3">' . $map->render() . '</div>';
+//			$content[] = '<div class="text-center p-3">' . $map->render() . '</div>';
 		}
 
 		return $content;

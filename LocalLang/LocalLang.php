@@ -7,13 +7,14 @@
 abstract class LocalLang
 {
 	/**
+	 * @var LocalLang|LocalLangJsonPerController
+	 */
+	public static $instance;
+	/**
 	 * actual messages
 	 * @var array
 	 */
 	public $ll = [];
-
-	protected $defaultLang = 'en';
-
 	public $possibleLangs = ['en', 'de', 'es', 'ru', 'uk'];
 
 	/**
@@ -23,22 +24,14 @@ abstract class LocalLang
 	public $lang;
 
 	public $indicateUntranslated = false;
-
-	protected $codeID = [];
-
 	public $editMode = false;
-
 	/**
 	 * @var bool
 	 */
 	public $debug = false;
-
 	public $saveMissingMessages = true;
-
-	/**
-	 * @var LocalLang|LocalLangJsonPerController
-	 */
-	public static $instance;
+	protected $defaultLang = 'en';
+	protected $codeID = [];
 
 	/**
 	 * Will detect the language by the cookie or browser sniffing
@@ -119,6 +112,11 @@ abstract class LocalLang
 		return self::$instance;
 	}
 
+	public function M($text)
+	{
+		return $this->T($text);
+	}
+
 	/**
 	 *
 	 * @param $text
@@ -127,9 +125,6 @@ abstract class LocalLang
 	 * @param mixed $s2
 	 * @param mixed $s3
 	 * @return string translated message
-	 * @internal param $ <type> $replace
-	 * @internal param $ <type> $s2
-	 * @internal param $ <type> $text
 	 */
 	public function T($text, $replace = null, $s2 = null, $s3 = null)
 	{
@@ -203,11 +198,6 @@ abstract class LocalLang
 	}
 
 	abstract public function saveMissingMessage($text);
-
-	public function M($text)
-	{
-		return $this->T($text);
-	}
 
 	public function getMessages()
 	{

@@ -3,7 +3,7 @@
 class HTMLInputWithOptions extends HTMLFormField
 {
 
-	public $field;
+	public array $field;
 
 	/**
 	 * @var HTMLForm
@@ -29,7 +29,7 @@ class HTMLInputWithOptions extends HTMLFormField
      */
     public function render(): array
 	{
-		$content[] = '<input name="' . $this->field . '"
+		$content[] = '<input name="' . $this->form->getName($this->field) . '"
 		list="' . $this->listName . '"
 		value="' . htmlspecialchars($this->value) . '">
 		<datalist id="' . $this->listName . '">';

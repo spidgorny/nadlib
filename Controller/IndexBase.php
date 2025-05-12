@@ -170,7 +170,7 @@ class IndexBase /*extends Controller*/
 		$instance = self::$instance ?: null;
 		if (!$instance && $createNew) {
 			$static = get_called_class();
-			$instance = new $static($config);
+			$instance = new $static($config, DCI::getInstance());
 			self::$instance = $instance;
 		}
 

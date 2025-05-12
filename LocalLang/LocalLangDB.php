@@ -12,7 +12,7 @@ class LocalLangDB extends LocalLang
 	public $table = 'interface';
 
 	/**
-	 * @var MySQL|DBLayerBase
+	 * @var DBInterface
 	 */
 	protected $db;
 
@@ -21,14 +21,6 @@ class LocalLangDB extends LocalLang
 	 * @var array
 	 */
 	protected $rows = [];
-
-	/**
-	 * @param $forceLang
-	 */
-	public function __construct($forceLang = null)
-	{
-		parent::__construct($forceLang);
-	}
 
 	/**
 	 * Why is it not called from the constructor?
@@ -87,8 +79,8 @@ class LocalLangDB extends LocalLang
 			], 'ORDER BY id');
 			$rows = ArrayPlus::create($rows)->IDalize('id')->getData();
 		} else {
-			debug($this->db->lastQuery);
-			throw new Exception('No translation found in DB');
+			debug($this->db->getLastQuery());
+			throw new \RuntimeException('No translation found in DB');
 		}
 
 		return $rows;

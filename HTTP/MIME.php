@@ -75,7 +75,7 @@ class MIME
 	/**
 	 * http://nl3.php.net/manual/en/function.mime-content-type.php#85879
 	 * @param $filename
-	 * @return mixed|string
+	 * @return string
 	 */
 	public function mime_by_ext($filename): string
 	{

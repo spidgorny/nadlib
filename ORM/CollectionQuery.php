@@ -65,7 +65,50 @@ class CollectionQuery
 	}
 
 	/**
-	 * @param array /SQLWhere $where
+	 * @return array
+	 * @throws Exception
+	 */
+	private function retrieveDataFromDB()
+	{
+		$taylorKey = get_class($this) . '::' . __FUNCTION__;
+		TaylorProfiler::start($taylorKey);
+//		$this->log(__METHOD__, Debug::getBackLog(25, 0, null, false));
+
+		$this->query = $this->getQueryWithLimit();
+//		$this->log($taylorKey, [
+//			'query' => str_replace("\n", " ", str_replace("\t", " ", $this->query . ''))
+//		]);
+
+		// in most cases we don't need to rasterize the query to SQL
+		$data = $this->db->fetchAll($this->query);
+		// fetchAll does implement free()
+		TaylorProfiler::stop($taylorKey);
+		return $data;
+	}
+
+	public function getQueryWithLimit()
+	{
+		$query = $this->getQuery();
+		if ($this->pager instanceof \Pager) {
+			// do it only once
+			if (!$this->pager->numberOfRecords) {
+				//debug($this->pager->getObjectInfo());
+				//			debug($query);
+				$this->pager->initByQuery($query);
+				//			debug($query, $this->query);
+			}
+
+			$query = $this->pager->getSQLLimit($query);
+			//debug($query.''); exit();
+		}
+
+		//debug($query);
+		//TaylorProfiler::stop(__METHOD__." ({$this->table})");
+		return $query;
+	}
+
+	/**
+	 * @param array|SQLWhere $where
 	 * @return string|SQLSelectQuery
 	 */
 	public function getQuery($where = [])
@@ -110,49 +153,6 @@ class CollectionQuery
 
 		TaylorProfiler::stop($profiler);
 		return $query;
-	}
-
-	public function getQueryWithLimit()
-	{
-		$query = $this->getQuery();
-		if ($this->pager instanceof \Pager) {
-			// do it only once
-			if (!$this->pager->numberOfRecords) {
-				//debug($this->pager->getObjectInfo());
-				//			debug($query);
-				$this->pager->initByQuery($query);
-				//			debug($query, $this->query);
-			}
-
-			$query = $this->pager->getSQLLimit($query);
-			//debug($query.''); exit();
-		}
-
-		//debug($query);
-		//TaylorProfiler::stop(__METHOD__." ({$this->table})");
-		return $query;
-	}
-
-	/**
-	 * @return array
-	 * @throws Exception
-	 */
-	private function retrieveDataFromDB()
-	{
-		$taylorKey = get_class($this) . '::' . __FUNCTION__;
-		TaylorProfiler::start($taylorKey);
-//		$this->log(__METHOD__, Debug::getBackLog(25, 0, null, false));
-
-		$this->query = $this->getQueryWithLimit();
-//		$this->log($taylorKey, [
-//			'query' => str_replace("\n", " ", str_replace("\t", " ", $this->query . ''))
-//		]);
-
-		// in most cases we don't need to rasterize the query to SQL
-		$data = $this->db->fetchAll($this->query);
-		// fetchAll does implement free()
-		TaylorProfiler::stop($taylorKey);
-		return $data;
 	}
 
 	protected function log($action, ...$something)

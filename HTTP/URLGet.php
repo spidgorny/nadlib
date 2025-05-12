@@ -5,42 +5,34 @@ use nadlib\Proxy;
 class URLGet
 {
 
-	/**
-	 * @var string
-	 */
-	protected $url;
-
 	public $timeout = 10;
-
-	protected $html = '';
-
 	/**
 	 * @var Index
 	 */
 	public $logger;
-
 	/**
 	 * @var array info from CURL
 	 */
 	public $info;
-
-	/**
-	 * @var Proxy
-	 */
-	protected $proxy;
-
 	/**
 	 * for file_get_content()
 	 * @var array
 	 */
 	public $context = [];
-
 	/**
 	 * @var array
 	 */
 	public $curlParams = [];
-
 	public $headers = [];
+	/**
+	 * @var string
+	 */
+	protected $url;
+	protected $html = '';
+	/**
+	 * @var Proxy
+	 */
+	protected $proxy;
 
 	/**
 	 *
@@ -58,13 +50,6 @@ class URLGet
 		];
 	}
 
-	public function log($method, $message): void
-	{
-		if ($this->logger) {
-			$this->logger->log($method, $message);
-		}
-	}
-
 	public function getURL()
 	{
 		return $this->url;
@@ -80,9 +65,7 @@ class URLGet
 
 	/**
 	 * @param int $retries
-	 * @return bool|false|string|null
-	 * @internal param bool|Proxy $proxy - it was a proxy object, but now it's boolean
-	 * as a new proxy will get generation
+	 * @return false|string|null
 	 */
 	public function fetch($retries = 1): string|null|false
 	{
@@ -107,6 +90,13 @@ class URLGet
 		return $this->html;
 	}
 
+	public function log($method, $message): void
+	{
+		if ($this->logger) {
+			$this->logger->log($method, $message);
+		}
+	}
+
 	public function fetchAny(): string|false
 	{
 		if (function_exists('curl_init')) {
@@ -128,19 +118,6 @@ class URLGet
 			$html = $this->fetchFOpen();
 		}
 
-		return $html;
-	}
-
-	public function fetchFOpen(): string|false
-	{
-		if ($this->headers) {
-			$this->context['http']['header'] = ArrayPlus::create($this->headers)->getHeaders("\r\n");
-		}
-
-		//debug($this->context);
-		$ctx = stream_context_create($this->context);
-		$html = file_get_contents($this->url, 0, $ctx);
-		$this->info = $http_response_header;
 		return $html;
 	}
 
@@ -200,6 +177,19 @@ class URLGet
 			throw new Exception('failed to read URL: ' . $this->url);
 		}
 
+		return $html;
+	}
+
+	public function fetchFOpen(): string|false
+	{
+		if ($this->headers) {
+			$this->context['http']['header'] = ArrayPlus::create($this->headers)->getHeaders("\r\n");
+		}
+
+		//debug($this->context);
+		$ctx = stream_context_create($this->context);
+		$html = file_get_contents($this->url, 0, $ctx);
+		$this->info = $http_response_header;
 		return $html;
 	}
 

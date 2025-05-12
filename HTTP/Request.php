@@ -329,7 +329,7 @@ class Request
 	}
 
 	/**
-	 * @return mixed|string
+	 * @return array|string
 	 * //~depidsvy/something
 	 */
 	private static function getDocumentRootByScript(): array|string

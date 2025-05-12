@@ -34,40 +34,27 @@ class URL
 	 * @var string
 	 */
 	public $documentRoot = '';
-
+	/**
+	 * @var array
+	 */
+	public $log = [];
+	/**
+	 * @var array
+	 */
+	public $cookies = [];
+	public $headers = [];
+	public $user_agent;
+	public $cookie_file;
+	public $compression;
+	/**
+	 * @var Proxy
+	 */
+	public $proxy;
 	/**
 	 * = $this->components['path']
 	 * @var Path
 	 */
 	protected $path;
-
-	/**
-	 * @var array
-	 */
-	public $log = [];
-
-	/**
-	 * @var array
-	 */
-	public $cookies = [];
-
-	public $headers = [];
-
-	public $user_agent;
-
-	public $cookie_file;
-
-	public $compression;
-
-	/**
-	 * @var Proxy
-	 */
-	public $proxy;
-
-	public static function from($url = null, array $params = []): self
-	{
-		return new self($url, $params);
-	}
 
 	/**
 	 * @param string $url - if not specified then the current page URL is reconstructed
@@ -157,6 +144,37 @@ class URL
 		}
 	}
 
+	/**
+	 * New params have priority
+	 * @return $this
+	 */
+	public function addParams(array $params = []): static
+	{
+		$this->params = $params + $this->params;
+		$this->components['query'] = $this->buildQuery();
+		return $this;
+	}
+
+	public function buildQuery(): string
+	{
+		$queryString = http_build_query($this->params, '_');
+		//parse_str($queryString, $queryStringTest);
+		//debug($this->params, $queryStringTest);
+		return str_replace('#', '%23', $queryString);
+	}
+
+	public function setDocumentRoot($root): static
+	{
+		$this->documentRoot = $root;
+		//debug($this);
+		return $this;
+	}
+
+	public static function from($url = null, array $params = []): self
+	{
+		return new self($url, $params);
+	}
+
 	public static function make(array $params = []): self
 	{
 		$url = new self();
@@ -165,14 +183,149 @@ class URL
 	}
 
 	/**
-	 * @param $param
-	 * @param $value
+	 * @static
 	 */
-	public function setParam($param, $value): static
+	public static function getCurrent(): \spidgorny\nadlib\HTTP\URL
 	{
-		$this->params[$param] = $value;
-		$this->components['query'] = $this->buildQuery();
-		return $this;
+		return new URL();
+	}
+
+	/**
+	 * Works well when both paths are absolute.
+	 * Comparing server path to URL path does not work.
+	 * http://stackoverflow.com/a/2638272/417153
+	 * @param string $from
+	 * @param string $to
+	 */
+	public static function getRelativePath($from, $to): string
+	{
+		0 && debug(
+			$_SERVER['DOCUMENT_ROOT'],
+			$from,
+			$to,
+			__FILE__,
+			trimExplode(':', ini_get('open_basedir')),
+			$_SERVER
+		);
+		//		exit;
+		// some compatibility fixes for Windows paths
+		$from = self::getPathFolders($from);
+		$to = self::getPathFolders($to);
+		$relPath = $to;
+
+		foreach ($from as $depth => $dir) {
+			// find first non-matching dir
+			//debug($depth, $dir, $to[$depth]);
+			if (isset($to[$depth]) && $dir === $to[$depth]) {
+				// ignore this directory
+				array_shift($relPath);
+			} else {
+				// get number of remaining dirs to $from
+				$remaining = count($from) - $depth;
+				if ($remaining > 1) {
+					// add traversals up to first matching dir
+					$padLength = (count($relPath) + $remaining - 1) * -1;
+					$relPath = array_pad($relPath, $padLength, '..');
+					break;
+				}
+
+				if (isset($relPath[0])) {
+					$relPath[0] = './' . $relPath[0];
+				}
+			}
+		}
+
+		//debug($from, $to, $relPath);
+		return implode('/', $relPath);
+	}
+
+	/**
+	 * "asd/qwe\zxc/" => ['asd', 'qwe', 'zxc']
+	 * Takes care of Windows path and removes empty
+	 * @param $from
+	 */
+	public static function getPathFolders($from): array
+	{
+		//		ob_start();
+		//		debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		if (!ini_get('open_basedir')) {
+			$from = is_dir($from) ? rtrim($from, '\/') . '/' : $from;
+		}
+
+		$from = str_replace('\\', '/', $from);
+		$from = explode('/', $from);
+		return array_filter($from);
+	}
+
+	public static function getScriptWithPath()
+	{
+		//if ($_SERVER['SCRIPT_FILENAME']{0} != '/') {
+		// Pedram: we have to use __FILE__ constant in order to be able to execute phpUnit tests within PHPStorm
+		// C:\Users\DEJOKMAJ\AppData\Local\Temp\ide-phpunit.php
+		if (Request::isCLI()) {
+			$scriptWithPath = $_SERVER['SCRIPT_FILENAME'] ?? $_SERVER['PHP_SELF']; // can be relative!!!
+
+			//debug($scriptWithPath);
+			// this below may not work since __FILE__ is class.URL.php and not index.php
+			// but this our last chance for CLI/Cron
+			if (!$scriptWithPath || !Path::isItAbsolute($scriptWithPath)) {    // relative not OK
+				if (basename(__FILE__) === __FILE__) {    // index.php
+					$scriptWithPath = getcwd() . '/' . __FILE__;
+				} else {
+					$scriptWithPath = __FILE__;
+				}
+			}
+		} else {
+			$scriptWithPath = $_SERVER['SCRIPT_FILENAME'];
+			$scriptWithPath = str_replace('/kunden', '', $scriptWithPath); // 1und1.de
+
+			// add /data001/ to /data001/srv/www/htdocs
+			// in virtual environments (symlink)
+			$scriptWithPath = realpath($scriptWithPath);
+		}
+
+		return $scriptWithPath;
+	}
+
+	/**
+	 * @param string $path1
+	 * @param string $path2
+	 */
+	public static function getCommonRoot($path1, $path2): array
+	{
+		$path1 = self::getPathFolders($path1);
+		$path2 = self::getPathFolders($path2);
+		//debug($path1, $path2, $common);
+		return array_intersect($path1, $path2);
+	}
+
+	/**
+	 * @param string $string - source page name
+	 * @param bool $preserveSpaces - leaves spaces
+	 * @return string                - converted to URL friendly name
+	 */
+	public static function friendlyURL($string, $preserveSpaces = false): string
+	{
+		$string = preg_replace("`\[.*\]`U", "", $string);
+		$string = preg_replace('`&(amp;)?#?[a-z0-9]+;`i', '-', $string);
+		$string = htmlentities($string, ENT_COMPAT, 'utf-8');
+		$string = preg_replace("`&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig|quot|rsquo);`i", "\\1", $string);
+		if (!$preserveSpaces) {
+			$string = preg_replace(["`[^a-z0-9]`i", "`[-]+`"], "-", $string);
+		}
+
+		return strtolower(trim($string, '-'));
+	}
+
+	public static function getSlug($string): string
+	{
+		$string = mb_strtolower($string);
+		$string = preg_replace("` +`", "-", $string);
+		$string = str_replace('/', '-', $string);
+		$string = str_replace('\\', '-', $string);
+		$string = str_replace('"', '-', $string);
+		$string = str_replace("'", '-', $string);
+		return trim($string);
 	}
 
 	public function unsetParam($param): static
@@ -187,38 +340,10 @@ class URL
 		return ifsetor($this->params[$param]);
 	}
 
-	/**
-	 * Replaces parameters completely (with empty array?)
-	 * @return $this
-	 */
-	public function setParams(array $params = []): static
-	{
-		$this->params = $params;
-		$this->components['query'] = $this->buildQuery();
-		return $this;
-	}
-
-	/**
-	 * New params have priority
-	 * @return $this
-	 */
-	public function addParams(array $params = []): static
-	{
-		$this->params = $params + $this->params;
-		$this->components['query'] = $this->buildQuery();
-		return $this;
-	}
-
 	public function forceParams(array $params = []): static
 	{
 		$this->params = array_merge($this->params, $params);    // keep default order but overwrite
 		$this->components['query'] = $this->buildQuery();
-		return $this;
-	}
-
-	public function clearParams(): static
-	{
-		$this->setParams([]);
 		return $this;
 	}
 
@@ -231,6 +356,51 @@ class URL
 	public function __clone()
 	{
 		$this->path = clone $this->path;
+	}
+
+	public function reset(): void
+	{
+		$this->components['path'] = $this->documentRoot;
+		$this->components['query'] = '';
+		$this->clearParams();
+	}
+
+	public function clearParams(): static
+	{
+		$this->setParams([]);
+		return $this;
+	}
+
+	/**
+	 * Defines the filename in the URL
+	 * @param $name
+	 * @return $this
+	 */
+	public function setBasename($name): static
+	{
+		$this->path->setFile($name);
+		return $this;
+	}
+
+	/**
+	 * Lowercase guaranteed
+	 * @return string
+	 */
+	public function getExtensionLC(): string
+	{
+		$ext = $this->getExtension();
+		return mb_strtolower($ext);
+	}
+
+	public function getExtension(): string
+	{
+		$basename = $this->getBasename();
+		return pathinfo($basename, PATHINFO_EXTENSION);
+	}
+
+	public function getBasename(): string
+	{
+		return basename($this->getPath());
 	}
 
 	/**
@@ -271,52 +441,6 @@ class URL
 		return $this;
 	}
 
-	public function reset(): void
-	{
-		$this->components['path'] = $this->documentRoot;
-		$this->components['query'] = '';
-		$this->clearParams();
-	}
-
-	/**
-	 * Defines the filename in the URL
-	 * @param $name
-	 * @return $this
-	 */
-	public function setBasename($name): static
-	{
-		$this->path->setFile($name);
-		return $this;
-	}
-
-	public function getBasename(): string
-	{
-		return basename($this->getPath());
-	}
-
-	public function getExtension(): string
-	{
-		$basename = $this->getBasename();
-		return pathinfo($basename, PATHINFO_EXTENSION);
-	}
-
-	/**
-	 * Lowercase guaranteed
-	 * @return mixed|string
-	 */
-	public function getExtensionLC(): string
-	{
-		$ext = $this->getExtension();
-		return mb_strtolower($ext);
-	}
-
-	public function setDocumentRoot($root): static
-	{
-		$this->documentRoot = $root;
-		//debug($this);
-		return $this;
-	}
-
 	public function setFragment($name): static
 	{
 		if ($name[0] === '#') {
@@ -327,12 +451,16 @@ class URL
 		return $this;
 	}
 
-	public function buildQuery(): string
+	public function getRequest()
 	{
-		$queryString = http_build_query($this->params, '_');
-		//parse_str($queryString, $queryStringTest);
-		//debug($this->params, $queryStringTest);
-		return str_replace('#', '%23', $queryString);
+		$r = Request::getInstance($this->params ?: []);
+		$r->url = $this;
+		return $r;
+	}
+
+	public function GET(): string|false
+	{
+		return file_get_contents($this->buildURL());
 	}
 
 	/**
@@ -400,26 +528,6 @@ class URL
 		return $url . '';
 	}
 
-	public function getRequest()
-	{
-		$r = Request::getInstance($this->params ?: []);
-		$r->url = $this;
-		return $r;
-	}
-
-	/**
-	 * @static
-	 */
-	public static function getCurrent(): \spidgorny\nadlib\HTTP\URL
-	{
-		return new URL();
-	}
-
-	public function GET(): string|false
-	{
-		return file_get_contents($this->buildURL());
-	}
-
 	public function POST($login = null, $password = null): string|false
 	{
 		$auth = null;
@@ -440,6 +548,14 @@ class URL
 		unset($noQuery['query']);
 		$url = $this->buildURL($noQuery);
 		return file_get_contents($url, false, $context);
+	}
+
+	public function CURL(): bool|string
+	{
+		$process = $this->getCURL();
+		$return = curl_exec($process);
+		curl_close($process);
+		return $return;
 	}
 
 	public function getCURL(): \CurlHandle|false
@@ -469,102 +585,9 @@ class URL
 		return $process;
 	}
 
-	public function CURL(): bool|string
-	{
-		$process = $this->getCURL();
-		$return = curl_exec($process);
-		curl_close($process);
-		return $return;
-	}
-
 	public function getURLGet(): \URLGet
 	{
 		return new URLGet($this->__toString());
-	}
-
-	public function exists(): int|false
-	{
-		$AgetHeaders = @get_headers($this->buildURL());
-		return preg_match("|200|", $AgetHeaders[0]);
-	}
-
-	/**
-	 * Works well when both paths are absolute.
-	 * Comparing server path to URL path does not work.
-	 * http://stackoverflow.com/a/2638272/417153
-	 * @param string $from
-	 * @param string $to
-	 */
-	public static function getRelativePath($from, $to): string
-	{
-		0 && debug(
-			$_SERVER['DOCUMENT_ROOT'],
-			$from,
-			$to,
-			__FILE__,
-			trimExplode(':', ini_get('open_basedir')),
-			$_SERVER
-		);
-		//		exit;
-		// some compatibility fixes for Windows paths
-		$from = self::getPathFolders($from);
-		$to = self::getPathFolders($to);
-		$relPath = $to;
-
-		foreach ($from as $depth => $dir) {
-			// find first non-matching dir
-			//debug($depth, $dir, $to[$depth]);
-			if (isset($to[$depth]) && $dir === $to[$depth]) {
-				// ignore this directory
-				array_shift($relPath);
-			} else {
-				// get number of remaining dirs to $from
-				$remaining = count($from) - $depth;
-				if ($remaining > 1) {
-					// add traversals up to first matching dir
-					$padLength = (count($relPath) + $remaining - 1) * -1;
-					$relPath = array_pad($relPath, $padLength, '..');
-					break;
-				}
-
-				if (isset($relPath[0])) {
-					$relPath[0] = './' . $relPath[0];
-				}
-			}
-		}
-
-		//debug($from, $to, $relPath);
-		return implode('/', $relPath);
-	}
-
-	public static function getScriptWithPath()
-	{
-		//if ($_SERVER['SCRIPT_FILENAME']{0} != '/') {
-		// Pedram: we have to use __FILE__ constant in order to be able to execute phpUnit tests within PHPStorm
-		// C:\Users\DEJOKMAJ\AppData\Local\Temp\ide-phpunit.php
-		if (Request::isCLI()) {
-			$scriptWithPath = $_SERVER['SCRIPT_FILENAME'] ?? $_SERVER['PHP_SELF']; // can be relative!!!
-
-			//debug($scriptWithPath);
-			// this below may not work since __FILE__ is class.URL.php and not index.php
-			// but this our last chance for CLI/Cron
-			if (!$scriptWithPath || !Path::isItAbsolute($scriptWithPath)) {    // relative not OK
-				if (basename(__FILE__) === __FILE__) {    // index.php
-					$scriptWithPath = getcwd() . '/' . __FILE__;
-				} else {
-					$scriptWithPath = __FILE__;
-				}
-			}
-		} else {
-			$scriptWithPath = $_SERVER['SCRIPT_FILENAME'];
-			$scriptWithPath = str_replace('/kunden', '', $scriptWithPath); // 1und1.de
-
-			// add /data001/ to /data001/srv/www/htdocs
-			// in virtual environments (symlink)
-			$scriptWithPath = realpath($scriptWithPath);
-		}
-
-		return $scriptWithPath;
 	}
 
 	/**
@@ -576,39 +599,9 @@ class URL
 	}
 
 	/**
-	 * "asd/qwe\zxc/" => ['asd', 'qwe', 'zxc']
-	 * Takes care of Windows path and removes empty
-	 * @param $from
-	 */
-	public static function getPathFolders($from): array
-	{
-		//		ob_start();
-		//		debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-		if (!ini_get('open_basedir')) {
-			$from = is_dir($from) ? rtrim($from, '\/') . '/' : $from;
-		}
-
-		$from = str_replace('\\', '/', $from);
-		$from = explode('/', $from);
-		return array_filter($from);
-	}
-
-	/**
-	 * @param string $path1
-	 * @param string $path2
-	 */
-	public static function getCommonRoot($path1, $path2): array
-	{
-		$path1 = self::getPathFolders($path1);
-		$path2 = self::getPathFolders($path2);
-		//debug($path1, $path2, $common);
-		return array_intersect($path1, $path2);
-	}
-
-	/**
 	 * http://www.php.net/manual/en/function.realpath.php#71334
 	 * @param $address
-	 * @return array|mixed|string
+	 * @return string
 	 */
 	public function canonicalize($address): string
 	{
@@ -621,11 +614,6 @@ class URL
 
 		$address = implode('/', $address);
 		return str_replace('./', '', $address);
-	}
-
-	protected function log($action, $data = null)
-	{
-		$this->log[] = new LogEntry($action, $data);
 	}
 
 	public function resolve($relativeURL): string|false
@@ -717,37 +705,6 @@ class URL
 
 		$r['path'] = $this->url_remove_dot_segments($r['path']);
 		return $this->join_url($r);
-	}
-
-	public function url_remove_dot_segments($path): string
-	{
-		// multi-byte character explode
-		$inSegs = preg_split('!/!u', $path);
-		$outSegs = [];
-		foreach ($inSegs as $seg) {
-			if ($seg === '' || $seg === '.') {
-				continue;
-			}
-
-			if ($seg === '..') {
-				array_pop($outSegs);
-			} else {
-				$outSegs[] = $seg;
-			}
-		}
-
-		$outPath = implode('/', $outSegs);
-		if ($path[0] == '/') {
-			$outPath = '/' . $outPath;
-		}
-
-		// compare last multi-byte character against '/'
-		if ($outPath !== '/' && (mb_strlen($path) - 1) == mb_strrpos($path, '/', 'UTF-8')
-		) {
-			$outPath .= '/';
-		}
-
-		return $outPath;
 	}
 
 	/**
@@ -874,6 +831,42 @@ class URL
 		return $parts;
 	}
 
+	protected function log($action, $data = null)
+	{
+		$this->log[] = new LogEntry($action, $data);
+	}
+
+	public function url_remove_dot_segments($path): string
+	{
+		// multi-byte character explode
+		$inSegs = preg_split('!/!u', $path);
+		$outSegs = [];
+		foreach ($inSegs as $seg) {
+			if ($seg === '' || $seg === '.') {
+				continue;
+			}
+
+			if ($seg === '..') {
+				array_pop($outSegs);
+			} else {
+				$outSegs[] = $seg;
+			}
+		}
+
+		$outPath = implode('/', $outSegs);
+		if ($path[0] == '/') {
+			$outPath = '/' . $outPath;
+		}
+
+		// compare last multi-byte character against '/'
+		if ($outPath !== '/' && (mb_strlen($path) - 1) == mb_strrpos($path, '/', 'UTF-8')
+		) {
+			$outPath .= '/';
+		}
+
+		return $outPath;
+	}
+
 	public function join_url($parts, $encode = true): string
 	{
 		if ($encode) {
@@ -963,35 +956,6 @@ class URL
 		$this->parseURL($newPath);
 	}
 
-	/**
-	 * @param string $string - source page name
-	 * @param bool $preserveSpaces - leaves spaces
-	 * @return string                - converted to URL friendly name
-	 */
-	public static function friendlyURL($string, $preserveSpaces = false): string
-	{
-		$string = preg_replace("`\[.*\]`U", "", $string);
-		$string = preg_replace('`&(amp;)?#?[a-z0-9]+;`i', '-', $string);
-		$string = htmlentities($string, ENT_COMPAT, 'utf-8');
-		$string = preg_replace("`&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig|quot|rsquo);`i", "\\1", $string);
-		if (!$preserveSpaces) {
-			$string = preg_replace(["`[^a-z0-9]`i", "`[-]+`"], "-", $string);
-		}
-
-		return strtolower(trim($string, '-'));
-	}
-
-	public static function getSlug($string): string
-	{
-		$string = mb_strtolower($string);
-		$string = preg_replace("` +`", "-", $string);
-		$string = str_replace('/', '-', $string);
-		$string = str_replace('\\', '-', $string);
-		$string = str_replace('"', '-', $string);
-		$string = str_replace("'", '-', $string);
-		return trim($string);
-	}
-
 	public function makeAbsolute(): static
 	{
 		if (!ifsetor($this->components['scheme'])) {
@@ -1056,6 +1020,17 @@ class URL
 		}
 	}
 
+	/**
+	 * @param $param
+	 * @param $value
+	 */
+	public function setParam($param, $value): static
+	{
+		$this->params[$param] = $value;
+		$this->components['query'] = $this->buildQuery();
+		return $this;
+	}
+
 	public function replaceController($newController): static
 	{
 		if (is_array($newController)) {
@@ -1084,6 +1059,17 @@ class URL
 		return $this->params;
 	}
 
+	/**
+	 * Replaces parameters completely (with empty array?)
+	 * @return $this
+	 */
+	public function setParams(array $params = []): static
+	{
+		$this->params = $params;
+		$this->components['query'] = $this->buildQuery();
+		return $this;
+	}
+
 	public function makeRelative(): static
 	{
 		$al = AutoLoad::getInstance();
@@ -1097,6 +1083,12 @@ class URL
 		}
 
 		return $this;
+	}
+
+	public function exists(): int|false
+	{
+		$AgetHeaders = @get_headers($this->buildURL());
+		return preg_match("|200|", $AgetHeaders[0]);
 	}
 
 	public function appendString(string $path): static

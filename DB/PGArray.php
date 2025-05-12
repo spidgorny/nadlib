@@ -130,7 +130,6 @@ class PGArray extends AsIs
 	 * Slawa's own recursive approach. Not working 100%. See mTest from ORS.
 	 * @param string $input
 	 * @return array
-	 * @internal param string $dbarr
 	 */
 	public function getPGArray($input)
 	{
@@ -138,35 +137,35 @@ class PGArray extends AsIs
 		if (strlen($input) && $input[0] === '{') {    // array inside
 			$input = substr(substr(trim($input), 1), 0, -1);    // cut { and }
 			return $this->getPGArray($input);
-		} else {
-			if (strpos($input, '},{') !== false) {
-				$parts = explode('},{', $input);
-				foreach ($parts as &$p) {
-					$p = $this->getPGArray($p);
-				}
-			} elseif (str_contains($input, '{')) {
-				// JSON inside
-				$jsonStart = strpos($input, '{');
-				$jsonEnd = strpos($input, '}');
-				$json = substr($input, $jsonStart, $jsonEnd - $jsonStart + 1);
-				$input = substr($input, 0, $jsonStart) .
-					'*!*JSON*!*' .
-					substr($input, $jsonEnd + 1);
-				$parts = $this->str_getcsv($input, ',', '"');
+		}
+
+		if (strpos($input, '},{') !== false) {
+			$parts = explode('},{', $input);
+			foreach ($parts as &$p) {
+				$p = $this->getPGArray($p);
+			}
+		} elseif (str_contains($input, '{')) {
+			// JSON inside
+			$jsonStart = strpos($input, '{');
+			$jsonEnd = strpos($input, '}');
+			$json = substr($input, $jsonStart, $jsonEnd - $jsonStart + 1);
+			$input = substr($input, 0, $jsonStart) .
+				'*!*JSON*!*' .
+				substr($input, $jsonEnd + 1);
+			$parts = self::str_getcsv($input, ',', '"');
 //				ini_set('xdebug.var_display_max_data', 9999);
 //				debug($input, $parts, $json);
-				foreach ($parts as &$p) {
-					$p = str_replace('*!*JSON*!*', stripslashes($json), $p);
-				}
-			} else {
-				$parts = $this->str_getcsv($input, ',', '"');
-				$parts = (array)$parts;
-				//debug($parts);
-				//$parts = array_map('stripslashes', $parts);	// already done in str_getcsv
+			foreach ($parts as &$p) {
+				$p = str_replace('*!*JSON*!*', stripslashes($json), $p);
 			}
-
-			return $parts;
+		} else {
+			$parts = self::str_getcsv($input, ',', '"');
+			$parts = (array)$parts;
+			//debug($parts);
+			//$parts = array_map('stripslashes', $parts);	// already done in str_getcsv
 		}
+
+		return $parts;
 	}
 
 	/**

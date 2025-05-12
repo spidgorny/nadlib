@@ -37,28 +37,12 @@ class Mailer implements MailerInterface
 
 	public $sendFrom;
 
-	/**
-	 * @return \SendGrid\Response
-	 */
-	public function sendGrid()
+	public function __construct($to, $subject, $body)
 	{
-		$config = Config::getInstance();
-		$mail = $this->getSendGridMail();
-
-		$sg = $config->getSendGrid();
-
-		/** @var \SendGrid\Response $response */
-		$response = $sg->client->mail()->send()->post($mail);
-		return $response;
-	}
-
-	public function getSendGridMail()
-	{
-		$config = Config::getInstance();
-		$from = new SendGrid\Email(null, $config->mailFrom);
-		$to = new SendGrid\Email(null, $this->to);
-		$content = new SendGrid\Content('text/plain', $this->getPlainText());
-		return new SendGrid\Mail($from, $this->subject, $to, $content);
+		$this->to = $to;
+		$this->subject = $subject;
+		$this->bodytext = $body;
+		$this->sendFrom = Config::getInstance()->mailFrom;
 	}
 
 	public function attach($name, $mime, $content): void
@@ -68,16 +52,6 @@ class Mailer implements MailerInterface
 			'mime' => $mime,
 			'content' => $content,
 		];
-	}
-
-	public function getSubject(): string
-	{
-		return '=?utf-8?B?' . base64_encode($this->subject) . '?=';
-	}
-
-	public function getBodyText(): string
-	{
-		return str_replace("\n.", "\n..", $this->bodytext);
 	}
 
 	public function debug(): \slTable
@@ -92,10 +66,20 @@ class Mailer implements MailerInterface
 		return slTable::showAssoc($assoc);
 	}
 
+	public function getSubject(): string
+	{
+		return '=?utf-8?B?' . base64_encode($this->subject) . '?=';
+	}
+
 	public static function isHTML($bodyText): bool
 	{
 //		return strpos($bodyText, '<') !== FALSE;
 		return $bodyText !== '' && $bodyText[0] === '<';
+	}
+
+	public function getBodyText(): string
+	{
+		return str_replace("\n.", "\n..", $this->bodytext);
 	}
 
 	public function from($from): array
@@ -132,14 +116,6 @@ class Mailer implements MailerInterface
 		}
 
 		return $res;
-	}
-
-	public function __construct($to, $subject, $body)
-	{
-		$this->to = $to;
-		$this->subject = $subject;
-		$this->bodytext = $body;
-		$this->sendFrom = Config::getInstance()->mailFrom;
 	}
 
 	public function getPlainText(): string

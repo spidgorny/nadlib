@@ -10,7 +10,7 @@ class LazyMemberIterator extends IteratorIterator implements Countable
 
 	/**
 	 * Is set by getLazyMemberIterator()
-	 * @var
+	 * @var int
 	 */
 	public $count;
 
@@ -26,47 +26,6 @@ class LazyMemberIterator extends IteratorIterator implements Countable
 		$this->class = $class;
 	}
 
-	/**
-	 * Not used by the Iterator
-	 * @param string $index
-	 * @return OODBase
-	 */
-	/*function offsetGet($index) {
-		$array = parent::offsetGet($index);
-		if ($array) {
-			$obj = new $this->class($array);
-			debug($array, $obj);
-			return $obj;
-		} else {
-			return NULL;
-		}
-	}*/
-
-	/**
-	 * @return mixed|null
-	 */
-	public function current(): mixed
-	{
-		//echo __METHOD__, BR;
-		/** @var DatabaseResultIteratorAssoc $inner */
-		$inner = $this->getInnerIterator();
-		//echo gettype2($inner), BR;
-		//debug($inner);
-		//$array = parent::current();
-		$array = $inner->current();
-		//debug($array);
-		//debug($array);
-		if ($array) {
-			return new $this->class($array);
-		} else {
-			return null;
-		}
-	}
-
-//	public function valid() {
-//		return !!$this->current();
-//	}
-//
 	public function count(): int
 	{
 		//echo __METHOD__, BR;
@@ -74,6 +33,11 @@ class LazyMemberIterator extends IteratorIterator implements Countable
 		$iterator = $this->getInnerIterator();
 		return $iterator->count();
 	}
+
+//	public function valid() {
+//		return !!$this->current();
+//	}
+//
 
 	public function rewind(): void
 	{
@@ -104,8 +68,29 @@ class LazyMemberIterator extends IteratorIterator implements Countable
 			//echo __METHOD__, ': ', $valid, ' - ', $current['title'], BR;
 			$valid = false;
 		}
-        
+
 		return $valid;
+	}
+
+	/**
+	 * @return mixed|null
+	 */
+	public function current(): mixed
+	{
+		//echo __METHOD__, BR;
+		/** @var DatabaseResultIteratorAssoc $inner */
+		$inner = $this->getInnerIterator();
+		//echo gettype2($inner), BR;
+		//debug($inner);
+		//$array = parent::current();
+		$array = $inner->current();
+		//debug($array);
+		//debug($array);
+		if ($array) {
+			return new $this->class($array);
+		} else {
+			return null;
+		}
 	}
 
 }

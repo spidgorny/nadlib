@@ -193,9 +193,9 @@ class Syndicator
 			$ug->timeout = 10;
 			$ug->fetch($retries);
 			return $ug->getContent();
-		} else {
-			return file_get_contents($href);
 		}
+
+		return file_get_contents($href);
 	}
 
 	public function proxyOK(): void

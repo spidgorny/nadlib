@@ -13,51 +13,54 @@ class Path
 	public $isFile = false;
 
 	/**
-     * @var bool
-     */
-    public $isAbsolute;
+	 * @var bool
+	 */
+	public $isAbsolute;
 
 	public static function slash($path)
 	{
 		return str_replace('\\', '/', $path);
 	}
 
-	public function __construct(string $sPath)
-	{
-		$this->sPath = $sPath . '';
-		$this->isDir = str_endsWith($this->sPath, '/');
-		$this->isFile = !$this->isDir;
-		$this->isAbsolute = $this->isAbsolute();
-		$this->explode();
-		$this->implode();   // to prevent '//'
-	}
-
-	public static function isItAbsolute(string $sPath): bool
-	{
-		return str_startsWith($sPath, '/')        // Linux
-			|| (isset($sPath[1]) && $sPath[1] === ':');    // Windows c:
-	}
-
-	public function isAbsolute(): bool
-	{
-		return self::isItAbsolute($this->sPath);
-	}
-
 	/**
-     * @param $sPath
-     */
-    public static function make($sPath): self
+	 * @param $sPath
+	 */
+	public static function make($sPath): self
 	{
 		return new self($sPath);
 	}
 
 	/**
-	 * Modifies the array path after string modification
+	 * @return $this
 	 */
-	public function explode(): void
+	public function appendString(string $plus): static
 	{
-		$forwardSlash = str_replace('\\', '/', $this->sPath);
-		$this->aPath = trimExplode('/', $forwardSlash);
+		$pPlus = new Path($plus);
+		$this->append($pPlus);
+		return $this;
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function append(Path $plus): static
+	{
+		foreach ($plus->aPath as $name) {
+			if ($name === '.') {
+				continue;
+			}
+
+			if ($name === '..') {
+				array_pop($this->aPath);
+			} else {
+				$this->aPath[] = $name;
+			}
+		}
+
+		$this->isDir = $plus->isDir;
+		$this->isFile = $plus->isFile;
+		$this->implode();
+		return $this;
 	}
 
 	/**
@@ -81,57 +84,11 @@ class Path
 	}
 
 	/**
-     * Check for ":" in C:...
-     */
-    public function isWindows(): bool
+	 * Check for ":" in C:...
+	 */
+	public function isWindows(): bool
 	{
 		return (isset($this->aPath[0][1]) && $this->aPath[0][1] === ':');
-	}
-
-	public function __toString(): string
-	{
-		return $this->isDir ? $this->getCapped() : $this->getUncapped();
-	}
-
-	/**
-     * @param string $dirname
-     */
-    public function contains($dirname): bool
-	{
-		return in_array($dirname, $this->aPath);
-	}
-
-	/**
-     * @return $this
-     */
-    public function append(Path $plus): static
-	{
-		foreach ($plus->aPath as $name) {
-			if ($name === '.') {
-				continue;
-			}
-
-			if ($name === '..') {
-				array_pop($this->aPath);
-			} else {
-				$this->aPath[] = $name;
-			}
-		}
-
-		$this->isDir = $plus->isDir;
-		$this->isFile = $plus->isFile;
-		$this->implode();
-		return $this;
-	}
-
-	/**
-     * @return $this
-     */
-    public function appendString(string $plus): static
-	{
-		$pPlus = new Path($plus);
-		$this->append($pPlus);
-		return $this;
 	}
 
 	/**
@@ -146,9 +103,9 @@ class Path
 	}
 
 	/**
-     * @param $plus string|Path
-     */
-    public function appendIfExists($plus): bool
+	 * @param $plus string|Path
+	 */
+	public function appendIfExists($plus): bool
 	{
 		$pPlus = $plus instanceof Path
 			? $plus
@@ -177,12 +134,6 @@ class Path
 		return is_dir($this->sPath) || file_exists($this->sPath);
 	}
 
-	public function trim(): void
-	{
-		array_pop($this->aPath);
-		$this->implode();
-	}
-
 	public function trimIf($dirname): void
 	{
 		if (end($this->aPath) == $dirname) {
@@ -190,44 +141,24 @@ class Path
 		}
 	}
 
-	public function getUncapped(): string
+	public function trim(): void
 	{
-		return $this->implode();
-	}
-
-	public function getCapped(): string
-	{
-		if (!count($this->aPath) && $this->isAbsolute()) {
-			return $this->implode();    // absolute empty has slash already
-		}
-
-		return cap($this->implode());
+		array_pop($this->aPath);
+		$this->implode();
 	}
 
 	/**
-     * @param $with
-     */
-    public function ends($with): bool
+	 * @param $with
+	 */
+	public function ends($with): bool
 	{
 		return end($this->aPath) == $with;
 	}
 
-	public function up(): static
-	{
-		if ($this->aPath) {
-			array_pop($this->aPath);
-		} else {
-            $this->aPath[] = '..';
-        }
-
-		$this->implode();
-		return $this;
-	}
-
 	/**
-     * @param $that
-     */
-    public function upIf($that): static
+	 * @param $that
+	 */
+	public function upIf($that): static
 	{
 		if (end($this->aPath) == $that) {
 			return $this->up();
@@ -236,10 +167,22 @@ class Path
 		return $this;
 	}
 
+	public function up(): static
+	{
+		if ($this->aPath) {
+			array_pop($this->aPath);
+		} else {
+			$this->aPath[] = '..';
+		}
+
+		$this->implode();
+		return $this;
+	}
+
 	/**
-     * @param $that
-     */
-    public function upIfNot($that): static
+	 * @param $that
+	 */
+	public function upIfNot($that): static
 	{
 		if (end($this->aPath) != $that) {
 			return $this->up();
@@ -282,7 +225,7 @@ class Path
 		foreach ($minus->aPath as $sub) {
 			$sameName = ifsetor($this->aPath[0]) == $sub;
 			d($this->sPath);
-            $linkTarget = is_link($this->sPath) ? readlink($this->sPath) : $this->sPath;
+			$linkTarget = is_link($this->sPath) ? readlink($this->sPath) : $this->sPath;
 
 			d(__METHOD__, $linkTarget, $minus->sPath);
 			$sameLink = $linkTarget == $minus->sPath;
@@ -308,6 +251,17 @@ class Path
 		return $this;
 	}
 
+	public function isAbsolute(): bool
+	{
+		return self::isItAbsolute($this->sPath);
+	}
+
+	public static function isItAbsolute(string $sPath): bool
+	{
+		return str_startsWith($sPath, '/')        // Linux
+			|| (isset($sPath[1]) && $sPath[1] === ':');    // Windows c:
+	}
+
 	public function resolveLink(): void
 	{
 		if (is_link($this->sPath)) {
@@ -319,27 +273,18 @@ class Path
 	}
 
 	/**
-	 * Recursive. For no reason?
-	 * Reason is that readlink() fails if the final part is not a link
-	 * @return $this
+	 * Modifies the array path after string modification
 	 */
-	public function resolveLinks(): static
+	public function explode(): void
 	{
-		foreach ($this->aPath as $i => $part) {
-			$assembled = '/' . implode('/', array_slice($this->aPath, 0, $i));
-			//			debug($assembled, is_link($assembled));
-			if (ini_get('open_basedir')) {
-				return $this;
-			}
+		$forwardSlash = str_replace('\\', '/', $this->sPath);
+		$this->aPath = trimExplode('/', $forwardSlash);
+	}
 
-			if (@is_link($assembled)) {
-				$this->sPath = readlink($assembled);
-				$this->explode();
-				$this->resolveLinks();
-				break;
-			}
-		}
-
+	public function realPath(): static
+	{
+		$this->sPath = realpath($this->sPath);
+		$this->explode();
 		return $this;
 	}
 
@@ -379,6 +324,16 @@ class Path
 		return $this;
 	}
 
+	public function __construct(string $sPath)
+	{
+		$this->sPath = $sPath . '';
+		$this->isDir = str_endsWith($this->sPath, '/');
+		$this->isFile = !$this->isDir;
+		$this->isAbsolute = $this->isAbsolute();
+		$this->explode();
+		$this->implode();   // to prevent '//'
+	}
+
 	public function relativeFromDocRoot(): self
 	{
 		$this->makeAbsolute();
@@ -392,24 +347,6 @@ class Path
 		$relative = Path::fromArray($new);
 		$relative->isFile = $this->isFile;
 		$relative->isDir = $this->isDir;
-		return $relative;
-	}
-
-	public function relativeFromAppRoot(): self
-	{
-		$this->makeAbsolute();
-		$al = AutoLoad::getInstance();
-		$appRoot = $al->getAppRoot();
-		if ($appRoot) {
-			$new = $this->cutArrayFromArray($this->aPath, $appRoot->aPath);
-			//			debug(json_encode($this->aPath), json_encode($al->getAppRoot()->aPath), json_encode($new));
-			$relative = Path::fromArray($new);
-			$relative->isFile = $this->isFile;
-			$relative->isDir = $this->isDir;
-		} else {
-			$relative = $this;
-		}
-
 		return $relative;
 	}
 
@@ -437,10 +374,54 @@ class Path
 		$this->isDir = is_dir($this->sPath);
 	}
 
+	private function cutArrayFromArray(array $long, array $short): array
+	{
+		$new = [];
+		$different = false;
+		foreach ($long as $key => $value) {
+			$other = ifsetor($short[$key]);
+			if ($value != $other) {
+				$different = true;
+			}
+
+			if ($different) {
+				$new[] = $value;
+			}
+		}
+
+		return $new;
+	}
+
+	public static function fromArray(array $parts): \Path
+	{
+		$path = new Path('');
+		$path->aPath = $parts;
+		$path->implode();
+		return $path;
+	}
+
+	public function relativeFromAppRoot(): self
+	{
+		$this->makeAbsolute();
+		$al = AutoLoad::getInstance();
+		$appRoot = $al->getAppRoot();
+		if ($appRoot) {
+			$new = $this->cutArrayFromArray($this->aPath, $appRoot->aPath);
+			//			debug(json_encode($this->aPath), json_encode($al->getAppRoot()->aPath), json_encode($new));
+			$relative = Path::fromArray($new);
+			$relative->isFile = $this->isFile;
+			$relative->isDir = $this->isDir;
+		} else {
+			$relative = $this;
+		}
+
+		return $relative;
+	}
+
 	/**
-     * It should not cap() the result, we don't know if it's a file or dir
-     */
-    public function getURL(): string|\Path
+	 * It should not cap() the result, we don't know if it's a file or dir
+	 */
+	public function getURL(): string|\Path
 	{
 		//$self = new Path(AutoLoad::getInstance()->appRoot);
 		$self = new Path(URL::getScriptWithPath());
@@ -456,12 +437,12 @@ class Path
 		return $relative;
 	}
 
-	public static function fromArray(array $parts): \Path
+	/**
+	 * @param string $dirname
+	 */
+	public function contains($dirname): bool
 	{
-		$path = new Path('');
-		$path->aPath = $parts;
-		$path->implode();
-		return $path;
+		return in_array($dirname, $this->aPath);
 	}
 
 	public function setFile($name): void
@@ -514,37 +495,22 @@ class Path
 		return $this->aPath[$i];
 	}
 
-	/**
-     * @internal param $al
-     */
-    private function cutArrayFromArray(array $long, array $short): array
+	public function normalize(): static
 	{
-		$new = [];
-		$different = false;
-		foreach ($long as $key => $value) {
-			$other = ifsetor($short[$key]);
-			if ($value != $other) {
-				$different = true;
-			}
-
-			if ($different) {
-				$new[] = $value;
-			}
-		}
-
-		return $new;
+		$this->__construct($this->getNormalized());
+		return $this;
 	}
 
 	/**
-     * http://php.net/manual/en/function.realpath.php#112367
-     */
-    public function getNormalized(): string
+	 * http://php.net/manual/en/function.realpath.php#112367
+	 */
+	public function getNormalized(): string
 	{
 		$path = $this->__toString();
 		$parts = [];// Array to build a new path from the good parts
 		$path = str_replace('\\', '/', $path);// Replace backslashes with forwardslashes
 		$path = preg_replace('/\/+/', '/', $path);
-        // Combine multiple slashes into a single slash
+		// Combine multiple slashes into a single slash
 		$segments = explode('/', $path);// Collect path segments
 		$test = '';// Initialize testing variable
 		foreach ($segments as $segment) {
@@ -572,10 +538,30 @@ class Path
 		return $prefix . implode('/', $parts);
 	}
 
-	public function normalize(): static
+	public function __toString(): string
 	{
-		$this->__construct($this->getNormalized());
-		return $this;
+		return $this->isDir ? $this->getCapped() : $this->getUncapped();
+	}
+
+	public function getCapped(): string
+	{
+		if (!count($this->aPath) && $this->isAbsolute()) {
+			return $this->implode();    // absolute empty has slash already
+		}
+
+		return cap($this->implode());
+	}
+
+	public function getUncapped(): string
+	{
+		return $this->implode();
+	}
+
+	public function hasFile($file): bool
+	{
+		$files = $this->getFiles();
+		//debug($files);
+		return (bool)ifsetor($files[$file]);
 	}
 
 	public function getFiles(): array
@@ -585,13 +571,6 @@ class Path
 			return basename($file);
 		}, $files);
 		return array_combine($basenames, $files);
-	}
-
-	public function hasFile($file): bool
-	{
-		$files = $this->getFiles();
-		//debug($files);
-		return (bool) ifsetor($files[$file]);
 	}
 
 	public function debugPathExists(): void
@@ -610,13 +589,6 @@ class Path
 		debug($debug);
 	}
 
-	public function realPath(): static
-	{
-		$this->sPath = realpath($this->sPath);
-		$this->explode();
-		return $this;
-	}
-
 	public function normalizeHomePage(): static
 	{
 		$this->realPath();
@@ -631,6 +603,31 @@ class Path
 		}
 
 		$this->implode();
+		return $this;
+	}
+
+	/**
+	 * Recursive. For no reason?
+	 * Reason is that readlink() fails if the final part is not a link
+	 * @return $this
+	 */
+	public function resolveLinks(): static
+	{
+		foreach ($this->aPath as $i => $part) {
+			$assembled = '/' . implode('/', array_slice($this->aPath, 0, $i));
+			//			debug($assembled, is_link($assembled));
+			if (ini_get('open_basedir')) {
+				return $this;
+			}
+
+			if (@is_link($assembled)) {
+				$this->sPath = readlink($assembled);
+				$this->explode();
+				$this->resolveLinks();
+				break;
+			}
+		}
+
 		return $this;
 	}
 

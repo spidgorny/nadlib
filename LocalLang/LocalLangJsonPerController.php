@@ -27,18 +27,9 @@ class LocalLangJsonPerController extends LocalLangJson
 			$this->detectLang();
 			$this->readDB();
 		}
-        
+
 		$this->log(__METHOD__, $this->controller);
 		LocalLang::$instance = $this;
-	}
-
-	public function setController($class): void
-	{
-		$this->log(__METHOD__, $class);
-		//debug(__METHOD__, $class);
-		$this->controller = $class;
-		$this->detectLang();
-		$this->readDB();
 	}
 
 	public function readDB(): void
@@ -52,6 +43,20 @@ class LocalLangJsonPerController extends LocalLangJson
 		}
 	}
 
+	public function getFilename(): string
+	{
+		return $this->langFolder . $this->controller . '-' . $this->lang . '.json';
+	}
+
+	public function setController($class): void
+	{
+		$this->log(__METHOD__, $class);
+		//debug(__METHOD__, $class);
+		$this->controller = $class;
+		$this->detectLang();
+		$this->readDB();
+	}
+
 	public function __destruct()
 	{
 		$jsonEncode = json_encode($this->ll, JSON_PRETTY_PRINT);
@@ -61,21 +66,18 @@ class LocalLangJsonPerController extends LocalLangJson
 		}
 	}
 
-	public function getFilename(): string
-	{
-		return $this->langFolder . $this->controller . '-' . $this->lang . '.json';
-	}
-
 	public function T($text, $replace = null, $s2 = null, $s3 = null)
 	{
 		if (isset($this->ll[$text])) {
 			return parent::T($text, $replace, $s2, $s3);
-		} elseif (isset($this->general->ll[$text])) {
-			return $this->general->T($text, $replace, $s2, $s3);
-		} else {
-			$this->saveMissingMessage($text);
-			return $this->Tp($text, $replace, $s2, $s3);
 		}
+
+		if (isset($this->general->ll[$text])) {
+			return $this->general->T($text, $replace, $s2, $s3);
+		}
+
+		$this->saveMissingMessage($text);
+		return self::Tp($text, $replace, $s2, $s3);
 	}
 
 }

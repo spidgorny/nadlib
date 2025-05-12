@@ -59,7 +59,7 @@ class HTMLFormTable extends HTMLForm
 	public $isValid = false;
 
 	/**
-	 * @var
+	 * @var HTMLForm
 	 */
 	protected $mainForm;
 
@@ -203,6 +203,11 @@ class HTMLFormTable extends HTMLForm
 		return $part;
 	}
 
+	public function mainFormStart(): void
+	{
+		$this->stdout .= '<table class="htmlFormDiv"><tr><td>' . "\n";
+	}
+
 	public function renderFormRows(array $formData, array $prefix = []): string|array
 	{
 //		echo json_encode(array_keys($formData)), BR;
@@ -263,81 +268,6 @@ class HTMLFormTable extends HTMLForm
 		return $part;
 	}
 
-	/**
-	 * @param array|HTMLFormTypeInterface $fieldDesc
-	 * @param array $path
-	 */
-	public function showTR(array $prefix, array|HTMLFormFieldInterface $fieldDesc): array
-	{
-		if (!isset($fieldDesc['horisontal']) || !$fieldDesc['horisontal']) {
-			$content[] = "<tr " . self::getAttrHTML($fieldDesc['TRmore'] ?? null) . ">";
-		}
-
-		if (isset($fieldDesc['table'])) {
-			$content[] = '<td class="table">';
-			$f2 = new HTMLFormTable($fieldDesc);
-			$f2->showForm($prefix, false);
-			$content[] = $f2->stdout;
-			$content[] = "</td>";
-		}
-
-		if (isset($fieldDesc['dependant'])) {
-			$fieldDesc['prepend'] = '<fieldset class="expandable"><legend>';
-			$fieldDesc['append'] .= '</legend>' .
-				$this->getForm($fieldDesc['dependant'], $prefix, false) // $path
-				. '</fieldset>';
-			$this->showCell($prefix, $fieldDesc);
-		} else {
-			$this->showCell($prefix, $fieldDesc);
-		}
-
-		$content[] = "</tr>\n";
-		$this->stdout .= implode('', $content);
-		return $content;
-	}
-
-	/**
-	 * @return mixed[]
-	 */
-	public static function sliceFromTill(array $desc, $from, $till = null): array
-	{
-		$desc2 = [];
-		$copy = false;
-		foreach ($desc as $key => $val) {
-			if (!$copy) {
-				$copy = $key === $from;
-			}
-
-			if ($copy) {
-				$desc2[$key] = $val;
-			}
-
-			if ($key === $till) {
-				break;
-			}
-		}
-
-		return $desc2;
-	}
-
-	public function showRow($fieldName, array $desc2): void
-	{
-		//foreach ($desc as $fieldName2 => $desc2) {
-		//if ($fieldName2 != 'horisontal') {
-		$this->mainFormStart();
-		$path = $fieldName;
-		//$path[] = $fieldName2;
-		$this->showCell($path, $desc2);
-		$this->mainFormEnd();
-		//}
-		//}
-	}
-
-	public function mainFormStart(): void
-	{
-		$this->stdout .= '<table class="htmlFormDiv"><tr><td>' . "\n";
-	}
-
 	public function showCell(array $fieldName, array|HTMLFormFieldInterface $desc): string|array
 	{
 		$content = '';
@@ -347,7 +277,8 @@ class HTMLFormTable extends HTMLForm
 			: [];
 		if (isset($desc['newTD'])) {
 			$content .= '</tr></table></td>
-			<td ' . $desc['TDmore'] . '><table ' . HTMLForm::getAttrHTML($this->tableMore) . '><tr>' . "\n";
+			<td ' . implode(' ', $desc['TDmore']) . '>
+			<table ' . HTMLForm::getAttrHTML($this->tableMore) . '><tr>' . "\n";
 		}
 
 		$fieldValue = $desc['value'] ?? $desc['default'] ?? null;
@@ -442,7 +373,7 @@ class HTMLFormTable extends HTMLForm
 
 		$field['value'] = $fieldValue;
 
-		$field->form = $this;    // don't clone, because we may want to influence the original form
+		$field->setForm($this);    // don't clone, because we may want to influence the original form
 		$tmp = $this->stdout;
 		$field->form->stdout = '';
 		$field->render();
@@ -491,9 +422,79 @@ class HTMLFormTable extends HTMLForm
 		}
 	}
 
+	/**
+	 * @param array $prefix
+	 * @param array|HTMLFormTypeInterface $fieldDesc
+	 */
+	public function showTR(array $prefix, array|HTMLFormFieldInterface $fieldDesc): array
+	{
+		if (!isset($fieldDesc['horisontal']) || !$fieldDesc['horisontal']) {
+			$content[] = "<tr " . self::getAttrHTML($fieldDesc['TRmore'] ?? null) . ">";
+		}
+
+		if (isset($fieldDesc['table'])) {
+			$content[] = '<td class="table">';
+			$f2 = new HTMLFormTable($fieldDesc);
+			$f2->showForm($prefix, false);
+			$content[] = $f2->stdout;
+			$content[] = "</td>";
+		}
+
+		if (isset($fieldDesc['dependant'])) {
+			$fieldDesc['prepend'] = '<fieldset class="expandable"><legend>';
+			$fieldDesc['append'] .= '</legend>' .
+				$this->getForm($fieldDesc['dependant'], $prefix, false) // $path
+				. '</fieldset>';
+			$this->showCell($prefix, $fieldDesc);
+		} else {
+			$this->showCell($prefix, $fieldDesc);
+		}
+
+		$content[] = "</tr>\n";
+		$this->stdout .= implode('', $content);
+		return $content;
+	}
+
 	public function mainFormEnd(): void
 	{
 		$this->stdout .= "</td></tr></table>\n";
+	}
+
+	/**
+	 * @return mixed[]
+	 */
+	public static function sliceFromTill(array $desc, $from, $till = null): array
+	{
+		$desc2 = [];
+		$copy = false;
+		foreach ($desc as $key => $val) {
+			if (!$copy) {
+				$copy = $key === $from;
+			}
+
+			if ($copy) {
+				$desc2[$key] = $val;
+			}
+
+			if ($key === $till) {
+				break;
+			}
+		}
+
+		return $desc2;
+	}
+
+	public function showRow($fieldName, array $desc2): void
+	{
+		//foreach ($desc as $fieldName2 => $desc2) {
+		//if ($fieldName2 != 'horisontal') {
+		$this->mainFormStart();
+		$path = $fieldName;
+		//$path[] = $fieldName2;
+		$this->showCell($path, $desc2);
+		$this->mainFormEnd();
+		//}
+		//}
 	}
 
 	/**

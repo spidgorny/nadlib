@@ -4,20 +4,17 @@ class ModelQuery implements IteratorAggregate
 {
 
 	/**
+	 * @var string
+	 */
+	public static $itemClassName;
+	/**
 	 * @var DBInterface
 	 */
 	public $db;
-
 	/**
 	 * @var Model
 	 */
 	public $itemInstance;
-
-	/**
-	 * @var string
-	 */
-	public static $itemClassName;
-
 	/**
 	 * @var array
 	 */
@@ -35,18 +32,21 @@ class ModelQuery implements IteratorAggregate
 	public function getQuery(array $where = [], $orderBy = 'ORDER BY id DESC')
 	{
 		$this->where($where);
-		$sql = $this->db->qb;
-		return $sql->getSelectQuery($this->db, $this->table, $this->where, $orderBy);
+		return $this->db->getSelectQuery($this->db, $this->table, $this->where, $orderBy);
+	}
+
+	public function where(array $where): static
+	{
+		$this->where += $where;
+		return $this;
 	}
 
 	/**
-	 * @param string $orderBy
-	 * @return array[]
+	 * @return ArrayPlus|Traversable|Model[]
 	 */
-	public function queryData(array $where, $orderBy = 'ORDER BY id DESC')
+	public function getIterator(): Traversable
 	{
-		$this->where($where);
-		return $this->db->fetchAllSelectQuery($this->itemInstance->table, $this->where, $orderBy);
+		return $this->queryObjects();
 	}
 
 	/**
@@ -64,18 +64,14 @@ class ModelQuery implements IteratorAggregate
 		return $list;
 	}
 
-	public function where(array $where): static
-	{
-		$this->where += $where;
-		return $this;
-	}
-
 	/**
-	 * @return ArrayPlus|Traversable|Model[]
+	 * @param string $orderBy
+	 * @return array[]
 	 */
-	public function getIterator(): Traversable
+	public function queryData(array $where, $orderBy = 'ORDER BY id DESC')
 	{
-		return $this->queryObjects();
+		$this->where($where);
+		return $this->db->fetchAllSelectQuery($this->itemInstance->table, $this->where, $orderBy);
 	}
 
 }

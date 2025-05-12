@@ -2,6 +2,9 @@
 
 use spidgorny\nadlib\HTTP\URL;
 
+/**
+ * @todo: move to ORS project
+ */
 class GroupSwitch extends Controller
 {
 
@@ -37,6 +40,14 @@ class GroupSwitch extends Controller
 		return in_array($this->user->getLogin(), $this->allowedUsers);
 	}
 
+	public function setGroupAction(): string
+	{
+		$this->user->pretendOtherDepartment($this->request->getInt('groupID'));
+		$referer = new URL($_SERVER['HTTP_REFERER']);
+		//$referer->setParams();	// uncommented to let ORS redirect to the same RequestInfo?id=123
+		return $this->request->redirect($referer);
+	}
+
 	public function fetchGroups()
 	{
 		return $this->groups;
@@ -62,15 +73,7 @@ class GroupSwitch extends Controller
 
 	public function isCurrentGroup($groupID): bool
 	{
-		return $this->user->rights->groupID == $groupID;
-	}
-
-	public function setGroupAction(): string
-	{
-		$this->user->pretendOtherDepartment($this->request->getInt('groupID'));
-		$referer = new URL($_SERVER['HTTP_REFERER']);
-		//$referer->setParams();	// uncommented to let ORS redirect to the same RequestInfo?id=123
-		return $this->request->redirect($referer);
+		return $this->user->getGroup()->getID() === $groupID;
 	}
 
 }
