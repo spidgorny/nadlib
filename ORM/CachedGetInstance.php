@@ -43,6 +43,7 @@ trait CachedGetInstance
 
 	/**
 	 * @param int $id
+	 * @param DBInterface|null $db
 	 * @return static
 	 * @throws Exception
 	 */
@@ -54,8 +55,8 @@ trait CachedGetInstance
 	/**
 	 * // TODO: initialization by array should search in $instances as well
 	 * @param $id |array int
+	 * @param DBInterface|null $db
 	 * @return static
-	 * @throws Exception
 	 */
 	public static function getInstanceByID($id, ?DBInterface $db = null): static
 	{
