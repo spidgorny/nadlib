@@ -7,4 +7,10 @@ interface MailerInterface
 
 	public function send();
 
+	public function setCC(array $param);
+
+	public function setBCC(array $param);
+
+	public function setAttachments($attachments);
+
 }
