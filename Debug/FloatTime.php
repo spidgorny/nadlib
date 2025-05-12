@@ -18,7 +18,7 @@ class FloatTime
 			return '';
 		}
 
-		$totalTime = TaylorProfiler::getElapsedTime();
+		$totalTime = (float)TaylorProfiler::getElapsedTime();
 		$dbTime = $this->getDBTime();
 		if (Session::isActive()) {
 			$_SESSION[__CLASS__] = ifsetor($_SESSION[__CLASS__], []);
@@ -27,7 +27,7 @@ class FloatTime
 			}
 
 			// total
-			$totalMax = floatval(ifsetor($_SESSION[__CLASS__]['totalMax'], 0));
+			$totalMax = (float)ifsetor($_SESSION[__CLASS__]['totalMax'], 0);
 			if ($totalMax > 0) {
 				$totalBar = '<img src="' . ProgressBar::getBar($totalTime / $totalMax * 100) . '" />';
 			} else {

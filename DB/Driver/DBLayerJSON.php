@@ -91,13 +91,13 @@ class DBLayerJSON extends DBLayerBase implements DBInterface
 	public function runInsertQuery($table, array $data)
 	{
 		$t = $this->getTable($table);
-		return $t->runInsertQuery($table, $data);
+		$t->runInsertQuery($table, $data);
 	}
 
 	public function runUpdateQuery($table, array $data, array $where)
 	{
 		$t = $this->getTable($table);
-		return $t->runUpdateQuery($table, $data, $where);
+		$t->runUpdateQuery($table, $data, $where);
 	}
 
 	public function getSelectQuery($table, array $where = [], $order = '', $addSelect = null)
@@ -110,10 +110,10 @@ class DBLayerJSON extends DBLayerBase implements DBInterface
 		return $t;
 	}
 
-	public function runSelectQuery($table, array $where = [], $order = '', $addSelect = ''): \DBLayerJSONTable
+	public function runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
 	{
 		$t = $this->getTable($table);
-		return $t->runSelectQuery($table, $where, $order, $addSelect);
+		$t->runSelectQuery($table, $where, $order, $addSelect);
 	}
 
 	public function __call(string $method, array $params)

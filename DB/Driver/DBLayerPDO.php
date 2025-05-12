@@ -5,7 +5,7 @@
  * @mixin SQLBuilder
  * @method runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
  */
-class DBLayerPDO extends DBLayerBase implements DBInterface
+class DBLayerPDO extends DBLayerBase
 {
 
 	/**
@@ -27,19 +27,14 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	 * @var string
 	 */
 	public $lastQuery;
-
+    public $dbName;
 	/**
 	 * @var null|int
 	 */
 	protected $dataSeek;
-
 	protected $host;
-
     protected $user;
-
     protected $password;
-
-    public $dbName;
 
 	public static function fromParams($dbName = null, $host = null,
 																		$user = null, $password = null,
@@ -86,7 +81,7 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 //		debug($this->dsn);
 		$profiler = new Profiler();
 		$this->connectDSN($this->dsn, $user, $password);
-		$this->queryTime += $profiler->elapsed();
+		$this->queryTime += (float)$profiler->elapsed();
 	}
 
 	public function connectDSN($dsn, $user = null, $password = null): void
@@ -170,21 +165,20 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 			$this->lastResult = $this->connection->prepare($query, $driver_options);
 		} catch (PDOException $pdoException) {
 //			debug($query, $params, $e->getMessage());
-			$pdoException = new DatabaseException($pdoException->getMessage(), $query, $pdoException);
-			throw $pdoException;
+			throw new DatabaseException($pdoException->getMessage(), $query, $pdoException);
 		}
 
-		$this->queryTime += $profiler->elapsed();
+		$this->queryTime += (float)$profiler->elapsed();
 		if ($this->logToLog) {
 			$runTime = number_format(microtime(true) - $_SERVER['REQUEST_TIME'], 2);
-			error_log($runTime . ' ' . $query);
+			llog($runTime . ' ' . $query);
 		}
 
 		if ($this->lastResult) {
 			$profiler = new Profiler();
             $ok = $this->lastResult->execute($params);
 
-			$this->queryTime += $profiler->elapsed();
+			$this->queryTime += (float)$profiler->elapsed();
 			if (!is_null($this->queryLog)) {
 				$diffTime = $profiler->elapsed();
 				$this->queryLog->log($query, $diffTime, $this->lastResult->rowCount());
@@ -393,11 +387,6 @@ class DBLayerPDO extends DBLayerBase implements DBInterface
 	{
 		$withQuotes = $this->connection->quote($key);
 		return substr($withQuotes, 1, -1);
-	}
-
-	public function uncompress($value): string|false
-	{
-		return @gzuncompress(substr($value, 4));
 	}
 
 	public function transaction(): void

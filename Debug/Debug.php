@@ -5,8 +5,6 @@ class Debug
 
 	protected static $instance;
 
-	public $index;
-
 	/**
 	 * no debug unless $_COOKIE['debug']
 	 * @var string
@@ -21,43 +19,22 @@ class Debug
 	protected $request;
 
 	/**
-	 * @param Index|IndexBE $index
 	 */
-	public function __construct(?Index $index = null)
+	public function __construct($debugRenderer = null)
 	{
-		$this->index = $index;
 		self::$instance = $this;
-		if (class_exists('Config')) {
-			$c = Config::getInstance();
-			$this->renderer = ifsetor($c->debugRenderer) ? $c->debugRenderer : $this->detectRenderer();
-		} else {
-			$this->renderer = $this->detectRenderer();
-		}
-
+		$this->renderer = ifsetor($debugRenderer, $this->detectRenderer());
 //		pre_print_r($_COOKIE);
 		if (0 && ifsetor($_COOKIE['debug'])) {
-			echo 'Renderer: ' . $this->renderer;
-			echo '<pre>';
-			var_dump([
+			llog([
 				'canCLI' => DebugCLI::canCLI(),
 				'canDebugster' => $this->canDebugster(),
 				'canBulma' => DebugBulma::canBulma(),
 				'canHTML' => $this->canHTML(),
 			]);
-			echo '</pre>';
 		}
 
 		$this->request = Request::getInstance();
-	}
-
-	public static function getInstance(): \Debug
-	{
-		if (!self::$instance) {
-			$index = class_exists('Index', false) ? Index::getInstance() : null;
-			self::$instance = new self($index);
-		}
-
-		return self::$instance;
 	}
 
 	public function detectRenderer(): string
@@ -88,6 +65,16 @@ class Debug
 	{
 //		pre_print_r(__METHOD__, $_COOKIE);
 		return ifsetor($_COOKIE['debug']);
+	}
+
+	public static function getInstance(): \Debug
+	{
+		if (!self::$instance) {
+			$index = class_exists('Index', false) ? Index::getInstance() : null;
+			self::$instance = new self($index);
+		}
+
+		return self::$instance;
 	}
 
 	public static function shallow($coming): void
@@ -219,11 +206,11 @@ class Debug
 		if ($isPhpStorm) {
 			$path = $file;
 		} else {
-			$path = basename(dirname(dirname($file))) .
+			$path = basename(dirname($file, 2)) .
 				'/' . basename(dirname($file)) .
 				'/' . basename($file);
 			if ($path[0] === 'C') {
-				var_dump($file, $path);
+				llog($file, $path);
 				exit;
 			}
 		}
@@ -232,7 +219,7 @@ class Debug
 			$ref = new ReflectionClass($first['object']);
 			$path = $ref->getFileName();
 
-			$path = basename(dirname(dirname($file))) .
+			$path = basename(dirname($file, 2)) .
 				'/' . basename(dirname($file)) .
 				'/' . basename($file);
 
@@ -477,7 +464,7 @@ class Debug
 
 	public static function investigate($var): void
 	{
-		error_log('Investigate');
+		llog('Investigate');
 		if (is_object($var)) {
 			$var = get_object_vars($var);
 		}
@@ -486,12 +473,12 @@ class Debug
 			$var = [$var];
 		}
 
-		error_log('Keys: ' . implode(',', array_keys($var)));
+		llog('Keys: ' . implode(',', array_keys($var)));
 		foreach ($var as $key => $var) {
-			error_log(' * ' . $key . ': [' . trim(strip_tags(typ($var))) . ']');
+			llog(' * ' . $key . ': [' . trim(strip_tags(typ($var))) . ']');
 		}
 
-		error_log('-----');
+		llog('-----');
 	}
 
 	/**
@@ -544,7 +531,7 @@ class Debug
 	}
 
 	/**
-	 * @param mixed ..$debugAccess
+	 * @param mixed $debugAccess
 	 * @throws Exception
 	 */
 	public function consoleLog($debugAccess): void
@@ -564,12 +551,7 @@ class Debug
 			console.log(json);
 		}, 1);
 		</script>';
-		if (false && class_exists('Index', false)) {
-			$index = Index::getInstance();
-			$index->footer[] = $script;
-		} else {
-			echo $script;
-		}
+		echo $script;
 	}
 
 }

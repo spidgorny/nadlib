@@ -85,6 +85,63 @@ class Timeline2 /*extends AppController */
 		return round($percent * $this->width, 2);
 	}
 
+	public function renderRange(Date $from, Date $till): void
+	{
+		$x = $this->date2x($from);
+		$width = $this->date2x($till) - $x;
+		$this->rangeContent[] = '<rect
+				x="' . $x . '"
+				y="' . (0) . '"
+				width="' . $width . '"
+				height="' . ($this->height - $this->height_20) . '"
+				style="fill:' . $this->rangeColor . '; stroke-width:0; stroke:rgb(0,0,0)" />';
+	}
+
+	public function renderTimeRange(Time $from, Time $till,
+																			 string $style = 'fill: #0088CC; stroke-width:0; stroke:rgb(0,0,0)',
+																			 array $more = []): string
+	{
+		$x = $this->date2xTime($from);
+		$width = $this->date2xTime($till) - $x;
+		$id = uniqid('rect_');
+		$this->rangeContent[] = '<rect
+				id="' . $id . '"
+				x="' . $x . '"
+				y="' . (0) . '"
+				width="' . $width . '"
+				height="' . ($this->height - $this->height_20) . '"
+				style="' . $style . '"
+				startTime="' . $from->getDateTime() . '"
+				endTime="' . $till->getDateTime() . '"
+				' . HTMLTag::renderAttr($more) . '
+				><title>' . htmlspecialchars($more['title']) . '</title></rect>';
+		return $id;
+	}
+
+	public function date2xTime(Time $time): float
+	{
+		$sinceStart = $time->minus($this->start);
+		//$tillEnd = $this->end->minus($date);
+		$percent = $sinceStart->getTimestamp() / ($this->duration->getTimestamp());
+		return round($percent * $this->width, 2);
+	}
+
+	public function renderCircle(Time $from, string $radius, string $style = 'fill: #0088CC; stroke-width:1; stroke:rgb(0,0,0)'): void
+	{
+		$x = $this->date2xTime($from);
+		$this->rangeContent[] = '<circle
+				cx="' . $x . '"
+				cy="' . (20) . '"
+				r="' . $radius . '"
+				style="' . $style . '"
+				/>';
+	}
+
+	public function __toString(): string
+	{
+		return $this->render() . '';
+	}
+
 	public function render(): string
 	{
 		TaylorProfiler::start(__METHOD__);
@@ -126,7 +183,7 @@ class Timeline2 /*extends AppController */
 		$content = '';
 		$every = $this->dayWidth / 24 / 3 / $this->fontSize; // 3 chars for "22h"
 		$i = 0;
-		/* @var $date Time */
+		/* @var Time $date */
 		for ($date = new Time($this->start);
 				 $date->earlier($this->end);
 				 $date->add(new Duration('1 hour'))) {
@@ -155,7 +212,7 @@ class Timeline2 /*extends AppController */
 	public function dateTicks(): string
 	{
 		$content = '';
-		for ($date = clone $this->start/* @var $date Date */;
+		for ($date = clone $this->start/* @var Date $date */;
 				 $date->earlier($this->end);
 				 $date->add(new Duration('1 day'))) {
 			$x = $this->date2x($date);
@@ -183,7 +240,7 @@ class Timeline2 /*extends AppController */
 	{
 		$content = '';
 		$firstWeek = new Date(strtotime('monday', $this->start->getTimestamp()));
-		for ($date = $firstWeek/* @var $date Date */;
+		for ($date = $firstWeek/* @var Date $date */;
 				 $date->earlier($this->end);
 				 $date->add(new Duration('1 week'))) {
 			$x = $this->date2x($date);
@@ -205,7 +262,7 @@ class Timeline2 /*extends AppController */
 	{
 		$content = '';
 		for ($date = clone $this->start
-			/* @var $date Date */;
+			/* @var Date $date */;
 				 $date->earlier($this->end);
 				 $date->add(new Duration('next month'))) {
 			// Fix, because it jumps to 2015-03-04
@@ -238,7 +295,7 @@ class Timeline2 /*extends AppController */
 		//debug($dayWidth, ($dayWidth * 30), $fontSize, ($fontSize*3));
 		if (($this->dayWidth * 30) < ($this->fontSize * 3)) {    // 3 letters in Jan
 			for ($date = clone $this->start
-				/* @var $date Date */;
+				/* @var Date $date */;
 					 $date->earlier($this->end);
 					 $date->add(new Duration('1 year'))) {
 				$x = $this->date2x($date);
@@ -253,63 +310,6 @@ class Timeline2 /*extends AppController */
 		}
 
 		return $content;
-	}
-
-	public function renderRange(Date $from, Date $till): void
-	{
-		$x = $this->date2x($from);
-		$width = $this->date2x($till) - $x;
-		$this->rangeContent[] = '<rect
-				x="' . $x . '"
-				y="' . (0) . '"
-				width="' . $width . '"
-				height="' . ($this->height - $this->height_20) . '"
-				style="fill:' . $this->rangeColor . '; stroke-width:0; stroke:rgb(0,0,0)" />';
-	}
-
-	public function date2xTime(Time $time): float
-	{
-		$sinceStart = $time->minus($this->start);
-		//$tillEnd = $this->end->minus($date);
-		$percent = $sinceStart->getTimestamp() / ($this->duration->getTimestamp());
-		return round($percent * $this->width, 2);
-	}
-
-	public function renderTimeRange(Time $from, Time $till,
-																			 string $style = 'fill: #0088CC; stroke-width:0; stroke:rgb(0,0,0)',
-																			 array $more = []): string
-	{
-		$x = $this->date2xTime($from);
-		$width = $this->date2xTime($till) - $x;
-		$id = uniqid('rect_');
-		$this->rangeContent[] = '<rect
-				id="' . $id . '"
-				x="' . $x . '"
-				y="' . (0) . '"
-				width="' . $width . '"
-				height="' . ($this->height - $this->height_20) . '"
-				style="' . $style . '"
-				startTime="' . $from->getDateTime() . '"
-				endTime="' . $till->getDateTime() . '"
-				' . HTMLTag::renderAttr($more) . '
-				><title>' . htmlspecialchars($more['title']) . '</title></rect>';
-		return $id;
-	}
-
-	public function renderCircle(Time $from, string $radius, string $style = 'fill: #0088CC; stroke-width:1; stroke:rgb(0,0,0)'): void
-	{
-		$x = $this->date2xTime($from);
-		$this->rangeContent[] = '<circle
-				cx="' . $x . '"
-				cy="' . (20) . '"
-				r="' . $radius . '"
-				style="' . $style . '"
-				/>';
-	}
-
-	public function __toString(): string
-	{
-		return $this->render() . '';
 	}
 
 }

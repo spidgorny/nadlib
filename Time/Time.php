@@ -120,6 +120,24 @@ class Time
 		return new self($string);
 	}
 
+	/**
+	 * System readable 2009-12-21
+	 */
+	public function getISODate(): string
+	{
+		return date('Y-m-d', $this->time);
+	}
+
+	/**
+	 * 12:21:15
+	 *
+	 * @param string $format
+	 */
+	public function getTime($format = 'H:i:s'): string
+	{
+		return date($format, $this->time);
+	}
+
 	public function __toString(): string
 	{
 		return $this->format($this->format);
@@ -145,24 +163,6 @@ class Time
 	public function getGMTTimestamp(): int|false
 	{
 		return strtotime($this->getISODate() . ' ' . $this->getTime() . ' GMT');
-	}
-
-	/**
-	 * System readable 2009-12-21
-	 */
-	public function getISODate(): string
-	{
-		return date('Y-m-d', $this->time);
-	}
-
-	/**
-	 * 12:21:15
-	 *
-	 * @param string $format
-	 */
-	public function getTime($format = 'H:i:s'): string
-	{
-		return date($format, $this->time);
 	}
 
 	/**
@@ -447,7 +447,7 @@ class Time
 	public function modify($format): static
 	{
 		/*$db = $GLOBALS['db'];
-		/* @var $db dbLayerPG */
+		/* @var dbLayerPG $db */
 		/*$key = __METHOD__.' ('.$db->getCaller(2).', '.$db->getCaller(3).')';
 		*/
 		$key = __METHOD__;

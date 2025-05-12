@@ -162,7 +162,7 @@ border-radius: 5px;">');
 	{
 		if (DEVELOPMENT) {
 			TaylorProfiler::getInstance(!ifsetor($_REQUEST['fast']));    // usually true
-			/* @var $profiler TaylorProfiler */
+			/* @var TaylorProfiler $profiler */
 			if (class_exists('Config', false) && !Request::isCLI()) {
 				//print_r(Config::getInstance()->config['Config']);
 				// set_time_limit() has been disabled for security reasons

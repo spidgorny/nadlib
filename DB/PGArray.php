@@ -168,12 +168,6 @@ class PGArray extends AsIs
 		return $parts;
 	}
 
-	/**
-	 * Change a db array into a PHP array
-	 * @param string $input
-	 * @return A PHP array
-	 * @internal param String $arr representing the DB array
-	 */
 	/*	function getPGArray($dbarr) {
 			// Take off the first and last characters (the braces)
 			$arr = substr($dbarr, 1, strlen($dbarr) - 2);

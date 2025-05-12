@@ -5,7 +5,7 @@
  * @method  runDeleteQuery($table, array $where)
  * @method  runInsertUpdateQuery($table, array $fields, array $where, array $insert = [])
  */
-class DBLayerJSONTable extends DBLayerBase implements DBInterface
+class DBLayerJSONTable extends DBLayerBase
 {
 
 	public $filename;
@@ -19,7 +19,7 @@ class DBLayerJSONTable extends DBLayerBase implements DBInterface
 		$this->filename = $filename;
 		if (is_file($this->filename)) {
 			$json = file_get_contents($this->filename);
-			$this->data = json_decode($json, true);
+			$this->data = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
 		} else {
 			file_put_contents($this->filename, '[]');
 		}

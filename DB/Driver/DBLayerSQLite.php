@@ -46,7 +46,7 @@ class DBLayerSQLite extends DBLayerBase
 
 	public function affectedRows($res = null): void
 	{
-		$this->lastResult->numRows();
+		$this->lastResult->numRows($res);
 	}
 
 	/**
@@ -119,7 +119,7 @@ class DBLayerSQLite extends DBLayerBase
 		$this->lastQuery = $query;
 		$profiler = new Profiler();
 		$this->lastResult = $this->connection->query($query);
-		$this->queryTime += $profiler->elapsed();
+		$this->queryTime += (float)$profiler->elapsed();
 		$this->logQuery($query);
 		if (!$this->lastResult) {
 			debug($this->lastResult, $query, $this->connection->lastErrorMsg());

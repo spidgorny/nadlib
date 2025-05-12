@@ -4,8 +4,8 @@ class QueryLog
 {
 
 	/**
-	 * @var array[
-	 * 'query'
+	 * @var array
+	 * ['query'
 	 * 'sumtime',
 	 * 'times'
 	 * 'results'
@@ -17,7 +17,7 @@ class QueryLog
 	{
 		$key = md5(trim($query));
         //		debug(__METHOD__, $query, $diffTime, $key, array_keys($this->queryLog));
-        $old = isset($this->queryLog[$key]) ? $this->queryLog[$key] : [];
+        $old = $this->queryLog[$key] ?? [];
 
 		$this->queryLog[$key] = [
 			'query' => $query . '',

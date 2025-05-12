@@ -596,7 +596,7 @@ class DBLayer extends DBLayerBase
 	 * @throws DatabaseException
 	 * @throws MustBeStringException
 	 * @deprecated
-	 * @use fetchAll()
+	 * use fetchAll()
 	 */
 	public function getAllRows($query)
 	{

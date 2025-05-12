@@ -8,12 +8,11 @@
 class POPOBase
 {
 
+	public $_missingProperties = [];
 	/**
 	 * @var ReflectionClass
 	 */
 	protected $reflector;
-
-	public $_missingProperties = [];
 
 	public function __construct($set)
 	{
@@ -34,14 +33,14 @@ class POPOBase
 		try {
 			$prop = $reflector->getProperty($name);
 			if ($prop) {
-				$type = $prop->getType() instanceof \ReflectionType ? $prop->getType()->getName() : null;
+				$type = $prop->getType() instanceof \ReflectionNamedType ? $prop->getType()->getName() : null;
 				if (!$type) {
 					$docText = $prop->getDocComment();
 					$doc = new DocCommentParser($docText);
 					$type = $doc->getFirstTagValue('var');
 //					llog($docText, $type, $value);
 				}
-                
+
 //				llog($name, $type.'', $value);
 				switch ($type) {
 					case 'integer':
@@ -65,7 +64,7 @@ class POPOBase
 						} elseif ($value) {
 							$value = new DateTime($value);
 						}
-                        
+
 						break;
 					case 'DateTimeImmutable':
 						if (is_object($value)) {
@@ -73,7 +72,7 @@ class POPOBase
 						} elseif ($value) {
 							$value = new DateTimeImmutable($value);
 						}
-                        
+
 						break;
 					default:
 						// inner subclasses
@@ -85,13 +84,13 @@ class POPOBase
 		} catch (ReflectionException $reflectionException) {
 			$this->_missingProperties[$name] = TAB . 'public $' . $name . ';';
 		}
-        
+
 		return $value;
 	}
 
 	/**
 	 * Only public properties will be included
-	 * @return false|string
+	 * @return string
 	 * @throws JsonException
 	 */
 	public function toJson(): string

@@ -24,27 +24,27 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	private static bool $_caseSensitive = true;
 
 	/**
-     * Whether the mbstring extension is installed and loaded.
-     * @access private
-     */
-    private static ?bool $_extMbstring = null;
+	 * Whether the mbstring extension is installed and loaded.
+	 * @access private
+	 */
+	private static ?bool $_extMbstring = null;
 
 	/**
-     * Whether the iconv extension is installed and loaded.
-     * @access private
-     */
-    private static ?bool $_extIconv = null;
+	 * Whether the iconv extension is installed and loaded.
+	 * @access private
+	 */
+	private static ?bool $_extIconv = null;
 
 	/**
-     * Whether the utf8 package is installed and loaded.
-     * @access private
-     */
-    private static ?bool $_extUtf8 = null;
+	 * Whether the utf8 package is installed and loaded.
+	 * @access private
+	 */
+	private static ?bool $_extUtf8 = null;
 
 	/**
-     * Literal string.
-     */
-    private string $_string;
+	 * Literal string.
+	 */
+	private string $_string;
 
 	/**
 	 * String's encoding.
@@ -53,20 +53,19 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	private $_encoding;
 
 	/**
-     * String's length.
-     */
-    private ?int $_length = null;
+	 * String's length.
+	 */
+	private ?int $_length = null;
 
 	/**
-     * Current position (Iterator).
-     */
-    private int $_index = 0;
+	 * Current position (Iterator).
+	 */
+	private int $_index = 0;
 
 	/**
 	 * Constructs a string object.
 	 * @param string $string literal string
 	 * @param string $encoding string encoding (default null, auto-detection)
-	 * @return String
 	 */
 	public function __construct($string = '', $encoding = null)
 	{
@@ -79,10 +78,10 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
-     * Returns an array with the string extensions that the class uses.
-     * Possible values: standard, mbstring, iconv, utf8.
-     */
-    public static function getLoadedExtensions(): array
+	 * Returns an array with the string extensions that the class uses.
+	 * Possible values: standard, mbstring, iconv, utf8.
+	 */
+	public static function getLoadedExtensions(): array
 	{
 		$ext = ['standard'];
 		if (self::_mbstringLoaded()) {
@@ -162,32 +161,32 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
-     * Overload method. Proxies to {@link callbackStatic()}.
-     * Method name starts with an underscore to prevent name clashes.
-     * Example:
-     * <code>
-     * <?php
-     * echo String::_squeeze(' a  b c ') // prints: a b c
-     * ?>
-     * </code>
-     * @param mixed $name
-     * @return mixed
-     * @throws BadFunctionCallException
-     */
-    public static function __callStatic($name, array $args)
+	 * Overload method. Proxies to {@link callbackStatic()}.
+	 * Method name starts with an underscore to prevent name clashes.
+	 * Example:
+	 * <code>
+	 * <?php
+	 * echo String::_squeeze(' a  b c ') // prints: a b c
+	 * ?>
+	 * </code>
+	 * @param mixed $name
+	 * @return mixed
+	 * @throws BadFunctionCallException
+	 */
+	public static function __callStatic($name, array $args)
 	{
 		$name = substr($name, 1);
 		return self::callbackStatic($name, $args);
 	}
 
 	/**
-     * Constructs a string object with the first argument as the string.
-     * Returns the result of the instance method $name.
-     * @param mixed $name callback function
-     * @param array $args function arguments. the first argument is the string literal.
-     * @throws BadFunctionCallException
-     */
-    public static function callbackStatic($name, array $args): mixed
+	 * Constructs a string object with the first argument as the string.
+	 * Returns the result of the instance method $name.
+	 * @param mixed $name callback function
+	 * @param array $args function arguments. the first argument is the string literal.
+	 * @throws BadFunctionCallException
+	 */
+	public static function callbackStatic($name, array $args): mixed
 	{
 		if ($args === []) {
 			throw new BadFunctionCallException('Static callback requires at least one parameter.');
@@ -207,7 +206,8 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * echo String::first(array(), 0, 'first', null, 'second'); // prints: first
 	 * ?>
 	 * </code>
-	 * @return String
+	 * @param mixed ...$args
+	 * @return StringPlus
 	 */
 	public static function first(...$args): self
 	{
@@ -221,11 +221,12 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
-     * Formats and returns String.
-     * @param string $string formatting string
-     * @return String
-     */
-    public static function format($string, array $args): self
+	 * Formats and returns String.
+	 * @param string $string formatting string
+	 * @param array $args
+	 * @return StringPlus
+	 */
+	public static function format($string, array $args): self
 	{
 		return new self(vsprintf((string)$string, $args));
 	}
@@ -235,7 +236,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * The String consists of characters in $charset.
 	 * @param int $length String's length
 	 * @param string $charset String's charset (default alpha-numeric characters)
-	 * @return String
+	 * @return StringPlus
 	 */
 	public static function random($length, $charset = self::ALNUM): self
 	{
@@ -251,7 +252,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 
 	/**
 	 * @param int $int
-	 * @return String
+	 * @return StringPlus|string|array|false
 	 */
 	public static function mb_chr($int): \StringPlus|string|array|false
 	{
@@ -265,8 +266,8 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 			return mb_convert_encoding(sprintf('&#%d;', $int), 'UTF-8', 'HTML-ENTITIES');
 		}
 
-        //html_entity_decode did not support Multi-Byte before PHP 5.0.0
-        return html_entity_decode(sprintf('&#%d;', $int), ENT_QUOTES, 'UTF-8');
+		//html_entity_decode did not support Multi-Byte before PHP 5.0.0
+		return html_entity_decode(sprintf('&#%d;', $int), ENT_QUOTES, 'UTF-8');
 	}
 
 	/**
@@ -280,19 +281,19 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
-     * Overload method. Proxies to {@link callback()}.
-     * Example:
-     * <code>
-     * <?php
-     * $string = new String('123456');
-     * echo $string->md5(); // prints: e10adc3949ba59abbe56e057f20f883e
-     * ?>
-     * </code>
-     * @param mixed $name
-     * @return mixed
-     * @throws BadFunctionCallException
-     */
-    public function __call($name, array $args)
+	 * Overload method. Proxies to {@link callback()}.
+	 * Example:
+	 * <code>
+	 * <?php
+	 * $string = new String('123456');
+	 * echo $string->md5(); // prints: e10adc3949ba59abbe56e057f20f883e
+	 * ?>
+	 * </code>
+	 * @param mixed $name
+	 * @return mixed
+	 * @throws BadFunctionCallException
+	 */
+	public function __call($name, array $args)
 	{
 		return $this->callback($name, $args);
 	}
@@ -350,17 +351,17 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
-     * Returns string's length.
-     * Counts the number of characters in the string.
-     * Example:
-     * <code>
-     * <?php
-     * $string = new String('123456');
-     * echo $string->getLength(); // prints: 6
-     * ?>
-     * </code>
-     */
-    public function getLength(): int
+	 * Returns string's length.
+	 * Counts the number of characters in the string.
+	 * Example:
+	 * <code>
+	 * <?php
+	 * $string = new String('123456');
+	 * echo $string->getLength(); // prints: 6
+	 * ?>
+	 * </code>
+	 */
+	public function getLength(): int
 	{
 		if ($this->_length === null) {
 			if (function_exists('mb_strlen')) {
@@ -397,18 +398,18 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
-     * Overload method. Returns the literal value of the string.
-     * Useful for string operations like printing and concatenation.
-     * For other uses, it is possible to use {@link toString()}.
-     * Example:
-     * <code>
-     * <?php
-     * $string = new String('123456');
-     * echo $string; // prints: 123456
-     * ?>
-     * </code>
-     */
-    public function __toString(): string
+	 * Overload method. Returns the literal value of the string.
+	 * Useful for string operations like printing and concatenation.
+	 * For other uses, it is possible to use {@link toString()}.
+	 * Example:
+	 * <code>
+	 * <?php
+	 * $string = new String('123456');
+	 * echo $string; // prints: 123456
+	 * ?>
+	 * </code>
+	 */
+	public function __toString(): string
 	{
 		return $this->_string;
 	}
@@ -423,7 +424,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * echo $string->capitalize(); // prints: ABc
 	 * ?>
 	 * </code>
-	 * @return String
+	 * @return StringPlus
 	 */
 	public function capitalize(): self
 	{
@@ -473,27 +474,27 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
-     * Counts the number of characters in the string.
-     * Alias of {@link getLength()}. Intended to use with count().
-     * Example:
-     * <code>
-     * <?php
-     * $string = new String('123456');
-     * echo $string->getLength(); // prints: 6
-     * echo count($string); // prints: 6
-     * ?>
-     * </code>
-     */
-    public function count(): int
+	 * Counts the number of characters in the string.
+	 * Alias of {@link getLength()}. Intended to use with count().
+	 * Example:
+	 * <code>
+	 * <?php
+	 * $string = new String('123456');
+	 * echo $string->getLength(); // prints: 6
+	 * echo count($string); // prints: 6
+	 * ?>
+	 * </code>
+	 */
+	public function count(): int
 	{
 		return $this->getLength();
 	}
 
 	/**
 	 * Returns the current element.
-	 * @return String
+	 * @return string
 	 */
-	public function current(): mixed
+	public function current(): string
 	{
 		return $this->charAt($this->_index);
 	}
@@ -502,7 +503,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * Returns the character at index $index, counting from zero.
 	 * If the index doesn't exists, returns null.
 	 * @param int $index character index, counting from zero.
-	 * @return String
+	 * @return StringPlus
 	 */
 	public function charAt($index): \StringPlus
 	{
@@ -513,7 +514,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * Returns part of the string.
 	 * @param int $start
 	 * @param int $length
-	 * @return String
+	 * @return StringPlus
 	 */
 	public function substring($start, $length = null): self
 	{
@@ -574,11 +575,11 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
-     * Similar to {@link compareTo()}, but case-insensitive.
-     * @param string $string
-     * @param int $characters upper limit of characters to use in comparison (default null)
-     */
-    public function compareToIgnoreCase($string, $characters = null): int
+	 * Similar to {@link compareTo()}, but case-insensitive.
+	 * @param string $string
+	 * @param int $characters upper limit of characters to use in comparison (default null)
+	 */
+	public function compareToIgnoreCase($string, $characters = null): int
 	{
 		if ($characters === null) {
 			return strncasecmp($this->_string, (string)$string, 999999);
@@ -600,7 +601,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * echo $string->splice(4, 0, 'quick brown ');
 	 * </code>
 	 * prints 'The quick brown fox jumped over the lazy dog.'
-	 * @return String
+	 * @return StringPlus
 	 */
 	public function splice($offset, $length = null, string $replacement = ''): self
 	{
@@ -634,11 +635,11 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
-     * Removes characters from both parts of the string.
-     * If $charlist is not provided, the default is to remove spaces.
-     * @param string $charlist characters to remove (default space characters)
-     */
-    public function trim($charlist = null): self
+	 * Removes characters from both parts of the string.
+	 * If $charlist is not provided, the default is to remove spaces.
+	 * @param string $charlist characters to remove (default space characters)
+	 */
+	public function trim($charlist = null): self
 	{
 		if ($charlist !== null && $this->getEncoding() === 'UTF-8' && function_exists('utf8_trim')) {
 			$string = utf8_trim($this->_string, $charlist);
@@ -697,15 +698,15 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
-     * Compares this string to the provided string.
-     * Returns positive number if this string is greater than $string,
-     * negative number if this string is less than $string,
-     * and 0 in case the strings are equal.
-     * This method is case-sensitive. See also {@link compareToIgnoreCase()}
-     * @param string
-     * @param int $characters upper limit of characters to use in comparison (default null)
-     */
-    public function compareTo($string, $characters = null): int
+	 * Compares this string to the provided string.
+	 * Returns positive number if this string is greater than $string,
+	 * negative number if this string is less than $string,
+	 * and 0 in case the strings are equal.
+	 * This method is case-sensitive. See also {@link compareToIgnoreCase()}
+	 * @param string
+	 * @param int $characters upper limit of characters to use in comparison (default null)
+	 */
+	public function compareTo($string, $characters = null): int
 	{
 		if ($characters === null) {
 			return strcmp($this->_string, (string)$string);
@@ -716,7 +717,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 
 	/**
 	 * Revereses a string.
-	 * @return String
+	 * @return StringPlus
 	 */
 	public function reverse(): self
 	{
@@ -740,16 +741,16 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
-     * Converts a string to lower case.
-     * Example:
-     * <code>
-     * <?php
-     * $string = new String('aBc');
-     * echo $string->toLowerCase(); // prints: abc
-     * ?>
-     * </code>
-     */
-    public function toLowerCase(): self
+	 * Converts a string to lower case.
+	 * Example:
+	 * <code>
+	 * <?php
+	 * $string = new String('aBc');
+	 * echo $string->toLowerCase(); // prints: abc
+	 * ?>
+	 * </code>
+	 */
+	public function toLowerCase(): self
 	{
 		if (function_exists('mb_strtolower')) {
 			$string = mb_strtolower($this->_string, $this->getEncoding());
@@ -771,7 +772,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * echo $string->toUpperCase(); // prints: ABC
 	 * ?>
 	 * </code>
-	 * @return String
+	 * @return StringPlus
 	 */
 	public function toUpperCase(): self
 	{
@@ -808,7 +809,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	/**
 	 * Returns the leftmost $length characters of a string.
 	 * @param int $length number of characters.
-	 * @return String
+	 * @return StringPlus
 	 */
 	public function left($length): \StringPlus
 	{
@@ -839,17 +840,17 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
-     * Checks if the string contains character at $offset.
-     * Example:
-     * <code>
-     * <?php
-     * $string = new String('example');
-     * var_dump(isset($string[2])); // prints: bool(true)
-     * ?>
-     * </code>
-     * @param int $offset character index, counting from zero.
-     */
-    public function offsetExists(mixed $offset): bool
+	 * Checks if the string contains character at $offset.
+	 * Example:
+	 * <code>
+	 * <?php
+	 * $string = new String('example');
+	 * var_dump(isset($string[2])); // prints: bool(true)
+	 * ?>
+	 * </code>
+	 * @param int $offset character index, counting from zero.
+	 */
+	public function offsetExists(mixed $offset): bool
 	{
 		return ($offset >= 0 && $offset < $this->getLength());
 	}
@@ -864,10 +865,10 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * ?>
 	 * </code>
 	 * @param int $offset character index, counting from zero.
-	 * @return String
+	 * @return string
 	 * @uses String::charAt
 	 */
-	public function offsetGet(mixed $offset): mixed
+	public function offsetGet(mixed $offset): string
 	{
 		return $this->charAt($offset);
 	}
@@ -922,8 +923,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	/**
 	 * Removes first occurrence of a substring from the string.
 	 * @param string $substr substring
-	 * @param bool $regex whether $substr is a regular expression
-	 * @return String
+	 * @return StringPlus
 	 */
 	public function removeOnce($substr): self
 	{
@@ -950,8 +950,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	/**
 	 * Removes all occurrences of a substring from the string.
 	 * @param string $substr substring
-	 * @param bool $regex whether $substr is a regular expression
-	 * @return String
+	 * @return StringPlus
 	 */
 	public function remove($substr): \StringPlus
 	{
@@ -969,7 +968,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * If seperator is not null, it will seperate the repeated string.
 	 * @param int $multiplier number of times the string should be repeated.
 	 * @param String $separator
-	 * @return String
+	 * @return StringPlus
 	 */
 	public function repeat($multiplier, $separator = null): self
 	{
@@ -1000,7 +999,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	/**
 	 * Returns the rightmost $length characters of a string.
 	 * @param int $length number of characters.
-	 * @return String
+	 * @return StringPlus
 	 */
 	public function right($length): \StringPlus
 	{
@@ -1010,7 +1009,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	/**
 	 * Shuffles a string randomly.
 	 * One permutation of all possible is created.
-	 * @return String
+	 * @return StringPlus
 	 */
 	public function shuffle(): self
 	{
@@ -1031,7 +1030,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * Removes extra spaces and reduces string's length.
 	 * Extra spaces are repeated, leading or trailing spaces.
 	 * It will also convert all spaces to white-spaces.
-	 * @return String
+	 * @return StringPlus
 	 */
 	public function squeeze(): \StringPlus
 	{
@@ -1062,7 +1061,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * If no match is found returns null.
 	 * @param string $separator
 	 * @param bool $inclusive whether to return the seperator (default false)
-	 * @return String
+	 * @return StringPlus|null
 	 */
 	public function substringAfterFirst($separator, $inclusive = false): ?\StringPlus
 	{
@@ -1085,7 +1084,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * If no match is found returns null.
 	 * @param String $separator
 	 * @param bool $inclusive whether to return the seperator (default false)
-	 * @return String
+	 * @return StringPlus|null
 	 */
 	public function substringAfterLast($separator, $inclusive = false): ?\StringPlus
 	{
@@ -1107,7 +1106,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * If no match is found returns null.
 	 * @param String $separator
 	 * @param bool $inclusive whether to return the seperator (default false)
-	 * @return String
+	 * @return StringPlus|null
 	 */
 	public function substringBeforeFirst($separator, $inclusive = false): ?\StringPlus
 	{
@@ -1138,11 +1137,12 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
-     * Concats a string and returns the new one.
-     * Actually, it is the same as the dot operator.
-     * @return String
-     */
-    public function concat(string $string): self
+	 * Concats a string and returns the new one.
+	 * Actually, it is the same as the dot operator.
+	 * @param string $string
+	 * @return static
+	 */
+	public function concat(string $string): static
 	{
 		return new self($this->_string . $string);
 	}
@@ -1152,7 +1152,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * If no match is found returns null.
 	 * @param String $separator
 	 * @param bool $inclusive whether to return the seperator (default false)
-	 * @return String
+	 * @return StringPlus|null
 	 */
 	public function substringBeforeLast($separator, $inclusive = false): ?\StringPlus
 	{
@@ -1173,8 +1173,8 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * If one of the delimiters is null, it will use the other one.
 	 * Only the first match will be returned. If no match is found returns null.
 	 * @param String $left left  delimiter
-	 * @param String $right right delimiter
-	 * @return String
+	 * @param null $right right delimiter
+	 * @return StringPlus|null
 	 */
 	public function substringBetween($left, $right = null): ?\StringPlus
 	{
@@ -1217,10 +1217,10 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
-     * Count the number of substring occurrences.
-     * @param string $substr
-     */
-    public function substringCount($substr): int
+	 * Count the number of substring occurrences.
+	 * @param string $substr
+	 */
+	public function substringCount($substr): int
 	{
 		return substr_count($this->_string, (string)$substr);
 	}
@@ -1244,7 +1244,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 
 	/**
 	 * Converts uppercase characters lowercase and vice versa.
-	 * @return String
+	 * @return StringPlus
 	 */
 	public function swapCase(): self
 	{
@@ -1296,9 +1296,9 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
-     * Returns the literal value of the string.
-     */
-    public function toString(): string
+	 * Returns the literal value of the string.
+	 */
+	public function toString(): string
 	{
 		return $this->_string;
 	}
@@ -1307,7 +1307,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * Removes characters from the right part of the string.
 	 * If $charlist is not provided, the default is to remove spaces.
 	 * @param string $charlist characters to remove (default space characters)
-	 * @return String
+	 * @return StringPlus
 	 */
 	public function trimEnd($charlist = null): self
 	{
@@ -1324,7 +1324,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * Removes characters from the left part of the string.
 	 * If $charlist is not provided, the default is to remove spaces.
 	 * @param string $charlist characters to remove (default space characters)
-	 * @return String
+	 * @return StringPlus
 	 */
 	public function trimStart($charlist = null): self
 	{
@@ -1347,7 +1347,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * echo $string->uncapitalize(); // prints: aBCdE
 	 * ?>
 	 * </code>
-	 * @return String
+	 * @return StringPlus
 	 */
 	public function uncapitalize(): self
 	{
@@ -1368,17 +1368,17 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	}
 
 	/**
-     * Checks if current position is valid.
-     */
-    public function valid(): bool
+	 * Checks if current position is valid.
+	 */
+	public function valid(): bool
 	{
 		return ($this->_index >= 0 && $this->_index < $this->getLength());
 	}
 
 	/**
-     * Returns the literal value of the string.
-     */
-    public function valueOf(): string
+	 * Returns the literal value of the string.
+	 */
+	public function valueOf(): string
 	{
 		return $this->_string;
 	}

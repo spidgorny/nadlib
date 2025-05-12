@@ -34,25 +34,20 @@ class DatabaseResultIterator implements Iterator, Countable
 	 * @var array
 	 */
 	public $row = false;
-
-	/**
-	 * Amount. Must be NULL for the first time.
-	 * @var int
-	 */
-	protected $rows;
-
 	/**
 	 * Will return the value of the current row corresponding to $this->defaultKey
 	 * or number 0, 1, 2, 3, ... otherwise
 	 * @var int
 	 */
-	public $key = 0;
-
-	protected \DBInterface $db;
-
+	public int $key = 0;
 	public $query;
-
-	public $debug = false;
+	public bool $debug = false;
+	/**
+	 * Amount. Must be NULL for the first time.
+	 * @var ?int
+	 */
+	protected ?int $rows = null;
+	protected \DBInterface $db;
 
 	/**
      * DatabaseResultIterator constructor.
@@ -90,6 +85,13 @@ class DatabaseResultIterator implements Iterator, Countable
 		//$this->rewind();
 	}
 
+	public function log($method, $data = null): void
+	{
+		if ($this->debug) {
+			debug($method, $data);
+		}
+	}
+
 	public function count(): int
 	{
 		$this->log(__METHOD__);
@@ -112,17 +114,6 @@ class DatabaseResultIterator implements Iterator, Countable
 		}
 	}
 
-	public function current(): mixed
-	{
-		$this->log(__METHOD__);
-		return $this->row;
-	}
-
-	public function key(): mixed
-	{
-		return $this->key;
-	}
-
 	public function next(): void
 	{
 		$this->log(__METHOD__);
@@ -143,6 +134,17 @@ class DatabaseResultIterator implements Iterator, Countable
 		$this->log(__METHOD__);
 //		debug(__METHOD__, $row);
 		return $this->db->fetchAssoc($this->dbResultResource);
+	}
+
+	public function current(): mixed
+	{
+		$this->log(__METHOD__);
+		return $this->row;
+	}
+
+	public function key(): mixed
+	{
+		return $this->key;
 	}
 
 	public function valid(): bool
@@ -171,7 +173,7 @@ class DatabaseResultIterator implements Iterator, Countable
 		$this->db->free($this->dbResultResource);
 	}
 
-	public function skip($rows): static
+	public function skip(int $rows): static
 	{
 		$this->log(__METHOD__, $rows);
 		while ($rows) {
@@ -181,13 +183,6 @@ class DatabaseResultIterator implements Iterator, Countable
 
 		$this->key += $rows;
 		return $this;
-	}
-
-	public function log($method, $data = null): void
-	{
-		if ($this->debug) {
-			debug($method, $data);
-		}
 	}
 
 }

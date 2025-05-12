@@ -11,9 +11,9 @@ class Ticker
 {
 
 	/**
-     * @var $this
+     * @var static
      */
-    static public $instance;
+    public static Ticker $instance;
 
 	/**
 	 * @var string "html"
@@ -81,14 +81,6 @@ class Ticker
 		return PHP_SAPI === 'cli';
 	}
 
-	/**
-	 * @return self
-	 */
-	public static function getInstance()
-	{
-		return self::$instance ?: self::$instance = new static();
-	}
-
 	public static function enableTick($ticker = 1000, $func = null)
 	{
 		$tp = self::getInstance();
@@ -105,13 +97,18 @@ class Ticker
 	}
 
 	/**
-	 * This is not working reliably yet. Stops output forever
-	 * @deprecated
+	 * @return self
 	 */
-	public function stopOutput(): void
+	public static function getInstance()
 	{
-		ob_start([$this, 'ob_end']);
-		$this->noOutput = true;
+		return self::$instance ?: self::$instance = new static();
+	}
+
+	public static function disableTick(): void
+	{
+		echo __METHOD__, BR;
+		$tp = self::getInstance();
+		unregister_tick_function([$tp, 'tick']);
 	}
 
 	public function ob_end($output): string
@@ -211,11 +208,14 @@ class Ticker
 		}
 	}
 
-	public static function disableTick(): void
+	/**
+	 * This is not working reliably yet. Stops output forever
+	 * @deprecated
+	 */
+	public function stopOutput(): void
 	{
-		echo __METHOD__, BR;
-		$tp = self::getInstance();
-		unregister_tick_function([$tp, 'tick']);
+		ob_start([$this, 'ob_end']);
+		$this->noOutput = true;
 	}
 
 	public function __destruct()

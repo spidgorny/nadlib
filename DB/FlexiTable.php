@@ -191,7 +191,7 @@ class FlexiTable extends OODBase
 		foreach ($this->columns as $field => &$info) {
 			if (in_array($info['Type'], ['blob', 'text']) && $this->data[$field]) {
 				$info['uncompress'] = 'try';
-				$uncompressed = $this->db->uncompress($this->data[$field]);
+				$uncompressed = $this->uncompress($this->data[$field]);
 				if (!$uncompressed) {
 					/*debug($info+array(
 						'error' => $php_errormsg,
@@ -226,6 +226,11 @@ class FlexiTable extends OODBase
 
 		unset($this->data['xml']);
 		unset($this->data['xml2']);
+	}
+
+	public function uncompress($value): string|false
+	{
+		return @gzuncompress(substr($value, 4));
 	}
 
 }

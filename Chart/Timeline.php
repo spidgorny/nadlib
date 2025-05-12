@@ -51,7 +51,7 @@ class Timeline /*extends AppController */
 				width="' . ($this->width) . '"
 				height="' . (30) . '"
 				style="fill:' . $this->fillBottomColor . ';stroke-width:0;stroke:rgb(0,0,0)" />' . "\n";
-			for ($date = clone $this->start/* @var $date Date */;
+			for ($date = clone $this->start/* @var Date $date */;
 					 $date->earlier($this->end);
 					 $date->add(new Duration('1 day'))) {
 				$x = $this->date2x($date);
@@ -59,7 +59,7 @@ class Timeline /*extends AppController */
 					style="stroke:' . $this->textColor . ';stroke-width:1"/>';
 			}
 
-			for ($date = clone $this->start/* @var $date Date */;
+			for ($date = clone $this->start/* @var Date $date */;
 					 $date->earlier($this->end);
 					 $date->add(new Duration('1 week'))) {
 				$x = $this->date2x($date);
@@ -71,7 +71,7 @@ class Timeline /*extends AppController */
 					fill="' . $this->textColor . '">' . $date->format('W') . '</text>';
 			}
 
-			for ($date = clone $this->start/* @var $date Date */;
+			for ($date = clone $this->start/* @var Date $date */;
 					 $date->earlier($this->end);
 					 $date->add(new Duration('1 month'))) {
 				$x = $this->date2x($date);

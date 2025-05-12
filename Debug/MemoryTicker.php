@@ -9,23 +9,23 @@ class MemoryTicker extends Ticker
 	{
 		if ($this->isFirstTick) {
 			$this->isFirstTick = false;
-			error_log($_SERVER['REQUEST_URI']);
+			llog($_SERVER['REQUEST_URI']);
 		}
 
-		$mem = TaylorProfiler::getMemUsage();
+		$mem = (float)TaylorProfiler::getMemUsage();
 		if ($mem - $this->prevMemory > 0.1) {
-			error_log('Memory: ' . $mem);
+			llog('Memory: ' . $mem);
 			ob_start();
 			debug_print_backtrace();
 			$bt = ob_get_clean();
-			error_log($bt);
+			llog($bt);
 			$this->prevMemory = $mem;
 		}
 
 		if ($mem > 0.7) {
-			error_log($mem);
+			llog($mem);
 			echo '<pre>', PHP_EOL;
-			debug_print_backtrace();
+			debug_pre_print_backtrace();
 			die;
 		}
 	}

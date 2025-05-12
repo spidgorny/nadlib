@@ -15,23 +15,20 @@
 class LazyFetchAssoc implements ArrayAccess
 {
 
+	public $idField = 'id';
 	/**
-	 * @var $db DBLayer
+	 * @var DBLayer $db
 	 */
 	protected $db;
-
 	/**
 	 * @var string
 	 */
 	protected $table;
-
 	/**
 	 * cache
 	 * @var array
 	 */
 	protected $data = [];
-
-	public $idField = 'id';
 
 	public function __construct($table)
 	{
@@ -50,23 +47,23 @@ class LazyFetchAssoc implements ArrayAccess
 		return isset($this->data[$offset]);
 	}
 
-	public function offsetUnset(mixed $offset): void
-	{
-		unset($this->data[$offset]);
-	}
-
 	public function offsetGet(mixed $offset): mixed
 	{
 		if (!isset($this->data[$offset])) {
 			$this->data[$offset] = $this->fetch($offset);
 		}
-        
+
 		return $this->data[$offset];
 	}
 
 	protected function fetch($id)
 	{
 		return $this->db->fetchSelectQuery($this->table, [$this->idField => $id]);
+	}
+
+	public function offsetUnset(mixed $offset): void
+	{
+		unset($this->data[$offset]);
 	}
 
 }

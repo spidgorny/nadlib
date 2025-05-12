@@ -99,7 +99,6 @@ class HTMLFormField extends HTMLFormType
 
 		$type = ifsetor($desc['type']);
 		if ($type instanceof HTMLFormType) {
-			/* @var $type HTMLFormType */
 			$type->setField($fieldName);
 			$type->setForm($this->form);
 			if (ifsetor($desc['value'])) {
