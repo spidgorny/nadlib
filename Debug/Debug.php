@@ -23,7 +23,7 @@ class Debug
 	/**
 	 * @param Index|IndexBE $index
 	 */
-	public function __construct(Index $index = null)
+	public function __construct(?Index $index = null)
 	{
 		$this->index = $index;
 		self::$instance = $this;

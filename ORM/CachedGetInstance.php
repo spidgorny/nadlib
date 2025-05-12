@@ -8,6 +8,39 @@ trait CachedGetInstance
 	 */
 	public static $instances = [];
 
+	public static function clearInstances(): void
+	{
+		self::$instances[get_called_class()] = [];
+		gc_collect_cycles();
+	}
+
+	public static function clearAllInstances(): void
+	{
+		self::$instances = [];
+		gc_collect_cycles();
+	}
+
+	/**
+	 * @param $id
+	 * @return self
+	 * @throws Exception
+	 */
+	public static function tryGetInstance($id, ?DBInterface $db = null)
+	{
+		try {
+			$obj = self::getInstance($id, $db);
+//			llog(get_called_class(), $id, 'getInstance', spl_object_hash($obj));
+		} catch (InvalidArgumentException $invalidArgumentException) {
+			/** @var mixed $class */
+			$class = get_called_class();
+			$obj = new $class();
+			$obj->setDB($db);
+//			llog(get_called_class(), $id, 'new', spl_object_hash($obj));
+		}
+
+		return $obj;
+	}
+
 	/**
 	 * @param int $id
 	 * @return static
@@ -83,57 +116,6 @@ trait CachedGetInstance
 		}
 	}
 
-	public static function clearInstances(): void
-	{
-		self::$instances[get_called_class()] = [];
-		gc_collect_cycles();
-	}
-
-	public static function clearAllInstances(): void
-	{
-		self::$instances = [];
-		gc_collect_cycles();
-	}
-
-	/**
-	 * @param $id
-	 * @return self
-	 * @throws Exception
-	 */
-	public static function tryGetInstance($id, ?DBInterface $db = null)
-	{
-		try {
-			$obj = self::getInstance($id, $db);
-//			llog(get_called_class(), $id, 'getInstance', spl_object_hash($obj));
-		} catch (InvalidArgumentException $invalidArgumentException) {
-			/** @var mixed $class */
-			$class = get_called_class();
-			$obj = new $class();
-			$obj->setDB($db);
-//			llog(get_called_class(), $id, 'new', spl_object_hash($obj));
-		}
-
-		return $obj;
-	}
-
-	/**
-	 * @return int[]
-	 */
-	public static function getCacheStats(): array
-	{
-		$stats = [];
-		foreach (self::$instances as $class => $list) {
-			if (!is_array($list)) {
-				debug($list);
-				die;
-			}
-
-			$stats[$class] = count($list);
-		}
-
-		return $stats;
-	}
-
 	/**
 	 * @return array
 	 * @throws Exception
@@ -162,6 +144,24 @@ trait CachedGetInstance
 		]);
 		$content[] = $s->getContent();
 		return $content;
+	}
+
+	/**
+	 * @return int[]
+	 */
+	public static function getCacheStats(): array
+	{
+		$stats = [];
+		foreach (self::$instances as $class => $list) {
+			if (!is_array($list)) {
+				debug($list);
+				die;
+			}
+
+			$stats[$class] = count($list);
+		}
+
+		return $stats;
 	}
 
 	/**
@@ -197,7 +197,7 @@ trait CachedGetInstance
 	 * @return ?static
 	 * @throws Exception
 	 */
-	public static function getInstanceByName($name, $field = null): ?static
+	public static function getInstanceByName($name, $field = null, ?DBInterface $db = null): ?static
 	{
 		$self = static::class;
 		//debug(__METHOD__, $self, $name, count(self::$instances[$self]));
@@ -209,6 +209,7 @@ trait CachedGetInstance
 		}
 
 		$c = new $self();
+		$c->setDB($db);
 		$field = $field ?: $c->titleColumn;
 		if (is_string($field)) {
 			$c->findInDBsetInstance([
