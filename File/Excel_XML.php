@@ -92,10 +92,28 @@ class Excel_XML
     private string $worksheet_title = "Table1";
 
 	/**
+	 * Add an array to the document
+	 *
+	 * This should be the only method needed to generate an excel
+	 * document.
+	 *
+	 * @access public
+	 * @param array $array 2-dimensional array
+	 * @todo Can be transfered to __construct() later on
+	 */
+	public function addArray($array): void
+	{
+		// run through the array and add them into rows
+		foreach ($array as $v) {
+			$this->addRow($v);
+		}
+	}
+
+	/**
 	 * Add a single row to the $document string
 	 *
 	 * @access private
-	 * @param array 1-dimensional array
+	 * @param array $array 1-dimensional array
 	 * @todo Row-creation should be done by $this->addArray
 	 */
 	public function addRow($array): void
@@ -115,24 +133,6 @@ class Excel_XML
 
 		// transform $cells content into one row
 		$this->lines[] = "<Row>\n" . $cells . "</Row>\n";
-	}
-
-	/**
-	 * Add an array to the document
-	 *
-	 * This should be the only method needed to generate an excel
-	 * document.
-	 *
-	 * @access public
-	 * @param array 2-dimensional array
-	 * @todo Can be transfered to __construct() later on
-	 */
-	public function addArray($array): void
-	{
-		// run through the array and add them into rows
-		foreach ($array as $v) {
-			$this->addRow($v);
-		}
 	}
 
 	/**

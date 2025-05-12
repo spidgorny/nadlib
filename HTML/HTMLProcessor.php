@@ -41,7 +41,6 @@ class HTMLProcessor
 
 	/**
 	 * @param string $comment
-	 * @param array $allowedTags
 	 * @return string
 	 */
 	public function cleanComment($comment)

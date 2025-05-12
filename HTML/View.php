@@ -11,7 +11,7 @@ class View extends stdClass implements ToStringable
 	//use ViewPHP7;
 
 	/**
-	 * @var stdClass
+	 * @var HasGetter
 	 */
 	public $caller;
 
@@ -102,36 +102,6 @@ class View extends stdClass implements ToStringable
 
 	/*	Add as many public properties as you like and use them in the PHTML file. */
 
-	public function getFile(): string
-	{
-		$path = new Path($this->file);
-//		debug($path, $path->isAbsolute());
-		$file = $path->isAbsolute()
-			? $this->file
-			: $this->folder . $this->file;
-		//debug(dirname($this->file), $this->folder, $this->file, $file, filesize($file));
-		return $file;
-	}
-
-	public function getContent($file, array $variables = []): string
-	{
-		ob_start();
-
-		extract($variables, EXTR_OVERWRITE);
-
-		//debug($file);
-		/** @noinspection PhpIncludeInspection */
-		$content = require($file);
-
-		if (!$content || $content === 1) {
-			$content = ob_get_clean();
-		} else {
-			ob_end_clean();
-		}
-
-		return $this->s($content);
-	}
-
 	public static function bar($percent, array $params = [], $attr = []): \HTMLTag
 	{
 		$percent = round($percent);
@@ -153,10 +123,10 @@ class View extends stdClass implements ToStringable
 
 	/**
 	 * Really primitive and buggy.
-	 * @use markdown() instead
+	 * use markdown() instead
 	 * @param string $text
 	 * @param callable $linkCallback
-	 * @return mixed|string
+	 * @return ?string
 	 */
 	public function wikify($text, $linkCallback = null): ?string
 	{
@@ -209,6 +179,17 @@ class View extends stdClass implements ToStringable
 		$file = $this->getFile();
 		$content = file_get_contents($file);
 		$this->parts = explode($sep, $content);
+	}
+
+	public function getFile(): string
+	{
+		$path = new Path($this->file);
+//		debug($path, $path->isAbsolute());
+		$file = $path->isAbsolute()
+			? $this->file
+			: $this->folder . $this->file;
+		//debug(dirname($this->file), $this->folder, $this->file, $file, filesize($file));
+		return $file;
 	}
 
 	/**
@@ -464,6 +445,25 @@ class View extends stdClass implements ToStringable
 			array_values($map),
 			$content
 		);
+	}
+
+	public function getContent($file, array $variables = []): string
+	{
+		ob_start();
+
+		extract($variables, EXTR_OVERWRITE);
+
+		//debug($file);
+		/** @noinspection PhpIncludeInspection */
+		$content = require($file);
+
+		if (!$content || $content === 1) {
+			$content = ob_get_clean();
+		} else {
+			ob_end_clean();
+		}
+
+		return $this->s($content);
 	}
 
 	public function s($a): string

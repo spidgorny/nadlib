@@ -198,9 +198,9 @@ class ExeFile extends File
 
 		$SubOff = null;
 		$InfoFound = false;
-		for ($x = 0; $x < ($NumDirs[1] + $NumNamedDirs[1]); $x++) {
+		for ($x = 0; $x < ((int)$NumDirs[1] + (int)$NumNamedDirs[1]); $x++) {
 			$Type = unpack("V", substr($Info, ($x * 8) + 16, 4));
-			if ($Type[1] == static::RT_VERSION) {
+			if ($Type[1] === static::RT_VERSION) {
 				//FILEINFO resource
 				$InfoFound = true;
 				$SubOff = unpack("V", substr($Info, ($x * 8) + 20, 4));

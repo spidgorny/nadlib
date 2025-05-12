@@ -3,7 +3,7 @@
 class HTMLFormDatePopup2 extends HTMLFormType
 {
 	/**
-	 * @var $form HTMLForm
+	 * @var HTMLForm $form
 	 */
 	public $form;
 
@@ -15,9 +15,9 @@ class HTMLFormDatePopup2 extends HTMLFormType
 	public $desc;
 
 	/**
-     * @var string
-     */
-    public $id;
+	 * @var string
+	 */
+	public $id;
 
 	protected $name;
 

@@ -3,9 +3,9 @@
 class HTMLFormTimeRange extends HTMLFormType
 {
 	/**
-     * @var string
-     */
-    public $div = '1';
+	 * @var string
+	 */
+	public $div = '1';
 
 	public $min = 0;
 
@@ -32,10 +32,10 @@ class HTMLFormTimeRange extends HTMLFormType
 //		parent::__construct();
 		$this->field = $field;
 		if (count($value) == 2) {
-			list($this->start, $this->end) = $value;
+			[$this->start, $this->end] = $value;
 		}
 
-		$this->div = uniqid();
+		$this->div = uniqid('', true);
 
 		// to load libs in the NON-AJAX page request
 //		Index::getInstance()->addJQueryUI();
@@ -51,27 +51,27 @@ class HTMLFormTimeRange extends HTMLFormType
 	public function setValue($value): void
 	{
 		if ($value) {
-			list($this->start, $this->end) = $this->parseRange($value);
+			[$this->start, $this->end] = self::parseRange($value);
 		}
 	}
 
 	/**
-	 * @param $value
-	 * @return array[IndTime, IndTime]
+	 * @param string $value
+	 * @return array
 	 * @throws Exception
 	 */
 	public static function parseRange(string $value): array
 	{
-		if (strlen($value) == 11) {
+		if (strlen($value) === 11) {
 			$parts = explode('-', $value);
-			if (count($parts) == 2) {
+			if (count($parts) === 2) {
 				$s = new Time($parts[0]);
 				$e = new Time($parts[1]);
 			} else {
-				throw new Exception('Unable to parse time range: ' . $value);
+				throw new \RuntimeException('Unable to parse time range: ' . $value);
 			}
 		} else {
-			throw new Exception('Unable to parse time range: ' . $value);
+			throw new \RuntimeException('Unable to parse time range: ' . $value);
 		}
 
 		return [$s, $e];

@@ -6,13 +6,6 @@
 interface HTMLFormCollection
 {
 
-	//var $field;
-	/**
-	 * @var HTMLForm
-	 */
-	//var $form;
-	//var $value;
-
 	public function setField($field);
 
 	public function setForm(HTMLForm $form);

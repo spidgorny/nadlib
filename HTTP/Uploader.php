@@ -494,7 +494,7 @@ post_max_size: ' . $post_max_size . '">' .
 
 	/**
 	 * @see https://www.php.net/manual/en/reserved.variables.files.php
-	 * @return Array{name: string, type: string, tmp_name: string, error: number, size: number}
+	 * @return array{name: string, type: string, tmp_name: string, error: number, size: number}
 	 * @return \stdClass[]
 	 */
 	public function incoming_files(): array

@@ -13,10 +13,10 @@ class HTMLFormRecaptcha
 
 	public function __construct()
 	{
-		$this->publickey = Config::getInstance()->recaptcha['publickey'];
-		$this->privatekey = Config::getInstance()->recaptcha['privatekey'];
+		$this->publickey = getenv('RECAPTCHA_PUBLICKEY');
+		$this->privatekey = getenv('RECAPTCHA_PRIVATEKEY');
 		if (!$this->publickey || !$this->privatekey) {
-			throw new Exception('Please define publickey and privatekey for Recaptcha.');
+			throw new \RuntimeException('Please define publickey and privatekey for Recaptcha.');
 		}
 
 		//$error = htmlspecialchars(urlencode($desc['captcha-error'] ? '' : ''), ENT_QUOTES);

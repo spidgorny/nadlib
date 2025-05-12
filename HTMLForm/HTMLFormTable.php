@@ -21,7 +21,7 @@ class HTMLFormTable extends HTMLForm
 
 	/**
 	 * Additional parameters for <tr>
-	 * @var
+	 * @var string[]
 	 */
 	public $trmore;
 
@@ -375,7 +375,7 @@ class HTMLFormTable extends HTMLForm
 
 		$field->setForm($this);    // don't clone, because we may want to influence the original form
 		$tmp = $this->stdout;
-		$field->form->stdout = '';
+		$this->stdout = '';
 		$field->render();
 
 		$this->stdout = $tmp;
@@ -565,7 +565,7 @@ class HTMLFormTable extends HTMLForm
 	 *
 	 * @param array $desc - Structure of the HTMLFormTable
 	 * @param array $assoc - Values in one of the supported formats.
-	 * @param bool    ??? what's for?
+	 * @param bool $forceInsert
 	 * @return    array    HTMLFormTable structure.
 	 */
 	protected function fillValues(array $desc, array $assoc = null, $forceInsert = false): array

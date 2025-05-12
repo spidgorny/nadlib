@@ -3,7 +3,7 @@
 class HTMLInputWithOptions extends HTMLFormField
 {
 
-	public array $field;
+	public $field;
 
 	/**
 	 * @var HTMLForm

@@ -143,7 +143,7 @@ class HTMLImage extends HTMLTag
 	public function getMimeExt()
 	{
 		$newExt = null;
-		$u = new Uploader();
+		$u = new MIME();
 		$mime = $u->get_mime_type($this->filename);
 		//debug($mime);
 		if ($mime) {

@@ -106,9 +106,9 @@ class HTMLFormField extends HTMLFormType
 				$type->setValue($desc['value']);
 			}
 
-			if (ifsetor($desc['jsParams'])) {
-				$type->jsParams = $desc['jsParams'] ?: [];
-			}
+//			if (ifsetor($desc['jsParams'])) {
+//				$type->jsParams = $desc['jsParams'] ?: [];
+//			}
 
 			$type->desc = $desc;
 			$this->form->stdout .= \MergedContent::mergeStringArrayRecursive($type->render());
@@ -250,9 +250,6 @@ class HTMLFormField extends HTMLFormType
 				$this->form->tree($fieldName, $desc['tree'], $fieldValue);
 				break;
 
-			case 'popuptree':
-				$this->form->popuptree($fieldName, $desc['value'], $desc['valueName'], $desc->getArray());
-				break;
 			case 'submit':
 //				llog('submit', $desc);
 				$desc['name'] = ifsetor($desc['name'], $fieldName);

@@ -7,20 +7,26 @@
 class CsvIterator implements Iterator, Countable
 {
 
+const ROW_SIZE = 4194304;
 	/**
      * @var string
      */
-    public $filename;
-
-	const ROW_SIZE = 4194304; // 4096*1024;
-
+    public $filename; // 4096*1024;
 	/**
 	 * The pointer to the cvs file.
 	 * @var resource
 	 * @access private
 	 */
 	public $filePointer;
-
+	/**
+	 * The row counter.
+	 * @var int
+	 * @access private
+	 */
+	public $rowCounter = 0;
+	public $doConvertToUTF8 = false;
+	public $enclosure = '"';
+	public $escape = '\\';
 	/**
 	 * The current element, which will
 	 * be returned on each iteration.
@@ -28,33 +34,17 @@ class CsvIterator implements Iterator, Countable
 	 * @access private
 	 */
 	protected $currentElement;
-
 	/**
 	 * @var int - cached amount of rows in a file
 	 */
-	protected $numRows;
-
-	/**
-	 * The row counter.
-	 * @var int
-	 * @access private
-	 */
-	public $rowCounter = 0;
-
+	protected $numRows; // != 0
+protected $lastRead = -1;
 	/**
 	 * The delimiter for the csv file.
 	 * @var string
 	 * @access private
 	 */
 	private $delimiter;
-
-	public $doConvertToUTF8 = false;
-
-	protected $lastRead = -1; // != 0
-
-	public $enclosure = '"';
-
-	public $escape = '\\';
 
 	/**
 	 * This is the constructor.It try to open the csv file.The method throws an exception
@@ -105,26 +95,6 @@ class CsvIterator implements Iterator, Countable
 	}
 
 	/**
-	 * This method resets the file pointer.
-	 *
-	 * @access public
-	 */
-	public function rewind(): void
-	{
-		$this->rowCounter = 0;
-		// feof() is stuck in true after rewind somehow
-		if (pathinfo($this->filename, PATHINFO_EXTENSION) === 'bz2') {
-			$this->filePointer = $this->fopen_utf8($this->filename, 'r');
-		} else {
-			rewind($this->filePointer);
-		}
-
-		assert(ftell($this->filePointer) == 0);
-		assert(!$this->feof());
-		$this->lastRead = -1;
-	}
-
-	/**
 	 * This method returns the current csv row as a 2-dimensional array
 	 *
 	 * @access public
@@ -134,47 +104,6 @@ class CsvIterator implements Iterator, Countable
 	{
 		$this->read();
 		return $this->currentElement;
-	}
-
-	/**
-	 * This method returns the current row number.
-	 *
-	 * @access public
-	 * @return int The current row number
-	 */
-	public function key(): mixed
-	{
-		return $this->rowCounter;
-	}
-
-	public function feof(): bool
-	{
-		return feof($this->filePointer);
-	}
-
-	/**
-	 * @access public
-	 * @inheritdoc Returns the array value in the next place that's pointed to by the internal array pointer, or FALSE if there are no more elements.
-	 * @return array|bool Returns FALSE on EOF reached, VALUE otherwise.
-	 */
-	public function next(): void
-	{
-		$this->rowCounter++;    // this make read() to read next row
-		$this->read();
-		if (!$this->currentElement) {
-			//debug($this->feof(), ftell($this->filePointer));
-		}
-	}
-
-	/**
-	 * This method checks if the next row is a valid row.
-	 *
-	 * @access public
-	 * @return bool If the next row is a valid row.
-	 */
-	public function valid(): bool
-	{
-		return !$this->feof();
 	}
 
 	/**
@@ -196,6 +125,17 @@ class CsvIterator implements Iterator, Countable
 			$this->lastRead = $this->rowCounter;
 //			debug(__METHOD__, $this->rowCounter, $this->lastRead, first($this->currentElement));
 		}
+	}
+
+	/**
+	 * This method returns the current row number.
+	 *
+	 * @access public
+	 * @return int The current row number
+	 */
+	public function key(): mixed
+	{
+		return $this->rowCounter;
 	}
 
 	/**
@@ -232,6 +172,56 @@ class CsvIterator implements Iterator, Countable
 		//$this->rowCounter = $saveRow;
 
 		return $this->numRows;
+	}
+
+	/**
+	 * This method checks if the next row is a valid row.
+	 *
+	 * @access public
+	 * @return bool If the next row is a valid row.
+	 */
+	public function valid(): bool
+	{
+		return !$this->feof();
+	}
+
+	public function feof(): bool
+	{
+		return feof($this->filePointer);
+	}
+
+	/**
+	 * @access public
+	 * @inheritdoc Returns the array value in the next place that's pointed to by the internal array pointer, or FALSE if there are no more elements.
+	 * @return void
+	 */
+	public function next(): void
+	{
+		$this->rowCounter++;    // this make read() to read next row
+		$this->read();
+		if (!$this->currentElement) {
+			//debug($this->feof(), ftell($this->filePointer));
+		}
+	}
+
+	/**
+	 * This method resets the file pointer.
+	 *
+	 * @access public
+	 */
+	public function rewind(): void
+	{
+		$this->rowCounter = 0;
+		// feof() is stuck in true after rewind somehow
+		if (pathinfo($this->filename, PATHINFO_EXTENSION) === 'bz2') {
+			$this->filePointer = $this->fopen_utf8($this->filename, 'r');
+		} else {
+			rewind($this->filePointer);
+		}
+
+		assert(ftell($this->filePointer) == 0);
+		assert(!$this->feof());
+		$this->lastRead = -1;
 	}
 
 }

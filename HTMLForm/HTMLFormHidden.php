@@ -10,9 +10,9 @@ class HTMLFormHidden extends HTMLFormType
 
 	/**
 	 * Shows the form element in the form
-	 * @return mixed
+	 * @return string[]
 	 */
-	public function render(): string
+	public function render(): array
 	{
 		$this->form->hidden($this->fullName, $this->value);
 		$content[] = $this->form->getBuffer();

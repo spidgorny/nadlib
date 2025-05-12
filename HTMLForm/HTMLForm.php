@@ -535,7 +535,7 @@ class HTMLForm implements ToStringable
 			FROM ' . $desc['from'] . '
 			WHERE NOT hidden AND NOT deleted
 			ORDER BY value');
-			$options = $db->IDalize($options, 'value', 'value');
+			$options = ArrayPlus::from($options)->IDalize('value', 'value');
 		} else {
 			$options = $desc['options'];
 		}
@@ -761,11 +761,10 @@ document.observe("dom:loaded", () => {
 	/**
 	 * A set of checkboxes in a div.checkarray. Values are provided as an array
 	 *
-	 * @param $name
+	 * @param array $name
 	 * @param array $selected - only keys are used
-	 * @param string $more
+	 * @param array $more
 	 * @param int $width
-	 *
 	 * @see set()
 	 */
 	public function checkarray(array $name, array $options, array $selected, $more = [], string $height = 'auto', $width = 350): void
