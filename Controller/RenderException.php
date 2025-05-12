@@ -32,7 +32,7 @@ class RenderException
 		$message = str_replace("\r", " ", $message);
 		header('X-Message:' . $message);
 
-		$accept = $_SERVER['HTTP_ACCEPT'];
+		$accept = $_SERVER['HTTP_ACCEPT'] ?? '';
 		header('X-Accept:' . $accept);
 		if ($accept === 'application/json') {
 			Request::getInstance()->set('ajax', true);

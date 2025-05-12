@@ -1647,4 +1647,10 @@ class Request
 		$levels = $this->getURLLevels();
 		return end($levels);
 	}
+
+	public function isNoCache()
+	{
+		$cacheControl = $this->getHeader('Cache-Control');
+		return $cacheControl === 'no-cache' || $cacheControl === 'no-store';
+	}
 }
