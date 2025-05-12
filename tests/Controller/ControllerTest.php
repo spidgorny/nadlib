@@ -12,6 +12,7 @@ use App\Tests\RisTestCase;
 use AppController4Test;
 use nadlib\Test\MockRequest;
 
+// @todo: move to RIS
 class ControllerTest extends RisTestCase
 {
 
@@ -23,12 +24,6 @@ class ControllerTest extends RisTestCase
 	 * @var MockRequest
 	 */
 	protected MockRequest $request;
-
-	protected function setUp(): void
-	{
-		$this->request = new MockRequest();
-		self::markTestSkipped('PG dependent');
-	}
 
 	public function test_getLocation(): void
 	{
@@ -109,6 +104,12 @@ class ControllerTest extends RisTestCase
 		$link = $c->linker->makeURL(['a' => 'b', 'c' => 'Controller']);
 		$link->setHost(null);
 		static::assertEquals($this->globalPrefix . '/Controller?a=b', $link . '');
+	}
+
+	protected function setUp(): void
+	{
+		$this->request = new MockRequest();
+		self::markTestSkipped('PG dependent');
 	}
 
 }

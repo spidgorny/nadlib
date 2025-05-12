@@ -212,151 +212,6 @@ abstract class OODBase implements ArrayAccess
 		}
 	}
 
-	public function log($action, ?array $data = null): void
-	{
-		if ($this->logger) {
-			$this->logger->info($action, $data);
-		}
-	}
-
-	/**
-	 * Returns $this
-	 *
-	 * @return OODBase
-	 * @throws Exception
-	 */
-	public function insert(array $data)
-	{
-		TaylorProfiler::start(__METHOD__);
-//		$this->log(static::class . '::' . __FUNCTION__, $data);
-		//$data['ctime'] = new SQLNow();
-		$query = $this->db->getInsertQuery($this->table, $data);
-		//debug($query);
-		// for DBPlacebo to return the same data back
-		$res = $this->db->runInsertQuery($this->table, $data);
-		$this->lastQuery = $this->db->getLastQuery();    // save before commit
-
-		// this needs to be checked first,
-		// because SQLite will give some kind of ID
-		// even if you provide your own
-		if (is_array($this->idField)) {
-			$id = $this->db->lastInsertID($res, $this->table);
-		} elseif (ifsetor($data[$this->idField])) {
-			$id = $data[$this->idField];
-		} else {
-			$id = $this->db->lastInsertID($res, $this->table);
-		}
-
-		if ($id) {
-			$this->init($id ?: $this->id);
-		} else {
-			//debug($this->lastQuery, $this->db->lastQuery);
-			$errorMessage = 'OODBase for ' . $this->table . ' no insert id after insert. ';
-			$errorCode = null;
-			if ($this->db instanceof DBLayerPDO) {
-				$errorMessage .= json_encode($this->db->getConnection()->errorInfo());
-				$errorCode = $this->db->getConnection()->errorCode();
-			}
-
-			$e = new DatabaseException($errorMessage, $errorCode);
-			$e->setQuery($query);
-			throw $e;
-		}
-
-		TaylorProfiler::stop(__METHOD__);
-		return $this;
-	}
-
-	/**
-	 * Updates current record ($this->id)
-	 *
-	 * @return PDOStatement|false result from the runUpdateQuery
-	 * @throws Exception
-	 */
-	public function update(array $data)
-	{
-		if (!$this->id) {
-			//$this->db->rollback();
-			debug_pre_print_backtrace();
-			$msg = __(
-				'Updating [$1] is not possible as there is no ID defined. idField: $2',
-				$this->table,
-				$this->idField
-			);
-			throw new DatabaseException($msg);
-		}
-
-		TaylorProfiler::start(__METHOD__);
-		json_encode($this->id, JSON_THROW_ON_ERROR);
-//		$this->log($action, $data);
-		$where = [];
-		if (is_array($this->idField)) {
-			foreach ($this->idField as $field) {
-				$where[$field] = $this->data[$field];
-			}
-		} else {
-			$where[$this->idField] = $this->id;
-		}
-
-		if (!$this->db) {
-			debug_pre_print_backtrace();
-			debug(gettypes(get_object_vars($this)));
-		}
-
-		$query = $this->db->getUpdateQuery($this->table, $data, $where);
-		//debug($query);
-		//echo $query, BR;
-		$this->lastQuery = $query;
-		$res = $this->db->perform($query);
-		//debug($query, $res, $this->db->lastQuery, $this->id);
-		$this->lastQuery = $this->db->lastQuery;    // save before commit
-		// If the input arrays have the same string keys,
-		// then the later value for that key will overwrite the previous one.
-		//$this->data = array_merge($this->data, $data);
-
-		// may lead to infinite loop
-		//$this->init($this->id);
-		// will call init($fromFindInDB = true)
-		if (is_array($this->idField)) {
-			if (is_array($this->id)) {
-				$this->findInDB($this->id);
-			} else {
-				debug_pre_print_backtrace();
-				throw new RuntimeException(__METHOD__ . ':' . __LINE__);
-			}
-		} else {
-			$this->findInDB([
-				$this->idField => $this->id,
-			]);
-		}
-
-		TaylorProfiler::stop(__METHOD__);
-		return $res;
-	}
-
-	/**
-	 * @throws MustBeStringException
-	 * @throws DatabaseException
-	 */
-	public function delete(?array $where = null)
-	{
-		if (!$where) {
-			if ($this->id) {
-				$where = [$this->idField => $this->id];
-			} else {
-				return null;
-			}
-		}
-
-//		$this->log(static::class . '::' . __FUNCTION__, $where);
-		$query = $this->db->getDeleteQuery($this->table, $where);
-		$this->lastQuery = $query;
-		$res = $this->db->perform($query);
-		$this->data = null;
-		$this->id = null;
-		return $res;
-	}
-
 	/**
 	 * Retrieves a record from the DB and calls $this->init()
 	 * But it's rarely called directly.
@@ -387,7 +242,6 @@ abstract class OODBase implements ArrayAccess
 		return $this->data;
 	}
 
-	// should be called after the select query
 	public function fixRowDataTypes(array $row)
 	{
 		// fix data types, as array_contains will fail due to wrong data type
@@ -470,6 +324,8 @@ abstract class OODBase implements ArrayAccess
 
 		return $graph;
 	}
+
+	// should be called after the select query
 
 	/**
 	 * Used by bijou.
@@ -554,10 +410,40 @@ abstract class OODBase implements ArrayAccess
 		return $obj;
 	}
 
+	public function log($action, ?array $data = null): void
+	{
+		if ($this->logger) {
+			$this->logger->info($action, $data);
+		}
+	}
+
+	/**
+	 * @throws MustBeStringException
+	 * @throws DatabaseException
+	 */
+	public function delete(?array $where = null)
+	{
+		if (!$where) {
+			if ($this->id) {
+				$where = [$this->idField => $this->id];
+			} else {
+				return null;
+			}
+		}
+
+//		$this->log(static::class . '::' . __FUNCTION__, $where);
+		$query = $this->db->getDeleteQuery($this->table, $where);
+		$this->lastQuery = $query;
+		$res = $this->db->perform($query);
+		$this->data = null;
+		$this->id = null;
+		return $res;
+	}
+
 	/**
 	 *
 	 * @param string $orderBy
-	 * @return bool (id) of the found record
+	 * @return OODBase (id) of the found record
 	 * @throws Exception
 	 */
 	public function findInDBbySQLWhere(SQLWhere $where, $orderBy = '')
@@ -567,7 +453,7 @@ abstract class OODBase implements ArrayAccess
 		$this->data = $rows ? $rows[0] : [];
 
 		$this->init($this->data); // array, otherwise infinite loop
-		return $this->id;
+		return $this;
 	}
 
 	public function __toString(): string
@@ -598,6 +484,121 @@ abstract class OODBase implements ArrayAccess
 
 		//debug($action, $this->db->lastQuery); exit();
 		return $action;
+	}
+
+	/**
+	 * Updates current record ($this->id)
+	 *
+	 * @return PDOStatement|false result from the runUpdateQuery
+	 * @throws Exception
+	 */
+	public function update(array $data)
+	{
+		if (!$this->id) {
+			//$this->db->rollback();
+			debug_pre_print_backtrace();
+			$msg = __(
+				'Updating [$1] is not possible as there is no ID defined. idField: $2',
+				$this->table,
+				$this->idField
+			);
+			throw new DatabaseException($msg);
+		}
+
+		TaylorProfiler::start(__METHOD__);
+		json_encode($this->id, JSON_THROW_ON_ERROR);
+//		$this->log($action, $data);
+		$where = [];
+		if (is_array($this->idField)) {
+			foreach ($this->idField as $field) {
+				$where[$field] = $this->data[$field];
+			}
+		} else {
+			$where[$this->idField] = $this->id;
+		}
+
+		if (!$this->db) {
+			debug_pre_print_backtrace();
+			debug(gettypes(get_object_vars($this)));
+		}
+
+		$query = $this->db->getUpdateQuery($this->table, $data, $where);
+		//debug($query);
+		//echo $query, BR;
+		$this->lastQuery = $query;
+		$res = $this->db->perform($query);
+		//debug($query, $res, $this->db->lastQuery, $this->id);
+		$this->lastQuery = $this->db->lastQuery;    // save before commit
+		// If the input arrays have the same string keys,
+		// then the later value for that key will overwrite the previous one.
+		//$this->data = array_merge($this->data, $data);
+
+		// may lead to infinite loop
+		//$this->init($this->id);
+		// will call init($fromFindInDB = true)
+		if (is_array($this->idField)) {
+			if (is_array($this->id)) {
+				$this->findInDB($this->id);
+			} else {
+				debug_pre_print_backtrace();
+				throw new RuntimeException(__METHOD__ . ':' . __LINE__);
+			}
+		} else {
+			$this->findInDB([
+				$this->idField => $this->id,
+			]);
+		}
+
+		TaylorProfiler::stop(__METHOD__);
+		return $res;
+	}
+
+	/**
+	 * Returns $this
+	 *
+	 * @return OODBase
+	 * @throws Exception
+	 */
+	public function insert(array $data)
+	{
+		TaylorProfiler::start(__METHOD__);
+//		$this->log(static::class . '::' . __FUNCTION__, $data);
+		//$data['ctime'] = new SQLNow();
+		$query = $this->db->getInsertQuery($this->table, $data);
+		//debug($query);
+		// for DBPlacebo to return the same data back
+		$res = $this->db->runInsertQuery($this->table, $data);
+		$this->lastQuery = $this->db->getLastQuery();    // save before commit
+
+		// this needs to be checked first,
+		// because SQLite will give some kind of ID
+		// even if you provide your own
+		if (is_array($this->idField)) {
+			$id = $this->db->lastInsertID($res, $this->table);
+		} elseif (ifsetor($data[$this->idField])) {
+			$id = $data[$this->idField];
+		} else {
+			$id = $this->db->lastInsertID($res, $this->table);
+		}
+
+		if ($id) {
+			$this->init($id ?: $this->id);
+		} else {
+			//debug($this->lastQuery, $this->db->lastQuery);
+			$errorMessage = 'OODBase for ' . $this->table . ' no insert id after insert. ';
+			$errorCode = null;
+			if ($this->db instanceof DBLayerPDO) {
+				$errorMessage .= json_encode($this->db->getConnection()->errorInfo());
+				$errorCode = $this->db->getConnection()->errorCode();
+			}
+
+			$e = new DatabaseException($errorMessage, $errorCode);
+			$e->setQuery($query);
+			throw $e;
+		}
+
+		TaylorProfiler::stop(__METHOD__);
+		return $this;
 	}
 
 	/**
@@ -734,16 +735,16 @@ abstract class OODBase implements ArrayAccess
 		];
 	}
 
-	public function getSingleLink(): string
-	{
-		return get_class($this) . '/' . $this->id;
-	}
-
 	public function getNameLink(): string|\ToStringable
 	{
 		return new HTMLTag('a', [
 			'href' => $this->getSingleLink(),
 		], $this->getName());
+	}
+
+	public function getSingleLink(): string
+	{
+		return get_class($this) . '/' . $this->id;
 	}
 
 	/**
@@ -870,11 +871,6 @@ abstract class OODBase implements ArrayAccess
 		$this->logger = $log;
 	}
 
-	public function getID(): int
-	{
-		return (int)$this->id;
-	}
-
 	public function getInt(string $fieldName)
 	{
 		return (int)$this->data[$fieldName];
@@ -907,14 +903,19 @@ abstract class OODBase implements ArrayAccess
 		return false;
 	}
 
-	public function hash(): string
-	{
-		return spl_object_hash($this);
-	}
-
 	public function oid(): string
 	{
 		return get_class($this) . '-' . $this->getID() . '-' . substr(md5($this->hash()), 0, 8);
+	}
+
+	public function getID(): int
+	{
+		return (int)$this->id;
+	}
+
+	public function hash(): string
+	{
+		return spl_object_hash($this);
 	}
 
 	public function dehydrate()

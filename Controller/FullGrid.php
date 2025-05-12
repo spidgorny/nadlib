@@ -5,27 +5,20 @@
  * handles sorting by columns, paging, filtering,
  * selecting visible columns
  */
-abstract class FullGrid extends Grid
+trait FullGrid
 {
+	use Grid;
 
 	/**
 	 * @var FilterController
 	 */
 	public $filterController;
 
-	/**
-	 */
-	public function __construct()
-	{
-		parent::__construct();
-		// calls $this->initFilter();
-	}
-
 	public function initFilter(): void
 	{
 		// menu is making an instance of each class because of tryMenuSuffix
 		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
-		parent::initFilter();
+//		parent::initFilter();
 
 		$allowEdit = $this->request->getControllerString() === get_class($this);
 //		debug($allowEdit);
@@ -136,25 +129,6 @@ abstract class FullGrid extends Grid
 		return $ret;
 	}
 
-	public function render()
-	{
-		$this->setVisibleColumns();
-		//$this->collection->pageSize = $this->pageSize;
-		return parent::render();
-	}
-
-	public function setVisibleColumns(): void
-	{
-		if ($this->columns) {
-			foreach ($this->collection->thes as $cn => $_) {
-				if (!$this->columns->isVisible($cn)) {
-					//unset($this->collection->thes[$cn]);
-					$this->collection->thes[$cn]['!show'] = true;
-				}
-			}
-		}
-	}
-
 	/**
 	 * @return array
 	 * @throws Exception
@@ -201,6 +175,25 @@ abstract class FullGrid extends Grid
 		return $this->filterController->getFilterDesc($fields);
 	}
 
+	public function render()
+	{
+		$this->setVisibleColumns();
+		//$this->collection->pageSize = $this->pageSize;
+		return parent::render();
+	}
+
+	public function setVisibleColumns(): void
+	{
+		if ($this->columns) {
+			foreach ($this->collection->thes as $cn => $_) {
+				if (!$this->columns->isVisible($cn)) {
+					//unset($this->collection->thes[$cn]);
+					$this->collection->thes[$cn]['!show'] = true;
+				}
+			}
+		}
+	}
+
 	public function getColumnsForm()
 	{
 //		debug($this->getGridColumns());
@@ -232,7 +225,7 @@ abstract class FullGrid extends Grid
 	 */
 	public function injectCollection(): void
 	{
-		parent::injectCollection();
+//		parent::injectCollection();
 //		debug($this->collection->where,
 //			$this->getFilterWhere());
 		$this->collection->where = array_merge(

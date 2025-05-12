@@ -1,16 +1,15 @@
 <?php
 
-use App\Config;
-use App\Controller\BaseController;
+use AppDev\DCI\AppController;
 
-class AppController4Test extends BaseController
+class AppController4Test extends AppController
 {
 
-	public Config|TestConfig $config;
+	public $config;
 
-	public Linker $linker;
+	public $linker;
 
-	public ?Request $request = null;
+	public $request = null;
 
 	public function __construct()
 	{

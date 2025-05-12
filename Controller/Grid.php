@@ -2,7 +2,8 @@
 
 use nadlib\Controller\Filter;
 
-abstract class Grid extends AppController
+/** extends AppController is no longer working when controller is not in the same namespace */
+trait Grid
 {
 
 	/**

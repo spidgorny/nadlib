@@ -225,7 +225,7 @@ trait CachedGetInstance
 		return $c;
 	}
 
-	public static function findInstanceByName($name, $field = null): ?\OODBase
+	public static function findInstanceByName($name, $field = null, ?DBInterface $db = null): ?\OODBase
 	{
 		$self = static::class;
 		if (ifsetor(self::$instances[$self], [])) {
@@ -234,6 +234,7 @@ trait CachedGetInstance
 					$field = $field ?: $inst->titleColumn;
 //					llog(__METHOD__, $inst->data[$field], $name);
 					if (ifsetor($inst->data[$field]) === $name) {
+						$inst->setDB($db);
 						return $inst;
 					}
 				}
