@@ -186,6 +186,7 @@ abstract class Controller extends SimpleController
 	 * @param $content
 	 * @param string $caption
 	 * @param string|null $h
+	 * @param array $more
 	 * @return array|string|string[]
 	 * @throws Exception
 	 */

@@ -378,14 +378,12 @@ if (!function_exists('llog')) {
 
 		$vars = array_map(static function ($el) {
 			if (is_object($el) && !($el instanceof stdClass)) {
-				if (method_exists($el, '__toString')) {
-					return $el->__toString();
-				}
-
 				if (method_exists($el, '__debugInfo')) {
 					return $el->__debugInfo();
 				}
-
+				if (method_exists($el, '__toString')) {
+					return $el->__toString();
+				}
 				return get_object_vars($el);
 			}
 

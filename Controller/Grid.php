@@ -2,7 +2,10 @@
 
 use nadlib\Controller\Filter;
 
-/** extends AppController is no longer working when controller is not in the same namespace */
+/**
+ * extends AppController is no longer working when controller is not in the same namespace
+ * @property Collection $collection
+ **/
 trait Grid
 {
 
@@ -37,10 +40,10 @@ trait Grid
 	 */
 	public $user;
 
-	/**
-	 * @var Collection
-	 */
-	protected $collection;
+//	/**
+//	 * @var Collection
+//	 */
+//	protected Collection $collection;
 
 	public function __construct()
 	{

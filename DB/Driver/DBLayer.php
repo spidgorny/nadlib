@@ -183,9 +183,6 @@ class DBLayer extends DBLayerBase
 			llog($query . '' . ' => ' . $this->lastResult);
 		}
 
-//			$this->reportIfLastQueryFailed();
-
-
 		if (!$this->lastResult) {
 			//debug_pre_print_backtrace();
 			//debug($query);
@@ -202,7 +199,6 @@ class DBLayer extends DBLayerBase
 
 		$this->lastQuery = $query;
 		$this->queryCount++;
-		$this->lastBacktrace = debug_backtrace();
 		return $this->lastResult;
 	}
 
