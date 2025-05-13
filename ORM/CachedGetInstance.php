@@ -10,7 +10,7 @@ trait CachedGetInstance
 
 	public static function clearInstances(): void
 	{
-		self::$instances[get_called_class()] = [];
+		self::$instances[static::class] = [];
 		gc_collect_cycles();
 	}
 
@@ -22,6 +22,7 @@ trait CachedGetInstance
 
 	/**
 	 * @param $id
+	 * @param DBInterface|null $db
 	 * @return self
 	 * @throws Exception
 	 */
@@ -31,8 +32,8 @@ trait CachedGetInstance
 			$obj = self::getInstance($id, $db);
 //			llog(get_called_class(), $id, 'getInstance', spl_object_hash($obj));
 		} catch (InvalidArgumentException $invalidArgumentException) {
-			/** @var mixed $class */
-			$class = get_called_class();
+			/** @var class-string<static> $class */
+			$class = static::class;
 			$obj = new $class();
 			$obj->setDB($db);
 //			llog(get_called_class(), $id, 'new', spl_object_hash($obj));
@@ -60,8 +61,8 @@ trait CachedGetInstance
 	 */
 	public static function getInstanceByID($id, ?DBInterface $db = null): static
 	{
-		/** @var mixed $static */
-		$static = get_called_class();
+		/** @var class-string<static> $static */
+		$static = static::class;
 		/*nodebug(array(
 			__METHOD__,
 			'class' => $static,
@@ -81,7 +82,7 @@ trait CachedGetInstance
 				// BEFORE init() to avoid loop
 				static::storeInstance($inst, $id);
 				// separate call to avoid infinite loop in ORS
-				$inst->init($id, $db);
+				$inst->init($id);
 			}
 		} elseif (is_array($id)) {
 			$inst = new $static(null, $db);    // only to find ->idField
@@ -110,7 +111,7 @@ trait CachedGetInstance
 
 	public static function storeInstance($inst, $newID = null): void
 	{
-		$static = get_called_class();
+		$static = static::class;
 		$id = $inst->id ?: $newID;
 		if ($id) {
 			self::$instances[$static][$id] = $inst;
@@ -175,9 +176,9 @@ trait CachedGetInstance
 	{
 		if (!$static) {
 			if (function_exists('get_called_class')) {
-				$static = get_called_class();
+				$static = static::class;
 			} else {
-				throw new Exception('__METHOD__ requires object specifier until PHP 5.3.');
+				throw new \RuntimeException('__METHOD__ requires object specifier until PHP 5.3.');
 			}
 		}
 
@@ -194,9 +195,9 @@ trait CachedGetInstance
 	/**
 	 * Is cached in instances
 	 * @param string $name
-	 * @param string|null $field
+	 * @param null $field
+	 * @param DBInterface|null $db
 	 * @return ?static
-	 * @throws Exception
 	 */
 	public static function getInstanceByName($name, $field = null, ?DBInterface $db = null): ?static
 	{

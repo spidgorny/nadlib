@@ -16,11 +16,6 @@ class FakeMailer implements MailerInterface
 		$this->body = $body;
 	}
 
-	public function send(): void
-	{
-		//		echo 'Sending mail "' . $this->subject . '" to [' . $emails . ']', BR;
-	}
-
 	public function sendSwiftMailerEmail($cc = null, $bcc = null, array $attachments = [], array $additionalSenders = [])
 	{
 		//pre_print_r(__METHOD__, get_object_vars($this), func_get_args());
@@ -40,4 +35,23 @@ class FakeMailer implements MailerInterface
 		return $orsMailer->getSwiftMessage($cc, $bcc, $attachments, $additionalSenders);
 	}
 
+	public function send(): void
+	{
+		//		echo 'Sending mail "' . $this->subject . '" to [' . $emails . ']', BR;
+	}
+
+	public function setCC(array $param)
+	{
+		// TODO: Implement setCC() method.
+	}
+
+	public function setBCC(array $param)
+	{
+		// TODO: Implement setBCC() method.
+	}
+
+	public function setAttachments($attachments)
+	{
+		// TODO: Implement setAttachments() method.
+	}
 }

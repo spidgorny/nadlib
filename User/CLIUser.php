@@ -88,4 +88,13 @@ class CLIUser implements UserModelInterface
 		return 'CLI User';
 	}
 
+	public function setSetting($key, $val)
+	{
+		// TODO: Implement setSetting() method.
+	}
+
+	public function getData(): array
+	{
+		return [];
+	}
 }

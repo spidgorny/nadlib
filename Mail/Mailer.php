@@ -123,4 +123,18 @@ class Mailer implements MailerInterface
 		return strip_tags($this->bodytext);
 	}
 
+	public function setCC(array $param)
+	{
+		// TODO: Implement setCC() method.
+	}
+
+	public function setBCC(array $param)
+	{
+		// TODO: Implement setBCC() method.
+	}
+
+	public function setAttachments($attachments)
+	{
+		// TODO: Implement setAttachments() method.
+	}
 }

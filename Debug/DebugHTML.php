@@ -6,9 +6,9 @@ class DebugHTML
 	const LEVELS = 'LEVELS';
 
 	public static $stylesPrinted = false;
-    
+
 	public static $defaultLevels = 4;
-    
+
 	/**
 	 * @var Debug
 	 */
@@ -21,14 +21,6 @@ class DebugHTML
 		$this->helper = $helper;
 	}
 
-	private static function shortenType(string $type): string
-	{
-		$type = str_replace('string', 'S', $type);
-		$type = str_replace('array', 'A', $type);
-		$type = str_replace('integer', 'I', $type);
-		return str_replace('boolean', 'B', $type);
-	}
-
 	public function render(...$args): string
 	{
 		$levels = $this->getLevels($args) ?: self::$defaultLevels;
@@ -39,18 +31,14 @@ class DebugHTML
 
 		$content = static::renderHTMLView($db, $args, $levels);
 		$content .= static::printStyles();
-		if (!headers_sent()) {
-			if (method_exists($this->helper->index, 'renderHead')) {
-				$this->helper->index->renderHead();
-			} elseif (!headers_sent() && !$this->htmlPrologSent) {
-				$content = '<!DOCTYPE html>
-				<html lang="en-US">
-				<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-				' . $content;
-				$this->htmlPrologSent = true;
-			}
+		if (!$this->htmlPrologSent && !headers_sent() && !headers_sent()) {
+			$content = '<!DOCTYPE html>
+			<html lang="en-US">
+			<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+			' . $content;
+			$this->htmlPrologSent = true;
 		}
-        
+
 		return $content;
 	}
 
@@ -68,7 +56,7 @@ class DebugHTML
 				$levels = self::$defaultLevels;
 			}
 		}
-        
+
 		$args = $a;
 		return $levels;
 	}
@@ -116,7 +104,7 @@ class DebugHTML
 				'Name:' => $this->helper->name,
 			];
 		}
-        
+
 		$props += [
 //			'Class:' => ifsetor($first['class']),
 //			'Function:' => ifsetor($first['function']),
@@ -128,7 +116,7 @@ class DebugHTML
 		}
 
 		require_once __DIR__ . '/TaylorProfiler.php';
-		$memPercent = TaylorProfiler::getMemUsage() * 100;
+		$memPercent = (float)TaylorProfiler::getMemUsage() * 100;
 		require_once __DIR__ . '/../HTML/ProgressBar.php';
 		$pb = new ProgressBar();
 		$pb->destruct100 = false;
@@ -154,7 +142,7 @@ class DebugHTML
 		foreach ($props as $key => $val) {
 			$rows[] = '<span class="debug_prop">' . $key . '</span> ' . $val;
 		}
-        
+
 		return implode(BR, $rows);
 	}
 
@@ -203,11 +191,11 @@ class DebugHTML
 				} else {
 					$content .= '<i>Too deep, $level: ' . $levels . '</i>';
 				}
-                
+
 				//$content = print_r($r, true);
 				$content .= '</td></tr>';
 			}
-            
+
 			$content .= '</table>';
 		} elseif (is_object($a)) {
 			if ($a instanceof HtmlString) {
@@ -235,8 +223,16 @@ class DebugHTML
 		} else {
 			$content = htmlspecialchars($a . '');
 		}
-        
+
 		return $content;
+	}
+
+	private static function shortenType(string $type): string
+	{
+		$type = str_replace('string', 'S', $type);
+		$type = str_replace('array', 'A', $type);
+		$type = str_replace('integer', 'I', $type);
+		return str_replace('boolean', 'B', $type);
 	}
 
 	public static function printStyles(): string
@@ -252,7 +248,7 @@ class DebugHTML
 		} else {
 			$content .= '<!-- styles printed -->';
 		}
-        
+
 		return $content;
 	}
 

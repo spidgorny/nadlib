@@ -490,8 +490,8 @@ class DBLayer extends DBLayerBase
 	}
 
 	/**
-	 * @param resource/query $result
-	 * @return array
+	 * @param resource|string $res
+	 * @return array|false
 	 * @throws DatabaseException
 	 * @throws MustBeStringException
 	 */
@@ -501,13 +501,7 @@ class DBLayer extends DBLayerBase
 			$res = $this->perform($res);
 		}
 
-//		error_log(__METHOD__ . ' [' . $res . ']');
-		$row = pg_fetch_assoc($res);
-		/*      // problem in OODBase
-		 * 		if (!$row) {
-					$row = array();
-				}*/
-		return $row;
+		return pg_fetch_assoc($res);
 	}
 
 	public function getColumnDefault(string $table): array

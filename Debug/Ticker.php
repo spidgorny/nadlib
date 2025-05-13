@@ -154,12 +154,14 @@ class Ticker
 		$trace = substr($trace, -100);
 
 		$mem = TaylorProfiler::getMemUsage();
-		$diff = number_format(($mem - $this->prevMemory), 3);
-		$diff = $diff === 0
-			? '<font color="green"> ' . $diff . '</font>'
-			: ($diff >= 0
+		$diff = number_format(((float)$mem - $this->prevMemory), 3);
+		if ((int)$diff === 0) {
+			$diff = '<font color="green"> ' . $diff . '</font>';
+		} else {
+			$diff = ($diff >= 0
 				? '<font color="green">+' . $diff . '</font>'
 				: '<font color="red">' . $diff . '</font>');
+		}
 
 		$start = ifsetor($_SERVER['REQUEST_TIME_FLOAT'], $_SERVER['REQUEST_TIME']);
 		$time = number_format(microtime(true) - $start, 3, '.', '');
@@ -168,7 +170,7 @@ class Ticker
 			tabify([
 				'Time: ' . $time,
 				'Diff: ' . $diff,
-				number_format($mem * 100, 2) . '% mem',
+				number_format((float)$mem * 100, 2) . '% mem',
 				$trace
 			]) . '</pre>';
 
@@ -176,24 +178,24 @@ class Ticker
 		$this->prevMemory = $mem;
 		if (count($list) > 100) {
 			pre_print_r($list);
-			throw new Exception('Infinite loop detected');
+			throw new \RuntimeException('Infinite loop detected');
 		}
 	}
 
 	public function render($output, $time): void
 	{
-		if ($this->tickTo == 'html') {
+		if ($this->tickTo === 'html') {
 			if ($this->isCLI()) {
 				$output = strip_tags($output);
 			}
 
 			echo $output . "\n";
-		} elseif ($this->tickTo == 'header') {
+		} elseif ($this->tickTo === 'header') {
 			$pad = str_pad($time, 6, '0', STR_PAD_LEFT);
 			header('X-Tick-' . $pad . ': ' . strip_tags($output));
-		} elseif ($this->tickTo == 'errorlog') {
+		} elseif ($this->tickTo === 'errorlog') {
 			error_log(strip_tags($output));
-		} elseif ($this->tickTo == 'echo') {
+		} elseif ($this->tickTo === 'echo') {
 			if ($this->noOutput) {
 //				ob_end_clean();
 //				ob_end_flush();

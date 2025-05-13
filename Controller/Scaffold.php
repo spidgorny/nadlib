@@ -273,7 +273,7 @@ abstract class Scaffold extends AppControllerBE
 				$content[] = $this->showForm();
 			} catch (PDOException $e) {
 				debug($e->getMessage());
-				debug($this->db->lastQuery);
+				debug($this->db->getLastQuery());
 			}
 		} else {
 			$content[] = $this->showFormWithValidation();

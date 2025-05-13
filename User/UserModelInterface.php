@@ -40,6 +40,8 @@ interface UserModelInterface
 
 	public function getSetting($key);
 
+	public function setSetting($key, $val);
+
 	public function getGroup();
 
 //	public function getData();
@@ -54,5 +56,9 @@ interface UserModelInterface
 
 	public function getName(): string;
 
+	#[\ReturnTypeWillChange]
+	public function getDepartment(): ?Department;
+
+	public function getData(): array;
 
 }

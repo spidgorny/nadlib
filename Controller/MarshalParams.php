@@ -80,7 +80,7 @@ class MarshalParams
 		return $init;
 	}
 
-	public function getParameterValue($param, string $type)
+	public function getParameterValue($param, string|ReflectionNamedType $type)
 	{
 		$container = $this->container;
 		$typeClass = method_exists($type, 'getName')
@@ -156,7 +156,8 @@ class MarshalParams
 	public function getParameterByReflection(ReflectionParameter $param)
 	{
 		$name = $param->getName();
-		if ($param->getType()?->getName() === 'array') {
+		$typeName = $param->getType() instanceof ReflectionNamedType ? $param->getType()?->getName() : null;
+		if ($typeName === 'array') {
 			return $this->request->getArray($name);
 		}
 

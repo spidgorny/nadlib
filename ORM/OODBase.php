@@ -174,7 +174,7 @@ abstract class OODBase implements ArrayAccess
 			}
 		} elseif (!is_null($id)) {
 			debug($id);
-			throw new Exception(get_class($this) . '::' . __FUNCTION__);
+			throw new \RuntimeException(get_class($this) . '::' . __FUNCTION__);
 		}
 	}
 

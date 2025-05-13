@@ -25,48 +25,30 @@ class Flot extends Controller
 	 * @var array
 	 */
 	public $data;
-
-	protected $keyKey;
-
-	protected $timeKey;
-
-	protected $amountKey;
-
 	/**
 	 * A source table pivoted (grouped by) $keyKey
 	 * @var array
 	 */
 	public $chart;
-
 	/**
 	 * @var array - these are line charts, multiple series as well
 	 */
 	public $cumulative = [];
-
 	public $movingAverage = [];
-
 	public $min = 0;
-
 	/**
 	 * @var int - max value for cumulative (max of max possible)
 	 */
 	public $max = 1;
-
 	public $cMin = 0;
-
 	public $cMax = 1;
-
 	public $width = '950px';
-
 	public $height = '600px';
-
 	public $barWidth = '24*60*60*1000*25';
-
 	/**
 	 * @var string
 	 */
 	public $flotPath = 'components/flot/flot/';
-
 	/**
 	 * Inject
 	 * "ticks" => "tickWeeks"
@@ -88,8 +70,10 @@ class Flot extends Controller
 			]
 		],
 	];
-
 	public $MALength = 20;
+	protected $keyKey;
+	protected $timeKey;
+	protected $amountKey;
 
 	/**
 	 * @param array $data - source data
@@ -120,9 +104,60 @@ class Flot extends Controller
 		//$this->max = $this->getChartMax($this->cumulative);
 	}
 
-	public function setFlotPath($path): void
+	/**
+	 * Return a multitude of rows which are extracted by the $keyKey.
+	 * Each row is an assoc array with $timeKey keys and $amountKey values.
+	 * Uses strtotime() so the $timeKey values should be PHP parsable
+	 */
+	public function getChartTable(array $rows): array
 	{
-		$this->flotPath = $path;
+		$chart = [];
+		foreach ($rows as $i => $row) {
+			$key = $this->keyKey ? $row[$this->keyKey] : 'one';
+			$timeMaybe = $row[$this->timeKey];
+			if ($timeMaybe) {
+				$time = is_string($timeMaybe) ? strtotime($timeMaybe) : $timeMaybe;
+				$barHeight = $row[$this->amountKey];
+				if (is_string($barHeight)) {
+					$barHeight = strtotime($barHeight);
+				}
+
+				$chart[$key][$time] = $time != -1 && $time > 100 ? [$time * 1000, $barHeight] : [$timeMaybe, $barHeight];
+			} else {
+				unset($rows[$i]);
+			}
+		}
+
+		//debug($chart);
+		return $chart;
+	}
+
+	public static function getChartMax(array $chart, $min = false)
+	{
+		$max = 0;
+		foreach ($chart as $series) {
+			foreach ($series as $pair) {
+				$max = $min ? min($max, $pair[1]) : max($max, $pair[1]);
+			}
+		}
+
+		return $max;
+	}
+
+	public function getChartCumulative(array $chart): array
+	{
+		foreach ($chart as &$sub) {
+			ksort($sub);
+			$sum = 0;
+			foreach ($sub as &$val) {
+				$sum += $val[1];
+				$val[1] = $sum;
+			}
+
+			unset($val);
+		}
+
+		return $chart;
 	}
 
 	public function setMinMax(): void
@@ -137,6 +172,11 @@ class Flot extends Controller
 			'min' => $this->cMin,
 			'max' => $this->cMax,
 		];
+	}
+
+	public function setFlotPath($path): void
+	{
+		$this->flotPath = $path;
 	}
 
 	/**
@@ -161,135 +201,6 @@ class Flot extends Controller
 		}
 
 		return $content . $this->showChart($divID, $this->chart);
-	}
-
-	public function renderCumulative(string $divID = 'chart1'): string
-	{
-		$content = '';
-		return $content . $this->showChart($divID, $this->chart, $this->cumulative);
-	}
-
-	public function appendCumulative(array $data): array
-	{
-		//debug($this->cumulative, $data);
-		$cumulative2 = [];
-		foreach ($this->cumulative as $series) {
-			$cumulative2 = array_merge($cumulative2, $series);
-		}
-
-		//$cumulative = array_values($cumulative2);
-		$dataClass = [];
-		foreach ($data as $i => &$row) {
-			$color = $this->colors[$row[$this->keyKey] - 1];
-			$dataClass[$i] = '" style="background: white; color: ' . $color;
-			//$row['###TD_CLASS###'] = '" style="background: white; color: '.$color;
-
-			//$row['cumulative'] = $cumulative[$i][1];
-			$jsTime = strtotime($i) * 1000;
-			$row['cumulative'] = $this->cumulative['Total'][$jsTime][1];
-		}
-
-		return $data;
-	}
-
-	/**
-     * http://bytes.com/topic/php/answers/747586-calculate-moving-average
-     */
-    public function renderMovingAverage(): string
-	{
-		$content = '';
-		$charts = $this->getChartTable($this->data);
-		$this->movingAverage = $this->getMovingAverage($charts);
-		return $content . $this->showChart('chart1', $charts, $this->movingAverage);
-	}
-
-	public function getMovingAverage(array $charts): array
-	{
-		foreach ($charts as &$series) {
-			$res = [];
-			foreach ($series as $pair) {
-				$res[$pair[0]] = $pair[1];
-			}
-
-			$i = 0;
-			foreach ($res as &$row) {
-				$slice = array_slice($res, max($i - $this->MALength + 1, 0), $this->MALength);
-				$row = round(
-					array_sum($slice) /
-					count($slice),
-					4
-				);
-				$i++;
-			}
-
-			foreach ($res as $key => &$val) {
-				$val = [$key, $val];
-			}
-
-			$series = $res;
-		}
-
-		return $charts;
-	}
-
-	/**
-     * Return a multitude of rows which are extracted by the $keyKey.
-     * Each row is an assoc array with $timeKey keys and $amountKey values.
-     * Uses strtotime() so the $timeKey values should be PHP parsable
-     *
-     * @internal param string $timeKey
-     * @internal param string $amountKey
-     * @internal param string $keyKey
-     */
-    public function getChartTable(array $rows): array
-	{
-		$chart = [];
-		foreach ($rows as $i => $row) {
-			$key = $this->keyKey ? $row[$this->keyKey] : 'one';
-			$timeMaybe = $row[$this->timeKey];
-			if ($timeMaybe) {
-				$time = is_string($timeMaybe) ? strtotime($timeMaybe) : $timeMaybe;
-				$barHeight = $row[$this->amountKey];
-				if (is_string($barHeight)) {
-					$barHeight = strtotime($barHeight);
-				}
-
-                $chart[$key][$time] = $time != -1 && $time > 100 ? [$time * 1000, $barHeight] : [$timeMaybe, $barHeight];
-			} else {
-				unset($rows[$i]);
-			}
-		}
-
-		//debug($chart);
-		return $chart;
-	}
-
-	public function getChartCumulative(array $chart): array
-	{
-		foreach ($chart as &$sub) {
-			ksort($sub);
-			$sum = 0;
-			foreach ($sub as &$val) {
-				$sum += $val[1];
-				$val[1] = $sum;
-			}
-
-			unset($val);
-		}
-
-		return $chart;
-	}
-
-	public static function getChartMax(array $chart, $min = false)
-	{
-		$max = 0;
-		foreach ($chart as $series) {
-			foreach ($series as $pair) {
-				$max = $min ? min($max, $pair[1]) : max($max, $pair[1]);
-			}
-		}
-
-		return $max;
 	}
 
 	public function showChart(string $divID, array $charts, array $cumulative = []): string
@@ -387,8 +298,8 @@ function defer(method) {
 		method();
 	} else {
 		console.log(\'no jQuery or no plot\');
-		setTimeout(function() { 
-			defer(method) 
+		setTimeout(function() {
+			defer(method)
 		}, 1000);
 	}
 }
@@ -404,6 +315,75 @@ defer(function () {
 });
 </script>';
 		return $content;
+	}
+
+	public function renderCumulative(string $divID = 'chart1'): string
+	{
+		$content = '';
+		return $content . $this->showChart($divID, $this->chart, $this->cumulative);
+	}
+
+	public function appendCumulative(array $data): array
+	{
+		//debug($this->cumulative, $data);
+		$cumulative2 = [];
+		foreach ($this->cumulative as $series) {
+			$cumulative2 = array_merge($cumulative2, $series);
+		}
+
+		//$cumulative = array_values($cumulative2);
+		$dataClass = [];
+		foreach ($data as $i => &$row) {
+			$color = $this->colors[$row[$this->keyKey] - 1];
+			$dataClass[$i] = '" style="background: white; color: ' . $color;
+			//$row['###TD_CLASS###'] = '" style="background: white; color: '.$color;
+
+			//$row['cumulative'] = $cumulative[$i][1];
+			$jsTime = strtotime($i) * 1000;
+			$row['cumulative'] = $this->cumulative['Total'][$jsTime][1];
+		}
+
+		return $data;
+	}
+
+	/**
+	 * http://bytes.com/topic/php/answers/747586-calculate-moving-average
+	 */
+	public function renderMovingAverage(): string
+	{
+		$content = '';
+		$charts = $this->getChartTable($this->data);
+		$this->movingAverage = $this->getMovingAverage($charts);
+		return $content . $this->showChart('chart1', $charts, $this->movingAverage);
+	}
+
+	public function getMovingAverage(array $charts): array
+	{
+		foreach ($charts as &$series) {
+			$res = [];
+			foreach ($series as $pair) {
+				$res[$pair[0]] = $pair[1];
+			}
+
+			$i = 0;
+			foreach ($res as &$row) {
+				$slice = array_slice($res, max($i - $this->MALength + 1, 0), $this->MALength);
+				$row = round(
+					array_sum($slice) /
+					count($slice),
+					4
+				);
+				$i++;
+			}
+
+			foreach ($res as $key => &$val) {
+				$val = [$key, $val];
+			}
+
+			$series = $res;
+		}
+
+		return $charts;
 	}
 
 }

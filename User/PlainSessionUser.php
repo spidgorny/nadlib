@@ -131,4 +131,13 @@ class PlainSessionUser extends UserBase
 		return '';
 	}
 
+	public function setSetting($key, $val)
+	{
+		// TODO: Implement setSetting() method.
+	}
+
+	public function getData(): array
+	{
+		return [];
+	}
 }

@@ -110,4 +110,13 @@ class HTTPUser implements UserModelInterface
 
 	}
 
+	public function setSetting($key, $val)
+	{
+		// TODO: Implement setSetting() method.
+	}
+
+	public function getData(): array
+	{
+		return [];
+	}
 }

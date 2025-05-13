@@ -83,32 +83,32 @@ class AjaxLogin extends AppControllerBE
 	}
 
 	/**
-     * @return mixed[]
-     */
-    public function dispatchAjax(): array
+	 * @return mixed[]
+	 */
+	public function dispatchAjax(): array
 	{
 		$content = [];
 		if ($this->action) {
-            $content[] = $this->performAction($this->detectAction());
-            /*			if ($this->mode != 'activate') { // activate is NOT to be processed with AJAX
-            							header('Content-type: text/html; charset=ISO-8859-1');
-            							echo $content;
-            							exit();
-            						}
-            			*/
-        } elseif ($_SESSION['pageBeforeRegister_show']) {
-            $redirect = $_SESSION['pageBeforeRegister'];
-            echo '<div class="absMessage">' . __('Account activated.') . '</div>';
-            unset($_SESSION['pageBeforeRegister']);
-        }
+			$content[] = $this->performAction($this->detectAction());
+			/*			if ($this->mode != 'activate') { // activate is NOT to be processed with AJAX
+										header('Content-type: text/html; charset=ISO-8859-1');
+										echo $content;
+										exit();
+									}
+						*/
+		} elseif ($_SESSION['pageBeforeRegister_show']) {
+			$redirect = $_SESSION['pageBeforeRegister'];
+			echo '<div class="absMessage">' . __('Account activated.') . '</div>';
+			unset($_SESSION['pageBeforeRegister']);
+		}
 
 		return $content;
 	}
 
 	/**
-     * @return mixed[]
-     */
-    public function performAction($action = null): array
+	 * @return mixed[]
+	 */
+	public function performAction($action = null): array
 	{
 		$content = [];
 		$action = $action ?: $this->action;
@@ -129,9 +129,9 @@ class AjaxLogin extends AppControllerBE
 	}
 
 	/**
-     * $this->user->try2login() should been called already
-     */
-    public function render(): array|string
+	 * $this->user->try2login() should been called already
+	 */
+	public function render(): array|string
 	{
 		$content = [];
 		$this->getScript();
@@ -204,10 +204,10 @@ class AjaxLogin extends AppControllerBE
 	}
 
 	/**
-     * Full screen - not for navbar
-     * @param array|NULL $desc
-     */
-    public function getLoginForm(array $desc = null): \HTMLFormTable
+	 * Full screen - not for navbar
+	 * @param array|NULL $desc
+	 */
+	public function getLoginForm(array $desc = null): \HTMLFormTable
 	{
 		$f = new HTMLFormTable();
 		$f->action('');     // specify action otherwise will logout
@@ -231,8 +231,8 @@ class AjaxLogin extends AppControllerBE
 	}
 
 	public function getLoginDesc(): array
-    {
-        return ['username' => [
+	{
+		return ['username' => [
 			'label' => __('E-mail'),
 			'class' => 'form-control',
 			'placeholder' => 'E-mail address',
@@ -245,7 +245,7 @@ class AjaxLogin extends AppControllerBE
 			'placeholder' => 'Password',
 			'required' => '',
 		]];
-    }
+	}
 
 	public function registerAction(array $desc = null)
 	{
@@ -281,8 +281,8 @@ class AjaxLogin extends AppControllerBE
 	}
 
 	public function getRegisterDesc(): array
-    {
-        return ['email' => [
+	{
+		return ['email' => [
 			'label' => __('E-mail'),
 			'class' => 'form-control',
 			'placeholder' => 'Your e-mail',
@@ -310,13 +310,13 @@ class AjaxLogin extends AppControllerBE
 			'placeholder' => 'Password',
 			'required' => '',
 		]];
-    }
+	}
 
 	/**
-     * It's called "mode" for historical reasons, but it's good so that it's not overlapping with the possible "action"
-     * Both Login and Password fields - not used
-     */
-    public function inlineFormAction(): string
+	 * It's called "mode" for historical reasons, but it's good so that it's not overlapping with the possible "action"
+	 * Both Login and Password fields - not used
+	 */
+	public function inlineFormAction(): string
 	{
 		if ($this->user && $this->user->isAuth()) {
 			$linkLogout = $this->getURL([
@@ -325,7 +325,7 @@ class AjaxLogin extends AppControllerBE
 			]);
 			$content = '<form class="navbar-form navbar-right pull-right" method="POST">
 			<div class="form-group">
-				<p class="navbar-text" style="display: inline-block;">' . $this->user->getNameHTML() . '</p>
+				<p class="navbar-text" style="display: inline-block;">' . $this->user->getName() . '</p>
 				<a href="' . $linkLogout . '" class="ajax btn btn-default">' . __('Logout') . '</a>
 			</div>
 			</form>';
@@ -338,7 +338,7 @@ class AjaxLogin extends AppControllerBE
 						type="text"
 						name="username"
 						placeholder="E-mail"
-						value="' . (isset($_REQUEST['username']) ? $_REQUEST['username'] : null) . '" />
+						value="' . ($_REQUEST['username'] ?? null) . '" />
 				</div>
 				<div class="form-group col-md-4">
 					<input class="form-control" type="password"
@@ -354,7 +354,7 @@ class AjaxLogin extends AppControllerBE
 
 	/**
 	 * Taken as a default from wagner-verlag login. Should most likely be overwritten in a subclass.
-	 * @return string
+	 * @return string[]
 	 */
 	public function loginAction(): array
 	{
@@ -362,9 +362,10 @@ class AjaxLogin extends AppControllerBE
 		$username = $this->request->getTrim('username');
 		$password = $this->request->getTrim('password');
 		$passwordHash = md5($this->secret . $password);
-		$check = $this->user->checkPassword($username, $passwordHash);
+//		$check = $this->user->checkPassword($username, $passwordHash);
+		$check = 'todo';
 		if ($check) {
-			$this->user->saveLogin($username, $passwordHash);
+//			$this->user->saveLogin($username, $passwordHash);
 			$content[] = '<div class="message alert alert-success">' . __('You are logged in.') . '</div>';
 			//$content[] = '<script> document.location.reload(true); </script>';	// POST is a problem
 			//$content []= '<script>document.location.replace(document.location);</script>';	// doesn't refresh at all
@@ -394,9 +395,9 @@ class AjaxLogin extends AppControllerBE
 	}
 
 	/**
-     * @return mixed[]
-     */
-    public function saveProfileAction(): array
+	 * @return array
+	 */
+	public function saveProfileAction(): array
 	{
 		$content = [];
 		$data = $this->request->getArray('profile');
@@ -406,7 +407,7 @@ class AjaxLogin extends AppControllerBE
 		$val = new HTMLFormValidate($desc);
 		$check = $val->validate();
 		if ($check) {
-			$this->user->update($data);
+//			$this->user->update($data);
 			$content[] = '<div class="message alert alert-success">' . __('Profile updated.') . '</div>';
 			//mail($this->user->data[$this->user->loginField], __('Profile changed.'), 'Profile Changed', $this->mailHeaders);
 		} else {
@@ -438,7 +439,7 @@ class AjaxLogin extends AppControllerBE
 		if (!$desc) {
 			$desc = $this->getProfileDesc();
 			$f->desc = $desc;
-			$desc = $f->fill($this->user->data);
+			$desc = $f->fill($this->user->getData());
 		} // otherwise it comes from validate and contains the form input already
 		//debug($desc);
 		$f->prefix('profile');
@@ -452,23 +453,24 @@ class AjaxLogin extends AppControllerBE
 	}
 
 	/**
-     * @return mixed[]
-     */
-    public function savePasswordAction(): array
+	 * @return string[]
+	 */
+	public function savePasswordAction(): array
 	{
 		$content = [];
 		$password = $this->request->getTrim('password');
 		$desc = $this->getPasswordDesc();
 		$desc['password']['value'] = $password;
-		$val = new HTMLFormValidate($desc);
+		$form = new HTMLFormTable($desc);
+		$val = new HTMLFormValidate($form);
 		$check = $val->validate();
 		if ($check) {
 			$data = [
 				'password' => md5($this->secret . $password),
 			];
-			$this->user->update($data);
+//			$this->user->update($data);
 			$content[] = '<div class="message alert alert-success">' . __('Password updated.') . '</div>';
-			$this->user->saveLogin($this->user->data[$this->user->loginField], $data['password']);
+			$this->saveLogin($this->user->getLogin(), $data['password']);
 		} else {
 			$content[] = $this->passwordAction($val->getDesc());
 		}
@@ -482,6 +484,11 @@ class AjaxLogin extends AppControllerBE
 		$desc['password']['label'] = __('Password');
 		$desc['password']['type'] = 'password';
 		return $desc;
+	}
+
+	public function saveLogin($login, $password)
+	{
+		// todo
 	}
 
 	public function passwordAction(array $desc = null): \HTMLFormTable
@@ -523,7 +530,7 @@ class AjaxLogin extends AppControllerBE
 
 	public function logoutAction()
 	{
-		$this->user->logout();
+		$this->logout();
 		$content[] = '<div class="message alert alert-success">' . __('You are logged out.') . '</div>';
 		//$content[] = '<script> document.location.reload(true); </script>';
 		$content[] = $this->formAction();
@@ -534,52 +541,23 @@ class AjaxLogin extends AppControllerBE
 		return $content;
 	}
 
-	public function forgotPasswordAction(): array
+	public function logout()
 	{
-		$content = [];
-		$email = $this->request->getTrim('username');
-		if ($email) {
-			$this->user->findInDB([$this->user->loginField => $email]);
-			if ($this->user->id) {
-				$password = random_int(1000000, 9999999);
-				//debug($password);
-				$this->user->update(['password' => md5($this->secret . $password)]);
-				mail($this->user->data[$this->user->loginField],
-					utf8_encode(__('New password generated')),
-					utf8_encode(__('emailForgot', [
-						'%1' => $this->user->data['name'],
-						'%2' => $this->user->data['surname'],
-						'%3' => $password,
-					])), $this->mailHeaders);
-			}
-
-			$content[] = '<div class="message alert alert-warning">' . __('If we have found this e-mail then we have sent you your new password.') . '</div>';
-		} else {
-			$content[] = '<div class="error alert alert-danger">' . __('Enter you e-mail before asking for a new password.') . '</div>';
-		}
-
-		$desc = $this->getLoginDesc();
-		$desc['username']['value'] = $email;
-		$desc['password']['cursor'] = true;
-		$content[] = $this->formAction($desc);
-		if ($this->withRegister) {
-			$content[] = $this->registerAction();
-		}
-
-		return $content;
+		// @todo
 	}
 
 	/**
-     * @return mixed[]
-     */
-    public function saveRegisterAction(): array
+	 * @return mixed[]
+	 */
+	public function saveRegisterAction(): array
 	{
 		$content = [];
 		$data = $this->request->getArray('profile');
 		$desc = $this->getRegisterDesc();
 		$f = new HTMLFormTable($desc);
 		$desc = $f->fill($data);
-		$val = new HTMLFormValidate($desc);
+		$form = new HTMLFormTable($desc);
+		$val = new HTMLFormValidate($form);
 		$check = $val->validate();
 		if ($check) {
 			$content[] = $this->createUser($data);
@@ -602,18 +580,9 @@ class AjaxLogin extends AppControllerBE
 			$this->user->insert($data);
 		} catch (UserAlreadyExistsException $userAlreadyExistsException) {
 			// ok - continue
-			$this->user->findInDB([$this->user->loginField => $data['username']]);
+//			$this->user->findInDB([$this->user->loginField => $data['username']]);
 		}
 
-		//debug($this->user->data);
-		$activateURL = $this->getActivateURL();
-		mail($this->user->data[$this->user->loginField],
-			utf8_encode(__('Activate new account')),
-			utf8_encode(__('emailActivation', [
-				'%1' => $this->user->data['name'],
-				'%2' => $this->user->data['surname'],
-				'%3' => $activateURL,
-			])), $this->mailHeaders);
 		return '<div class="message alert alert-info">' . __('You need to activate your account with the link sent to your e-mail address.') . '</div>';
 	}
 
@@ -622,8 +591,8 @@ class AjaxLogin extends AppControllerBE
 		//$activateURL = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'&'.http_build_query($params);
 		$params = [
 			'action' => 'activate',
-			'id' => $this->user->id,
-			'confirm' => md5($this->secret . serialize($this->user->id)),
+			'id' => $this->user->getID(),
+			'confirm' => md5($this->secret . serialize($this->user->getID())),
 		];
 		$u = new URL();
 		$u->appendParams($params);

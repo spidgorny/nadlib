@@ -703,8 +703,9 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * negative number if this string is less than $string,
 	 * and 0 in case the strings are equal.
 	 * This method is case-sensitive. See also {@link compareToIgnoreCase()}
-	 * @param string
-	 * @param int $characters upper limit of characters to use in comparison (default null)
+	 * @param string $string
+	 * @param null $characters upper limit of characters to use in comparison (default null)
+	 * @return int
 	 */
 	public function compareTo($string, $characters = null): int
 	{
@@ -887,7 +888,6 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	/**
 	 * String is immutable. Calling this method will result in an exception.
 	 * @param int $offset
-	 * @param string $value
 	 * @throws BadMethodCallException
 	 */
 	public function offsetUnset($offset): void

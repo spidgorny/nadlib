@@ -21,17 +21,17 @@ class NadlibIndex
 		$in->init();
 
 		$this->dic = new DIContainer();
-		$this->dic->index = function ($c) {
+		$this->dic->index = static function ($c) {
 			require_once __DIR__ . '/../be/class/IndexBE.php';
 			return IndexBE::getInstance(true);
 		};
-		$this->dic->debug = function ($c): \Debug {
+		$this->dic->debug = static function ($c): \Debug {
 			return new Debug($c->index);
 		};
-		$this->dic->config = function ($c) {
+		$this->dic->config = static function ($c) {
 			return ConfigBE::getInstance();
 		};
-		$this->dic->autoload = function ($c): \AutoLoad {
+		$this->dic->autoload = static function ($c): \AutoLoad {
 			return AutoLoad::getInstance();
 		};
 
@@ -48,15 +48,7 @@ class NadlibIndex
 //			class_alias('AppController', 'AppControllerME');
 		}
 
-		if (!class_exists('Index')) {
-//			class_alias('IndexBE', 'Index');
-		}
-
-		if (!file_exists('vendor/autoload.php')) {
-			//throw new Exception('Run "composer update"');
-		}
-
-		$this->dic->config->defaultController = 'HomeBE';
+//		$this->dic->config->defaultController = HomeBE::class;
 
 		self::$instance = $this;
 	}

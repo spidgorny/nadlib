@@ -1,22 +1,28 @@
 <?php
 
+use PHPAuth\Auth;
+
 class RestController extends AppControllerBE
 {
+
+	public function __construct(protected Auth $auth)
+	{
+		parent::__construct();
+	}
 
 	public function loginBasic(): void
 	{
 		$this->request->set('ajax', true);
 		$login = ifsetor($_SERVER['PHP_AUTH_USER']);
 		$password = ifsetor($_SERVER['PHP_AUTH_PW']);
-		$auth = Config::getInstance()->getAuth();
-		$status = $auth->login($login, $password);
+		$status = $this->auth->login($login, $password);
 		//pre_print_r($status);
 		if ($status['error']) {
 			throw new AccessDeniedException();
 		}
 
-		$_COOKIE[$auth->config->cookie_name] = $status['hash'];
-		$this->user->login();  // again
+		$_COOKIE[$this->auth->config->cookie_name] = $status['hash'];
+//		$this->user->login();  // again
 	}
 
 	public function render(): string|false
@@ -38,8 +44,8 @@ class RestController extends AppControllerBE
 			if (!headers_sent()) {
 				header('Content-Type: application/json; charset=UTF-8');
 			}
-            
-			$content = json_encode($content, JSON_PRETTY_PRINT);
+
+			$content = json_encode($content, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
 		} elseif ($content instanceof OODBase) {
 			$content = [
 				'status' => 'ok',
@@ -49,8 +55,8 @@ class RestController extends AppControllerBE
 			if (!headers_sent()) {
 				header('Content-Type: application/json; charset=UTF-8');
 			}
-            
-			$content = json_encode($content, JSON_PRETTY_PRINT);
+
+			$content = json_encode($content, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
 		} elseif ($content instanceof Collection) {
 			$content = [
 				'status' => 'ok',
@@ -61,8 +67,8 @@ class RestController extends AppControllerBE
 			if (!headers_sent()) {
 				header('Content-Type: application/json; charset=UTF-8');
 			}
-            
-			$content = json_encode($content, JSON_PRETTY_PRINT);
+
+			$content = json_encode($content, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
 		} else {
 			//pre_print_r($this->request->getURLLevels(), $id, $data);
 			//throw new HttpInvalidParamException('Unknown method/action');
@@ -91,7 +97,7 @@ class RestController extends AppControllerBE
 				];
 			}
 		}
-        
+
 		header('Allow: ' . implode(', ', $allows));
 		return $about;
 	}

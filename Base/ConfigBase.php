@@ -9,38 +9,6 @@ require_once __DIR__ . '/ConfigInterface.php';
  */
 class ConfigBase implements ConfigInterface
 {
-	/**
-	 * del: Public to allow Request to know if there's an instance
-	 * @var Config
-	 */
-	protected static $instance;
-
-	public $db_server = '127.0.0.1';
-
-	public $db_user = 'root';
-
-	protected $db_password = 'root';
-
-	public $db_database = '';
-
-	/**
-	 * @var int
-	 * @deprecated in favor of $this->config['Config']['timeLimit'] in init.php
-	 */
-	public $timeLimit = 10;
-
-	/**
-	 * @var DBInterface
-	 */
-	protected $db;
-
-	public $defaultController = 'Overview';
-
-	/**
-	 * @var Path
-	 */
-	public $documentRoot;
-
 	public static $includeFolders = [
 		'.',
 		'Base',
@@ -70,7 +38,25 @@ class ConfigBase implements ConfigInterface
 		'be/class/Test',
 		'Queue',
 	];
+	/**
+	 * del: Public to allow Request to know if there's an instance
+	 * @var Config
+	 */
+	protected static $instance;
+	public $db_server = '127.0.0.1';
+	public $db_user = 'root';
+	public $db_database = '';
 
+	/**
+	 * @var int
+	 * @deprecated in favor of $this->config['Config']['timeLimit'] in init.php
+	 */
+	public $timeLimit = 10;
+	public $defaultController = 'Overview';
+	/**
+	 * @var Path
+	 */
+	public $documentRoot;
 	/**
 	 * Enables FlexiTable check if the all the necessary tables/columns exist.
 	 * Disable for performance.
@@ -78,29 +64,29 @@ class ConfigBase implements ConfigInterface
 	 * @var bool
 	 */
 	public $flexiTable = false;
-
 	/**
 	 * Read from config.json
 	 * @var array
 	 */
 	public $config;
-
-	/**
-	 * @var UserModelInterface
-	 */
-	protected $user;
-
 	public $mailFrom = '';
-
 	/**
 	 * @var LocalLang
 	 */
 	public $ll;
-
 	/**
      * @var bool
      */
     public $isCron = false;
+	protected $db_password = 'root';
+	/**
+	 * @var DBInterface
+	 */
+	protected $db;
+	/**
+	 * @var UserModelInterface
+	 */
+	protected $user;
 
 	/** @phpstan-consistent-constructor */
 	protected function __construct()
@@ -141,11 +127,6 @@ class ConfigBase implements ConfigInterface
 		}
 	}
 
-	public static function hasInstance()
-	{
-		return self::$instance;
-	}
-
 	/**
 	 * For compatibility with PHPUnit you need to call
 	 * Config::getInstance()->postInit() manually
@@ -160,6 +141,27 @@ class ConfigBase implements ConfigInterface
 			assert(self::$instance instanceof ConfigBase);
 		}
 
+		return self::$instance;
+	}
+
+	/**
+	 * @param object $obj
+	 */
+	public function mergeConfig($obj): void
+	{
+		$class = get_class($obj);
+		if (isset($this->config[$class]) && is_array($this->config[$class])) {
+			foreach ($this->config[$class] as $key => $val) {
+				// Strict Standards: Accessing static property Config::$includeFolders as non static
+				if ($key !== 'includeFolders') {
+					$obj->$key = $val;
+				}
+			}
+		}
+	}
+
+	public static function hasInstance()
+	{
 		return self::$instance;
 	}
 
@@ -180,41 +182,6 @@ class ConfigBase implements ConfigInterface
 		return $this->defaultController;
 	}
 
-	public function getDB()
-	{
-		//debug_pre_print_backtrace();
-		if ($this->db) {
-			return $this->db;
-		}
-
-		if ($this->db_database) {
-			if (extension_loaded('pdo_mysql')) {
-				$this->db = new DBLayerPDO(
-					$this->db_database,
-					$this->db_server,
-					$this->db_user,
-					$this->db_password,
-					'mysql',
-					''
-				);
-				$this->db->perform('set names utf8');
-			} elseif (extension_loaded('mysql')) {
-				$this->db = new MySQL(
-					$this->db_database,
-					$this->db_server,
-					$this->db_user,
-					$this->db_password
-				);
-			} else {
-				throw new DatabaseException('Please enable PDO');
-			}
-
-			$this->db->setQb(new SQLBuilder($this->db));
-		}
-
-		return $this->db;
-	}
-
 	public function prefixTable($a)
 	{
 		return $a;
@@ -222,28 +189,12 @@ class ConfigBase implements ConfigInterface
 
 	/**
      * TODO: enable FirePHP
-     * @param mixed $message
+     * @param string $message
      * @throws Exception
      */
     public function log(string $class, string $message): void
 	{
-		throw new Exception($class . ' ' . $message);
-	}
-
-	/**
-	 * @param object $obj
-	 */
-	public function mergeConfig($obj): void
-	{
-		$class = get_class($obj);
-		if (isset($this->config[$class]) && is_array($this->config[$class])) {
-			foreach ($this->config[$class] as $key => $val) {
-				// Strict Standards: Accessing static property Config::$includeFolders as non static
-				if ($key != 'includeFolders') {
-					$obj->$key = $val;
-				}
-			}
-		}
+		throw new \RuntimeException($class . ' ' . $message);
 	}
 
 	/**
@@ -254,9 +205,14 @@ class ConfigBase implements ConfigInterface
 	{
 		if (is_object($this->user)) {
 			return $this->user;
-		} else {
-			throw new LoginException(__METHOD__);
 		}
+
+		throw new LoginException(__METHOD__);
+	}
+
+	public function setUser(UserModelInterface $user): void
+	{
+		$this->user = $user;
 	}
 
 	/**
@@ -280,6 +236,34 @@ class ConfigBase implements ConfigInterface
 		return $this->user;
 	}
 
+	public function getDB()
+	{
+		//debug_pre_print_backtrace();
+		if ($this->db) {
+			return $this->db;
+		}
+
+		if ($this->db_database) {
+			if (extension_loaded('pdo_mysql')) {
+				$this->db = new DBLayerPDO(
+					$this->db_database,
+					$this->db_server,
+					$this->db_user,
+					$this->db_password,
+					'mysql',
+					''
+				);
+				$this->db->perform('set names utf8');
+			} else {
+				throw new DatabaseException('Please enable PDO');
+			}
+
+			$this->db->setQb(new SQLBuilder($this->db));
+		}
+
+		return $this->db;
+	}
+
 	public function getLL()
 	{
 		if (!$this->ll) {
@@ -297,10 +281,5 @@ class ConfigBase implements ConfigInterface
 	public function getDBpassword()
 	{
 		return $this->db_password;
-	}
-
-	public function setUser(UserModelInterface $user): void
-	{
-		$this->user = $user;
 	}
 }

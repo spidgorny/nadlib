@@ -10,7 +10,7 @@ class TranslateLL extends HTMLFormProcessor
 {
 
 	/**
-	 * @var CookieUser|User|LoginUser
+	 * @var UserModelInterface
 	 */
 	public $user;
 

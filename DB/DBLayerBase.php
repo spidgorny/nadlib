@@ -270,8 +270,8 @@ abstract class DBLayerBase implements DBInterface
 	public function quoteKey($key)
 	{
 		$reserved = $this->getReserved();
-		if (in_array(strtoupper($key), $reserved)) {
-			$key = $this->connection->quoteKey($key);
+		if (in_array(strtoupper($key), $reserved, true)) {
+			$key = pg_escape_identifier($key);
 		}
 
 		return $key;
@@ -301,10 +301,10 @@ abstract class DBLayerBase implements DBInterface
 			$desc = ifsetor($tableDesc[$key]);
 			if ($desc && $desc->isBoolean()) {
 //				debug($desc);
-				$val = boolval($val);
+				$val = (bool)$val;
 			} elseif ($desc && $desc->isInt()) {
 //				debug($desc);
-				$val = intval($val);
+				$val = (int)$val;
 			} elseif ($desc && $desc->isNull() && !$val) {
 				$val = null;
 			}

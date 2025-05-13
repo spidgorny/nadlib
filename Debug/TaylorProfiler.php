@@ -124,12 +124,6 @@ class TaylorProfiler
 		}
 	}
 
-	public static function enableLog(): void
-	{
-		$self = self::getInstance();
-		$self->isLog = true;
-	}
-
 	public static function getName()
 	{
 		if (class_exists('Debug') && method_exists('Debug', 'getCaller')) {
@@ -158,10 +152,10 @@ class TaylorProfiler
 	}
 
 	/**
-	 *   measure the elapsed time of a timer without stoping the timer if
-	 *   it is still running
+	 * measure the elapsed time of a timer without stoping the timer if
+	 * it is still running
 	 * @param string $name
-	 * @return int|mixed
+	 * @return int|float
 	 */
 	public function elapsedTime($name): int|float
 	{
@@ -176,9 +170,30 @@ class TaylorProfiler
 
 		$now = $this->getMicroTime();
 		return ($now - $this->startTime[$name]);
+	}
+
+	public static function enableLog(): void
+	{
+		$self = self::getInstance();
+		$self->isLog = true;
+	}
+
+		/**
+	 * @param bool $output_enabled
+	 * @param bool $trace_enabled
+	 * @return null|TaylorProfiler
+	 */
+	public static function getInstance($output_enabled = false, $trace_enabled = false)
+	{
+		return ifsetor($GLOBALS['profiler']) instanceof self
+			? $GLOBALS['profiler']
+			: (
+			self::$instance
+				?: self::$instance = new self($output_enabled, $trace_enabled)
+			);
 	}//end start_time
 
-	public static function getMemoryUsage(): string
+public static function getMemoryUsage(): string
 	{
 		static $max;
 		static $previous;
@@ -204,7 +219,7 @@ class TaylorProfiler
 
 		$previous = $usedMB;
 		return $content;
-	}//end start_time
+	}
 
 	public static function addMemoryMap($obj): void
 	{
@@ -248,21 +263,6 @@ class TaylorProfiler
 		return number_format($oaTime, 3, '.', '');
 	}
 
-	/**
-	 * @param bool $output_enabled
-	 * @param bool $trace_enabled
-	 * @return null|TaylorProfiler
-	 */
-	public static function getInstance($output_enabled = false, $trace_enabled = false)
-	{
-		return ifsetor($GLOBALS['profiler']) instanceof self
-			? $GLOBALS['profiler']
-			: (
-			self::$instance
-				?: self::$instance = new self($output_enabled, $trace_enabled)
-			);
-	}
-
 	/// Internal Use Only Functions
 
 	public static function renderFloat($withCSS = true): string|false
@@ -272,7 +272,7 @@ class TaylorProfiler
 	}
 
 	/**
-	 * @return float [0.0 .. 1.0]
+	 * @return string
 	 */
 	public static function getMemUsage(): string
 	{
@@ -334,6 +334,46 @@ class TaylorProfiler
 		if ($tp) {
 			$tp->stopTimer($method);
 		}
+	}
+
+	/**
+	 *   Stop an individual timer
+	 *   Restart the timer that was running before this one
+	 * @param string $name name of the timer
+	 */
+	public function stopTimer($name = null): void
+	{
+		$name = $name ?: self::getName();
+		if ($this->trace_enabled) {
+			$this->trace[] = ['time' => time(), 'function' => $name . ' }', 'memory' => memory_get_usage()];
+		}
+
+		if ($this->output_enabled) {
+			$this->endTime[$name] = $this->getMicroTime();
+			if (!array_key_exists($name, $this->running)) {
+				$this->running[$name] = $this->elapsedTime($name);
+			} else {
+				$this->running[$name] += $this->elapsedTime($name);
+			}
+
+			$this->cur_timer = array_pop($this->stack) ?? '';
+			$this->resumeTimer($this->cur_timer);
+			if (false) {
+				$hash = md5($name);
+				$hash = substr($hash, 0, 6);
+				echo '<span style="background: #' . $hash . '">', $name,
+				' STOP', '</span>', BR;
+			}
+		}
+	}
+
+	/**
+	 * resume  an individual timer
+	 */
+	public function resumeTimer(string $name): void
+	{
+		$this->trace[] = ['time' => time(), 'function' => $name . ' {...', 'memory' => memory_get_usage()];
+		$this->startTime[$name] = $this->getMicroTime();
 	}
 
 	public static function dumpMemory($var, $path = []): void
@@ -544,46 +584,6 @@ class TaylorProfiler
 		}
 
 		return null;
-	}
-
-	/**
-	 *   Stop an individual timer
-	 *   Restart the timer that was running before this one
-	 * @param string $name name of the timer
-	 */
-	public function stopTimer($name = null): void
-	{
-		$name = $name ?: self::getName();
-		if ($this->trace_enabled) {
-			$this->trace[] = ['time' => time(), 'function' => $name . ' }', 'memory' => memory_get_usage()];
-		}
-
-		if ($this->output_enabled) {
-			$this->endTime[$name] = $this->getMicroTime();
-			if (!array_key_exists($name, $this->running)) {
-				$this->running[$name] = $this->elapsedTime($name);
-			} else {
-				$this->running[$name] += $this->elapsedTime($name);
-			}
-
-			$this->cur_timer = array_pop($this->stack) ?? '';
-			$this->resumeTimer($this->cur_timer);
-			if (false) {
-				$hash = md5($name);
-				$hash = substr($hash, 0, 6);
-				echo '<span style="background: #' . $hash . '">', $name,
-				' STOP', '</span>', BR;
-			}
-		}
-	}
-
-	/**
-	 * resume  an individual timer
-	 */
-	public function resumeTimer(string $name): void
-	{
-		$this->trace[] = ['time' => time(), 'function' => $name . ' {...', 'memory' => memory_get_usage()];
-		$this->startTime[$name] = $this->getMicroTime();
 	}
 
 	public function getCSS(): string

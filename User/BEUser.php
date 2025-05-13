@@ -40,6 +40,10 @@ class BEUser implements UserModelInterface
 		$_SESSION[__CLASS__]['login'] = $this->getID();
 	}
 
+	public function getID()
+	{
+	}
+
 	public function isAuth(): bool
 	{
 		return isset($_SESSION[__CLASS__]['login']) && ($_SESSION[__CLASS__]['login'] == $this->getID());
@@ -113,13 +117,18 @@ class BEUser implements UserModelInterface
 	{
 	}
 
-	public function getID()
-	{
-	}
-
 	public function getName(): string
 	{
 		return '';
 	}
 
+	public function setSetting($key, $val)
+	{
+		// TODO: Implement setSetting() method.
+	}
+
+	public function getData(): array
+	{
+		return [];
+	}
 }

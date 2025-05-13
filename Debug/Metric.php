@@ -46,11 +46,11 @@ class Metric
 		$p2 = $this->showTotalProgress($props);
 		echo 'Single quality metric: ', $p2, PHP_EOL;
 		if ($last) {
-			echo 'Improvement: ', ($p1 - (float)$p2), '%', PHP_EOL;
+			echo 'Improvement: ', ((float)$p1 - (float)$p2), '%', PHP_EOL;
 		}
 
 //		debug($last['generated'], $attr['generated']);
-		$save = $this->save && ifsetor($last['generated']) != $attr['generated'];
+		$save = $this->save && ifsetor($last['generated']) !== $attr['generated'];
 		if ($save) {
 			file_put_contents(
 				getcwd() . '/metric.log',
@@ -63,7 +63,7 @@ class Metric
 	protected function readAttrFromFile()
 	{
 		$file = getcwd() . '/pdepend-summary.xml';
-		$xml = simplexml_load_file($file);
+		$xml = simplexml_load_string(file_get_contents($file));
 		$attr = (array)($xml->attributes());
 //$attr = (array)($xml->package[0]->class[0]->attributes());
 		$attr = $attr['@attributes'];
@@ -75,7 +75,7 @@ class Metric
      * Computes the proportions between the given metrics.
      *
      * @param array $metrics The aggregated project metrics.
-     * @return array(string => float)
+     * @return array<string, float>
      * @return int[]|float[]
      */
     protected function computeProportions(array $metrics): array
@@ -104,12 +104,12 @@ class Metric
 		$logLines = file(getcwd() . '/metric.log');
 		$last = end($logLines);
 		if ($last) {
-			$last = json_decode($last, true);
+			$last = json_decode($last, true, 512, JSON_THROW_ON_ERROR);
 		}
 
-		if ($last == $combined) {
+		if ($last === $combined) {
 			$last = $logLines[count($logLines) - 2];  // prev last
-			$last = json_decode($last, true);
+			$last = json_decode($last, true, 512, JSON_THROW_ON_ERROR);
 			$this->save = false;
 			echo 'Saving is disabled', PHP_EOL;
 		}
@@ -135,7 +135,7 @@ class Metric
 			}
 
 			$lastTime = null;
-			if (ifsetor($last[$name]) != $value) {
+			if (ifsetor($last[$name]) !== $value) {
 				$lastTime = 'was ' . $last[$name];
 			}
 

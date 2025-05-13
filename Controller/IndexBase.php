@@ -170,7 +170,7 @@ class IndexBase /*extends Controller*/
 		$instance = self::$instance ?: null;
 		if (!$instance && $createNew) {
 			$static = get_called_class();
-			$instance = new $static($config, DCI::getInstance());
+			$instance = new $static($config);
 			self::$instance = $instance;
 		}
 
@@ -179,7 +179,7 @@ class IndexBase /*extends Controller*/
 	}
 
 	/**
-	 * @return AppController
+	 * @return Controller
 	 * @throws Exception
 	 */
 	public function getController()
@@ -261,7 +261,7 @@ class IndexBase /*extends Controller*/
 
 	/**
 	 * @param string $class
-	 * @return AppController
+	 * @return Controller
 	 * @throws ReflectionException
 	 */
 	public function makeController($class)
@@ -285,9 +285,8 @@ class IndexBase /*extends Controller*/
 		return $this->controller;
 	}
 
-	public function render(): string
+	public function render(): array
 	{
-		TaylorProfiler::start(__METHOD__);
 		$content = '';
 		try {
 			// only use session if not run from command line
@@ -307,8 +306,7 @@ class IndexBase /*extends Controller*/
 		}
 
 		$content = $this->renderTemplateIfNotAjax($content);
-		TaylorProfiler::stop(__METHOD__);
-		return $content . $this->s($this->renderProfiler());
+		return [$content , $this->s($this->renderProfiler())];
 	}
 
 	/**
@@ -332,7 +330,7 @@ class IndexBase /*extends Controller*/
 
 		$this->setSecurityHeaders();
 		if (ifsetor($_SESSION['HTTP_USER_AGENT'])) {
-			if ($_SESSION['HTTP_USER_AGENT'] != $_SERVER['HTTP_USER_AGENT']) {
+			if ($_SESSION['HTTP_USER_AGENT'] !== $_SERVER['HTTP_USER_AGENT']) {
 				session_regenerate_id(true);
 				unset($_SESSION['HTTP_USER_AGENT']);
 				throw new AccessDeniedException('Session hijacking detected. Please try again');
@@ -342,7 +340,7 @@ class IndexBase /*extends Controller*/
 		}
 
 		if (ifsetor($_SESSION['REMOTE_ADDR'])) {
-			if ($_SESSION['REMOTE_ADDR'] != $_SERVER['REMOTE_ADDR']) {
+			if ($_SESSION['REMOTE_ADDR'] !== $_SERVER['REMOTE_ADDR']) {
 				session_regenerate_id(true);
 				unset($_SESSION['REMOTE_ADDR']);
 				throw new AccessDeniedException('Session hijacking detected. Please try again.');
@@ -654,7 +652,9 @@ class IndexBase /*extends Controller*/
 	}
 
 	/**
-	 * @return Index|IndexBase
+	 * @param string $source
+	 * @param array $props
+	 * @return static
 	 */
 	public function addJS(string $source, array $props = ['defer' => true]): static
 	{
@@ -680,7 +680,8 @@ class IndexBase /*extends Controller*/
 	}
 
 	/**
-	 * @return Index|IndexBase
+	 * @param string $source
+	 * @return static
 	 */
 	public function addCSS(string $source): static
 	{

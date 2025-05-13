@@ -61,6 +61,11 @@ class NoUser implements UserModelInterface
 		return [$this->getID()];
 	}
 
+	public function getID()
+	{
+		return null;
+	}
+
 	public function getAllSubordinates(): array
 	{
 		return [];
@@ -88,6 +93,11 @@ class NoUser implements UserModelInterface
 	public function getAllPrefs()
 	{
 		return $this->prefs()->getData();
+	}
+
+	public function getData(): array
+	{
+		return [];
 	}
 
 	public function prefs()
@@ -130,11 +140,6 @@ class NoUser implements UserModelInterface
 		return null;
 	}
 
-	public function getID()
-	{
-		return null;
-	}
-
 	public function getName(): string
 	{
 		return 'NoUser';
@@ -154,4 +159,8 @@ class NoUser implements UserModelInterface
 	{
 	}
 
+	public function setSetting($key, $val)
+	{
+		// TODO: Implement setSetting() method.
+	}
 }

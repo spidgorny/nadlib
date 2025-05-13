@@ -33,6 +33,11 @@ trait Grid
 	public $pageSize;
 
 	/**
+	 * @var UserModelInterface
+	 */
+	public $user;
+
+	/**
 	 * @var Collection
 	 */
 	protected $collection;
@@ -55,10 +60,10 @@ trait Grid
 	}
 
 	/**
-     * Only get filter if it's not need to be cleared
-     * @throws LoginException
-     */
-    public function setFilter(string $cn = __CLASS__): void
+	 * Only get filter if it's not need to be cleared
+	 * @throws LoginException
+	 */
+	public function setFilter(string $cn = __CLASS__): void
 	{
 		$this->filter = new Filter();
 //		$action = $this->request->getTrim('action');
@@ -128,9 +133,9 @@ trait Grid
 	public function mergeRequest($subname = null): void
 	{
 		//echo '<div class="error">'.__METHOD__.get_class($this).'</div>';
-        $r = $subname ? $this->request->getSubRequest($subname) : $this->request;
+		$r = $subname ? $this->request->getSubRequest($subname) : $this->request;
 
-        $default = $this->user->getPref(get_class($this) . '.Request');
+		$default = $this->user->getPref(get_class($this) . '.Request');
 		if ($default instanceof Request) {
 			$r->append($default->getAll());
 		}
@@ -155,9 +160,9 @@ trait Grid
 //		$this->log(__METHOD__, $cn);
 		// why do we inject collection
 		// before we have detected the filter (=where)?
-		if (!$this->collection) {
-			//$this->injectCollection();
-		}
+//		if (!$this->collection) {
+		//$this->injectCollection();
+//		}
 
 		$cn = $cn ?: get_class($this->collection);
 		//debug($cn);
@@ -165,7 +170,7 @@ trait Grid
 
 		if ($this->filter && method_exists($this->user, 'setPref')) {
 			//				$this->log(__METHOD__, 'setPref', $this->filter->getArrayCopy());
-            $this->user->setPref('Filter.' . $cn, $this->filter->getArrayCopy());
+			$this->user->setPref('Filter.' . $cn, (array)$this->filter);
 		}
 
 		//debug(spl_object_hash(Index::getInstance()->controller), spl_object_hash($this));
@@ -178,9 +183,11 @@ trait Grid
 		// SORTING
 		$sortRequest = $this->request->getArray('slTable');
 		if (method_exists($this->user, 'getPref')) {
-			$this->sort = $sortRequest
-				?: ($this->user->getPref('Sort.' . $cn) ?: $this->sort
-				);
+			if ($sortRequest) {
+				$this->sort = $sortRequest;
+			} else {
+				$this->sort = ($this->user->getPref('Sort.' . $cn) ?: $this->sort);
+			}
 		}
 	}
 
@@ -234,7 +241,7 @@ trait Grid
 	{
 		$content = [];
 		if ($this->filter) {
-			$f = new HTMLFormTable($this->filter->getArrayCopy());
+			$f = new HTMLFormTable((array)$this->filter);
 			$f->method('GET');
 			$f->defaultBR = true;
 			$this->filter = $f->fill($this->request->getAll());
@@ -262,10 +269,10 @@ trait Grid
 	}
 
 	/**
-     * @param bool $allowEdit
-     * @throws LoginException
-     */
-    public function setColumns(string $cn, $allowEdit): void
+	 * @param bool $allowEdit
+	 * @throws LoginException
+	 */
+	public function setColumns(string $cn, $allowEdit): void
 	{
 //		$this->log(__METHOD__, $cn);
 		// request

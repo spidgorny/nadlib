@@ -3,17 +3,16 @@
 /**
  * Class DIContainer
  * http://fabien.potencier.org/article/17/on-php-5-3-lambda-functions-and-closures
+ * @property Closure|mixed $index
+ * @property Closure|mixed $debug
+ * @property Closure|mixed $config
+ * @property Closure|mixed $autoload
  */
+#[AllowDynamicProperties]
 class DIContainer
 {
 
 	protected $values = [];
-
-	public function __set($id, $value)
-	{
-		//echo __METHOD__, ' ('.$id.')', BR;
-		$this->values[$id] = $value;
-	}
 
 	public function __get($id)
 	{
@@ -36,6 +35,17 @@ class DIContainer
 		return is_callable($v) //&& is_object($v)
 			? $this->values[$id] = $v($this)
 			: $v;
+	}
+
+	public function __set($id, $value)
+	{
+		//echo __METHOD__, ' ('.$id.')', BR;
+		$this->values[$id] = $value;
+	}
+
+	public function __isset(string $name): bool
+	{
+		return (bool)$this->values;
 	}
 
 	/*	function asShared($callable) {

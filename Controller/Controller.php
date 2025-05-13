@@ -121,11 +121,24 @@ abstract class Controller extends SimpleController
 
 	public static function link($text = null, array $params = [])
 	{
-		/** @var Controller $self */
 		$self = static::class;
 		return new HTMLTag('a', [
 			'href' => $self::href($params)
 		], $text ?: $self);
+	}
+
+	public static function href(array $params = [])
+	{
+		return stripNamespace(static::class) . static::buildQuery($params);
+	}
+
+	public static function buildQuery(array $params = [])
+	{
+		if ($params === []) {
+			return '';
+		}
+
+		return '?' . http_build_query($params);
 	}
 
 	public function __call($method, array $arguments)
@@ -243,6 +256,13 @@ abstract class Controller extends SimpleController
 	}
 
 	/**
+	 * Commented to allow get_class_methods() to return false
+	 * @return string
+	 */
+	//function getMenuSuffix() {
+	//	return '';
+	//}
+	/**
 	 * Uses float: left;
 	 * @params array[string]
 	 * @return mixed|string
@@ -271,6 +291,8 @@ abstract class Controller extends SimpleController
 	//function getMenuSuffix() {
 	//	return '';
 	//}
+
+
 	public function inEqualColumnsHTML5(...$elements)
 	{
 		$this->index->addCSS(AutoLoad::getInstance()->nadlibFromDocRoot . 'CSS/display-box.css');
@@ -302,13 +324,6 @@ abstract class Controller extends SimpleController
 		return $content;
 	}
 
-	/**
-	 * Commented to allow get_class_methods() to return false
-	 * @return string
-	 */
-	//function getMenuSuffix() {
-	//	return '';
-	//}
 	/**
 	 * Wraps all elements in <div class="column">|</div>
 	 * Use HTMLTag to do manual wrapping
@@ -401,20 +416,6 @@ abstract class Controller extends SimpleController
 		$mtime = filemtime($file);
 		$file .= '?' . $mtime;
 		return '<script src="' . $file . '" type="text/javascript"></script>';
-	}
-
-	public static function href(array $params = [])
-	{
-		return stripNamespace(static::class) . static::buildQuery($params);
-	}
-
-	public static function buildQuery(array $params = [])
-	{
-		if ($params === []) {
-			return '';
-		}
-
-		return '?' . http_build_query($params);
 	}
 
 	public function log($action, ...$data): void
