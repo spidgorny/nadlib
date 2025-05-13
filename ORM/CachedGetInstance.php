@@ -195,7 +195,7 @@ trait CachedGetInstance
 	/**
 	 * Is cached in instances
 	 * @param string $name
-	 * @param null $field
+	 * @param string|null $field
 	 * @param DBInterface|null $db
 	 * @return ?static
 	 */

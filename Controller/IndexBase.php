@@ -25,7 +25,7 @@ class IndexBase /*extends Controller*/
 	public $content;
 
 	/**
-	 * @var AppController|UserlessController
+	 * @var AppController|UserlessController|Controller
 	 */
 	public $controller;
 
@@ -306,7 +306,7 @@ class IndexBase /*extends Controller*/
 		}
 
 		$content = $this->renderTemplateIfNotAjax($content);
-		return [$content , $this->s($this->renderProfiler())];
+		return [$content, $this->s($this->renderProfiler())];
 	}
 
 	/**
