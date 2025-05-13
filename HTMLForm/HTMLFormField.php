@@ -10,7 +10,7 @@ class HTMLFormField extends HTMLFormType
 	use MagicDataProps;
 	use ArrayAccessData;
 
-	public string $elementID;
+	public $elementID;
 
 	/**
 	 * All different desc parameters for the form element.

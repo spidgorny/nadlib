@@ -88,7 +88,7 @@ trait FieldAccessTrait
 		return get_class($this) . '-' . $this->getID() . '-' . substr(md5($this->hash()), 0, 8);
 	}
 
-	public function getID(): int
+	public function getID(): int|string
 	{
 		return (int)$this->id;
 	}

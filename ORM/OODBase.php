@@ -229,6 +229,7 @@ abstract class OODBase implements ArrayAccess
 			$selectPlus
 		);
 		$row = $this->db->fetchAssoc($res);
+//		llog('findInDB', $row);
 
 		//debug($this->where + $where, $this->db->lastQuery);
 		$this->lastSelectQuery = $this->db->lastQuery;
@@ -910,9 +911,9 @@ abstract class OODBase implements ArrayAccess
 		return get_class($this) . '-' . $this->getID() . '-' . substr(md5($this->hash()), 0, 8);
 	}
 
-	public function getID(): int
+	public function getID(): string
 	{
-		return (int)$this->id;
+		return $this->id;
 	}
 
 	public function hash(): string

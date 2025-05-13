@@ -60,12 +60,10 @@ abstract class Controller extends SimpleController
 	 */
 	public $title;
 
-
 	/**
-	 * @var UserModelInterface|null
+	 * @var SomeKindOfUser|null
 	 */
 	public $user;
-
 
 	/**
 	 * Allows selecting fullScreen layout of the template

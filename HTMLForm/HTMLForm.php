@@ -5,9 +5,9 @@ use Bavix\AdvancedHtmlDom\Str;
 class HTMLForm implements ToStringable
 {
 
-	const METHOD_GET = 'GET';
+	public const METHOD_GET = 'GET';
 
-	const METHOD_POST = 'POST';
+	public const METHOD_POST = 'POST';
 
 	public $stdout = "";
 
@@ -290,7 +290,7 @@ class HTMLForm implements ToStringable
 	public function file($name, array $desc = []): void
 	{
 		//$this->stdout .= "<input type=file ".$this->getName($name)." ".$desc['more'].">";
-		$this->stdout .= $this->getInput("file", $name, '', ifsetor($desc['more'], []), ifsetor($desc['class']));
+		$this->stdout .= $this->getInput("file", $name, '', ifsetor($desc['more'], []), ifsetor($desc['class'], ''));
 		$this->method = 'POST';
 		$this->enctype = "multipart/form-data";
 	}
@@ -300,6 +300,7 @@ class HTMLForm implements ToStringable
 	 *
 	 * @param $name
 	 * @param $value
+	 * @param array $desc
 	 */
 	public function date($name, $value, array $desc = []): void
 	{

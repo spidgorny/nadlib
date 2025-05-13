@@ -30,6 +30,9 @@ class AjaxLogin extends AppControllerBE
 
 	public $encloseTag = 'h3';
 
+	/** @var UserModelInterface */
+	public $user;
+
 	/**
 	 * Used for hashing password.
 	 * Better override.
@@ -49,7 +52,8 @@ class AjaxLogin extends AppControllerBE
 		'saveRegister',
 		'activate',
 		'inlineForm',
-		'logout'];
+		'logout'
+	];
 
 	public function __construct($action = null)
 	{

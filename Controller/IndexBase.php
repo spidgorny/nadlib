@@ -169,7 +169,7 @@ class IndexBase /*extends Controller*/
 		TaylorProfiler::start(__METHOD__);
 		$instance = self::$instance ?: null;
 		if (!$instance && $createNew) {
-			$static = get_called_class();
+			$static = static::class;
 			$instance = new $static($config);
 			self::$instance = $instance;
 		}

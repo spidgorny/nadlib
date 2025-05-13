@@ -125,9 +125,9 @@ class NoUser implements UserModelInterface
 		// do nothing, we failed to login with a session
 	}
 
-	public function getSetting($key)
+	public function getSetting($key, $default = null)
 	{
-		return null;
+		return $default;
 	}
 
 	public function updatePassword($newPassword): void

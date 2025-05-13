@@ -76,9 +76,9 @@ class PlainSessionUser extends UserBase
 		// session_start
 	}
 
-	public function getSetting($key)
+	public function getSetting($key, $default = null)
 	{
-		return null;
+		return $default;
 	}
 
 	public function prefs(): array

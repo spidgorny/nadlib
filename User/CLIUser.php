@@ -53,9 +53,9 @@ class CLIUser implements UserModelInterface
 		// TODO: Implement getAllSettings() method.
 	}
 
-	public function getSetting($key): void
+	public function getSetting($key, $default = null)
 	{
-		// TODO: Implement getSetting() method.
+		return $default;
 	}
 
 	public function getGroup(): void

@@ -1,6 +1,36 @@
 <?php
 
-interface UserModelInterface
+/**
+ * A user not backed by a database.
+ * It may come from HTTP login/password or be anonymous user from CLI.
+ * Should not have any persistence methods. Only getters.
+ */
+interface SomeKindOfUser
+{
+
+	public function isAuth();
+
+	public function isAdmin();
+
+	public function getLogin();
+
+	/**
+	 * @param string $acl
+	 * @return bool
+	 */
+	public function can($acl);
+
+	public function getID();
+
+	public function getData(): array;
+
+	public function getGravatarURL($size = 32);
+
+	public function getName(): string;
+
+}
+
+interface UserModelInterface extends SomeKindOfUser
 {
 
 	/**
@@ -16,37 +46,19 @@ interface UserModelInterface
 	 */
 	/*function saveLogin();*/
 
-	public function isAuth();
-
-	public function isAdmin();
-
-	public function getLogin();
-
 	public function insert(array $data);
 
 	public function getAvatarURL();
 
 	public function prefs();
 
-	/**
-	 * @param string $acl
-	 * @return bool
-	 */
-	public function can($acl);
-
-	public function getID();
-
 	public function getAllSettings();
 
-	public function getSetting($key);
+	public function getSetting($key, $default = null);
 
 	public function setSetting($key, $val);
 
 	public function getGroup();
-
-//	public function getData();
-
-	public function getGravatarURL($size = 32);
 
 	public function updatePassword($newPassword);
 
@@ -54,11 +66,7 @@ interface UserModelInterface
 
 	public function getPref($pref, $default = null);
 
-	public function getName(): string;
-
 	#[\ReturnTypeWillChange]
 	public function getDepartment(): ?Department;
-
-	public function getData(): array;
 
 }

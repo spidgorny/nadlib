@@ -65,9 +65,9 @@ class HTTPUser implements UserModelInterface
 		return null;
 	}
 
-	public function getSetting($key): void
+	public function getSetting($key, $default = null)
 	{
-		// TODO: Implement getSetting() method.
+		return $default;
 	}
 
 	public function updatePassword($newPassword): void
