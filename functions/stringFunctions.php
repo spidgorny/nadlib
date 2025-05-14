@@ -14,7 +14,7 @@ if (!function_exists('str_startsWith')) {
 		}
 
 		foreach ($needle as $need) {
-			if (str_starts_with($haystack, $need)) {
+			if (str_starts_with($haystack ?? '', $need)) {
 				return true;
 			}
 		}

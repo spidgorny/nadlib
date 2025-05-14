@@ -34,20 +34,19 @@ class Linker
 	 * @param string $page
 	 * @param bool $isHTML
 	 */
-	public function makeLink($text, array $params, $page = '', array $more = [], $isHTML = false): \HTMLTag
+	public function makeLink($text, array $params, $page = '', array $more = [], $isHTML = false): HTMLTag
 	{
 		//debug($text, $params, $page, $more, $isHTML);
-		$content = new HTMLTag('a', [
+		return new HTMLTag('a', [
 				'href' => $this->makeURL($params, $page),
 			] + $more, $text, $isHTML);
-		return $content;
 	}
 
 	/**
 	 * @public for View::link
 	 * use getURL() for retrieving current URL
 	 */
-	public function makeURL(array $params, $prefix = null): \spidgorny\nadlib\HTTP\URL
+	public function makeURL(array $params, $prefix = null): URL
 	{
 		if (!$prefix && $this->useRouter) { // default value is = mod_rewrite
 			$class = ifsetor($params['c']);
@@ -94,7 +93,7 @@ class Linker
 		return $url;
 	}
 
-	public function makeAjaxLink($text, array $params, string $div, string $jsPlus = '', $aMore = [], $prefix = ''): \HTMLTag
+	public function makeAjaxLink($text, array $params, string $div, string $jsPlus = '', $aMore = [], $prefix = ''): HTMLTag
 	{
 		$url = $this->makeURL($params, $prefix);
 		return new HTMLTag('a', $aMore + [
@@ -110,7 +109,7 @@ class Linker
 	 * @throws Exception
 	 * @see makeRelURL
 	 */
-	public function adjustURL(array $params): \spidgorny\nadlib\HTTP\URL
+	public function adjustURL(array $params): URL
 	{
 		return URL::getCurrent()->addParams([
 				'c' => $this->controllerName,
@@ -122,7 +121,7 @@ class Linker
 	 * @param string $text
 	 * @param string $page
 	 */
-	public function makeRelLink($text, array $params, $page = '?'): \HTMLTag
+	public function makeRelLink($text, array $params, $page = '?'): HTMLTag
 	{
 		return new HTMLTag('a', [
 			'href' => $this->makeRelURL($params, $page)
@@ -134,7 +133,7 @@ class Linker
 	 * Use this one if your linkVars is defined.
 	 * @param string $page
 	 */
-	public function makeRelURL(array $params = [], $page = null): \spidgorny\nadlib\HTTP\URL
+	public function makeRelURL(array $params = [], $page = null): URL
 	{
 		return $this->makeURL(
 			$params                           // 1st priority
@@ -152,7 +151,7 @@ class Linker
 	 * @param string $formAction
 	 * @param string $submitClass
 	 */
-	public function getActionButton($name, $action, $formAction = null, array $hidden = [], $submitClass = '', array $submitParams = []): \HTMLForm
+	public function getActionButton($name, $action, $formAction = null, array $hidden = [], $submitClass = '', array $submitParams = []): HTMLForm
 	{
 		$f = new HTMLForm();
 		if ($formAction) {
@@ -192,7 +191,7 @@ class Linker
 		return $f;
 	}
 
-	public function linkToAction($action = '', array $params = [], $controller = null): \spidgorny\nadlib\HTTP\URL
+	public function linkToAction($action = '', array $params = [], $controller = null): URL
 	{
 		if (!$controller) {
 			$controller = $this->controllerName;
@@ -210,7 +209,7 @@ class Linker
 		return $this->makeURL($params);
 	}
 
-	public function linkPage($className, array $params = []): \HTMLTag
+	public function linkPage($className, array $params = []): HTMLTag
 	{
 		/** @var AppController $obj */
 		$obj = new $className();
@@ -220,7 +219,7 @@ class Linker
 		return $html->a($href, $title);
 	}
 
-	public function makeActionURL($action = '', array $params = [], $path = ''): \spidgorny\nadlib\HTTP\URL
+	public function makeActionURL($action = '', array $params = [], $path = ''): URL
 	{
 		$urlParams = [
 				'c' => $params['c'] ?? $this->controllerName,
