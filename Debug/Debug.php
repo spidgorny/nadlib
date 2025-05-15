@@ -67,7 +67,7 @@ class Debug
 		return ifsetor($_COOKIE['debug']);
 	}
 
-	public static function getInstance(): \Debug
+	public static function getInstance(): Debug
 	{
 		if (!self::$instance) {
 			$index = class_exists('Index', false) ? Index::getInstance() : null;
@@ -489,22 +489,23 @@ class Debug
 	public function debug($params)
 	{
 		$content = '';
-		if ($this->renderer) {
-			$method = 'debugWith' . $this->renderer;
-			if (method_exists($this, $method)) {
-				$content = $this->$method($params);
-			} elseif (class_exists($this->renderer)) {
-				$dgger = new $this->renderer($this);
-				$content = $dgger->debug($params);
-				echo $content;
-			} else {
-				pre_print_r($params);
-				debug_pre_print_backtrace();
-			}
-		} else {
+		if (!$this->renderer) {
 			// don't show anything to the users who are not DEVELOPMENT
 			//pre_print_r($params);
 			//debug_pre_print_backtrace();
+			return '';
+		}
+
+		$method = 'debugWith' . $this->renderer;
+		if (method_exists($this, $method)) {
+			$content = $this->$method($params);
+		} elseif (class_exists($this->renderer)) {
+			$dgger = new $this->renderer($this);
+			$content = $dgger->debug($params);
+			echo $content;
+		} else {
+			pre_print_r($params);
+			debug_pre_print_backtrace();
 		}
 
 		return $content;

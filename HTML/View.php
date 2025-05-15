@@ -102,7 +102,7 @@ class View extends stdClass implements ToStringable
 
 	/*	Add as many public properties as you like and use them in the PHTML file. */
 
-	public static function bar($percent, array $params = [], $attr = []): \HTMLTag
+	public static function bar($percent, array $params = [], $attr = []): HTMLTag
 	{
 		$percent = round($percent);
 		$src = AutoLoad::getInstance()->nadlibFromDocRoot . 'bar.php?' . http_build_query($params + [
@@ -135,17 +135,17 @@ class View extends stdClass implements ToStringable
 		$lines = trimExplode("\n", '' . $text);
 		foreach ($lines as $line) {
 			if (($line[0] === '*' || $line[0] === '-') && !$inUL) {
-                $lines2[] = '<ul>';
-                $inUL = true;
-            }
+				$lines2[] = '<ul>';
+				$inUL = true;
+			}
 
 			$lines2[] = $inUL
 				? '<li>' . substr($line, 2) . '</li>'
 				: $line;
 			if ($line[0] !== '*' && $line[0] !== '-' && $inUL) {
-                $lines2[] = '</ul>';
-                $inUL = false;
-            }
+				$lines2[] = '</ul>';
+				$inUL = false;
+			}
 		}
 
 		if ($inUL) {
@@ -219,19 +219,19 @@ class View extends stdClass implements ToStringable
 	}
 
 	/**
-     * Uses htmlspecialchars()
-     * @param string $str
-     */
-    public function escape($str): string
+	 * Uses htmlspecialchars()
+	 * @param string $str
+	 */
+	public function escape($str): string
 	{
 		return htmlspecialchars($str, ENT_QUOTES);
 	}
 
 	/**
-     * Use this helper to make URL (makeURL, getURL)
-     * @return URL
-     */
-    public function link(array $params)
+	 * Use this helper to make URL (makeURL, getURL)
+	 * @return URL
+	 */
+	public function link(array $params)
 	{
 		return $this->getController()->makeURL($params);
 	}
@@ -245,7 +245,7 @@ class View extends stdClass implements ToStringable
 		return $this->controller;
 	}
 
-	public function ahref($text, $href): \HTMLTag
+	public function ahref($text, $href): HTMLTag
 	{
 		return new HTMLTag('a', [
 			'href' => $href,
@@ -266,12 +266,15 @@ class View extends stdClass implements ToStringable
 
 	public function __get($var)
 	{
+		if (isset($this->$var)) {
+			return $this->$var;
+		}
 //		llog('$this->caller', get_debug_type($this->caller));
 		if ($this->caller !== null) {
 			return $this->caller->$var;
 		}
 
-		return $this->$var ?? $this->data[$var] ?? null;
+		return $this->data[$var] ?? null;
 	}
 
 	public function __set($var, $val)
@@ -344,8 +347,8 @@ class View extends stdClass implements ToStringable
 	public function _autolink_create_html_tags(&$value, $key, $other = null): void
 	{
 		$target = null;
-        $nofollow = null;
-        if (is_array($other)) {
+		$nofollow = null;
+		if (is_array($other)) {
 			$target = ($other['target'] ? sprintf(' target="%s"', $other[$target]) : null);
 			// see: http://www.google.com/googleblog/2005/01/preventing-comment-spam.html
 			$nofollow = ($other['nofollow'] ? ' rel="nofollow"' : null);
@@ -422,9 +425,9 @@ class View extends stdClass implements ToStringable
 	}
 
 	/**
-     * @param $comment
-     */
-    public function getLinks($comment): array
+	 * @param $comment
+	 */
+	public function getLinks($comment): array
 	{
 		return self::_autolink_find_URLS($comment);
 	}
@@ -523,7 +526,7 @@ class View extends stdClass implements ToStringable
 
 			// Locallang replacement
 			$content = $this->localize($content);
-            $content .= '<!-- View template: ' . $this->file . ' -->' . "\n";
+			$content .= '<!-- View template: ' . $this->file . ' -->' . "\n";
 
 			$this->processed = $content;
 		}
@@ -558,9 +561,9 @@ class View extends stdClass implements ToStringable
 	public function __toString(): string
 	{
 		debug('Do not call View::__toString() as it will prevent you from obtaining a valid backtrace in case of an error.', $this->file, $this->caller ? get_class($this->caller) : null);
-        debug_pre_print_backtrace();
+		debug_pre_print_backtrace();
 
-        //		return $this->render().'';
+		//		return $this->render().'';
 		return get_class($this) . '@' . spl_object_hash($this);
 	}
 

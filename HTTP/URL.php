@@ -3,6 +3,8 @@
 namespace spidgorny\nadlib\HTTP;
 
 use AutoLoad;
+use CurlHandle;
+use Exception;
 use LogEntry;
 use nadlib\Proxy;
 use Path;
@@ -185,7 +187,7 @@ class URL
 	/**
 	 * @static
 	 */
-	public static function getCurrent(): \spidgorny\nadlib\HTTP\URL
+	public static function getCurrent(): URL
 	{
 		return new URL();
 	}
@@ -243,6 +245,7 @@ class URL
 	 * "asd/qwe\zxc/" => ['asd', 'qwe', 'zxc']
 	 * Takes care of Windows path and removes empty
 	 * @param $from
+	 * @return array
 	 */
 	public static function getPathFolders($from): array
 	{
@@ -306,7 +309,7 @@ class URL
 	 */
 	public static function friendlyURL($string, $preserveSpaces = false): string
 	{
-		$string = preg_replace("`\[.*\]`U", "", $string);
+		$string = preg_replace("`\[.*\]`U", "", $string ?? '');
 		$string = preg_replace('`&(amp;)?#?[a-z0-9]+;`i', '-', $string);
 		$string = htmlentities($string, ENT_COMPAT, 'utf-8');
 		$string = preg_replace("`&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig|quot|rsquo);`i", "\\1", $string);
@@ -466,7 +469,7 @@ class URL
 	/**
 	 * http://de2.php.net/manual/en/function.parse-url.php#85963
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function buildURL($parsed = null): string
 	{
@@ -501,7 +504,7 @@ class URL
 	}
 
 	/**
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function __toString(): string
 	{
@@ -558,7 +561,7 @@ class URL
 		return $return;
 	}
 
-	public function getCURL(): \CurlHandle|false
+	public function getCURL(): CurlHandle|false
 	{
 		$process = curl_init($this->__toString());
 		curl_setopt($process, CURLOPT_HTTPHEADER, $this->headers);
@@ -585,7 +588,7 @@ class URL
 		return $process;
 	}
 
-	public function getURLGet(): \URLGet
+	public function getURLGet(): URLGet
 	{
 		return new URLGet($this->__toString());
 	}
