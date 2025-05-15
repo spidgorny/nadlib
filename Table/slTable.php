@@ -335,8 +335,8 @@ class slTable implements ToStringable
 			$aa = strtotime($aa);
 			$bb = strtotime($bb);
 		} elseif ($type === 'int') {
-			$aa = intval(strip_tags($aa));
-			$bb = intval(strip_tags($bb));
+			$aa = (int)strip_tags($aa ?? '');
+			$bb = (int)strip_tags($bb ?? '');
 		} else {
 			// otherwise it's a string
 			$aa = strip_tags($aa);
