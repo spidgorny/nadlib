@@ -245,6 +245,7 @@ class URL
 	 * "asd/qwe\zxc/" => ['asd', 'qwe', 'zxc']
 	 * Takes care of Windows path and removes empty
 	 * @param $from
+	 * @return array
 	 */
 	public static function getPathFolders($from): array
 	{
