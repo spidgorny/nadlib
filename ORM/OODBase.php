@@ -89,7 +89,8 @@ abstract class OODBase implements ArrayAccess
 	 * Constructor should be given the ID of the existing record in DB.
 	 * If you want to use methods without knowing the ID, the call them statically like this Version::insertRecord();
 	 *
-	 * @param int|array|SQLWhere|DBInterface $id - can be ID in the database or the whole records
+	 * @param int|array|SQLWhere $id - can be ID in the database or the whole records
+	 * @param ?DBInterface $db
 	 * as associative array
 	 * @throws Exception
 	 */

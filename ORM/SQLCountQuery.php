@@ -10,7 +10,7 @@ class SQLCountQuery
 
 	protected ?\DBInterface $db;
 
-	public function __construct(CollectionQuery $cq, DBInterface $db = null)
+	public function __construct(CollectionQuery $cq, ?DBInterface $db = null)
 	{
 		$this->cq = $cq;
 		$this->db = $db;
@@ -64,7 +64,7 @@ class SQLCountQuery
 		$countCollection->orderBy = '';
 		$countCollection->orderBy = str_replace('LIMIT 50', '', $countCollection->orderBy);
 		$countCollection->allowMerge = true;
-            // count() can = 0
+		// count() can = 0
 		$firstRow = $this->cq->db->fetchAssoc($countCollection->getQueryWithLimit() . '');
 		first($firstRow);
 	}

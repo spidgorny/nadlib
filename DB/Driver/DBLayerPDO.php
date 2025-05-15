@@ -27,14 +27,14 @@ class DBLayerPDO extends DBLayerBase
 	 * @var string
 	 */
 	public $lastQuery;
-    public $dbName;
+	public $dbName;
 	/**
 	 * @var null|int
 	 */
 	protected $dataSeek;
 	protected $host;
-    protected $user;
-    protected $password;
+	protected $user;
+	protected $password;
 
 	public static function fromParams($dbName = null, $host = null,
 																		$user = null, $password = null,
@@ -52,7 +52,7 @@ class DBLayerPDO extends DBLayerBase
 				$host, $dbName, $port);
 		}
 
-        $instance->queryLog = new QueryLog();
+		$instance->queryLog = new QueryLog();
 
 		//$this->setQB(); // must be injected outside (inf loop)
 		return $instance;
@@ -176,7 +176,7 @@ class DBLayerPDO extends DBLayerBase
 
 		if ($this->lastResult) {
 			$profiler = new Profiler();
-            $ok = $this->lastResult->execute($params);
+			$ok = $this->lastResult->execute($params);
 
 			$this->queryTime += (float)$profiler->elapsed();
 			if (!is_null($this->queryLog)) {
@@ -238,15 +238,15 @@ class DBLayerPDO extends DBLayerBase
 
 	public function isConnected(): bool
 	{
-		return (bool) $this->connection
+		return (bool)$this->connection
 			&& PGSQL_CONNECTION_OK == pg_connection_status($this->connection);
 	}
 
 	/**
-     * @param string $url
-     * @see http://php.net/manual/de/function.parse-url.php#83828
-     */
-    public function parseUrl($url): array
+	 * @param string $url
+	 * @see http://php.net/manual/de/function.parse-url.php#83828
+	 */
+	public function parseUrl($url): array
 	{
 		$r = "^(?:(?P<scheme>\w+)://)?";
 		$r .= "(?:(?P<login>\w+):(?P<pass>\w+)@)?";
@@ -294,7 +294,7 @@ class DBLayerPDO extends DBLayerBase
 	{
 		$res = is_string($stringOrRes) ? $this->perform($stringOrRes) : $stringOrRes;
 
-        $data = $res->fetchAll(PDO::FETCH_ASSOC);
+		$data = $res->fetchAll(PDO::FETCH_ASSOC);
 		//debug($this->lastQuery, $this->result, $data);
 
 		if ($key) {
@@ -343,21 +343,21 @@ class DBLayerPDO extends DBLayerBase
 			$res = $this->perform('db2 list tables for all');
 			$tables = $res->fetchAll();
 		} elseif ($scheme == 'sqlite') {
-            $file = $this->dsn;
-            $file = str_replace('sqlite:', '', $file);
-            $db2 = new DBLayerSQLite($file);
-            $db2->connect();
-            $db2->setQB(new SQLBuilder($db2));
-            // different DB inside
-            $tables = $db2->getTablesEx();
-        } else {
+			$file = $this->dsn;
+			$file = str_replace('sqlite:', '', $file);
+			$db2 = new DBLayerSQLite($file);
+			$db2->connect();
+			$db2->setQB(new SQLBuilder($db2));
+			// different DB inside
+			$tables = $db2->getTablesEx();
+		} else {
 			throw new InvalidArgumentException(__METHOD__);
 		}
 
 		return $tables;
 	}
 
-	public function setQB(SQLBuilder $qb = null): void
+	public function setQB(?SQLBuilder $qb = null): void
 	{
 		parent::setQB($qb);
 	}
@@ -469,9 +469,9 @@ class DBLayerPDO extends DBLayerBase
 	}
 
 	/**
-     * @return mixed[]
-     */
-    public function getInfo(): array
+	 * @return mixed[]
+	 */
+	public function getInfo(): array
 	{
 		$info = [
 			'class' => get_class($this),

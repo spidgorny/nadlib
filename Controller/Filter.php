@@ -6,7 +6,6 @@ namespace nadlib\Controller;
 use ArrayIterator;
 use ArrayObject;
 use Iterator;
-use Traversable;
 
 class Filter extends ArrayObject
 {
@@ -25,7 +24,7 @@ class Filter extends ArrayObject
 		$this->setRequest($input);
 	}
 
-	public function setPreferences(array $_preferences = null): void
+	public function setPreferences(?array $_preferences = null): void
 	{
 		if ($_preferences) {
 			$this->_preferences = $_preferences;
@@ -81,7 +80,7 @@ class Filter extends ArrayObject
 		if (isset($this->_default[$index])) {
 			return $this->_default[$index];
 		}
-        
+
 		return null;
 	}
 

@@ -2,7 +2,6 @@
 
 use League\Flysystem\FileAttributes;
 use League\Flysystem\Filesystem;
-use League\Flysystem\StorageAttributes;
 
 /**
  * @phpstan-consistent-constructor
@@ -37,14 +36,14 @@ class File
 	 * @param $path
 	 * @param string|null $relativeTo
 	 */
-	public function __construct($path, string $relativeTo = null)
+	public function __construct($path, ?string $relativeTo = null)
 	{
 		$this->relativeTo = $relativeTo;
 		$this->dir = dirname($path) === '.' ? '' : dirname($path);
 		$this->name = basename($path);
 	}
 
-	public static function fromLocal($file, string $relativeTo = null): static
+	public static function fromLocal($file, ?string $relativeTo = null): static
 	{
 		if (!file_exists($file) && !is_dir($file)) {
 			throw new RuntimeException('File ' . $file . ' does not exists');

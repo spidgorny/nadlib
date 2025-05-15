@@ -17,7 +17,7 @@ class LocalLangJsonPerController extends LocalLangJson
 	 */
 	public $general;
 
-	public function __construct($langFolder, $controller, LocalLang $general = null)
+	public function __construct($langFolder, $controller, ?LocalLang $general = null)
 	{
 		parent::__construct($langFolder);
 		$this->controller = $controller;

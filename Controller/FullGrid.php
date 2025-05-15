@@ -44,20 +44,19 @@ trait FullGrid
 	 */
 	public function postInit($collectionName = null): void
 	{
-		if (!($this->collection instanceof Collection)) {
-			$this->collection = $this->makeCollection($collectionName);
-			// after construct because we need to modify join
-			$this->collection->where = array_merge(
-				$this->collection->where,
-				$this->getFilterWhere()
-			);
+		$this->initFilter();  // called with wrong $cn in Grid
+		$this->collection = $this->makeCollection($collectionName);
+		// after construct because we need to modify join
+		$this->collection->where = array_merge(
+			$this->collection->where,
+			$this->getFilterWhere()
+		);
 
 //			$this->log(__METHOD__, 'collection Where', $this->collection->where);
 
-			$this->collection->pager = new Pager($this->pageSize?->get());
-			$this->collection->pager->setNumberOfRecords($this->collection->getCount());
-			$this->collection->pager->detectCurrentPage();
-		}
+		$this->collection->pager = new Pager($this->pageSize?->get());
+		$this->collection->pager->setNumberOfRecords($this->collection->getCount());
+		$this->collection->pager->detectCurrentPage();
 
 		// after collection is made, to run getGridColumns
 		$allowEdit = $this->request->getControllerString() === get_class($this);

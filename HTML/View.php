@@ -266,12 +266,13 @@ class View extends stdClass implements ToStringable
 
 	public function __get($var)
 	{
-		if (isset($this->$var)) {
-			return $this->$var;
-		}
 //		llog('$this->caller', get_debug_type($this->caller));
 		if ($this->caller !== null) {
 			return $this->caller->$var;
+		}
+
+		if (isset($this->$var)) {
+			return $this->$var;
 		}
 
 		return $this->data[$var] ?? null;

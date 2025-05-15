@@ -51,7 +51,7 @@ class PersistantOODBase extends OODBase
 			return $this->data[$property];
 		}
 
-        return null;
+		return null;
 	}
 
 	public function __set($property, $value)
@@ -65,7 +65,7 @@ class PersistantOODBase extends OODBase
 		$this->save();
 	}
 
-	public function save(array $where = null): string
+	public function save(?array $where = null): string
 	{
 		if ($this->isChanged()) {
 			0 && debug([
@@ -115,12 +115,12 @@ class PersistantOODBase extends OODBase
 	}
 
 	/**
-     * Update updates state hash so that destruct will not try to update again
-     *
-     * @return resource
-     * @throws Exception
-     */
-    public function update(array $data)
+	 * Update updates state hash so that destruct will not try to update again
+	 *
+	 * @return resource
+	 * @throws Exception
+	 */
+	public function update(array $data)
 	{
 		$ret = parent::update($data);
 		//debug($this->db->lastQuery);
@@ -130,11 +130,11 @@ class PersistantOODBase extends OODBase
 	}
 
 	/**
-     * Insert updates state hash so that destruct will not try to insert again
-     *
-     * @return OODBase
-     */
-    public function insert(array $data)
+	 * Insert updates state hash so that destruct will not try to insert again
+	 *
+	 * @return OODBase
+	 */
+	public function insert(array $data)
 	{
 		$ret = null;
 		nodebug([

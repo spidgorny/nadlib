@@ -23,14 +23,14 @@ class CollectionQuery
 	protected ?\Pager $pager;
 
 	/**
-     * @param $table
-     * @param $join
-     * @param $where SQLWhere|array
-     * @param $orderBy
-     * @param $select
-     * @param Pager|null $pager
-     */
-    public function __construct(DBInterface $db, $table, $join, array $where, $orderBy, $select, Pager $pager = null)
+	 * @param $table
+	 * @param $join
+	 * @param $where SQLWhere|array
+	 * @param $orderBy
+	 * @param $select
+	 * @param Pager|null $pager
+	 */
+	public function __construct(DBInterface $db, $table, $join, array $where, $orderBy, $select, ?Pager $pager = null)
 	{
 		$this->db = $db;
 		$this->table = $table;
@@ -125,30 +125,30 @@ class CollectionQuery
 		// bijou old style - each collection should care about hidden and deleted
 		//$where += $GLOBALS['db']->filterFields($this->filterDeleted, $this->filterHidden, $GLOBALS['db']->getFirstWord($this->table));
 		if ($where instanceof SQLWhere) {
-            $query = $this->db->getSelectQuerySW($this->table . ' ' . $this->join, $where, $this->orderBy, $this->select);
-        } elseif ($this->join) {
-            //debug($where);
-            $query = $this->db->getSelectQuery(
-					$this->table . ' ' . $this->join,
-					$where,
-					$this->orderBy,
-					$this->select
-				);
-        } else {
-				// joins are not implemented yet (IMHO)
-				$query = $this->db->getSelectQuerySW(
-					$this->table,
-					$where instanceof SQLWhere ? $where : new SQLWhere($where),
-					$this->orderBy,
-					$this->select
-				);
-			}
+			$query = $this->db->getSelectQuerySW($this->table . ' ' . $this->join, $where, $this->orderBy, $this->select);
+		} elseif ($this->join) {
+			//debug($where);
+			$query = $this->db->getSelectQuery(
+				$this->table . ' ' . $this->join,
+				$where,
+				$this->orderBy,
+				$this->select
+			);
+		} else {
+			// joins are not implemented yet (IMHO)
+			$query = $this->db->getSelectQuerySW(
+				$this->table,
+				$where instanceof SQLWhere ? $where : new SQLWhere($where),
+				$this->orderBy,
+				$this->select
+			);
+		}
 
-        //			$index = Index::getInstance();
-        //			$controllerCollection = ifsetor($index->controller->collection);
-        //			if ($this == $controllerCollection) {
-        //				header('X-Collection-' . $this->table . ': ' . str_replace(["\r", "\n"], " ", $query));
-        //			}
+		//			$index = Index::getInstance();
+		//			$controllerCollection = ifsetor($index->controller->collection);
+		//			if ($this == $controllerCollection) {
+		//				header('X-Collection-' . $this->table . ': ' . str_replace(["\r", "\n"], " ", $query));
+		//			}
 
 
 		TaylorProfiler::stop($profiler);

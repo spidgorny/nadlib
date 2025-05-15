@@ -128,7 +128,7 @@ class slTable implements ToStringable
 	 */
 	protected $request;
 
-	public function __construct($id = null, $more = '', array $thes = [], Request $request = null)
+	public function __construct($id = null, $more = '', array $thes = [], ?Request $request = null)
 	{
 		if (is_array($id) || is_object($id)) {    // Iterator object
 			$this->data = $id;

@@ -18,7 +18,7 @@ class PGArray extends AsIs
 	 */
 	protected $standard_conforming_strings;
 
-	public function __construct(DBInterface $db, array $data = null)
+	public function __construct(DBInterface $db, ?array $data = null)
 	{
 		$this->db = $db;
 
@@ -49,11 +49,11 @@ class PGArray extends AsIs
 	}
 
 	/**
-     * New better syntax for using it in SQL which does not
-     * require tripple escaping of backslashes
-     * @throws MustBeStringException
-     */
-    public function __toString(): string
+	 * New better syntax for using it in SQL which does not
+	 * require tripple escaping of backslashes
+	 * @throws MustBeStringException
+	 */
+	public function __toString(): string
 	{
 		$quoted = $this->db->quoteValues($this->data);
 		return 'ARRAY[' . implode(', ', $quoted) . ']';
@@ -65,9 +65,9 @@ class PGArray extends AsIs
 	}
 
 	/**
-     * @param string $type "::integer[]"
-     */
-    public function setPGArray(array $data, string $type = ''): \AsIs
+	 * @param string $type "::integer[]"
+	 */
+	public function setPGArray(array $data, string $type = ''): \AsIs
 	{
 		foreach ($data as &$el) {
 			if (is_array($el)) {
@@ -95,11 +95,11 @@ class PGArray extends AsIs
 	}
 
 	/**
-     * http://www.php.net/manual/en/ref.pgsql.php#57709
-     *
-     * @param string $pgArray
-     */
-    public function PGArrayToPHPArray($pgArray): array
+	 * http://www.php.net/manual/en/ref.pgsql.php#57709
+	 *
+	 * @param string $pgArray
+	 */
+	public function PGArrayToPHPArray($pgArray): array
 	{
 		$ret = [];
 		$pgArray = substr($pgArray, 1, -1);
@@ -261,10 +261,10 @@ class PGArray extends AsIs
     				while( $limit > $offset );
     		}
     	*/
-    /**
-     * @return string[]
-     */
-    public function getPGArray1D($input): array
+	/**
+	 * @return string[]
+	 */
+	public function getPGArray1D($input): array
 	{
 		$pgArray = substr(substr(trim($input), 1), 0, -1);
 		$v1 = explode(',', $pgArray);
@@ -350,12 +350,12 @@ class PGArray extends AsIs
 	}
 
 	/**
-     * https://stackoverflow.com/questions/3068683/convert-postgresql-array-to-php-array
-     * @param $s
-     * @param int $start
-     * @return array|null
-     */
-    public function pg_array_parse($s, $start = 0, &$end = null)
+	 * https://stackoverflow.com/questions/3068683/convert-postgresql-array-to-php-array
+	 * @param $s
+	 * @param int $start
+	 * @return array|null
+	 */
+	public function pg_array_parse($s, $start = 0, &$end = null)
 	{
 		if (empty($s) || $s[0] != '{') {
 			return null;
@@ -397,9 +397,9 @@ class PGArray extends AsIs
 	}
 
 	/**
-     * @return mixed[]
-     */
-    public function getPGArrayFromJSON($s): array
+	 * @return mixed[]
+	 */
+	public function getPGArrayFromJSON($s): array
 	{
 		$result = [];
 		$collect = false;
