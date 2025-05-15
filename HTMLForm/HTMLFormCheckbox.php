@@ -24,9 +24,9 @@ class HTMLFormCheckbox extends HTMLFormField
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= "<input type=checkbox ".$this->getName($name)." ".($checked?"checked":"")." value=\"$value\" $more>";
 		$more = $this->desc['more'];
-		if (ifsetor($this->desc['elementID'])) {
-			//$more['id'] = $this->desc['elementID'];
-		}
+//		if (ifsetor($this->desc['elementID'])) {
+		//$more['id'] = $this->desc['elementID'];
+//		}
 
 		//debug($this->field, $this->value, $this->desc);
 //		llog($this->desc);

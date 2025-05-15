@@ -1,7 +1,5 @@
 <?php
 
-use Bavix\AdvancedHtmlDom\Str;
-
 class HTMLForm implements ToStringable
 {
 
@@ -700,7 +698,7 @@ class HTMLForm implements ToStringable
 		$this->stdout .= $this->hsc($label) . "</label>";
 	}
 
-	public function hsc($label): \HtmlString|string
+	public function hsc($label): HtmlString|string
 	{
 		if ($label instanceof HtmlString) {
 			return $label;
