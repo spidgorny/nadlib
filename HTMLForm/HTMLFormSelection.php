@@ -28,7 +28,7 @@ class HTMLFormSelection extends HTMLFormField
 	 */
 	public $desc = [];
 
-	public function __construct($fieldName, array $options = NULL, $selected = NULL)
+	public function __construct($fieldName, ?array $options = NULL, $selected = NULL)
 	{
 		parent::__construct([], $fieldName);
 		$this->setField($fieldName);
@@ -87,13 +87,13 @@ class HTMLFormSelection extends HTMLFormField
 	}
 
 	/**
-     * @param $default  array|mixed
-     * @param array $desc
-     *    boolean '===' - compare value and default strictly (BUG: integer looking string keys will be treated as integer)
-     *    string 'classAsValuePrefix' - will prefix value with the value of this param with space replaced with _
-     *      boolean 'useTitle'
-     */
-    public function getSelectionOptions(array $aOptions, $default, array $desc = []): string
+	 * @param $default  array|mixed
+	 * @param array $desc
+	 *    boolean '===' - compare value and default strictly (BUG: integer looking string keys will be treated as integer)
+	 *    string 'classAsValuePrefix' - will prefix value with the value of this param with space replaced with _
+	 *      boolean 'useTitle'
+	 */
+	public function getSelectionOptions(array $aOptions, $default, array $desc = []): string
 	{
 		$content = '';
 		//Debug::debug_args($aOptions);
@@ -148,12 +148,12 @@ class HTMLFormSelection extends HTMLFormField
 	}
 
 	/**
-     * Retrieves data from DB
-     * Provide either 'options' assoc array
-     * OR a DB 'table', 'title' column, 'idField' column 'where' and 'order'
-     * @return array
-     */
-    public function fetchSelectionOptions(array $desc)
+	 * Retrieves data from DB
+	 * Provide either 'options' assoc array
+	 * OR a DB 'table', 'title' column, 'idField' column 'where' and 'order'
+	 * @return array
+	 */
+	public function fetchSelectionOptions(array $desc)
 	{
 		if (ifsetor($desc['from']) && $desc['title']) {
 			/** @var DBLayerBase $db */

@@ -505,7 +505,7 @@ class HTMLFormTable extends HTMLForm
 	 * @return array    1D array with name/values
 	 * @deprecated
 	 */
-	public function getValues(array $arr = null, $col = 'value'): array
+	public function getValues(?array $arr = null, $col = 'value'): array
 	{
 		$arr = $arr ?: $this->desc;
 		$res = [];
@@ -568,7 +568,7 @@ class HTMLFormTable extends HTMLForm
 	 * @param bool $forceInsert
 	 * @return    array    HTMLFormTable structure.
 	 */
-	protected function fillValues(array $desc, array $assoc = null, $forceInsert = false): array
+	protected function fillValues(array $desc, ?array $assoc = null, $forceInsert = false): array
 	{
 		foreach ($assoc as $key => $val) {
 			//$descKey = ifsetor($desc[$key]);		// CREATES $key => NULL INDEXES

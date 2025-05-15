@@ -201,7 +201,7 @@ class AjaxLogin extends AppControllerBE
 		</div>';
 	}
 
-	public function formAction(array $desc = null)
+	public function formAction(?array $desc = null)
 	{
 		$f = $this->getLoginForm($desc);
 		return $this->encloseInAA($f, __('Login'));
@@ -211,7 +211,7 @@ class AjaxLogin extends AppControllerBE
 	 * Full screen - not for navbar
 	 * @param array|NULL $desc
 	 */
-	public function getLoginForm(array $desc = null): \HTMLFormTable
+	public function getLoginForm(?array $desc = null): \HTMLFormTable
 	{
 		$f = new HTMLFormTable();
 		$f->action('');     // specify action otherwise will logout
@@ -251,7 +251,7 @@ class AjaxLogin extends AppControllerBE
 		]];
 	}
 
-	public function registerAction(array $desc = null)
+	public function registerAction(?array $desc = null)
 	{
 		$f = new HTMLFormTable();
 		$f->formMore['onsubmit'] = "jQuery(this).ajaxSubmit({
@@ -431,7 +431,7 @@ class AjaxLogin extends AppControllerBE
 		return $desc;
 	}
 
-	public function profileAction(array $desc = null): \HTMLFormTable
+	public function profileAction(?array $desc = null): \HTMLFormTable
 	{
 		$f = new HTMLFormTable();
 		$f->formMore['onsubmit'] = "jQuery(this).ajaxSubmit({
@@ -495,7 +495,7 @@ class AjaxLogin extends AppControllerBE
 		// todo
 	}
 
-	public function passwordAction(array $desc = null): \HTMLFormTable
+	public function passwordAction(?array $desc = null): \HTMLFormTable
 	{
 		$f = new HTMLFormTable();
 		$f->formMore['onsubmit'] = "jQuery(this).ajaxSubmit({

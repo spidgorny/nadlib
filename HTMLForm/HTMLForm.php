@@ -123,7 +123,7 @@ class HTMLForm implements ToStringable
 	 * Converts an assoc array into valid HTML name="value" string
 	 *
 	 */
-	public static function getAttrHTML(array $attr = null): string
+	public static function getAttrHTML(?array $attr = null): string
 	{
 		if ($attr) {
 			return HTMLTag::renderAttr($attr);
@@ -558,7 +558,7 @@ class HTMLForm implements ToStringable
 	 */
 	public function selection(
 		$name,
-		array $aOptions = null,  // should allow null in case we load options from db
+		?array $aOptions = null,  // should allow null in case we load options from db
 		$default = null,
 		$autoSubmit = false,
 		array $more = [],

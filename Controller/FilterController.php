@@ -57,12 +57,12 @@ class FilterController extends Controller
 	}
 
 	/**
-     * Make sure you fill the 'value' fields with data from $this->filter manually.
-     * Why manually? I don't know, it could change.
-     *
-     * @throws Exception
-     */
-    public function getFilterDesc(array $fields = null): array
+	 * Make sure you fill the 'value' fields with data from $this->filter manually.
+	 * Why manually? I don't know, it could change.
+	 *
+	 * @throws Exception
+	 */
+	public function getFilterDesc(?array $fields = null): array
 	{
 //		if (is_callable($this->injectFilterDesc)) {
 //			return call_user_func($this->injectFilterDesc);
@@ -89,10 +89,10 @@ class FilterController extends Controller
 	}
 
 	/**
-     * @param string $key
-     * @return array
-     */
-    public function getFieldFilter(array $k, $key)
+	 * @param string $key
+	 * @return array
+	 */
+	public function getFieldFilter(array $k, $key)
 	{
 		$autoClass = ucfirst(str_replace('id_', '', $key)) . 'Collection';
 		if (class_exists($autoClass) &&
@@ -166,9 +166,9 @@ class FilterController extends Controller
 	}
 
 	/**
-     * Converts $this->filter data from URL into SQL where parameters
-     */
-    public function getFilterWhere(): array
+	 * Converts $this->filter data from URL into SQL where parameters
+	 */
+	public function getFilterWhere(): array
 	{
 		$where = [];
 

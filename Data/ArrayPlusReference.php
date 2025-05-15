@@ -1,7 +1,5 @@
 <?php
 
-$tmp = error_reporting(error_reporting() ^ E_STRICT);
-
 /**
  * Class ArrayPlusReference
  * @mixin ArrayPlus
@@ -25,8 +23,6 @@ class ArrayPlusReference /*extends ArrayPlus */
 	}
 
 }
-
-error_reporting($tmp);
 
 function APR(array &$a = []): \ArrayPlusReference
 {

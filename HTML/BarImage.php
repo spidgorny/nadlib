@@ -22,9 +22,9 @@ class BarImage
 	public $symmetric = false;
 
 	/**
-     * @var bool
-     */
-    public $withBorder = true;
+	 * @var bool
+	 */
+	public $withBorder = true;
 
 	public function __construct()
 	{
@@ -32,7 +32,7 @@ class BarImage
 		$this->height = $_GET['height'] ?? 15;
 		$color = $_GET['color'] ?? null;
 		$this->color = $color ? $this->html2rgb($color) : [0x43, 0xB6, 0xDF];
-         #43B6DF
+		#43B6DF
 		$bg = $_GET['bg'] ?? null;
 		$this->backColor = $bg ? $this->html2rgb($bg) : [0xFF, 0xFF, 0xFF];
 		$this->symmetric = ifsetor($_REQUEST['symmetric']);
@@ -46,14 +46,14 @@ class BarImage
 		}
 
 		if (strlen($color) === 6) {
-            list($r, $g, $b) = [$color[0] . $color[1],
+			list($r, $g, $b) = [$color[0] . $color[1],
 				$color[2] . $color[3],
 				$color[4] . $color[5]];
-        } elseif (strlen($color) === 3) {
-            list($r, $g, $b) = [$color[0] . $color[0], $color[1] . $color[1], $color[2] . $color[2]];
-        } else {
-            return false;
-        }
+		} elseif (strlen($color) === 3) {
+			list($r, $g, $b) = [$color[0] . $color[0], $color[1] . $color[1], $color[2] . $color[2]];
+		} else {
+			return false;
+		}
 
 		$r = hexdec($r);
 		$g = hexdec($g);
@@ -64,12 +64,14 @@ class BarImage
 
 	public function setHeaders(): void
 	{
-		error_reporting(E_ALL);
-		//ini_set('display_errors', false);
-		header("Content-Type: image/png");
-		header("Pragma: public");
-		header("Cache-Control: maxage=" . $this->expires);
-		header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $this->expires) . ' GMT');
+		if (!headers_sent()) {
+			error_reporting(E_ALL);
+			//ini_set('display_errors', false);
+			header("Content-Type: image/png");
+			header("Pragma: public");
+			header("Cache-Control: maxage=" . $this->expires);
+			header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $this->expires) . ' GMT');
+		}
 	}
 
 	public function drawRating($rating): void

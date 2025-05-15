@@ -169,7 +169,7 @@ trait FullGrid
 	 * @return array
 	 * @throws Exception
 	 */
-	public function getFilterDesc(array $fields = null)
+	public function getFilterDesc(?array $fields = null)
 	{
 		return $this->filterController->getFilterDesc($fields);
 	}

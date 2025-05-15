@@ -74,7 +74,7 @@ class Menu /*extends Controller*/
 	public $useDropDown = true;
 	protected ?\UserModelInterface $user;
 
-	public function __construct(array $items, $level = null, UserModelInterface $user = null)
+	public function __construct(array $items, $level = null, ?UserModelInterface $user = null)
 	{
 		//parent::__construct();
 		$this->items = new ArrayPlus($items);
