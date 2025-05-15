@@ -30,11 +30,11 @@ class SQLBuilder
 {
 
 	/**
-     * @var string
-     */
-    public $lastQuery;
+	 * @var string
+	 */
+	public $lastQuery;
 
-    /**
+	/**
 	 * Update/Insert is storing the found row for debugging
 	 * @var mixed
 	 */
@@ -62,12 +62,12 @@ class SQLBuilder
 	}
 
 	/**
-     * 2010/09/12: modified according to mantis request 0001812    - 4th argument added
-     * @param $array
-     * @param $field
-     * @param string $conditioner
-     */
-    public static function array_intersect($array, string $field, string $joiner = 'OR', $conditioner = 'ANY'): string
+	 * 2010/09/12: modified according to mantis request 0001812    - 4th argument added
+	 * @param $array
+	 * @param $field
+	 * @param string $conditioner
+	 */
+	public static function array_intersect($array, string $field, string $joiner = 'OR', $conditioner = 'ANY'): string
 	{
 		//$res[] = "(string_to_array('".implode(',', $value)."', ',')) <@ (string_to_array(bug.".$field.", ','))";
 		// why didn't it work and is commented?
@@ -93,12 +93,12 @@ class SQLBuilder
 	}
 
 	/**
-     * @param $table
-     * @param string $addSelect
-     * @throws Exception
-     * @throws MustBeStringException
-     */
-    public function getSelectQueryString($table, array $where = [], string $order = "", $addSelect = ''): string
+	 * @param $table
+	 * @param string $addSelect
+	 * @throws Exception
+	 * @throws MustBeStringException
+	 */
+	public function getSelectQueryString($table, array $where = [], string $order = "", $addSelect = ''): string
 	{
 		$table1 = $this->getFirstWord($table);
 		if ($table == $table1) {
@@ -133,13 +133,13 @@ class SQLBuilder
 	}
 
 	/**
-     * Quotes the values as quoteValues does, but also puts the key out and the correct comparison.
-     * In other words, it takes care of col = 'NULL' situation and makes it 'col IS NULL'
-     *
-     * @throws MustBeStringException
-     * @throws Exception
-     */
-    public function quoteWhere(array $where): array
+	 * Quotes the values as quoteValues does, but also puts the key out and the correct comparison.
+	 * In other words, it takes care of col = 'NULL' situation and makes it 'col IS NULL'
+	 *
+	 * @throws MustBeStringException
+	 * @throws Exception
+	 */
+	public function quoteWhere(array $where): array
 	{
 		$set = [];
 		foreach ($where as $key => $val) {
@@ -167,17 +167,17 @@ class SQLBuilder
 		return $this->db->perform($query);
 	}
 
-	public function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = ''): \SQLSelectQuery
+	public function getSelectQuerySW($table, SQLWhere $where, $order = "", $addSelect = ''): SQLSelectQuery
 	{
 		$table1 = $this->getFirstWord($table);
 		$select = $addSelect ?: $this->quoteKey($table1) . ".*";
 		return $this->getSelectQuery($table, $where, $order, $select);
 	}
 
-	public function getSelectQuery($table, $where = [], $orderAndLimit = '', $addSelect = ''): \SQLSelectQuery
+	public function getSelectQuery($table, $where = [], $orderAndLimit = '', $addSelect = ''): SQLSelectQuery
 	{
 		$sqlWhere = $where instanceof SQLWhere ? $where : new SQLWhere($where);
-		if (strpos($orderAndLimit, 'LIMIT') > 0) {  // ORDER BY xxx LIMIT yyy
+		if (strpos($orderAndLimit ?? '', 'LIMIT') > 0) {  // ORDER BY xxx LIMIT yyy
 			[$order, $limit] = explode('LIMIT', $orderAndLimit);
 			$limit = 'LIMIT ' . $limit;  // fix after split
 		} elseif (str_startsWith($orderAndLimit, 'ORDER')) {
@@ -212,14 +212,14 @@ class SQLBuilder
 	}
 
 	/**
-     * Will search for $where and then either
-     * - update $fields + $where or
-     * - insert $fields + $where + $insert
-     * @param $table
-     * @return bool|int
-     * @throws MustBeStringException
-     */
-    public function runInsertUpdateQuery($table, array $fields, array $where, array $insert = [])
+	 * Will search for $where and then either
+	 * - update $fields + $where or
+	 * - insert $fields + $where + $insert
+	 * @param $table
+	 * @return bool|int
+	 * @throws MustBeStringException
+	 */
+	public function runInsertUpdateQuery($table, array $fields, array $where, array $insert = [])
 	{
 		TaylorProfiler::start(__METHOD__);
 		$this->db->transaction();
@@ -251,11 +251,11 @@ class SQLBuilder
 	}
 
 	/**
-     * @param string $table
-     * @param array $columns
-     * @throws MustBeStringException
-     */
-    public function getUpdateQuery($table, $columns, array $where, string $orderBy = ''): string
+	 * @param string $table
+	 * @param array $columns
+	 * @throws MustBeStringException
+	 */
+	public function getUpdateQuery($table, $columns, array $where, string $orderBy = ''): string
 	{
 		//$columns['mtime'] = date('Y-m-d H:i:s');
 		$table = $this->quoteKey($table);
@@ -379,20 +379,20 @@ class SQLBuilder
 	}
 
 	/**
-     * http://stackoverflow.com/a/4964120
-     * @param $number
-     */
-    public function isExp($number): bool
+	 * http://stackoverflow.com/a/4964120
+	 * @param $number
+	 */
+	public function isExp($number): bool
 	{
 		return is_numeric($number) && $number != number_format($number, 0, '', '');
 	}
 
 	/**
-     * @param string $table Table name
-     * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
-     * @throws MustBeStringException
-     */
-    public function getInsertQuery($table, array $columns, array $where = []): string
+	 * @param string $table Table name
+	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
+	 * @throws MustBeStringException
+	 */
+	public function getInsertQuery($table, array $columns, array $where = []): string
 	{
 		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
 		$values = implode(", ", $this->quoteValues(array_values($columns)));
@@ -409,11 +409,11 @@ class SQLBuilder
 	}
 
 	/**
-     * Quotes the complete array if necessary.
-     *
-     * @throws MustBeStringException
-     */
-    public function quoteValues(array $a): array
+	 * Quotes the complete array if necessary.
+	 *
+	 * @throws MustBeStringException
+	 */
+	public function quoteValues(array $a): array
 	{
 		//		debug(__METHOD__, $a);
 		$c = [];
@@ -425,13 +425,13 @@ class SQLBuilder
 	}
 
 	/**
-     * Inserts only if not yet found.
-     *
-     * @param $table
-     * @return resource
-     * @throws Exception
-     */
-    public function runInsertNew($table, array $fields, array $insert = [])
+	 * Inserts only if not yet found.
+	 *
+	 * @param $table
+	 * @return resource
+	 * @throws Exception
+	 */
+	public function runInsertNew($table, array $fields, array $insert = [])
 	{
 		TaylorProfiler::start(__METHOD__);
 		$resInsert = null;
@@ -460,15 +460,15 @@ class SQLBuilder
 	}
 
 	/**
-     * Return ALL rows
-     * This used to retrieve a single row !!!
-     * @param string $table
-     * @param array $where
-     * @param string $order
-     * @param string $addFields
-     * @param string $idField - will return data as assoc indexed by this column
-     */
-    public function fetchSelectQuery($table, $where = [], $order = '', $addFields = '', $idField = null): array
+	 * Return ALL rows
+	 * This used to retrieve a single row !!!
+	 * @param string $table
+	 * @param array $where
+	 * @param string $order
+	 * @param string $addFields
+	 * @param string $idField - will return data as assoc indexed by this column
+	 */
+	public function fetchSelectQuery($table, $where = [], $order = '', $addFields = '', $idField = null): array
 	{
 		// commented to allow working with multiple MySQL objects (SQLBuilder instance contains only one)
 		//$res = $this->runSelectQuery($table, $where, $order, $addFields);
@@ -481,10 +481,10 @@ class SQLBuilder
 	}
 
 	/**
-     * @param resource|string $res
-     * @param string $key can be set to NULL to avoid assoc array
-     */
-    public function fetchAll($res, $key = null): array
+	 * @param resource|string $res
+	 * @param string $key can be set to NULL to avoid assoc array
+	 */
+	public function fetchAll($res, $key = null): array
 	{
 		TaylorProfiler::start(__METHOD__);
 		if (is_string($res) || $res instanceof SQLSelectQuery) {
@@ -518,10 +518,10 @@ class SQLBuilder
 	}
 
 	/**
-     * Originates from BBMM
-     * @param string $sword
-     */
-    public function getSearchWhere($sword, array $fields): array
+	 * Originates from BBMM
+	 * @param string $sword
+	 */
+	public function getSearchWhere($sword, array $fields): array
 	{
 		$where = [];
 		$words = $this->getSplitWords($sword);
@@ -539,9 +539,9 @@ class SQLBuilder
 	}
 
 	/**
-     * @return mixed[]
-     */
-    public function getSplitWords($sword): array
+	 * @return mixed[]
+	 */
+	public function getSplitWords($sword): array
 	{
 		$sword = trim($sword);
 		$words = explode(' ', $sword);
@@ -554,9 +554,9 @@ class SQLBuilder
 	}
 
 	/**
-     * @return string[]
-     */
-    public function combineSplitTags($words): array
+	 * @return string[]
+	 */
+	public function combineSplitTags($words): array
 	{
 		$new = [];
 		$i = 0;
@@ -590,12 +590,12 @@ class SQLBuilder
 	}
 
 	/**
-     * @param string $table
-     * @param string $what [LOW_PRIORITY] [QUICK] [IGNORE]
-     * @throws MustBeStringException
-     * @throws Exception
-     */
-    public function getDeleteQuery($table, array $where = [], string $what = ''): string
+	 * @param string $table
+	 * @param string $what [LOW_PRIORITY] [QUICK] [IGNORE]
+	 * @throws MustBeStringException
+	 * @throws Exception
+	 */
+	public function getDeleteQuery($table, array $where = [], string $what = ''): string
 	{
 		$q = "DELETE " . $what . " FROM " . $this->db->quoteKey($table) . " ";
 		$set = $this->quoteWhere($where);
@@ -619,9 +619,9 @@ class SQLBuilder
 	}
 
 	/**
-     * @return mixed[]
-     */
-    public function getTableOptions(string $table, $titleField, $where = [], $order = null, string $idField = 'id', $prefix = null, ?string $addFields = ''): array
+	 * @return mixed[]
+	 */
+	public function getTableOptions(string $table, $titleField, $where = [], $order = null, string $idField = 'id', $prefix = null, ?string $addFields = ''): array
 	{
 		$prefix = $prefix ?: $table . '.';
 
@@ -649,8 +649,8 @@ class SQLBuilder
 		$values = array_map(static function (array $arr) {
 			return $arr["title"];
 		}, $data);
-        //d($keys, $values);
-        $options = $keys && $values ? array_combine($keys, $values) : [];
+		//d($keys, $values);
+		$options = $keys && $values ? array_combine($keys, $values) : [];
 
 		//debug($this->db->lastQuery, @$this->db->numRows($res), $titleField, $idField, $data, $options);
 		//		$options = AP($data)->column_assoc($idField, $titleField)->getData();
@@ -745,13 +745,13 @@ class SQLBuilder
 	}
 
 	/**
-     * @param string $table
-     * @param string $order
-     * @param string $selectPlus
-     * @param $key
-     * @return array[]
-     */
-    public function fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
+	 * @param string $table
+	 * @param string $order
+	 * @param string $selectPlus
+	 * @param $key
+	 * @return array[]
+	 */
+	public function fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
 	{
 		$res = $this->runSelectQuery($table, $where, $order, $selectPlus);
 		return $this->db->fetchAll($res, $key);
@@ -764,13 +764,13 @@ class SQLBuilder
 	}
 
 	/**
-     * The query is supposed to return two columns only
-     * @param $query
-     */
-    public function fetchOptions($query): array
+	 * The query is supposed to return two columns only
+	 * @param $query
+	 */
+	public function fetchOptions($query): array
 	{
 		$data = [];
-        $result = is_string($query) || $query instanceof SQLSelectQuery ? $this->perform($query) : $query;
+		$result = is_string($query) || $query instanceof SQLSelectQuery ? $this->perform($query) : $query;
 
 		$row = $this->fetchAssoc($result);
 		while ($row != false && $row != null) {
