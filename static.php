@@ -11,7 +11,7 @@ if (!defined('TAB')) {
 }
 
 if (!defined('DEVELOPMENT')) {
-	define('DEVELOPMENT', true);
+	define('DEVELOPMENT', (bool)getenv('DEVELOPMENT'));
 }
 
 if (!defined("LOG")) {
