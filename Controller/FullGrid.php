@@ -97,7 +97,7 @@ trait FullGrid
 			$sortBy = $this->model->thes[$sortBy]['source'];
 		}
 
-		if ($this->collection && $this->collection instanceof Collection && $this->collection->thes) {
+		if ($this->collection instanceof Collection && $this->collection->thes) {
 			$desc = ifsetor($this->collection->thes[$sortBy]);
 			//debug(array_keys($this->collection->thes), $desc);
 			if (is_array($desc) &&
