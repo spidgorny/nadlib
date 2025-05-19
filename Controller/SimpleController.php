@@ -93,11 +93,11 @@ abstract class SimpleController
 	}
 
 	/**
-     * Combines params with $this->linkVars
-     * Use makeURL() for old functionality
-     * @return URL
-     */
-    public function getURL(array $params = [], $prefix = null)
+	 * Combines params with $this->linkVars
+	 * Use makeURL() for old functionality
+	 * @return URL
+	 */
+	public function getURL(array $params = [], $prefix = null)
 	{
 		if ($params || $prefix) {
 			throw new InvalidArgumentException('Use makeURL() instead of ' . __METHOD__);
@@ -132,7 +132,7 @@ abstract class SimpleController
 	/**
 	 * This function prevents performAction() from doing nothing
 	 * if there is a __CLASS__.phtml file in the same folder
-	 * @return MarkdownView|string|View|string[]|null
+	 * @return MarkdownView|string|View|string[]|null|list<mixed>
 	 */
 	public function indexAction()
 	{
@@ -245,15 +245,15 @@ abstract class SimpleController
 	}
 
 	/**
-     * Wraps the content in a div/section with a header.
-     * The header is linkable.
-     * @param string|array|ToStringable $content
-     * @param string $caption
-     * @param string $h
-     * @return ToStringable
-     * @throws Exception
-     */
-    public function encloseInAA($content, $caption = '', $h = null, array $more = [])
+	 * Wraps the content in a div/section with a header.
+	 * The header is linkable.
+	 * @param string|array|ToStringable $content
+	 * @param string $caption
+	 * @param string $h
+	 * @return ToStringable
+	 * @throws Exception
+	 */
+	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
 	{
 		$h = $h ?: $this->encloseTag;
 		$content = $this->s($content);

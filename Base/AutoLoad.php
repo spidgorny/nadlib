@@ -120,7 +120,7 @@ class AutoLoad
 			return $instance;
 		}
 
-        return null;
+		return null;
 	}
 
 	public static function getInstance(): \AutoLoad
@@ -280,11 +280,11 @@ class AutoLoad
 			}
 
 			if (ifsetor($_SERVER['argc']) && in_array('-al', (array)ifsetor($_SERVER['argv']))) {
-                echo 'AutoLoad, debug mode', BR;
-                $this->debug = true;
-                $this->folders->debug = true;
-                //					$this->folders->collectDebug = array();
-            }
+				echo 'AutoLoad, debug mode', BR;
+				$this->debug = true;
+				$this->folders->debug = true;
+				//					$this->folders->collectDebug = array();
+			}
 		}
 	}
 
@@ -313,11 +313,11 @@ class AutoLoad
 	}
 
 	/**
-     * Main __autoload() function
-     * @param string $class
-     * @throws Exception
-     */
-    public function load($class): bool
+	 * Main __autoload() function
+	 * @param string $class
+	 * @throws Exception
+	 */
+	public function load($class): bool
 	{
 		$this->count++;
 
@@ -374,7 +374,7 @@ class AutoLoad
 			$ns = $subFolders ?:
 				(count($namespaces) > 1
 					? first($namespaces)
-					: null);
+					: '');
 //			$this->folders->collectDebug = array();
 
 			$file = $this->folders->findInFolders($classFile, $ns);
@@ -451,9 +451,9 @@ class AutoLoad
 	public function dumpCSS(): void
 	{
 		static $once = 0;
-        if (Request::isCLI()) {
-            return;
-        }
+		if (Request::isCLI()) {
+			return;
+		}
 
 		echo '<style>
 			.debug.error {

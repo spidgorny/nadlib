@@ -103,8 +103,7 @@ trait Grid
 	{
 		$sizeFromPreferences = $this->user->getSetting(get_class($this) . '.pageSize');
 //		$this->log(__METHOD__, 'sizeFromPreferences', $sizeFromPreferences);
-		$this->pageSize = $this->pageSize
-			?: new PageSize($sizeFromPreferences);
+		$this->pageSize = $this->pageSize ?: new PageSize($sizeFromPreferences);
 		$this->user->setSetting(get_class($this) . '.pageSize', $this->pageSize->get());
 	}
 

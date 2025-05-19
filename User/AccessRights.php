@@ -3,7 +3,7 @@
 /**
  * Class AccessRights represents all the rights of a specific group
  */
-class AccessRights implements AccessRightsInterface
+class AccessRights extends OODBase implements AccessRightsInterface
 {
 	public $groupID;
 	/**
@@ -43,7 +43,7 @@ class AccessRights implements AccessRightsInterface
 		$this->init($this->groupID);
 	}
 
-	public function init(int $idGroup): void
+	public function init($idGroup): void
 	{
 		$res = $this->db->runSelectQuery(
 			$this->accessTable . ' /**/
@@ -61,7 +61,7 @@ class AccessRights implements AccessRightsInterface
 		$data = new ArrayPlus($data);
 		$data = $data->column_assoc('name', 'affirmative')->getData();
 		foreach ($data as &$affirmative) {
-			$affirmative = (bool) $affirmative;
+			$affirmative = (bool)$affirmative;
 		}
 
 		$this->arCache = $data;
