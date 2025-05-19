@@ -48,8 +48,9 @@ class HTMLForm implements ToStringable
 		}
 	}
 
-	public function formHideArray(array $ar): void
+	public function formHideArray(array $ar): array
 	{
+		$content = [];
 		foreach ($ar as $k => $a) {
 			if (is_array($a)) {
 				$this->prefix[] = $k;
@@ -57,9 +58,10 @@ class HTMLForm implements ToStringable
 				array_pop($this->prefix);
 			} else {
 				//$ret .= "<input type=hidden name=" . $name . ($name?"[":"") . $k . ($name?"]":"") . " value='$a'>";
-				$this->hidden($k, $a);
+				$content[] = $this->hidden($k, $a);
 			}
 		}
+		return $content;
 	}
 
 	public function hidden($name, $value, array $more = []): string
@@ -207,9 +209,9 @@ class HTMLForm implements ToStringable
 		$this->text('</td></tr>');
 	}
 
-	public function text($a): void
+	public function text($a): string
 	{
-		$this->stdout .= MergedContent::mergeStringArrayRecursive($a);
+		return MergedContent::mergeStringArrayRecursive($a);
 	}
 
 	/**
@@ -217,16 +219,16 @@ class HTMLForm implements ToStringable
 	 * @param string $value
 	 * @param array $more - may be array
 	 */
-	public function input($name, $value = "", array $more = [], string $type = 'text', $extraClass = ''): void
+	public function input($name, $value = "", array $more = [], string $type = 'text', $extraClass = ''): string
 	{
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= '<input type="'.$type.'" '.$this->getName($name).' '.$more.' value="'.$value.'" />'."\n";
-		$this->stdout .= $this->getInput($type, $name, $value, $more, $extraClass);
+		return $this->getInput($type, $name, $value, $more, $extraClass);
 	}
 
-	public function password($name, $value = "", array $desc = []): void
+	public function password($name, $value = "", array $desc = []): string
 	{
-		$this->stdout .= $this->getInput("password", $name, $value, $desc, ifsetor($desc['class']));
+		return $this->getInput("password", $name, $value, $desc, ifsetor($desc['class']));
 	}
 
 	/**
@@ -248,14 +250,14 @@ class HTMLForm implements ToStringable
 		$this->stdout .= ' ' . ($label) . '</label>';
 	}
 
-	public function check($name, $value = 1, $checked = false, array $more = [], $autoSubmit = false, array $desc = []): void
+	public function check($name, $value = 1, $checked = false, array $more = [], $autoSubmit = false, array $desc = []): HTMLFormCheckbox
 	{
 		$desc['more'] = $more;
 		$desc['autoSubmit'] = $autoSubmit;
 		$desc['value'] = $value;
 		$box = new HTMLFormCheckbox($name, $checked, $desc);
 		$box->form = $this;    // for prefix to work
-		$this->stdout .= $box;
+		return $box;
 	}
 
 	public function checkLabel($name, $value = 1, $checked = false, array $more = [], $autoSubmit = false, string $label = ''): void
@@ -285,12 +287,12 @@ class HTMLForm implements ToStringable
 		return $this->prefix;
 	}
 
-	public function file($name, array $desc = []): void
+	public function file($name, array $desc = []): string
 	{
 		//$this->stdout .= "<input type=file ".$this->getName($name)." ".$desc['more'].">";
-		$this->stdout .= $this->getInput("file", $name, '', ifsetor($desc['more'], []), ifsetor($desc['class'], ''));
 		$this->method = 'POST';
 		$this->enctype = "multipart/form-data";
+		return $this->getInput("file", $name, '', ifsetor($desc['more'], []), ifsetor($desc['class'], ''));
 	}
 
 	/**
@@ -300,7 +302,7 @@ class HTMLForm implements ToStringable
 	 * @param $value
 	 * @param array $desc
 	 */
-	public function date($name, $value, array $desc = []): void
+	public function date($name, $value, array $desc = []): string
 	{
 //		debug($value);
 		$format = ifsetor($desc['format']) ? $desc['format'] : 'd.m.Y';
@@ -322,7 +324,7 @@ class HTMLForm implements ToStringable
 			$extraClass .= ' is-invalid';
 		}
 
-		$this->input($name, $value,
+		return $this->input($name, $value,
 			(isset($desc['id']) ? ['id' => $desc['id']] : []) +
 			ifsetor($desc['more'], []),
 			'date',
@@ -398,20 +400,19 @@ class HTMLForm implements ToStringable
 		return $dp2->id;
 	}
 
-	public function money($name, $value, array $desc): void
+	public function money($name, $value, array $desc): string
 	{
 		if (!$value) {
 			$value = "0.00";
 		}
 
-		$this->input($name, $value, $desc['more']);
-		$this->text("&euro;");
+		return $this->input($name, $value, $desc['more']) . $this->text("&euro;");
 	}
 
-	public function textarea($name, $value = null, $more = ''): void
+	public function textarea($name, $value = null, $more = ''): string
 	{
 		$more = is_array($more) ? self::getAttrHTML($more) : $more;
-		$this->stdout .= "<textarea " . $this->getName($name) . sprintf(' %s>', $more) .
+		return "<textarea " . $this->getName($name) . sprintf(' %s>', $more) .
 			htmlspecialchars($value ?? '') .
 			"</textarea>";
 	}
@@ -422,18 +423,17 @@ class HTMLForm implements ToStringable
 	 * @param string|null $value
 	 *
 	 */
-	public function submit($value = null, array $params = []): static
+	public function submit($value = null, array $params = []): string
 	{
 		$field = new HTMLSubmit($value, $params);
 		$field->setForm($this);
-		$this->add($field);
-		return $this;
+		return $this->add($field);
 	}
 
-	public function add(HTMLFormFieldInterface $field): void
+	public function add(HTMLFormFieldInterface $field): string
 	{
 		$field->setForm($this);
-		$this->stdout .= $this->s($field->render());
+		return $this->s($field->render());
 	}
 
 	public function s($content): string
@@ -498,10 +498,10 @@ class HTMLForm implements ToStringable
 		return $a;
 	}
 
-	public function button($innerHTML = null, array $more = []): void
+	public function button($innerHTML = null, array $more = []): string
 	{
 		$more = HTMLTag::renderAttr($more);
-		$this->stdout .= "<button {$more}>{$innerHTML}</button>\n";
+		return "<button {$more}>{$innerHTML}</button>\n";
 	}
 
 	public function image($value = null, array $more = [], array $desc = []): void
@@ -525,8 +525,9 @@ class HTMLForm implements ToStringable
 		return $this->stdout;
 	}
 
-	public function combo($fieldName, array $desc): void
+	public function combo($fieldName, array $desc): array
 	{
+		$content = [];
 		if ($desc['from']) {
 			// TODO: replace with SQLBuilder->getTableOptions()
 			$db = Config::getInstance()->getDB();
@@ -541,11 +542,12 @@ class HTMLForm implements ToStringable
 
 		if (class_exists('Index')) {
 //			Index::getInstance()->addJQuery();
-			$this->selection($fieldName, $options, $desc['value'], false, 'onchange="jQuery(this).nextAll(\'input\').val(
+			$content[] = $this->selection($fieldName, $options, $desc['value'], false, 'onchange="jQuery(this).nextAll(\'input\').val(
 			jQuery(this).val()
 		);"', false, $desc);
-			$this->input($fieldName, $desc['value']);
+			$content[] = $this->input($fieldName, $desc['value']);
 		}
+		return $content;
 	}
 
 	/**
@@ -564,7 +566,7 @@ class HTMLForm implements ToStringable
 		array $more = [],
 		$multiple = false,
 		array $desc = []
-	): void
+	): string|array|ToStringable
 	{
 		$sel = new HTMLFormSelection($name, $aOptions, $default);
 		$sel->autoSubmit = $autoSubmit;
@@ -573,7 +575,7 @@ class HTMLForm implements ToStringable
 		$sel->setDesc($desc);
 		//debug($name, $desc);
 		$sel->setForm($this);
-		$this->stdout .= $sel->render();
+		return $sel->render();
 	}
 
 	/**
@@ -623,7 +625,7 @@ class HTMLForm implements ToStringable
 	 * @param $name
 	 * @param array $value
 	 */
-	public function keyset($name, $value = [], array $desc = []): void
+	public function keyset($name, $value = [], array $desc = []): array
 	{
 		if ($value) {
 			if (!is_array($value)) {
@@ -638,14 +640,15 @@ class HTMLForm implements ToStringable
 		$between = ifsetor($desc['between'], ', ');
 //		debug($desc['options']);
 		foreach ((array)$desc['options'] as $key => $val) {
-			$this->text('<nobr><label title="' . $key . '">');
+			$content[] = $this->text('<nobr><label title="' . $key . '">');
 			$checked = isset($value[$key]);
 			$newName = array_merge($name, [$key]);
-			$this->check($newName, $key, $checked);
-			$this->text(' ' . $val . '</label></nobr>');
+			$content[] = $this->check($newName, $key, $checked);
+			$content[] = $this->text(' ' . $val . '</label></nobr>');
 			if ($val != end($desc['options'])) {
-				$this->text($between);
+				$content[] = $this->text($between);
 			}
+			return $content;
 		}
 
 		$this->class = $tmp;
@@ -659,20 +662,22 @@ class HTMLForm implements ToStringable
 	 * @param array $desc
 	 *        'between' - text separating the options, default <br />
 	 */
-	public function radioset($name, $value, array $desc): void
+	public function radioset($name, $value, array $desc): array
 	{
+		$content = [];
 		$between = ifsetor($desc['between'], '<br />');
 		$keys = array_keys($desc['options']);
 		foreach ($desc['options'] as $key => $val) {
 			//debug($name, intval($value), intval($key));
 			// if you need to compare intval's, do it separately
-			$this->stdout .= ifsetor($desc['beforeItem']);
-			$this->radioLabel($name, $key, $value == $key, $val, ifsetor($desc['more']));
-			$this->stdout .= ifsetor($desc['afterItem']);
+			$content[] = ifsetor($desc['beforeItem']);
+			$content[] = $this->radioLabel($name, $key, $value == $key, $val, ifsetor($desc['more']));
+			$content[] = ifsetor($desc['afterItem']);
 			if ($key != end($keys)) {
-				$this->text($between);
+				$content[] = $this->text($between);
 			}
 		}
+		return $content;
 	}
 
 	/**
@@ -682,12 +687,12 @@ class HTMLForm implements ToStringable
 	 * @param string $label
 	 * @param string $more
 	 */
-	public function radioLabel($name, $value, $checked, $label = "", $more = ''): void
+	public function radioLabel($name, $value, $checked, $label = "", $more = ''): array
 	{
 		$value = htmlspecialchars($value, ENT_QUOTES);
 		$aName = is_array($name) ? $name : [];
 		$id = implode('_', array_merge($this->prefix, $aName)) . "_" . $value;
-		$this->stdout .= '<label class="radio" for="' . $id . '">
+		$content[] = '<label class="radio" for="' . $id . '">
 		<input
 			type="radio"
 			' . $this->getName($name) . '
@@ -695,7 +700,8 @@ class HTMLForm implements ToStringable
 			($checked ? "checked" : "") . '
 			id="' . $id . '"
 			' . (is_array($more) ? $this->getAttrHTML($more) : $more) . '> ';
-		$this->stdout .= $this->hsc($label) . "</label>";
+		$content[] = $this->hsc($label) . "</label>";
+		return $content;
 	}
 
 	public function hsc($label): HtmlString|string
@@ -766,12 +772,12 @@ document.observe("dom:loaded", () => {
 	 * @param int $width
 	 * @see set()
 	 */
-	public function checkarray(array $name, array $options, array $selected, $more = [], string $height = 'auto', $width = 350): void
+	public function checkarray(array $name, array $options, array $selected, $more = [], string $height = 'auto', $width = 350): array
 	{
 		TaylorProfiler::start(__METHOD__);
 		$selected = array_keys($selected);
 		$sName = $this->getName($name, '', true);
-		$this->stdout .= '<div style="
+		$content[] = '<div style="
 			width: ' . $width . ';
 			height: ' . $height . ';
 			overflow: auto;
@@ -780,15 +786,16 @@ document.observe("dom:loaded", () => {
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
 				(is_array($selected) && in_array($value, $selected));
-			$this->stdout .= '<label class="checkline_' . ($checked ? 'active' : 'normal') . '" style="white-space: nowrap;">';
+			$content[] = '<label class="checkline_' . ($checked ? 'active' : 'normal') . '" style="white-space: nowrap;">';
 			$more = collect($more)->map(fn($val) => str_replace(urlencode("###KEY###"), $value, $val))->toArray();
-			$this->check($newName, $value, $checked, $more);
-			$this->text('<span title="id=' . $value . '">' . (is_array($row) ? implode(', ', $row) : $row) . '</span>');
-			$this->stdout .= '</label> ';
+			$content[] = $this->check($newName, $value, $checked, $more);
+			$content[] = $this->text('<span title="id=' . $value . '">' . (is_array($row) ? implode(', ', $row) : $row) . '</span>');
+			$content[] = '</label> ';
 		}
 
-		$this->stdout .= '</div>';
+		$content[] = '</div>';
 		TaylorProfiler::stop(__METHOD__);
+		return $content;
 	}
 
 	/**
@@ -798,20 +805,21 @@ document.observe("dom:loaded", () => {
 	 * @param $selected
 	 * @see $this->radioset()
 	 */
-	public function radioArray($name, array $options, $selected): void
+	public function radioArray($name, array $options, $selected): array
 	{
 		TaylorProfiler::start(__METHOD__);
-		$this->stdout .= '<div class="radioArray">';
+		$content[] = '<div class="radioArray">';
 		foreach ($options as $value => $row) {
 			$checked = (!is_array($selected) && $selected == $value) ||
 				(is_array($selected) && in_array($value, $selected));
-			$this->stdout .= '<div class="checkline_' . ($checked ? 'active' : 'normal') . '">';
-			$this->radioLabel($name, $value, $checked, new HtmlString('<span title="id=' . $value . '">' . (is_array($row) ? implode(', ', $row) : $row) . '</span>'));
-			$this->stdout .= '</div>';
+			$content[] = '<div class="checkline_' . ($checked ? 'active' : 'normal') . '">';
+			$content[] = $this->radioLabel($name, $value, $checked, new HtmlString('<span title="id=' . $value . '">' . (is_array($row) ? implode(', ', $row) : $row) . '</span>'));
+			$content[] = '</div>';
 		}
 
-		$this->stdout .= '</div>';
+		$content[] = '</div>';
 		TaylorProfiler::stop(__METHOD__);
+		return $content;
 	}
 
 	public function __toString(): string
@@ -891,6 +899,7 @@ document.observe("dom:loaded", () => {
 	 */
 	public function captcha($fieldName, $fieldValue, array $params)
 	{
+		return 'not implemented';
 	}
 
 	/**
@@ -905,10 +914,12 @@ document.observe("dom:loaded", () => {
 	 */
 	public function datatable($fieldName, $fieldValue, $desc, $bool, $doDiv = true, $class = 'htmlftable')
 	{
+		return 'not implemented';
 	}
 
 	public function ajaxSingleChoice($fieldName, $fieldValue, array $desc)
 	{
+		return 'not implemented';
 	}
 
 	/**
@@ -918,9 +929,9 @@ document.observe("dom:loaded", () => {
 	 * @param $fieldValue
 	 * @param $isUnlimited
 	 */
-	public function time($fieldName, $fieldValue, $isUnlimited): void
+	public function time($fieldName, $fieldValue, $isUnlimited): string
 	{
-		$this->input($fieldName, $fieldValue, [], 'time');
+		return $this->input($fieldName, $fieldValue, [], 'time');
 	}
 
 	/**
@@ -932,6 +943,7 @@ document.observe("dom:loaded", () => {
 	 */
 	public function tree($fieldName, $tree, $fieldValue)
 	{
+		return 'not implemented';
 	}
 
 }

@@ -81,7 +81,7 @@ class HTMLFormField extends HTMLFormType
 		$fieldValue = $this['value'];
 //		debug($fieldValue);
 		if ($desc['prefix']) {
-			$this->form->text($desc['prefix']);
+			$content[] = $this->form->text($desc['prefix']);
 		}
 
 //		debug($desc['id']);
@@ -110,19 +110,19 @@ class HTMLFormField extends HTMLFormType
 //			}
 
 			$type->desc = $desc;
-			$this->form->stdout .= \MergedContent::mergeStringArrayRecursive($type->render());
+			$content[] = $type->render();
 		} elseif ($type instanceof HTMLFormCollection) {
 			/** @var HTMLFormCollection $type */
 			$type->setField($fieldName);
 			$type->setForm($this->form);
 			$type->setValue($desc['value']);
 			$type->setDesc($desc);
-			$this->form->stdout .= $type->renderHTMLForm();
+			$content[] = $type->renderHTMLForm();
 		} else {
-			$this->switchTypeRaw($type, $fieldValue, $fieldName);
+			$content[] = $this->switchTypeRaw($type, $fieldValue, $fieldName);
 		}
 
-		$this->content = $this->form->stdout;
+		$this->content = \MergedContent::mergeStringArrayRecursive($content);
 		return $this->content;
 	}
 
@@ -155,15 +155,14 @@ class HTMLFormField extends HTMLFormType
 	 * @param string $fieldName
 	 * @throws Exception
 	 */
-	private function switchTypeRaw($type, $fieldValue, $fieldName): void
+	private function switchTypeRaw($type, $fieldValue, $fieldName): string|array
 	{
 		$desc = $this;
 		switch ($type) {
 			case "string":
-				$this->form->text($fieldValue);
-				break;
+				return $this->form->text($fieldValue);
 			case "textarea":
-				$this->form->textarea(
+				return $this->form->textarea(
 					$fieldName,
 					$fieldValue,
 					(is_array(ifsetor($desc['more']))
@@ -174,25 +173,19 @@ class HTMLFormField extends HTMLFormType
 					(ifsetor($desc['disabled']) ? ' disabled="1"' : '') .
 					(ifsetor($desc['class']) ? ' class="' . htmlspecialchars($desc['class'], ENT_QUOTES) . '"' : '')
 				);
-				break;
 			case "date":
 				//t3lib_div::debug(array($fieldName, $fieldValue));
-				$this->form->date($fieldName, $fieldValue, $desc->getArray());
-				break;
+				return $this->form->date($fieldName, $fieldValue, $desc->getArray());
 			case "datepopup":
-				$this->form->datepopup($fieldName, $fieldValue);
-				break;
+				return $this->form->datepopup($fieldName, $fieldValue);
 			case "datepopup2":
-				$this->form->datepopup2($fieldName, $fieldValue, ifsetor($desc['plusConfig']), $desc->getArray());
-				break;
-
+				return $this->form->datepopup2($fieldName, $fieldValue, ifsetor($desc['plusConfig']), $desc->getArray());
 			case "money":
-				$this->form->money($fieldName, $fieldValue, $desc->getArray());
-				break;
+				return $this->form->money($fieldName, $fieldValue, $desc->getArray());
 
 			case "select":
 			case "selection":
-				$this->form->selection(
+				return $this->form->selection(
 					$fieldName,
 					$desc['options'],
 					ifsetor($fieldValue, ifsetor($desc['default'])),
@@ -201,19 +194,16 @@ class HTMLFormField extends HTMLFormType
 					$desc['multiple'] ?? null,
 					$desc->getArray()
 				);
-				break;
 			case "file":
-				$this->form->file($fieldName, $desc->getArray());
-				break;
+				return $this->form->file($fieldName, $desc->getArray());
 
 			case "password":
-				$this->form->password($fieldName, $fieldValue, $desc->getArray());
-				break;
+				return $this->form->password($fieldName, $fieldValue, $desc->getArray());
 
 			case "check":
 			case "checkbox":
 				if (ifsetor($desc['set0'])) {
-					$this->form->hidden($fieldName, 0);
+					$content[] = $this->form->hidden($fieldName, 0);
 				}
 
 				$elementID = $this['elementID'];
@@ -222,32 +212,27 @@ class HTMLFormField extends HTMLFormType
 					$fieldValue = $fieldValue === 't';
 				}
 
-				$this->form->check($fieldName, ifsetor($desc['post-value'], 1), $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', false,*/
+				$content[] = $this->form->check($fieldName, ifsetor($desc['post-value'], 1), $fieldValue, /*$desc['postLabel'], $desc['urlValue'], '', false,*/
 					$more, ifsetor($desc['autoSubmit']), $desc->getArray());
-				break;
+				return $content;
 
 			case "time":
-				$this->form->time($fieldName, $fieldValue, $desc['unlimited']);
-				break;
+				return $this->form->time($fieldName, $fieldValue, $desc['unlimited']);
 
 			case "hidden":
 			case "hide":
-				$this->form->hidden($fieldName, $fieldValue, $desc['id']
+				return $this->form->hidden($fieldName, $fieldValue, $desc['id']
 					? ['id' => $desc['id']]
 					: []);
-				break;
 			case 'hiddenArray':
 				$name = is_array($fieldName) ? end($fieldName) : $fieldName;
-				$this->form->formHideArray([$name => $fieldValue]);
-				break;
+				return $this->form->formHideArray([$name => $fieldValue]);
 
 			case 'html':
-				$this->form->text($desc['code']);
-				break;
+				return $this->form->text($desc['code']);
 
 			case 'tree':
-				$this->form->tree($fieldName, $desc['tree'], $fieldValue);
-				break;
+				return $this->form->tree($fieldName, $desc['tree'], $fieldValue);
 
 			case 'submit':
 //				llog('submit', $desc);
@@ -257,74 +242,59 @@ class HTMLFormField extends HTMLFormType
 						? $desc->data['more'] : []) + [
 						'id' => $desc->data['id']
 					];
-				$this->form->submit($desc['value'], $more);
-				break;
+				return $this->form->submit($desc['value'], $more);
 
 			case 'captcha':
-				$this->form->captcha($fieldName, $fieldValue, $desc->getArray());
-				break;
+				return $this->form->captcha($fieldName, $fieldValue, $desc->getArray());
 			case 'recaptcha':
-				$this->form->recaptcha($desc->getArray() + [
+				return $this->form->recaptcha($desc->getArray() + [
 						'name' => $this->form->getName($fieldName, '', true)
 					]);
-				break;
 			case 'recaptchaAjax':
-				$this->form->recaptchaAjax(
+				return $this->form->recaptchaAjax(
 					$desc->getArray() + [
 						'name' => $this->form->getName($fieldName, '', true)
 					]);
-				break;
 			case 'datatable':
-				$this->form->datatable($fieldName, $fieldValue, $desc, false, $doDiv = true, 'htmlftable');
-				break;
+				return $this->form->datatable($fieldName, $fieldValue, $desc, false, $doDiv = true, 'htmlftable');
 			case 'ajaxSingleChoice':
-				$this->form->ajaxSingleChoice($fieldName, $fieldValue, $desc->getArray());
-				break;
+				return $this->form->ajaxSingleChoice($fieldName, $fieldValue, $desc->getArray());
 			case 'set':
-				$this->form->set($fieldName, $fieldValue, $desc->getArray());
-				break;
+				return $this->form->set($fieldName, $fieldValue, $desc->getArray());
 			case 'keyset':
-				$this->form->keyset($fieldName, $fieldValue, $desc->getArray());
-				break;
+				return $this->form->keyset($fieldName, $fieldValue, $desc->getArray());
 			case 'checkarray':
 				if (!is_array($fieldValue)) {
 					debug($fieldName, $fieldValue, $desc->getArray());
 				}
 
-				$this->form->checkarray($fieldName, $desc['set'], $fieldValue, $desc->getArray());
-				break;
+				return $this->form->checkarray($fieldName, $desc['set'], $fieldValue, $desc->getArray());
 			case 'radioset':
-				$this->form->radioset($fieldName, $fieldValue, $desc->getArray());
-				break;
+				return $this->form->radioset($fieldName, $fieldValue, $desc->getArray());
 			case 'radiolist':
-				$this->form->radioArray($fieldName, $desc['options'], $fieldValue);
-				break;
+				return $this->form->radioArray($fieldName, $desc['options'], $fieldValue);
 			case 'combo':
-				$this->form->combo($fieldName, $desc->getArray());
-				break;
+				return $this->form->combo($fieldName, $desc->getArray());
 			case 'button':
-				$this->form->button($desc['innerHTML'], $desc['more'] ?: []);
-				break;
+				return $this->form->button($desc['innerHTML'], $desc['more'] ?: []);
 			case 'fieldset':
 				//$this->fieldset($desc['label']);	// it only sets the global fieldset name
-				$this->form->stdout .= '<fieldset>
+				return '<fieldset>
 					<legend>' . htmlspecialchars($desc['label']) . '</legend>';
-				break;
 			case '/fieldset':
-				$this->form->stdout .= '</fieldset>';
-				break;
+				return '</fieldset>';
 			case 'tfieldset':
 				if (!$desc['close']) {
-					$this->form->stdout .= '</td></tr></table>
+					$content[] = '</td></tr></table>
 						<fieldset><legend>' . $desc['legend'] . '</legend>
 						<table><tr><td>';
 				} else {
-					$this->form->stdout .= '</td></tr></table>
+					$content[] = '</td></tr></table>
 						</fieldset>
 						<table><tr><td>';
 				}
 
-				break;
+				return $content;
 			/** @noinspection PhpMissingBreakStatementInspection */
 			case 'email':
 				$type = 'email';
@@ -364,15 +334,13 @@ class HTMLFormField extends HTMLFormType
 					$more['autofocus'] = 'autofocus';
 				}
 
-				$this->form->input($fieldName, $fieldValue, $more, $type === 'input' ? 'text' : $type,
+				return $this->form->input($fieldName, $fieldValue, $more, $type === 'input' ? 'text' : $type,
 					ifsetor($desc['class'],
 						is_array(ifsetor($desc['more']))
 							? ifsetor($desc['more']['class'], '')
 							: ''
 					)
 				);
-				//debug($desc, $desc->isObligatory(), $desc->getTypeString());
-				break;
 		}
 	}
 
@@ -381,8 +349,11 @@ class HTMLFormField extends HTMLFormType
 		return $this->data;
 	}
 
-	public function getContent()
+	public function getContent(): string
 	{
+		if (!$this->content) {
+			$this->render();
+		}
 		return $this->content;
 	}
 

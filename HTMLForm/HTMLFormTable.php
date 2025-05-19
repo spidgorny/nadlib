@@ -173,46 +173,40 @@ class HTMLFormTable extends HTMLForm
 	{
 //		llog('getForm', $prefix);
 		$startedFieldset = false;
-		$tmp = $this->stdout;
-		$this->stdout = '';
 
 		if ($this->mainForm) {
-			$this->mainFormStart();
+			$content[] = $this->mainFormStart();
 		}
 
 		if ($this->fieldset) {
-			$this->stdout .= "<fieldset " . self::getAttrHTML($this->fieldsetMore) . ">
+			$content[] = "<fieldset " . self::getAttrHTML($this->fieldsetMore) . ">
 				<legend>" . $this->fieldset . "</legend>";
 			$startedFieldset = true;
 			$this->fieldset = null;
 		}
 
-		$this->stdout .= '<table ' . HTMLForm::getAttrHTML($this->tableMore) . '><tbody>' . PHP_EOL;
-		$this->stdout .= $this->renderFormRows($formData, $prefix);
-		$this->stdout .= PHP_EOL . "</tbody></table>" . $append;
+		$content[] = '<table ' . HTMLForm::getAttrHTML($this->tableMore) . '><tbody>' . PHP_EOL;
+		$content[] = $this->renderFormRows($formData, $prefix);
+		$content[] = PHP_EOL . "</tbody></table>" . $append;
 		if ($startedFieldset) {
-			$this->stdout .= "</fieldset>";
+			$content[] = "</fieldset>";
 		}
 
 		if ($this->mainForm) {
-			$this->mainFormEnd();
+			$content[] = $this->mainFormEnd();
 		}
 
-		$part = $this->stdout;
-		$this->stdout = $tmp;
-		return $part;
+		return MergedContent::mergeStringArrayRecursive($content);
 	}
 
-	public function mainFormStart(): void
+	public function mainFormStart(): string
 	{
-		$this->stdout .= '<table class="htmlFormDiv"><tr><td>' . "\n";
+		return '<table class="htmlFormDiv"><tr><td>' . "\n";
 	}
 
 	public function renderFormRows(array $formData, array $prefix = []): string|array
 	{
-//		echo json_encode(array_keys($formData)), BR;
-		$tmp = $this->stdout;
-		$this->stdout = '';
+		$content = [];
 		foreach ($formData as $fieldName => $fieldDesc) {
 			$path = $prefix;
 			$fnp = strpos($fieldName, '[');
@@ -237,21 +231,21 @@ class HTMLFormTable extends HTMLForm
 //				'is_array' => is_array($fieldDesc),
 //				'HTMLFormFieldInterface' => $fieldDesc instanceof HTMLFormFieldInterface,
 //			]);
-			if ($sType === 'HTMLFormTable') {
+			if ($sType === __CLASS__) {
 				/** @var HTMLFormTable $subForm */
 				$subForm = $fieldDesc;
-				$subForm->showForm();
-				$this->stdout .= '<tr><td colspan="2">' .
+				$content[] = $subForm->showForm();
+				$content[] = '<tr><td colspan="2">' .
 					$subForm->getBuffer() .
 					'</td></tr>' . "\n";
 			} elseif ($fieldDesc instanceof HTMLFormFieldInterface || is_array($fieldDesc)) {
 				if (in_array($sType, ['hidden', 'hiddenArray'])) {
 					// hidden are shown without table cells
 					//debug(array($formData, $path, $fieldDesc));
-					$this->showCell($path, $fieldDesc);
+					$content[] = $this->showCell($path, $fieldDesc);
 				} else {
 					//debug($prefix, $fieldDesc, $path);
-					$this->showTR($path, $fieldDesc);
+					$content[] = $this->showTR($path, $fieldDesc);
 				}
 			} else {
 				pre_print_r([
@@ -263,9 +257,7 @@ class HTMLFormTable extends HTMLForm
 			}
 		}
 
-		$part = $this->stdout;
-		$this->stdout = $tmp;
-		return $part;
+		return MergedContent::mergeStringArrayRecursive($content);
 	}
 
 	public function showCell(array $fieldName, array|HTMLFormFieldInterface $desc): string|array
@@ -319,7 +311,7 @@ class HTMLFormTable extends HTMLForm
 			$newContent = '';
 		}
 
-		$this->showLabel($fieldObj, $fieldName);
+		$content .= $this->showLabel($fieldObj, $fieldName);
 
 		if (isset($desc['error'])) {
 			//debug($fieldName, $desc);
@@ -351,14 +343,12 @@ class HTMLFormTable extends HTMLForm
 		if (ifsetor($desc['newTD'])) {
 			$content .= '</td>';
 		}
-		$this->stdout .= $content;
 		return $content;
 	}
 
 	/**
 	 * @param mixed $fieldValue
 	 * @param array|HTMLFormFieldInterface $descIn
-	 * @return HTMLFormField
 	 */
 	public function switchType(array $fieldName, $fieldValue, $descIn)
 	{
@@ -374,21 +364,16 @@ class HTMLFormTable extends HTMLForm
 		$field['value'] = $fieldValue;
 
 		$field->setForm($this);    // don't clone, because we may want to influence the original form
-		$tmp = $this->stdout;
-		$this->stdout = '';
-		$field->render();
-
-		$this->stdout = $tmp;
 		return $field;
 	}
 
-	public function showLabel(HTMLFormField $desc, $fieldName): void
+	public function showLabel(HTMLFormField $desc, $fieldName): string
 	{
 		//debug($desc->getArray());
 		$elementID = $desc->elementID;
 		$withBR = (ifsetor($desc['br']) === null && $this->defaultBR) || $desc['br'];
 		if (!isset($desc['label'])) {
-			return;
+			return '';
 		}
 
 		$label = $desc['label'];
@@ -413,22 +398,25 @@ class HTMLFormTable extends HTMLForm
 				: '';
 		}
 
-		$this->stdout .= ifsetor($desc['beforeLabel']);
+		$content = '';
+		$content .= ifsetor($desc['beforeLabel']);
 		//debug($label);
 		assert(is_string($label) || $label instanceof HtmlString || $label instanceof HTMLTag);
-		$this->stdout .= '<label for="' . $elementID . '" class="' . ($desc['labelClass'] ?? '') . '">' . $label . '</label>';
+		$content .= '<label for="' . $elementID . '" class="' . ($desc['labelClass'] ?? '') . '">' . $label . '</label>';
 		if (!$withBR) {
-			$this->stdout .= '</td><td>';
+			$content .= '</td><td>';
 		}
+		return $content;
 	}
 
 	/**
 	 * @param array $prefix
 	 * @param array|HTMLFormTypeInterface $fieldDesc
+	 * @return string
 	 */
-	public function showTR(array $prefix, array|HTMLFormFieldInterface $fieldDesc): array
+	public function showTR(array $prefix, array|HTMLFormFieldInterface $fieldDesc): string
 	{
-		if (!isset($fieldDesc['horisontal']) || !$fieldDesc['horisontal']) {
+		if (!isset($fieldDesc['horizontal']) || !$fieldDesc['horizontal']) {
 			$content[] = "<tr " . self::getAttrHTML($fieldDesc['TRmore'] ?? null) . ">";
 		}
 
@@ -445,19 +433,18 @@ class HTMLFormTable extends HTMLForm
 			$fieldDesc['append'] .= '</legend>' .
 				$this->getForm($fieldDesc['dependant'], $prefix, false) // $path
 				. '</fieldset>';
-			$this->showCell($prefix, $fieldDesc);
+			$content[] = $this->showCell($prefix, $fieldDesc);
 		} else {
-			$this->showCell($prefix, $fieldDesc);
+			$content[] = $this->showCell($prefix, $fieldDesc);
 		}
 
 		$content[] = "</tr>\n";
-		$this->stdout .= implode('', $content);
-		return $content;
+		return implode('', $content);
 	}
 
-	public function mainFormEnd(): void
+	public function mainFormEnd(): string
 	{
-		$this->stdout .= "</td></tr></table>\n";
+		return "</td></tr></table>\n";
 	}
 
 	/**
@@ -667,15 +654,6 @@ class HTMLFormTable extends HTMLForm
 		$this->isValid = $this->validator->validate();
 		$this->desc = $this->validator->getDesc();
 		return $this->isValid;
-	}
-
-	/**
-	 * Commented as it makes double output
-	 */
-	public function __toString(): string
-	{
-		//$this->showForm();
-		return parent::__toString();
 	}
 
 	/**
