@@ -48,7 +48,7 @@ class HTMLForm implements ToStringable
 		}
 	}
 
-	public function formHideArray(array $ar): array
+	public function formHideArray(array $ar): string
 	{
 		$content = [];
 		foreach ($ar as $k => $a) {
@@ -61,7 +61,7 @@ class HTMLForm implements ToStringable
 				$content[] = $this->hidden($k, $a);
 			}
 		}
-		return $content;
+		return $this->s($content);
 	}
 
 	public function hidden($name, $value, array $more = []): string
@@ -190,9 +190,9 @@ class HTMLForm implements ToStringable
 		return $this->getName($name, '', false);
 	}
 
-	public function label(string $for, string $text): void
+	public function label(string $for, string $text): string
 	{
-		$this->stdout .= '<label for="' . $for . '">' . $text . '</label>';
+		return '<label for="' . $for . '">' . $text . '</label>';
 	}
 
 	/**
@@ -881,14 +881,14 @@ document.observe("dom:loaded", () => {
 </div>';
 	}
 
-	public function inLabel(string $string, array $attrs = []): void
+	public function inLabel(string $string, array $attrs = []): string
 	{
-		$this->stdout .= '<label ' . HTMLTag::renderAttr($attrs) . '>' . $string;
+		return '<label ' . HTMLTag::renderAttr($attrs) . '>' . $string;
 	}
 
-	public function endLabel(): void
+	public function endLabel(): string
 	{
-		$this->stdout .= '</label>' . PHP_EOL;
+		return '</label>' . PHP_EOL;
 	}
 
 	/**

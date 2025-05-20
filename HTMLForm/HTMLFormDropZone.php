@@ -10,11 +10,11 @@ class HTMLFormDropZone extends HTMLFormType
 	public $class = 'dropzone';
 
 	/**
-     * Shows the form element in the form
-     * @return mixed[]
-     * @throws Exception
-     */
-    public function render(): array
+	 * Shows the form element in the form
+	 * @return mixed[]
+	 * @throws Exception
+	 */
+	public function render(): array
 	{
 		$content = [];
 		if (!$this->form) {
@@ -33,9 +33,9 @@ class HTMLFormDropZone extends HTMLFormType
 			//$u = new Uploader();
 			//$form = $u->getUploadForm();
 			$form = new HTMLForm();
-			$form->text('<div class="fallback">');
-			$form->file('file');
-			$form->text('</div>');
+			$form->stdout .= $form->text('<div class="fallback">');
+			$form->stdout .= $form->file('file');
+			$form->stdout .= $form->text('</div>');
 			$content[] = $form->getBuffer();
 		}
 

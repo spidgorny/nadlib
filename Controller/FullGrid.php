@@ -213,9 +213,9 @@ trait FullGrid
 		$f = new HTMLFormTable($desc);
 		$f->method(HTMLForm::METHOD_GET);
 		$f->defaultBR = true;
-		$f->formHideArray($this->linker->linkVars);
+		$f->stdout .= $f->formHideArray($this->linker->linkVars);
 		$f->showForm();
-		$f->submit(__('Set Visible Columns'));
+		$f->stdout .= $f->submit(__('Set Visible Columns'));
 		return $f;
 	}
 

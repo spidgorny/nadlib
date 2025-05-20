@@ -102,8 +102,8 @@ abstract class Scaffold extends AppControllerBE
 		$this->setModel();    // uses $this->id
 
 		$this->form = new HTMLFormTable();
-        //debug($this->request->isSubmit(), $this->formPrefix, $this->request->getArray($this->formPrefix));
-        $this->data = $this->request->isSubmit() ? $this->subRequest->getAll() : $this->model->data;
+		//debug($this->request->isSubmit(), $this->formPrefix, $this->request->getArray($this->formPrefix));
+		$this->data = $this->request->isSubmit() ? $this->subRequest->getAll() : $this->model->data;
 
 //		debug($this->data);
 		$this->form->desc = $this->getDesc((array)$this->data);
@@ -184,12 +184,12 @@ abstract class Scaffold extends AppControllerBE
 
 	public function showForm()
 	{
-		if ($this->action == 'showEdit' || $this->action == 'update') {
+		if ($this->action === 'showEdit' || $this->action === 'update') {
 			$f = $this->showEditForm();
 		} else {
 			$f = $this->getForm();
 			$f->prefix('');
-			$f->submit($this->addButton, [
+			$f->stdout .= $f->submit($this->addButton, [
 				'class' => 'btn btn-primary',
 			]);
 		}
@@ -214,10 +214,10 @@ abstract class Scaffold extends AppControllerBE
 		$f = $this->getForm('update');
 		$f->prefix('');
 		foreach ($override as $key => $val) {
-			$f->hidden($key, $val);
+			$f->stdout .= $f->hidden($key, $val);
 		}
 
-		$f->button('<span class="glyphicon glyphicon-floppy-disk"></span> ' . $this->updateButton, [
+		$f->stdout .= $f->button('<span class="glyphicon glyphicon-floppy-disk"></span> ' . $this->updateButton, [
 			'type' => 'submit',
 			'class' => 'btn btn-primary',
 		]);
@@ -233,9 +233,9 @@ abstract class Scaffold extends AppControllerBE
 	protected function getForm($action = 'add')
 	{
 		$this->form->method('POST');
-		$this->form->hidden('c', get_class($this));
-		$this->form->hidden('pageType', get_class($this));
-		$this->form->hidden('action', $action);
+		$this->form->stdout .= $this->form->hidden('c', get_class($this));
+		$this->form->stdout .= $this->form->hidden('pageType', get_class($this));
+		$this->form->stdout .= $this->form->hidden('action', $action);
 		//$this->form->hidden('ajax', TRUE);        // add this to getDesc()
 		$this->form->prefix($this->formPrefix);
 		$this->form->showForm();

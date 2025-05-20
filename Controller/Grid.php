@@ -248,7 +248,7 @@ trait Grid
 			$f->defaultBR = true;
 			$this->filter = $f->fill($this->request->getAll());
 			$f->showForm();
-			$f->submit('Filter', ['class' => 'btn btn-primary']);
+			$f->stdout .= $f->submit('Filter', ['class' => 'btn btn-primary']);
 			$content[] = $f->getContent();
 		}
 

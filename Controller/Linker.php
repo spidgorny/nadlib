@@ -161,28 +161,28 @@ class Linker
 //			debug($bt[2]);
 			// this autodetection is tricky
 			// better provide $formAction = '?c=SomeController'
-			$f->hidden('c', get_class($bt[2]['object']));
+			$f->stdout .= $f->hidden('c', get_class($bt[2]['object']));
 		}
 
-		$f->formHideArray($hidden);
+		$f->stdout .= $f->formHideArray($hidden);
 		if (false) {    // this is too specific, not and API
 //			if ($id = $this->request->getInt('id')) {
-//				$f->hidden('id', $id);
+//				$f->stdout .= $f->hidden('id', $id);
 //			}
 		}
 
 		if (!is_null($action)) {
-			$f->hidden('action', $action);
+			$f->stdout .= $f->hidden('action', $action);
 		}
 
 		if ($name instanceof HtmlString) {
-			$f->button($name, [
+			$f->stdout .= $f->button($name, [
 					'type' => "submit",
 					'id' => 'button-action-' . $action,
 					'class' => $submitClass,
 				] + $submitParams);
 		} else {
-			$f->submit($name, [
+			$f->stdout .= $f->submit($name, [
 					'id' => 'button-action-' . $action,
 					'class' => $submitClass,
 				] + $submitParams);

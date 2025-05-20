@@ -12,9 +12,9 @@ class Pager
 	public static $cssOutput = false;
 
 	/**
-     * @var string
-     */
-    public $id;
+	 * @var string
+	 */
+	public $id;
 
 	/**
 	 * Total amount of rows in database (with WHERE)
@@ -448,10 +448,10 @@ class Pager
 	}
 
 	/**
-     * @param $current
-     * @param $max
-     */
-    public function getPagesAround($current, $max): array
+	 * @param $current
+	 * @param $max
+	 */
+	public function getPagesAround($current, $max): array
 	{
 		$this->log(__METHOD__);
 		$size = $this->pagesAround;
@@ -591,12 +591,12 @@ class Pager
 		if ($this->currentPage < $this->getMaxPage()) {
 			$loadPage = $this->currentPage + 1;
 			$f = new HTMLForm();
-			$f->hidden('c', $controller);
-			$f->hidden('action', 'loadMore');
-			$f->hidden('Pager.[page]', $loadPage);
-			$f->formHideArray([$this->prefix => $this->request->getArray($this->prefix)]);
+			$f->stdout .= $f->hidden('c', $controller);
+			$f->stdout .= $f->hidden('action', 'loadMore');
+			$f->stdout .= $f->hidden('Pager.[page]', $loadPage);
+			$f->stdout .= $f->formHideArray([$this->prefix => $this->request->getArray($this->prefix)]);
 			$f->formMore = 'onsubmit="return ajaxSubmitForm(this);"';
-			$f->submit(__('Load more'), ['class' => 'btn']);
+			$f->stdout .= $f->submit(__('Load more'), ['class' => 'btn']);
 			$content .= '<div id="loadMorePage' . $loadPage . '">' . $f . '</div>';
 		}
 
@@ -663,9 +663,9 @@ class Pager
 	}
 
 	/**
-     * @return mixed[]
-     */
-    public function getPageData(): array
+	 * @return mixed[]
+	 */
+	public function getPageData(): array
 	{
 		$data = [];
 

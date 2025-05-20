@@ -60,7 +60,7 @@ class ValidatorCheck extends AppControllerBE
 		unset($f->desc['mustBset']['value']);
 		$f->validate();
 		$f->showForm();
-		$f->submit();
+		$f->stdout .= $f->submit();
 
 		return $f;
 	}

@@ -279,9 +279,9 @@ class Localize extends AppControllerBE
 	{
 		$f = new HTMLForm();
 		$f->method('GET');
-		$f->hidden('c', get_class($this));
-		$f->input('search', $this->request->getTrim('search'), [], 'text', "span2");
-		$f->submit('Search');
+		$f->stdout .= $f->hidden('c', get_class($this));
+		$f->stdout .= $f->input('search', $this->request->getTrim('search'), [], 'text', "span2");
+		$f->stdout .= $f->submit('Search');
 		$content[] = $f;
 
 		$content[] = $this->encloseInAA($this->getUntranslatedCheckbox(), 'Untranslated');
@@ -295,7 +295,7 @@ class Localize extends AppControllerBE
 
 		$u = new Uploader(['json']);
 		$f = $u->getUploadForm('file');
-		$f->hidden('action', 'importJSON');
+		$f->stdout .= $f->hidden('action', 'importJSON');
 		$content[] = $f;
 
 		$content[] = '<hr />';
@@ -503,12 +503,12 @@ class Localize extends AppControllerBE
 
 			$f = new HTMLForm();
 			$f->action('?c=' . get_class($this));
-			$f->hidden('action', 'saveOne');
-			$f->input('id', $id);
-			$f->textarea('value', $trans, [
+			$f->stdout .= $f->hidden('action', 'saveOne');
+			$f->stdout .= $f->input('id', $id);
+			$f->stdout .= $f->textarea('value', $trans, [
 				'style' => 'width: 100%; height: ' . (1 + $lines) . 'em',
 			]);
-			$f->submit(__('Save'));
+			$f->stdout .= $f->submit(__('Save'));
 			$content[] = $f->getContent();
 			if (contains($trans, "\n")) {
 				$content[] = '<div class="well">' . View::markdown($trans) . '</div>';

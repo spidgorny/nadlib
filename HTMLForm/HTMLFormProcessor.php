@@ -150,7 +150,7 @@ abstract class HTMLFormProcessor extends SimpleController
 
 		$f->method('POST');
 		$f->action($this->postUrl);
-		$f->hidden('ajax', $this->ajax);
+		$f->stdout .= $f->hidden('ajax', $this->ajax);
 		return $f;
 	}
 

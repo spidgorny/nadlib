@@ -4,9 +4,9 @@ class Selectable
 {
 
 	/**
-     * @var class-string<Selectable>
-     */
-    public $name;
+	 * @var class-string<Selectable>
+	 */
+	public $name;
 
 	/**
 	 * Assoc [14 => 'Koopa']
@@ -62,9 +62,9 @@ class Selectable
 	}
 
 	/**
-     * It's not more convenient to have it in a toString()
-     */
-    public function __toString(): string
+	 * It's not more convenient to have it in a toString()
+	 */
+	public function __toString(): string
 	{
 		return $this->getDropdown();
 	}
@@ -83,13 +83,13 @@ class Selectable
 				'RoomView',
 				'EditRoomDescription',
 			])) {
-				$f->hidden('c', 'RoomView');
+				$f->stdout .= $f->hidden('c', 'RoomView');
 			} else {
-				$f->hidden('c', $request->getControllerString());
+				$f->stdout .= $f->hidden('c', $request->getControllerString());
 			}
 		}
 
-		$f->selection($this->name, $this->options, $this->selected, true);
+		$f->stdout .= $f->selection($this->name, $this->options, $this->selected, true);
 		return $f->getContent();
 	}
 

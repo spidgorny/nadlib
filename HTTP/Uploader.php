@@ -155,7 +155,7 @@ class Uploader
 	 * // add custom hidden fields to upload form (e.g. Loan[id])
 	 * if (!empty($hiddenFields)) {
 	 * foreach ($hiddenFields as $name => $value) {
-	 *        $f->hidden($name, $value);
+	 *    $f->stdout .= $f->hidden($name, $value);
 	 * }
 	 * }
 	 * @param string $fieldName - input field name - usually 'file'
@@ -163,10 +163,10 @@ class Uploader
 	public function getUploadForm($fieldName = 'file'): \HTMLForm
 	{
 		$f = new HTMLForm();
-		$f->file($fieldName);
-		$f->text('<br />');
-		$f->submit('Upload', ['class' => 'btn btn-primary']);
-		$f->text($this->getLimitsDiv());
+		$f->stdout .= $f->file($fieldName);
+		$f->stdout .= $f->text('<br />');
+		$f->stdout .= $f->submit('Upload', ['class' => 'btn btn-primary']);
+		$f->stdout .= $f->text($this->getLimitsDiv());
 		return $f;
 	}
 

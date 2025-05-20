@@ -4,9 +4,9 @@ class ConfigView extends AppControllerBE
 {
 
 	/**
-     * @var string
-     */
-    public $file;
+	 * @var string
+	 */
+	public $file;
 
 	protected $prefix = __CLASS__;
 
@@ -41,8 +41,8 @@ class ConfigView extends AppControllerBE
 			}
 
 			$f->prefix('');
-			$f->hidden('action', 'save');
-			$f->submit('Save');
+			$f->stdout .= $f->hidden('action', 'save');
+			$f->stdout .= $f->submit('Save');
 			$f->debug = $_COOKIE['debug'];
 			$content = $f;
 

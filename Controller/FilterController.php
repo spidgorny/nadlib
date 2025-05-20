@@ -48,11 +48,11 @@ class FilterController extends Controller
 		$f->method('POST');
 		$f->defaultBR = true;
 //		llog($this->linker->linkVars);
-		$f->formHideArray($this->linker->linkVars);
+		$f->stdout .= $f->formHideArray($this->linker->linkVars);
 		$f->prefix('filter');
 		$f->showForm();
 		$f->prefix(null);
-		$f->submit(__('Filter'));
+		$f->stdout .= $f->submit(__('Filter'));
 		return $f;
 	}
 
