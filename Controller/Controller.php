@@ -93,6 +93,7 @@ abstract class Controller extends SimpleController
 	 * @var DBLayer|DBLayerPDO|DBLayerSQLite|DBLayerBase|DBInterface
 	 */
 	protected $db;
+	protected float $lastMicrotime;
 
 	public function __construct()
 	{
@@ -193,16 +194,20 @@ abstract class Controller extends SimpleController
 	public function encloseInAA($content, $caption = '', $h = null, array $more = [])
 	{
 		$h = $h ?: $this->encloseTag;
+		$start = $this->lastMicrotime ?? $_SERVER['REQUEST_TIME_FLOAT'];
 		$content = $this->s($content);
 		if ($caption) {
+			$duration = DEVELOPMENT ? ' (' . number_format(microtime(true) - $start, 4) . ')' : '';
 			$content = [
-				'caption' => $this->getCaption($caption, $h),
+				'caption' => $this->getCaption($caption . $duration, $h),
 				$content
 			];
 		}
 
 		$more['class'] = ifsetor($more['class'], 'padding clearfix');
 		$more['class'] .= ' ' . get_class($this);
+
+		$this->lastMicrotime = microtime(true);
 		return new HTMLTag('section', $more, $content, true);
 	}
 

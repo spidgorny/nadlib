@@ -21,9 +21,9 @@ class HTMLSubmit extends HTMLFormField
 	}
 
 	/**
-     * Shows the form element in the form
-     */
-    public function render(): string
+	 * Shows the form element in the form
+	 */
+	public function render(): string
 	{
 		$params = $this->params;
 		$params['class'] = ifsetor($params['class'], 'submit btn');
@@ -32,32 +32,31 @@ class HTMLSubmit extends HTMLFormField
 		//$this->stdout .= "<input type=\"submit\" ".$this->getAttrHTML($params)." ".($value?'value="'.$value.'"':"") . " $more />\n";
 		// this.form.submit() will not work
 		//debug('submit', $params);
-		$content = $this->form->getInput("submit", $this->field, $this->value, $params, $params['class']);
-		return $content;
+		return $this->form->getInput("submit", $this->field, $this->value, $params, $params['class']);
 	}
 
 	/**
-     * Whet's the key name
-     * @param $fieldName
-     */
-    public function setField($fieldName): void
+	 * Whet's the key name
+	 * @param $fieldName
+	 */
+	public function setField($fieldName): void
 	{
 		$this->field = $fieldName;
 	}
 
 	/**
-     * Inject form for additional function calls
-     */
-    public function setForm(HTMLForm $form): void
+	 * Inject form for additional function calls
+	 */
+	public function setForm(HTMLForm $form): void
 	{
 		$this->form = $form;
 	}
 
 	/**
-     * Set current field value
-     * @param $value
-     */
-    public function setValue($value): void
+	 * Set current field value
+	 * @param $value
+	 */
+	public function setValue($value): void
 	{
 		$this->value = $value;
 	}

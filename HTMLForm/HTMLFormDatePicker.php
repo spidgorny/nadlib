@@ -33,9 +33,6 @@ class HTMLFormDatePicker extends HTMLFormField
 
 	public function render(): string
 	{
-		$tmp = $this->form->stdout;
-		$this->form->stdout = '';
-//
 //		echo __METHOD__, BR;
 		//debug($this->field, $this->value);
 		if ($this->value && $this->value !== '0000-00-00') {
@@ -49,13 +46,11 @@ class HTMLFormDatePicker extends HTMLFormField
 			$val = '';
 		}
 
-		$this->form->input($this->field, $val, [
+		$this->content = $this->form->input($this->field, $val, [
 				'format' => $this->jsFormat
 			] + $this->jsParams,
 			$this->inputType, ifsetor($this->desc['class'], ''));
 
-		$this->content = $this->form->stdout;
-		$this->form->stdout = $tmp;
 		return $this->content;
 	}
 
