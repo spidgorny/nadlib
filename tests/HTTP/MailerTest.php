@@ -7,7 +7,7 @@
  * Time: 13:37
  */
 
-class MailerTest extends PHPUnit\Framework\TestCase
+class MailerTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	public function test_getShortFilename(): void

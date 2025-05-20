@@ -45,7 +45,7 @@ class FilterController extends Controller
 	{
 		$f = new HTMLFormTable($this->desc);
 		$f->setAllOptional();
-		$f->method('POST');
+		$f->method(HTMLForm::METHOD_GET);
 		$f->defaultBR = true;
 //		llog($this->linker->linkVars);
 		$f->stdout .= $f->formHideArray($this->linker->linkVars);

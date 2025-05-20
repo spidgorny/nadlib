@@ -8,7 +8,7 @@ use League\Flysystem\Filesystem;
  * Date: 2017-08-03
  * Time: 22:28
  */
-class UploaderTest extends PHPUnit\Framework\TestCase
+class UploaderTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	public function test_GetPostedFiles_single(): void

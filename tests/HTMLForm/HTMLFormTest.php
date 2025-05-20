@@ -6,7 +6,7 @@
  * Date: 2017-03-22
  * Time: 17:04
  */
-class HTMLFormTest extends PHPUnit\Framework\TestCase
+class HTMLFormTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	public function test_id(): void

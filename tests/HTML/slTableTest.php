@@ -1,6 +1,6 @@
 <?php
 
-class slTableTest extends PHPUnit\Framework\TestCase
+class slTableTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	public function test_construct(): void
@@ -77,7 +77,7 @@ class slTableTest extends PHPUnit\Framework\TestCase
 		$s = new slTable([]);
 		$request = new Request();
 		$request->clear();
-        
+
 		$s->setRequest($request);
 		$s->detectSortBy();
 		$this->assertEquals([], $s->thes);
@@ -91,7 +91,7 @@ class slTableTest extends PHPUnit\Framework\TestCase
 		]);
 		$request = new Request();
 		$request->clear();
-        
+
 		$s->setRequest($request);
 		$s->sortable = true;    // required for detectSortBy()
 		$s->detectSortBy();
@@ -110,7 +110,7 @@ class slTableTest extends PHPUnit\Framework\TestCase
 		]);
 		$request = new Request();
 		$request->clear();
-        
+
 		$s->setRequest($request);
 		$s->sortable = false;    // required for detectSortBy()
 		$s->detectSortBy();
@@ -139,7 +139,7 @@ class slTableTest extends PHPUnit\Framework\TestCase
 			['a' => 1, '###TD_CLASS###' => 'asd'],
 		]);
 		$s->ID = '8ebde336af5b22305e70fccf9607caa4';
-        
+
 		$html = $s->getContent();
 //		llog($html);
 		$this->assertEquals(2, substr_count($html, '<tr'));

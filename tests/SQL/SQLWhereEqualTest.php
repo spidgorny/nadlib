@@ -7,7 +7,7 @@
  */
 
 
-class SQLWhereEqualTest extends PHPUnit\Framework\TestCase
+class SQLWhereEqualTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	/** @var DBInterface */

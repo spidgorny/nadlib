@@ -1,6 +1,6 @@
 <?php
 
-class ArrayIteratorPlusTest extends PHPUnit\Framework\TestCase
+class ArrayIteratorPlusTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	/**

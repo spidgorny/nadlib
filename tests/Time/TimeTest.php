@@ -1,6 +1,6 @@
 <?php
 
-class TimeTest extends PHPUnit\Framework\TestCase
+class TimeTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	protected function setUp(): void

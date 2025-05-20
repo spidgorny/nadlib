@@ -8,7 +8,7 @@ use spidgorny\nadlib\HTTP\URL;
  * Date: 2016-01-24
  * Time: 23:17
  */
-class URLTest extends PHPUnit\Framework\TestCase
+class URLTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	public function test_resolve_append(): void

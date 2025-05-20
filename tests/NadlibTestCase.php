@@ -1,6 +1,6 @@
 <?php
 
-class NadlibTestCase extends PHPUnit\Framework\TestCase
+class NadlibTestCase extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	public $canPrint = false;

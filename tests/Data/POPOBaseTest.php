@@ -23,7 +23,7 @@ class JustIdAndName extends POPOBase
 
 }
 
-class POPOBaseTest extends PHPUnit\Framework\TestCase
+class POPOBaseTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	public function test__construct(): void

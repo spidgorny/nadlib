@@ -8,8 +8,8 @@
 
 namespace nadlib\HTMLForm;
 
+use AppDev\OnlineRequestSystem\Framework\TestCase;
 use HTMLFormInline;
-use PHPUnit\Framework\TestCase;
 
 class HTMLFormInlineTest extends TestCase
 {

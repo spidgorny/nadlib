@@ -8,7 +8,7 @@
 
 use nadlib\SessionDatabase;
 
-class SessionDatabaseTest extends PHPUnit\Framework\TestCase
+class SessionDatabaseTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	public function test_runInsertQuery(): void

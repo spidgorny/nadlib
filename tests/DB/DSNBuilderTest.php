@@ -1,7 +1,7 @@
 <?php
 
 
-class DSNBuilderTest extends PHPUnit\Framework\TestCase
+class DSNBuilderTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	public function testMake(): void

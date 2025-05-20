@@ -62,11 +62,17 @@ class Linker
 			//unset($params['c']);
 		}
 
-		$location = '';
-		if (!str_startsWith($prefix, 'http')) {
-			$location = $this->request->getLocation();
+		$action = ifsetor($params['action']);
+		if ($action) {
+			unset($params['action']);
 		}
 
+		$location = '';
+		if (!str_startsWith($prefix, 'http')) {
+			$location = Request::getLocation();
+		}
+
+//		llog($prefix, $location, $params);
 		$url = new URL($prefix
 			? $location . $prefix
 			: $location, $params);
@@ -75,21 +81,26 @@ class Linker
 			$path->setFile($class);
 			$path->setAsFile();
 		}
+		if ($action) {
+			$path->appendString($action);
+		}
 
 		//debug($prefix, get_class($path));
 		$url->setPath($path);
-		nodebug([
-			'method' => __METHOD__,
-			'params' => $params,
-			'prefix' => $prefix,
-			'useRouter' => $this->useRouter,
-			'class' => $class,
-			'class($url)' => get_class($url),
-			'class($path)' => get_class($path),
-			'$this->linkVars' => $this->linkVars,
-			'return' => $url . '',
-			'location' => $location . '',
-		]);
+
+//		llog([
+//			'method' => __METHOD__,
+//			'params' => $params,
+//			'prefix' => $prefix,
+//			'useRouter' => $this->useRouter,
+//			'class' => $class,
+//			'class($url)' => get_class($url),
+//			'class($path)' => get_class($path),
+//			'$this->linkVars' => $this->linkVars,
+//			'return' => $url . '',
+//			'location' => $location . '',
+//			'url' => $url->toString(),
+//		]);
 		return $url;
 	}
 
@@ -194,7 +205,9 @@ class Linker
 	public function linkToAction($action = '', array $params = [], $controller = null): URL
 	{
 		if (!$controller) {
-			$controller = $this->controllerName;
+			$controller = stripNamespace($this->controllerName);
+		} else {
+			$controller = trim($controller, '/');
 		}
 
 		$params = [

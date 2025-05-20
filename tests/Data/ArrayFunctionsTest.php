@@ -10,7 +10,7 @@ if (!defined('DEVELOPMENT')) {
  * Date: 23.11.2016
  * Time: 11:45
  */
-class ArrayFunctionsTest extends PHPUnit\Framework\TestCase
+class ArrayFunctionsTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	public function test_unique_multidim_array_thru(): void

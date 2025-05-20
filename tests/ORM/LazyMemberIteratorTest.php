@@ -5,7 +5,7 @@ class LazyObject extends ArrayObject
 
 }
 
-class LazyMemberIteratorTest extends PHPUnit\Framework\TestCase
+class LazyMemberIteratorTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	/**

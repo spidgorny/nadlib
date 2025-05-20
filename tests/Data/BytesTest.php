@@ -6,7 +6,7 @@
  * Date: 18.01.2016
  * Time: 11:34
  */
-class BytesTest extends PHPUnit\Framework\TestCase
+class BytesTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	public function test_return_bytes(): void

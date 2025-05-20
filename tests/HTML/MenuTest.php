@@ -1,7 +1,7 @@
 <?php
 
 
-class MenuTest extends PHPUnit\Framework\TestCase
+class MenuTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	public function test__construct(): void

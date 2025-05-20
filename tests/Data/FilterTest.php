@@ -8,7 +8,7 @@ use nadlib\Controller\Filter;
  * Date: 20.05.2016
  * Time: 14:05
  */
-class FilterTest extends PHPUnit\Framework\TestCase
+class FilterTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	/**

@@ -1,6 +1,6 @@
 <?php
 
-class SQLTest extends PHPUnit\Framework\TestCase
+class SQLTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	/**

@@ -27,9 +27,8 @@ trait FullGrid
 		}
 
 		if (!($this->filter instanceof nadlib\Controller\Filter)) {
-//			debug($this->filter);
-			$this->filter = new nadlib\Controller\Filter();
-//			debug(gettype2($this->filter));
+			$filterFieldsFromUrl = $this->request->getArray('filter');
+			$this->filter = new nadlib\Controller\Filter($filterFieldsFromUrl);
 		}
 
 		$this->filterController = new FilterController();

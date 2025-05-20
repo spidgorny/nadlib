@@ -6,7 +6,7 @@
  * Date: 2016-01-23
  * Time: 01:10
  */
-class PathTest extends PHPUnit\Framework\TestCase
+class PathTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	public function test_Windows(): void

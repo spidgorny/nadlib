@@ -1,6 +1,6 @@
 <?php
 
-class DurationTest extends PHPUnit\Framework\TestCase
+class DurationTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	public function test_Duration_fromHuman(): void

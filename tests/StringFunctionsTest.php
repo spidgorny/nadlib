@@ -1,6 +1,6 @@
 <?php
 
-class StringFunctionsTest extends PHPUnit\Framework\TestCase
+class StringFunctionsTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	public function test_cap(): void

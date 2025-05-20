@@ -6,7 +6,7 @@
  * Date: 22.06.2016
  * Time: 16:42
  */
-class ClosureCacheTest extends PHPUnit\Framework\TestCase
+class ClosureCacheTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	public function test_it(): void

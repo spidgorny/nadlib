@@ -9,8 +9,8 @@
 namespace nadlib\Test;
 
 use ACLChecker;
+use AppDev\OnlineRequestSystem\Framework\TestCase;
 use NOEUser;
-use PHPUnit\Framework\TestCase;
 use TestController;
 
 class ACLCheckerTest extends TestCase
@@ -23,7 +23,7 @@ class ACLCheckerTest extends TestCase
 		);
 		$controller = new TestController();
 		$controller->user = null;
-        
+
 		$ac = new ACLChecker($controller);
 		$ac->compareACL(null);
 		$ac->compareACL('null');
@@ -39,7 +39,7 @@ class ACLCheckerTest extends TestCase
 		$controller = new TestController();
 		$controller->user = new NOEUser();
 		$controller->user->id = 1;
-        
+
 		$ac = new ACLChecker($controller);
 		$ac->compareACL(null);
 		$ac->compareACL('null');

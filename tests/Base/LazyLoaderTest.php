@@ -8,8 +8,8 @@
 
 namespace nadlib\Base;
 
+use AppDev\OnlineRequestSystem\Framework\TestCase;
 use LazyLoader;
-use PHPUnit\Framework\TestCase;
 use stdClass;
 
 class LazyLoaderTest extends TestCase

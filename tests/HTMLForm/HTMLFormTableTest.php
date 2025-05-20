@@ -2,11 +2,11 @@
 
 namespace spidgorny\nadlib\HTMLForm;
 
+use AppDev\OnlineRequestSystem\Framework\TestCase;
 use HTMLForm;
 use HTMLFormTable;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Dom\AbstractNode;
-use PHPUnit\Framework\TestCase;
 use tidy;
 
 /**

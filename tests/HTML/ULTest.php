@@ -6,7 +6,7 @@
  * Date: 29.01.2016
  * Time: 11:30
  */
-class ULTest extends PHPUnit\Framework\TestCase
+class ULTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	/**

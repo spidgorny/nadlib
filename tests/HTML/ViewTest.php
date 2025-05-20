@@ -6,7 +6,7 @@
  * Date: 10.12.2015
  * Time: 21:20
  */
-class ViewTest extends PHPUnit\Framework\TestCase
+class ViewTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	public function test_render(): void

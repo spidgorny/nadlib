@@ -1,6 +1,6 @@
 <?php
 
-class DateTest extends PHPUnit\Framework\TestCase
+class DateTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 {
 
 	public function test_Date(): void

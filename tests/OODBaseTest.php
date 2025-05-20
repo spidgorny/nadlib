@@ -8,8 +8,8 @@
 
 namespace nadlib\Test;
 
+use AppDev\OnlineRequestSystem\Framework\TestCase;
 use OODBase;
-use PHPUnit\Framework\TestCase;
 
 class OODBaseTest extends TestCase
 {
