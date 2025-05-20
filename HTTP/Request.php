@@ -440,7 +440,7 @@ class Request
 
 	public function getString($name): string
 	{
-		return isset($this->data[$name]) ? strval($this->data[$name]) : '';
+		return isset($this->data[$name]) ? (string)$this->data[$name] : '';
 	}
 
 	public function getTrimLower($name): string
