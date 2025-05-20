@@ -388,6 +388,9 @@ class IndexBase /*extends Controller*/
 
 		$content = $this->s($content);
 		$this->sidebar = $this->showSidebar();
+//		llog('controller', get_class($this->controller));
+//		llog('sidebar', get_debug_type($this->sidebar));
+//		llog('layout', $this->controller->layout);
 		if ($this->controller->layout instanceof Wrap
 			&& !$this->request->isAjax()) {
 			$content = $this->controller->layout->wrap($content);
@@ -455,6 +458,7 @@ class IndexBase /*extends Controller*/
 				$content = $this->controller->sidebar();
 				$content = $this->s($content);
 			} catch (Exception $e) {
+				llog('showSidebar', $e->getMessage());
 				// no sidebar
 			}
 		}

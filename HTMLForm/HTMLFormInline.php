@@ -13,14 +13,14 @@ class HTMLFormInline extends HTMLFormTable
 		return htmlspecialchars($this->s($content));
 	}
 
-	public function mainFormStart(): void
+	public function mainFormStart(): string
 	{
-		$this->stdout .= '';
+		return '';
 	}
 
-	public function mainFormEnd(): void
+	public function mainFormEnd(): string
 	{
-		$this->stdout .= '';
+		return '';
 	}
 
 	/**
@@ -28,36 +28,32 @@ class HTMLFormInline extends HTMLFormTable
 	 * @param bool $mainForm
 	 * @param string $append
 	 */
-	public function getForm(array $formData, array $prefix = [], $mainForm = true, $append = ''): string
+	public function getForm(array $formData, array $prefix = [], $mainForm = true, $append = ''): array
 	{
 		$startedFieldset = false;
-		$tmp = $this->stdout;
-		$this->stdout = '';
 
 		if ($this->mainForm) {
-			$this->mainFormStart();
+			$content[] = $this->mainFormStart();
 		}
 
 		if ($this->fieldset) {
-			$this->stdout .= "<fieldset " . $this->getAttrHTML($this->fieldsetMore) . ">
+			$content[] = "<fieldset " . self::getAttrHTML($this->fieldsetMore) . ">
 				<legend>" . $this->fieldset . "</legend>";
 			$startedFieldset = true;
 			$this->fieldset = null;
 		}
 
-		$this->stdout .= $this->s($this->renderFormRows($formData, $prefix));
-		$this->stdout .= $append;
+		$content[] = $this->s($this->renderFormRows($formData, $prefix));
+		$content[] = $append;
 		if ($startedFieldset) {
-			$this->stdout .= "</fieldset>";
+			$content[] = "</fieldset>";
 		}
 
 		if ($this->mainForm) {
-			$this->mainFormEnd();
+			$content[] = $this->mainFormEnd();
 		}
 
-		$part = $this->stdout;
-		$this->stdout = $tmp;
-		return $part;
+		return $content;
 	}
 
 	/**
@@ -73,7 +69,7 @@ class HTMLFormInline extends HTMLFormTable
 		return $content;
 	}
 
-	public function showTR(array $prefix, array|HTMLFormFieldInterface $fieldDesc): array
+	public function showTR(array $prefix, array|HTMLFormFieldInterface $fieldDesc): string|array
 	{
 		$wrapElement = $fieldDesc['type'] !== 'html';
 		if ($wrapElement) {
@@ -111,10 +107,10 @@ class HTMLFormInline extends HTMLFormTable
 		return $content;
 	}
 
-	public function input($name, $value = "", array $more = [], string $type = 'text', $extraClass = ''): void
+	public function input($name, $value = "", array $more = [], string $type = 'text', $extraClass = ''): string
 	{
 		$extraClass = $extraClass ?: 'form-control';
-		parent::input($name, $value, $more, $type, $extraClass);
+		return parent::input($name, $value, $more, $type, $extraClass);
 	}
 
 	public function getCreateTable(string $table): string

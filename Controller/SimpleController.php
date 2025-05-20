@@ -106,22 +106,10 @@ abstract class SimpleController
 		//		$params = $params + $this->linkVars;
 		//		debug($params);
 		//		return $this->makeURL($params, $prefix);
-		return ClosureCache::getInstance(spl_object_hash($this), static function (): \spidgorny\nadlib\HTTP\URL {
+		return ClosureCache::getInstance(spl_object_hash($this), static function (): URL {
 			return new URL();
 		})->get();
 	}
-
-	/*function redirect($url) {
-		if (DEVELOPMENT) {
-			return '<script>
-				setTimeout(function() {
-					document.location.replace("'.str_replace('"', '&quot;', $url).'");
-				}, 5000);
-			</script>';
-		} else {
-			return '<script> document.location.replace("'.str_replace('"', '&quot;', $url).'"); </script>';
-		}
-	}*/
 
 	public function render()
 	{
@@ -182,9 +170,6 @@ abstract class SimpleController
 		}
 
 		$method .= 'Action';        // ZendFramework style
-		if ($method !== 'updateNotificationCounterAction') {
-//			llog(get_class($this), $method, method_exists($this, $method));
-		}
 
 		$proxy = $this;
 		// used to call an $action on PrepareGive, PrepareBurn instead of direct PrepareRequest class

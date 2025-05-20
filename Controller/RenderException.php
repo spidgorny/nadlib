@@ -17,19 +17,20 @@ class RenderException
 	public function render(string $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error'): \JSONResponse|array
 	{
 		$e = $this->e;
+		$traceAsString = $e->getTraceAsString();
+		$traceAsString = str_replace(getcwd(), "", $traceAsString);
 		if (Request::isCLI()) {
 			echo get_class($e),
 			' #', $e->getCode(),
 			': ', $e->getMessage(), BR;
-			echo $e->getTraceAsString(), BR;
+			echo $traceAsString, BR;
 			return [''];
 		}
 
 		http_response_code($this->code ?: $e->getCode());
 		header('X-Exception:' . get_class($this->e));
 		$message = $this->e->getMessage();
-		$message = str_replace("\n", " ", $message);
-		$message = str_replace("\r", " ", $message);
+		$message = str_replace(array("\n", "\r"), " ", $message);
 		header('X-Message:' . $message);
 
 		$accept = $_SERVER['HTTP_ACCEPT'] ?? '';
@@ -55,7 +56,7 @@ class RenderException
 		$content .= 'In ' . $e->getFile() . ' on line ' . $e->getLine() . '<br/>';
 		$content .= $e->getPrevious() instanceof \Throwable ? 'Previous: ' . $e->getPrevious()->getMessage() . '<br/>' : '';
 		$content .= '<hr class="my-3"/><pre style="text-align: left; white-space: pre-wrap;">' .
-			htmlspecialchars($e->getTraceAsString()) . '</pre>';
+			htmlspecialchars($traceAsString) . '</pre>';
 
 		if ($e instanceof LoginException) {
 			// catch this exception in your app Index class, it can't know what to do with all different apps

@@ -169,7 +169,7 @@ class HTMLFormTable extends HTMLForm
 		return $this;
 	}
 
-	public function getForm(array $formData, array $prefix = [], $mainForm = true, string $append = ''): string
+	public function getForm(array $formData, array $prefix = [], $mainForm = true, string $append = ''): string|array
 	{
 //		llog('getForm', $prefix);
 		$startedFieldset = false;
@@ -414,7 +414,7 @@ class HTMLFormTable extends HTMLForm
 	 * @param array|HTMLFormTypeInterface $fieldDesc
 	 * @return string
 	 */
-	public function showTR(array $prefix, array|HTMLFormFieldInterface $fieldDesc): string
+	public function showTR(array $prefix, array|HTMLFormFieldInterface $fieldDesc): string|array
 	{
 		if (!isset($fieldDesc['horizontal']) || !$fieldDesc['horizontal']) {
 			$content[] = "<tr " . self::getAttrHTML($fieldDesc['TRmore'] ?? null) . ">";
