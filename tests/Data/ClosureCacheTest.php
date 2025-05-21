@@ -1,12 +1,16 @@
 <?php
 
+namespace Data;
+
+use ClosureCache;
+
 /**
  * Created by PhpStorm.
  * User: DEPIDSVY
  * Date: 22.06.2016
  * Time: 16:42
  */
-class ClosureCacheTest extends AppDev\OnlineRequestSystem\Framework\TestCase
+class ClosureCacheTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function test_it(): void
@@ -19,11 +23,11 @@ class ClosureCacheTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 		);*/
 
 		$cc = ClosureCache::getInstance('test', function (): int {
-			return rand(0, PHP_INT_MAX);
+			return random_int(0, PHP_INT_MAX);
 		});
 		$first = $cc->get();
 		$second = $cc->get();
-		$this->assertEquals($first, $second);
+		static::assertEquals($first, $second);
 	}
 
 }

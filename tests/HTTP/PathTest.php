@@ -1,12 +1,16 @@
 <?php
 
+namespace HTTP;
+
+use Path;
+
 /**
  * Created by PhpStorm.
  * User: Slawa
  * Date: 2016-01-23
  * Time: 01:10
  */
-class PathTest extends AppDev\OnlineRequestSystem\Framework\TestCase
+class PathTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function test_Windows(): void
@@ -15,9 +19,9 @@ class PathTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 		$p = new Path("C:\\folderone\\two\\three");
 
 		//debug($p->aPath, $p->sPath);
-		$this->assertGreaterThan(3, count($p->aPath));
-		$this->assertEquals('C:', $p->aPath[0]);
-		$this->assertStringStartsWith('C:/', $p . '');
+		static::assertGreaterThan(3, count($p->aPath));
+		static::assertEquals('C:', $p->aPath[0]);
+		static::assertStringStartsWith('C:/', $p . '');
 	}
 
 	public function test_cap_Windows(): void
@@ -27,15 +31,15 @@ class PathTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 //		debug($p->aPath, $p->sPath);
 		// all windows slash except last
 		$source = str_replace('\\', '/', getcwd()) . '/';
-		$this->assertEquals($source, $p->implode());
+		static::assertEquals($source, $p->implode());
 	}
 
 	public function test_isAbsolute(): void
 	{
 		$path = new Path('asd/qwe');
-		$this->assertFalse($path->isAbsolute());
+		static::assertFalse($path->isAbsolute());
 		$path = new Path('dev-jobz/Topic/hyperledger');
-		$this->assertFalse($path->isAbsolute());
+		static::assertFalse($path->isAbsolute());
 	}
 
 	public function test_appRoot(): void
@@ -44,12 +48,12 @@ class PathTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 		$al->getAppRoot();
 //		debug($appRoot . '');
 //		$this->assertEquals(dirname(dirname(dirname(__FILE__))), $appRoot.'');
-		$this->markTestSkipped();
+		static::markTestSkipped();
 	}
 
 	public function test_relativeFromAppRoot(): void
 	{
-		$this->markTestSkipped(
+		static::markTestSkipped(
 			'Cannot work from nadlib as a standalone.'
 		);
 
@@ -58,7 +62,7 @@ class PathTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 		$path = new Path($source);
 		$relative = $path->relativeFromAppRoot();
 		//debug($relative.'');
-		$this->assertContains($relative . '', [
+		static::assertContains($relative . '', [
 			'nadlib/' . $source,
 			'vendor/spidgorny/nadlib/' . $source,
 			'Users/DEPIDSVY/nadlib/' . $source,
@@ -70,55 +74,55 @@ class PathTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 	{
 		$path = new Path('/var/www/htdocs/');
 		$path->append(new Path('ftp'));
-		$this->assertEquals('/var/www/htdocs/ftp', $path . '');
+		static::assertEquals('/var/www/htdocs/ftp', $path . '');
 	}
 
 	public function test_append_capped(): void
 	{
 		$path = new Path('/var/www/htdocs/');
 		$path->append(new Path('ftp/'));
-		$this->assertEquals('/var/www/htdocs/ftp/', $path . '');
+		static::assertEquals('/var/www/htdocs/ftp/', $path . '');
 	}
 
 	public function test_back_path(): void
 	{
 		$path = new Path('../ftp');
-		$this->assertEquals(['..', 'ftp'], $path->aPath);
+		static::assertEquals(['..', 'ftp'], $path->aPath);
 	}
 
 	public function test_append_back(): void
 	{
 		$path = new Path('/var/www/htdocs/');
 		$path->append(new Path('../ftp'));
-		$this->assertEquals('/var/www/ftp', $path . '');
+		static::assertEquals('/var/www/ftp', $path . '');
 	}
 
 	public function test_append_back_twice(): void
 	{
 		$path = new Path('/var/www/htdocs/');
 		$path->append(new Path('../../ftp'));
-		$this->assertEquals('/var/ftp', $path . '');
+		static::assertEquals('/var/ftp', $path . '');
 	}
 
 	public function test_remove(): void
 	{
 		$path = new Path('/var/www/htdocs/');
 		$path->remove('/var/www');
-		$this->assertEquals('/htdocs/', $path . '');
+		static::assertEquals('/htdocs/', $path . '');
 	}
 
 	public function test_setFile(): void
 	{
 		$path = new Path('xxx');
 		$path->setFile('yyy');
-		$this->assertEquals('yyy', $path . '');
+		static::assertEquals('yyy', $path . '');
 	}
 
 	public function test_setFile_empty(): void
 	{
 		$path = new Path('xxx');
 		$path->setFile('');
-		$this->assertEquals('', $path . '');
+		static::assertEquals('', $path . '');
 	}
 
 }

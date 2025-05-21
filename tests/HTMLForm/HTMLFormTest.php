@@ -1,19 +1,23 @@
 <?php
 
+namespace HTMLForm;
+
+use HTMLForm;
+
 /**
  * Created by PhpStorm.
  * User: Slawa
  * Date: 2017-03-22
  * Time: 17:04
  */
-class HTMLFormTest extends AppDev\OnlineRequestSystem\Framework\TestCase
+class HTMLFormTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function test_id(): void
 	{
 		$f = new HTMLForm('action', __CLASS__);
 		$sForm = $f->getContent();
-		$this->assertContains('id="' . __CLASS__ . '"', $sForm);
+		static::assertStringContainsString('id="' . __CLASS__ . '"', $sForm);
 	}
 
 	public function test_formTag(): void
@@ -21,7 +25,7 @@ class HTMLFormTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 		$f = new HTMLForm();
 		$tag = $f->getFormTag();
 		//echo $tag, PHP_EOL;
-		$this->assertEquals('<form method="POST">' . "\n", $tag);
+		static::assertEquals('<form method="POST">' . "\n", $tag);
 	}
 
 	public function test_input(): void
@@ -31,7 +35,7 @@ class HTMLFormTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 
 		$sInput = $f->getBuffer();
 //		echo $sInput, PHP_EOL;
-		$this->assertContains(
+		static::assertContains(
 			'<input type="text" class="text class" name="name" value="value" more="more" />', $sInput
 		);
 	}
@@ -48,7 +52,7 @@ class HTMLFormTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 		], 'text', 'class');
 		$sInput = $f->getBuffer();
 		//echo $sInput, PHP_EOL;
-		$this->assertContains(
+		static::assertContains(
 			'<input type="text" class="text class more" name="name" value="value" id="more" />', $sInput
 		);
 	}
@@ -65,7 +69,7 @@ class HTMLFormTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 		]);
 		$html = $f->getBuffer();
 //		debug($html);
-		$this->assertContains('"k1" checked', $html);
+		static::assertContains('"k1" checked', $html);
 	}
 
 	public function test_set_multiple(): void
@@ -80,8 +84,8 @@ class HTMLFormTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 		]);
 		$html = $f->getBuffer();
 //		debug($html);
-		$this->assertContains('"k1" checked', $html);
-		$this->assertContains('"k2" checked', $html);
+		static::assertContains('"k1" checked', $html);
+		static::assertContains('"k2" checked', $html);
 	}
 
 	public function test_keyset_multiple(): void
@@ -96,8 +100,8 @@ class HTMLFormTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 		]);
 		$html = $f->getBuffer();
 //		debug($html);
-		$this->assertContains('"k1" checked', $html);
-		$this->assertContains('"k2" checked', $html);
+		static::assertContains('"k1" checked', $html);
+		static::assertContains('"k2" checked', $html);
 	}
 
 	protected function setUp(): void

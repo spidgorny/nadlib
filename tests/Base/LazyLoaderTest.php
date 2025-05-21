@@ -6,10 +6,10 @@
  * Time: 11:27
  */
 
-namespace nadlib\Base;
+namespace Base;
 
-use AppDev\OnlineRequestSystem\Framework\TestCase;
 use LazyLoader;
+use PHPUnit\Framework\TestCase;
 use stdClass;
 
 class LazyLoaderTest extends TestCase
@@ -20,8 +20,8 @@ class LazyLoaderTest extends TestCase
 		$l1 = new LazyLoader('123');
 		$v1 = $l1();
 		$v2 = $l1();
-		$this->assertEquals('123', $v1);
-		$this->assertEquals('123', $v2);
+		static::assertEquals('123', $v1);
+		static::assertEquals('123', $v2);
 	}
 
 	public function test_ll_same_object(): void
@@ -29,7 +29,7 @@ class LazyLoaderTest extends TestCase
 		$l1 = new LazyLoader(new stdClass());
 		$v1 = $l1();
 		$v2 = $l1();
-		$this->assertEquals(spl_object_hash($v1), spl_object_hash($v2));
+		static::assertEquals(spl_object_hash($v1), spl_object_hash($v2));
 	}
 
 	public function test_ll_time_once(): void
@@ -42,7 +42,7 @@ class LazyLoaderTest extends TestCase
 		$l1();
 		$duration = microtime(true) - $start;
 //		echo __METHOD__, ': ', $duration, PHP_EOL;
-		$this->assertLessThan(2, $duration);
+		static::assertLessThan(2, $duration);
 	}
 
 }

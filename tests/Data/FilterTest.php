@@ -1,5 +1,7 @@
 <?php
 
+namespace Data;
+
 use nadlib\Controller\Filter;
 
 /**
@@ -8,7 +10,7 @@ use nadlib\Controller\Filter;
  * Date: 20.05.2016
  * Time: 14:05
  */
-class FilterTest extends AppDev\OnlineRequestSystem\Framework\TestCase
+class FilterTest extends \PHPUnit\Framework\TestCase
 {
 
 	/**
@@ -22,20 +24,20 @@ class FilterTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 //		$this->assertEquals(20, $this->f->request);
 //		$this->assertEquals(30, $this->f->prefs);
 		// @phpstan-ignore-next-line
-		$this->assertEquals('request', $this->f->a);
+		static::assertEquals('request', $this->f->a);
 
-		$this->assertEquals(10, $this->f['default']);
-		$this->assertEquals(20, $this->f['request']);
-		$this->assertEquals(30, $this->f['prefs']);
-		$this->assertEquals('request', $this->f['a']);
+		static::assertEquals(10, $this->f['default']);
+		static::assertEquals(20, $this->f['request']);
+		static::assertEquals(30, $this->f['prefs']);
+		static::assertEquals('request', $this->f['a']);
 
 		// @phpstan-ignore-next-line
-		$this->assertEquals('cascade', $this->f->two);
+		static::assertEquals('cascade', $this->f->two);
 	}
 
 	public function test_arrayCopy(): void
 	{
-		$this->assertEquals([
+		static::assertEquals([
 			'a' => 'request',
 			'two' => 'cascade',
 			'default' => 10,

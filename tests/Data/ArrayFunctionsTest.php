@@ -4,13 +4,15 @@ if (!defined('DEVELOPMENT')) {
 	define('DEVELOPMENT', true);
 }
 
+namespace Data;
+
 /**
  * Created by PhpStorm.
  * User: DEPIDSVY
  * Date: 23.11.2016
  * Time: 11:45
  */
-class ArrayFunctionsTest extends AppDev\OnlineRequestSystem\Framework\TestCase
+class ArrayFunctionsTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function test_unique_multidim_array_thru(): void
@@ -25,7 +27,7 @@ class ArrayFunctionsTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 		];
 		$unique = unique_multidim_array_thru($fixture);
 //		debug($unique);
-		$this->assertEquals([
+		static::assertEquals([
 			'a' => 'b',
 			'e' => [
 				'a' => 'b',
@@ -40,7 +42,7 @@ class ArrayFunctionsTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 			'qwe',
 			'123',
 		];
-		$this->assertEquals('qwe', array_find_fast(static fn($line): bool => str_startsWith($line, 'q'), $data));
+		static::assertEquals('qwe', array_find_fast(static fn($line): bool => str_startsWith($line, 'q'), $data));
 	}
 
 }

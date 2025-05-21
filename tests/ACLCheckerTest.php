@@ -6,12 +6,7 @@
  * Time: 19:07
  */
 
-namespace nadlib\Test;
-
-use ACLChecker;
-use AppDev\OnlineRequestSystem\Framework\TestCase;
-use NOEUser;
-use TestController;
+use PHPUnit\Framework\TestCase;
 
 class ACLCheckerTest extends TestCase
 {

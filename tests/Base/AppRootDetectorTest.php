@@ -6,10 +6,10 @@
  * Time: 14:34
  */
 
-namespace nadlib\Base;
+namespace Base;
 
-use AppDev\OnlineRequestSystem\Framework\TestCase;
 use AppRootDetector;
+use PHPUnit\Framework\TestCase;
 
 class AppRootDetectorTest extends TestCase
 {
@@ -26,7 +26,7 @@ class AppRootDetectorTest extends TestCase
 //		echo 'dirname(dirname(cwd)): ', dirname(dirname(getcwd())), BR;
 		$ad = new AppRootDetector();
 //		echo 'AppRoot: ', $ad->get() . '', BR;
-		$this->assertContains('vendor/spidgorny/nadlib', $ad->get() . '');
+		static::assertContains('vendor/spidgorny/nadlib', $ad->get() . '');
 	}
 
 }

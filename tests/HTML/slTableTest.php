@@ -1,59 +1,64 @@
 <?php
 
-class slTableTest extends AppDev\OnlineRequestSystem\Framework\TestCase
+namespace HTML;
+
+use Request;
+use slTable;
+
+class slTableTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function test_construct(): void
 	{
 		$s = new slTable();
-		$this->assertEquals($s->more, [
+		static::assertEquals([
 			'class' => 'nospacing',
-		]);
+		], $s->more);
 	}
 
 	public function test_construct_with_more(): void
 	{
 		$s = new slTable([], 'class="whatever"');
-		$this->assertEquals($s->more, [
+		static::assertEquals([
 			'class' => 'whatever',
-		]);
+		], $s->more);
 	}
 
 	public function test_construct_with_more_array(): void
 	{
 		$s = new slTable([], ['class' => "whatever"]);
-		$this->assertEquals($s->more, [
+		static::assertEquals([
 			'class' => 'whatever',
-		]);
+		], $s->more);
 	}
 
 	public function test_construct_with_more_id(): void
 	{
 		$s = new slTable([], ['class' => "whatever", 'id' => 'qwe']);
-		$this->assertEquals([
+		static::assertEquals([
 			'class' => 'whatever',
 			'id' => 'qwe',
 		], $s->more);
-		$this->assertEquals('qwe', $s->ID);
+		static::assertEquals('qwe', $s->ID);
 	}
 
 	public function test_construct_with_more_id_string(): void
 	{
 		$s = new slTable([], 'id="qwe"');
-		$this->assertEquals([
+		static::assertEquals([
 			'id' => 'qwe',
 		], $s->more);
-		$this->assertEquals('qwe', $s->ID);
+		static::assertEquals('qwe', $s->ID);
 	}
 
 	public function test_construct_with_more_id_string_more(): void
 	{
 		$s = new slTable([], 'id="qwe" cellpadding="2"');
-		$this->assertEquals([
+		static::assertEquals([
 			'id' => 'qwe',
 			'cellpadding' => 2,
 		], $s->more);
-		$this->assertEquals('qwe', $s->ID);
+		static::assertEquals('qwe', $s->ID);
 	}
 
 	public function test_detectSortBy(): void
@@ -69,7 +74,7 @@ class slTableTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 		]]);
 		$s->setRequest($request);
 		$s->detectSortBy();
-		$this->assertEquals('a', $s->sortBy);
+		static::assertEquals('a', $s->sortBy);
 	}
 
 	public function test_detectSortBy_no_data(): void
@@ -80,8 +85,8 @@ class slTableTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 
 		$s->setRequest($request);
 		$s->detectSortBy();
-		$this->assertEquals([], $s->thes);
-		$this->assertEquals(null, $s->sortBy);
+		static::assertEquals([], $s->thes);
+		static::assertEquals(null, $s->sortBy);
 	}
 
 	public function test_detectSortBy_no_request(): void
@@ -95,12 +100,12 @@ class slTableTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 		$s->setRequest($request);
 		$s->sortable = true;    // required for detectSortBy()
 		$s->detectSortBy();
-		$this->assertEquals([
+		static::assertEquals([
 			'a' => [
 				'name' => 'a',
 			],
 		], $s->thes);
-		$this->assertEquals('a', $s->sortBy);
+		static::assertEquals('a', $s->sortBy);
 	}
 
 	public function test_detectSortBy_no_request_no_sort(): void
@@ -114,8 +119,8 @@ class slTableTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 		$s->setRequest($request);
 		$s->sortable = false;    // required for detectSortBy()
 		$s->detectSortBy();
-		$this->assertEquals([], $s->thes);
-		$this->assertEquals(null, $s->sortBy);
+		static::assertEquals([], $s->thes);
+		static::assertEquals(null, $s->sortBy);
 	}
 
 	public function test_has_header(): void
@@ -130,7 +135,7 @@ class slTableTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 
 		$html = $s->getContent();
 //		echo(tidy_repair_string($html, ['indent' => true]));
-		$this->assertStringContainsString('<th>a</th>', $html);
+		static::assertStringContainsString('<th>a</th>', $html);
 	}
 
 	public function test_td_class(): void
@@ -142,8 +147,8 @@ class slTableTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 
 		$html = $s->getContent();
 //		llog($html);
-		$this->assertEquals(2, substr_count($html, '<tr'));
-		$this->assertEquals(2, substr_count($html, '</tr'));
+		static::assertEquals(2, substr_count($html, '<tr'));
+		static::assertEquals(2, substr_count($html, '</tr'));
 	}
 
 }

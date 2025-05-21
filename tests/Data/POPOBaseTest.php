@@ -6,6 +6,11 @@
  * Time: 14:08
  */
 
+namespace Data;
+
+use DateTime;
+use POPOBase;
+
 class JustIdAndName extends POPOBase
 {
 
@@ -23,7 +28,7 @@ class JustIdAndName extends POPOBase
 
 }
 
-class POPOBaseTest extends AppDev\OnlineRequestSystem\Framework\TestCase
+class POPOBaseTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function test__construct(): void
@@ -37,9 +42,9 @@ class POPOBaseTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 		$json = (object)$struct;
 
 		$p = new JustIdAndName($json);
-		$this->assertNotEmpty($p->id);
-		$this->assertTrue(is_int($p->id));
-		$this->assertTrue(is_string($p->name));
-		$this->assertInstanceOf(DateTime::class, $p->date);
+		static::assertNotEmpty($p->id);
+		static::assertTrue(is_int($p->id));
+		static::assertTrue(is_string($p->name));
+		static::assertInstanceOf(DateTime::class, $p->date);
 	}
 }

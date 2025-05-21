@@ -1,12 +1,12 @@
 <?php
 
-namespace spidgorny\nadlib\HTMLForm;
+namespace HTMLForm;
 
-use AppDev\OnlineRequestSystem\Framework\TestCase;
 use HTMLForm;
 use HTMLFormTable;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Dom\AbstractNode;
+use PHPUnit\Framework\TestCase;
 use tidy;
 
 /**
@@ -33,7 +33,7 @@ class HTMLFormTableTest extends TestCase
 		$values = $f->getValues();
 //		debug($values);
 		unset($fixture['new_field']);
-		$this->assertEquals($fixture, $values);
+		static::assertEquals($fixture, $values);
 	}
 
 	public function test_fillValues_with_force(): void
@@ -50,7 +50,7 @@ class HTMLFormTableTest extends TestCase
 		$f->fill($fixture, true);
 		$values = $f->getValues();
 		unset($fixture['new_field']);
-		$this->assertEquals($fixture, $values);
+		static::assertEquals($fixture, $values);
 	}
 
 	public function test_fillValues_twice(): void
@@ -70,14 +70,14 @@ class HTMLFormTableTest extends TestCase
 		];
 		$f->fill($fixture, true);
 		$values = $f->getValues();
-		$this->assertEquals($fixture, $values);
+		static::assertEquals($fixture, $values);
 	}
 
 	public function test_hidden()
 	{
 		$form = new HTMLForm();
 		$html = $form->hidden('field', 'value');
-		$this->assertStringContainsString('<input type="hidden"', $html);
+		static::assertStringContainsString('<input type="hidden"', $html);
 	}
 
 	public function test_htmlspecialchars(): void
@@ -91,7 +91,7 @@ class HTMLFormTableTest extends TestCase
 
 		$html = $f->getContent();
 //		echo $html;
-		$this->assertStringContainsString('value="asd"', $html);
+		static::assertStringContainsString('value="asd"', $html);
 
 		$f = new HTMLFormTable([
 			'field' => [
@@ -102,7 +102,7 @@ class HTMLFormTableTest extends TestCase
 
 		$html = $f->getContent();
 //		echo $html;
-		$this->assertStringContainsString('value="asd &amp; &quot;qwe&quot;"', $html);
+		static::assertStringContainsString('value="asd &amp; &quot;qwe&quot;"', $html);
 	}
 
 	public function test_showCell()
@@ -112,7 +112,7 @@ class HTMLFormTableTest extends TestCase
 			'type' => 'hidden',
 			'value' => 'asd',
 		]);
-		$this->assertStringContainsString('<input type="hidden"', $html);
+		static::assertStringContainsString('<input type="hidden"', $html);
 	}
 
 	public function test_showTR()
@@ -122,7 +122,7 @@ class HTMLFormTableTest extends TestCase
 			'type' => 'hidden',
 			'value' => 'asd',
 		]);
-		$this->assertStringContainsString('<input type="hidden"', $html);
+		static::assertStringContainsString('<input type="hidden"', $html);
 	}
 
 	public function test_change_status_form_tags()
@@ -189,7 +189,7 @@ class HTMLFormTableTest extends TestCase
 //		echo $dom->root->outerHtml();
 		$structure = $this->getTagStructure($dom->root);
 		echo json_encode($structure, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
-		$this->assertStringNotContainsString('<tr></tr>', $dom->root->outerHtml());
+		static::assertStringNotContainsString('<tr></tr>', $dom->root->outerHtml());
 	}
 
 	protected function getTagStructure(AbstractNode $dom)

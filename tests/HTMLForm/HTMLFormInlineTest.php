@@ -6,10 +6,10 @@
  * Time: 15:17
  */
 
-namespace nadlib\HTMLForm;
+namespace HTMLForm;
 
-use AppDev\OnlineRequestSystem\Framework\TestCase;
 use HTMLFormInline;
+use PHPUnit\Framework\TestCase;
 
 class HTMLFormInlineTest extends TestCase
 {
@@ -23,7 +23,7 @@ class HTMLFormInlineTest extends TestCase
 		]);
 		$html = $f->showForm();
 //		debug($html->getContent());
-		$this->assertEquals($this->normalize('<form method="POST">
+		static::assertEquals($this->normalize('<form method="POST">
 <div class="form-group">
 <label>
 <span>Name</span>

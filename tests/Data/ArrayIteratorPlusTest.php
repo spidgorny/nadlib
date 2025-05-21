@@ -1,6 +1,10 @@
 <?php
 
-class ArrayIteratorPlusTest extends AppDev\OnlineRequestSystem\Framework\TestCase
+namespace Data;
+
+use ArrayIterator;
+
+class ArrayIteratorPlusTest extends \PHPUnit\Framework\TestCase
 {
 
 	/**
@@ -25,7 +29,7 @@ class ArrayIteratorPlusTest extends AppDev\OnlineRequestSystem\Framework\TestCas
 			$content .= $a;
 		}
 
-		$this->assertEquals('abtest', $content);
+		static::assertEquals('abtest', $content);
 	}
 
 	public function test_ArrayIteratorPlus_foreach(): void
@@ -35,7 +39,7 @@ class ArrayIteratorPlusTest extends AppDev\OnlineRequestSystem\Framework\TestCas
 			$content .= $a;
 		}
 
-		$this->assertEquals('abtest', $content);
+		static::assertEquals('abtest', $content);
 	}
 
 }
