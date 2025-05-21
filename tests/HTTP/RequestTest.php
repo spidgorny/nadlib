@@ -1,12 +1,16 @@
 <?php
+
+namespace HTTP;
+
+use Request;
+
 /**
  * Created by PhpStorm.
  * User: DEPIDSVY
  * Date: 19.12.13
  * Time: 15:03
  */
-
-class RequestTest extends AppDev\OnlineRequestSystem\Framework\TestCase
+class RequestTest extends \PHPUnit\Framework\TestCase
 {
 
 	/**
@@ -22,7 +26,7 @@ class RequestTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 	public function test_set(): void
 	{
 		$this->r->set('a', 'b');
-		$this->assertEquals('b', $this->r->getTrim('a'));
+		static::assertEquals('b', $this->r->getTrim('a'));
 	}
 
 	public function test_unset(): void
@@ -30,13 +34,13 @@ class RequestTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 		//debug($this->r);
 		$this->r->set('a', 'b');
 		$this->r->un_set('a');
-		$this->assertEmpty($this->r->getTrim('a'));
+		static::assertEmpty($this->r->getTrim('a'));
 	}
 
 	public function test_getTrim(): void
 	{
 		$this->r->set('a', ' some words' . "\n\t");
-		$this->assertEquals('some words', $this->r->getTrim('a'));
+		static::assertEquals('some words', $this->r->getTrim('a'));
 	}
 
 	/**
@@ -60,24 +64,24 @@ class RequestTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 	public function test_getInt(): void
 	{
 		$this->r->set('i', '10');
-		$this->assertEquals(10, $this->r->getInt('i'));
+		static::assertEquals(10, $this->r->getInt('i'));
 	}
 
 	public function test_getInt0(): void
 	{
 		$this->r->set('i', '10');
-		$this->assertEquals(0, $this->r->getInt('new'));
+		static::assertEquals(0, $this->r->getInt('new'));
 	}
 
 	public function test_getIntOrNULL(): void
 	{
-		$this->assertNull($this->r->getIntOrNULL('new'));
+		static::assertNull($this->r->getIntOrNULL('new'));
 	}
 
 	public function test_getIntIn(): void
 	{
 		$this->r->set('i', 10);
-		$this->assertEquals(10, $this->r->getIntIn('i', [
+		static::assertEquals(10, $this->r->getIntIn('i', [
 			9 => '',
 			10 => '',
 			11 => '',
@@ -87,7 +91,7 @@ class RequestTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 	public function test_getIntIn0(): void
 	{
 		$this->r->set('i', 10);
-		$this->assertNull($this->r->getIntIn('i', [
+		static::assertNull($this->r->getIntIn('i', [
 			9 => '',
 			11 => '',
 		]));
@@ -99,7 +103,7 @@ class RequestTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 		$_SERVER['HTTP_HOST'] = 'dev-jobz.local';
 		$location = Request::getLocation();
 //		debug($location . '');
-		$this->assertEquals('http://' . gethostname() . '/', $location);
+		static::assertEquals('http://' . gethostname() . '/', $location);
 	}
 
 	public function test_dir_of_file(): void
@@ -112,32 +116,32 @@ class RequestTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 			'/a/b/c/' => '/a/b/c',
 		];
 		foreach ($set as $check => $must) {
-			$this->assertEquals($must, Request::dir_of_file($check));
+			static::assertEquals($must, Request::dir_of_file($check));
 		}
 	}
 
 	public function test_getDocumentRootByIsDir(): void
 	{
 		$result = Request::getDocumentRootByIsDir();
-		$this->assertEquals('/', $result);
+		static::assertEquals('/', $result);
 	}
 
 	public function test_getOnlyHost(): void
 	{
 		$host = Request::getOnlyHost();
-		$this->assertEquals(gethostname(), $host);
+		static::assertEquals(gethostname(), $host);
 	}
 
 	public function test_isAjax(): void
 	{
 		$r = Request::getInstance();
 		$r->set('ajax', false);
-		$this->assertFalse($r->isAjax());
+		static::assertFalse($r->isAjax());
 		$r->set('ajax', true);
-		$this->assertTrue($r->isAjax());
+		static::assertTrue($r->isAjax());
 		$r->set('ajax', false);
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
-		$this->assertTrue($r->isAjax());
+		static::assertTrue($r->isAjax());
 	}
 
 }

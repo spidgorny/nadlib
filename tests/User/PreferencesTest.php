@@ -6,9 +6,9 @@
  * Time: 17:00
  */
 
-namespace nadlib\User;
+namespace User;
 
-use AppDev\OnlineRequestSystem\Framework\TestCase;
+use PHPUnit\Framework\TestCase;
 use Preferences;
 
 class PreferencesTest extends TestCase
@@ -23,6 +23,6 @@ class PreferencesTest extends TestCase
 		];
 		$p = new Preferences($user);
 		$is123 = $p->get('not existing', 123);
-		$this->assertEquals(123, $is123);
+		static::assertEquals(123, $is123);
 	}
 }

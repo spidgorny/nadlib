@@ -1,12 +1,12 @@
 <?php
 
-class NadlibTest extends AppDev\OnlineRequestSystem\Framework\TestCase
+class NadlibTest extends \PhpUnit\Framework\TestCase
 {
 
 	public function test_requireAll(): void
 	{
 
-		$this->markTestSkipped(
+		static::markTestSkipped(
 			'AppController was not found. Line 29.'
 		);
 
@@ -25,14 +25,14 @@ class NadlibTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 				$class = trimExplode('.', basename($file));
 				$class = $class[1];
 				//echo $class."\n";
-                if (!in_array($class, $skip) && !class_exists($class, false)) {
+				if (!in_array($class, $skip) && !class_exists($class, false)) {
 					/** @noinspection PhpIncludeInspection */
-                    require_once $file;
+					require_once $file;
 				}
 			}
 		}
 
-		$this->assertTrue(true);
+		static::assertTrue(true);
 	}
 
 }

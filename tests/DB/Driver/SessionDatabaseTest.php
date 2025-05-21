@@ -6,9 +6,11 @@
  * Time: 02:34
  */
 
+namespace DB\Driver;
+
 use nadlib\SessionDatabase;
 
-class SessionDatabaseTest extends AppDev\OnlineRequestSystem\Framework\TestCase
+class SessionDatabaseTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function test_runInsertQuery(): void
@@ -18,7 +20,7 @@ class SessionDatabaseTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 		$db->createTable($table);
 		$db->runInsertQuery($table, ['a' => 'b']);
 		$db->runInsertQuery($table, ['a' => 'b']);
-		$this->assertEquals(2, $db->getRowsIn($table));
+		static::assertEquals(2, $db->getRowsIn($table));
 	}
 
 }

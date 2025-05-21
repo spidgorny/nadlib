@@ -1,12 +1,19 @@
 <?php
 
+namespace DB;
+
+use AsIs;
+use DBInterface;
+use DBLayer;
+use PGArray;
+
 /**
  * Created by PhpStorm.
  * User: DEPIDSVY
  * Date: 15.03.2017
  * Time: 17:59
  */
-class PGArrayTest extends AppDev\OnlineRequestSystem\Framework\TestCase
+class PGArrayTest extends \PHPUnit\Framework\TestCase
 {
 
 	/**
@@ -25,7 +32,7 @@ class PGArrayTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 		$config = Config::getInstance();
 		$this->db = $config->getDB();
 		if (!$this->db instanceof DBLayer) {
-			$this->markTestSkipped('Only for PGSQL');
+			static::markTestSkipped('Only for PGSQL');
 		}
 
 		$pga = new PGArray($this->db);
@@ -42,7 +49,7 @@ class PGArrayTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 
 		$row = $this->db->fetchAssoc("select " . $str . "::varchar[] as array");
 //		debug($row['array']);
-		$this->assertEquals('{1,a,"/\\"\\\\"}', $row['array']);
+		static::assertEquals('{1,a,"/\\"\\\\"}', $row['array']);
 	}
 
 	public function test_lineBreak(): void
@@ -61,7 +68,7 @@ e",
 //		echo PHP_EOL;
 //		echo 'fixture: ', $this->serialize($fixture), PHP_EOL;
 //		echo 'encode: ', $this->serialize($string.''), PHP_EOL;
-		$this->assertEquals("ARRAY['b','d
+		static::assertEquals("ARRAY['b','d
 e']", $string . '');
 	}
 
@@ -79,7 +86,7 @@ e"}');
 			"d
 e",
 		];
-		$this->assertEquals($fixture, $decode);
+		static::assertEquals($fixture, $decode);
 	}
 
 	public function serialize($var): string
@@ -103,7 +110,7 @@ line"
 			'arrayField' => $pga,
 		]);
 //		debug($insert);
-		$this->assertEquals("INSERT INTO \"asd\" (\"arrayField\") VALUES (ARRAY['1', '2', 'slawa', 'multi
+		static::assertEquals("INSERT INTO \"asd\" (\"arrayField\") VALUES (ARRAY['1', '2', 'slawa', 'multi
 line'])", $insert);
 	}
 
@@ -111,32 +118,35 @@ line'])", $insert);
 	{
 		$pga = new PGArray($this->db);
 		$v1 = $pga->pg_array_parse('{{1,2},{3,4},{5}}');
-		$this->assertEquals([[1, 2], [3, 4], [5]], $v1);
+		static::assertEquals([[1, 2], [3, 4], [5]], $v1);
 		$v2 = $pga->pg_array_parse('{dfasdf,"qw,,e{q\"we",\'qrer\'}');
-		$this->assertEquals([
+		static::assertEquals([
 			0 => 'dfasdf',
 			1 => 'qw,,e{q"we',
 			2 => 'qrer',
 		], $v2);
-		$this->assertEquals(['', ''], $pga->pg_array_parse('{,}'));
-		$this->assertEquals([], $pga->pg_array_parse('{}'));
-		$this->assertEquals(null, $pga->pg_array_parse('null'));
-		$this->assertEquals(null, $pga->pg_array_parse(''));
+		static::assertEquals(['', ''], $pga->pg_array_parse('{,}'));
+		static::assertEquals([], $pga->pg_array_parse('{}'));
+		static::assertEquals(null, $pga->pg_array_parse('null'));
+		static::assertEquals(null, $pga->pg_array_parse(''));
 	}
 
+	/**
+	 * @throws \JsonException
+	 */
 	public function test_upload_request(): void
 	{
 		$pga = new PGArray($this->db);
 		$res = $pga->getPGArray(file_get_contents(__DIR__ . '/upload_request.json'));
-		$this->assertEquals([
+		static::assertEquals([
 			'ORSVersion:1976781',
 			"LotcheckUploadRequestModel:{\"action\":\"sendRequest\",\"banner\":\"\",\"server\":\"UJI SILVER BULLET\",\"lotcheck_status\":\"Upload to test server\",\"template_id\":\"4\",\"temp_email_to\":\"epes@nintendo.de,sqc_DataUpload@hamster.nintendo.co.jp,ml_lotcheck_report_os@hamster.nintendo.co.jp,Hiroyuki.Okazaki@nintendo.de\",\"temp_email_cc\":\"howitta@nal.nintendo.com.au,Richard.Sheridan@nintendo.de,Hiroyuki.Uesugi@nintendo.de,eShop_NOE@nintendo.de,lotcheck@nintendo.de,ml-ncl-gsl-oem-lotcheck@nintendo.co.jp,ml-ncl-gsl-oem-order@nintendo.co.jp\",\"temp_email_bc\":\"\",\"temp_email_subject\":\"UPLOAD *Before Lotcheck* - 3DSWare - CN_BBEP_00.00.cia\",\"temp_email_message\":\"Dear all,\\r\\nplease be advised that the following files will be posted to our \\r\\ndirectory TESTSERVER on UJIs FTP-server.\\r\\n\\r\\nAdditional files: CN_BBEP00.zip\\n\\n\\nSystem: CTR\\/KTR\\nTitle: Pinball Breaker 2\\nFilename: CN_BBEP_00.00.cia\\nCRC: 941656BE\\n\\nSTATUS: Upload to test server\",\"queue\":\"Lotcheck\",\"queue_text\":\"Lotcheck\",\"btnSubmit\":\"Send Upload Request\",\"d\":null,\"attachments\":[\"CN_BBEP00.zip\"]}",
 		], $res);
 		foreach ($res as $part) {
 			list($class, $params) = trimExplode(':', $part, 2);
-			if ($params[0] == '{') {
-				$params = json_decode($params);
-				$this->assertEquals('sendRequest', $params->action);
+			if ($params[0] === '{') {
+				$params = json_decode($params, false, 512, JSON_THROW_ON_ERROR);
+				static::assertEquals('sendRequest', $params->action);
 			}
 		}
 	}

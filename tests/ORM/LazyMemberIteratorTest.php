@@ -1,11 +1,17 @@
 <?php
 
+namespace ORM;
+
+use ArrayIterator;
+use ArrayObject;
+use LazyMemberIterator;
+
 class LazyObject extends ArrayObject
 {
-
 }
 
-class LazyMemberIteratorTest extends AppDev\OnlineRequestSystem\Framework\TestCase
+
+class LazyMemberIteratorTest extends \PHPUnit\Framework\TestCase
 {
 
 	/**
@@ -34,7 +40,7 @@ class LazyMemberIteratorTest extends AppDev\OnlineRequestSystem\Framework\TestCa
 
 	public function test_count(): void
 	{
-		$this->assertEquals(10, $this->sut->count());
+		static::assertEquals(10, $this->sut->count());
 	}
 
 	public function test_current_function(): void
@@ -42,7 +48,7 @@ class LazyMemberIteratorTest extends AppDev\OnlineRequestSystem\Framework\TestCa
 		$list = new ArrayIterator(range(0, 4));
 		$curM = $list->current();
 		//debug($curF);
-		$this->assertEquals(0, $curM);
+		static::assertEquals(0, $curM);
 	}
 
 	public function test_current_function_this_list(): void
@@ -51,7 +57,7 @@ class LazyMemberIteratorTest extends AppDev\OnlineRequestSystem\Framework\TestCa
 		$curM = $this->list->current();
 //		llog($this->list->getArrayCopy());
 //		llog($curM, $curF);
-		$this->assertEquals(0, $curM);
+		static::assertEquals(0, $curM);
 	}
 
 	/**
@@ -63,13 +69,13 @@ class LazyMemberIteratorTest extends AppDev\OnlineRequestSystem\Framework\TestCa
 		$curM = $this->sut->current();
 		$curF = current($this->sut);
 		//debug($this->sut, $curM, $curF);
-		$this->assertEquals($curM, $curF);
+		static::assertEquals($curM, $curF);
 	}
 
 	public function test_foreach_normal(): void
 	{
 		foreach ($this->list as $i => $el) {
-			$this->assertEquals($el, range(10 * $i + 0, 10 * $i + 4));
+			static::assertEquals($el, range(10 * $i + 0, 10 * $i + 4));
 		}
 	}
 
@@ -81,7 +87,7 @@ class LazyMemberIteratorTest extends AppDev\OnlineRequestSystem\Framework\TestCa
 		/** @var LazyObject $el */
 		foreach ($this->sut as $i => $el) {
 			//debug($el);
-			$this->assertEquals(
+			static::assertEquals(
 				$el->getArrayCopy(),
 				range($i * 10, $i * 10 + 4)
 			);

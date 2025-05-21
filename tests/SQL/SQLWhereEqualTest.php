@@ -1,13 +1,18 @@
 <?php
+
+namespace SQL;
+
+use AsIs;
+use DBInterface;
+use SQLWhereEqual;
+
 /**
  * Created by PhpStorm.
  * User: DEPIDSVY
  * Date: 20.11.2018
  * Time: 16:53
  */
-
-
-class SQLWhereEqualTest extends AppDev\OnlineRequestSystem\Framework\TestCase
+class SQLWhereEqualTest extends \PHPUnit\Framework\TestCase
 {
 
 	/** @var DBInterface */
@@ -26,7 +31,7 @@ class SQLWhereEqualTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 		$swe->injectDB($this->db);
 
 		$sql = $swe->__toString();
-		$this->assertEquals('"field" = \'15\'', $sql);
+		static::assertEquals('"field" = \'15\'', $sql);
 	}
 
 	public function testGetWhereItemAsIs(): void
@@ -35,7 +40,7 @@ class SQLWhereEqualTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 		$swe->injectDB($this->db);
 
 		$sql = $swe->__toString();
-		$this->assertEquals('"field" = 15', $sql);
+		static::assertEquals('"field" = 15', $sql);
 	}
 
 }

@@ -1,6 +1,6 @@
 <?php
 
-class NadlibTestCase extends AppDev\OnlineRequestSystem\Framework\TestCase
+class NadlibTestCase extends \PHPUnit\Framework\TestCase
 {
 
 	public $canPrint = false;
@@ -19,7 +19,7 @@ class NadlibTestCase extends AppDev\OnlineRequestSystem\Framework\TestCase
 	{
 		$must = $this->normalize($must);
 		$is = $this->normalize($is);
-		$this->assertEquals($must, $is);
+		static::assertEquals($must, $is);
 	}
 
 	public function normalize($s): string

@@ -1,12 +1,19 @@
 <?php
 
+namespace HTML;
+
+use HTMLProcessor;
+use MockController;
+use MockIndexDCI;
+use View;
+
 /**
  * Created by PhpStorm.
  * User: DEPIDSVY
  * Date: 10.12.2015
  * Time: 21:20
  */
-class ViewTest extends AppDev\OnlineRequestSystem\Framework\TestCase
+class ViewTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function test_render(): void
@@ -15,7 +22,7 @@ class ViewTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 		$v->content = 'asd';
 
 		$content = $v->render();
-		$this->assertContains('asd', $content);
+		static::assertContains('asd', $content);
 	}
 
 	public function test_cleanComment(): void
@@ -23,16 +30,16 @@ class ViewTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 		if (class_exists('HTMLPurifier_Config')) {
 			$v = new HTMLProcessor('whatever');
 			$clean = $v->cleanComment('Some shit');
-			$this->assertNotEmpty($clean);
+			static::assertNotEmpty($clean);
 		} else {
-			$this->markTestSkipped('HTMLPurifier_Config');
+			static::markTestSkipped('HTMLPurifier_Config');
 		}
 	}
 
 	public function test_extractScripts(): void
 	{
 		if (!class_exists('AdvancedHtmlDom')) {
-			$this->markTestSkipped('AdvancedHtmlDom not installed');
+			static::markTestSkipped('AdvancedHtmlDom not installed');
 		}
 
 		$html = '<html><h1>bla</h1>
@@ -45,13 +52,16 @@ alert("xss");
 
 		$scripts = $view->extractScripts();
 		//debug($scripts);
-		$this->assertEquals("<h1>bla</h1>
+		static::assertEquals("<h1>bla</h1>
 <div>bla</div>", $view->render());
-		$this->assertEquals('<script>
+		static::assertEquals('<script>
 alert("xss");
 </script>', $scripts);
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	public function test_double(): void
 	{
 		new MockController();
@@ -61,7 +71,7 @@ alert("xss");
 		ini_set('xdebug.var_display_max_data', -1);
 //		var_dump($html);
 		$countSidebar = substr_count($html, '<sidebar>');
-		$this->assertEquals(1, $countSidebar);
+		static::assertEquals(1, $countSidebar);
 	}
 
 }

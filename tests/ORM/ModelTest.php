@@ -6,8 +6,9 @@
  * Time: 23:17
  */
 
+namespace ORM;
 
-class ModelTest extends AppDev\OnlineRequestSystem\Framework\TestCase
+class ModelTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function _test_getFormFromModel(): void
@@ -32,8 +33,8 @@ class ModelTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 	public function test_isset_empty_array(): void
 	{
 		$a['k'] = null;
-		$this->assertFalse(isset($a['k']));
-		$this->assertTrue(array_key_exists('k', $a));
+		static::assertFalse(isset($a['k']));
+		static::assertTrue(\array_key_exists('k', $a));
 	}
 
 	public function _test_getFormFromModel2(): void

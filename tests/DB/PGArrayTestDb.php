@@ -1,12 +1,18 @@
 <?php
 
+namespace DB;
+
+use Config;
+use DBInterface;
+use PGArray;
+
 /**
  * Created by PhpStorm.
  * User: DEPIDSVY
  * Date: 16.11.2016
  * Time: 15:30
  */
-class PGArrayTestDb extends AppDev\OnlineRequestSystem\Framework\TestCase
+class PGArrayTestDb extends \PHPUnit\Framework\TestCase
 {
 
 	/**

@@ -6,17 +6,20 @@
  * Time: 11:14
  */
 
+namespace DB\Driver;
 
-class DBLayerTest extends AppDev\OnlineRequestSystem\Framework\TestCase
+use DBLayer;
+
+class DBLayerTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function testQuoteKey(): void
 	{
 		$db = new DBLayer();
 		$quoted = $db->quoteKey('login');
-		$this->assertEquals('"login"', $quoted);
+		static::assertEquals('"login"', $quoted);
 		$function = 'trim(login)';
 		$unquoted = $db->quoteKey($function);
-		$this->assertEquals($function, $unquoted);
+		static::assertEquals($function, $unquoted);
 	}
 }

@@ -1,18 +1,22 @@
 <?php
 
-class DurationTest extends AppDev\OnlineRequestSystem\Framework\TestCase
+namespace Time;
+
+use Duration;
+
+class DurationTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function test_Duration_fromHuman(): void
 	{
 		$d = Duration::fromHuman('1s');
-		$this->assertEquals($d . '', '1 second');
+		static::assertEquals('1 second', $d . '');
 	}
 
 	public function test_Duration_fromHuman2(): void
 	{
 		$d = Duration::fromHuman('70m 60s');
-		$this->assertEquals($d . '', '1 hour, 11 minutes');
+		static::assertEquals('1 hour, 11 minutes', $d . '');
 	}
 
 }

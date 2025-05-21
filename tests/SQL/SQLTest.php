@@ -1,6 +1,13 @@
 <?php
 
-class SQLTest extends AppDev\OnlineRequestSystem\Framework\TestCase
+namespace SQL;
+
+use DBLayerBase;
+use DBPlacebo;
+use SQLBuilder;
+use SQLNow;
+
+class SQLTest extends \PHPUnit\Framework\TestCase
 {
 
 	/**
@@ -21,13 +28,13 @@ class SQLTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 
 		$string = $now . '';
 
-		$this->assertEquals('now()', $string);
+		static::assertEquals('now()', $string);
 	}
 
 	public function test_SQLNow_PG_update_no_quote(): void
 	{
 		if ($this->db instanceof DBPlacebo) {
-			$this->markTestSkipped('DBPlacebo has different SQL');
+			static::markTestSkipped('DBPlacebo has different SQL');
 		}
 
 		$now = new SQLNow();
@@ -42,7 +49,7 @@ class SQLTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 SET \"mtime\" = now()
 WHERE
 \"id\" = '1' ";
-		$this->assertEquals($this->normalize($expected), $this->normalize($query));
+		static::assertEquals($this->normalize($expected), $this->normalize($query));
 //		$this->assertEquals($expected, $query);
 	}
 
@@ -54,7 +61,7 @@ WHERE
 	public function test_SQLNow_PG_insert_no_quote(): void
 	{
 		if ($this->db instanceof DBPlacebo) {
-			$this->markTestSkipped('DBPlacebo has different SQL');
+			static::markTestSkipped('DBPlacebo has different SQL');
 		}
 
 		$now = new SQLNow();
@@ -65,7 +72,7 @@ WHERE
 
 		$expected = 'INSERT INTO "asd" ("mtime") VALUES (now())';
 		$expected = str_replace("\r", '', $expected);
-		$this->assertEquals($expected, $query);
+		static::assertEquals($expected, $query);
 	}
 
 }

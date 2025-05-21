@@ -6,10 +6,10 @@
  * Time: 21:50
  */
 
-namespace nadlib\Test;
+namespace ORM;
 
-use AppDev\OnlineRequestSystem\Framework\TestCase;
 use OODBase;
+use PhpUNit\Framework\TestCase;
 
 class OODBaseTest extends TestCase
 {
@@ -38,7 +38,7 @@ class OODBaseTest extends TestCase
 		foreach ($set as $source => $expected) {
 //			echo $source, ' => ', $expected, BR;
 			$this->sut->data[$source] = $source;
-			$this->assertEquals($expected, OODBase::getBool($source));
+			static::assertEquals($expected, OODBase::getBool($source));
 		}
 	}
 

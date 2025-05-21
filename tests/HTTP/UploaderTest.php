@@ -1,6 +1,9 @@
 <?php
 
+namespace HTTP;
+
 use League\Flysystem\Filesystem;
+use Uploader;
 
 /**
  * Created by PhpStorm.
@@ -8,7 +11,7 @@ use League\Flysystem\Filesystem;
  * Date: 2017-08-03
  * Time: 22:28
  */
-class UploaderTest extends AppDev\OnlineRequestSystem\Framework\TestCase
+class UploaderTest extends \PhpUnit\Framework\TestCase
 {
 
 	public function test_GetPostedFiles_single(): void
@@ -23,8 +26,8 @@ class UploaderTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 			],
 		];
 		$u = new Uploader();
-		$result = $u->GetPostedFiles($source);
-		$this->assertEquals($source, $result);
+		$result = $u::GetPostedFiles($source);
+		static::assertEquals($source, $result);
 	}
 
 	public function test_GetPostedFiles(): void
@@ -48,9 +51,9 @@ class UploaderTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 			],
 		];
 		$u = new Uploader();
-		$result = $u->GetPostedFiles($source);
+		$result = $u::GetPostedFiles($source);
 //		debug($result);
-		$this->assertEquals($source, $result);
+		static::assertEquals($source, $result);
 	}
 
 	public function test_GetPostedFiles_on_broken(): void
@@ -99,18 +102,18 @@ class UploaderTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 		];
 		$_FILES = $source;
 		$u = new Uploader();
-		$result = $u->GetPostedFiles();
-		$this->assertEquals($must, $result);
+		$result = $u::GetPostedFiles();
+		static::assertEquals($must, $result);
 	}
 
 	public function test_moveUploadFly(): void
 	{
 		if (!class_exists(Filesystem::class)) {
-			$this->markTestSkipped('League\Flysystem\Filesystem not installed');
+			static::markTestSkipped('League\Flysystem\Filesystem not installed');
 		}
 
 		if (getenv('USER') === 'jenkins') {
-			$this->markTestSkipped('Fill fail when run from Jenkins anyway');
+			static::markTestSkipped('Fill fail when run from Jenkins anyway');
 		}
 
 		$u = new Uploader();
@@ -124,9 +127,9 @@ class UploaderTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 		];
 		try {
 			$result = $u->moveUploadFly('test', $fly, 'desktop.png');
-			$this->assertTrue($result);
+			static::assertTrue($result);
 		} catch (UploadException $uploadException) {
-			$this->fail($uploadException->getMessage());
+			static::fail($uploadException->getMessage());
 		}
 	}
 

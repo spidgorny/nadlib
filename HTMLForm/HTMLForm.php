@@ -504,11 +504,11 @@ class HTMLForm implements ToStringable
 		return "<button {$more}>{$innerHTML}</button>\n";
 	}
 
-	public function image($value = null, array $more = [], array $desc = []): void
+	public function image($value = null, array $more = [], array $desc = []): string
 	{
 		$sMore = HTMLTag::renderAttr($more);
 		$value = htmlspecialchars($value, ENT_QUOTES);
-		$this->stdout .= "<input type=image
+		return "<input type=image
 		src=" . $desc['src'] . "
 		class='submitbutton' " .
 			($value !== '' && $value !== '0' ? sprintf('value="%s"', $value) : "") . " {$sMore}>\n";
@@ -588,7 +588,7 @@ class HTMLForm implements ToStringable
 	 *
 	 * @return $this
 	 */
-	public function set($name, $value, array $desc): static
+	public function set($name, $value, array $desc): array
 	{
 		if ($value) {
 			if (!is_array($value)) {
@@ -604,19 +604,19 @@ class HTMLForm implements ToStringable
 		$this->class = 'submit';
 		$between = ifsetor($desc['between'], ', ');
 		foreach ((array)$desc['options'] as $key => $val) {
-			$this->text('<nobr><label title="' . $key . '">');
+			$content[] = $this->text('<nobr><label title="' . $key . '">');
 			$checked = in_array($key, $value);
 			//debug($key, $value, $checked);
-			$this->check($newName, $key, $checked);
-			$this->text(' ' . $val . '</label></nobr>');
+			$content[] = $this->check($newName, $key, $checked);
+			$content[] = $this->text(' ' . $val . '</label></nobr>');
 			if ($val != end($desc['options'])) {
-				$this->text($between);
+				$content[] = $this->text($between);
 			}
 		}
 
 		$this->class = $tmp;
 
-		return $this;
+		return $content;
 	}
 
 	/**
@@ -648,10 +648,10 @@ class HTMLForm implements ToStringable
 			if ($val != end($desc['options'])) {
 				$content[] = $this->text($between);
 			}
-			return $content;
 		}
 
 		$this->class = $tmp;
+		return $content;
 	}
 
 	/**

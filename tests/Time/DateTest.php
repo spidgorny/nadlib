@@ -1,18 +1,22 @@
 <?php
 
-class DateTest extends AppDev\OnlineRequestSystem\Framework\TestCase
+namespace Time;
+
+use Date;
+
+class DateTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function test_Date(): void
 	{
 		$d = new Date(1306879200);
-		$this->assertEquals($d, '01.06.2011');
+		static::assertEquals('01.06.2011', $d);
 	}
 
 	public function test_Date_preserveTimestamp(): void
 	{
 		$d = new Date(1306879200);
-		$this->assertEquals($d->getTimestamp(), 1306879200);
+		static::assertEquals(1306879200, $d->getTimestamp());
 	}
 
 	/* // Asserting!
@@ -29,7 +33,7 @@ class DateTest extends AppDev\OnlineRequestSystem\Framework\TestCase
 	{
 		$d = new Date('2011-11-11');
 		$d2 = new Date($d);
-		$this->assertEquals($d, $d2);
+		static::assertEquals($d, $d2);
 	}
 
 }
