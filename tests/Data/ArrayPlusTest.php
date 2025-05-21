@@ -3,24 +3,14 @@
 namespace Data;
 
 use ArrayPlus;
-use ORM\IteratorArrayAccessTest;
 
-class ArrayPlusTest extends IteratorArrayAccessTest
+class ArrayPlusTest extends \PHPUnit\Framework\TestCase
 {
 
 	/**
 	 * @var ArrayPlus $ai
 	 */
 	protected $ai;
-
-	public function setUp(): void
-	{
-		$this->ai = new ArrayPlus([
-			0 => 'a',
-			1 => 'b',
-			'slawa' => 'test',
-		]);
-	}
 
 	public function test_typoscript(): void
 	{
@@ -161,6 +151,15 @@ class ArrayPlusTest extends IteratorArrayAccessTest
 		static::assertFalse($fixture11->none(function ($x) {
 			return $x;
 		}));
+	}
+
+	protected function setUp(): void
+	{
+		$this->ai = new ArrayPlus([
+			0 => 'a',
+			1 => 'b',
+			'slawa' => 'test',
+		]);
 	}
 
 }

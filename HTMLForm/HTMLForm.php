@@ -134,6 +134,11 @@ class HTMLForm implements ToStringable
 		return '';
 	}
 
+	public function s($content): string
+	{
+		return MergedContent::mergeStringArrayRecursive($content);
+	}
+
 	public function action($action): void
 	{
 		$this->action = $action;
@@ -436,11 +441,6 @@ class HTMLForm implements ToStringable
 		return $this->s($field->render());
 	}
 
-	public function s($content): string
-	{
-		return MergedContent::mergeStringArrayRecursive($content);
-	}
-
 	/**
 	 * It was doing echo() since 2002 - in 2017 it's doing return
 	 */
@@ -586,7 +586,7 @@ class HTMLForm implements ToStringable
 	 * @param array $desc
 	 *        'between' - text that separates checkboxes (default ", ")
 	 *
-	 * @return $this
+	 * @return array
 	 */
 	public function set($name, $value, array $desc): array
 	{

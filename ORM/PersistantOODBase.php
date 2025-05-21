@@ -117,7 +117,7 @@ class PersistantOODBase extends OODBase
 	/**
 	 * Update updates state hash so that destruct will not try to update again
 	 *
-	 * @return resource
+	 * @return PDOStatement
 	 * @throws Exception
 	 */
 	public function update(array $data)

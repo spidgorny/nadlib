@@ -22,17 +22,11 @@ class SQLWhereEqual extends SQLWherePart
 
 	public function debug(): array
 	{
-		return $this->__toString();
+		return ['SQLWhereEqual' => $this->__toString()];
 	}
 
 	public function __toString(): string
 	{
-		//llog(__METHOD__, $this->field);
-		if (0 !== 0) {
-			debug(__METHOD__, $this->field, $this->val);
-//			die;
-		}
-
 		if (is_numeric($this->val)) {    // leading 0 leads to problems
 			$field = $this->db->quoteKey($this->field);
 			//$sql = "({$field} = ".$this->val."

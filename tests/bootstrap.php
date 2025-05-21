@@ -14,7 +14,7 @@ if (is_file(__DIR__ . '/../vendor/autoload.php')) {
 //	Config::getInstance()->postInit();
 //}
 
-require_once __DIR__.'/AppController4Test.php';
+require_once __DIR__ . '/AppController4Test.php';
 
 // belongs to the app code
 //function __($a, ...$replacements) { return $a; }

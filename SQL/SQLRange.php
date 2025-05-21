@@ -25,6 +25,11 @@ class SQLRange extends SQLWherePart
 		$this->till = $till;
 	}
 
+	public function debug(): array
+	{
+		return ['SQLRange' => $this->__toString()];
+	}
+
 	public function __toString(): string
 	{
 		$field = $this->db->quoteKey($this->field);
@@ -34,11 +39,6 @@ class SQLRange extends SQLWherePart
 		}
 
 		return $sql . ")";
-	}
-
-	public function debug(): array
-	{
-		return $this->__toString();
 	}
 
 }

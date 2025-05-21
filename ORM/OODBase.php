@@ -30,12 +30,12 @@ abstract class OODBase implements ArrayAccess
 	public $idField = 'id';
 
 	/**
-	 * @var int database ID
+	 * @var ?int database ID
 	 */
 	public $id;
 
 	/**
-	 * @var array data from DB
+	 * @var ?array data from DB
 	 */
 	public $data = [];
 
@@ -333,9 +333,11 @@ abstract class OODBase implements ArrayAccess
 
 	/**
 	 * Used by bijou.
-	 * @param $class
+	 * @param array $insert
+	 * @param null $class
 	 * @return int|null
-	 * @throws Exception
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	public static function createRecord(array $insert, $class = null)
 	{
@@ -344,15 +346,12 @@ abstract class OODBase implements ArrayAccess
 		//debug($insert);
 		$class = $class ?: get_called_class();
 
-		/** @var DBLayerBase $db */
 		$db = Config::getInstance()->getDB();
 		$query = $db->getInsertQuery(constant($class . '::table'), $insert);
 		//t3lib_div::debug($query);
 		$res = $db->perform($query);
 		if ($res) {
 			$id = $db->lastInsertID($res, constant($class . '::table'));
-			//t3lib_div::debug($id);
-
 			$object = $class ? new $class($id) : $id;
 		} else {
 			$object = null;
@@ -383,7 +382,6 @@ abstract class OODBase implements ArrayAccess
 		$collection = Collection::createForTable($db, $blanc->table, $where, $orderBy);
 		$collection->idField = $blanc->idField;
 		Collection::$itemClassName = static::class;
-//		llog('collection', $collection);
 		return $collection;
 	}
 
@@ -398,7 +396,7 @@ abstract class OODBase implements ArrayAccess
 			$data = unserialize($data);
 		}
 
-		$el = (object)$data;
+		$el = $data;
 		$class = $el->class;
 		$obj = new $class();
 		foreach ($el as $key => $val) {

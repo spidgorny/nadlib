@@ -7,8 +7,6 @@ trait JsonController
 
 	public static $publicAPI = false;
 
-	public $user;
-
 	public function afterConstruct(): void
 	{
 		$this->request->set('ajax', true);

@@ -14,7 +14,7 @@ class SQLSelectQuery extends SQLWherePart
 	public $where;
 
 	/**
-	 * @var DBLayerBase|DBLayer|DBLayerPDO
+	 * @var DBLayerBase|DBLayer|DBLayerPDO|DBInterface
 	 * @protected to prevent debug output
 	 */
 	protected $db;
@@ -40,7 +40,7 @@ class SQLSelectQuery extends SQLWherePart
 	protected $having;
 
 	/**
-	 * @var SQLOrder
+	 * @var SQLOrder|null
 	 */
 	protected $order;
 
@@ -295,16 +295,6 @@ class SQLSelectQuery extends SQLWherePart
 		}
 	}
 
-	public static function trim($sql): string
-	{
-		$sql = str_replace("\r", ' ', $sql);
-		$sql = str_replace("\n", ' ', $sql);
-		$sql = str_replace("\t", ' ', $sql);
-		$sql = preg_replace('/ +/', ' ', $sql);
-//		echo $sql, BR;
-		return trim($sql);
-	}
-
 	public function getQuery(): string
 	{
 		$query = trim("SELECT
@@ -317,6 +307,16 @@ FROM {$this->from}
 {$this->order}
 {$this->limit}");
 		return SQLSelectQuery::trim($query);
+	}
+
+	public static function trim($sql): string
+	{
+		$sql = str_replace("\r", ' ', $sql);
+		$sql = str_replace("\n", ' ', $sql);
+		$sql = str_replace("\t", ' ', $sql);
+		$sql = preg_replace('/ +/', ' ', $sql);
+//		echo $sql, BR;
+		return trim($sql);
 	}
 
 	public function fetchAssoc()
