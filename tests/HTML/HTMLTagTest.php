@@ -67,6 +67,9 @@ class HTMLTagTest extends \PHPUnit\Framework\TestCase
 		static::assertEquals($str, $back);
 	}
 
+	/**
+	 * @throws \JsonException
+	 */
 	public function test_pre(): void
 	{
 		$title = HTMLTag::pre(json_encode('something', JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT), ['style' => [

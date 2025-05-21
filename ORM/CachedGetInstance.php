@@ -50,11 +50,6 @@ trait CachedGetInstance
 	 */
 	public static function getInstance($id, ?DBInterface $db = null): static
 	{
-		if (self::class === ORSSoftware::class) {
-			llog(__METHOD__, $id, 'getInstance', $id);
-			debug_pre_print_backtrace();
-			exit();
-		}
 		return self::getInstanceByID($id, $db);
 	}
 
