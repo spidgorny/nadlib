@@ -26,16 +26,16 @@ class Session implements SessionInterface
 			return session_status() === PHP_SESSION_ACTIVE;
 		}
 
-		return (bool) session_id() && isset($_SESSION);
+		return (bool)session_id() && isset($_SESSION);
 	}
 
 	public function start(): void
 	{
 		if (!Request::isPHPUnit() && !Request::isCLI() && !headers_sent()) {
-            // not using @ to see when session error happen
-            llog('session_start in Session');
-            session_start();
-        }
+			// not using @ to see when session error happen
+			header('X-Session-Start: ' . __METHOD__)
+			session_start();
+		}
 	}
 
 	public static function make($prefix): self

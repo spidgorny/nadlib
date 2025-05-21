@@ -27,8 +27,8 @@ class PlainSessionUser extends UserBase
 	public function __construct($id = null, $session = null)
 	{
 		if (!Request::isCLI()) {
-			//debug('session_start');
-			@session_start();
+			header('X-Session-Start: ' . __METHOD__);
+			session_start();
 		} else {
 			$_SESSION = [];
 		}

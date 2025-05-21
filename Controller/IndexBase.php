@@ -322,6 +322,7 @@ class IndexBase /*extends Controller*/
 			ini_set('session.hash_bits_per_character', 6);
 			ini_set('session.hash_function', 'sha512');
 			llog('session_start in initSession');
+			header('X-Session-Start: ' . __METHOD__);
 			$ok = session_start();
 			if (!$ok) {
 				throw new RuntimeException('session_start() failed');

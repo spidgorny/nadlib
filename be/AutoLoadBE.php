@@ -10,15 +10,15 @@ class AutoLoadBE extends AutoLoad
 		require_once __DIR__ . '/../HTTP/Request.php';
 		$folders = [];
 		if (!Request::isCLI() && $this->useCookies) {
-            //debug('session_start', $this->nadlibFromDocRoot);
-            session_set_cookie_params(0, '');
-            // current folder
-            session_start();
-            if (isset($_SESSION[__CLASS__])) {
-					$folders = $_SESSION[__CLASS__]['folders'] ?? [];
-					$this->classFileMap = $_SESSION[__CLASS__]['classFileMap'] ?? [];
-				}
-        }
+			session_set_cookie_params(0, '');
+			// current folder
+			header('X-Session-Start: ' . __METHOD__);
+			session_start();
+			if (isset($_SESSION[__CLASS__])) {
+				$folders = $_SESSION[__CLASS__]['folders'] ?? [];
+				$this->classFileMap = $_SESSION[__CLASS__]['classFileMap'] ?? [];
+			}
+		}
 
 		if (!$folders) {
 			$folders = ['be/class'];

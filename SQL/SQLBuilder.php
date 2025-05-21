@@ -45,19 +45,10 @@ class SQLBuilder
 	 */
 	public $db;
 
-	/**
-	 * @var Config
-	 */
-	public $config;
-
 	public $logToLog = false;
 
 	public function __construct(DBInterface $db)
 	{
-		if (class_exists('Config')) {
-			$this->config = Config::getInstance();
-		}
-
 		$this->db = $db;
 	}
 
