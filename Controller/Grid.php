@@ -45,9 +45,8 @@ trait Grid
 //	 */
 //	protected Collection $collection;
 
-	public function __construct()
+	public function constructGrid()
 	{
-		parent::__construct();
 		$this->initFilter();
 		$this->initPageSize();
 	}
