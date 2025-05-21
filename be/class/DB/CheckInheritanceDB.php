@@ -1,6 +1,6 @@
 <?php
 
-class CheckInheritanceDB extends AppController
+class CheckInheritanceDB extends AppControllerBE
 {
 
 	public $basedOnBase = [];

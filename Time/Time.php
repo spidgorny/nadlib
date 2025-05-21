@@ -95,7 +95,7 @@ class Time
 	 */
 	public static function make($input = null, $relativeTo = null): static
 	{
-		return new static($input, $relativeTo);
+		return new self($input, $relativeTo);
 	}
 
 	/**

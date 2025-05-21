@@ -18,7 +18,8 @@
 		"michelf/php-markdown": "^2.0",
 		"mustangostang/spyc": "^0.6.3",
 		"phpauth/phpauth": "^1.5",
-		"predis/predis": "^2.2"
+		"predis/predis": "^2.2",
+		"paquettg/php-html-parser": "3.1"
 	},
 	"suggest": {
 		"mustangostang/spyc": "^0.6",

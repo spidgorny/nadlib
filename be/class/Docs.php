@@ -2,7 +2,7 @@
 
 namespace spidgorny\nadlib;
 
-class Docs extends \AppController
+class Docs extends \AppControllerBE
 {
 
 	public function render()

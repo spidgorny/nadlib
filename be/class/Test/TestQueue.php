@@ -1,6 +1,6 @@
 <?php
 
-class TestQueue extends AppController
+class TestQueue extends AppControllerBE
 {
 
 	public function render()

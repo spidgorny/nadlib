@@ -3,7 +3,9 @@
 namespace HTTP;
 
 use League\Flysystem\Filesystem;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use Uploader;
+use UploadException;
 
 /**
  * Created by PhpStorm.
@@ -25,8 +27,7 @@ class UploaderTest extends \PHPUnit\Framework\TestCase
 				'size' => 255,
 			],
 		];
-		$u = new Uploader();
-		$result = $u::GetPostedFiles($source);
+		$result = Uploader::GetPostedFiles($source);
 		static::assertEquals($source, $result);
 	}
 
@@ -50,8 +51,7 @@ class UploaderTest extends \PHPUnit\Framework\TestCase
 				],
 			],
 		];
-		$u = new Uploader();
-		$result = $u::GetPostedFiles($source);
+		$result = Uploader::GetPostedFiles($source);
 //		debug($result);
 		static::assertEquals($source, $result);
 	}
@@ -101,8 +101,7 @@ class UploaderTest extends \PHPUnit\Framework\TestCase
 			],
 		];
 		$_FILES = $source;
-		$u = new Uploader();
-		$result = $u::GetPostedFiles();
+		$result = Uploader::GetPostedFiles();
 		static::assertEquals($must, $result);
 	}
 
@@ -117,7 +116,7 @@ class UploaderTest extends \PHPUnit\Framework\TestCase
 		}
 
 		$u = new Uploader();
-		$fly = new League\Flysystem\Filesystem(new League\Flysystem\InMemory\InMemoryFilesystemAdapter());
+		$fly = new Filesystem(new InMemoryFilesystemAdapter());
 		$_FILES['test'] = [
 			'name' => 'desktop.png',
 			'type' => 'application/octet-stream',

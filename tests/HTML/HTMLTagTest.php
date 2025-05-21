@@ -3,6 +3,7 @@
 namespace HTML;
 
 use HTMLTag;
+use SQLSelectQuery;
 
 /**
  * Created by PhpStorm.

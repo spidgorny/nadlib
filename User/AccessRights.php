@@ -26,16 +26,13 @@ class AccessRights extends OODBase implements AccessRightsInterface
 	 * @param null|int $idGroup - can be null for dehydration
 	 * @throws Exception
 	 */
-	public function __construct($idGroup = null)
+	public function __construct($idGroup = null, ?DBInterface $db = null)
 	{
-		TaylorProfiler::start($profiler = Debug::getBackLog(7, 0, BR, false));
-		$this->db = Config::getInstance()->getDB();
+		$this->db = $db ?? Config::getInstance()->getDB();
 		$this->groupID = $idGroup;
 		if ($this->groupID) {
 			$this->reload();
 		}
-
-		TaylorProfiler::stop($profiler);
 	}
 
 	public function reload(): void

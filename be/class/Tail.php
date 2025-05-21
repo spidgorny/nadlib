@@ -1,6 +1,6 @@
 <?php
 
-class Tail extends AppController
+class Tail extends AppControllerBE
 {
 
 	public function render(): void

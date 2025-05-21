@@ -590,6 +590,7 @@ class HTMLForm implements ToStringable
 	 */
 	public function set($name, $value, array $desc): array
 	{
+		$content = [];
 		if ($value) {
 			if (!is_array($value)) {
 				$value = trimExplode(',', $value);
@@ -627,6 +628,7 @@ class HTMLForm implements ToStringable
 	 */
 	public function keyset($name, $value = [], array $desc = []): array
 	{
+		$content = [];
 		if ($value) {
 			if (!is_array($value)) {
 				$value = explode(',', $value);

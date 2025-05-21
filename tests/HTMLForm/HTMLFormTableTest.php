@@ -125,6 +125,9 @@ class HTMLFormTableTest extends TestCase
 		static::assertStringContainsString('<input type="hidden"', $html);
 	}
 
+	/**
+	 * @throws \JsonException
+	 */
 	public function test_change_status_form_tags()
 	{
 		$f = new HTMLFormTable([

@@ -2,6 +2,7 @@
 
 namespace HTTP;
 
+use AutoLoad;
 use Path;
 
 /**

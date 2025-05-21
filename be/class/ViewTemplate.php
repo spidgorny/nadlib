@@ -1,6 +1,12 @@
 <?php
 
-class ViewTemplate extends AppController
+namespace nadlib\be\class;
+
+use UL;
+use ListFilesIn;
+use AutoLoad;
+
+class ViewTemplate extends \AppControllerBE
 {
 
 	public function sidebar(): array

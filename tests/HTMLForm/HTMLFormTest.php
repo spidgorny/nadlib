@@ -3,6 +3,7 @@
 namespace HTMLForm;
 
 use HTMLForm;
+use Request;
 
 /**
  * Created by PhpStorm.

@@ -1,6 +1,6 @@
 <?php
 
-class SysInfo extends AppController
+class SysInfo extends AppControllerBE
 {
 
 	public function render()
