@@ -1,5 +1,10 @@
 <?php
 
+namespace ORM;
+
+use ArrayIterator;
+use Data\ArrayIteratorPlusTest;
+
 class IteratorArrayAccessTest extends ArrayIteratorPlusTest
 {
 

@@ -1,10 +1,11 @@
 <?php
 
-if (!defined('DEVELOPMENT')) {
-	define('DEVELOPMENT', true);
+namespace Data;
+
+if (!\defined('DEVELOPMENT')) {
+	\define('DEVELOPMENT', true);
 }
 
-namespace Data;
 
 /**
  * Created by PhpStorm.

@@ -11,7 +11,7 @@ use Uploader;
  * Date: 2017-08-03
  * Time: 22:28
  */
-class UploaderTest extends \PhpUnit\Framework\TestCase
+class UploaderTest extends \PHPUnit\Framework\TestCase
 {
 
 	public function test_GetPostedFiles_single(): void

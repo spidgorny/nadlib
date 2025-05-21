@@ -9,7 +9,7 @@
 namespace ORM;
 
 use OODBase;
-use PhpUNit\Framework\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class OODBaseTest extends TestCase
 {
