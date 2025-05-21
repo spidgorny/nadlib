@@ -18,11 +18,11 @@
 		"michelf/php-markdown": "^2.0",
 		"mustangostang/spyc": "^0.6.3",
 		"phpauth/phpauth": "^1.5",
-		"predis/predis": "^2.2",
-		"paquettg/php-html-parser": "3.1"
+		"predis/predis": "^2.2"
 	},
 	"suggest": {
 		"mustangostang/spyc": "^0.6",
+		"paquettg/php-html-parser": "3.1",
 		"leafo/lessphp": "^0.5",
 		"gnat/nc-cms": "dev-master",
 		"spidgorny/advanced-html-dom": "dev-master",
