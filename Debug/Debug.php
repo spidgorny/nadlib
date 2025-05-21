@@ -1,5 +1,7 @@
 <?php
 
+namespace nadlib\Debug;
+
 class Debug
 {
 

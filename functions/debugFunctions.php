@@ -1,6 +1,7 @@
 <?php /** @noinspection ForgottenDebugOutputInspection */
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . '../static.php';
+
 /**
  * May already be defined in TYPO3
  */
@@ -173,11 +174,7 @@ if (!function_exists('d')) {
 	function debug_get_backtrace(): string
 	{
 		ob_start();
-		if (PHP_VERSION >= '5.3.6') {
-			debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-		} else {
-			debug_print_backtrace();
-		}
+		debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
 		$content = ob_get_clean();
 		$content = str_replace(dirname(getcwd()), '', $content);
@@ -369,12 +366,9 @@ if (!function_exists('llog')) {
 	 */
 	function llog(...$args): void
 	{
-		$caller = Debug::getCaller();
-		$jsonOptions = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
-
-		if (defined('JSON_UNESCAPED_LINE_TERMINATORS')) {
-			$jsonOptions |= JSON_UNESCAPED_LINE_TERMINATORS;
-		}
+		$caller = nadlib\Debug\Debug::getCaller();
+		$jsonOptions = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_LINE_TERMINATORS |
+			JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION | JSON_PARTIAL_OUTPUT_ON_ERROR;
 
 		$vars = array_map(static function ($el) {
 			if (is_object($el) && !($el instanceof stdClass)) {
@@ -398,7 +392,7 @@ if (!function_exists('llog')) {
 			], JSON_THROW_ON_ERROR | $jsonOptions);
 		} else {
 			$type = '';
-			$output = json_encode($vars, JSON_THROW_ON_ERROR | $jsonOptions);
+			$output = json_encode($vars, $jsonOptions);
 		}
 
 		if (strlen($output) > 80) {
@@ -406,7 +400,7 @@ if (!function_exists('llog')) {
 				? [
 					'type' => get_debug_type(first($args)),
 					'value' => first($vars)
-				] : $vars, JSON_THROW_ON_ERROR | $jsonOptions | JSON_PRETTY_PRINT);
+				] : $vars, $jsonOptions | JSON_PRETTY_PRINT);
 		}
 
 		/** @noinspection ForgottenDebugOutputInspection */

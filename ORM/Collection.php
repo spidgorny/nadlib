@@ -167,8 +167,6 @@ class Collection implements IteratorAggregate, ToStringable
 	)
 	{
 		//$taylorKey = get_class($this).'::'.__FUNCTION__." ({$this->table})";
-		$taylorKey = Debug::getBackLog(5, 0, BR, false);
-		TaylorProfiler::start($taylorKey);
 		$this->setDB($db ?? Config::getInstance()->getDB());
 //		$this->table = $config->prefixTable($this->table);
 		$this->controller = $controller;
@@ -215,8 +213,6 @@ class Collection implements IteratorAggregate, ToStringable
 					: $this->parentID;
 			}
 		}
-
-		TaylorProfiler::stop($taylorKey);
 	}
 
 	public function setDB(?DBInterface $db = null): void
