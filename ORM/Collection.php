@@ -167,7 +167,7 @@ class Collection implements IteratorAggregate, ToStringable
 	)
 	{
 		//$taylorKey = get_class($this).'::'.__FUNCTION__." ({$this->table})";
-		$this->setDB($db ?? Config::getInstance()->getDB());
+		$this->setDB($db);
 //		$this->table = $config->prefixTable($this->table);
 		$this->controller = $controller;
 

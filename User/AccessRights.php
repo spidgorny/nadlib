@@ -28,7 +28,7 @@ class AccessRights extends OODBase implements AccessRightsInterface
 	 */
 	public function __construct($idGroup = null, ?DBInterface $db = null)
 	{
-		$this->db = $db ?? Config::getInstance()->getDB();
+		$this->db = $db;
 		$this->groupID = $idGroup;
 		if ($this->groupID) {
 			$this->reload();
