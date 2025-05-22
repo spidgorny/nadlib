@@ -606,7 +606,7 @@ class SQLBuilder
 
 	public function getDB()
 	{
-		return $this->db = $this->db ?: $this->config->getDB();
+		return $this->db;
 	}
 
 	/**

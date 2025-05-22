@@ -2,6 +2,14 @@
 
 namespace nadlib\Debug;
 
+use DebugCLI;
+use DebugBulma;
+use DebugHTML;
+use slTable;
+use ReflactionClass;
+use ArrayPlus;
+use Request;
+
 class Debug
 {
 
@@ -72,7 +80,7 @@ class Debug
 	public static function getInstance(): Debug
 	{
 		if (!self::$instance) {
-			$index = class_exists('Index', false) ? Index::getInstance() : null;
+			$index = class_exists('Index', false) ? \Index::getInstance() : null;
 			self::$instance = new self($index);
 		}
 
@@ -218,7 +226,7 @@ class Debug
 		}
 
 		if (isset($first['object']) && $first['object']) {
-			$ref = new ReflectionClass($first['object']);
+			$ref = new \ReflectionClass($first['object']);
 			$path = $ref->getFileName();
 
 			$path = basename(dirname($file, 2)) .

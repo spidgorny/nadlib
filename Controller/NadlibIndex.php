@@ -1,5 +1,7 @@
 <?php
 
+use nadlib\Debug\Debug;
+
 class NadlibIndex
 {
 
@@ -25,7 +27,7 @@ class NadlibIndex
 			require_once __DIR__ . '/../be/class/IndexBE.php';
 			return IndexBE::getInstance(true);
 		};
-		$this->dic->debug = static function ($c): \Debug {
+		$this->dic->debug = static function ($c): Debug {
 			return new Debug($c->index);
 		};
 		$this->dic->config = static function ($c) {

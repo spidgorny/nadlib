@@ -1,6 +1,7 @@
 <?php /** @noinspection ForgottenDebugOutputInspection */
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . '../static.php';
+use nadlib\Debug\Debug;
 
 /**
  * May already be defined in TYPO3

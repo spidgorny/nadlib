@@ -1,5 +1,7 @@
 <?php
 
+use nadlib\Debug\Debug;
+
 class DebugHTML
 {
 

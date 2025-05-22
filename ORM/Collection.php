@@ -1,6 +1,7 @@
 <?php
 
 use Psr\Log\LoggerInterface;
+use nadlib\Debug\Debug;
 
 /**
  * Base class for storing datasets or datarows or tabular data or set

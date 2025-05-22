@@ -33,7 +33,7 @@ class Session implements SessionInterface
 	{
 		if (!Request::isPHPUnit() && !Request::isCLI() && !headers_sent()) {
 			// not using @ to see when session error happen
-			header('X-Session-Start: ' . __METHOD__)
+			header('X-Session-Start: ' . __METHOD__);
 			session_start();
 		}
 	}
