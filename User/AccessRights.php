@@ -5,6 +5,7 @@
  */
 class AccessRights extends OODBase implements AccessRightsInterface
 {
+
 	public $groupID;
 	/**
 	 * @var array
