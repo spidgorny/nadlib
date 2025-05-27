@@ -1,6 +1,7 @@
 <?php
 
-namespace Nadlib;
+namespace nadlib;
+
 
 use PHPUnit\Framework\TestCase;
 

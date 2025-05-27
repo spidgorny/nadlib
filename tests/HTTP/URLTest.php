@@ -2,7 +2,7 @@
 
 namespace HTTP;
 
-use PHPUnit\Framework\TestCase;
+use AppDev\OnlineRequestSystem\Framework\TestCase;
 use spidgorny\nadlib\HTTP\URL;
 
 /**

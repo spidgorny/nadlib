@@ -2,8 +2,8 @@
 
 namespace Time;
 
-use AppDev\OnlineRequestSystem\Framework\TestCase;
 use Date;
+use PHPUnit\Framework\TestCase;
 
 class DateTest extends TestCase
 {

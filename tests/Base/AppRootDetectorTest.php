@@ -8,8 +8,8 @@
 
 namespace Base;
 
+use AppDev\OnlineRequestSystem\Framework\TestCase;
 use AppRootDetector;
-use PHPUnit\Framework\TestCase;
 
 class AppRootDetectorTest extends TestCase
 {
