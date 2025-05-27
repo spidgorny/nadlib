@@ -2,7 +2,7 @@
 
 namespace HTML;
 
-use AppDev\OnlineRequestSystem\Framework\TestCase;
+use PHPUnit\Framework\TestCase;
 use UL;
 
 /**

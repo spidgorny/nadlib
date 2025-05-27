@@ -8,8 +8,8 @@
 
 namespace Data;
 
-use AppDev\OnlineRequestSystem\Framework\TestCase;
 use DateTime;
+use PHPUnit\Framework\TestCase;
 use POPOBase;
 
 class JustIdAndName extends POPOBase

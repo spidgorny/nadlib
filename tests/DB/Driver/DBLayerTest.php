@@ -8,8 +8,8 @@
 
 namespace DB\Driver;
 
-use AppDev\OnlineRequestSystem\Framework\TestCase;
 use DBLayer;
+use PHPUnit\Framework\TestCase;
 
 class DBLayerTest extends TestCase
 {

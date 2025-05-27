@@ -2,9 +2,9 @@
 
 namespace HTML;
 
-use AppDev\OnlineRequestSystem\Framework\TestCase;
 use Menu;
 use MockRequest;
+use PHPUnit\Framework\TestCase;
 
 class MenuTest extends TestCase
 {

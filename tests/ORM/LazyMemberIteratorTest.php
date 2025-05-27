@@ -2,10 +2,10 @@
 
 namespace ORM;
 
-use AppDev\OnlineRequestSystem\Framework\TestCase;
 use ArrayIterator;
 use ArrayObject;
 use LazyMemberIterator;
+use PHPUnit\Framework\TestCase;
 
 class LazyObject extends ArrayObject
 {

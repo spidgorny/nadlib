@@ -9,7 +9,7 @@
 namespace ORM;
 
 
-use AppDev\OnlineRequestSystem\Framework\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class ModelTest extends TestCase
 {

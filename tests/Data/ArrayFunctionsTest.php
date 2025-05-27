@@ -3,7 +3,7 @@
 namespace Data;
 
 
-use AppDev\OnlineRequestSystem\Framework\TestCase;
+use PHPUnit\Framework\TestCase;
 
 if (!\defined('DEVELOPMENT')) {
 	\define('DEVELOPMENT', true);

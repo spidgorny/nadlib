@@ -2,8 +2,8 @@
 
 namespace HTTP;
 
-use AppDev\OnlineRequestSystem\Framework\TestCase;
 use Mailer;
+use PHPUnit\Framework\TestCase;
 use SwiftMailer;
 
 /**

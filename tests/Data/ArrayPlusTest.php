@@ -2,8 +2,8 @@
 
 namespace Data;
 
-use AppDev\OnlineRequestSystem\Framework\TestCase;
 use ArrayPlus;
+use PHPUnit\Framework\TestCase;
 
 class ArrayPlusTest extends TestCase
 {
