@@ -161,7 +161,7 @@ class IndexBase /*extends Controller*/
 
 	/**
 	 * @param bool $createNew - must be false
-	 * @return IndexBase
+	 * @return static
 	 * @throws Exception
 	 */
 	public static function getInstance($createNew = false, ?ConfigInterface $config = null)
