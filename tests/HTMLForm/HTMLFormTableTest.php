@@ -185,7 +185,7 @@ class HTMLFormTableTest extends TestCase
 			'wrap' => 200
 		], 'utf8');
 		$tidy->cleanRepair();
-		echo $tidy->html();
+		echo $tidy->html()->value;
 
 		$dom = new Dom();
 		$dom->loadStr($html);

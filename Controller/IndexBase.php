@@ -151,7 +151,7 @@ class IndexBase /*extends Controller*/
 	/**
 	 * TODO: Remove the boolean parameter from getInstance()
 	 * TODO: And force to use makeInstance() in case it was true
-	 * @return Index|IndexBE
+	 * @return IndexBE
 	 * @throws Exception
 	 */
 	public static function makeInstance(?Config $config = null)
