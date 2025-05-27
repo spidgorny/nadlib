@@ -573,7 +573,7 @@ class Collection implements IteratorAggregate, ToStringable
 				//$this->members[$key] = call_user_func_array(array($class, 'getInstance'), array($row));
 				$this->members[$key] = call_user_func($class . '::getInstance', $row, $this->db);
 			} else {
-				$this->members[$key] = new $class($row);
+				$this->members[$key] = new $class($row, $this->db);
 				$this->members[$key]->setDB($this->db);
 			}
 		}

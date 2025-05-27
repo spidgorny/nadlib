@@ -1,14 +1,16 @@
 <?php
 
+use App\Security\Legacy\RisAccessRights;
+
 class Department extends OODBase
 {
 
 	public $table = 'departments';
-	
+
 
 	public function getRights()
 	{
-		return [];
+		return new RisAccessRights(null, $this->db);
 	}
 
 }
