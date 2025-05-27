@@ -25,7 +25,7 @@ class IndexBase /*extends Controller*/
 	public $content;
 
 	/**
-	 * @var AppController|UserlessController|Controller
+	 * @var UserlessController|Controller
 	 */
 	public $controller;
 
@@ -161,7 +161,7 @@ class IndexBase /*extends Controller*/
 
 	/**
 	 * @param bool $createNew - must be false
-	 * @return Index
+	 * @return IndexBase
 	 * @throws Exception
 	 */
 	public static function getInstance($createNew = false, ?ConfigInterface $config = null)

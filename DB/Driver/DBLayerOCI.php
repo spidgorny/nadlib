@@ -32,7 +32,7 @@ class DBLayerOCI extends DBLayer
 	 * @param string $user
 	 * @param string $pass
 	 * @param string $host - unused, for declaration consistency
-	 * @return bool|null|resource
+	 * @return bool|null
 	 */
 	public function connect($tns = null, $user = null, $pass = null, $host = 'localhost'): ?bool
 	{

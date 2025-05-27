@@ -200,7 +200,7 @@ class Debug
 	}
 
 	/**
-	 * @throws ReflectionException
+	 * @throws \ReflectionException
 	 */
 	public static function getMethod(array $first, array $next = []): string
 	{
@@ -543,7 +543,7 @@ class Debug
 
 	/**
 	 * @param mixed $debugAccess
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function consoleLog($debugAccess): void
 	{

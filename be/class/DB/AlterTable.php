@@ -183,9 +183,8 @@ class AlterTable extends AlterIndex
 						'Field' => $i,
 						'type' => new HTMLTag('td', [
 							'colspan' => 5,
-						], $localIndex['type']
-							? $this->handler->getChangeQuery($table, $index)
-							: $this->handler->getAlterQuery($table, $index)
+						],
+							$this->handler->getAlterQuery($table, $desc['name'], $index)
 						)
 					];
 				}
@@ -236,7 +235,7 @@ class AlterTable extends AlterIndex
 							],
 //								$localIndex['Type']
 //								? $this->handler->getChangeQuery($table, $index) :
-								 $this->handler->getAlterQuery($table, $index)
+								 $this->handler->getAlterQuery($table, $desc['name'], $index)
 							)
 						];
 						$this->different++;

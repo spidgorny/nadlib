@@ -224,7 +224,7 @@ class Linker
 
 	public function linkPage($className, array $params = []): HTMLTag
 	{
-		/** @var AppController $obj */
+		/** @var Controller $obj */
 		$obj = new $className();
 		$title = $obj->title;
 		$html = new HTML();

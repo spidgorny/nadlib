@@ -48,7 +48,7 @@ trait CachedGetInstance
 	 * @return static
 	 * @throws Exception
 	 */
-	public static function getInstance($id, DBInterface $db = null, ...$args): static
+	public static function getInstance($id, ?DBInterface $db = null, ...$args): static
 	{
 		return self::getInstanceByID($id, $db, ...$args);
 	}
@@ -59,7 +59,7 @@ trait CachedGetInstance
 	 * @param DBInterface|null $db
 	 * @return static
 	 */
-	public static function getInstanceByID($id, DBInterface $db = null): static
+	public static function getInstanceByID($id, ?DBInterface $db = null): static
 	{
 		/** @var class-string<static> $static */
 		$static = static::class;

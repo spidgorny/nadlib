@@ -465,21 +465,6 @@ class Syndicator
 		return $first;
 	}
 
-	/**
-	 * No XPATH
-	 *
-	 * @param string $xml
-	 * @return SimpleXMLElement
-	 */
-	public function getSXML($xml)
-	{
-		$xml_parser = new sxml();
-		$xml_parser->parse($xml);
-
-		//debug($xml_parser);
-		return $xml_parser->datas;
-	}
-
 	public function getDOM($xml): \DomDocument
 	{
 		return domxml_xmltree($xml);
