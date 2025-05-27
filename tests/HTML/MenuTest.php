@@ -4,8 +4,9 @@ namespace HTML;
 
 use Menu;
 use MockRequest;
+use PHPUnit\Framework\TestCase;
 
-class MenuTest extends \PHPUnit\Framework\TestCase
+class MenuTest extends TestCase
 {
 
 	public function test__construct(): void

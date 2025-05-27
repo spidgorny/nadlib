@@ -3,6 +3,7 @@
 namespace Data;
 
 use Bytes;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Created by PhpStorm.
@@ -10,7 +11,7 @@ use Bytes;
  * Date: 18.01.2016
  * Time: 11:34
  */
-class BytesTest extends \PHPUnit\Framework\TestCase
+class BytesTest extends TestCase
 {
 
 	public function test_return_bytes(): void

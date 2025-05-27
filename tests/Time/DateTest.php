@@ -2,9 +2,10 @@
 
 namespace Time;
 
+use AppDev\OnlineRequestSystem\Framework\TestCase;
 use Date;
 
-class DateTest extends \PHPUnit\Framework\TestCase
+class DateTest extends TestCase
 {
 
 	public function test_Date(): void

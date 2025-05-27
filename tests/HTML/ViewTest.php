@@ -5,6 +5,7 @@ namespace HTML;
 use HTMLProcessor;
 use MockController;
 use MockIndexDCI;
+use PHPUnit\Framework\TestCase;
 use View;
 
 /**
@@ -13,7 +14,7 @@ use View;
  * Date: 10.12.2015
  * Time: 21:20
  */
-class ViewTest extends \PHPUnit\Framework\TestCase
+class ViewTest extends TestCase
 {
 
 	public function test_render(): void

@@ -3,8 +3,9 @@
 namespace Data;
 
 use ArrayPlus;
+use PHPUnit\Framework\TestCase;
 
-class ArrayPlusTest extends \PHPUnit\Framework\TestCase
+class ArrayPlusTest extends TestCase
 {
 
 	/**

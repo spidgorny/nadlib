@@ -4,6 +4,7 @@ namespace HTTP;
 
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use PHPUnit\Framework\TestCase;
 use Uploader;
 use UploadException;
 
@@ -13,7 +14,7 @@ use UploadException;
  * Date: 2017-08-03
  * Time: 22:28
  */
-class UploaderTest extends \PHPUnit\Framework\TestCase
+class UploaderTest extends TestCase
 {
 
 	public function test_GetPostedFiles_single(): void

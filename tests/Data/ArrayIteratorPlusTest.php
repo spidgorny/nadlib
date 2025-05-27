@@ -3,8 +3,9 @@
 namespace Data;
 
 use ArrayIterator;
+use PHPUnit\Framework\TestCase;
 
-class ArrayIteratorPlusTest extends \PHPUnit\Framework\TestCase
+class ArrayIteratorPlusTest extends TestCase
 {
 
 	/**

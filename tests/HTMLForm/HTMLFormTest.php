@@ -2,6 +2,7 @@
 
 namespace HTMLForm;
 
+use AppDev\OnlineRequestSystem\Framework\TestCase;
 use HTMLForm;
 use Request;
 
@@ -11,7 +12,7 @@ use Request;
  * Date: 2017-03-22
  * Time: 17:04
  */
-class HTMLFormTest extends \PHPUnit\Framework\TestCase
+class HTMLFormTest extends TestCase
 {
 
 	public function test_id(): void

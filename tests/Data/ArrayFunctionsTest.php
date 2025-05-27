@@ -2,6 +2,9 @@
 
 namespace Data;
 
+
+use PHPUnit\Framework\TestCase;
+
 if (!\defined('DEVELOPMENT')) {
 	\define('DEVELOPMENT', true);
 }
@@ -13,7 +16,7 @@ if (!\defined('DEVELOPMENT')) {
  * Date: 23.11.2016
  * Time: 11:45
  */
-class ArrayFunctionsTest extends \PHPUnit\Framework\TestCase
+class ArrayFunctionsTest extends TestCase
 {
 
 	public function test_unique_multidim_array_thru(): void

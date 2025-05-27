@@ -2,10 +2,11 @@
 
 namespace HTML;
 
+use PHPUnit\Framework\TestCase;
 use Request;
 use slTable;
 
-class slTableTest extends \PHPUnit\Framework\TestCase
+class slTableTest extends TestCase
 {
 
 	public function test_construct(): void

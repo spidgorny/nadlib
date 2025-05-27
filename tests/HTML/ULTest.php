@@ -2,6 +2,7 @@
 
 namespace HTML;
 
+use PHPUnit\Framework\TestCase;
 use UL;
 
 /**
@@ -10,7 +11,7 @@ use UL;
  * Date: 29.01.2016
  * Time: 11:30
  */
-class ULTest extends \PHPUnit\Framework\TestCase
+class ULTest extends TestCase
 {
 
 	/**

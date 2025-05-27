@@ -4,9 +4,10 @@ namespace Time;
 
 use Date;
 use Duration;
+use PHPUnit\Framework\TestCase;
 use Time;
 
-class TimeTest extends \PHPUnit\Framework\TestCase
+class TimeTest extends TestCase
 {
 
 	protected function setUp(): void

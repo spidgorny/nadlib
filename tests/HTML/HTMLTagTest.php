@@ -3,6 +3,7 @@
 namespace HTML;
 
 use HTMLTag;
+use PHPUnit\Framework\TestCase;
 use SQLSelectQuery;
 
 /**
@@ -11,7 +12,7 @@ use SQLSelectQuery;
  * Date: 22.01.2016
  * Time: 17:27
  */
-class HTMLTagTest extends \PHPUnit\Framework\TestCase
+class HTMLTagTest extends TestCase
 {
 
 	public function test_parse_simple(): void

@@ -6,6 +6,7 @@ use AsIs;
 use DBInterface;
 use DBLayer;
 use PGArray;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Created by PhpStorm.
@@ -13,7 +14,7 @@ use PGArray;
  * Date: 15.03.2017
  * Time: 17:59
  */
-class PGArrayTest extends \PHPUnit\Framework\TestCase
+class PGArrayTest extends TestCase
 {
 
 	/**

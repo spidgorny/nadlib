@@ -1,6 +1,10 @@
 <?php
 
-class NadlibTestCase extends \PHPUnit\Framework\TestCase
+namespace Nadlib;
+
+use PHPUnit\Framework\TestCase;
+
+class NadlibTestCase extends TestCase
 {
 
 	public $canPrint = false;

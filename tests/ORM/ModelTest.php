@@ -8,7 +8,10 @@
 
 namespace ORM;
 
-class ModelTest extends \PHPUnit\Framework\TestCase
+
+use PHPUnit\Framework\TestCase;
+
+class ModelTest extends TestCase
 {
 
 	public function _test_getFormFromModel(): void

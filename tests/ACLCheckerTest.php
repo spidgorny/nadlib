@@ -6,9 +6,9 @@
  * Time: 19:07
  */
 
-use PHPUnit\Framework\TestCase;
+use AppDev\OnlineRequestSystem\MyTestCase;
 
-class ACLCheckerTest extends TestCase
+class ACLCheckerTest extends MyTestCase
 {
 
 	public function test_compareACL(): void

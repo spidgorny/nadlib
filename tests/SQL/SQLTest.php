@@ -4,10 +4,11 @@ namespace SQL;
 
 use DBLayerBase;
 use DBPlacebo;
+use PHPUnit\Framework\TestCase;
 use SQLBuilder;
 use SQLNow;
 
-class SQLTest extends \PHPUnit\Framework\TestCase
+class SQLTest extends TestCase
 {
 
 	/**

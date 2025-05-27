@@ -3,6 +3,7 @@
 namespace Data;
 
 use nadlib\Controller\Filter;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Created by PhpStorm.
@@ -10,7 +11,7 @@ use nadlib\Controller\Filter;
  * Date: 20.05.2016
  * Time: 14:05
  */
-class FilterTest extends \PHPUnit\Framework\TestCase
+class FilterTest extends TestCase
 {
 
 	/**

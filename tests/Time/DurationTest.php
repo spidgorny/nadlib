@@ -3,8 +3,9 @@
 namespace Time;
 
 use Duration;
+use PHPUnit\Framework\TestCase;
 
-class DurationTest extends \PHPUnit\Framework\TestCase
+class DurationTest extends TestCase
 {
 
 	public function test_Duration_fromHuman(): void

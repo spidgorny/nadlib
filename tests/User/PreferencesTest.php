@@ -8,7 +8,7 @@
 
 namespace User;
 
-use PHPUnit\Framework\TestCase;
+use AppDev\OnlineRequestSystem\Framework\TestCase;
 use Preferences;
 
 class PreferencesTest extends TestCase

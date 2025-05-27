@@ -3,6 +3,7 @@
 namespace Data;
 
 use ClosureCache;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Created by PhpStorm.
@@ -10,7 +11,7 @@ use ClosureCache;
  * Date: 22.06.2016
  * Time: 16:42
  */
-class ClosureCacheTest extends \PHPUnit\Framework\TestCase
+class ClosureCacheTest extends TestCase
 {
 
 	public function test_it(): void

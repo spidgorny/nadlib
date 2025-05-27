@@ -9,8 +9,9 @@
 namespace DB\Driver;
 
 use DBLayer;
+use PHPUnit\Framework\TestCase;
 
-class DBLayerTest extends \PHPUnit\Framework\TestCase
+class DBLayerTest extends TestCase
 {
 
 	public function testQuoteKey(): void

@@ -3,6 +3,7 @@
 namespace HTTP;
 
 use Mailer;
+use PHPUnit\Framework\TestCase;
 use SwiftMailer;
 
 /**
@@ -11,7 +12,7 @@ use SwiftMailer;
  * Date: 22.12.2015
  * Time: 13:37
  */
-class MailerTest extends \PHPUnit\Framework\TestCase
+class MailerTest extends TestCase
 {
 
 	public function test_getShortFilename(): void

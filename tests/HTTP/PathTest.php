@@ -4,6 +4,7 @@ namespace HTTP;
 
 use AutoLoad;
 use Path;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Created by PhpStorm.
@@ -11,7 +12,7 @@ use Path;
  * Date: 2016-01-23
  * Time: 01:10
  */
-class PathTest extends \PHPUnit\Framework\TestCase
+class PathTest extends TestCase
 {
 
 	public function test_Windows(): void

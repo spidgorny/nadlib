@@ -9,6 +9,7 @@
 namespace Data;
 
 use DateTime;
+use PHPUnit\Framework\TestCase;
 use POPOBase;
 
 class JustIdAndName extends POPOBase
@@ -28,7 +29,7 @@ class JustIdAndName extends POPOBase
 
 }
 
-class POPOBaseTest extends \PHPUnit\Framework\TestCase
+class POPOBaseTest extends TestCase
 {
 
 	public function test__construct(): void

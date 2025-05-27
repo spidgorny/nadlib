@@ -3,8 +3,9 @@
 namespace DB;
 
 use DSNBuilder;
+use PHPUnit\Framework\TestCase;
 
-class DSNBuilderTest extends \PHPUnit\Framework\TestCase
+class DSNBuilderTest extends TestCase
 {
 
 	public function testMake(): void

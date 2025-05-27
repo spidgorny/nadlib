@@ -9,8 +9,9 @@
 namespace DB\Driver;
 
 use nadlib\SessionDatabase;
+use PHPUnit\Framework\TestCase;
 
-class SessionDatabaseTest extends \PHPUnit\Framework\TestCase
+class SessionDatabaseTest extends TestCase
 {
 
 	public function test_runInsertQuery(): void

@@ -2,6 +2,7 @@
 
 namespace HTTP;
 
+use PHPUnit\Framework\TestCase;
 use Request;
 
 /**
@@ -10,7 +11,7 @@ use Request;
  * Date: 19.12.13
  * Time: 15:03
  */
-class RequestTest extends \PHPUnit\Framework\TestCase
+class RequestTest extends TestCase
 {
 
 	/**
