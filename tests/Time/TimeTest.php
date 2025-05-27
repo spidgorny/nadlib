@@ -2,9 +2,9 @@
 
 namespace Time;
 
-use AppDev\OnlineRequestSystem\Framework\TestCase;
 use Date;
 use Duration;
+use PHPUnit\Framework\TestCase;
 use Time;
 
 class TimeTest extends TestCase

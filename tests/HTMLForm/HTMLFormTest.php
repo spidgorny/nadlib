@@ -2,8 +2,8 @@
 
 namespace HTMLForm;
 
-use AppDev\OnlineRequestSystem\Framework\TestCase;
 use HTMLForm;
+use PHPUnit\Framework\TestCase;
 use Request;
 
 /**

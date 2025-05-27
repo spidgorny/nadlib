@@ -2,9 +2,9 @@
 
 namespace HTTP;
 
-use AppDev\OnlineRequestSystem\Framework\TestCase;
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use PHPUnit\Framework\TestCase;
 use Uploader;
 use UploadException;
 

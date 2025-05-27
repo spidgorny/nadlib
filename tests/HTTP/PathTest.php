@@ -2,9 +2,9 @@
 
 namespace HTTP;
 
-use AppDev\OnlineRequestSystem\Framework\TestCase;
 use AutoLoad;
 use Path;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Created by PhpStorm.
