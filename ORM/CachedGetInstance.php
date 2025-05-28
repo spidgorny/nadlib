@@ -195,11 +195,11 @@ trait CachedGetInstance
 	/**
 	 * Is cached in instances
 	 * @param string $name
-	 * @param string|null $field
+	 * @param string $field
 	 * @param DBInterface $db
 	 * @return ?static
 	 */
-	public static function getInstanceByName($name, $field = null, DBInterface $db): ?static
+	public static function getInstanceByName($name, $field, DBInterface $db): ?static
 	{
 		$self = static::class;
 		//debug(__METHOD__, $self, $name, count(self::$instances[$self]));
