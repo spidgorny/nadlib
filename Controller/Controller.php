@@ -92,7 +92,7 @@ abstract class Controller extends SimpleController
 	/**
 	 * @var DBLayer|DBLayerPDO|DBLayerSQLite|DBLayerBase|DBInterface
 	 */
-	protected $db;
+	protected DBInterface $db;
 	protected float $lastMicrotime;
 
 	public function __construct()

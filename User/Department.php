@@ -16,7 +16,7 @@ class Department extends OODBase
 
 	public function getPeople()
 	{
-		return (new PersonCollection(
+		return (new PersonCollection(null,
 			['department' => $this->id],
 			'ORDER BY surname, firstname',
 			$this->db

@@ -22,11 +22,11 @@ trait CachedGetInstance
 
 	/**
 	 * @param $id
-	 * @param DBInterface|null $db
+	 * @param DBInterface $db
 	 * @return self
 	 * @throws Exception
 	 */
-	public static function tryGetInstance($id, ?DBInterface $db = null)
+	public static function tryGetInstance($id, DBInterface $db)
 	{
 		try {
 			$obj = self::getInstance($id, $db);
@@ -44,7 +44,7 @@ trait CachedGetInstance
 
 	/**
 	 * @param int $id
-	 * @param DBInterface|null $db
+	 * @param DBInterface $db
 	 * @param mixed ...$args
 	 * @return static
 	 */
@@ -56,10 +56,10 @@ trait CachedGetInstance
 	/**
 	 * // TODO: initialization by array should search in $instances as well
 	 * @param $id |array int
-	 * @param DBInterface|null $db
+	 * @param DBInterface $db
 	 * @return static
 	 */
-	public static function getInstanceByID($id, ?DBInterface $db = null): static
+	public static function getInstanceByID($id, DBInterface $db): static
 	{
 		/** @var class-string<static> $static */
 		$static = static::class;
@@ -196,10 +196,10 @@ trait CachedGetInstance
 	 * Is cached in instances
 	 * @param string $name
 	 * @param string|null $field
-	 * @param DBInterface|null $db
+	 * @param DBInterface $db
 	 * @return ?static
 	 */
-	public static function getInstanceByName($name, $field = null, ?DBInterface $db = null): ?static
+	public static function getInstanceByName($name, $field = null, DBInterface $db): ?static
 	{
 		$self = static::class;
 		//debug(__METHOD__, $self, $name, count(self::$instances[$self]));

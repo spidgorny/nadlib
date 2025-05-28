@@ -42,11 +42,11 @@ class Model
 	protected static $instances = [];
 
 	/**
-     * Not caching.
-     * @throws DatabaseException
-     * @throws Exception
-     */
-    public static function getInstance(array $data, ?DBInterface $db = null): static
+	 * Not caching.
+	 * @throws DatabaseException
+	 * @throws Exception
+	 */
+	public static function getInstance(array $data, ?DBInterface $db = null): static
 	{
 		$obj = new static(null);
 		$obj->setDB($db ?: Config::getInstance()->getDB());
@@ -55,11 +55,11 @@ class Model
 	}
 
 	/**
-     * Not caching.
-     * @param $id
-     * @return static
-     */
-    public static function getInstanceByID(DBInterface $db, $id)
+	 * Not caching.
+	 * @param $id
+	 * @return static
+	 */
+	public static function getInstanceByID(DBInterface $db, $id)
 	{
 		if (self::$instances[$id]) {
 			return self::$instances[$id];
@@ -71,9 +71,10 @@ class Model
 	}
 
 	/**
-     * @param DBInterface|null $db
-     */
-    public function __construct(?DBInterface $db = null, array $data = [])
+	 * @param DBInterface $db
+	 * @param array $data
+	 */
+	public function __construct(DBInterface $db, array $data = [])
 	{
 		if ($db instanceof \DBInterface) {
 			$this->setDB($db);
@@ -88,10 +89,10 @@ class Model
 	}
 
 	/**
-     * Different models may extend this to covert between
-     * different data types in DB and in runtime.
-     */
-    public function setData(array $data): void
+	 * Different models may extend this to covert between
+	 * different data types in DB and in runtime.
+	 */
+	public function setData(array $data): void
 	{
 		foreach ($data as $key => $val) {
 			$this->$key = $val;
@@ -157,8 +158,8 @@ class Model
 				} elseif (method_exists($this, 'getSingleLink')) {
 					$link = $this->getSingleLink();
 					$content = $link !== '' && $link !== '0' ? new HTMLTag('a', [
-							'href' => $link,
-						], $this->getName()) : $this->getName();
+						'href' => $link,
+					], $this->getName()) : $this->getName();
 				} else {
 					$content = $this->getName();
 				}
@@ -185,11 +186,11 @@ class Model
 	}
 
 	/**
-     * Original runs getUpdateQuery() which is not supported
-     * by DBLayerJSON
-     * @return resource
-     */
-    public function update(array $data)
+	 * Original runs getUpdateQuery() which is not supported
+	 * by DBLayerJSON
+	 * @return resource
+	 */
+	public function update(array $data)
 	{
 		$res = $this->db->runUpdateQuery($this->table, $data, [
 			$this->idField => $this->{$this->idField},
@@ -219,9 +220,9 @@ class Model
 	}
 
 	/**
-     * @return array{label: mixed, type: mixed, optional: bool}[]
-     */
-    public function getFormFromModel(): array
+	 * @return array{label: mixed, type: mixed, optional: bool}[]
+	 */
+	public function getFormFromModel(): array
 	{
 		$desc = [];
 		$fields = $this->getFields();
@@ -279,9 +280,9 @@ class Model
 	}
 
 	/**
-     * @return mixed[]
-     */
-    public function asArray(): array
+	 * @return mixed[]
+	 */
+	public function asArray(): array
 	{
 		$data = get_object_vars($this);
 		unset($data['table']);

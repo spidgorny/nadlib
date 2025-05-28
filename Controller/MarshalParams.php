@@ -27,8 +27,9 @@ class MarshalParams
 	}
 
 	/**
-	 * @param string $class
-	 * @return object
+	 * @template T of object
+	 * @param class-string<T> $class The fully qualified class name.
+	 * @return T An instance of the specified class.
 	 * @throws ReflectionException
 	 */
 	public function make($class)
@@ -37,8 +38,9 @@ class MarshalParams
 	}
 
 	/**
-	 * @param string $class
-	 * @return object
+	 * @template T of object
+	 * @param class-string<T> $class The fully qualified class name.
+	 * @return T An instance of the specified class.
 	 * @throws ReflectionException
 	 */
 	public function makeInstanceWithInjection($class)
@@ -83,7 +85,7 @@ class MarshalParams
 	public function getParameterValue($param, string|ReflectionNamedType $type)
 	{
 		$container = $this->container;
-		$typeClass = method_exists($type, 'getName')
+		$typeClass = ($type instanceof ReflectionNamedType && method_exists($type, 'getName'))
 			? $type->getName()
 			: $type . '';
 		if (!is_string($type) && $type->isBuiltin()) {
