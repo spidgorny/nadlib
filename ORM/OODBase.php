@@ -366,10 +366,10 @@ abstract class OODBase implements ArrayAccess
 	 * @return ArrayPlus
 	 * @throws Exception
 	 */
-	public static function makeInstances(array $ids)
+	public static function makeInstances(array $ids, DBInterface $db)
 	{
 		foreach ($ids as &$id) {
-			$id = static::getInstance($id);
+			$id = static::getInstance($id, $db);
 		}
 
 		return new ArrayPlus($ids);
@@ -710,7 +710,7 @@ abstract class OODBase implements ArrayAccess
 	{
 		$id = ifsetor($this->data[$this->parentField]);
 
-		return $id ? self::getInstance($id) : null;
+		return $id ? self::getInstance($id, $this->db) : null;
 	}
 
 	/**
@@ -769,7 +769,7 @@ abstract class OODBase implements ArrayAccess
 	{
 		$data = $this->db->fetchAllSelectQuery($this->table, $where, $orderBy);
 		foreach ($data as &$row) {
-			$row = static::getInstance($row);
+			$row = static::getInstance($row, $this->db);
 		}
 
 		return $data;

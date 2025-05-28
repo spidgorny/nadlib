@@ -151,7 +151,7 @@ class Collection implements IteratorAggregate, ToStringable
 	protected $logger;
 
 	/**
-	 * @param int $pid
+	 * @param ?int|?string $pid
 	 *        if -1 - will not retrieve data from DB
 	 *        if 00 - will retrieve all data
 	 *        if >0 - will retrieve data where PID = $pid
@@ -160,9 +160,9 @@ class Collection implements IteratorAggregate, ToStringable
 	 * @throws Exception
 	 */
 	public function __construct(
-		$pid = null, /*array/SQLWhere*/
-		$where = [],
-		$order = '',
+		$pid, /*array/SQLWhere*/
+		$where,
+		$order,
 		DBInterface $db,
 		?Controller $controller = null
 	)
