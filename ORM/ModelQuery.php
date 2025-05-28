@@ -7,6 +7,7 @@ class ModelQuery implements IteratorAggregate
 	 * @var string
 	 */
 	public static $itemClassName;
+
 	/**
 	 * @var DBInterface
 	 */
@@ -58,7 +59,7 @@ class ModelQuery implements IteratorAggregate
 		$data = $this->queryData($this->where, $orderBy);
 		$list = new ArrayPlus();
 		foreach ($data as $row) {
-			$list->append(new static::$itemClassName($this->db, $row));
+			$list->append(new static::$itemClassName($row, $this->db));
 		}
 
 		return $list;

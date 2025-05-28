@@ -1,7 +1,7 @@
 <?php
 
-use Psr\Log\LoggerInterface;
 use nadlib\Debug\Debug;
+use Psr\Log\LoggerInterface;
 
 /**
  * Base class for storing datasets or datarows or tabular data or set
@@ -163,7 +163,7 @@ class Collection implements IteratorAggregate, ToStringable
 		$pid = null, /*array/SQLWhere*/
 		$where = [],
 		$order = '',
-		?DBInterface $db = null,
+		DBInterface $db,
 		?Controller $controller = null
 	)
 	{

@@ -60,9 +60,9 @@ class MarshalParams
 	}
 
 	/**
-     * @throws ReflectionException
-     */
-    public function getFunctionArguments(ReflectionMethod $constructor): array
+	 * @throws ReflectionException
+	 */
+	public function getFunctionArguments(ReflectionMethod $constructor): array
 	{
 		$init = []; // parameter values to the constructor
 		$params = $constructor->getParameters();
@@ -71,10 +71,10 @@ class MarshalParams
 			if ($param->isArray() || $param->isDefaultValueAvailable()) {
 				$init[$name] = $param->getDefaultValue();
 			} else {
-                $type = method_exists($param, 'getType') ? $param->getType() : $param->getClass()->name;
-
-                $init[$name] = $type ? $this->getParameterValue($param, $type) : null;
-            }
+				$type = method_exists($param, 'getType') ? $param->getType() : $param->getClass()->name;
+				$types = trimExplode('|', $type);
+				$init[$name] = $type ? $this->getParameterValue($param, $types[0]) : null;
+			}
 		}
 
 		return $init;
