@@ -94,7 +94,7 @@ abstract class OODBase implements ArrayAccess
 	 * as associative array
 	 * @throws Exception
 	 */
-	public function __construct($id = null, ?DBInterface $db = null)
+	public function __construct($id, DBInterface $db)
 	{
 //		debug(get_called_class(), __FUNCTION__, $id);
 		$this->guessDB($db);
