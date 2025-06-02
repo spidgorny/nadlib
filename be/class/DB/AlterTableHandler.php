@@ -26,11 +26,11 @@ class AlterTableHandler
 	}
 
 	/**
-     * @param string $t1
-     * @param string $t2
-     * @todo compare using TableField
-     */
-    public function sameTypeString($t1, $t2): bool
+	 * @param string $t1
+	 * @param string $t2
+	 * @todo compare using TableField
+	 */
+	public function sameTypeString($t1, $t2): bool
 	{
 		$int = ['int(11)', 'INTEGER', 'integer', 'tinyint(1)', 'int', 'tinyint(4)'];
 		$text = ['text', 'varchar(255)', 'tinytext'];

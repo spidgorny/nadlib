@@ -14,8 +14,11 @@ class HTMLFormMonthYear extends HTMLFormType
 
 	public $year;
 
+	/** @var array */
+	public $value;
+
 	/**
-	 * @param string $field
+	 * @param array $field
 	 */
 	public function __construct($field)
 	{
@@ -59,9 +62,9 @@ class HTMLFormMonthYear extends HTMLFormType
 	}
 
 	/**
-     * @return \HTMLTag[]
-     */
-    public function showMonthOptions(): array
+	 * @return \HTMLTag[]
+	 */
+	public function showMonthOptions(): array
 	{
 		$content = [];
 		foreach ($this->months as $m => $mon) {

@@ -282,7 +282,7 @@ class Collection implements IteratorAggregate, ToStringable
 		// PROBLEM! This is supposed to be the total amount
 		// Don't uncomment
 		//$this->count = count($this->data);
-		$this->count = __METHOD__;    // we need to disable getCount()
+		$this->count = null;    // we need to disable getCount()
 
 		// this is needed to not retrieve the data again
 		// after it was set (see $this->getData()

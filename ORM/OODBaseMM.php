@@ -3,7 +3,7 @@
 class OODBaseMM extends OODBase
 {
 
-	/// @var array
+	/** @var array */
 	public $id = [];
 
 	/** @var array */

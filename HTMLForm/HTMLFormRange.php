@@ -31,9 +31,9 @@ class HTMLFormRange extends HTMLFormType
 	}
 
 	/**
-     * @param int $value
-     */
-    public function setValue($value): void
+	 * @param string $value
+	 */
+	public function setValue($value): void
 	{
 		$this->value = $value;
 	}

@@ -30,8 +30,8 @@ class HTMLFormTimeRange extends HTMLFormType
 	public function __construct($field, array $value)
 	{
 //		parent::__construct();
-		$this->field = $field;
-		if (count($value) == 2) {
+		$this->field = [$field];
+		if (count($value) === 2) {
 			[$this->start, $this->end] = $value;
 		}
 

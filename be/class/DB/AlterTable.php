@@ -16,7 +16,7 @@ class AlterTable extends AlterIndex
 	public $missing = 0;
 
 	/**
-	 * @var AlterTableHandler
+	 * @var AlterTableInterface
 	 */
 	public $handler;
 

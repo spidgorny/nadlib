@@ -24,7 +24,7 @@ class HTMLFormSelection extends HTMLFormField
 	public $more = [];
 
 	/**
-	 * @var HTMLFormField
+	 * @var HTMLFormField|array
 	 */
 	public $desc = [];
 
