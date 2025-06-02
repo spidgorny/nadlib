@@ -3,17 +3,19 @@
 class FakeMailer implements MailerInterface
 {
 
+	public $to;
+
 	public $emails;
 
 	public $subject;
 
-	public $body;
+	public $bodytext;
 
-	public function __construct($emails, $subject, $body)
+	public function __construct($emails, $subject, $bodytext)
 	{
 		$this->emails = $emails;
 		$this->subject = $subject;
-		$this->body = $body;
+		$this->bodytext = $bodytext;
 	}
 
 	public function sendSwiftMailerEmail($cc = null, $bcc = null, array $attachments = [], array $additionalSenders = [])
@@ -31,7 +33,7 @@ class FakeMailer implements MailerInterface
 
 	public function getSwiftMessage($cc, $bcc, array $attachments, array $additionalSenders): \Swift_Message
 	{
-		$orsMailer = new SwiftMailer($this->emails, $this->subject, $this->body);
+		$orsMailer = new SwiftMailer($this->emails, $this->subject, $this->bodytext);
 		return $orsMailer->getSwiftMessage($cc, $bcc, $attachments, $additionalSenders);
 	}
 
