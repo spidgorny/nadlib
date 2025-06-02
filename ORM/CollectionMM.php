@@ -38,12 +38,12 @@ class CollectionMM extends Collection
 	 * @param string $field1
 	 * @param string $field2
 	 */
-	public function __construct($field1, $field2)
+	public function __construct($field1, $field2, DBInterface $db)
 	{
 		$this->field1 = $field1;
 		$this->field2 = $field2;
 
-		parent::__construct();
+		parent::__construct(null, [], '', $db);
 	}
 
 	/**

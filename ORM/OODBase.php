@@ -389,7 +389,7 @@ abstract class OODBase implements ArrayAccess
 	 * @param array|string $data
 	 * @return OODBase
 	 */
-	public static function hydrate($data)
+	public static function hydrate($data, DBInterface $db)
 	{
 		if (is_string($data)) {
 			/** @noinspection UnserializeExploitsInspection */
@@ -401,7 +401,7 @@ abstract class OODBase implements ArrayAccess
 		$obj = new $class();
 		foreach ($el as $key => $val) {
 			if (is_array($val) && isset($val['class'])) {
-				$val = self::hydrate($val);
+				$val = self::hydrate($val, $db);
 			}
 
 			/** @noinspection PhpVariableVariableInspection */
