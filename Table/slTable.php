@@ -72,7 +72,7 @@ class slTable implements ToStringable
 
 	public $sortBy;
 
-    public $sortOrder;
+	public $sortOrder;
 
 	/**
 	 * last line
@@ -109,19 +109,19 @@ class slTable implements ToStringable
 	public $trmore;
 
 	/**
-     * @var '&#x25bc;'
-     */
-    public $arrowDesc = '<img src="/img/arrow_down.gif" align="absmiddle" alt="down"/>';
+	 * @var string '&#x25bc;'
+	 */
+	public $arrowDesc = '<img src="/img/arrow_down.gif" align="absmiddle" alt="down"/>';
 
 	/**
-     * @var '&#x25b2;'
-     */
-    public $arrowAsc = '<img src="/img/arrow_up.gif" align="absmiddle" alt="up"/>';
+	 * @var string '&#x25b2;'
+	 */
+	public $arrowAsc = '<img src="/img/arrow_up.gif" align="absmiddle" alt="up"/>';
 
 	/**
-     * @var bool
-     */
-    public $isCLI = false;
+	 * @var bool
+	 */
+	public $isCLI = false;
 
 	/**
 	 * @var Request
@@ -163,9 +163,9 @@ class slTable implements ToStringable
 	}
 
 	/**
-     * @param string $thesMore
-     */
-    public function thes(array $aThes, $thesMore = null): void
+	 * @param array $thesMore
+	 */
+	public function thes(array $aThes, $thesMore = null): void
 	{
 		$this->thes = $aThes;
 		if ($thesMore !== null) {
@@ -264,20 +264,20 @@ class slTable implements ToStringable
 				//throw new InvalidArgumentException('slTable array instead of scalar');
 				//return '['.implode(', ', $val).']';
 			} elseif (!$no_hsc) {
-                if (is_object($val)) {
-						$val = '[' . get_class($val) . ']';
-					} elseif (mb_strpos($val, "\n") !== false) {
-						$val = htmlspecialchars($val);
-						$val = new HtmlString('<pre style="white-space: pre-wrap;">' . htmlspecialchars($val) . '</pre>');
-					} else {
-						$val = htmlspecialchars($val, ENT_NOQUOTES);
-					}
-
-                $no_hsc = true;
-            } else {
-					// will be done by slTable
-					//$val = htmlspecialchars($val);
+				if (is_object($val)) {
+					$val = '[' . get_class($val) . ']';
+				} elseif (mb_strpos($val, "\n") !== false) {
+					$val = htmlspecialchars($val);
+					$val = new HtmlString('<pre style="white-space: pre-wrap;">' . htmlspecialchars($val) . '</pre>');
+				} else {
+					$val = htmlspecialchars($val, ENT_NOQUOTES);
 				}
+
+				$no_hsc = true;
+			} else {
+				// will be done by slTable
+				//$val = htmlspecialchars($val);
+			}
 
 			$val = [
 				//0 => $key instanceof HtmlString ? $key : htmlspecialchars($key),
@@ -306,12 +306,12 @@ class slTable implements ToStringable
 	}
 
 	/**
-     * To sort, $this->thes with all datatypes should be known
-     * @public to be callable
-     * @param $a
-     * @param $b
-     */
-    public function tabSortByUrl($a, array $b): int
+	 * To sort, $this->thes with all datatypes should be known
+	 * @public to be callable
+	 * @param $a
+	 * @param $b
+	 */
+	public function tabSortByUrl($a, array $b): int
 	{
 		$by = $this->sortBy;
 		$so = $this->sortOrder;
@@ -397,7 +397,7 @@ class slTable implements ToStringable
 
 			$this->generateThead();
 			$this->generation->text('<tbody>');
-            $data = is_array($this->data) || $this->data instanceof Traversable ? $this->data : [];
+			$data = is_array($this->data) || $this->data instanceof Traversable ? $this->data : [];
 
 			$i = -1;
 			foreach ($data as $key => $row) { // (almost $this->data)
@@ -588,17 +588,17 @@ class slTable implements ToStringable
 	}
 
 	/**
-     * @param $key
-     */
-    public function getRowClass(array $row, int $i, string $key): array
+	 * @param $key
+	 */
+	public function getRowClass(array $row, int $i, string $key): array
 	{
 		$class = [];
 		if (isset($row['###TD_CLASS###'])) {
-            $class[] = $row['###TD_CLASS###'];
-        } elseif ($this->isOddEven) {
-            // only when not manually defined
-            $class[] = ($i % 2 !== 0) ? 'odd' : 'even';
-        }
+			$class[] = $row['###TD_CLASS###'];
+		} elseif ($this->isOddEven) {
+			// only when not manually defined
+			$class[] = ($i % 2 !== 0) ? 'odd' : 'even';
+		}
 
 		if (isset($this->dataClass[$key]) && $this->dataClass[$key]) {
 			$class[] = $this->dataClass[$key];
@@ -685,9 +685,9 @@ class slTable implements ToStringable
 	}
 
 	/**
-     * @param int $iCol
-     */
-    public function getCellMore(array $k, $iCol, string $col, array $row): array
+	 * @param int $iCol
+	 */
+	public function getCellMore(array $k, $iCol, string $col, array $row): array
 	{
 		$more = [
 			'class' => [],
@@ -746,12 +746,12 @@ class slTable implements ToStringable
 	}
 
 	/**
-     * Separation by "\t" is too stupid. We count how many chars are there in each column
-     * and then pad it accordingly
-     * @param bool $cutTooLong
-     * @param bool $useAvg
-     */
-    public function getCLITable($cutTooLong = false, $useAvg = false): string
+	 * Separation by "\t" is too stupid. We count how many chars are there in each column
+	 * and then pad it accordingly
+	 * @param bool $cutTooLong
+	 * @param bool $useAvg
+	 */
+	public function getCLITable($cutTooLong = false, $useAvg = false): string
 	{
 		$this->generateThes();
 		$ct = new CLITable($this->data, $this->thes);
@@ -798,9 +798,9 @@ class slTable implements ToStringable
 	}
 
 	/**
-     * Used by GenReport to auto-generate footer
-     */
-    public function getTotals($isRecursive = false): array
+	 * Used by GenReport to auto-generate footer
+	 */
+	public function getTotals($isRecursive = false): array
 	{
 		$footer = [];
 		$this->generateThes();
@@ -901,10 +901,10 @@ class slTable implements ToStringable
 	}
 
 	/**
-     * TODO: use getThesNames()
-     * @return mixed[]
-     */
-    public function prepare4XLS(): array
+	 * TODO: use getThesNames()
+	 * @return mixed[]
+	 */
+	public function prepare4XLS(): array
 	{
 		$this->generateThes();
 		//debug($this->thes);
@@ -926,15 +926,15 @@ class slTable implements ToStringable
 	}
 
 	/**
-     * @return mixed[]
-     */
-    public function getThesNames(): array
+	 * @return mixed[]
+	 */
+	public function getThesNames(): array
 	{
 		$names = [];
 		foreach ($this->thes as $field => $thv) {
 			$thvName = is_array($thv) ? $thv['name'] ?? ($thv['label'] ?? '') : $thv;
 
-            $names[$field] = $thvName;
+			$names[$field] = $thvName;
 		}
 
 		return $names;

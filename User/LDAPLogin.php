@@ -34,11 +34,11 @@ class LDAPLogin
 	}
 
 	/**
-     * http://php.net/manual/en/function.ldap-bind.php
-     * @param $loginDN
-     * @param $password
-     */
-    public function bind($loginDN, $password): bool
+	 * http://php.net/manual/en/function.ldap-bind.php
+	 * @param $loginDN
+	 * @param $password
+	 */
+	public function bind($loginDN, $password): bool
 	{
 		$this->_connectLdap();
 		return ldap_bind($this->_ldapconn, $loginDN, $password);
@@ -126,10 +126,10 @@ class LDAPLogin
 	}
 
 	/**
-     * What if the password contains special characters?
-     * @param $string
-     */
-    public function _sanitizeLdap($string): string
+	 * What if the password contains special characters?
+	 * @param $string
+	 */
+	public function _sanitizeLdap($string): string
 	{
 		return trim(preg_replace('/[^a-zA-Z0-9_]+/', '', $string));
 	}
@@ -165,7 +165,7 @@ class LDAPLogin
 
 	/**
 	 * @param $query
-	 * @return LDAPUser[]
+	 * @return LDAPUser[]|null
 	 */
 	public function query($query)
 	{

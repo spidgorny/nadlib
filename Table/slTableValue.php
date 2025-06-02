@@ -18,7 +18,7 @@ class slTableValue
 	];
 
 	/**
-	 * @var DBLayer
+	 * @var DBInterface
 	 */
 	public $db;
 
@@ -192,11 +192,11 @@ class slTableValue
 					$val = $val == 't';
 				}
 
-                $img = $val ? $this->SLTABLE_IMG_CHECK : $this->SLTABLE_IMG_CROSS;
+				$img = $val ? $this->SLTABLE_IMG_CHECK : $this->SLTABLE_IMG_CROSS;
 
-                $out = ifsetor($row[$col . '.link']) ? new HTMLTag('a', [
-						'href' => $row[$col . '.link'],
-					], $img, $k['no_hsc']) : $img;
+				$out = ifsetor($row[$col . '.link']) ? new HTMLTag('a', [
+					'href' => $row[$col . '.link'],
+				], $img, $k['no_hsc']) : $img;
 
 				break;
 
@@ -204,7 +204,7 @@ class slTableValue
 			case "boolean":
 				$out = intval($val) !== 0 ? ifsetor($k['true'], $this->SLTABLE_IMG_CHECK) : ifsetor($k['false'], $this->SLTABLE_IMG_CROSS);
 
-                //$out .= t3lib_utility_Debug::viewArray(array('val' => $val, 'k' => $k, 'out' => $out));
+				//$out .= t3lib_utility_Debug::viewArray(array('val' => $val, 'k' => $k, 'out' => $out));
 				break;
 
 			case "excel":
@@ -236,7 +236,7 @@ class slTableValue
 
 			case "instance":
 				$obj = is_object($k['class']) ? $k['class'] : new $k['class']($val);
-                $out = ifsetor($k['method']) && method_exists($obj, $k['method']) ? call_user_func([$obj, $k['method']]) : $obj . '';
+				$out = ifsetor($k['method']) && method_exists($obj, $k['method']) ? call_user_func([$obj, $k['method']]) : $obj . '';
 
 				break;
 

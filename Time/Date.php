@@ -34,7 +34,7 @@ class Date extends Time
 	 */
 	public static function make($input = null, $relativeTo = null): static
 	{
-		return new self($input, $relativeTo);
+		return new static($input, $relativeTo);
 	}
 
 	public static function fromEurope($format): self
@@ -51,17 +51,17 @@ class Date extends Time
 	}
 
 	/**
-     * @deprecated This is using gmdate()
-     */
-    public function getMySQL(): string
+	 * @deprecated This is using gmdate()
+	 */
+	public function getMySQL(): string
 	{
 		return date('Y-m-d', $this->time);
 	}
 
 	/**
-     * This is using gmdate()
-     */
-    public function getMySQLUTC(): string
+	 * This is using gmdate()
+	 */
+	public function getMySQLUTC(): string
 	{
 		return gmdate('Y-m-d', $this->time);
 	}
@@ -79,13 +79,13 @@ class Date extends Time
 	 */
 	public function math($formula): static
 	{
-		return new self(strtotime($formula, $this->time));
+		return new static(strtotime($formula, $this->time));
 	}
 
 	/**
-     * @param string $format d.m.Y
-     */
-    public function html($format = 'd.m.Y'): \HtmlString
+	 * @param string $format d.m.Y
+	 */
+	public function html($format = 'd.m.Y'): \HtmlString
 	{
 		return new HtmlString('<time datetime="' . $this->getISO() . '">' . $this->format($format) . '</time>');
 	}
@@ -135,9 +135,9 @@ class Date extends Time
 	}
 
 	/**
-     * Mon, Tue, Wed, Thu, Fri, Sat, Sun
-     */
-    public function getDOW(): string
+	 * Mon, Tue, Wed, Thu, Fri, Sat, Sun
+	 */
+	public function getDOW(): string
 	{
 		return date('D', $this->time);
 	}
@@ -149,7 +149,7 @@ class Date extends Time
 
 	public function addTime($sTime): static
 	{
-		$time = new self($this->getTimestamp());
+		$time = new static($this->getTimestamp());
 		$time->addTime($sTime);
 		return $time;
 	}

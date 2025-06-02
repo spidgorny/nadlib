@@ -37,21 +37,21 @@ class LoginForm extends AjaxLogin
 	public function loginAction(): array
 	{
 		//debug($this->request);
-		$content = '';
+		$content = [];
 		$username = $this->request->getTrim('username');
 		$password = $this->request->getTrim('password');
 		$passwordHash = $this->secret;
-		if ($username == 'nadlib' && $password == $passwordHash) {
+		if ($username === 'nadlib' && $password === $passwordHash) {
 			$this->user->saveLogin();
-			$content .= '<div class="message">' . __('You are logged in.') . '</div>';
-			$content .= $this->menuAction();
+			$content[] = '<div class="message">' . __('You are logged in.') . '</div>';
+			$content[] = $this->menuAction();
 		} else {
-			$content .= getDebug($password, $passwordHash);
-			$content .= '<div class="error">' . __('Wrong login or password.') . '</div>';
+			$content[] = getDebug($password, $passwordHash);
+			$content[] = '<div class="error">' . __('Wrong login or password.') . '</div>';
 			$desc = $this->getLoginDesc();
 			$desc['username']['value'] = $username;
 			$desc['password']['cursor'] = true;
-			$content .= $this->formAction($desc);
+			$content[] = $this->formAction($desc);
 		}
 
 		return $content;

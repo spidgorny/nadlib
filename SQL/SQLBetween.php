@@ -40,7 +40,7 @@ class SQLBetween extends SQLWherePart
 
 	public function debug(): array
 	{
-		return $this->__toString();
+		return ['debug between' => $this->__toString()];
 	}
 
 }

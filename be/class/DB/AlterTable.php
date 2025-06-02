@@ -16,7 +16,7 @@ class AlterTable extends AlterIndex
 	public $missing = 0;
 
 	/**
-	 * @var AlterTablePostgres
+	 * @var AlterTableHandler
 	 */
 	public $handler;
 
@@ -36,7 +36,7 @@ class AlterTable extends AlterIndex
 		} elseif ($class === 'DBLayerSQLite') {
 			$this->handler = new AlterTableSQLite($this->db);
 		} else {
-			throw new Exception('Undefined AlterTable handler');
+			throw new \RuntimeException('Undefined AlterTable handler');
 		}
 	}
 
@@ -50,8 +50,8 @@ class AlterTable extends AlterIndex
 		$class = $this->getDBclass();
 		$func = 'compareStruct';
 		$content[] = '<h5>' . $func . ' (' . $class . ')</h5>';
-		$content[] = call_user_func([$this, $func], $struct, $local);
-		return $content;
+		$content[] = $this->$func($struct, $local);
+		return $this->s($content);
 	}
 
 	public function compareStruct(array $struct, array $local): string

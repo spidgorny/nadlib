@@ -21,10 +21,10 @@ class HtmlString implements ToStringable
 	}
 
 	/**
-     * htmlspecialchars which knows about HtmlString()
-     * @param string $string
-     */
-    public static function hsc($string): \HtmlString|string
+	 * htmlspecialchars which knows about HtmlString()
+	 * @param string $string
+	 */
+	public static function hsc($string): \HtmlString|string
 	{
 		if ($string instanceof self) {
 			return $string;
@@ -35,7 +35,7 @@ class HtmlString implements ToStringable
 
 	public function replace($one, $two): static
 	{
-		return new HtmlString(
+		return new static(
 			str_replace($one, $two, $this->value));
 	}
 

@@ -595,7 +595,7 @@ class Pager
 			$f->stdout .= $f->hidden('action', 'loadMore');
 			$f->stdout .= $f->hidden('Pager.[page]', $loadPage);
 			$f->stdout .= $f->formHideArray([$this->prefix => $this->request->getArray($this->prefix)]);
-			$f->formMore = 'onsubmit="return ajaxSubmitForm(this);"';
+			$f->formMore = ['onsubmit' => "return ajaxSubmitForm(this);"];
 			$f->stdout .= $f->submit(__('Load more'), ['class' => 'btn']);
 			$content .= '<div id="loadMorePage' . $loadPage . '">' . $f . '</div>';
 		}

@@ -11,7 +11,7 @@ class Mailer implements MailerInterface
 {
 
 	/**
-	 * @var string
+	 * @var string[]
 	 */
 	public $to = [];
 

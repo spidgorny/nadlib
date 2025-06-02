@@ -100,7 +100,7 @@ class AccessRights extends OODBase implements AccessRightsInterface
 		$types = array_map('typ', $vars);
 		unset($keys['db'], $types['db']);
 		//debug(array_combine($keys, $types));
-		return $keys;
+		return array_keys($keys);
 	}
 
 	/**

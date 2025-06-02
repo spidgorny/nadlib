@@ -67,7 +67,7 @@ class Menu /*extends Controller*/
 	public $useControllerSlug = true;
 	public $controllerVarName = 'c';
 	/**
-	 * @var Request|\nadlib\Test\MockRequest
+	 * @var Request|MockRequest
 	 */
 	public $request;
 	public $forceRootPath;

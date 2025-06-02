@@ -12,7 +12,6 @@ class NoUser implements UserModelInterface
 	public $prefs;
 
 	/**
-	 * @var AccessRightsInterface
 	 */
 	public $access = [];
 

@@ -37,7 +37,7 @@ class Flot extends Controller
 	public $movingAverage = [];
 	public $min = 0;
 	/**
-	 * @var int - max value for cumulative (max of max possible)
+	 * @var float - max value for cumulative (max of max possible)
 	 */
 	public $max = 1;
 	public $cMin = 0;

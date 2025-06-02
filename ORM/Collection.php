@@ -28,7 +28,7 @@ class Collection implements IteratorAggregate, ToStringable
 	public $titleColumn = 'title';
 	/**
 	 * Basic where SQL params to be included in every SQL by default
-	 * @var array
+	 * @var array|SQLWhere
 	 */
 	public $where = [];
 	/**
@@ -61,7 +61,7 @@ class Collection implements IteratorAggregate, ToStringable
 
 	/**
 	 * Is NULL until it's set to 0 or more
-	 * @var int Total amount of data retrieved (not limited by Pager)
+	 * @var ?int Total amount of data retrieved (not limited by Pager)
 	 */
 	public $count;
 
@@ -112,7 +112,7 @@ class Collection implements IteratorAggregate, ToStringable
 	/**
 	 * Retrieved rows from DB
 	 * Protected in order to force usage of getData()
-	 * @var ArrayPlus
+	 * @var ?ArrayPlus
 	 * @note should not be |array because it's used as ArrayPlus
 	 */
 	protected $data;
@@ -120,7 +120,7 @@ class Collection implements IteratorAggregate, ToStringable
 	/**
 	 * objectify() stores objects generated from $this->data here
 	 * array of objects converted from $this->data // convert to public
-	 * @var array
+	 * @var ?array
 	 */
 	protected $members = [];
 

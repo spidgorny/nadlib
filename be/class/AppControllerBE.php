@@ -31,8 +31,9 @@ class AppControllerBE extends Controller
 	/**
 	 * @throws AccessDeniedException
 	 */
-	public function __construct(public $index = null)
+	public function __construct($index = null)
 	{
+		$this->index = $index;
 		parent::__construct();
 		if (!static::$public) {
 			if (!$this->user) {

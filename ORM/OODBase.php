@@ -192,14 +192,7 @@ abstract class OODBase implements ArrayAccess
 			}
 		}
 
-		if (is_array($idField)) {
-			$this->id = [];
-			foreach ($idField as $field) {
-				$this->id[$field] = $this->data[$field];
-			}
-
-			//} else if (igorw\get_in($this->data, array($this->idField))) {   // not ifsetor
-		} elseif (isset($this->data[$idField]) && $this->data[$idField]) {
+		if (isset($this->data[$idField]) && $this->data[$idField]) {
 			$this->id = $this->data[$idField];
 //			assert($this->id);
 		} else {
