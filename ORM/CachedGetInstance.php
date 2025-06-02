@@ -210,7 +210,7 @@ trait CachedGetInstance
 			return $c;
 		}
 
-		$c = new $self();
+		$c = new $self(null, $db);
 		$c->setDB($db);
 		$field = $field ?: $c->titleColumn;
 		if (is_string($field)) {

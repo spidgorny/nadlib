@@ -165,7 +165,7 @@ class HTMLFormTable extends HTMLForm
 //		$this->prefix = $prefix;  // HTMLFormInput reads from the form
 
 
-		$this->stdout .= $this->getForm($this->desc, $prefix, $mainForm, $append);
+		$this->stdout .= $this->s($this->getForm($this->desc, $prefix, $mainForm, $append));
 		return $this;
 	}
 

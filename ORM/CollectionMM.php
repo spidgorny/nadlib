@@ -80,7 +80,7 @@ class CollectionMM extends Collection
 		if (!$this->members) {
 			foreach ($this->getData() as $row) {
 				$key = $row[$this->idField];
-				$this->members[$key] = $byInstance ? call_user_func($class . '::getInstance', $key) : new $class($key);
+				$this->members[$key] = $byInstance ? call_user_func($class . '::getInstance', $key, $this->db) : new $class($key, $this->db);
 			}
 		}
 

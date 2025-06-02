@@ -366,7 +366,7 @@ abstract class OODBase implements ArrayAccess
 
 	public static function where(array $where, $orderBy = '')
 	{
-		$blanc = new static();
+		$blanc = new static(null, Config::getInstance()->getDB());
 		$db = Config::getInstance()->getDB();
 		$collection = Collection::createForTable($db, $blanc->table, $where, $orderBy);
 		$collection->idField = $blanc->idField;
