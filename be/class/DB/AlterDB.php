@@ -59,8 +59,8 @@ class AlterDB extends AppControllerBE
         	PRIMARY KEY (uid),
         	KEY parent (pid)
         );";*/
-        $this->getQueryFrom('some file.sql');
-        //		$SQLparser = new t3lib_sqlparser();
+		$this->getQueryFrom('some file.sql');
+		//		$SQLparser = new t3lib_sqlparser();
 //		$parsedQuery = $SQLparser->parseSQL($query);
 		//debug($parsedQuery);
 		//debug(substr($query, 0, 1000));
@@ -117,7 +117,7 @@ class AlterDB extends AppControllerBE
 	public function getFileChoice(): string
 	{
 		$menu = [];
-		$sqlFolder = Config::getInstance()->appRoot . '/sql/';
+		$sqlFolder = '/sql/';
 		if (!is_dir($sqlFolder)) {
 			return '<div class="error">No ' . $sqlFolder . '</div>';
 		}
@@ -241,32 +241,32 @@ class AlterDB extends AppControllerBE
 	{
 		$content = '';
 		$update_statements = $this->update_statements;
-        //debug($diff['extra'], $update_statements['add']);
-        if ($diff['diff']) {
-            foreach ($diff['diff'] as $table => $desc) {
-    			$list = [];
-    			foreach ($desc['fields'] as $field => $type) {
-    				$current = $diff['diff_currentValues'][$table]['fields'][$field];
-    				if ($type != $current) {
-    					//debug($type, $current); exit();
-    					$list[] = [
-    						'field' => $field,
-    						'file' => $type,
-    						'current' => $current,
-    						'sql' => $sql = $this->findStringWith($update_statements['change'], [$table, $field]),
-    						'do' => $this->makeRelLink('CHANGE', [
-    							'action' => 'do',
-    							'file' => $this->file,
-    							'key' => 'change',
-    							'query' => md5($sql),
-    						]),
-    					];
-    				}
-    			}
+		//debug($diff['extra'], $update_statements['add']);
+		if ($diff['diff']) {
+			foreach ($diff['diff'] as $table => $desc) {
+				$list = [];
+				foreach ($desc['fields'] as $field => $type) {
+					$current = $diff['diff_currentValues'][$table]['fields'][$field];
+					if ($type != $current) {
+						//debug($type, $current); exit();
+						$list[] = [
+							'field' => $field,
+							'file' => $type,
+							'current' => $current,
+							'sql' => $sql = $this->findStringWith($update_statements['change'], [$table, $field]),
+							'do' => $this->makeRelLink('CHANGE', [
+								'action' => 'do',
+								'file' => $this->file,
+								'key' => 'change',
+								'query' => md5($sql),
+							]),
+						];
+					}
+				}
 
-    			$content .= $this->showTable($list, $table);
-    		}
-        }
+				$content .= $this->showTable($list, $table);
+			}
+		}
 
 		return $content;
 	}
@@ -340,7 +340,7 @@ class AlterDB extends AppControllerBE
 			}
 		}
 
-        return null;
+		return null;
 	}
 
 	public function doAction(): void

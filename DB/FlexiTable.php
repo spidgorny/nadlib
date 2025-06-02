@@ -53,12 +53,12 @@ class FlexiTable extends OODBase
 		parent::__construct($id, $db);
 		$config = ifsetor(Config::getInstance()->config);
 		//debug(ifsetor($config[__CLASS__]));
-        if (is_array($config) && isset($config[__CLASS__]['doCheck'])) {
-            $this->doCheck = ifsetor($config[__CLASS__]['doCheck']);
-            if ($this->doCheck) {
-					$this->checkCreateTable();
-				}
-        }
+		if (is_array($config) && isset($config[__CLASS__]['doCheck'])) {
+			$this->doCheck = ifsetor($config[__CLASS__]['doCheck']);
+			if ($this->doCheck) {
+				$this->checkCreateTable();
+			}
+		}
 	}
 
 	public function checkCreateTable(): void
@@ -94,7 +94,7 @@ class FlexiTable extends OODBase
 
 		if ($this->cuserField && !ifsetor($row[$this->cuserField])) {
 			$user = Config::getInstance()->getUser();
-			$row[$this->cuserField] = ifsetor($user->id) ? $user->id : null;
+			$row[$this->cuserField] = $user->getID();
 		}
 
 		if ($this->doCheck) {
@@ -152,8 +152,8 @@ class FlexiTable extends OODBase
 		if ($this->muserField
 			&& !ifsetor($row[$this->muserField])
 			&& is_object($user)
-			&& $user->id) {
-			$row[$this->muserField] = $user->id;
+			&& $user->getID()) {
+			$row[$this->muserField] = $user->getID();
 		}
 
 		if ($this->doCheck) {

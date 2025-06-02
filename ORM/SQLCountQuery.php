@@ -58,7 +58,7 @@ class SQLCountQuery
 
 	public function alternative(): void
 	{
-		$countCollection = new Collection();
+		$countCollection = new Collection(null, [], '', $this->db);
 		$countCollection->select = 'count(*) as id';
 //		$countCollection->where = $this->cq->where;
 		$countCollection->orderBy = '';

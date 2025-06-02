@@ -74,7 +74,6 @@ abstract class SimpleController
 			if ($index->controller instanceof $static) {
 				$result = $index->getController();
 			} else {
-				// @phpstan-ignore-next-line
 				$result = new $static();
 			}
 		}

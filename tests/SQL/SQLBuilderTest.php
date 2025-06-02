@@ -1,5 +1,7 @@
 <?php
 
+use nadlib\NadlibTestCase;
+
 class SQLBuilderTest extends NadlibTestCase
 {
 
@@ -18,11 +20,11 @@ class SQLBuilderTest extends NadlibTestCase
 		if ($this->db instanceof DBLayerPDO && $this->db->isMySQL()) {
 			$this->markTestSkipped('MySQL has different SQL');
 		}
-        
+
 		if ($this->db instanceof DBPlacebo) {
 			$this->markTestSkipped('DBPlacebo has different SQL');
 		}
-        
+
 		$qb = new SQLBuilder($this->db);
 		$query = $qb->getSelectQueryString('table', [
 			'a' => 'b',
@@ -42,11 +44,11 @@ ORDER BY c";
 		if ($this->db instanceof DBLayerPDO && $this->db->isMySQL()) {
 			$this->markTestSkipped('MySQL has different SQL');
 		}
-        
+
 		if ($this->db instanceof DBPlacebo) {
 			$this->markTestSkipped('DBPlacebo has different SQL');
 		}
-        
+
 		$query = new SQLSelectQuery($this->db, new SQLSelect('*'), new SQLFrom('table'), new SQLWhere([
 			'a' => new SQLLikeContains('b'),
 		]), null, null, null, new SQLOrder('ORDER BY c'));
@@ -57,7 +59,7 @@ WHERE
 \"a\" ILIKE '%' || $1 || '%'
 ORDER BY c";
 		$must = $this->implodeSQL($must);
-        
+
 		$sQuery = $query->getQuery();
 		$sQuery = $this->implodeSQL($sQuery);
 //		debug($must, $sQuery, $query->getParameters());
@@ -101,7 +103,7 @@ AND something else');
 	{
 		$pdo = new DBLayerPDO();
 		$pdo->setQB(new SQLBuilder($pdo));
-        
+
 		$room = SQLBuilder::getFirstWord('room');
 		$this->assertEquals('room', $room);
 	}

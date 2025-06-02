@@ -34,7 +34,7 @@ class PlainSessionUser extends UserBase
 		}
 
 		$this->session = $session ?: new Session(get_class($this));
-		parent::__construct($id);
+		parent::__construct($id, $this->db);
 	}
 
 	/**

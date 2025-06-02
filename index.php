@@ -1,11 +1,12 @@
 <?php
 
 if (!function_exists('__')) {
-	function __($a, $sub1 = null, $sub2 = null, $sub3 = null)
+	function __($a, ...$sub)
 	{
-		$a = str_replace('%1', $sub1, $a);
-		$a = str_replace('%2', $sub2, $a);
-		return str_replace('%3', $sub3, $a);
+		foreach ($sub as $i => $subValue) {
+			$a = str_replace("%$i", $subValue, $a);
+		}
+		return $a;
 	}
 }
 

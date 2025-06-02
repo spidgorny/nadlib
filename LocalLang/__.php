@@ -2,18 +2,18 @@
 
 if (!function_exists('__')) {    // conflict with cakePHP
 
-	function __($code, $r1 = null, $r2 = null, $r3 = null)
+	function __($code, ...$r)
 	{
 		$config = class_exists('Config') ? Config::getInstance() : null;
 
-        nodebug($code, (bool) $config,
+		nodebug($code, (bool)$config,
 			is_object($config) ? get_class($config) : gettype($config),
-			(bool) $config->getLL());
+			(bool)$config->getLL());
 		if (!empty($config) && $config->getLL()) {
 			//echo '<pre>', get_class($index->ll), "\t", $code, "\t", $text, '</pre><br />', "\n";
-			return $config->getLL()->T($code, $r1, $r2, $r3);
+			return $config->getLL()->T($code, ...$r);
 		} else {
-			return LocalLang::Tp($code, $r1, $r2, $r3);
+			return LocalLang::Tp($code, ...$r);
 		}
 	}
 

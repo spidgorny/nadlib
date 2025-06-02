@@ -37,18 +37,18 @@ class SwiftMailer implements MailerInterface
 	}
 
 	/**
-     * Method to send emails via SwiftMailer.
-     * Throws an Exception if SwiftMailer is not installed.
-     *
-     * Uses sendmail to deliver messages.
-     *
-     * @param mixed $cc
-     * @param mixed $bcc
-     * @param array $additionalSenders This will be added to
-     * @return int|array Either number of recipients who were accepted for delivery OR an array of failed recipients
-     * @throws Exception
-     */
-    public function sendSwiftMailerEmail($cc = null, $bcc = null, array $attachments = [], array $additionalSenders = [])
+	 * Method to send emails via SwiftMailer.
+	 * Throws an Exception if SwiftMailer is not installed.
+	 *
+	 * Uses sendmail to deliver messages.
+	 *
+	 * @param mixed $cc
+	 * @param mixed $bcc
+	 * @param array $additionalSenders This will be added to
+	 * @return int|array Either number of recipients who were accepted for delivery OR an array of failed recipients
+	 * @throws Exception
+	 */
+	public function sendSwiftMailerEmail($cc = null, $bcc = null, array $attachments = [], array $additionalSenders = [])
 	{
 		$message = $this->getSwiftMessage($cc, $bcc, $attachments, $additionalSenders);
 
@@ -60,13 +60,13 @@ class SwiftMailer implements MailerInterface
 	}
 
 	/**
-     * @param array $cc
-     * @param array $bcc
-     * @param array $attachments
-     * @param array $additionalSenders - assoc array
-     * @throws Exception
-     */
-    public function getSwiftMessage($cc = null, $bcc = null, $attachments = [], array $additionalSenders = []): \Swift_Message
+	 * @param array $cc
+	 * @param array $bcc
+	 * @param array $attachments
+	 * @param array $additionalSenders - assoc array
+	 * @throws Exception
+	 */
+	public function getSwiftMessage($cc = null, $bcc = null, $attachments = [], array $additionalSenders = []): \Swift_Message
 	{
 		$messageHTML = $this->body;
 		$messageText = strip_tags($this->body);
@@ -115,19 +115,19 @@ class SwiftMailer implements MailerInterface
 		}
 
 		foreach ($additionalSenders as $address => $name) {
-				if ($address !== 0 && ($address !== '' && $address !== '0')) {
-					$message->addFrom($address, $name);
-				}
+			if ($address !== 0 && ($address !== '' && $address !== '0')) {
+				$message->addFrom($address, $name);
 			}
+		}
 
 		return $message;
 	}
 
 	/**
-     * http://stackoverflow.com/questions/8781911/remove-non-ascii-characters-from-string-in-php
-     * @param string $attachment
-     */
-    public function getShortFilename($attachment): string
+	 * http://stackoverflow.com/questions/8781911/remove-non-ascii-characters-from-string-in-php
+	 * @param string $attachment
+	 */
+	public function getShortFilename($attachment): string
 	{
 		$pathInfo = pathinfo($attachment);
 		$ext = $pathInfo['extension'];
@@ -155,5 +155,20 @@ class SwiftMailer implements MailerInterface
 	public function setAttachments($attachments)
 	{
 		// TODO: Implement setAttachments() method.
+	}
+
+	public function setTO(array $param)
+	{
+		// TODO: Implement setTO() method.
+	}
+
+	public function setSubject(string $param)
+	{
+		// TODO: Implement setSubject() method.
+	}
+
+	public function getBody($message)
+	{
+		// TODO: Implement getBody() method.
 	}
 }

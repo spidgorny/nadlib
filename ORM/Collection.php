@@ -151,7 +151,7 @@ class Collection implements IteratorAggregate, ToStringable
 	protected $logger;
 
 	/**
-	 * @param ?int|?string $pid
+	 * @param int|string|null $pid
 	 *        if -1 - will not retrieve data from DB
 	 *        if 00 - will retrieve all data
 	 *        if >0 - will retrieve data where PID = $pid
@@ -468,7 +468,7 @@ class Collection implements IteratorAggregate, ToStringable
 	 */
 	public static function createForTable(DBInterface $db, $table, array $where = [], $orderBy = ''): self
 	{
-		$c = new self();
+		$c = new self(null, [], '', $db);
 		$c->db = $db;
 		$c->table = $table;
 		$c->where = $where;

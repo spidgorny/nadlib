@@ -28,13 +28,13 @@ class NadlibDocumentation extends AppControllerBE
 	}
 
 	/**
-     * @return mixed[]
-     */
-    public function getFiles($folder): array
+	 * @return mixed[]
+	 */
+	public function getFiles($folder): array
 	{
 		$files = [];
 		$it = new DirectoryIterator($folder);
-		/** @var SplFileInfo $file */
+		/** @var DirectoryIterator $file */
 		foreach ($it as $file) {
 			if ($file->isFile()) {
 				$filename = $file->getFilename();
@@ -169,13 +169,13 @@ class NadlibDocumentation extends AppControllerBE
 	}
 
 	/**
-     * @return mixed[]
-     */
-    public function getFolders(): array
+	 * @return mixed[]
+	 */
+	public function getFolders(): array
 	{
 		$folders = [];
 		$it = new DirectoryIterator('../');
-		/** @var SplFileInfo $file */
+		/** @var DirectoryIterator $file */
 		foreach ($it as $file) {
 			if ($file->isDir()) {
 				$filename = $file->getFilename();

@@ -33,8 +33,8 @@ class IndexBE extends IndexBase
 		/** @var ConfigBE $config */
 		$config = $this->config;
 		$config->defaultController = HomeBE::class;
-		$config->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $this->config->documentRoot);
-		$config->documentRoot = str_replace('/nadlib/be', '', $this->config->documentRoot);
+//		$config->documentRoot = str_replace('/vendor/spidgorny/nadlib/be', '', $this->config->documentRoot);
+//		$config->documentRoot = str_replace('/nadlib/be', '', $this->config->documentRoot);
 		//$config->documentRoot = $this->config->documentRoot ?: '/';	// must end without slash
 		// it's not reading the config.json from /be/, but from the project root
 
@@ -92,55 +92,57 @@ class IndexBE extends IndexBase
 		$this->menu->basePath->setPath($docRoot);
 	}
 
-	public static function getMenu(): array {
+	public static function getMenu(): array
+	{
 		return [
-			'HomeBE'         => 'Home',
-			'ServerStat'     => new Recursive('Info', [
-				SysInfo::class  => 'Sys Info',
-				'ServerStat'    => 'Server Stat',
-				'ServerData'    => 'Server Data',
-				'SessionView'   => 'Session',
-				'Cookies'       => 'Cookies',
-				'ConfigView'    => 'config.yaml',
-				'PHPInfo'       => 'phpinfo()',
-				'About'         => 'About',
+			'HomeBE' => 'Home',
+			'ServerStat' => new Recursive('Info', [
+				SysInfo::class => 'Sys Info',
+				'ServerStat' => 'Server Stat',
+				'ServerData' => 'Server Data',
+				'SessionView' => 'Session',
+				'Cookies' => 'Cookies',
+				'ConfigView' => 'config.yaml',
+				'PHPInfo' => 'phpinfo()',
+				'About' => 'About',
 				'Documentation' => 'Documentation',
-				'IniCheck'      => 'php.ini Check',
-				'TimeTrack'     => 'Time Track',
-				'Issues'        => 'Issues',
+				'IniCheck' => 'php.ini Check',
+				'TimeTrack' => 'Time Track',
+				'Issues' => 'Issues',
 			]),
 			'UnitTestReport' => new Recursive('Test', [
 				'UnitTestReport' => 'Unit Test Report',
 				'ValidatorCheck' => 'Validator Check',
-				'TestQueue'      => 'Test Queue',
+				'TestQueue' => 'Test Queue',
 			]),
-			'ExplainQuery'   => new Recursive('DB', [
-				'AlterDB'      => 'Alter DB',
+			'ExplainQuery' => new Recursive('DB', [
+				'AlterDB' => 'Alter DB',
 				'AlterCharset' => 'Alter Charset',
-				'AlterTable'   => 'Alter Table',
-				'AlterIndex'   => 'Alter Indexes',
-				'OptimizeDB'   => 'Optimize DB',
+				'AlterTable' => 'Alter Table',
+				'AlterIndex' => 'Alter Indexes',
+				'OptimizeDB' => 'Optimize DB',
 				'ExplainQuery' => 'Explain Query',
-				'Localize'     => 'Localize',
+				'Localize' => 'Localize',
 			]),
-			'ClearCache'     => new Recursive('FE', [
-				'ClearCache'   => 'Clear Cache',
+			'ClearCache' => new Recursive('FE', [
+				'ClearCache' => 'Clear Cache',
 				'JumpFrontend' => '<- Frontend',
 			]),
 		];
 	}
 
-	public function loadBEmenu(array $menu): array {
+	public function loadBEmenu(array $menu): array
+	{
 		if (class_exists('Spyc') && file_exists('class/config.yaml')) {
-            $c = Spyc::YAMLLoad('../../../../class/config.yaml');
-            //debug($c['BEmenu']);
-            if ($c['BEmenu']) {
-					//$c['BEmenu'] = array('FE' => $c['BEmenu']);
-					foreach ($c['BEmenu'] as $key => $sub) {
-						$menu['ClearCache']->elements[$key] = is_array($sub) ? new Recursive($key, $sub) : $sub;
-					}
+			$c = Spyc::YAMLLoad('../../../../class/config.yaml');
+			//debug($c['BEmenu']);
+			if ($c['BEmenu']) {
+				//$c['BEmenu'] = array('FE' => $c['BEmenu']);
+				foreach ($c['BEmenu'] as $key => $sub) {
+					$menu['ClearCache']->elements[$key] = is_array($sub) ? new Recursive($key, $sub) : $sub;
 				}
-        }
+			}
+		}
 
 		return $menu;
 	}

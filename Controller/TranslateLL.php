@@ -23,7 +23,7 @@ class TranslateLL extends HTMLFormProcessor
 		parent::__construct();
 		$this->config = Config::getInstance();
 		$this->user = $this->config->getUser();
-		if (!$this->user || !$this->user->id || !$this->user->isAdmin()) {
+		if (!$this->user || !$this->user->getID() || !$this->user->isAdmin()) {
 			throw new AccessDeniedException();
 		}
 	}

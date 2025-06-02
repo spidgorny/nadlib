@@ -62,12 +62,12 @@ class TimeChart
 
 	public function __construct($table, array $where, $timeField, $groupBy = 'year-month')
 	{
-		$this->db = Config::getInstance()->db;
+		$this->db = Config::getInstance()->getDB();
 		$this->table = $table;
 		$this->where = $where;
 		$this->timeField = $timeField;
 		$this->groupBy = $groupBy;
-		if ($this->db->getScheme() == 'mysql') {
+		if ($this->db->getScheme() === 'mysql') {
 			$this->options['year-week'] = '%Y-W%u';
 		}
 	}

@@ -56,4 +56,19 @@ class FakeMailer implements MailerInterface
 	{
 		// TODO: Implement setAttachments() method.
 	}
+
+	public function setTO(array $param)
+	{
+		// TODO: Implement setTO() method.
+	}
+
+	public function setSubject(string $param)
+	{
+		// TODO: Implement setSubject() method.
+	}
+
+	public function getBody($message)
+	{
+		// TODO: Implement getBody() method.
+	}
 }

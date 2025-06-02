@@ -370,10 +370,7 @@ class Localize extends AppControllerBE
 				'code' => $code,
 			]);
 		} else {
-			$l = $this->config->getLocalLangModel();
-			$l->delete([
-				'code' => $code,
-			]);
+			$this->from->delete($code);
 			//debug($l->lastQuery);
 		}
 
@@ -433,7 +430,7 @@ class Localize extends AppControllerBE
 					continue;
 				}
 
-				$l = new LocalLangModel();
+				$l = new LocalLangModel(null, $this->db);
 				$l->table = $this->table;
 				$l->findInDB([
 					'code' => $key,
@@ -467,8 +464,7 @@ class Localize extends AppControllerBE
 		foreach ($this->languages as $lang) {
 			$text = $this->request->getTrim($lang);
 			if ($text) {
-				$lm = $this->config->getLocalLangModel();
-				$lm->insert([
+				$this->from->insert([
 					'code' => $code,
 					'lang' => $lang,
 					'text' => $text,

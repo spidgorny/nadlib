@@ -1,5 +1,7 @@
 <?php
 
+use nadlib\NadlibTestCase;
+
 /**
  * Created by PhpStorm.
  * User: DEPIDSVY
@@ -16,7 +18,7 @@ class SQLWhereTest extends NadlibTestCase
 	{
 		parent::setUp();
 		self::markTestSkipped('PG dependent');
-		$this->db = Config::getInstance()->getDB();
+//		$this->db = Config::getInstance()->getDB();
 	}
 
 	public function test_add(): void

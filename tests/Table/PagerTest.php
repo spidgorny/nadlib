@@ -1,6 +1,8 @@
 <?php
 
 
+use nadlib\NadlibTestCase;
+
 class PagerTest extends NadlibTestCase
 {
 

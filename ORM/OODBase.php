@@ -90,7 +90,7 @@ abstract class OODBase implements ArrayAccess
 	 * If you want to use methods without knowing the ID, the call them statically like this Version::insertRecord();
 	 *
 	 * @param int|array|SQLWhere|null $id - can be ID in the database or the whole records
-	 * @param ?DBInterface $db
+	 * @param DBInterface $db
 	 * as associative array
 	 * @throws Exception
 	 */
@@ -301,29 +301,25 @@ abstract class OODBase implements ArrayAccess
 
 	/**
 	 * Caching
-	 * @param $id
+	 * @param string $id
+	 * @param DBInterface $db
 	 * @return mixed
-	 * @throws Exception
 	 */
-	public static function getInstanceCached(string $id)
+	public static function getInstanceCached(string $id, DBInterface $db)
 	{
-		if (true) {
-			$file = 'cache/' . URL::friendlyURL(__METHOD__) . '-' . $id . '.serial';
-			if (file_exists($file) && filemtime($file) > (time() - 100)) {
-				$size = filesize($file);
-				if ($size < 1024 * 4) {
-					$content = file_get_contents($file);
-					/** @noinspection UnserializeExploitsInspection */
-					$graph = unserialize($content); // faster?
-				} else {
-					$graph = self::getInstanceByID($id);
-				}
+		$file = 'cache/' . URL::friendlyURL(__METHOD__) . '-' . $id . '.serial';
+		if (file_exists($file) && filemtime($file) > (time() - 100)) {
+			$size = filesize($file);
+			if ($size < 1024 * 4) {
+				$content = file_get_contents($file);
+				/** @noinspection UnserializeExploitsInspection */
+				$graph = unserialize($content); // faster?
 			} else {
-				$graph = self::getInstanceByID($id);
-				file_put_contents($file, serialize($graph));
+				$graph = self::getInstanceByID($id, $db);
 			}
 		} else {
-			$graph = self::getInstanceByID($id);
+			$graph = self::getInstanceByID($id, $db);
+			file_put_contents($file, serialize($graph));
 		}
 
 		return $graph;

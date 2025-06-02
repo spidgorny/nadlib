@@ -44,14 +44,14 @@ class PathSpec extends ObjectBehavior
 	{
 		$this->beConstructedWith('/');
 		$this->appendString('/api/health');
-		$this->__toString()->shouldBe('/api/health');
+		$this->__toString()->shouldReturn('/api/health');
 	}
 
 	public function it_from(): void
 
 	{
 		$this->beConstructedWith('/root');
-		$this->__toString()->shouldBe('/root');
+		$this->__toString()->shouldReturn('/root');
 	}
 
 }

@@ -1,5 +1,7 @@
 <?php
 
+use nadlib\NadlibTestCase;
+
 /**
  * Created by PhpStorm.
  * User: DEPIDSVY

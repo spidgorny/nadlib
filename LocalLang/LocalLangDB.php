@@ -100,7 +100,7 @@ class LocalLangDB extends LocalLang
 			'DEVELOPMENT' => DEVELOPMENT,
 			'code' => $code,
 			'$this->saveMissingMessages' => $this->saveMissingMessages,
-			'$this->db' => (bool) $this->db,
+			'$this->db' => (bool)$this->db,
 			'$this->ll[code]' => ifsetor($this->ll[$code]),
 		]);
 		if (DEVELOPMENT && $code && $this->saveMissingMessages && $this->db) {
@@ -116,11 +116,11 @@ class LocalLangDB extends LocalLang
 				$cols = $this->db->getTableColumns($this->table);
 				$user = Config::getInstance()->getUser();
 				if (ifsetor($cols['cuser'])) {
-					$insert['cuser'] = $user->id;
+					$insert['cuser'] = $user->getID();
 				}
 
 				if (ifsetor($cols['muser'])) {
-					$insert['muser'] = $user->id;
+					$insert['muser'] = $user->getID();
 				}
 
 				$res = $this->db->runInsertNew($this->table, $where, $insert);
@@ -135,15 +135,15 @@ class LocalLangDB extends LocalLang
 	}
 
 	/**
-     * Dangerous - may overwrite
-     * @throws AccessDeniedException
-     * @throws Exception
-     */
-    public function updateMessage(array $data): void
+	 * Dangerous - may overwrite
+	 * @throws AccessDeniedException
+	 * @throws Exception
+	 */
+	public function updateMessage(array $data): void
 	{
 		$user = Config::getInstance()->getUser();
 		if ($user->isAdmin()) {
-			$llm = new LocalLangModel();
+			$llm = new LocalLangModel(null, $this->db);
 			$llm->findInDB(['lang' => $data['lang'], 'code' => $data['code']]);
 			if ($llm->id) {
 				$llm->update([
@@ -182,9 +182,9 @@ class LocalLangDB extends LocalLang
 	}
 
 	/**
-     * @return mixed[]
-     */
-    public function getLangStats(): array
+	 * @return mixed[]
+	 */
+	public function getLangStats(): array
 	{
 		$en = $this->readDB('en');
 		$countEN = count($en) ?: 1;
@@ -200,6 +200,10 @@ class LocalLangDB extends LocalLang
 		}
 
 		return $langs;
+	}
+
+	public function delete($code)
+	{
 	}
 
 }
