@@ -10,10 +10,6 @@ class AlterTableCLI extends AlterTable
 		}
 
 		$this->user = new CLIUser();
-
-		$this->config = Config::getInstance();
-		$this->config->setUser($this->user);
-
 		parent::__construct();
 	}
 
@@ -50,9 +46,9 @@ class AlterTableCLI extends AlterTable
 
 		if ($this->jsonFile && is_readable($this->jsonFile)) {
 			$struct = file_get_contents($this->jsonFile);
-			$struct = json_decode($struct, true);
+			$struct = json_decode($struct, true, 512, JSON_THROW_ON_ERROR);
 			if (!$struct) {
-				throw new Exception('JSON file reading error');
+				throw new \RuntimeException('JSON file reading error');
 			}
 
 			$this->setHandler();
@@ -85,7 +81,7 @@ class AlterTableCLI extends AlterTable
 	{
 		$content = [];
 		foreach ($indexCompare as $row) {
-			if (ifsetor($row['same']) != 'same') {
+			if (ifsetor($row['same']) !== 'same') {
 				$sql = $row['action']->content->content;
 				echo $sql, str_endsWith($sql, ';') ? '' : ';';
 				if (ifsetor($row['fromDB']) . '' !== '') {

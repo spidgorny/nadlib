@@ -13,15 +13,15 @@ class SysInfo extends AppControllerBE
 		$a['upload_max_filesize'] = ini_get('upload_max_filesize');
 		$content[] = $this->encloseInAA(slTable::showAssoc($a), 'Sys Info');
 
-		$config = get_object_vars($this->config);
-		$config = array_filter($config, function ($el): bool {
-			if (is_object($el)) {
-				return method_exists($el, '__toString');
-			} else {
-				return true;
-			}
-		});
-		$content[] = $this->encloseInAA(slTable::showAssoc($config), 'Config');
+//		$config = get_object_vars($this->config);
+//		$config = array_filter($config, function ($el): bool {
+//			if (is_object($el)) {
+//				return method_exists($el, '__toString');
+//			} else {
+//				return true;
+//			}
+//		});
+//		$content[] = $this->encloseInAA(slTable::showAssoc($config), 'Config');
 
 		$content[] = $this->encloseInAA(slTable::showAssoc($_GET), '$_GET');
 		$content[] = $this->encloseInAA(slTable::showAssoc($_POST), '$_POST');

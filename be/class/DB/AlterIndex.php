@@ -13,7 +13,7 @@ class AlterIndex extends AppControllerBE
 	/**
 	 * @var DBLayerBase
 	 */
-	public $db;
+	public DBInterface $db;
 
 	public function __construct()
 	{
@@ -62,10 +62,10 @@ class AlterIndex extends AppControllerBE
 			/** @var File|Recursive $file */
 			if ($file instanceof File && $file->getExtension() === 'json') {
 				$li[] = $this->a(new URL(null, [
-							'c' => get_class($this),
-							'file' => basename($file),
-						]), basename($file)) .
-						'<div style="float: right;">[' . date('Y-m-d H:i', $file->getCTime()) . ']</div>';
+						'c' => get_class($this),
+						'file' => basename($file),
+					]), basename($file)) .
+					'<div style="float: right;">[' . date('Y-m-d H:i', $file->getCTime()) . ']</div>';
 			}
 		}
 
@@ -84,9 +84,9 @@ class AlterIndex extends AppControllerBE
 	}
 
 	/**
-     * @return array{columns: mixed, indexes: mixed}[]
-     */
-    public function getDBStruct(): array
+	 * @return array{columns: mixed, indexes: mixed}[]
+	 */
+	public function getDBStruct(): array
 	{
 		$result = [];
 		$tables = $this->db->getTables();
@@ -151,9 +151,9 @@ class AlterIndex extends AppControllerBE
 	}
 
 	/**
-     * @param string $table
-     */
-    protected function compareTable($table, array $local, array $desc): array
+	 * @param string $table
+	 */
+	protected function compareTable($table, array $local, array $desc): array
 	{
 		$indexCompare = [];
 		foreach ($desc['indexes'] as $i => $index) {
@@ -166,9 +166,9 @@ class AlterIndex extends AppControllerBE
 			if ($index !== $localIndex) {
 				//$content .= getDebug($index, $localIndex);
 				$indexCompare[] = [
-							'same' => 'sql file',
-							'###TR_MORE###' => 'style="background: pink"',
-						] + $index;
+						'same' => 'sql file',
+						'###TR_MORE###' => 'style="background: pink"',
+					] + $index;
 
 				if (is_array($localIndex)) {
 					$indexCompare[] = [

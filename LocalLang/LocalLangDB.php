@@ -206,4 +206,9 @@ class LocalLangDB extends LocalLang
 	{
 	}
 
+	public function insert(array $array)
+	{
+
+	}
+
 }

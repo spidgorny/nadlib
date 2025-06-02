@@ -48,7 +48,6 @@ class PathSpec extends ObjectBehavior
 	}
 
 	public function it_from(): void
-
 	{
 		$this->beConstructedWith('/root');
 		$this->__toString()->shouldReturn('/root');
