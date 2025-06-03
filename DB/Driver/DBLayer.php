@@ -964,7 +964,12 @@ WHERE ccu.table_name='" . $table . "'");
 		return 'pgsql://' . $this->user . '@' . $this->host . '/' . $this->dbName;
 	}
 
-	public function fixRowDataTypes(Result $res, array $row)
+	/**
+	 * @param Result $res
+	 * @param array $row
+	 * @return array
+	 */
+	public function fixRowDataTypes($res, array $row)
 	{
 		// fix data types, as array_contains will fail due to wrong data type
 		$i = 0;

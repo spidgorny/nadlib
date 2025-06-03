@@ -358,7 +358,7 @@ abstract class DBLayerBase implements DBInterface
 		return $this->dbName;
 	}
 
-	public function fixRowDataTypes($res, $row)
+	public function fixRowDataTypes($res, array $row)
 	{
 		return $row;
 	}

@@ -84,6 +84,6 @@ interface DBInterface
 
 	public function getPlaceholder($field);
 
-	public function fixRowDataTypes($res, $row);
+	public function fixRowDataTypes($res, array $row);
 
 }
