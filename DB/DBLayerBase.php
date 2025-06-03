@@ -20,7 +20,7 @@
 abstract class DBLayerBase implements DBInterface
 {
 
-    /**
+	/**
 	 * @var SQLBuilder
 	 */
 	public $qb;
@@ -204,7 +204,7 @@ abstract class DBLayerBase implements DBInterface
 
 	public function isConnected()
 	{
-		return (bool) $this->connection;
+		return (bool)$this->connection;
 	}
 
 	public function getTableColumns($table)
@@ -289,11 +289,11 @@ abstract class DBLayerBase implements DBInterface
 	}
 
 	/**
-     * @param string $table
-     * @return array
-     * @throws Exception
-     */
-    public function fixDataTypes($table, array $set)
+	 * @param string $table
+	 * @return array
+	 * @throws Exception
+	 */
+	public function fixDataTypes($table, array $set)
 	{
 		$tableDesc = $this->getTableFields($table);
 		foreach ($set as $key => &$val) {
@@ -356,6 +356,11 @@ abstract class DBLayerBase implements DBInterface
 	public function getDatabaseName()
 	{
 		return $this->dbName;
+	}
+
+	public function fixRowDataTypes($res, $row)
+	{
+		return $row;
 	}
 
 }
