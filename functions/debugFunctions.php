@@ -1,6 +1,7 @@
 <?php /** @noinspection ForgottenDebugOutputInspection */
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . '../static.php';
+// this does not allow us to redefine DEVELOPMENT constant from a project files
+//require_once __DIR__ . DIRECTORY_SEPARATOR . '../static.php';
 use nadlib\Debug\Debug;
 
 /**

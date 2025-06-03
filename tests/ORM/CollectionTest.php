@@ -44,4 +44,11 @@ FROM "Collection"
 ORDER BY id', $query100 . '');
 	}
 
+	public function test_findInData()
+	{
+		$c = new Collection(null, [], '', new DBPlacebo());
+		$c->setData([['id' => 1], ['id' => 2], ['id' => 3]]);
+		$this->assertEquals(['id' => 2], $c->findInData(['id' => 2]));
+	}
+
 }

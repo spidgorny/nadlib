@@ -80,7 +80,14 @@ class CollectionQuery
 //		]);
 
 		// in most cases we don't need to rasterize the query to SQL
-		$data = $this->db->fetchAll($this->query);
+		$res = $this->db->perform($this->query);
+		$data = $this->db->fetchAll($res);
+
+		if (method_exists($this->db, 'fixRowDataTypes')) {
+			$data = collect($data)->map(function ($row) use ($res) {
+				return $this->db->fixRowDataTypes($res, $row);
+			})->toArray();
+		}
 		// fetchAll does implement free()
 		TaylorProfiler::stop($taylorKey);
 		return $data;

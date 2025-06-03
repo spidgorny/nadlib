@@ -1,6 +1,5 @@
 <?php
 
-use PgSql\Result;
 use Psr\Log\LoggerInterface;
 use spidgorny\nadlib\HTTP\URL;
 
@@ -230,33 +229,13 @@ abstract class OODBase implements ArrayAccess
 //		$this->log(__METHOD__, $this->lastSelectQuery . '');
 //		debug($rows, $this->lastSelectQuery);
 		if (is_array($row) && $row) {
-			$row = $this->fixRowDataTypes($res, $row);
+			$row = $this->db->fixRowDataTypes($res, $row);
 			$this->initByRow($row);
 		} elseif ($this->forceInit) {
 			$this->initByRow([]);
 		}
 
 		return $this->data;
-	}
-
-	public function fixRowDataTypes(Result $res, array $row)
-	{
-		// fix data types, as array_contains will fail due to wrong data type
-		$i = 0;
-		foreach ($row as &$v) {
-			$dbFieldType = pg_field_type($res, $i++);
-//				llog($k, get_debug_type($v), $v, $dbFieldType);
-			if ($dbFieldType === 'int4' && get_debug_type($v) === 'string') {
-				$v = (int)$v;
-			}
-
-			if ($dbFieldType === 'bool' && get_debug_type($v) === 'string') {
-				$v = $v === 't';
-			}
-		}
-
-//		llog('afterFixRowDataTypes', $row);
-		return $row;
 	}
 
 	/**

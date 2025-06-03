@@ -224,17 +224,15 @@ class DBLayer extends DBLayerBase
 
 		//debug($this->numRows($result));
 		$res = pg_fetch_all($result);
-		pg_free_result($result);
-		if (ifsetor($_REQUEST['d']) === 'q') {
-			debug($this->lastQuery, count($res));
-		}
 
-		if ($res === []) {
-			$res = [];
-		} elseif ($key) {
-			$ap = ArrayPlus::create($res)->IDalize($key)->getData();
-			//debug(sizeof($res), sizeof($ap));
-			$res = $ap;
+		// freeing the result is no longer allowed because Collection needs to fetch result data types and fix them
+//		pg_free_result($result);
+//		if (ifsetor($_REQUEST['d']) === 'q') {
+//			debug($this->lastQuery, count($res));
+//		}
+
+		if (($res !== []) && $key) {
+			$res = ArrayPlus::create($res)->IDalize($key)->getData();
 		}
 
 		return $res;
@@ -964,6 +962,26 @@ WHERE ccu.table_name='" . $table . "'");
 	public function getDSN(): string
 	{
 		return 'pgsql://' . $this->user . '@' . $this->host . '/' . $this->dbName;
+	}
+
+	public function fixRowDataTypes(Result $res, array $row)
+	{
+		// fix data types, as array_contains will fail due to wrong data type
+		$i = 0;
+		foreach ($row as &$v) {
+			$dbFieldType = pg_field_type($res, $i++);
+//				llog($k, get_debug_type($v), $v, $dbFieldType);
+			if ($dbFieldType === 'int4' && get_debug_type($v) === 'string') {
+				$v = (int)$v;
+			}
+
+			if ($dbFieldType === 'bool' && get_debug_type($v) === 'string') {
+				$v = $v === 't';
+			}
+		}
+
+//		llog('afterFixRowDataTypes', $row);
+		return $row;
 	}
 
 }
