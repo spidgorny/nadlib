@@ -12,7 +12,6 @@
 		"danielstjules/stringy": "^3.1",
 		"essence/essence": "^3.5",
 		"ezyang/htmlpurifier": "^4.17",
-		"manticoresoftware/php-sql-parser": "^v4.6.0-patch15",
 		"guzzlehttp/guzzle": "^7.8",
 		"league/flysystem": "^3.0",
 		"michelf/php-markdown": "^2.0",
