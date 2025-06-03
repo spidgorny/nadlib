@@ -266,7 +266,7 @@ class IndexBase /*extends Controller*/
 	 */
 	public function makeController($class)
 	{
-//		llog($class);
+//		llog('makeController', $class);
 		if (method_exists($this->config, 'getDI')) {
 			$di = $this->config->getDI();
 			$this->controller = $di->get($class);

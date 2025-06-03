@@ -47,9 +47,10 @@ class MarshalParams
 	{
 		$cr = new ReflectionClass($class);
 		$constructor = $cr->getConstructor();
+//		llog($class, $constructor?->getName());
 		if ($constructor) {
 			$init = $this->getFunctionArguments($constructor);
-//			debug($class, $constructor->getName(), $init);
+//			llog($class, $constructor->getName(), $init);
 			// PHP 7
 			//$instance = new $class(...$init);
 			$reflector = new ReflectionClass($class);

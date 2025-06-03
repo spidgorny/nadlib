@@ -7,10 +7,12 @@
 class ModelWithCollection extends Model
 {
 
+	/** @var class-string<Model> */
 	public static $itemClassName = '?';
 
 	/**
 	 * @return Collection
+	 * @throws Exception
 	 * @deprecated
 	 */
 	public function getCollection(array $where = [], $orderBy = null)
@@ -32,6 +34,7 @@ class ModelWithCollection extends Model
 
 	/**
 	 * @param $id
+	 * @return mixed
 	 * @deprecated
 	 */
 	public function getModel($id): mixed

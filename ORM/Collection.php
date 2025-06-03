@@ -15,9 +15,10 @@ class Collection implements IteratorAggregate, ToStringable
 	/**
 	 * objectify() without parameters will try this class name
 	 * Default is NULL in order to check whether it's set or not.
-	 * @var string
+	 * @var class-string<OODBase>
 	 */
 	public static $itemClassName;
+
 	/**
 	 * @var string
 	 */
@@ -26,26 +27,31 @@ class Collection implements IteratorAggregate, ToStringable
 	public $parentID;
 	public $thes = [];
 	public $titleColumn = 'title';
+
 	/**
 	 * Basic where SQL params to be included in every SQL by default
 	 * @var array|SQLWhere
 	 */
 	public $where = [];
+
 	/**
 	 * for LEFT OUTER JOIN queries
 	 * @var string
 	 */
 	public $join = '';
+
 	/**
 	 * Initialize in postInit() to run paged SQL
 	 * initialize if necessary with = new Pager(); in postInit()
 	 * @var Pager|null
 	 */
 	public $pager;
+
 	/**
 	 * @var PageSize
 	 */
 	public $pageSize;
+
 	/**
 	 * SQL part
 	 * @var string

@@ -3,9 +3,7 @@
 class ModelQuery implements IteratorAggregate
 {
 
-	/**
-	 * @var string
-	 */
+	/** @var class-string<Model> */
 	public static $itemClassName;
 
 	/**
