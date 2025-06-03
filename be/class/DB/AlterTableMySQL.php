@@ -4,10 +4,12 @@ class AlterTableMySQL extends AlterTableHandler implements AlterTableInterface
 {
 
 	/**
-     * @param string $table
-     * @param TableField[] $columns
-     */
-    public function getCreateQuery($table, array $columns): string
+	 * @param string $table
+	 * @param TableField[] $columns
+	 * @return string
+	 * @throws Exception
+	 */
+	public function getCreateQuery($table, array $columns): string
 	{
 		$set = [];
 		foreach ($columns as $row) {
@@ -27,19 +29,19 @@ class AlterTableMySQL extends AlterTableHandler implements AlterTableInterface
 				: $this->db->quoteSQL($index->default))
 			: '';
 		return ' ' . trim(
-				(($index->isNull == 'NO') ? 'NOT NULL' : 'NULL') .
+				(($index->isNull === 'NO') ? 'NOT NULL' : 'NULL') .
 				' ' . ($index->collation ? 'COLLATE ' . $index->collation : '') .
 				' ' . ($index->default ? "DEFAULT " . $default : '') .        // must not be quoted for CURRENT_TIMESTAMP
 				' ' . ($index->comment ? "COMMENT '" . $index->comment . "'" : '') .
-				' ' . (($index->key == 'PRI') ? "PRIMARY KEY" : '') .
+				' ' . (($index->key === 'PRI') ? "PRIMARY KEY" : '') .
 				' ' . implode(' ', $index->extra));
 	}
 
 	/**
-     * @param string $table
-     * @param string $oldName
-     */
-    public function getAlterQuery($table, $oldName, TableField $index): string
+	 * @param string $table
+	 * @param string $oldName
+	 */
+	public function getAlterQuery($table, $oldName, TableField $index): string
 	{
 		return 'ALTER TABLE ' . $table . ' CHANGE ' . $oldName . ' ' . $index->field .
 			' ' . $index->type .

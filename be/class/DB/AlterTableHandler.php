@@ -1,6 +1,6 @@
 <?php
 
-class AlterTableHandler
+class AlterTableHandler implements AlterTableInterface
 {
 
 	/**
@@ -20,7 +20,7 @@ class AlterTableHandler
 		return $this->sameTypeString($t1, $t2);
 	}
 
-	public function sameFieldType(TableField $index1, TableField $index2): bool
+	public function sameFieldType($index1, $index2): bool
 	{
 		return $this->sameTypeString($index1->type, $index2->type);
 	}
@@ -39,19 +39,48 @@ class AlterTableHandler
 		$bool = ['binary(1)', 'bool', 'boolean'];
 		if ($t1 == $t2) {
 			return true;
-		} elseif (in_array($t1, $int) && in_array($t2, $int)) {
-			return true;
-		} elseif (in_array($t1, $text) && in_array($t2, $text)) {
-			return true;
-		} elseif (in_array($t1, $time) && in_array($t2, $time)) {
-			return true;
-		} elseif (in_array($t1, $real) && in_array($t2, $real)) {
-			return true;
-		} elseif (in_array($t1, $bool) && in_array($t2, $bool)) {
-			return true;
-		} else {
-			return false;
 		}
+
+		if (in_array($t1, $int) && in_array($t2, $int)) {
+			return true;
+		}
+
+		if (in_array($t1, $text) && in_array($t2, $text)) {
+			return true;
+		}
+
+		if (in_array($t1, $time) && in_array($t2, $time)) {
+			return true;
+		}
+
+		if (in_array($t1, $real) && in_array($t2, $real)) {
+			return true;
+		}
+
+		if (in_array($t1, $bool) && in_array($t2, $bool)) {
+			return true;
+		}
+
+		return false;
 	}
 
+	public function getCreateQuery($table, array $columns)
+	{
+		// TODO: Implement getCreateQuery() method.
+	}
+
+	public function getAlterQuery($table, $oldName, TableField $index)
+	{
+		// TODO: Implement getAlterQuery() method.
+	}
+
+	public function getAddQuery($table, TableField $index)
+	{
+		// TODO: Implement getAddQuery() method.
+	}
+
+	public function getFieldParams(TableField $index)
+	{
+		// TODO: Implement getFieldParams() method.
+	}
 }

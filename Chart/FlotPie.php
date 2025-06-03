@@ -1,7 +1,5 @@
 <?php
 
-use spidgorny\nadlib\HTTP\URL;
-
 /**
  * Class Flot - is drawing a flot chart.
  */
@@ -54,7 +52,7 @@ class FlotPie extends AppControllerBE
     	<script language="javascript" type="text/javascript" src="' . $this->flotPath . 'jquery.flot.js"></script>
     	<script language="javascript" type="text/javascript" src="' . $this->flotPath . 'jquery.flot.pie.js"></script>';
 
-		$content = '<div id="' . $divID . '" style="width: 950px; height:600px; border: none 0px silver;"></div>';
+		$content[] = '<div id="' . $divID . '" style="width: 950px; height:600px; border: none 0px silver;"></div>';
 
 		$charts = [];
 		$dKeys = [];
@@ -92,11 +90,11 @@ $(function ($) {
 				}
         	}
         },
-    	colors: ' . json_encode($this->colors) . '
+    	colors: ' . json_encode($this->colors, JSON_THROW_ON_ERROR) . '
     });
 });
 </script>';
-		return $content;
+		return $this->s($content);
 	}
 
 }

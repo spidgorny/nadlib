@@ -18,7 +18,7 @@ class NadlibTest extends MyTestCase
 			'DBInterface',
 			'SQLQuery',
 		];
-		require_once __DIR__ . '/AppController4Test.php';
+//		require_once __DIR__ . '/AppController4Test.php';
 //		class_alias('AppController4Test', 'AppController');
 
 		$files = glob('**/*');
