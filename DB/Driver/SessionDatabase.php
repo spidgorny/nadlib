@@ -5,7 +5,6 @@ namespace nadlib;
 use ArrayPlus;
 use DBInterface;
 use nadlib\HTTP\Session;
-use Nette\NotImplementedException;
 use SQLSelectQuery;
 use SQLWhere;
 
@@ -31,12 +30,12 @@ class SessionDatabase implements DBInterface
 	 * @var static
 	 */
 	protected static $instance;
-    
+
 	/**
 	 * @var array
 	 */
 	public $data = [];
-    
+
 	protected \nadlib\HTTP\Session $session;
 
 	/**
@@ -56,7 +55,7 @@ class SessionDatabase implements DBInterface
 		if (!self::$instance) {
 			self::$instance = new static();
 		}
-        
+
 		return self::$instance;
 	}
 
@@ -175,7 +174,7 @@ class SessionDatabase implements DBInterface
 			debug($res_or_query);
 		}
 
-        return null;
+		return null;
 	}
 
 	public function isConnected(): bool
@@ -218,7 +217,7 @@ class SessionDatabase implements DBInterface
 		if ($where->getAsArray()) {
 			//throw new NotImplementedException(__METHOD__);
 		}
-        
+
 		return count($this->data[$table]);
 	}
 
@@ -236,7 +235,7 @@ class SessionDatabase implements DBInterface
 		if (!is_array($rows)) {
 			$rows = [];
 		}
-        
+
 		$data = ArrayPlus::create($rows);
 		$data->filterBy($where);
 		return $data;
@@ -314,5 +313,10 @@ class SessionDatabase implements DBInterface
 	public function getPlaceholder($field): void
 	{
 		// TODO: Implement getPlaceholder() method.
+	}
+
+	public function fixRowDataTypes($res, array $row)
+	{
+		// TODO: Implement fixRowDataTypes() method.
 	}
 }
