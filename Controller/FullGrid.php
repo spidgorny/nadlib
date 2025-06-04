@@ -119,6 +119,7 @@ trait FullGrid
 		}
 
 		if ($sortBy) {
+			$this->collection->select .= ', ' . $this->db->quoteKey($sortBy);
 			$ret = 'ORDER BY ' . $this->db->quoteKey($sortBy) . ' ' .
 				(ifsetor($this->sort['sortOrder']) ? 'DESC' : 'ASC');
 		}
