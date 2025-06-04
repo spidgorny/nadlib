@@ -48,14 +48,14 @@ class Model
 	 */
 	public static function getInstance(array $data, ?DBInterface $db = null): static
 	{
-		$obj = new static(null);
-		$obj->setDB($db ?: Config::getInstance()->getDB());
+		$obj = new static($db ?: Config::getInstance()->getDB(), null);
 		$obj->setData($data);
 		return $obj;
 	}
 
 	/**
 	 * Not caching.
+	 * @param DBInterface $db
 	 * @param $id
 	 * @return static
 	 */
