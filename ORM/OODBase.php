@@ -256,15 +256,12 @@ abstract class OODBase implements ArrayAccess
 	 * @return mixed
 	 * @throws Exception
 	 */
-	public static function findInstance(array $where, $static = null)
+	public static function findInstance(array $where, DBInterface $db)
 	{
-		if (!$static) {
-			$static = static::class;
-		}
-
-		$obj = new $static();
+		$obj = new static(null, $db);
 		$obj->findInDB($where);
 		if ($obj->id) {
+			$static = static::class;
 			self::$instances[$static][$obj->id] = $obj;
 		}
 
