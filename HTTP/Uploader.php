@@ -155,7 +155,7 @@ class Uploader
 	 * // add custom hidden fields to upload form (e.g. Loan[id])
 	 * if (!empty($hiddenFields)) {
 	 * foreach ($hiddenFields as $name => $value) {
-	 *    $f->stdout .= $f->hidden($name, $value);
+	 *    $f->hidden($name, $value);
 	 * }
 	 * }
 	 * @param string $fieldName - input field name - usually 'file'

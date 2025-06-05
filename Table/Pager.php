@@ -591,9 +591,9 @@ class Pager
 		if ($this->currentPage < $this->getMaxPage()) {
 			$loadPage = $this->currentPage + 1;
 			$f = new HTMLForm();
-			$f->stdout .= $f->hidden('c', $controller);
-			$f->stdout .= $f->hidden('action', 'loadMore');
-			$f->stdout .= $f->hidden('Pager.[page]', $loadPage);
+			$f->hidden('c', $controller);
+			$f->hidden('action', 'loadMore');
+			$f->hidden('Pager.[page]', $loadPage);
 			$f->stdout .= $f->formHideArray([$this->prefix => $this->request->getArray($this->prefix)]);
 			$f->formMore = ['onsubmit' => "return ajaxSubmitForm(this);"];
 			$f->stdout .= $f->submit(__('Load more'), ['class' => 'btn']);

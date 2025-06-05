@@ -172,7 +172,7 @@ class HTMLFormTableTest extends TestCase
 //		$f->fieldset(__('Add new comment'));
 		$f->method(HTMLForm::METHOD_POST);
 		//debug($this->request->getMethod());
-		$f->stdout .= $f->hidden('action', 'postComment');
+		$f->hidden('action', 'postComment');
 		$f->defaultBR = true;
 		$f->showForm();
 		$html = $f->getContent();

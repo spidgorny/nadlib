@@ -83,9 +83,9 @@ class Selectable
 				'RoomView',
 				'EditRoomDescription',
 			])) {
-				$f->stdout .= $f->hidden('c', 'RoomView');
+				$f->hidden('c', 'RoomView');
 			} else {
-				$f->stdout .= $f->hidden('c', $request->getControllerString());
+				$f->hidden('c', $request->getControllerString());
 			}
 		}
 

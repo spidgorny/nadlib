@@ -279,7 +279,7 @@ class Localize extends AppControllerBE
 	{
 		$f = new HTMLForm();
 		$f->method('GET');
-		$f->stdout .= $f->hidden('c', get_class($this));
+		$f->hidden('c', get_class($this));
 		$f->stdout .= $f->input('search', $this->request->getTrim('search'), [], 'text', "span2");
 		$f->stdout .= $f->submit('Search');
 		$content[] = $f;
@@ -295,7 +295,7 @@ class Localize extends AppControllerBE
 
 		$u = new Uploader(['json']);
 		$f = $u->getUploadForm('file');
-		$f->stdout .= $f->hidden('action', 'importJSON');
+		$f->hidden('action', 'importJSON');
 		$content[] = $f;
 
 		$content[] = '<hr />';
@@ -481,6 +481,9 @@ class Localize extends AppControllerBE
 		// nothing, used in the filter
 	}
 
+	/**
+	 * @throws JsonException
+	 */
 	public function editOneAction()
 	{
 		$content = [];
@@ -499,7 +502,7 @@ class Localize extends AppControllerBE
 
 			$f = new HTMLForm();
 			$f->action('?c=' . get_class($this));
-			$f->stdout .= $f->hidden('action', 'saveOne');
+			$f->hidden('action', 'saveOne');
 			$f->stdout .= $f->input('id', $id);
 			$f->stdout .= $f->textarea('value', $trans, [
 				'style' => 'width: 100%; height: ' . (1 + $lines) . 'em',

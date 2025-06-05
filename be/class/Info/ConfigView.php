@@ -41,7 +41,7 @@ class ConfigView extends AppControllerBE
 			}
 
 			$f->prefix('');
-			$f->stdout .= $f->hidden('action', 'save');
+			$f->hidden('action', 'save');
 			$f->stdout .= $f->submit('Save');
 			$f->debug = $_COOKIE['debug'];
 			$content = $f;

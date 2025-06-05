@@ -214,7 +214,7 @@ abstract class Scaffold extends AppControllerBE
 		$f = $this->getForm('update');
 		$f->prefix('');
 		foreach ($override as $key => $val) {
-			$f->stdout .= $f->hidden($key, $val);
+			$f->hidden($key, $val);
 		}
 
 		$f->stdout .= $f->button('<span class="glyphicon glyphicon-floppy-disk"></span> ' . $this->updateButton, [

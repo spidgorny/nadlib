@@ -43,6 +43,7 @@ class slTableValue
 
 		$this->value = $value;
 		$this->desc += $desc;
+		$this->db = Config::getInstance()->getDB();
 	}
 
 	public function injectDB(DBInterface $db): void
@@ -248,14 +249,14 @@ class slTableValue
 						foreach ($parts as $id) {
 							$obj[] = is_object($k['class'])
 								? $k['class']
-								: $k['class']::getInstance($id);
+								: $k['class']::getInstance($id, $this->db);
 						}
 
 						$out = implode(', ', $obj);
 					} else {
 						$obj = is_object($k['class'])
 							? $k['class']
-							: $k['class']::getInstance($val);
+							: $k['class']::getInstance($val, $this->db);
 						$out = $obj . '';
 					}
 				}

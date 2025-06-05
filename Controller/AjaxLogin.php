@@ -215,7 +215,7 @@ class AjaxLogin extends AppControllerBE
 	{
 		$f = new HTMLFormTable();
 		$f->action('');     // specify action otherwise will logout
-		$f->stdout .= $f->hidden('c', get_class($this));
+		$f->hidden('c', get_class($this));
 		$f->formMore = $this->formMore;
 		$f->defaultBR = true;
 		if (!$desc) {
@@ -224,7 +224,7 @@ class AjaxLogin extends AppControllerBE
 
 		$f->desc = $desc;
 		$f->showForm();
-		$f->stdout .= $f->hidden('action', 'login');
+		$f->hidden('action', 'login');
 		$f->stdout .= $f->text('<div style="float: right">
 			<a href="?action=forgotPassword" rel="forgotPassword">' . __('Forgot Password') . '</a>
 		</div>');
@@ -268,7 +268,7 @@ class AjaxLogin extends AppControllerBE
 		$f->desc = $desc;
 		$f->showForm();
 		$f->prefix('');
-		$f->stdout .= $f->hidden('action', 'saveRegister');
+		$f->hidden('action', 'saveRegister');
 		$f->stdout .= $f->submit(__('Register'), [
 			'class' => 'btn btn-secondary',
 		]);
@@ -450,7 +450,7 @@ class AjaxLogin extends AppControllerBE
 		$f->desc = $desc;
 		$f->showForm();
 		$f->prefix('');
-		$f->stdout .= $f->hidden('action', 'saveProfile');
+		$f->hidden('action', 'saveProfile');
 		$f->stdout .= $f->submit(__('Save'));
 
 		return $f;
@@ -510,7 +510,7 @@ class AjaxLogin extends AppControllerBE
 		//debug($desc);
 		$f->desc = $desc;
 		$f->showForm();
-		$f->stdout .= $f->hidden('action', 'savePassword');
+		$f->hidden('action', 'savePassword');
 		$f->stdout .= $f->submit(__('Change'));
 		return $f;
 	}
