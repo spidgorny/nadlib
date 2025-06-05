@@ -76,7 +76,7 @@ class HTMLForm implements ToStringable
 	 * @param array $more - may be array
 	 *
 	 */
-	public function getInput(string $type, $name, $value = null, array $more = [], string $extraClass = '', $namePlus = ''): string
+	public function getInput(string $type, $name, $value = null, array $more = [], ?string $extraClass = '', $namePlus = ''): string
 	{
 //		debug($type, $name, $value, $more, $extraClass, $namePlus);
 		$attrs = [];
