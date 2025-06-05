@@ -622,7 +622,7 @@ abstract class OODBase implements ArrayAccess
 		],    $title = null
 	)
 	{
-		$ss = new ShowAssoc($this->data);
+		$ss = new ShowAssoc($this->data, $this->db);
 		$ss->setThes($thes);
 		$ss->setTitle($title ?: get_class($this));
 		return $ss;

@@ -4,15 +4,15 @@ class ShowAssoc
 {
 
 	/**
-     * @var mixed[]
-     */
-    public $data = [];
+	 * @var mixed[]
+	 */
+	public $data = [];
 
 	public $thes = [];
 
 	public $title;
 
-	public function __construct(array $assoc)
+	public function __construct(array $assoc, protected DBInterface $db)
 	{
 		$this->data = $assoc;
 	}
@@ -58,7 +58,7 @@ class ShowAssoc
 		if (ifsetor($desc['reference'])) {
 			// class name
 			$class = $desc['reference'];
-			$obj = $class::tryGetInstance($val);
+			$obj = $class::tryGetInstance($val, $this->db);
 			if (method_exists($obj, 'getNameLink')) {
 				$val = new HtmlString($obj->getNameLink());
 			} elseif (method_exists($obj, 'getName')) {
@@ -68,7 +68,7 @@ class ShowAssoc
 			}
 		} elseif (ifsetor($desc['bool'])) {
 			if (ifsetor($desc['t/f'])) {
-				$val = $val == 't';
+				$val = $val === 't';
 			}
 
 			$val = $desc['bool'][$val];  // yes/no
