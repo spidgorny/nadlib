@@ -1,8 +1,8 @@
 <?php
 
-use AppDev\OnlineRequestSystem\MyTestCase;
+use PHPUnit\Framework\TestCase;
 
-class NadlibTest extends MyTestCase
+class NadlibTest extends TestCase
 {
 
 	public function test_requireAll(): void

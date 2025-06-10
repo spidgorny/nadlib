@@ -111,7 +111,7 @@ class Collection implements IteratorAggregate, ToStringable
 	 * @protected because it's visible in debug
 	 * use injection if you need to modify it
 	 */
-	protected $db;
+	protected DBInterface $db;
 
 	protected $parentField = 'pid';
 
