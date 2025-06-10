@@ -8,7 +8,7 @@ class Date extends Time
 
 	public $format = 'd.m.Y';
 
-	public function __construct($input = null, $relativeTo = null)
+	final public function __construct($input = null, $relativeTo = null)
 	{
 		parent::__construct($input, $relativeTo);
 		//$this->modify('Y-m-d \G\M\T'); // very slow!
