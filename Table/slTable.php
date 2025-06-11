@@ -18,7 +18,7 @@ class slTable implements ToStringable
 
 	/**
 	 * 2D array of rows and columns
-	 * @var array
+	 * @var array|Traversable
 	 */
 	public $data = [];
 
@@ -157,8 +157,6 @@ class slTable implements ToStringable
 
 		$this->sortLinkPrefix = new URL();
 		$this->generation = new HTMLTableBuf();
-		$this->setRequest($request ?: Request::getInstance());
-		$this->detectSortBy();
 		$this->isCLI = Request::isCLI();
 	}
 
@@ -173,33 +171,17 @@ class slTable implements ToStringable
 		}
 	}
 
-	public function setRequest(Request $request): void
+	/**
+	 * This needs to be called manually to enable sorting. In most cases SQL is used to sort the data in advance.
+	 * @param array $aRequest
+	 * @return void
+	 */
+	public function detectSortBy(array $aRequest): void
 	{
-		$this->request = $request;
-	}
-
-	public function detectSortBy(): void
-	{
-		$aRequest = $this->request->getArray('slTable');
+//		$aRequest = $this->request->getArray('slTable');
 		$this->sortBy = ifsetor($aRequest['sortBy']);
 		$this->sortOrder = ifsetor($aRequest['sortOrder']);
 		//debug(array($by, $or));
-
-		// make default softBy if not provided
-		if (!$this->sortBy && $this->sortable) {
-			$this->generateThes();
-			$old = error_reporting(0);    // undefined offset 0
-			if (count($this->thes) !== 0) {
-				$firstElementFromThes = current(array_values($this->thes));
-				if (is_array($firstElementFromThes)) {
-					$firstElementFromThes = current(array_values($firstElementFromThes));
-				}
-
-				$this->sortBy = $firstElementFromThes;
-			}
-
-			error_reporting($old);
-		}
 	}
 
 	public function generateThes()
@@ -383,60 +365,58 @@ class slTable implements ToStringable
 
 	public function generate($caller = ''): void
 	{
-		TaylorProfiler::start(__METHOD__ . sprintf(' (%s)', $caller));
 		// footer needs to be displayed
-		if ((count($this->data) && $this->data != false) || $this->footer) {
-			$this->generateThes();
-
-			$this->sort();
-
-			$t = $this->generation;
-			$t->table([
-					'id' => $this->ID,
-				] + $this->more);
-
-			$this->generateThead();
-			$this->generation->text('<tbody>');
-			$data = is_array($this->data) || $this->data instanceof Traversable ? $this->data : [];
-
-			$i = -1;
-			foreach ($data as $key => $row) { // (almost $this->data)
-				if (!is_array($row)) {
-					debug($key, $row);
-					throw new RuntimeException('slTable row is not an array');
-				}
-
-				++$i;
-				$class = $this->getRowClass($row, $i, $key);
-				$trMore = [
-					'class' => implode(' ', $class),
-				];
-				if (isset($row['###TR_MORE###'])) {
-					$trMore += HTMLTag::parseAttributes($row['###TR_MORE###']); // used in class.Loan.php	// don't use for "class"
-				}
-
-				$rowID = (is_array($row) && isset($row['id']))
-					? $row['id']
-					: '';
-				// TODO: degradation(!)
-//				$trMore = str_replace('###ROW_ID###', $rowID, $this->trmore);
-
-				$t->tr($trMore);
-				//debug_pre_print_backtrace();
-				$this->genRow($t, $row);
-				$t->tre();
-			}
-
-			$this->generation->text('</tbody>');
-			$this->genFooter();
-			$t->tablee();
-			$this->generation = $t;
-		} else {
+		if ((!count($this->data) || $this->data == false) && !$this->footer) {
 			$this->generation->text('<div class="message">' .
 				__('No Data') . '</div>');
+			return;
 		}
 
-		TaylorProfiler::stop(__METHOD__ . sprintf(' (%s)', $caller));
+		$this->generateThes();
+
+		$this->sort();
+
+		$t = $this->generation;
+		$t->table([
+				'id' => $this->ID,
+			] + $this->more);
+
+		$this->generateThead();
+		$this->generation->text('<tbody>');
+		$data = is_array($this->data) || $this->data instanceof Traversable ? $this->data : [];
+
+		$i = -1;
+		foreach ($data as $key => $row) { // (almost $this->data)
+			if (!is_array($row)) {
+				debug($key, $row);
+				throw new RuntimeException('slTable row is not an array');
+			}
+
+			++$i;
+			$class = $this->getRowClass($row, $i, $key);
+			$trMore = [
+				'class' => implode(' ', $class),
+			];
+			if (isset($row['###TR_MORE###'])) {
+				$trMore += HTMLTag::parseAttributes($row['###TR_MORE###']); // used in class.Loan.php	// don't use for "class"
+			}
+
+//			$rowID = (is_array($row) && isset($row['id']))
+//				? $row['id']
+//				: '';
+			// TODO: degradation(!)
+//				$trMore = str_replace('###ROW_ID###', $rowID, $this->trmore);
+
+			$t->tr($trMore);
+			//debug_pre_print_backtrace();
+			$this->genRow($t, $row);
+			$t->tre();
+		}
+
+		$this->generation->text('</tbody>');
+		$this->genFooter();
+		$t->tablee();
+		$this->generation = $t;
 	}
 
 	public function sort(): void
@@ -513,15 +493,14 @@ class slTable implements ToStringable
 					&& ifsetor($thv['sortable']) !== false
 				) {
 					$sortField = ifsetor($thv['dbField'], $thk);    // set to null - don't sort
-					$sortOrder = $this->sortBy === $sortField
-						? !$this->sortOrder
-						: $this->sortOrder;
+					$sortOrder = $this->sortBy === $sortField ? !$this->sortOrder : $this->sortOrder;
 					$link = $this->sortLinkPrefix->forceParams([
 						$this->prefix => [
 							'sortBy' => $sortField,
 							'sortOrder' => $sortOrder,
 						],
 					]);
+
 					$thes2[$thk] = new HtmlString('<a href="' . $link . '">' . $thvName . '</a>');
 				} else {
 					$thes2[$thk] = $thvName;

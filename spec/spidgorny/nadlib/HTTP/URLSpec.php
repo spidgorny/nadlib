@@ -22,4 +22,11 @@ class URLSpec extends ObjectBehavior
 		$this->toString()->shouldBe('https://asd.com/HealthCheck');
 	}
 
+	public function it_forceParams(): void
+	{
+		$this->beConstructedWith("https://asd.com/");
+		$this->forceParams(['slTable' => ['sortBy' => 'name', 'sortDesc' => '1']]);
+		$this->toString()->shouldBe('https://asd.com/?slTable[sortBy]=name&slTable[sortDesc]=1');
+	}
+
 }

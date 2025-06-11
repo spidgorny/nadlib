@@ -4,6 +4,7 @@ class CollectionView
 {
 
 	public $noDataMessage = 'No data';
+
 	/**
 	 * Indication to slTable
 	 * @var bool
@@ -91,13 +92,12 @@ class CollectionView
 		if ($this->collection->pager) {
 			$pages = $this->collection->pager->renderPageSelectors();
 			$content[] = [$pages .
-				'<div class="collection"
-				 id="' . get_class($this->collection) . '">',
-				$s,  // not HTML, may need to process later
+				'<div class="collection" id="' . get_class($this->collection) . '">',
+				$s->getContent(),  // not HTML, may need to process later
 				'</div>',
 				$pages];
 		} else {
-			$content[] = $s;
+			$content[] = $s->getContent();
 		}
 
 		return $this->wrap($content);
@@ -105,7 +105,6 @@ class CollectionView
 
 	public function prepareRender(): void
 	{
-		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '()');
 		$data = $this->collection->getProcessedData();
 		$count = $this->collection->getCount();
 		// Iterator by reference (PHP 5.4.15 crash)
@@ -116,12 +115,10 @@ class CollectionView
 
 		$this->collection->setData($data);
 		$this->collection->count = $count;
-		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '() done');
 	}
 
 	public function getDataTable(): \slTable
 	{
-		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '()');
 		$data = $this->collection->getData()->getData();
 		$s = new slTable($data, HTMLTag::renderAttr($this->tableMore));
 		$s->thes($this->collection->thes);
@@ -145,7 +142,6 @@ class CollectionView
 //			}
 //		}
 
-		$this->collection->log(get_class($this) . '::' . __FUNCTION__ . '() done');
 		return $s;
 	}
 

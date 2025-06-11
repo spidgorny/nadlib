@@ -67,23 +67,26 @@ trait FullGrid
 	{
 		if (is_string($collectionName)) {
 			$this->log(__METHOD__ . ' new collection', $collectionName);
-			$collection = new $collectionName(null, [], $this->getOrderBy(), $this->db);
-		} else {
-			$re = new ReflectionClass($this);
-			$reCol = $re->getProperty('collection');
-			$doc = new DocCommentParser($reCol->getDocComment());
-			$collectionName = $doc->getFirstTagValue('var');
-			$collectionName = first(trimExplode('|', $collectionName));
-			$this->log(__METHOD__ . ' new collection by reflection', $collectionName);
-			$collection = new $collectionName(null, [], '', $this->db);
+			$this->collection = new $collectionName(null, [], '', $this->db);
+			// this needs to be set after collection is created
+			$this->collection->orderBy = $this->getOrderBy();
+			return $this->collection;
 		}
 
-		return $collection;
+		$re = new ReflectionClass($this);
+		$reCol = $re->getProperty('collection');
+		$doc = new DocCommentParser($reCol->getDocComment());
+		$collectionName = $doc->getFirstTagValue('var');
+		$collectionName = first(trimExplode('|', $collectionName));
+		$this->log(__METHOD__ . ' new collection by reflection', $collectionName);
+		$this->collection = new $collectionName(null, [], '', $this->db);
+		return $this->collection;
 	}
 
 	/**
 	 * Can't use $this->collection at this point as this function is used to initialize the collection!
 	 * @return string|null
+	 * @throws JsonException
 	 */
 	public function getOrderBy()
 	{
@@ -118,8 +121,12 @@ trait FullGrid
 
 		}
 
+		llog('sortBy', $sortBy);
 		if ($sortBy) {
-			$this->collection->select .= ', ' . $this->db->quoteKey($sortBy);
+			if ($this->collection->thes[$sortBy]['sqlSortBy']) {
+				$sortBy = $this->collection->thes[$sortBy]['sqlSortBy'];
+			}
+//			$this->collection->select .= ', ' . $this->db->quoteKey($sortBy);
 			$ret = 'ORDER BY ' . $this->db->quoteKey($sortBy) . ' ' .
 				(ifsetor($this->sort['sortOrder']) ? 'DESC' : 'ASC');
 		}
