@@ -183,7 +183,7 @@ abstract class Controller extends SimpleController
 	 * @param string $caption
 	 * @param string|null $h
 	 * @param array $more
-	 * @return array|string|string[]
+	 * @return array|string|string[]|ToStringable
 	 * @throws Exception
 	 */
 	public function encloseInAA($content, $caption = '', $h = null, array $more = [])

@@ -4,7 +4,7 @@ class MemcacheDB implements MemcacheInterface
 {
 
 	/**
-	 * @var DBLayerBase
+	 * @var DBInterface
 	 */
 	public $db;
 

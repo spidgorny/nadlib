@@ -20,7 +20,7 @@ class AutoLoad
 	/**
 	 * @var bool
 	 */
-	public $debug = 0;
+	public $debug = false;
 
 	public $debugStartup = 0;
 

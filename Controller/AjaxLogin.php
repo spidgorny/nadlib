@@ -20,13 +20,13 @@ class AjaxLogin extends AppControllerBE
 
 	/**
 	 * Remove to disable jQuery dependency
-	 * @var string
+	 * @var array<string, string>
 	 */
-	public $formMore = 'onsubmit="jQuery(this).ajaxSubmit({
+	public $formMore = ['onsubmit' => "jQuery(this).ajaxSubmit({
 			//function (res) { jQuery(\'#AjaxLogin\').html(res); }
 			target: \'#AjaxLogin\',
 			//url: \'buch.php\'
-			}); return false;"';
+			}); return false;"];
 
 	public $encloseTag = 'h3';
 

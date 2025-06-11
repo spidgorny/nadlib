@@ -4,12 +4,12 @@ class Timeline /*extends AppController */
 {
 
 	/**
-	 * @var Date
+	 * @var Date|Time
 	 */
 	public $start;
 
 	/**
-	 * @var Date
+	 * @var Date|Time
 	 */
 	public $end;
 
@@ -25,7 +25,7 @@ class Timeline /*extends AppController */
 
 	public $textColor = 'rgb(200,200,200)';
 
-	/** @var Duration */
+	/** @var Duration|Time */
 	public $duration;
 
 	public function __construct($width, $height, Time $start, Time $end)

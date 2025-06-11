@@ -40,7 +40,7 @@ class ConfigBase implements ConfigInterface
 	];
 	/**
 	 * del: Public to allow Request to know if there's an instance
-	 * @var Config
+	 * @var static
 	 */
 	protected static $instance;
 	public $db_server = '127.0.0.1';
@@ -52,11 +52,14 @@ class ConfigBase implements ConfigInterface
 	 * @deprecated in favor of $this->config['Config']['timeLimit'] in init.php
 	 */
 	public $timeLimit = 10;
+
 	public $defaultController = 'Overview';
+
 	/**
 	 * @var Path
 	 */
 	public $documentRoot;
+
 	/**
 	 * Enables FlexiTable check if the all the necessary tables/columns exist.
 	 * Disable for performance.
@@ -64,27 +67,34 @@ class ConfigBase implements ConfigInterface
 	 * @var bool
 	 */
 	public $flexiTable = false;
+
 	/**
 	 * Read from config.json
 	 * @var array
 	 */
 	public $config;
+
 	public $mailFrom = '';
+
 	/**
 	 * @var LocalLang
 	 */
 	public $ll;
+
 	/**
-     * @var bool
-     */
-    public $isCron = false;
+	 * @var bool
+	 */
+	public $isCron = false;
+
 	protected $db_password = 'root';
+
 	/**
 	 * @var DBInterface
 	 */
 	protected $db;
+
 	/**
-	 * @var UserModelInterface
+	 * @var ?UserModelInterface
 	 */
 	protected $user;
 
@@ -188,11 +198,11 @@ class ConfigBase implements ConfigInterface
 	}
 
 	/**
-     * TODO: enable FirePHP
-     * @param string $message
-     * @throws Exception
-     */
-    public function log(string $class, string $message): void
+	 * TODO: enable FirePHP
+	 * @param string $message
+	 * @throws Exception
+	 */
+	public function log(string $class, string $message): void
 	{
 		throw new \RuntimeException($class . ' ' . $message);
 	}

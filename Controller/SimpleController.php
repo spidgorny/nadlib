@@ -234,7 +234,7 @@ abstract class SimpleController
 	 * @param string|array|ToStringable $content
 	 * @param string $caption
 	 * @param string $h
-	 * @return ToStringable
+	 * @return ToStringable|string|string[]
 	 * @throws Exception
 	 */
 	public function encloseInAA($content, $caption = '', $h = null, array $more = [])

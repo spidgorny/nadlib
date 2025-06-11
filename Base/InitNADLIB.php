@@ -8,7 +8,7 @@ class InitNADLIB
 	public $useCookies = true;
 
 	/**
-	 * @var AutoLoad
+	 * @var ?AutoLoad
 	 */
 	public $al;
 

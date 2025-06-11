@@ -23,7 +23,7 @@ trait CachedGetInstance
 	/**
 	 * @param $id
 	 * @param DBInterface $db
-	 * @return self
+	 * @return static
 	 * @throws Exception
 	 */
 	public static function tryGetInstance($id, DBInterface $db)
@@ -48,7 +48,7 @@ trait CachedGetInstance
 	 * @param mixed ...$args
 	 * @return static
 	 */
-	public static function getInstance($id, DBInterface $db, ...$args): static
+	public static function getInstance($id, DBInterface $db, ...$args)
 	{
 		return self::getInstanceByID($id, $db, ...$args);
 	}
