@@ -662,7 +662,7 @@ class Collection implements IteratorAggregate, ToStringable
 	{
 		$class = static::$itemClassName;
 		/** @var OODBase $obj */
-		$obj = method_exists($class, 'getInstance') ? $class::getInstance($row) : new $class($row);
+		$obj = method_exists($class, 'getInstance') ? $class::getInstance($row, $this->db) : new $class($row, $this->db);
 
 		if (method_exists($obj, 'render')) {
 			$content = $obj->render();
