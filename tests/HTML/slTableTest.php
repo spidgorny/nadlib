@@ -73,8 +73,7 @@ class slTableTest extends TestCase
 		$request->setArray(['slTable' => [
 			'sortBy' => 'a',
 		]]);
-		$s->setRequest($request);
-		$s->detectSortBy();
+		$s->detectSortBy($request->getArray('slTable'));
 		static::assertEquals('a', $s->sortBy);
 	}
 
@@ -84,8 +83,7 @@ class slTableTest extends TestCase
 		$request = new Request();
 		$request->clear();
 
-		$s->setRequest($request);
-		$s->detectSortBy();
+		$s->detectSortBy($request->getArray('slTable'));
 		static::assertEquals([], $s->thes);
 		static::assertEquals(null, $s->sortBy);
 	}
@@ -98,9 +96,8 @@ class slTableTest extends TestCase
 		$request = new Request();
 		$request->clear();
 
-		$s->setRequest($request);
 		$s->sortable = true;    // required for detectSortBy()
-		$s->detectSortBy();
+		$s->detectSortBy($request->getArray('slTable'));
 		static::assertEquals([
 			'a' => [
 				'name' => 'a',
@@ -117,9 +114,8 @@ class slTableTest extends TestCase
 		$request = new Request();
 		$request->clear();
 
-		$s->setRequest($request);
 		$s->sortable = false;    // required for detectSortBy()
-		$s->detectSortBy();
+		$s->detectSortBy($request->getArray('slTable'));
 		static::assertEquals([], $s->thes);
 		static::assertEquals(null, $s->sortBy);
 	}

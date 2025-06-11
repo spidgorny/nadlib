@@ -370,7 +370,7 @@ class HTMLFormTable extends HTMLForm
 	public function showLabel(HTMLFormField $desc, $fieldName): string
 	{
 		//debug($desc->getArray());
-		$elementID = $desc->elementID;
+//		$elementID = $desc->elementID ?? md5(implode('_', $fieldName));
 		$withBR = (ifsetor($desc['br']) === null && $this->defaultBR) || $desc['br'];
 		if (!isset($desc['label'])) {
 			return '';
@@ -402,7 +402,7 @@ class HTMLFormTable extends HTMLForm
 		$content .= ifsetor($desc['beforeLabel']);
 		//debug($label);
 		assert(is_string($label) || $label instanceof HtmlString || $label instanceof HTMLTag);
-		$content .= '<label for="' . $elementID . '" class="' . ($desc['labelClass'] ?? '') . '">' . $label . '</label>';
+		$content .= '<label class="' . ($desc['labelClass'] ?? '') . '">' . $label . '</label>';
 		if (!$withBR) {
 			$content .= '</td><td>';
 		}
