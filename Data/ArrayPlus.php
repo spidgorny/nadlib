@@ -31,7 +31,7 @@
 class ArrayPlus extends ArrayObject implements HasGetter
 {
 
-	final public function __construct(array $array = [])
+	public function __construct(array $array = [])
 	{
 		parent::__construct($array);
 		$this->setData($array);

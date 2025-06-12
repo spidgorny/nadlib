@@ -199,11 +199,11 @@ class IndexBase /*extends Controller*/
 	 * That's not true anymore, called in render().
 	 * @throws Exception
 	 */
-	public function initController(): void
+	public function initController(): Controller
 	{
 		// already created
 		if ($this->controller instanceof Controller) {
-			return;
+			return $this->controller;
 		}
 
 		$slug = $this->request->getControllerString();
@@ -219,6 +219,7 @@ class IndexBase /*extends Controller*/
 		$this->loadController($slug);
 		$this->bodyClasses[] = is_object($this->controller) ? get_class($this->controller) : '';
 		TaylorProfiler::stop(__METHOD__);
+		return $this->controller;
 	}
 
 
