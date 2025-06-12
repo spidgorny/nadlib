@@ -9,7 +9,9 @@ namespace nadlib;
 interface IndexInterface
 {
 
-	public static function getInstance($createNew = false);
+	public static function getInstance();
+
+	public static function makeInstance();
 
 	public function render();
 

@@ -36,13 +36,13 @@ class Localize extends AppControllerBE
 	 */
 	public $allKeys = [];
 
-	protected \LocalLangDB $from;
+	protected LocalLangDB $from;
 
-	protected \LocalLangDB $en;
+	protected LocalLangDB $en;
 
-	protected \LocalLangDB $de;
+	protected LocalLangDB $de;
 
-	protected \LocalLangDB $ru;
+	protected LocalLangDB $ru;
 
 	public function __construct()
 	{
@@ -381,6 +381,9 @@ class Localize extends AppControllerBE
 		$this->request->redirect($url);
 	}
 
+	/**
+	 * @throws JsonException
+	 */
 	public function downloadJSONAction(): void
 	{
 		$keys = $this->getAllKeys();
@@ -394,8 +397,8 @@ class Localize extends AppControllerBE
 			$row['ru'] = strip_tags($row['ru']);
 		}
 
-		$this->request->forceDownload('application/json', $this->index->appName . '-Localization.json');
-		echo json_encode($transTab, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+		$this->request->forceDownload('application/json', 'Localization.json');
+		echo json_encode($transTab, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 		exit();
 	}
 

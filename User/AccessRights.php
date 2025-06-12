@@ -86,7 +86,7 @@ class AccessRights extends OODBase implements AccessRightsInterface
 		return $this->query;
 	}
 
-	public function render(): \UL
+	public function render(): UL
 	{
 		return new UL($this->arCache);
 	}
@@ -105,7 +105,7 @@ class AccessRights extends OODBase implements AccessRightsInterface
 
 	/**
 	 * @param array $wherePlus
-	 * @return AccessRightModel[]|ArrayPlus
+	 * @return ArrayPlus
 	 * @throws Exception
 	 */
 	public function getAllRights($wherePlus = [], $className = null)
