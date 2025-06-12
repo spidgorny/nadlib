@@ -241,48 +241,16 @@ class IndexBase /*extends Controller*/
 	 * Usually autoload is taking care of the loading, but sometimes you want to check the path.
 	 * Will call postInit() of the controller if available.
 	 * @param string $class
+	 * @return object<Controller>
 	 * @throws Exception
 	 */
-	protected function loadController($class)
+	protected function loadController($class): object
 	{
-		$slugParts = explode('/', $class);
-		$class = end($slugParts);    // again, because __autoload needs the full path
-//		llog(__METHOD__, $slugParts, $class, class_exists($class));
-		if (class_exists($class)) {
-			$this->controller = $this->makeController($class);
-			return $this->controller;
-		}
-
-		//debug($_SESSION['autoloadCache']);
-		$exception = 'Class ' . $class . ' not found. Dev hint: try clearing autoload cache?';
-		unset($_SESSION['AutoLoad']);
-		throw new Exception404($exception);
-	}
-
-	/**
-	 * @param string $class
-	 * @return Controller
-	 * @throws ReflectionException
-	 */
-	public function makeController($class)
-	{
-//		llog('makeController', $class);
-		if (method_exists($this->config, 'getDI')) {
-			$di = $this->config->getDI();
-			$this->controller = $di->get($class);
-		} else {
-			// v2
-			$ms = new MarshalParams($this->config);
-			$this->controller = $ms->make($class);
-		}
-
-//			$this->controller = new $class();
-//		llog($class, get_class($this->controller));
-		if (method_exists($this->controller, 'postInit')) {
-			$this->controller->postInit();
-		}
-
-		return $this->controller;
+		$cr = new ControllerRouter($class);
+		$controllerName = $cr->getControllerName();
+		$controllerInstance = $cr->makeControllerInstance($controllerName, $this->config);
+		$this->controller = $controllerInstance;
+		return $controllerInstance;
 	}
 
 	public function render(): array
