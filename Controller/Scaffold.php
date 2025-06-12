@@ -64,9 +64,9 @@ abstract class Scaffold extends AppControllerBE
 
 	/**
 	 * extra attributes for the form like onSubmit
-	 * @var string
+	 * @var array<string, string>
 	 */
-	protected $formMore = '';
+	protected $formMore = [];
 
 	/**
 	 * edited element

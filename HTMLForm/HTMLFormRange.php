@@ -19,13 +19,13 @@ class HTMLFormRange extends HTMLFormType
 	public $jsFile;
 
 	/**
-	 * @param string $field
+	 * @param string|string[] $field
 	 * @param int $value
 	 */
 	public function __construct($field, $value = 0)
 	{
 //		parent::__construct();
-		$this->field = $field;
+		$this->field = is_array($field) ? $field : [];
 		$this->setValue($value);
 		$this->al = AutoLoad::getInstance();
 	}

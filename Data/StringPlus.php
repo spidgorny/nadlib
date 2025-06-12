@@ -48,7 +48,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 
 	/**
 	 * String's encoding.
-	 * @var string uppercase
+	 * @var ?string uppercase
 	 */
 	private $_encoding;
 
@@ -277,7 +277,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 */
 	public static function make($str = '', $encoding = null): self
 	{
-		return new self($str, $encoding);
+		return new static($str, $encoding);
 	}
 
 	/**
@@ -390,7 +390,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 			} elseif (function_exists('utf8_compliant') && utf8_compliant($this->_string)) {
 				$this->_encoding = 'UTF-8';
 			} else {
-				$this->_encoding = false;
+				$this->_encoding = null;
 			}
 		}
 
@@ -1144,7 +1144,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 */
 	public function concat(string $string): static
 	{
-		return new self($this->_string . $string);
+		return new static($this->_string . $string);
 	}
 
 	/**
@@ -1233,13 +1233,44 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	/**
 	 * Same as {@link substringBetween}, but returns array with all matches.
 	 * If no match is found, returns null.
-	 * @param String $substr1
-	 * @param String $substr2
+	 * @param string $substr1
+	 * @param string $substr2
 	 * @return array
 	 */
 	public function substringsBetween($substr1, $substr2 = null)
 	{
-		return null;
+		if ($substr1 === null && $substr2 === null) {
+			return [];
+		}
+
+		if ($substr1 === null) {
+			$substr1 = $substr2;
+		} elseif ($substr2 === null) {
+			$substr2 = $substr1;
+		}
+
+		$result = [];
+		$string = $this->_string;
+		$offset = 0;
+
+		while (true) {
+			$posLeft = strpos($string, $substr1, $offset);
+			if ($posLeft === false) {
+				break;
+			}
+
+			$posLeft += strlen($substr1);
+
+			$posRight = strpos($string, $substr2, $posLeft);
+			if ($posRight === false) {
+				break;
+			}
+
+			$result[] = substr($string, $posLeft, $posRight - $posLeft);
+			$offset = $posRight + strlen($substr2);
+		}
+
+		return $result;
 	}
 
 	/**

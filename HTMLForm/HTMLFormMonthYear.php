@@ -50,6 +50,9 @@ class HTMLFormMonthYear extends HTMLFormType
 		return $content;
 	}
 
+	/**
+	 * @param array{year: int, month: int} $value
+	 */
 	public function setValue($value): void
 	{
 		$this->selMonth = $value['month'];

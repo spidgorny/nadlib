@@ -8,7 +8,7 @@ class ModelWithCollection extends Model
 {
 
 	/** @var class-string<Model> */
-	public static $itemClassName = '?';
+	public static $itemClassName;
 
 	/**
 	 * @return Collection

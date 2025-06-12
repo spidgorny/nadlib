@@ -15,7 +15,7 @@ class Collection implements IteratorAggregate, ToStringable
 	/**
 	 * objectify() without parameters will try this class name
 	 * Default is NULL in order to check whether it's set or not.
-	 * @var class-string<OODBase>
+	 * @var class-string<OODBase|Model>
 	 */
 	public static $itemClassName;
 
@@ -489,7 +489,7 @@ class Collection implements IteratorAggregate, ToStringable
 		return $c;
 	}
 
-	public static function hydrate($source)
+	public static function hydrate($source, DBInterface $db)
 	{
 		$class = $source->class;
 		/** @var Collection $object */
@@ -498,9 +498,7 @@ class Collection implements IteratorAggregate, ToStringable
 
 		$memberClass = self::$itemClassName;
 		foreach ($source->members as $id => $m) {
-			$child = new $memberClass();
-			$child->id = $id;
-			$child->data = (array)$m->data;
+			$child = new $memberClass($db, $m->data);
 			$object->members[$id] = $child;
 		}
 

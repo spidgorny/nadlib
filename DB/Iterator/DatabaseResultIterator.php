@@ -31,7 +31,7 @@ class DatabaseResultIterator implements Iterator, Countable
 
 	/**
 	 * Must be false to indicate no results
-	 * @var array
+	 * @var array|false
 	 */
 	public $row = false;
 	/**
@@ -50,10 +50,10 @@ class DatabaseResultIterator implements Iterator, Countable
 	protected \DBInterface $db;
 
 	/**
-     * DatabaseResultIterator constructor.
-     * @param string $defaultKey = 'id', or 'uid'
-     */
-    public function __construct(DBInterface $db, $defaultKey = null)
+	 * DatabaseResultIterator constructor.
+	 * @param string $defaultKey = 'id', or 'uid'
+	 */
+	public function __construct(DBInterface $db, $defaultKey = null)
 	{
 		$this->db = $db;
 		$this->defaultKey = $defaultKey;
@@ -104,7 +104,7 @@ class DatabaseResultIterator implements Iterator, Countable
 		return $numRows;
 	}
 
-	public function rewind():void
+	public function rewind(): void
 	{
 		$this->log(__METHOD__);
 		if ($this->count() !== 0) {
@@ -154,9 +154,9 @@ class DatabaseResultIterator implements Iterator, Countable
 	}
 
 	/**
-     * Should not be used - against the purpose, but nice for debugging
-     */
-    public function fetchAll(): array
+	 * Should not be used - against the purpose, but nice for debugging
+	 */
+	public function fetchAll(): array
 	{
 		$this->log(__METHOD__);
 		$data = [];

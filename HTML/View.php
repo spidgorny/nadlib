@@ -84,7 +84,7 @@ class View extends stdClass implements ToStringable
 		if (is_object($copyObject)) {
 			$this->caller = $copyObject;
 		} elseif (is_array($copyObject)) {
-			$this->caller = (object)$copyObject;
+			$this->caller = ArrayPlus::from($copyObject);
 		}
 
 		$this->ll = (class_exists('Config') && Config::getInstance()->getLL())
@@ -281,7 +281,12 @@ class View extends stdClass implements ToStringable
 	public function __set($var, $val)
 	{
 		if (!$this->caller) {
-			$this->caller = new stdClass();
+			$this->caller = new class implements HasGetter {
+				public function get($name, ...$args): mixed
+				{
+					return null;
+				}
+			};
 		}
 
 		$this->caller->$var = &$val;

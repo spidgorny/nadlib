@@ -26,7 +26,7 @@ class DBLayerSQLite extends DBLayerBase
 	public $lastQuery;
 
 	/**
-	 * @var SQLiteResult
+	 * @var SQLite3Result|false
 	 */
 	public $lastResult;
 
@@ -44,16 +44,16 @@ class DBLayerSQLite extends DBLayerBase
 		$this->dbName = basename($this->file);
 	}
 
-	public function affectedRows($res = null): void
+	public function affectedRows($res = null): ?int
 	{
-		$this->lastResult->numRows($res);
+		return null;
 	}
 
 	/**
-     * @param SQLiteResult $res
-     * @throws Exception
-     */
-    public function numRows($res = null): int
+	 * @param SQLiteResult $res
+	 * @throws Exception
+	 */
+	public function numRows($res = null): int
 	{
 		$numRows = 0;
 		if ($res instanceof SQLite3Result) {
@@ -105,11 +105,11 @@ class DBLayerSQLite extends DBLayerBase
 	}
 
 	/**
-     * @param string $query
-     * @return null|SQLite3Result|SQLiteResult
-     * @throws DatabaseException
-     */
-    public function perform($query, array $params = [])
+	 * @param string $query
+	 * @return null|SQLite3Result|SQLiteResult
+	 * @throws DatabaseException
+	 */
+	public function perform($query, array $params = [])
 	{
 		if (!$this->connection) {
 //			debug_pre_print_backtrace();
@@ -157,10 +157,10 @@ class DBLayerSQLite extends DBLayerBase
 	}
 
 	/**
-     * @param SQLite3Result|string $res_or_query
-     * @throws Exception
-     */
-    public function fetchAll($res_or_query, $index_by_key = null): array
+	 * @param SQLite3Result|string $res_or_query
+	 * @throws Exception
+	 */
+	public function fetchAll($res_or_query, $index_by_key = null): array
 	{
 		if (is_string($res_or_query)) {
 			$res = $this->perform($res_or_query);
@@ -223,7 +223,7 @@ class DBLayerSQLite extends DBLayerBase
 
 	public function escapeBool($value): int
 	{
-		return intval((bool) $value);
+		return intval((bool)$value);
 	}
 
 	/**

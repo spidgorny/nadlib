@@ -9,7 +9,7 @@ class PGArray extends AsIs
 	public $data;
 
 	/**
-	 * @var DBLayer
+	 * @var DBInterface
 	 */
 	protected $db;
 
@@ -44,7 +44,6 @@ class PGArray extends AsIs
 	{
 		$props = get_object_vars($this);
 		unset($props['db']);
-		$props = array_keys($props);
 		return array_keys($props);
 	}
 

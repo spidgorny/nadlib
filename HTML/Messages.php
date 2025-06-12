@@ -11,11 +11,7 @@ class Messages extends MergedContent
 	{
 		$text = \MergedContent::mergeStringArrayRecursive($text);
 		$msg = '<div class="message alert alert-info ui-state-message alert alert-notice padding">' . $text . '</div>';
-		if (is_array($this->content)) {
-			$this->content[] = $msg;
-		} else {
-			$this->content .= $msg;
-		}
+		$this->content[] = $msg;
 
 		return $msg;
 	}
@@ -24,11 +20,7 @@ class Messages extends MergedContent
 	{
 		$text = \MergedContent::mergeStringArrayRecursive($text);
 		$msg = '<div class="error error_top ui-state-error alert alert-error alert-danger padding">' . $text . '</div>';
-		if (is_array($this->content)) {
-			$this->content[] = $msg;
-		} else {
-			$this->content .= $msg;
-		}
+		$this->content[] = $msg;
 
 //		debug($this->content);
 		return $msg;
@@ -38,11 +30,7 @@ class Messages extends MergedContent
 	{
 		$text = \MergedContent::mergeStringArrayRecursive($text);
 		$msg = '<div class="alert alert-success padding">' . $text . '</div>';
-		if (is_array($this->content)) {
-			$this->content[] = $msg;
-		} else {
-			$this->content .= $msg;
-		}
+		$this->content[] = $msg;
 
 		return $msg;
 	}
@@ -51,11 +39,7 @@ class Messages extends MergedContent
 	{
 		$text = \MergedContent::mergeStringArrayRecursive($text);
 		$msg = '<div class="alert alert-info padding">' . $text . '</div>';
-		if (is_array($this->content)) {
-			$this->content[] = $msg;
-		} else {
-			$this->content .= $msg;
-		}
+		$this->content[] = $msg;
 
 		return $msg;
 	}

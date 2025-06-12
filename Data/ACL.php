@@ -15,7 +15,7 @@ class ACL
 {
 
 	/**
-	 * @var bool
+	 * @var bool[]
 	 */
 	public $andConditions = [];
 
@@ -66,12 +66,12 @@ class ACL
 		if (ifsetor($_REQUEST['acl'])) {
 			$this->debug();
 		}
-        
+
 		$and = true;
 		foreach ($this->andConditions as $cond) {
 			$and = $and && $cond;
 		}
-        
+
 		return $and;
 	}
 
@@ -84,7 +84,7 @@ class ACL
 				'value' => $this->andConditions[$i],
 			];
 		}
-        
+
 		echo '<div style="background: #EEEEEE; border: solid 1px silver;">',
 		'<div style="background: silver;">', basename($this->callStack['file']),
 			'#' . $this->callStack['line'],

@@ -31,34 +31,34 @@ abstract class HTMLFormType implements HTMLFormFieldInterface
 	public $value;
 
 	/**
-	 * @var array
+	 * @var HTMLFormField|array
 	 */
 	public $desc;
 
 	/**
-     * Feel free to create any constructor you like
-     * HTMLFormType constructor.
-     */
-    //	function __construct() {
-    //	}
-    /**
-     * @param $fieldName
-     */
-    public function setField($fieldName): void
+	 * Feel free to create any constructor you like
+	 * HTMLFormType constructor.
+	 */
+	//	function __construct() {
+	//	}
+	/**
+	 * @param $fieldName
+	 */
+	public function setField($fieldName): void
 	{
 		$this->field = $fieldName;
 	}
 
-	public function setForm(HTMLForm $f): void
+	public function setForm(HTMLForm $form): void
 	{
-		$this->form = $f;
+		$this->form = $form;
 		$this->fullName = $this->form->getName($this->field, '', true);
 	}
 
 	/**
-     * @param string $value
-     */
-    public function setValue($value): void
+	 * @param string|int|array $value
+	 */
+	public function setValue($value): void
 	{
 		$this->value = $value;
 	}
@@ -78,9 +78,9 @@ abstract class HTMLFormType implements HTMLFormFieldInterface
 	}
 
 	/**
-     * Return error message
-     */
-    public function validate()
+	 * Return error message
+	 */
+	public function validate()
 	{
 		return null;
 	}

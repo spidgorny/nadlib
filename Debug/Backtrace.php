@@ -13,8 +13,7 @@ class Backtrace
 
 	public function __construct()
 	{
-		$this->backtrace = debug_backtrace();
-		foreach ($this->backtrace as &$trace) {
+		foreach (debug_backtrace() as &$trace) {
 			$trace = new Trace($trace);
 		}
 	}

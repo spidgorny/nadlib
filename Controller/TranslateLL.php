@@ -58,13 +58,13 @@ class TranslateLL extends HTMLFormProcessor
 		];
 	}
 
-	public function render(): string
+	public function render()
 	{
 		$content = parent::render();
-		return $content . ('<iframe
+		return [$content, '<iframe
 			src="http://dict.leo.org/ende?search=' . urlencode($this->request->getTrim('code')) . '"
 			width="100%"
-			height="500"></iframe>');
+			height="500"></iframe>'];
 	}
 
 	public function onSuccess(array $data): string

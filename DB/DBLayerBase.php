@@ -28,7 +28,7 @@ abstract class DBLayerBase implements DBInterface
 	public $AFFECTED_ROWS;
 
 	/**
-	 * @var resource
+	 * @var mixed
 	 */
 	public $connection;
 
@@ -43,7 +43,7 @@ abstract class DBLayerBase implements DBInterface
 	public $queryCount = 0;
 
 	/**
-	 * @var int Time in seconds
+	 * @var float Time in seconds
 	 */
 	public $queryTime = 0;
 
@@ -61,7 +61,7 @@ abstract class DBLayerBase implements DBInterface
 
 	/**
 	 * set to NULL for disabling
-	 * @var QueryLog
+	 * @var QueryLog|null
 	 */
 	protected $queryLog;
 
@@ -238,12 +238,12 @@ abstract class DBLayerBase implements DBInterface
 
 	public function isPostgres()
 	{
-		return $this->getScheme() == 'psql';
+		return $this->getScheme() === 'psql';
 	}
 
 	public function isSQLite()
 	{
-		return $this->getScheme() == 'sqlite';
+		return $this->getScheme() === 'sqlite';
 	}
 
 	public function clearQueryLog(): void
@@ -285,7 +285,7 @@ abstract class DBLayerBase implements DBInterface
 	public function getDSN()
 	{
 //		return $this->dsn();
-		return null;
+		return '';
 	}
 
 	/**

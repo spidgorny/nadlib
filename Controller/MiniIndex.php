@@ -6,7 +6,7 @@ class MiniIndex extends AppControllerBE
 	/**
 	 * @var MiniIndex
 	 */
-	protected static $instance;
+	protected static $miniIndex;
 
 	/**
 	 * @var Menu
@@ -14,7 +14,7 @@ class MiniIndex extends AppControllerBE
 	public $menu;
 
 	/**
-	 * @var AppControllerBE
+	 * @var AppControllerBE|SimpleController
 	 */
 	public $controller;
 
@@ -45,13 +45,13 @@ class MiniIndex extends AppControllerBE
 	public static function getInstance($createAllowed = true)
 	{
 		$self = get_called_class();
-		if (!self::$instance && $createAllowed) {
-            self::$instance = new $self();
-            /** @var self::$instance MiniIndex */
-            self::$instance->init();
-        }
+		if (!self::$miniIndex && $createAllowed) {
+			self::$miniIndex = new $self();
+			/** @var self::$miniIndex MiniIndex */
+			self::$miniIndex->init();
+		}
 
-		return self::$instance;
+		return self::$miniIndex;
 	}
 
 	public function init(): void
@@ -66,7 +66,7 @@ class MiniIndex extends AppControllerBE
 
 	public function render()
 	{
-		if ($this->controller->layout === 'none' || $this->request->isAjax()) {
+		if ((property_exists($this->controller, 'layout') && $this->controller->layout === 'none') || $this->request->isAjax()) {
 			$content = $this->renderController();
 		} else {
 			$v = new View('template.phtml', $this);
@@ -90,8 +90,11 @@ class MiniIndex extends AppControllerBE
 				$content = $this->error($e->getMessage());
 			}
 
-			if (!$this->request->isAjax() && $this->controller->layout instanceof Wrap) {
-				$content = $this->controller->layout->wrap($content);
+			if (!$this->request->isAjax()) {
+				if ($this->controller instanceof Controller &&
+					property_exists($this->controller, 'layout') && $this->controller->layout instanceof Wrap) {
+					$content = $this->controller->layout->wrap($content);
+				}
 			}
 		}
 
@@ -109,7 +112,7 @@ class MiniIndex extends AppControllerBE
 			return $this->controller->sidebar();
 		}
 
-        return null;
+		return null;
 	}
 
 	public function message($text): string
@@ -137,7 +140,7 @@ class MiniIndex extends AppControllerBE
 		$this->header[$source] = '<link rel="stylesheet" type="text/css" href="' . $source . '" />';
 	}
 
-public function addJS(string $source): void
+	public function addJS(string $source): void
 	{
 		$this->footer[$source] = '<script src="' . $source . '"></script>';
 	}

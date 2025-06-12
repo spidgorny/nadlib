@@ -11,9 +11,9 @@ class Ticker
 {
 
 	/**
-     * @var static
-     */
-    public static Ticker $instance;
+	 * @var static
+	 */
+	public static Ticker $instance;
 
 	/**
 	 * @var string "html"
@@ -29,7 +29,7 @@ class Ticker
 	public $tickTime = 1000;
 
 	/**
-	 * @var int
+	 * @var float
 	 */
 	public $prevMemory = 0;
 
@@ -73,7 +73,7 @@ class Ticker
 			define('TAB', "\t");
 		}
 
-		$this->prevMemory = TaylorProfiler::getMemUsage();
+		$this->prevMemory = (float)TaylorProfiler::getMemUsage();
 	}
 
 	public function isCLI(): bool
@@ -175,7 +175,7 @@ class Ticker
 			]) . '</pre>';
 
 		$this->render($output, $time);
-		$this->prevMemory = $mem;
+		$this->prevMemory = (float)$mem;
 		if (count($list) > 100) {
 			pre_print_r($list);
 			throw new \RuntimeException('Infinite loop detected');

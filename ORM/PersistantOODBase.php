@@ -45,7 +45,7 @@ class PersistantOODBase extends OODBase
 		parent::init($id);
 	}
 
-	public function __get($property)
+	public function __get($property): mixed
 	{
 		if (isset($this->data[$property])) {
 			return $this->data[$property];
@@ -54,7 +54,7 @@ class PersistantOODBase extends OODBase
 		return null;
 	}
 
-	public function __set($property, $value)
+	public function __set($property, $value): void
 	{
 		$this->data[$property] = $value;
 	}

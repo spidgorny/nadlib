@@ -14,9 +14,9 @@ class MergedContent implements ArrayAccess
 {
 
 	/**
-     * @var mixed[]
-     */
-    public $content = [];
+	 * @var mixed[]
+	 */
+	public $content = [];
 
 	protected $combined = [];
 
@@ -26,9 +26,9 @@ class MergedContent implements ArrayAccess
 	}
 
 	/**
-     * @param string|string[]|mixed $render
-     */
-    public static function mergeStringArrayRecursive($render): string
+	 * @param string|string[]|mixed $render
+	 */
+	public static function mergeStringArrayRecursive($render): string
 	{
 		if ($render === []) {
 			return '';

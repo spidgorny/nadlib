@@ -178,7 +178,7 @@ class DBLayer extends DBLayerBase
 			}
 		}
 
-		$this->queryTime = $prof->elapsed();
+		$this->queryTime = (float)$prof->elapsed();
 		if ($this->logToLog) {
 			llog($query . '' . ' => ' . $this->lastResult);
 		}

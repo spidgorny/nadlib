@@ -81,19 +81,18 @@ class WordReader
 					//$wide = mb_convert_encoding($wide, 'UTF-8', 'UTF-16');
 					$parts = explode(chr(1), $wide);
 					//$content .= debug($parts, true);
-					$this->collapseRows = mb_convert_encoding($parts[2], 'UTF-8', 'UTF-16');
-					$this->collapseRows = intval($this->collapseRows);
+					$this->collapseRows = (int)mb_convert_encoding($parts[2], 'UTF-8', 'UTF-16');
 					//$content .= 'cr: '.$this->collapseRows;
 					break;
 				case 'instrText':
 					if (trim($s) === 'FORMCHECKBOX') {
-                        $content .= '<input
+						$content .= '<input
 							type="hidden"
 							name="' . $this->inputNameWrap->wrap($this->label) . '"
 							value="0">';
-                    }
+					}
 
-                    // delayed label
+					// delayed label
 					if ($this->label) {
 						$content .= '<label name="' . $this->inputNameWrap->wrap($this->label) . '">';
 						$this->wasLabel = true;

@@ -12,9 +12,7 @@ class Menu /*extends Controller*/
 	 * Public for access rights. Will convert to ArrayPlus automatically
 	 * @var ArrayPlus
 	 */
-	public $items = [
-		'default' => 'Default Menu Item',
-	];
+	public $items;
 
 	/**
 	 * Set to not NULL to see only specific level

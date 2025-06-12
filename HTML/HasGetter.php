@@ -3,6 +3,6 @@
 interface HasGetter
 {
 
-	public function get(string $name): mixed;
+	public function get(string $name, ...$args): mixed;
 
 }

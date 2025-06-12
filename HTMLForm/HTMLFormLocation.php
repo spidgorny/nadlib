@@ -11,21 +11,21 @@ class HTMLFormLocation extends HTMLFormType
 	public $size;
 
 	/**
-	 * @param string $field
+	 * @param string|string[] $field
 	 * @param string $value
 	 */
 	public function __construct($field, $value = '')
 	{
 //		parent::__construct();
-		$this->field = $field;
+		$this->field = is_array($field) ? $field : [$field];
 		$this->setValue($value);
 		$this->al = AutoLoad::getInstance();
 	}
 
 	/**
-     * @param int $value
-     */
-    public function setValue($value): void
+	 * @param int $value
+	 */
+	public function setValue($value): void
 	{
 		$this->value = $value;
 	}

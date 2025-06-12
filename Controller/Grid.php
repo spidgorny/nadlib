@@ -245,7 +245,7 @@ trait Grid
 			$f = new HTMLFormTable((array)$this->filter);
 			$f->method('GET');
 			$f->defaultBR = true;
-			$this->filter = $f->fill($this->request->getAll());
+			$this->filter = new Filter($f->fill($this->request->getAll()));
 			$f->showForm();
 			$f->stdout .= $f->submit('Filter', ['class' => 'btn btn-primary']);
 			$content[] = $f->getContent();
@@ -302,7 +302,7 @@ trait Grid
 		}
 
 		if (!$this->columns && ifsetor($this->model->thes)) {
-			$this->columns = array_keys($this->model->thes);
+			$this->columns = new VisibleColumns(array_keys($this->model->thes));
 //			llog(__METHOD__, 'Columns set from model');
 		}
 

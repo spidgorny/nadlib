@@ -197,16 +197,16 @@ trait CachedGetInstance
 	 * @param string $name
 	 * @param string $field
 	 * @param DBInterface $db
-	 * @return ?static
+	 * @return static|OODBase|null
 	 */
-	public static function getInstanceByName($name, $field, DBInterface $db): ?static
+	public static function getInstanceByName($name, $field, DBInterface $db): static|OODBase|null
 	{
 		$self = static::class;
 		//debug(__METHOD__, $self, $name, count(self::$instances[$self]));
 
 		// first search instances
 		$c = static::findInstanceByName($name, $field);
-		if ($c instanceof \OODBase) {
+		if ($c instanceof \OODBase || is_subclass_of($c, OODBase::class)) {
 			return $c;
 		}
 

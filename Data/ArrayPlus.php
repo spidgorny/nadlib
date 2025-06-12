@@ -28,7 +28,7 @@
  * 3. Don't set $this->data = $new, use $this->setData($new)
  */
 
-class ArrayPlus extends ArrayObject implements Countable
+class ArrayPlus extends ArrayObject implements HasGetter
 {
 
 	public function __construct(array $array = [])
@@ -84,7 +84,7 @@ class ArrayPlus extends ArrayObject implements Countable
 		return false;
 	}
 
-	public function column_coalesce($col1, $col2): int
+	public function column_coalesce($col1, $col2): array
 	{
 		$return = [];
 		foreach ((array)$this as $key => $row) {
@@ -414,7 +414,7 @@ class ArrayPlus extends ArrayObject implements Countable
 	 * Filter rows where $key = $value
 	 * @param string $key
 	 * @param mixed $value
-	 * @return $this
+	 * @return static
 	 */
 	public function where($key, $value): self
 	{
@@ -426,7 +426,7 @@ class ArrayPlus extends ArrayObject implements Countable
 		}
 
 		// no setData() here
-		return new self($copy);
+		return new static($copy);
 	}
 
 	/**
@@ -822,7 +822,7 @@ class ArrayPlus extends ArrayObject implements Countable
 		return $this;
 	}
 
-	public function get($i, $subkey = null)
+	public function get($i, $subkey = null, ...$rest): mixed
 	{
 		$element = $this->offsetGet($i);
 		if ($subkey) {

@@ -35,7 +35,7 @@ class HtmlString implements ToStringable
 
 	public function replace($one, $two): static
 	{
-		return new self(str_replace($one, $two, $this->value));
+		return new static(str_replace($one, $two, $this->value));
 	}
 
 	public function cli(): string

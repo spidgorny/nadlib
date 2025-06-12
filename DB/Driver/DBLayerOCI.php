@@ -1,6 +1,12 @@
 <?php
 
-class DBLayerOCI extends DBLayer
+/**
+ * @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+ * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+ * @method  runInsertUpdateQuery($table, array $fields, array $where, array $insert = [])
+ * @method  runDeleteQuery($table, array $where)
+ */
+class DBLayerOCI extends DBLayerBase
 {
 	public $connection;
 
@@ -18,7 +24,7 @@ class DBLayerOCI extends DBLayer
 
 	public function __construct($tns, $user, $pass)
 	{
-		parent::__construct($tns, $user, $pass);
+		$this->connect($tns, $user, $pass);
 		//debug('<div class="error">OCI CONNECT</div>');
 	}
 
@@ -42,7 +48,7 @@ class DBLayerOCI extends DBLayer
 			return null;
 		}
 
-		return $this->connection;
+		return (bool)$this->connection;
 	}
 
 	public function getConnection()
@@ -195,9 +201,9 @@ class DBLayerOCI extends DBLayer
 	}
 
 	/**
-     * @return mixed[]
-     */
-    public function fetchAll($result, $key = null): array
+	 * @return mixed[]
+	 */
+	public function fetchAll($result, $key = null): array
 	{
 		$ret = [];
 		while (($row = $this->fetchAssoc($result)) !== false) {
@@ -242,4 +248,21 @@ class DBLayerOCI extends DBLayer
 		return [];
 	}
 
+	public function getVersion()
+	{
+		// TODO: Implement getVersion() method.
+	}
+
+	public function getPlaceholder($field)
+	{
+		// TODO: Implement getPlaceholder() method.
+	}
+
+	public function __call(string $name, array $arguments)
+	{
+		// TODO: Implement @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+		// TODO: Implement @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
+		// TODO: Implement @method  runInsertUpdateQuery($table, array $fields, array $where, array $insert = [])
+		// TODO: Implement @method  runDeleteQuery($table, array $where)
+	}
 }
