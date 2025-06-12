@@ -241,7 +241,7 @@ class IndexBase /*extends Controller*/
 	 * Usually autoload is taking care of the loading, but sometimes you want to check the path.
 	 * Will call postInit() of the controller if available.
 	 * @param string $class
-	 * @return object<Controller>
+	 * @return object
 	 * @throws Exception
 	 */
 	protected function loadController($class): object
