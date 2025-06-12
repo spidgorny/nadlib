@@ -839,34 +839,7 @@ document.observe("dom:loaded", () => {
 
 		print("</select>");
 	}
-
-	public function recaptcha(array $desc = [])
-	{
-		$hfr = new HTMLFormRecaptcha();
-		$r = Request::getInstance();
-		$content = $r->isAjax() ? $hfr->getFormAjax($desc) : $hfr->getForm($desc);
-
-		$this->stdout .= $content;
-
-		return $content;
-	}
-
-	/**
-	 * Make sure to implement in form onSubmit() something like
-	 * $(\'input[name="recaptcha_challenge_field"]\').val(Recaptcha.get_challenge());
-	 * $(\'input[name="recaptcha_response_field"]\').val(Recaptcha.get_response());
-	 *
-	 *
-	 */
-	public function recaptchaAjax(array $desc): string
-	{
-		$hfr = new HTMLFormRecaptcha();
-		$content = $hfr->getFormAjax($desc);
-		$this->stdout .= $content;
-
-		return $content;
-	}
-
+	
 	public function flipSwitch(string $name, string $value, $checked, string $more = ''): void
 	{
 		$id = uniqid('flipSwitch_', true);

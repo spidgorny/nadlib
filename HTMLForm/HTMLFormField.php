@@ -74,7 +74,7 @@ class HTMLFormField extends HTMLFormType
 		return is_string($type) ? $type : get_class($type);
 	}
 
-	public function render(): string|array|\ToStringable
+	public function render(): string|array|ToStringable
 	{
 		$fieldName = $this->fieldName;
 		$desc = $this;
@@ -122,7 +122,7 @@ class HTMLFormField extends HTMLFormType
 			$content[] = $this->switchTypeRaw($type, $fieldValue, $fieldName);
 		}
 
-		$this->content = \MergedContent::mergeStringArrayRecursive($content);
+		$this->content = MergedContent::mergeStringArrayRecursive($content);
 		return $this->content;
 	}
 
@@ -246,15 +246,6 @@ class HTMLFormField extends HTMLFormType
 
 			case 'captcha':
 				return $this->form->captcha($fieldName, $fieldValue, $desc->getArray());
-			case 'recaptcha':
-				return $this->form->recaptcha($desc->getArray() + [
-						'name' => $this->form->getName($fieldName, '', true)
-					]);
-			case 'recaptchaAjax':
-				return $this->form->recaptchaAjax(
-					$desc->getArray() + [
-						'name' => $this->form->getName($fieldName, '', true)
-					]);
 			case 'datatable':
 				return $this->form->datatable($fieldName, $fieldValue, $desc, false, $doDiv = true, 'htmlftable');
 			case 'ajaxSingleChoice':

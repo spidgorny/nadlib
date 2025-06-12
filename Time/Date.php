@@ -8,7 +8,7 @@ class Date extends Time
 
 	public $format = 'd.m.Y';
 
-	final public function __construct($input = null, $relativeTo = null)
+	public function __construct($input = null, $relativeTo = null)
 	{
 		parent::__construct($input, $relativeTo);
 		//$this->modify('Y-m-d \G\M\T'); // very slow!
@@ -45,7 +45,7 @@ class Date extends Time
 		return new self($parts);
 	}
 
-	public static function fromHuman($str): \Date
+	public static function fromHuman($str): Date
 	{
 		return new Date(strtotime($str));
 	}
@@ -85,7 +85,7 @@ class Date extends Time
 	/**
 	 * @param string $format d.m.Y
 	 */
-	public function html($format = 'd.m.Y'): \HtmlString
+	public function html($format = 'd.m.Y'): HtmlString
 	{
 		return new HtmlString('<time datetime="' . $this->getISO() . '">' . $this->format($format) . '</time>');
 	}
@@ -142,7 +142,7 @@ class Date extends Time
 		return date('D', $this->time);
 	}
 
-	public function getApproximate(): \HtmlString
+	public function getApproximate(): HtmlString
 	{
 		return $this->getHTMLDate();
 	}

@@ -87,23 +87,11 @@ class Lesser extends AppControllerBE
 					exit();
 				}
 
-				$less = new lessc();
-				if (is_writable($this->output)) {
-					if ($this->request->isCtrlRefresh()) {
-						$less->compileFile($cssFile, $this->output);
-					} else {
-						$less->checkedCompile($cssFile, $this->output);
-					}
-
-					if (file_exists($this->output)) {
-						header('Content-type: text/css');
-						readfile($this->output);
-					} else {
-						echo 'error {}';
-					}
+				if (file_exists($this->output)) {
+					header('Content-type: text/css');
+					readfile($this->output);
 				} else {
-					@header('Content-type: text/css');
-					echo $less->compileFile($cssFile);
+					echo 'error {}';
 				}
 			} else {
 				@header('Content-type: text/css');

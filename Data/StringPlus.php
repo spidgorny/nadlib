@@ -67,7 +67,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * @param string $string literal string
 	 * @param string $encoding string encoding (default null, auto-detection)
 	 */
-	public function __construct($string = '', $encoding = null)
+	final public function __construct($string = '', $encoding = null)
 	{
 		$this->_string = (string)$string;
 		if ($encoding !== null) {
@@ -254,7 +254,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * @param int $int
 	 * @return StringPlus|string|array|false
 	 */
-	public static function mb_chr($int): \StringPlus|string|array|false
+	public static function mb_chr($int): StringPlus|string|array|false
 	{
 		if ($int <= 127) {
 			$json = chr($int);
@@ -505,7 +505,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * @param int $index character index, counting from zero.
 	 * @return StringPlus
 	 */
-	public function charAt($index): \StringPlus
+	public function charAt($index): StringPlus
 	{
 		return $this->substring($index, 1);
 	}
@@ -588,7 +588,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 		return strncasecmp($this->_string, (string)$string, (int)$characters);
 	}
 
-	public function insert($offset, string $string): \StringPlus
+	public function insert($offset, string $string): StringPlus
 	{
 		return $this->splice($offset, 0, $string);
 	}
@@ -812,7 +812,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * @param int $length number of characters.
 	 * @return StringPlus
 	 */
-	public function left($length): \StringPlus
+	public function left($length): StringPlus
 	{
 		return $this->substring(0, $length);
 	}
@@ -942,7 +942,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 		return new self($string);
 	}
 
-	public function removeSpaces(): \StringPlus
+	public function removeSpaces(): StringPlus
 	{
 		return $this->remove([" ", "\r", "\n", "\t", "\0", "\x0B"]);
 	}
@@ -952,7 +952,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * @param string $substr substring
 	 * @return StringPlus
 	 */
-	public function remove($substr): \StringPlus
+	public function remove($substr): StringPlus
 	{
 		return $this->replace($substr, '');
 	}
@@ -983,7 +983,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 		return new self($string);
 	}
 
-	public function replaceOnce($search, $replace): \StringPlus
+	public function replaceOnce($search, $replace): StringPlus
 	{
 		return $this->replaceRegex($search, $replace, 1);
 	}
@@ -1001,7 +1001,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * @param int $length number of characters.
 	 * @return StringPlus
 	 */
-	public function right($length): \StringPlus
+	public function right($length): StringPlus
 	{
 		return $this->substring(-$length);
 	}
@@ -1032,7 +1032,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * It will also convert all spaces to white-spaces.
 	 * @return StringPlus
 	 */
-	public function squeeze(): \StringPlus
+	public function squeeze(): StringPlus
 	{
 		return $this
 			->replace(["\r\n", "\r", "\n", "\t", "\0", "\x0B"], ' ')
@@ -1040,7 +1040,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 			->trim();
 	}
 
-	public function removeDuplicates($substr): \StringPlus
+	public function removeDuplicates($substr): StringPlus
 	{
 		$pattern = '/(' . preg_quote($substr, '/') . ')+/';
 		return $this->replaceRegex($pattern, $substr);
@@ -1063,7 +1063,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * @param bool $inclusive whether to return the seperator (default false)
 	 * @return StringPlus|null
 	 */
-	public function substringAfterFirst($separator, $inclusive = false): ?\StringPlus
+	public function substringAfterFirst($separator, $inclusive = false): ?StringPlus
 	{
 		$incString = strstr($this->_string, $separator);
 		if ($incString === false) {
@@ -1086,7 +1086,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * @param bool $inclusive whether to return the seperator (default false)
 	 * @return StringPlus|null
 	 */
-	public function substringAfterLast($separator, $inclusive = false): ?\StringPlus
+	public function substringAfterLast($separator, $inclusive = false): ?StringPlus
 	{
 		$incString = strrchr($this->_string, $separator);
 		if ($incString === false) {
@@ -1108,7 +1108,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * @param bool $inclusive whether to return the seperator (default false)
 	 * @return StringPlus|null
 	 */
-	public function substringBeforeFirst($separator, $inclusive = false): ?\StringPlus
+	public function substringBeforeFirst($separator, $inclusive = false): ?StringPlus
 	{
 		if (version_compare(PHP_VERSION, '5.3.0') < 0) {
 			$pos = $this->indexOf($separator);
@@ -1154,7 +1154,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * @param bool $inclusive whether to return the seperator (default false)
 	 * @return StringPlus|null
 	 */
-	public function substringBeforeLast($separator, $inclusive = false): ?\StringPlus
+	public function substringBeforeLast($separator, $inclusive = false): ?StringPlus
 	{
 		$pos = $this->lastIndexOf($separator);
 		if ($pos === false) {
@@ -1176,7 +1176,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * @param null $right right delimiter
 	 * @return StringPlus|null
 	 */
-	public function substringBetween($left, $right = null): ?\StringPlus
+	public function substringBetween($left, $right = null): ?StringPlus
 	{
 		if ($left === null && $right === null) {
 			return null;

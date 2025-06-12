@@ -2,19 +2,24 @@
 
 if (!function_exists('__')) {    // conflict with cakePHP
 
-	function __($code, ...$r)
+	/**
+	 * @param string $code
+	 * @param mixed ...$sub
+	 * @return string
+	 */
+	function __($code, ...$sub)
 	{
 		$config = class_exists('Config') ? Config::getInstance() : null;
 
-		nodebug($code, (bool)$config,
-			is_object($config) ? get_class($config) : gettype($config),
-			(bool)$config->getLL());
+//		nodebug($code, (bool)$config,
+//			is_object($config) ? get_class($config) : gettype($config),
+//			(bool)$config->getLL());
 		if (!empty($config) && $config->getLL()) {
 			//echo '<pre>', get_class($index->ll), "\t", $code, "\t", $text, '</pre><br />', "\n";
-			return $config->getLL()->T($code, ...$r);
-		} else {
-			return LocalLang::Tp($code, ...$r);
+			return $config->getLL()->T($code, ...$sub);
 		}
+
+		return LocalLang::Tp($code, ...$sub);
 	}
 
 	/**
@@ -36,9 +41,9 @@ if (!function_exists('__')) {    // conflict with cakePHP
 		if ($index && $index->getLL()) {
 			//echo '<pre>', get_class($index->ll), "\t", $code, "\t", $text, '</pre><br />', "\n";
 			return $index->getLL()->Tp($code, $r1, $r2, $r3);
-		} else {
-			return $code;
 		}
+
+		return $code;
 	}
 
 }

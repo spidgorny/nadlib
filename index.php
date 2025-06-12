@@ -1,6 +1,12 @@
 <?php
 
 if (!function_exists('__')) {
+
+	/**
+	 * @param string $a
+	 * @param mixed ...$sub
+	 * @return string
+	 */
 	function __($a, ...$sub)
 	{
 		foreach ($sub as $i => $subValue) {
@@ -9,8 +15,3 @@ if (!function_exists('__')) {
 		return $a;
 	}
 }
-
-/** Should not be called $i because Index::getInstance() will return $GLOBALS['i'] */
-//require_once __DIR__ . '/Controller/NadlibIndex.php';
-//$i2 = new NadlibIndex();
-//echo $i2->render();

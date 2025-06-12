@@ -25,7 +25,7 @@ class IndexBase /*extends Controller*/
 	public $content;
 
 	/**
-	 * @var UserlessController|Controller
+	 * @var Controller
 	 */
 	public $controller;
 
@@ -92,7 +92,7 @@ class IndexBase /*extends Controller*/
 	 */
 	protected $user;
 
-	protected ?\ConfigInterface $config;
+	protected ?ConfigInterface $config;
 
 	/**
 	 * @var DBInterface
@@ -395,7 +395,7 @@ class IndexBase /*extends Controller*/
 	 * Does not catch LoginException - show your login form in Index
 	 * @param string $wrapClass
 	 */
-	public function renderException(Exception $e, $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error'): string|\JSONResponse|array
+	public function renderException(Exception $e, $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error'): string|JSONResponse|array
 	{
 		if (Request::isCLI()) {
 			echo get_class($e),
@@ -456,7 +456,7 @@ class IndexBase /*extends Controller*/
 		return $contentOut;
 	}
 
-	public function renderTemplate($content): \View
+	public function renderTemplate($content): View
 	{
 		TaylorProfiler::start(__METHOD__);
 		$contentOut = '';
@@ -747,7 +747,7 @@ class IndexBase /*extends Controller*/
 	}
 
 	/// to avoid Config::getInstance() if Index has a valid config
-	public function getConfig(): ?\ConfigInterface
+	public function getConfig(): ?ConfigInterface
 	{
 		return $this->config;
 	}

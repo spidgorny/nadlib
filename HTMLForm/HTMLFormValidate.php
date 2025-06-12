@@ -4,9 +4,9 @@ class HTMLFormValidate
 {
 
 	/**
-     * Reference to the form object which contains the $desc as well as other vars
-     */
-    protected \HTMLFormTable $form;
+	 * Reference to the form object which contains the $desc as well as other vars
+	 */
+	protected HTMLFormTable $form;
 
 	/**
 	 * Reference to the $desc in the form
@@ -80,7 +80,7 @@ class HTMLFormValidate
 			$d['error'] = __('Field "%1" must be set', $label);
 		} elseif (ifsetor($d['obligatory']) && !$value) {
 			$d['error'] = __('Field "%1" is obligatory', $label);
-		} elseif (($type == 'email' || $field == 'email') && $value && !self::validEmail($value)) {
+		} elseif (($type === 'email' || $field === 'email') && $value && !self::validEmail($value)) {
 			$d['error'] = __('Not a valid e-mail in field "%1"', $label);
 		} elseif ($field === 'password' && strlen($value) < ifsetor($d['minlen'], 6)) {
 			$d['error'] = __("Password is too short. Min %s characters, please. It's for your own safety", ifsetor($d['minlen'], 6));
@@ -95,18 +95,15 @@ class HTMLFormValidate
 			$d['error'] = __('Value in field "%1" is too short. Minimum: %2. Actual: %3', $label, $d['minlen'], strlen($value));
 		} elseif (ifsetor($d['maxlen']) && strlen($value) > $d['maxlen']) {
 			$d['error'] = __('Value in field "%1" is too long. Maximum: %2. Actual: %3', $label, $d['maxlen'], strlen($value));
-		} elseif ($type == 'recaptcha' || $type == 'recaptchaAjax') {
-			$hfr = new HTMLFormRecaptcha();
-			$d['error'] = $hfr->validate($field, $d);
-		} elseif ($value && ifsetor($d['validate']) == 'in_array' && !in_array($value, $d['validateArray'])) {
+		} elseif ($value && ifsetor($d['validate']) === 'in_array' && !in_array($value, $d['validateArray'])) {
 			$d['error'] = $d['validateError'];
-		} elseif ($value && ifsetor($d['validate']) == 'id_in_array' && !in_array($d['idValue'], $d['validateArray'])) { // something typed
+		} elseif ($value && ifsetor($d['validate']) === 'id_in_array' && !in_array($d['idValue'], $d['validateArray'])) { // something typed
 			$d['error'] = $d['validateError'];
-		} elseif (ifsetor($d['validate']) == 'int' && strval(intval($value)) != $value) {
+		} elseif (ifsetor($d['validate']) === 'int' && strval(intval($value)) != $value) {
 			$d['error'] = __('Value "%1" must be integer', $label);
-		} elseif (ifsetor($d['validate']) == 'date' && strtotime($value) === false) {
+		} elseif (ifsetor($d['validate']) === 'date' && strtotime($value) === false) {
 			$d['error'] = __('Value "%1" must be date', $label);
-		} elseif (ifsetor($d['validate']) == 'multiEmail' && !self::validateEmailAddresses($value, $inValid)) {
+		} elseif (ifsetor($d['validate']) === 'multiEmail' && !self::validateEmailAddresses($value, $inValid)) {
 			$d['error'] = __('Value "%1" contains following invalid email addresses: "%2"', $label, implode(', ', $inValid));
 		} elseif (ifsetor($d['mustMatch'])
 			&& $value != $d['mustMatch']) {
@@ -117,8 +114,8 @@ class HTMLFormValidate
 		} else {
 			unset($d['error']);
 			//debug($field, $value, strval(intval($value)), $value == strval(intval($value)));
-            //debug($value, $_SESSION['HTMLFormTable']['xsrf'][$this->form->class]);
-            if ($field === 'xsrf' && $value != $_SESSION['HTMLFormTable']['xsrf'][$this->form->class]) {
+			//debug($value, $_SESSION['HTMLFormTable']['xsrf'][$this->form->class]);
+			if ($field === 'xsrf' && $value != $_SESSION['HTMLFormTable']['xsrf'][$this->form->class]) {
 				$d['error'] = __('XSRF token validation failed.');
 			}
 		}
@@ -216,9 +213,9 @@ class HTMLFormValidate
 	}
 
 	/**
-     * @return mixed[]
-     */
-    public function getErrorList(): array
+	 * @return mixed[]
+	 */
+	public function getErrorList(): array
 	{
 		$list = [];
 		foreach ($this->desc as $key => $desc) {

@@ -22,22 +22,25 @@ class SearchPlaceholder extends AppControllerBE
 		if (!$content) {
 			$content .= $this->renderProgressBar();
 		}
-        
+
 		return $content;
 	}
 
+	/**
+	 * @throws JsonException
+	 */
 	public function renderProgressBar(): string
 	{
 		$pb = new ProgressBar(1);
 		$pb->destruct100 = false;
-        
+
 		$content = $pb->getContent();
 
 		foreach ($this->ajaxLinks as &$link) {
 			$link .= '&pbid=' . $pb->pbid;
 		}
 
-		$content .= '<script> var ajaxLinks = ' . json_encode($this->ajaxLinks) . '; </script>';
+		$content .= '<script> var ajaxLinks = ' . json_encode($this->ajaxLinks, JSON_THROW_ON_ERROR) . '; </script>';
 		$content .= '<div id="SearchPlaceholder"></div>';
 		$this->index->addJQuery();
 		//$this->index->footer[] = '<script> jQuery.noConflict(); </script>';
@@ -54,7 +57,7 @@ class SearchPlaceholder extends AppControllerBE
 
 		$pb = new ProgressBar();
 		$pb->destruct100 = false;
-        
+
 		$pbid = $this->request->getTrim('pbid');
 		$pb->setID($pbid);
 

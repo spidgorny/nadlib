@@ -31,7 +31,7 @@
 class ArrayPlus extends ArrayObject implements HasGetter
 {
 
-	public function __construct(array $array = [])
+	final public function __construct(array $array = [])
 	{
 		parent::__construct($array);
 		$this->setData($array);
@@ -94,7 +94,7 @@ class ArrayPlus extends ArrayObject implements HasGetter
 		return $return;
 	}
 
-	public function pluck($key): \ArrayPlus
+	public function pluck($key): ArrayPlus
 	{
 		return $this->column($key);
 	}
@@ -103,7 +103,7 @@ class ArrayPlus extends ArrayObject implements HasGetter
 	 * Returns an array of the elements in a specific column.
 	 * @param string $col
 	 */
-	public function column($col): \ArrayPlus
+	public function column($col): ArrayPlus
 	{
 		$return = [];
 		foreach ((array)$this as $key => $row) {
@@ -875,7 +875,7 @@ class ArrayPlus extends ArrayObject implements HasGetter
 		return $this;
 	}
 
-	public function sumGroups($field): \ArrayPlus
+	public function sumGroups($field): ArrayPlus
 	{
 		$new = new ArrayPlus();
 		foreach ($this->getData() as $key => $subtable) {
@@ -968,7 +968,7 @@ class ArrayPlus extends ArrayObject implements HasGetter
 	 * If we store array of objects, we can retrieve a specific property of all objects
 	 * @param string $name
 	 */
-	public function getProperty($name): \ArrayPlus
+	public function getProperty($name): ArrayPlus
 	{
 		$result = [];
 		foreach ($this->getData() as $i => $object) {
@@ -980,7 +980,7 @@ class ArrayPlus extends ArrayObject implements HasGetter
 		return new ArrayPlus($result);
 	}
 
-	public function call($method): \ArrayPlus
+	public function call($method): ArrayPlus
 	{
 		$result = [];
 		foreach ($this->getData() as $i => $object) {
@@ -992,7 +992,7 @@ class ArrayPlus extends ArrayObject implements HasGetter
 		return self::from($result);
 	}
 
-	public static function from(array $getSystems): \ArrayPlus
+	public static function from(array $getSystems): ArrayPlus
 	{
 		return self::create($getSystems);
 	}
@@ -1248,7 +1248,7 @@ class ArrayPlus extends ArrayObject implements HasGetter
 		return array_filter(array_keys($array), 'is_string') !== [];
 	}
 
-	public function reindex(callable $keyGenerator): \ArrayPlus
+	public function reindex(callable $keyGenerator): ArrayPlus
 	{
 		$new = new ArrayPlus();
 		foreach ($this as $key => $val) {
@@ -1259,7 +1259,7 @@ class ArrayPlus extends ArrayObject implements HasGetter
 		return $new;
 	}
 
-	public function reindexOne(callable $keyGenerator): \ArrayPlus
+	public function reindexOne(callable $keyGenerator): ArrayPlus
 	{
 		$new = new ArrayPlus();
 		foreach ($this as $key => $val) {
@@ -1431,17 +1431,17 @@ class ArrayPlus extends ArrayObject implements HasGetter
 		return implode($sep, $this->getData());
 	}
 
-	public function toInt(): \ArrayPlus
+	public function toInt(): ArrayPlus
 	{
 		return self::from($this->map(fn($x): int => (int)$x)->getData());
 	}
 
-	public function toFloat(): \ArrayPlus
+	public function toFloat(): ArrayPlus
 	{
 		return self::from($this->map(fn($x): float => (float)$x)->getData());
 	}
 
-	public function toString(): \ArrayPlus
+	public function toString(): ArrayPlus
 	{
 		return self::from($this->map(fn($x): string => (string)$x)->getData());
 	}
@@ -1451,9 +1451,9 @@ class ArrayPlus extends ArrayObject implements HasGetter
 //		return self::from($this->map(fn ($x) => (array) $x)->getData());
 //	}
 
-	public function toObject(): \ArrayPlus
+	public function toObject(): ArrayPlus
 	{
-		return self::from($this->map(fn($x): \stdClass => (object)$x)->getData());
+		return self::from($this->map(fn($x): stdClass => (object)$x)->getData());
 	}
 }
 

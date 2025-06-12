@@ -213,7 +213,7 @@ class Time
 	/**
 	 * <span class="time">in 10 hours</span>
 	 */
-	public function render(): \HtmlString
+	public function render(): HtmlString
 	{
 		return new HtmlString('<time datetime="' . $this->getDateTime() . '"
 			class="time" title="' . $this->getDateTime() . '">' . $this->in() . '</span>');
@@ -310,7 +310,7 @@ class Time
 	 *
 	 * @return string
 	 */
-	public function renderCaps(): string|\HTMLTag
+	public function renderCaps(): string|HTMLTag
 	{
 		TaylorProfiler::start(__METHOD__);
 		$noe = $this->format('H:i');
@@ -433,7 +433,7 @@ class Time
 		return new self($this->time + $plus->getTimestamp());
 	}
 
-	public function getDiff(Time $t2): \Duration
+	public function getDiff(Time $t2): Duration
 	{
 		return new Duration($this->time - $t2->time);
 	}
@@ -463,7 +463,7 @@ class Time
 	 * Creates a new Time by formatting itself to a string first
 	 * @param $format
 	 */
-	public function getModify($format): \Time
+	public function getModify($format): Time
 	{
 		//TaylorProfiler::start(__METHOD__);
 		$new = new Time($this->format($format));
@@ -563,7 +563,7 @@ class Time
 		return strtolower(substr($this->format('D'), 0, 2));
 	}
 
-	public function getDurationObject(): \Duration
+	public function getDurationObject(): Duration
 	{
 		return new Duration($this->time);
 	}
@@ -603,12 +603,12 @@ class Time
 		return $this->time > $than->time;
 	}
 
-	public function getDateObject(): \Date
+	public function getDateObject(): Date
 	{
 		return new Date($this->getTimestamp());
 	}
 
-	public function getHTMLDate(): \HtmlString
+	public function getHTMLDate(): HtmlString
 	{
 		return new HtmlString('<time datetime="' . $this->getISODateTime() . '">' . $this->getHumanDate() . '</time>');
 	}
@@ -626,7 +626,7 @@ class Time
 		return date('d.m.Y', $this->time);
 	}
 
-	public function getHTMLTime(): \HtmlString
+	public function getHTMLTime(): HtmlString
 	{
 		return new HtmlString('<time datetime="' . $this->getISODateTime() . '">' . $this->getHumanTime() . '</time>');
 	}
@@ -639,7 +639,7 @@ class Time
 		return date('H:i', $this->time);
 	}
 
-	public function getHTMLTimeGMT(): \HtmlString
+	public function getHTMLTimeGMT(): HtmlString
 	{
 		return new HtmlString('<time datetime="' . $this->getISODateTime() . '">' . $this->getHumanTimeGMT() . '</time>');
 	}
@@ -681,7 +681,7 @@ class Time
 		$this->setTimestamp(strtotime(date('H:i:s', $this->time), $date->getTimestamp()));
 	}
 
-	public function getSince(): \Duration
+	public function getSince(): Duration
 	{
 		return new Duration($this->getTimestamp() - time());
 	}
@@ -692,7 +692,7 @@ class Time
 		$this->updateDebug();
 	}
 
-	public function getAge(): \Duration
+	public function getAge(): Duration
 	{
 		return new Duration(time() - $this->getTimestamp());
 	}
@@ -770,7 +770,7 @@ class Time
 		return ($this->getTimestamp() % $seconds) == 0;
 	}
 
-	public function toDateTime(): \DateTime
+	public function toDateTime(): DateTime
 	{
 		return new DateTime($this->getTimestamp());
 	}

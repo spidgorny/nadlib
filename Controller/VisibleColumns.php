@@ -2,17 +2,7 @@
 
 class VisibleColumns extends ArrayPlus
 {
-
-	public function __construct(array $array = [])
-	{
-		if (!self::has_string_keys($array)) {
-			// only keys are provided
-			$array = array_fill_keys($array, true);
-		}
-
-		parent::__construct($array);
-	}
-
+	
 	/**
 	 * If there are no data then all columns are visible
 	 * @param string $key

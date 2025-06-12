@@ -210,7 +210,7 @@ class Flot extends Controller
 		}
 
 		$this->index->addJQuery();
-		$this->index->footer['flot'] = '
+		$this->index->addJS('
 		<!--[if lte IE 8]><script language="javascript" type="text/javascript"
 			src="' . $this->flotPath . 'excanvas.min.js"></script><![endif]-->
     	<script language="javascript" type="text/javascript" defer="1"
@@ -235,7 +235,7 @@ class Flot extends Controller
     	    src="' . $this->flotPath . 'jquery.flot.time.js"></script>
     	<script language="javascript" type="text/javascript" defer="1"
     	    src="' . $this->flotPath . 'jquery.flot.axislabels.js"></script>
-';
+');
 
 		$content = '<div id="' . $divID . '" style="
 			width: ' . $this->width . ';
@@ -286,7 +286,7 @@ class Flot extends Controller
 			$config = str_replace('"ticksWeeks"', 'ticksWeeks', $config); // hack
 		}
 
-		$this->index->footer[$divID] = '
+		$this->index->addJS('
     	<script type="text/javascript">
 var deferCounter = 0;
 function defer(method) {
@@ -313,7 +313,7 @@ defer(function () {
 		], ' . $config . ');
 	});
 });
-</script>';
+</script>');
 		return $content;
 	}
 
