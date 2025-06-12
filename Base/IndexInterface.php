@@ -2,6 +2,8 @@
 
 namespace nadlib;
 
+use ConfigInterface;
+
 /**
  * Interface IndexInterface
  * @package nadlib
@@ -11,7 +13,7 @@ interface IndexInterface
 
 	public static function getInstance();
 
-	public static function makeInstance();
+	public static function makeInstance(ConfigInterface $config);
 
 	public function render();
 

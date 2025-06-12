@@ -40,7 +40,7 @@ abstract class SimpleController
 
 	public $log = [];
 
-	protected \HTML $html;
+	protected HTML $html;
 
 	public function __construct()
 	{
@@ -72,7 +72,7 @@ abstract class SimpleController
 		} else {
 			$index = Index::getInstance();
 			if ($index->controller instanceof $static) {
-				$result = $index->getController();
+				$result = $index->initController();
 			} else {
 				$result = new $static();
 			}

@@ -25,7 +25,8 @@ class AlterCharset extends AppControllerBE
 
 		$tables = $this->db->getTables();
 		foreach ($tables as $table) {
-			$charset = current($this->db->getTableCharset($table));
+//			$charset = current($this->db->getTableCharset($table));
+			$charset = 'TBD';
 			$content .= '<h4 style="display: inline-block; width: 30em;">' . $table . '</h4>';
 			$charsetColor = $charset == $this->desired ? 'muted' : 'alert';
 			$content .= ' <span class="' . $charsetColor . '">' . $charset . '</span>';
@@ -45,7 +46,7 @@ class AlterCharset extends AppControllerBE
 		return $content;
 	}
 
-	public function renderTableColumns(string $table): \slTable
+	public function renderTableColumns(string $table): slTable
 	{
 		$badList = [];
 		$columns = $this->db->getTableColumns($table);

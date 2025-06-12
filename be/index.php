@@ -21,5 +21,5 @@ $n->init();
 require_once __DIR__ . '/class/IndexBE.php';    // force this Index class
 $i = Index::makeInstance(Config::getInstance());
 $i->initController();
-echo MergedContent::mergeStringArrayRecursive($i->render());
+$i->render();
 AutoLoad::getInstance()->__destruct();

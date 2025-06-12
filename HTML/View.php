@@ -239,7 +239,7 @@ class View extends stdClass implements ToStringable
 	public function getController()
 	{
 		if (!$this->controller) {
-			$this->controller = Index::getInstance()->getController();
+			$this->controller = Index::getInstance()->initController();
 		}
 
 		return $this->controller;

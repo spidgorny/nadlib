@@ -14,6 +14,7 @@ class Department extends OODBase
 //		return new RisAccessRights(null, $this->db);
 	}
 
+	// @todo: move to ORS
 	public function getPeople()
 	{
 		return (new PersonCollection(null,
