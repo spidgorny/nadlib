@@ -48,7 +48,7 @@ class SessionUser extends PlainSessionUser
 			<a href="?c=ForgotPassword">Forgot password?</a>'));
 		} else {
 			$password = random_int(1000000, 9999999);
-            print 'Generated password: ' . $password;
+			print 'Generated password: ' . $password;
 
 			$this->insert([
 				'email' => $email,
@@ -100,7 +100,7 @@ class SessionUser extends PlainSessionUser
 		session_destroy();
 	}
 
-	public function getDepartment(): ?Department
+	public function getDepartment()
 	{
 		return null;
 	}

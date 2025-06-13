@@ -99,7 +99,7 @@ class BEUser implements UserModelInterface
 		// TODO: Implement updatePassword() method.
 	}
 
-	public function getDepartment(): ?Department
+	public function getDepartment()
 	{
 		return null;
 	}

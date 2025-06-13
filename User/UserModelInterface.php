@@ -66,7 +66,6 @@ interface UserModelInterface extends SomeKindOfUser
 
 	public function getPref($pref, $default = null);
 
-	#[\ReturnTypeWillChange]
-	public function getDepartment(): ?Department;
+	public function getDepartment();
 
 }

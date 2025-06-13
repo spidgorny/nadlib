@@ -121,7 +121,7 @@ class PlainSessionUser extends UserBase
 		// TODO: Implement updatePassword() method.
 	}
 
-	public function getDepartment(): ?Department
+	public function getDepartment()
 	{
 		return null;
 	}
