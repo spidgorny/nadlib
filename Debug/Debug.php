@@ -1,6 +1,6 @@
 <?php
 
-namespace nadlib\Debug;
+namespace spidgorny\nadlib\Debug;
 
 use DebugCLI;
 use DebugBulma;
