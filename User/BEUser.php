@@ -131,4 +131,14 @@ class BEUser implements UserModelInterface
 	{
 		return [];
 	}
+
+	public function isJuniorTechnician()
+	{
+		// TODO: Implement isJuniorTechnician() method.
+	}
+
+	public function getPerson()
+	{
+		// TODO: Implement getPerson() method.
+	}
 }

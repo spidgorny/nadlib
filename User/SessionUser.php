@@ -26,7 +26,7 @@ class SessionUser extends PlainSessionUser
 			if ($inSession) {
 				//$this->findInDB(array('email' => $login));
 				$this->init($login);
-			} else {
+//			} else {
 				//throw new Exception('You are not logged in. Nevermind, you can do it later.');
 			}
 		}

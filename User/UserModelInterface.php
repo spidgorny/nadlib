@@ -68,4 +68,8 @@ interface UserModelInterface extends SomeKindOfUser
 
 	public function getDepartment();
 
+	public function isJuniorTechnician();
+
+	public function getPerson();
+
 }

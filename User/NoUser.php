@@ -162,4 +162,9 @@ class NoUser implements UserModelInterface
 	{
 		// TODO: Implement setSetting() method.
 	}
+
+	public function isJuniorTechnician()
+	{
+		// TODO: Implement isJuniorTechnician() method.
+	}
 }

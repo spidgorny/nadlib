@@ -140,4 +140,14 @@ class PlainSessionUser extends UserBase
 	{
 		return [];
 	}
+
+	public function isJuniorTechnician()
+	{
+		// TODO: Implement isJuniorTechnician() method.
+	}
+
+	public function getPerson()
+	{
+		// TODO: Implement getPerson() method.
+	}
 }
