@@ -1,6 +1,6 @@
 <?php
 
-use nadlib\Debug\Debug;
+use spidgorny\nadlib\Debug\Debug;
 use Psr\Log\LoggerInterface;
 
 /**

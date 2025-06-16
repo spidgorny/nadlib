@@ -2,7 +2,7 @@
 
 // this does not allow us to redefine DEVELOPMENT constant from a project files
 //require_once __DIR__ . DIRECTORY_SEPARATOR . '../static.php';
-use nadlib\Debug\Debug;
+use spidgorny\nadlib\Debug\Debug;
 
 /**
  * May already be defined in TYPO3
@@ -368,7 +368,7 @@ if (!function_exists('llog')) {
 	 */
 	function llog(...$args): void
 	{
-		$caller = nadlib\Debug\Debug::getCaller();
+		$caller = Debug::getCaller();
 		$jsonOptions = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_LINE_TERMINATORS |
 			JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION | JSON_PARTIAL_OUTPUT_ON_ERROR;
 
