@@ -10,7 +10,7 @@ trait JsonController
 	public function afterConstruct(): void
 	{
 		$this->request->set('ajax', true);
-		$this->user = new DCIAPIUser(null, $this->db);  // prevent API to hijack user session
+		$this->user = new DCIAPIUser();  // prevent API to hijack user session
 		$this->config->setUser($this->user);
 	}
 

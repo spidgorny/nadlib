@@ -1,7 +1,7 @@
 <?php
 
-use spidgorny\nadlib\Debug\Debug;
 use Psr\Log\LoggerInterface;
+use spidgorny\nadlib\Debug\Debug;
 
 /**
  * Base class for storing datasets or datarows or tabular data or set
@@ -43,7 +43,7 @@ class Collection implements IteratorAggregate, ToStringable
 	/**
 	 * Initialize in postInit() to run paged SQL
 	 * initialize if necessary with = new Pager(); in postInit()
-	 * @var Pager|null
+	 * @var Pager|PagerWithExcel|null
 	 */
 	public $pager;
 

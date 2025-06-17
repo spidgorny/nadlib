@@ -729,7 +729,7 @@ order by a.attnum';
 			return call_user_func_array([$this->getQb(), $method], $params);
 		}
 
-		throw new Exception('Method ' . __CLASS__ . '::' . $method . " doesn't exist.");
+		throw new \RuntimeException('Method ' . __CLASS__ . '::' . $method . " doesn't exist.");
 	}
 
 	public function getQb()

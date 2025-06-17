@@ -94,7 +94,7 @@ abstract class SimpleController
 	/**
 	 * Combines params with $this->linkVars
 	 * Use makeURL() for old functionality
-	 * @return URL
+	 * @return URL|string
 	 */
 	public function getURL(array $params = [], $prefix = null)
 	{
