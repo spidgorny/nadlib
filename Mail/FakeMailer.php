@@ -71,4 +71,9 @@ class FakeMailer implements MailerInterface
 	{
 		// TODO: Implement getBody() method.
 	}
+
+	public function setFrom(array $array)
+	{
+		// TODO: Implement setFrom() method.
+	}
 }

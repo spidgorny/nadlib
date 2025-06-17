@@ -71,6 +71,11 @@ class Mailer implements MailerInterface
 		return '=?utf-8?B?' . base64_encode($this->subject) . '?=';
 	}
 
+	public function setSubject(string $param)
+	{
+		// TODO: Implement setSubject() method.
+	}
+
 	public static function isHTML($bodyText): bool
 	{
 //		return strpos($bodyText, '<') !== FALSE;
@@ -143,13 +148,13 @@ class Mailer implements MailerInterface
 		// TODO: Implement setTO() method.
 	}
 
-	public function setSubject(string $param)
-	{
-		// TODO: Implement setSubject() method.
-	}
-
 	public function getBody($message)
 	{
 		// TODO: Implement getBody() method.
+	}
+
+	public function setFrom(array $array)
+	{
+		// TODO: Implement setFrom() method.
 	}
 }

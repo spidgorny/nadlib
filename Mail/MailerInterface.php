@@ -19,4 +19,6 @@ interface MailerInterface
 
 	public function getBody($message);
 
+	public function setFrom(array $array);
+
 }

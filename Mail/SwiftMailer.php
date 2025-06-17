@@ -123,6 +123,16 @@ class SwiftMailer implements MailerInterface
 		return $message;
 	}
 
+	public function setSubject(string $param)
+	{
+		// TODO: Implement setSubject() method.
+	}
+
+	public function setFrom(array $array)
+	{
+		// TODO: Implement setFrom() method.
+	}
+
 	/**
 	 * http://stackoverflow.com/questions/8781911/remove-non-ascii-characters-from-string-in-php
 	 * @param string $attachment
@@ -160,11 +170,6 @@ class SwiftMailer implements MailerInterface
 	public function setTO(array $param)
 	{
 		// TODO: Implement setTO() method.
-	}
-
-	public function setSubject(string $param)
-	{
-		// TODO: Implement setSubject() method.
 	}
 
 	public function getBody($message)

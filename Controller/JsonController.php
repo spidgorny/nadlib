@@ -10,14 +10,14 @@ trait JsonController
 	public function afterConstruct(): void
 	{
 		$this->request->set('ajax', true);
-		$this->user = new APIUser();  // prevent API to hijack user session
+		$this->user = new DCIAPIUser(null, $this->db);  // prevent API to hijack user session
 		$this->config->setUser($this->user);
 	}
 
 	/**
-     * @throws LoginException
-     */
-    public function validateAuthorization(array $registeredApps): void
+	 * @throws LoginException
+	 */
+	public function validateAuthorization(array $registeredApps): void
 	{
 		[$actionClass] = $this->getActionAndArguments();
 		$obj = new $actionClass();

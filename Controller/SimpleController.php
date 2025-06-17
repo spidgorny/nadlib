@@ -110,16 +110,10 @@ abstract class SimpleController
 		})->get();
 	}
 
-	public function render()
-	{
-		$content[__METHOD__] = $this->performAction();
-		return $content;
-	}
-
 	/**
 	 * This function prevents performAction() from doing nothing
 	 * if there is a __CLASS__.phtml file in the same folder
-	 * @return MarkdownView|string|View|string[]|null|list<mixed>
+	 * @return MarkdownView|string|View|string[]|null|list<mixed>|JSONResponse
 	 */
 	public function indexAction()
 	{
@@ -152,6 +146,12 @@ abstract class SimpleController
 		return is_object($content)
 			? $content->render()
 			: $content;
+	}
+
+	public function render()
+	{
+		$content[__METHOD__] = $this->performAction();
+		return $content;
 	}
 
 	/**
