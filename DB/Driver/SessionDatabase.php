@@ -319,4 +319,9 @@ class SessionDatabase implements DBInterface
 	{
 		// TODO: Implement fixRowDataTypes() method.
 	}
+
+	public function getMoney($source = '$1,234.56'): float
+	{
+		return (float)$source;
+	}
 }

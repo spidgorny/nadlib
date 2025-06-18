@@ -233,17 +233,6 @@ class DBLayer extends DBLayerBase
 		return $res;
 	}
 
-	/**
-	 * http://www.postgresql.org/docs/9.3/static/datatype-money.html
-	 * @param string $source
-	 */
-	public function getMoney($source = '$1,234.56'): float
-	{
-		$source = str_replace('$', '', $source);
-		$source = str_replace(',', '', $source);
-		return (float)$source;
-	}
-
 	public function reconnect(): void
 	{
 		$this->connect();
@@ -257,7 +246,7 @@ class DBLayer extends DBLayerBase
 				unset($el['args']);
 				return $el;
 			}, $this->lastBacktrace);
-			$backtrace = array_map(function (array $el): string {
+			$backtrace = array_map(static function (array $el): string {
 				return ifsetor($el['class']) . ifsetor($el['type']) . ifsetor($el['function']) .
 					' in ' . basename(ifsetor($el['file'])) . ':' . ifsetor($el['line']);
 			}, $backtrace);

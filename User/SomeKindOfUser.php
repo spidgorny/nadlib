@@ -28,4 +28,10 @@ interface SomeKindOfUser
 
 	public function getName(): string;
 
+	public function getPerson();
+
+	public function getPref($key);
+
+	public function setPref($key, $value);
+
 }

@@ -69,4 +69,6 @@ interface DBInterface
 
 	public function fixRowDataTypes($res, array $row);
 
+	public function getMoney($source = '$1,234.56'): float;
+
 }

@@ -350,4 +350,15 @@ abstract class DBLayerBase implements DBInterface
 		return $row;
 	}
 
+	/**
+	 * http://www.postgresql.org/docs/9.3/static/datatype-money.html
+	 * @param string $source
+	 */
+	public function getMoney($source = '$1,234.56'): float
+	{
+		$source = str_replace('$', '', $source);
+		$source = str_replace(',', '', $source);
+		return (float)$source;
+	}
+
 }

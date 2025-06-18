@@ -141,4 +141,9 @@ class BEUser implements UserModelInterface
 	{
 		// TODO: Implement getPerson() method.
 	}
+
+	public function setPref($key, $value)
+	{
+		// TODO: Implement setPref() method.
+	}
 }
