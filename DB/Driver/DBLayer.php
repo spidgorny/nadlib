@@ -6,11 +6,6 @@ use PgSql\Result;
 /**
  * Class dbLayer
  * @mixin SQLBuilder
- * @method  fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
- * @method  fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
- * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
- * @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
- * @method  runDeleteQuery($table, array $where)
  */
 class DBLayer extends DBLayerBase
 {

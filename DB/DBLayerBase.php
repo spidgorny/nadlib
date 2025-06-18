@@ -3,19 +3,6 @@
 /**
  * Class DBLayerBase
  * @mixin SQLBuilder
- * @method runUpdateQuery($table, array $columns, array $where, $orderBy = '')
- * @method fetchSelectQuery($table, array $where = [], $order = '', $addFields = '', $idField = null)
- * @method getInsertQuery($table, array $columns)
- * @method getDeleteQuery($table, array $where = [], $what = '')
- * @method getUpdateQuery($table, $columns, $where, $orderBy = '')
- * @method runInsertQuery($table, array $columns)
- * @method fetchOneSelectQuery($table, $where = [], $order = '', $addFields = '', $idField = null)
- * @method describeView($viewName)
- * @method fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
- * @method getFirstValue($query)
- * @method performWithParams($query, $params)
- * @method getConnection()
- * @method getViews()
  */
 abstract class DBLayerBase implements DBInterface
 {

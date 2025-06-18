@@ -686,7 +686,7 @@ class SQLBuilder
 		throw new InvalidArgumentException(__METHOD__ . ' __/(:-)\__ ' . $query);
 	}
 
-	public function fetchOneSelectQuery($table, $where = [], $order = '', $selectPlus = '')
+	public function fetchOneSelectQuery($table, array $where = [], $order = '', $selectPlus = '')
 	{
 		$query = $this->getSelectQuery($table, $where, $order, $selectPlus);
 		if (!str_contains($query->__toString(), 'LIMIT')) {
