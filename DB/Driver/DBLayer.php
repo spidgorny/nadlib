@@ -237,7 +237,7 @@ class DBLayer extends DBLayerBase
 	 * http://www.postgresql.org/docs/9.3/static/datatype-money.html
 	 * @param string $source
 	 */
-	public static function getMoney($source = '$1,234.56'): float
+	public function getMoney($source = '$1,234.56'): float
 	{
 		$source = str_replace('$', '', $source);
 		$source = str_replace(',', '', $source);
