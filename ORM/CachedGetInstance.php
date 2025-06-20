@@ -197,9 +197,9 @@ trait CachedGetInstance
 	 * @param string $name
 	 * @param string $field
 	 * @param DBInterface $db
-	 * @return static|OODBase|null
+	 * @return static
 	 */
-	public static function getInstanceByName($name, $field, DBInterface $db): static|OODBase|null
+	public static function getInstanceByName($name, $field, DBInterface $db): static
 	{
 		$self = static::class;
 		//debug(__METHOD__, $self, $name, count(self::$instances[$self]));

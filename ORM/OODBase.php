@@ -132,19 +132,6 @@ abstract class OODBase implements ArrayAccess
 		}
 	}
 
-	public function getDB()
-	{
-		return $this->db;
-	}
-
-	public function setDB(?DBInterface $db): static
-	{
-		if ($db) {
-			$this->db = $db;
-		}
-		return $this;
-	}
-
 	/**
 	 * Retrieves data from DB.
 	 *
@@ -294,8 +281,6 @@ abstract class OODBase implements ArrayAccess
 		return $graph;
 	}
 
-	// should be called after the select query
-
 	/**
 	 * Used by bijou.
 	 * @param array $insert
@@ -324,6 +309,33 @@ abstract class OODBase implements ArrayAccess
 
 		TaylorProfiler::stop(__METHOD__);
 		return $object;
+	}
+
+	public function getDB()
+	{
+		return $this->db;
+	}
+
+	// should be called after the select query
+
+	public function setDB(?DBInterface $db): static
+	{
+		if ($db) {
+			$this->db = $db;
+		}
+		return $this;
+	}
+
+	/**
+	 * Give it array of IDs and it will give you an array of objects
+	 * @return static
+	 * @throws Exception
+	 */
+	public static function makeInstance(array $row, DBInterface $db)
+	{
+		$obj = new static(null, $db);
+		$obj->initByRow($row);
+		return $obj;
 	}
 
 	/**
