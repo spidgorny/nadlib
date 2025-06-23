@@ -23,9 +23,9 @@ class CollectionQueryMySQL extends CollectionQuery
 				? json_encode($this->parentID)
 				: $this->parentID) . ")";
 		TaylorProfiler::start($taylorKey);
-		/** @var SQLSelectQuery $query */
+		/** @var SQLSelectQuery|string $query */
 		$query = $this->getQuery();
-		if (class_exists('PHPSQL\Parser') && false) {
+		if (class_exists('PHPSQL\Parser')) {
 			$sql = new SQLQuery($query);
 			$sql->appendCalcRows();
 			$this->query = $sql->__toString();

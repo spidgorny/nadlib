@@ -2,7 +2,6 @@
 
 namespace DB;
 
-use AsIs;
 use DBInterface;
 use DBLayer;
 use PGArray;
@@ -27,27 +26,9 @@ class PGArrayTest extends TestCase
 	 */
 	protected $sut;
 
-	protected function setUp(): void
-	{
-		self::markTestSkipped('PG dependent');
-		$config = Config::getInstance();
-		$this->db = $config->getDB();
-		if (!$this->db instanceof DBLayer) {
-			static::markTestSkipped('Only for PGSQL');
-		}
-
-		$pga = new PGArray($this->db);
-		$this->sut = $pga;
-	}
-
 	public function test_setPGArray_simple(): void
 	{
 		$str = $this->sut->setPGArray([1, "a", '/"\\']);
-//		echo $str, BR;
-		if (!($str instanceof AsIs)) {
-			$str = "'" . $str . "'";
-		}
-
 		$row = $this->db->fetchAssoc("select " . $str . "::varchar[] as array");
 //		debug($row['array']);
 		static::assertEquals('{1,a,"/\\"\\\\"}', $row['array']);
@@ -150,6 +131,19 @@ line'])", $insert);
 				static::assertEquals('sendRequest', $params->action);
 			}
 		}
+	}
+
+	protected function setUp(): void
+	{
+		self::markTestSkipped('PG dependent');
+		$config = Config::getInstance();
+		$this->db = $config->getDB();
+		if (!$this->db instanceof DBLayer) {
+			static::markTestSkipped('Only for PGSQL');
+		}
+
+		$pga = new PGArray($this->db);
+		$this->sut = $pga;
 	}
 
 }

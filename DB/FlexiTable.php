@@ -169,7 +169,7 @@ class FlexiTable extends OODBase
 	public function findInDB(array $where = [], $orderBy = '', $selectPlus = null)
 	{
 		if ($this->doCheck) {
-			$this->log(__METHOD__, 'Checking columns exist');
+			$this->log(__METHOD__, ['info' => 'Checking columns exist']);
 			$this->checkAllFields($where);
 		}
 

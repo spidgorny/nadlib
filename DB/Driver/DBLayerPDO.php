@@ -1,5 +1,7 @@
 <?php
 
+use PgSql\Connection;
+
 /**
  * Class dbLayerPDO
  * @mixin SQLBuilder
@@ -9,7 +11,7 @@ class DBLayerPDO extends DBLayerBase
 {
 
 	/**
-	 * @var PDO
+	 * @var Connection
 	 */
 	public $connection;
 
@@ -134,12 +136,96 @@ class DBLayerPDO extends DBLayerBase
 		//$url = parse_url($this->dsn);
 		//$this->database = basename($url['path']);
 
-		if (0 !== 0) {
-			$res = $this->perform("SET NAMES 'utf8'");
-			if ($res) {
-				$res->closeCursor();
+//		if (0 !== 0) {
+//			$res = $this->perform("SET NAMES 'utf8'");
+//			if ($res) {
+//				$res->closeCursor();
+//			}
+//		}
+	}
+
+	public static function fromPDO(PDO $pdo): self
+	{
+		$instance = new self();
+		$instance->connection = $pdo;
+		return $instance;
+	}
+
+	public static function getAvailableDrivers(): array
+	{
+		return PDO::getAvailableDrivers();
+	}
+
+	public function isConnected(): bool
+	{
+		return (bool)$this->connection
+			&& PGSQL_CONNECTION_OK == pg_connection_status($this->connection);
+	}
+
+	/**
+	 * @param string $url
+	 * @see http://php.net/manual/de/function.parse-url.php#83828
+	 */
+	public function parseUrl($url): array
+	{
+		$r = "^(?:(?P<scheme>\w+)://)?";
+		$r .= "(?:(?P<login>\w+):(?P<pass>\w+)@)?";
+		$r .= '(?P<host>(?:(?P<subdomain>[\w\.]+)\.)?(?P<domain>\w+\.(?P<extension>\w+)))';
+		$r .= "(?::(?P<port>\d+))?";
+		$r .= "(?P<path>[\w/]*/(?P<file>\w+(?:\.\w+)?)?)?";
+		$r .= "(?:\?(?P<arg>[\w=&]+))?";
+		$r .= "(?:#(?P<anchor>\w+))?";
+		$r = sprintf('!%s!', $r);                                                // Delimiters
+
+		preg_match($r, $url, $out);
+
+		return $out;
+	}
+
+	/**
+	 * @param PDOStatement $res
+	 * @return array|mixed
+	 */
+	public function numRows($res = null)
+	{
+		$count = $res->rowCount();
+		//debug($this->lastQuery, $count, $this->getScheme());
+		if ($this->getScheme() === 'sqlite') {
+			$countQuery = 'SELECT count(*) FROM (' . $res->queryString . ') AS sub1';
+			$rows = $this->fetchAll($countQuery);
+			//debug($countQuery, $rows);
+			$count = first(first($rows));
+		}
+
+		return $count;
+	}
+
+	public function getScheme()
+	{
+		if ($this->dsn) {
+			$scheme = parse_url($this->dsn);
+			return $scheme['scheme'];
+		}
+
+		return $this->connection->getAttribute(PDO::ATTR_DRIVER_NAME);
+	}
+
+	public function fetchAll($stringOrRes, $key = null): array
+	{
+		$res = is_string($stringOrRes) ? $this->perform($stringOrRes) : $stringOrRes;
+
+		$data = $res->fetchAll(PDO::FETCH_ASSOC);
+		//debug($this->lastQuery, $this->result, $data);
+
+		if ($key) {
+			$copy = $data;
+			$data = [];
+			foreach ($copy as $row) {
+				$data[$row[$key]] = $row;
 			}
 		}
+
+		return $data;
 	}
 
 	public function perform($query, array $params = [])
@@ -222,90 +308,6 @@ class DBLayerPDO extends DBLayerBase
 		}
 
 		return $this->lastResult;
-	}
-
-	public static function fromPDO(PDO $pdo): self
-	{
-		$instance = new self();
-		$instance->connection = $pdo;
-		return $instance;
-	}
-
-	public static function getAvailableDrivers(): array
-	{
-		return PDO::getAvailableDrivers();
-	}
-
-	public function isConnected(): bool
-	{
-		return (bool)$this->connection
-			&& PGSQL_CONNECTION_OK == pg_connection_status($this->connection);
-	}
-
-	/**
-	 * @param string $url
-	 * @see http://php.net/manual/de/function.parse-url.php#83828
-	 */
-	public function parseUrl($url): array
-	{
-		$r = "^(?:(?P<scheme>\w+)://)?";
-		$r .= "(?:(?P<login>\w+):(?P<pass>\w+)@)?";
-		$r .= '(?P<host>(?:(?P<subdomain>[\w\.]+)\.)?(?P<domain>\w+\.(?P<extension>\w+)))';
-		$r .= "(?::(?P<port>\d+))?";
-		$r .= "(?P<path>[\w/]*/(?P<file>\w+(?:\.\w+)?)?)?";
-		$r .= "(?:\?(?P<arg>[\w=&]+))?";
-		$r .= "(?:#(?P<anchor>\w+))?";
-		$r = sprintf('!%s!', $r);                                                // Delimiters
-
-		preg_match($r, $url, $out);
-
-		return $out;
-	}
-
-	/**
-	 * @param PDOStatement $res
-	 * @return array|mixed
-	 */
-	public function numRows($res = null)
-	{
-		$count = $res->rowCount();
-		//debug($this->lastQuery, $count, $this->getScheme());
-		if ($count == -1 || $this->getScheme() == 'sqlite') {
-			$countQuery = 'SELECT count(*) FROM (' . $res->queryString . ') AS sub1';
-			$rows = $this->fetchAll($countQuery);
-			//debug($countQuery, $rows);
-			$count = first(first($rows));
-		}
-
-		return $count;
-	}
-
-	public function getScheme()
-	{
-		if ($this->dsn) {
-			$scheme = parse_url($this->dsn);
-			return $scheme['scheme'];
-		}
-
-		return $this->connection->getAttribute(PDO::ATTR_DRIVER_NAME);
-	}
-
-	public function fetchAll($stringOrRes, $key = null): array
-	{
-		$res = is_string($stringOrRes) ? $this->perform($stringOrRes) : $stringOrRes;
-
-		$data = $res->fetchAll(PDO::FETCH_ASSOC);
-		//debug($this->lastQuery, $this->result, $data);
-
-		if ($key) {
-			$copy = $data;
-			$data = [];
-			foreach ($copy as $row) {
-				$data[$row[$key]] = $row;
-			}
-		}
-
-		return $data;
 	}
 
 	public function affectedRows($res = null): int

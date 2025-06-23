@@ -149,8 +149,8 @@ if (!function_exists('d')) {
 
 	function debug_size(...$a): void
 	{
-		if (is_object($a)) {
-			$vals = get_object_vars($a);
+		if (is_object($a[0])) {
+			$vals = get_object_vars($a[0]);
 			$keys = array_keys($vals);
 		} else {
 			$vals = $a;
@@ -318,9 +318,9 @@ if (!function_exists('d')) {
 
 	/**
 	 * @param array|mixed $something
-	 * @return array|HtmlString|HTMLTag|string
+	 * @return array|HtmlString|HTMLTag
 	 */
-	function gettypes($something): array|\HTMLTag|\HtmlString|string
+	function gettypes($something): array|\HTMLTag|\HtmlString
 	{
 		if (is_array($something)) {
 			$types = [];

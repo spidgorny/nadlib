@@ -2,12 +2,6 @@
 
 class SQLSearch extends SQLWherePart
 {
-	protected $table;
-
-	protected $sword;
-
-	protected $words = [];
-
 	/**
 	 * Update it from outside to search different columns
 	 * @var array
@@ -15,26 +9,24 @@ class SQLSearch extends SQLWherePart
 	public $searchableFields = [
 		'title',
 	];
-
 	/**
 	 * Not used
 	 * @var string
 	 */
 	public $queryJoins = '';
-
 	/**
 	 * Replace with ILIKE if necessary
 	 * @var string
 	 */
 	public $likeOperator = 'LIKE';
-
-
+	public $idField = 'id';
+	protected $table;
+	protected $sword;
+	protected $words = [];
 	/**
 	 * @var DBInterface
 	 */
 	protected $db;
-
-	public $idField = 'id';
 
 	public function __construct($table, $sword)
 	{
@@ -81,23 +73,16 @@ class SQLSearch extends SQLWherePart
 		$words = $this->words;
 		//debug($words);
 		foreach ($words as $word) {
-			//if (!$i) {
-			if (false) {
-				$query .= $this->getSearchSubquery($word);
-				//$query .= '( '.$this->getSearchSubquery($word).')';
-				//$query .= ' AS score_'.$i;
+			$tableID = $this->table . '.' . $this->idField;
+			if ($word[0] === '!') {
+				$word = substr($word, 1);
+				$where[] = $tableID .
+					' NOT IN ( ' . $this->getSearchSubquery($word, $tableID) . ') ';
 			} else {
-				$tableID = $this->table . '.' . $this->idField;
-				if ($word[0] === '!') {
-					$word = substr($word, 1);
-					$where[] = $tableID .
-						' NOT IN ( ' . $this->getSearchSubquery($word, $tableID) . ') ';
-				} else {
-					//$queryJoins .= ' INNER JOIN ( '.$this->getSearchSubquery($word).') AS score_'.$i.' USING (id) ';
-					// join has problem: #1060 - Duplicate column name 'id' in count(*) from (select...)
-					$where[] = $tableID .
-						' IN ( ' . $this->getSearchSubquery($word, $tableID) . ') ';
-				}
+				//$queryJoins .= ' INNER JOIN ( '.$this->getSearchSubquery($word).') AS score_'.$i.' USING (id) ';
+				// join has problem: #1060 - Duplicate column name 'id' in count(*) from (select...)
+				$where[] = $tableID .
+					' IN ( ' . $this->getSearchSubquery($word, $tableID) . ') ';
 			}
 		}
 

@@ -1,5 +1,7 @@
 <?php
 
+use PgSql\Result;
+
 /**
  * Class SQLBuilder - contains database unspecific (general) SQL functions.
  * It has $this->db a database specific (PostgreSQL, MySQL, SQLite, Oracle, PDO) class
@@ -649,7 +651,7 @@ class SQLBuilder
 	}
 
 	/**
-	 * @param string $query
+	 * @param string|SQLSelectQuery $query
 	 * @param string|null $className - if provided it will return DatabaseInstanceIterator
 	 * @return DatabaseInstanceIterator|DatabaseResultIteratorAssoc
 	 * @throws DatabaseException
@@ -677,7 +679,7 @@ class SQLBuilder
 			return $f;
 		}
 
-		if (is_resource($query)) {
+		if ($query instanceof Result) {
 			$f = new DatabaseResultIteratorAssoc($this->db);
 			$f->setResult($query);
 			return $f;

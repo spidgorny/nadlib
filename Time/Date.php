@@ -12,12 +12,13 @@ class Date extends Time
 	{
 		parent::__construct($input, $relativeTo);
 		//$this->modify('Y-m-d \G\M\T'); // very slow!
-		$this->time = mktime(0, 0, 0, date('m', $this->time), date('d', $this->time), date('Y', $this->time));
+		$this->time = mktime(0, 0, 0,
+			(int)date('m', $this->time), (int)date('d', $this->time), (int)date('Y', $this->time));
 		$this->updateDebug();
-		if (is_null($relativeTo)) {
-			//debug_pre_print_backtrace();
-			//assert($this->time >= 0);
-		}
+//		if (is_null($relativeTo)) {
+		//debug_pre_print_backtrace();
+		//assert($this->time >= 0);
+//		}
 	}
 
 	public function updateDebug(): void
@@ -47,7 +48,7 @@ class Date extends Time
 
 	public static function fromHuman($str): Date
 	{
-		return new Date(strtotime($str));
+		return new Date((string)strtotime($str));
 	}
 
 	/**
@@ -107,12 +108,12 @@ class Date extends Time
 
 	public function plusDur(Duration $plus): self
 	{
-		return new self($this->time + $plus->getTimestamp());
+		return new self((string)($this->time + $plus->getTimestamp()));
 	}
 
 	public function minusDur(Duration $day1): self
 	{
-		return new self($this->time - $day1->getTimestamp());
+		return new self((string)($this->time - $day1->getTimestamp()));
 	}
 
 	public function isWeekend(): bool

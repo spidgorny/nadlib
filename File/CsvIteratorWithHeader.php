@@ -21,7 +21,7 @@ class CsvIteratorWithHeader extends CsvIterator
 		//print_r($this->columns);
 	}
 
-	public function current(): mixed
+	public function current(): array
 	{
 		parent::current();
 		//debug($this->columns, $this->currentElement);
@@ -40,8 +40,8 @@ class CsvIteratorWithHeader extends CsvIterator
 	{
 		parent::next();
 		//debug($this->columns, $this->currentElement);
-		$return = $this->current();
-		if ($return !== false && $this->currentElement && count($this->currentElement) == count($this->columns)) {
+		$currentElement = $this->current();
+		if ($currentElement && count($currentElement) == count($this->columns)) {
 			$this->currentElement = array_combine($this->columns, $this->currentElement);
 		}
 	}

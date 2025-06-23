@@ -90,12 +90,12 @@ class MessageQueue extends OODBase
 	}
 
 	/**
-     * Fetches next task for given type from db
-     * and puts it's data into $this->data
-     *
-     * @param $type
-     */
-    private function fetchNextTask($type): bool
+	 * Fetches next task for given type from db
+	 * and puts it's data into $this->data
+	 *
+	 * @param $type
+	 */
+	private function fetchNextTask($type): bool
 	{
 		$where = [
 			'status' => self::STATUS_NEW,
@@ -115,11 +115,11 @@ class MessageQueue extends OODBase
 	}
 
 	/**
-     * Sets status of current task
-     *
-     * @param string $status MessageQueue::STATUS_*
-     */
-    public function setStatus($status): void
+	 * Sets status of current task
+	 *
+	 * @param string $status MessageQueue::STATUS_*
+	 */
+	public function setStatus($status): void
 	{
 		$data = [
 			'status' => $status
@@ -167,7 +167,8 @@ class MessageQueue extends OODBase
 	/**
 	 * Setter for $this->taskData
 	 *
-	 * @param array $data
+	 * @param string $data
+	 * @throws JsonException
 	 */
 	public function setTaskData($data): void
 	{

@@ -133,6 +133,62 @@ class HTMLFormValidate
 		return $d;
 	}
 
+	/**
+	 * Validate an email address.
+	 * Provide email address (raw input)
+	 * Returns true if the email address has the email
+	 * address format and the domain exists.
+	 * http://www.linuxjournal.com/article/9585?page=0,3
+	 */
+	public static function validEmail($email)
+	{
+		$isValid = true;
+		$atIndex = strrpos($email, "@");
+		if (is_bool($atIndex)) {
+			return false;
+		}
+
+		$domain = substr($email, $atIndex + 1);
+		$local = substr($email, 0, $atIndex);
+		$localLen = strlen($local);
+		$domainLen = strlen($domain);
+		if ($localLen < 1 || $localLen > 64) {
+			// local part length exceeded
+			$isValid = false;
+		} elseif ($domainLen < 1 || $domainLen > 255) {
+			// domain part length exceeded
+			$isValid = false;
+		} elseif ($local[0] === '.' || $local[$localLen - 1] === '.') {
+			// local part starts or ends with '.'
+			$isValid = false;
+		} elseif (preg_match('/\\.\\./', $local)) {
+			// local part has two consecutive dots
+			$isValid = false;
+		} elseif (!preg_match('/^[A-Za-z0-9\\-\\.]+$/', $domain)) {
+			// character not valid in domain part
+			$isValid = false;
+		} elseif (preg_match('/\\.\\./', $domain)) {
+			// domain part has two consecutive dots
+			$isValid = false;
+		} elseif
+		(!preg_match('/^(\\\\.|[A-Za-z0-9!#%&`_=\\/$\'*+?^{}|~.-])+$/',
+				str_replace("\\\\", "", $local))) {
+			// character not valid in local part unless
+			// local part is quoted
+			if (!preg_match('/^"(\\\\"|[^"])+"$/',
+				str_replace("\\\\", "", $local))) {
+				$isValid = false;
+			}
+		}
+
+		if ($isValid && (!checkdnsrr($domain, "MX") && !checkdnsrr($domain, "A"))) {
+			// domain not found in DNS
+			$isValid = false;
+		}
+
+		return $isValid;
+	}
+
 	public function securePassword($value): int|false
 	{
 		/*
@@ -146,86 +202,10 @@ class HTMLFormValidate
 		return (preg_match($passwordRegex, $value));
 	}
 
-	public function getDesc()
-	{
-		return $this->desc;
-	}
-
 	//static function validMail($email) {
 	//return preg_match("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b/i", $email);
 	//	return $this->validEmail()
 	//}
-
-	/**
-	 * Validate an email address.
-	 * Provide email address (raw input)
-	 * Returns true if the email address has the email
-	 * address format and the domain exists.
-	 * http://www.linuxjournal.com/article/9585?page=0,3
-	 */
-	public static function validEmail($email)
-	{
-		$isValid = true;
-		$atIndex = strrpos($email, "@");
-		if (is_bool($atIndex) && !$atIndex) {
-			$isValid = false;
-		} else {
-			$domain = substr($email, $atIndex + 1);
-			$local = substr($email, 0, $atIndex);
-			$localLen = strlen($local);
-			$domainLen = strlen($domain);
-			if ($localLen < 1 || $localLen > 64) {
-				// local part length exceeded
-				$isValid = false;
-			} elseif ($domainLen < 1 || $domainLen > 255) {
-				// domain part length exceeded
-				$isValid = false;
-			} elseif ($local[0] === '.' || $local[$localLen - 1] === '.') {
-				// local part starts or ends with '.'
-				$isValid = false;
-			} elseif (preg_match('/\\.\\./', $local)) {
-				// local part has two consecutive dots
-				$isValid = false;
-			} elseif (!preg_match('/^[A-Za-z0-9\\-\\.]+$/', $domain)) {
-				// character not valid in domain part
-				$isValid = false;
-			} elseif (preg_match('/\\.\\./', $domain)) {
-				// domain part has two consecutive dots
-				$isValid = false;
-			} elseif
-			(!preg_match('/^(\\\\.|[A-Za-z0-9!#%&`_=\\/$\'*+?^{}|~.-])+$/',
-					str_replace("\\\\", "", $local))) {
-				// character not valid in local part unless
-				// local part is quoted
-				if (!preg_match('/^"(\\\\"|[^"])+"$/',
-					str_replace("\\\\", "", $local))) {
-					$isValid = false;
-				}
-			}
-
-			if ($isValid && (!checkdnsrr($domain, "MX") && !checkdnsrr($domain, "A"))) {
-				// domain not found in DNS
-				$isValid = false;
-			}
-		}
-
-		return $isValid;
-	}
-
-	/**
-	 * @return mixed[]
-	 */
-	public function getErrorList(): array
-	{
-		$list = [];
-		foreach ($this->desc as $key => $desc) {
-			if (ifsetor($desc['error'])) {
-				$list[$key] = $desc['error'];
-			}
-		}
-
-		return $list;
-	}
 
 	/**
 	 * If Swift_Mail is installed, Swift_Validate will be used
@@ -250,5 +230,25 @@ class HTMLFormValidate
 		}
 
 		return empty($invalid);
+	}
+
+	public function getDesc()
+	{
+		return $this->desc;
+	}
+
+	/**
+	 * @return mixed[]
+	 */
+	public function getErrorList(): array
+	{
+		$list = [];
+		foreach ($this->desc as $key => $desc) {
+			if (ifsetor($desc['error'])) {
+				$list[$key] = $desc['error'];
+			}
+		}
+
+		return $list;
 	}
 }

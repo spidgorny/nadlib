@@ -34,13 +34,13 @@
 class DebugPanel
 {
 	protected static $instance;
-    
+
 	public $header = 'h6';
-    
+
 	protected $name = 'DebugPanel';
-    
+
 	protected $content = '';
-    
+
 	protected $panels = [];
 
 	protected function __construct($name = null, $content = null)
@@ -50,7 +50,7 @@ class DebugPanel
 			$name .= ' (' . $params['typeName'] . ')';
 			$this->name = $name;
 		}
-        
+
 		if (is_array($content)) {
 			$this->content = $this->viewArray($content);
 		} elseif (is_object($content) && !($content instanceof HtmlString)) {
@@ -61,9 +61,9 @@ class DebugPanel
 	}
 
 	/**
-     * @return int[]|string[]
-     */
-    public function getVarParams($var): array
+	 * @return int[]|string[]
+	 */
+	public function getVarParams($var): array
 	{
 		$params = [];
 		$type = gettype($var);
@@ -85,13 +85,13 @@ class DebugPanel
 		} elseif ($type === 'string') {
 			$params['length'] = strlen($var);
 			$params['typeName'] = $type . '(' . strlen($var) . ')';
-		} elseif ($type === 'boolen') {
+		} elseif ($type === 'boolean') {
 			$params['typeName'] = $type;
 		} else {
 			$params['length'] = strlen($var);
 			$params['typeName'] = $type . '(' . strlen($var) . ')';
 		}
-        
+
 		return $params;
 	}
 
@@ -116,10 +116,10 @@ class DebugPanel
 			} else {
 				$row['value'] = new HTMLTag('td', ['class' => $type . ' overflow'], $val);
 			}
-            
+
 			$table[] = $row;
 		}
-        
+
 		return new slTable($table, 'class="view_array array"');
 	}
 
@@ -128,7 +128,7 @@ class DebugPanel
 		if (!self::$instance) {
 			self::$instance = new self();
 		}
-        
+
 		return self::$instance;
 	}
 
@@ -159,10 +159,10 @@ class DebugPanel
 			foreach ($this->panels as $panel) {
 				$content .= $panel;
 			}
-            
+
 			$content .= $this->content . '</div>';
 		}
-		
+
 		return $content . '</div>';
 	}
 

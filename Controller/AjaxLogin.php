@@ -407,8 +407,8 @@ class AjaxLogin extends AppControllerBE
 		$data = $this->request->getArray('profile');
 		$desc = $this->getProfileDesc();
 		$f = new HTMLFormTable($desc);
-		$desc = $f->fill($data);
-		$val = new HTMLFormValidate($desc);
+		$f->fill($data);
+		$val = new HTMLFormValidate($f);
 		$check = $val->validate();
 		if ($check) {
 //			$this->user->update($data);

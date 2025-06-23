@@ -10,21 +10,17 @@ class SQLLike extends SQLWherePart
 	 * @var string value
 	 */
 	public $string;
-
-	/**
-	 * @var bool
-	 */
-	protected $caseInsensitive;
-
 	public $like = 'LIKE';
-
 	public $ilike = 'ILIKE';
-
 	/**
 	 * Replace with "%|%" if you like
 	 * @var string
 	 */
 	public $wrap = '|';
+	/**
+	 * @var bool
+	 */
+	protected $caseInsensitive;
 
 	/**
 	 * @param $string
@@ -35,6 +31,11 @@ class SQLLike extends SQLWherePart
 		parent::__construct();
 		$this->caseInsensitive = $caseInsensitive;
 		$this->string = $string;
+	}
+
+	public static function make($string, $caseInsensitive = false): static
+	{
+		return new static($string, $caseInsensitive);
 	}
 
 	public function wrap($string): static
@@ -53,12 +54,12 @@ class SQLLike extends SQLWherePart
 		$w = explode('|', $this->wrap);
 		$escape = $this->db->getPlaceholder($this->field);
 
-		if (false) {
-			$escape = $this->db->escape($this->string);
-			$escape = str_replace('\\"', '"', $escape);
-			$escape = str_replace('%', '\\%', $escape);
-			$escape = str_replace('_', '\\_', $escape);
-		}
+//		if (false) {
+//			$escape = $this->db->escape($this->string);
+//			$escape = str_replace('\\"', '"', $escape);
+//			$escape = str_replace('%', '\\%', $escape);
+//			$escape = str_replace('_', '\\_', $escape);
+//		}
 
 		$field = $this->db->quoteKey($this->field);
 
@@ -68,14 +69,9 @@ class SQLLike extends SQLWherePart
 			$sql = $field . " " . $like .
 				" '" . $w[0] . "' || " . $escape . " || '" . $w[1] . "'";
 		}
-        
+
 		//debug($this->string, $escape, $wrap, $sql); exit();
 		return $sql;
-	}
-
-	public static function make($string, $caseInsensitive = false): static
-	{
-		return new static($string, $caseInsensitive);
 	}
 
 	public function getParameter()

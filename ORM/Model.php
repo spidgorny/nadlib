@@ -20,17 +20,10 @@
 class Model
 {
 
+	protected static $instances = [];
 	public $table;
-
 	public $idField = 'id';
-
 	public $titleColumn = 'name';
-
-	/**
-	 * @var DBInterface|SQLBuilder|DBLayerBase
-	 */
-	protected $db;
-
 	public $id;
 
 	public $lastSelectQuery;
@@ -38,37 +31,10 @@ class Model
 	public $lastInsertQuery;
 
 	public $lastUpdateQuery;
-
-	protected static $instances = [];
-
 	/**
-	 * Not caching.
-	 * @throws DatabaseException
-	 * @throws Exception
+	 * @var DBInterface|SQLBuilder|DBLayerBase
 	 */
-	public static function getInstance(array $data, ?DBInterface $db = null): static
-	{
-		$obj = new static($db ?: Config::getInstance()->getDB(), null);
-		$obj->setData($data);
-		return $obj;
-	}
-
-	/**
-	 * Not caching.
-	 * @param DBInterface $db
-	 * @param $id
-	 * @return static
-	 */
-	public static function getInstanceByID(DBInterface $db, $id)
-	{
-		if (self::$instances[$id]) {
-			return self::$instances[$id];
-		}
-		$obj = new static($db, []);
-		$obj->getByID($id);
-		self::$instances[$id] = $obj;
-		return $obj;
-	}
+	protected $db;
 
 	/**
 	 * @param DBInterface $db
@@ -99,6 +65,50 @@ class Model
 		}
 	}
 
+	/**
+	 * Not caching.
+	 * @throws DatabaseException
+	 * @throws Exception
+	 */
+	public static function getInstance(array $data, ?DBInterface $db = null): static
+	{
+		$obj = new static($db ?: Config::getInstance()->getDB(), $data);
+		$obj->setData($data);
+		return $obj;
+	}
+
+	/**
+	 * Not caching.
+	 * @param DBInterface $db
+	 * @param $id
+	 * @return static
+	 */
+	public static function getInstanceByID(DBInterface $db, $id)
+	{
+		if (self::$instances[$id]) {
+			return self::$instances[$id];
+		}
+		$obj = new static($db, []);
+		$obj->getByID($id);
+		self::$instances[$id] = $obj;
+		return $obj;
+	}
+
+	public function getByID($id): static
+	{
+		$found = $this->db->fetchOneSelectQuery($this->table, [
+			$this->idField => $id,
+		]);
+		$this->lastSelectQuery = $this->db->getLastQuery();
+		if ($found) {
+			$this->setData($found);
+		} else {
+			$this->unsetData();
+		}
+
+		return $this;
+	}
+
 	public function unsetData(): void
 	{
 		foreach (array_keys($this->getFields()) as $field) {
@@ -106,26 +116,29 @@ class Model
 		}
 	}
 
-	public function getName()
-	{
-		$f = $this->titleColumn;
-		return $this->$f;
-	}
-
 	/**
-	 * @param array $where
-	 * @return ArrayPlus
-	 * @deprecated
+	 * @return DocCommentParser[]
 	 */
-	public function getData($where = [])
+	public function getFields(): array
 	{
-		$data = $this->db->fetchAllSelectQuery($this->table, $where);
-		$this->lastSelectQuery = $this->db->getLastQuery();
-		if (!($data instanceof ArrayPlus)) {
-			$data = new ArrayPlus($data);
+		$fields = [];
+		foreach (array_keys(get_object_vars($this)) as $fieldName) {
+			try {
+				$field = new ReflectionProperty(get_class($this), $fieldName);
+				$sComment = $field->getDocComment();
+				if ($sComment) {
+					$dc = new DocCommentParser($sComment);
+					//debug($field->getName(), $sComment, $dc->getAll());
+					if ($dc->is_set('label') || $dc->is_set('field')) {
+						$fields[$fieldName] = $dc;
+					}
+				}
+			} catch (ReflectionException $e) {
+				// skip
+			}
 		}
 
-		return $data;
+		return $fields;
 	}
 
 	/**
@@ -155,13 +168,11 @@ class Model
 				$this->setData($row);
 				if (method_exists($this, 'render')) {
 					$content = $this->render();
-				} elseif (method_exists($this, 'getSingleLink')) {
+				} else {
 					$link = $this->getSingleLink();
 					$content = $link !== '' && $link !== '0' ? new HTMLTag('a', [
 						'href' => $link,
 					], $this->getName()) : $this->getName();
-				} else {
-					$content = $this->getName();
 				}
 
 				$list[$id] = $content;
@@ -171,6 +182,38 @@ class Model
 		}
 
 		return null;
+	}
+
+	/**
+	 * @param array $where
+	 * @return ArrayPlus
+	 * @deprecated
+	 */
+	public function getData($where = [])
+	{
+		$data = $this->db->fetchAllSelectQuery($this->table, $where);
+		$this->lastSelectQuery = $this->db->getLastQuery();
+		if (!($data instanceof ArrayPlus)) {
+			$data = new ArrayPlus($data);
+		}
+
+		return $data;
+	}
+
+	public function getSingleLink(): string
+	{
+		return 'Controller?id=' . $this->id();
+	}
+
+	public function id()
+	{
+		return $this->id;
+	}
+
+	public function getName()
+	{
+		$f = $this->titleColumn;
+		return $this->$f;
 	}
 
 	public function insert(array $data, array $where = [])
@@ -204,21 +247,6 @@ class Model
 		return $res;
 	}
 
-	public function getByID($id): static
-	{
-		$found = $this->db->fetchOneSelectQuery($this->table, [
-			$this->idField => $id,
-		]);
-		$this->lastSelectQuery = $this->db->getLastQuery();
-		if ($found) {
-			$this->setData($found);
-		} else {
-			$this->unsetData();
-		}
-
-		return $this;
-	}
-
 	/**
 	 * @return array{label: mixed, type: mixed, optional: bool}[]
 	 */
@@ -239,29 +267,9 @@ class Model
 		return $desc;
 	}
 
-	/**
-	 * @return DocCommentParser[]
-	 */
-	public function getFields(): array
+	public function get($field)
 	{
-		$fields = [];
-		foreach (array_keys(get_object_vars($this)) as $fieldName) {
-			try {
-				$field = new ReflectionProperty(get_class($this), $fieldName);
-				$sComment = $field->getDocComment();
-				if ($sComment) {
-					$dc = new DocCommentParser($sComment);
-					//debug($field->getName(), $sComment, $dc->getAll());
-					if ($dc->is_set('label') || $dc->is_set('field')) {
-						$fields[$fieldName] = $dc;
-					}
-				}
-			} catch (ReflectionException $e) {
-				// skip
-			}
-		}
-
-		return $fields;
+		return ifsetor($this->$field);
 	}
 
 	public function getVisibleFields(): void
@@ -269,14 +277,9 @@ class Model
 		// TODO
 	}
 
-	public function id()
+	public function getJSON(): \stdClass
 	{
-		return $this->id;
-	}
-
-	public function get($field)
-	{
-		return ifsetor($this->$field);
+		return (object)$this->asArray();
 	}
 
 	/**
@@ -295,19 +298,9 @@ class Model
 		return $data;
 	}
 
-	public function getJSON(): \stdClass
-	{
-		return (object)$this->asArray();
-	}
-
 	public function getNameLink(): \HTMLTag
 	{
 		return HTMLTag::a($this->getSingleLink(), $this->getName());
-	}
-
-	public function getSingleLink(): string
-	{
-		return 'Controller?id=' . $this->id();
 	}
 
 	public function __toString(): string

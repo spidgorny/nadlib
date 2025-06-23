@@ -33,22 +33,22 @@ abstract class ThornbladXmlStreamer
 	private $customRootNode;
 
 	/**
-	 * @param string $mixed Path to XML file OR file handle
+	 * @param string|resource $fileNameOrResource Path to XML file OR file handle
 	 * @param Bytes|int $chunkSize Bytes to read per cycle (Optional, default is 16 KiB)
 	 * @param string $customRootNode Specific root node to use (Optional)
 	 * @param int $totalBytes Xml file size - Required if supplied file handle
 	 * @param string $customChildNode
 	 * @throws Exception
 	 */
-	public function __construct($mixed, $chunkSize = 16384, $customRootNode = null, $totalBytes = null, $customChildNode = null)
+	public function __construct($fileNameOrResource, $chunkSize = 16384, $customRootNode = null, $totalBytes = null, $customChildNode = null)
 	{
-		if (is_string($mixed)) {
-			$this->handle = fopen($mixed, "r");
-			$this->totalBytes = isset($totalBytes) ? $totalBytes : filesize($mixed);
-		} elseif (is_resource($mixed)) {
-			$this->handle = $mixed;
+		if (is_string($fileNameOrResource)) {
+			$this->handle = fopen($fileNameOrResource, "rb");
+			$this->totalBytes = isset($totalBytes) ? $totalBytes : filesize($fileNameOrResource);
+		} elseif (is_resource($fileNameOrResource)) {
+			$this->handle = $fileNameOrResource;
 			if (!isset($totalBytes)) {
-				throw new Exception("totalBytes parameter required when supplying a file handle.");
+				throw new \RuntimeException("totalBytes parameter required when supplying a file handle.");
 			}
 
 			$this->totalBytes = $totalBytes;
@@ -58,15 +58,6 @@ abstract class ThornbladXmlStreamer
 		$this->customRootNode = $customRootNode;
 		$this->customChildNode = $customChildNode;
 	}
-
-	/**
-	 * Gets called for every XML node that is found as a child to the root node
-	 * @param string $xmlString Complete XML tree of the node as a string
-	 * @param string $elementName Name of the node for easy access
-	 * @param int $nodeIndex Zero-based index that increments for every node
-	 * @return boolean|void If false is returned, the streaming will stop
-	 */
-	abstract public function processNode($xmlString, $elementName, $nodeIndex);
 
 	/**
 	 * Gets the total read bytes so far
@@ -184,7 +175,7 @@ abstract class ThornbladXmlStreamer
 
 					$minPos = min($aPositions);
 
-					if ($minPos !== false && $minPos != 0) {
+					if ($minPos !== 0) {
 						$sElementName = substr($element, 0, $minPos);
 						$endTag = "</" . $sElementName . ">";
 					} else {
@@ -258,5 +249,14 @@ abstract class ThornbladXmlStreamer
 
 		return true;
 	}
+
+	/**
+	 * Gets called for every XML node that is found as a child to the root node
+	 * @param string $xmlString Complete XML tree of the node as a string
+	 * @param string $elementName Name of the node for easy access
+	 * @param int $nodeIndex Zero-based index that increments for every node
+	 * @return boolean|void If false is returned, the streaming will stop
+	 */
+	abstract public function processNode($xmlString, $elementName, $nodeIndex);
 
 }

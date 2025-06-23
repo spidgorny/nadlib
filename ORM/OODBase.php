@@ -328,18 +328,6 @@ abstract class OODBase implements ArrayAccess
 
 	/**
 	 * Give it array of IDs and it will give you an array of objects
-	 * @return static
-	 * @throws Exception
-	 */
-	public static function makeInstance(array $row, DBInterface $db)
-	{
-		$obj = new static(null, $db);
-		$obj->initByRow($row);
-		return $obj;
-	}
-
-	/**
-	 * Give it array of IDs and it will give you an array of objects
 	 * @return ArrayPlus
 	 * @throws Exception
 	 */
@@ -571,7 +559,7 @@ abstract class OODBase implements ArrayAccess
 				$errorCode = $this->db->getConnection()->errorCode();
 			}
 
-			$e = new DatabaseException($errorMessage, $errorCode);
+			$e = new DatabaseException($errorMessage . '[Code: ' . $errorCode . ']');
 			$e->setQuery($query);
 			throw $e;
 		}
@@ -640,13 +628,6 @@ abstract class OODBase implements ArrayAccess
 		return $ss;
 	}
 
-	// removed as it is not DI compatible
-//	public function getURL(array $params)
-//	{
-//		$c = Index::getInstance()->controller;
-//		return $c->getURL($params);
-//	}
-
 	/**
 	 * Prevents infinite loop Sigi->Ruben->Sigi->Ruben
 	 * by adding a new Person object to the self::$instances registry
@@ -678,6 +659,13 @@ abstract class OODBase implements ArrayAccess
 
 		return $data;
 	}
+
+	// removed as it is not DI compatible
+//	public function getURL(array $params)
+//	{
+//		$c = Index::getInstance()->controller;
+//		return $c->getURL($params);
+//	}
 
 	/**
 	 * @return OODBase
@@ -746,10 +734,22 @@ abstract class OODBase implements ArrayAccess
 	{
 		$data = $this->db->fetchAllSelectQuery($this->table, $where, $orderBy);
 		foreach ($data as &$row) {
-			$row = static::getInstance($row, $this->db);
+			$row = static::makeInstance($row, $this->db);
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Give it array of IDs and it will give you an array of objects
+	 * @return static
+	 * @throws Exception
+	 */
+	public static function makeInstance(array $row, DBInterface $db, ...$args)
+	{
+		$obj = new static(null, $db, ...$args);
+		$obj->initByRow($row);
+		return $obj;
 	}
 
 	public function getCollection(array $where = [], $orderBy = null)

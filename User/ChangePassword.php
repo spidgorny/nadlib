@@ -29,7 +29,7 @@ class ChangePassword extends HTMLFormProcessor
 			'type' => 'password',
 		];
 		$desc['password']['label'] = __('Password');
-		$desc['password']['append'] = __('Min: %s chars.', $this->minLength);
+		$desc['password']['append'] = __('Min: %s chars.', (string)$this->minLength);
 		$desc['password']['type'] = 'password';
 		$desc['password']['minlen'] = $this->minLength;
 		$desc['repeat']['label'] = __('Repeat again');
@@ -52,7 +52,7 @@ class ChangePassword extends HTMLFormProcessor
 				throw new \RuntimeException(__('Passwords mismatch. Please try again.'));
 			}
 		} else {
-			throw new \RuntimeException(__('Minimum password length is %s characters.', $this->minLength));
+			throw new \RuntimeException(__('Minimum password length is %s characters.', (string)$this->minLength));
 		}
 
 		return $content;

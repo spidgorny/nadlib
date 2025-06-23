@@ -26,14 +26,14 @@ class DebugHTML
 	public function render(...$args): string
 	{
 		$levels = $this->getLevels($args) ?: self::$defaultLevels;
-        //$args['levels'] = $levels;
+		//$args['levels'] = $levels;
 
-        $db = debug_backtrace();
+		$db = debug_backtrace();
 		$db = array_slice($db, 3, count($db));
 
 		$content = static::renderHTMLView($db, $args, $levels);
 		$content .= static::printStyles();
-		if (!$this->htmlPrologSent && !headers_sent() && !headers_sent()) {
+		if (!$this->htmlPrologSent && !headers_sent()) {
 			$content = '<!DOCTYPE html>
 			<html lang="en-US">
 			<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -150,7 +150,7 @@ class DebugHTML
 
 	/**
 	 * @param mixed $a
-	 * @param int $levels
+	 * @param int|null $levels
 	 * @return string|NULL    - will be recursive while levels is more than zero, but NULL is a special case
 	 * @throws JsonException
 	 */
@@ -211,8 +211,8 @@ class DebugHTML
 		} elseif (is_string($a) && str_contains($a, "\n")) {
 			$content = '<pre style="font-size: 12px; white-space: pre-wrap">' .
 				htmlspecialchars($a) . '</pre>';
-		} elseif ($a instanceof __PHP_Incomplete_Class) {
-			$content = '__PHP_Incomplete_Class';
+//		} elseif ($a instanceof __PHP_Incomplete_Class) {
+//			$content = '__PHP_Incomplete_Class';
 		} elseif (is_string($a) && strlen($a) && $a[0] === '{') {
 			/** @noinspection JsonEncodingApiUsageInspection */
 			$try = @json_decode($a, false);
@@ -240,10 +240,10 @@ class DebugHTML
 	public static function printStyles(): string
 	{
 		if (Request::isCLI()) {
-            return '';
-        }
+			return '';
+		}
 
-        $content = '';
+		$content = '';
 		if (!self::$stylesPrinted) {
 			$content = '<style>' . file_get_contents(__DIR__ . '/Debug.css') . '</style>';
 			self::$stylesPrinted = true;

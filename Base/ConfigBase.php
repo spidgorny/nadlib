@@ -109,10 +109,10 @@ class ConfigBase implements ConfigInterface
 //		debug($this->documentRoot);
 
 		$appRoot = AutoLoad::getInstance()->getAppRoot();
-		0 && pre_print_r([
-			'Config->documentRoot' => $this->documentRoot,
-			'Config->appRoot' => $appRoot,
-		]);
+//		0 && pre_print_r([
+//			'Config->documentRoot' => $this->documentRoot,
+//			'Config->appRoot' => $appRoot,
+//		]);
 		//debug_pre_print_backtrace();
 
 		//print_r(array(getcwd(), 'class/config.json', file_exists('class/config.json')));
@@ -148,7 +148,6 @@ class ConfigBase implements ConfigInterface
 			self::$instance = new static();
 			//self::$instance->postInit();	// will try to connect to the DB before autoload
 			// must be called outside
-			assert(self::$instance instanceof ConfigBase);
 		}
 
 		return self::$instance;
@@ -237,7 +236,7 @@ class ConfigBase implements ConfigInterface
 //			debug(get_class($db));
 			$this->user = new BEUser($db);
 			try {
-				$this->user->try2login(null, null);
+				$this->user->try2login('');
 			} catch (Exception $e) {
 				// failed to login - no problem
 			}

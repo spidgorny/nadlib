@@ -23,7 +23,7 @@ class HTMLFormLocation extends HTMLFormType
 	}
 
 	/**
-	 * @param int $value
+	 * @param int|string $value
 	 */
 	public function setValue($value): void
 	{

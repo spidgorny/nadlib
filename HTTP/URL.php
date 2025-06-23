@@ -59,7 +59,7 @@ class URL
 	protected $path;
 
 	/**
-	 * @param string $url - if not specified then the current page URL is reconstructed
+	 * @param string|URL $url - if not specified then the current page URL is reconstructed
 	 * @param array $params
 	 */
 	public function __construct($url = null, array $params = [])
@@ -201,14 +201,14 @@ class URL
 	 */
 	public static function getRelativePath($from, $to): string
 	{
-		0 && debug(
-			$_SERVER['DOCUMENT_ROOT'],
-			$from,
-			$to,
-			__FILE__,
-			trimExplode(':', ini_get('open_basedir')),
-			$_SERVER
-		);
+//		0 && debug(
+//			$_SERVER['DOCUMENT_ROOT'],
+//			$from,
+//			$to,
+//			__FILE__,
+//			trimExplode(':', ini_get('open_basedir')),
+//			$_SERVER
+//		);
 		//		exit;
 		// some compatibility fixes for Windows paths
 		$from = self::getPathFolders($from);
@@ -412,12 +412,7 @@ class URL
 	public function getPath()
 	{
 		$path = $this->path;
-		if (!$path instanceof Path) {
-			debug(gettype($path), get_class($path), get_object_vars($path));
-			debug_pre_print_backtrace();
-		}
 
-		assert($path instanceof Path);
 		if ($this->documentRoot !== '/') {
 			//$path = str_replace($this->documentRoot, '', $path);	// WHY???
 		}
@@ -565,7 +560,7 @@ class URL
 	{
 		$process = curl_init($this->__toString());
 		curl_setopt($process, CURLOPT_HTTPHEADER, $this->headers);
-		curl_setopt($process, CURLOPT_HEADER, 1);
+		curl_setopt($process, CURLOPT_HEADER, true);
 		curl_setopt($process, CURLOPT_USERAGENT, $this->user_agent);
 		if ($this->cookies == true) {
 			curl_setopt($process, CURLOPT_COOKIEFILE, $this->cookie_file);
@@ -582,9 +577,9 @@ class URL
 		}
 
 		curl_setopt($process, CURLOPT_POSTFIELDS, $this->buildQuery());
-		curl_setopt($process, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($process, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt($process, CURLOPT_POST, 1);
+		curl_setopt($process, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($process, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($process, CURLOPT_POST, true);
 		return $process;
 	}
 
@@ -815,7 +810,7 @@ class URL
 			$parts['pass'] = rawurldecode($parts['pass']);
 		}
 
-		if (isset($parts['path']) && ($parts['path'] !== '' && $parts['path'] !== '0')) {
+		if (isset($parts['path'])) {
 			$parts['path'] = rawurldecode($parts['path']);
 		}
 
@@ -857,12 +852,12 @@ class URL
 		}
 
 		$outPath = implode('/', $outSegs);
-		if ($path[0] == '/') {
+		if ($path[0] === '/') {
 			$outPath = '/' . $outPath;
 		}
 
 		// compare last multi-byte character against '/'
-		if ($outPath !== '/' && (mb_strlen($path) - 1) == mb_strrpos($path, '/', 'UTF-8')
+		if ($outPath !== '/' && (mb_strlen($path) - 1) == mb_strrpos($path, '/', 0, 'UTF-8')
 		) {
 			$outPath .= '/';
 		}

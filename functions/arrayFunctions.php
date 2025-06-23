@@ -3,10 +3,10 @@
 if (!function_exists('first')) {
 
 	/**
-     * Complements the built-in end() function
-     * @return array|mixed
-     */
-    function first(array $list): mixed
+	 * Complements the built-in end() function
+	 * @return array|mixed
+	 */
+	function first(array $list): mixed
 	{
 		reset($list);
 		return current($list);
@@ -15,10 +15,10 @@ if (!function_exists('first')) {
 
 if (!function_exists('last')) {
 	/**
-     * Complements the built-in end() function
-     * @return array|mixed
-     */
-    function last(array $list): mixed
+	 * Complements the built-in end() function
+	 * @return array|mixed
+	 */
+	function last(array $list): mixed
 	{
 		return end($list);
 	}
@@ -123,9 +123,10 @@ function without(array $source, $remove): array
 
 /**
  * @param $callback - return both keys and values
- * @return array|false
+ * @param array $array
+ * @return array
  */
-function array_map_keys($callback, array $array): array|false
+function array_map_keys($callback, array $array): array
 {
 	$keys = array_keys($array);
 	$temp = array_map($callback, $keys, $array);    // return ['key', 'value']
@@ -156,13 +157,13 @@ function recursive_array_diff($a1, array $a2): array
 	foreach ($a1 as $k => $v) {
 		if (array_key_exists($k, $a2)) {
 			if (is_array($v)) {
-                $rad = recursive_array_diff($v, $a2[$k]);
-                if ($rad !== []) {
+				$rad = recursive_array_diff($v, $a2[$k]);
+				if ($rad !== []) {
 					$r[$k] = $rad;
 				}
-            } elseif ($v != $a2[$k]) {
-                $r[$k] = $v;
-            }
+			} elseif ($v != $a2[$k]) {
+				$r[$k] = $v;
+			}
 		} else {
 			$r[$k] = $v;
 		}
@@ -221,23 +222,19 @@ function array_find_fast(callable $callback, array $array)
 		}
 	}
 
-    return null;
+	return null;
 }
 
 if (!function_exists('array_flatten')) {
 	/**
-     * Convert a multi-dimensional array into a single-dimensional array.
-     * @param array $array The multi-dimensional array.
-     * @author Sean Cannon, LitmusBox.com | seanc@litmusbox.com
-     * @see https://gist.github.com/SeanCannon/6585889
-     * @noinspection SlowArrayOperationsInLoopInspection
-     */
-    function array_flatten($array): array
+	 * Convert a multi-dimensional array into a single-dimensional array.
+	 * @param array $array The multi-dimensional array.
+	 * @author Sean Cannon, LitmusBox.com | seanc@litmusbox.com
+	 * @see https://gist.github.com/SeanCannon/6585889
+	 * @noinspection SlowArrayOperationsInLoopInspection
+	 */
+	function array_flatten(array $array): array
 	{
-		if (!is_array($array)) {
-			return [];
-		}
-
 		$result = [];
 		foreach ($array as $key => $value) {
 			$result = is_array($value) ? array_merge($result, array_flatten($value)) : array_merge($result, [$key => $value]);

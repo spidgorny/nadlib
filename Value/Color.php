@@ -8,15 +8,37 @@ class Color
 	 */
 	public $r;
 
-    /**
-     * @var int
-     */
-    public $g;
+	/**
+	 * @var int
+	 */
+	public $g;
 
-    /**
-     * @var int
-     */
-    public $b;
+	/**
+	 * @var int
+	 */
+	public $b;
+
+	public function __construct(string|array $init)
+	{
+		if ($init[0] === '#') {
+			$colourstr = str_replace('#', '', $init);
+			$rhex = substr($colourstr, 0, 2);
+			$ghex = substr($colourstr, 2, 2);
+			$bhex = substr($colourstr, 4, 2);
+
+			$this->r = hexdec($rhex);
+			$this->g = hexdec($ghex);
+			$this->b = hexdec($bhex);
+		} elseif (is_array($init) && count($init) === 3) {
+			if (is_int(first($init))) {
+				list($this->r, $this->g, $this->b) = $init;
+			} elseif (is_float(first($init))) {
+				throw new InvalidArgumentException('Please use static constructors for HSL and HSV');
+			}
+		} else {
+			throw new InvalidArgumentException('Unable to understand color [' . $init . ']');
+		}
+	}
 
 	public static function fromRGBArray(array $rgb): \Color
 	{
@@ -35,33 +57,31 @@ class Color
 		return new Color($rgb);
 	}
 
-	public function __construct(string $init)
+	/**
+	 * https://sighack.com/post/averaging-rgb-colors-the-right-way
+	 * https://youtu.be/LKnqECcg6Gw
+	 */
+	public static function average(array $colors): array
 	{
-		if ($init[0] === '#') {
-			$colourstr = str_replace('#', '', $init);
-			$rhex = substr($colourstr, 0, 2);
-			$ghex = substr($colourstr, 2, 2);
-			$bhex = substr($colourstr, 4, 2);
-
-			$this->r = hexdec($rhex);
-			$this->g = hexdec($ghex);
-			$this->b = hexdec($bhex);
-		} elseif (is_array($init) && count($init) == 3) {
-			if (gettype(first($init)) === 'integer') {
-				list($this->r, $this->g, $this->b) = $init;
-			} elseif (gettype(first($init)) === 'double') {
-				throw new InvalidArgumentException('Please use static constructors for HSL and HSV');
-			}
-		} else {
-			throw new InvalidArgumentException('Unable to understand color [' . $init . ']');
+		$sumSquared = [0, 0, 0];    // rgb
+		foreach ($colors as $color) {
+			$sumSquared[0] += $color[0] * $color[0];
+			$sumSquared[1] += $color[1] * $color[1];
+			$sumSquared[2] += $color[2] * $color[2];
 		}
+
+		$amount = count($colors);
+		return [
+			intval(sqrt($sumSquared[0] / $amount)),
+			intval(sqrt($sumSquared[1] / $amount)),
+			intval(sqrt($sumSquared[2] / $amount))];
 	}
 
 	/**
-     * http://stackoverflow.com/questions/5199783/help-needed-with-php-function-brightness-making-rgb-colors-darker-brighter
-     * @param int $steps
-     */
-    public function alter_brightness($steps): string
+	 * http://stackoverflow.com/questions/5199783/help-needed-with-php-function-brightness-making-rgb-colors-darker-brighter
+	 * @param int $steps
+	 */
+	public function alter_brightness($steps): string
 	{
 		$r = max(0, min(255, $this->r + $steps));
 		$g = max(0, min(255, $this->g + $steps));
@@ -70,12 +90,39 @@ class Color
 		return $this->getCSS([$r, $g, $b]);
 	}
 
+	public function getCSS($rgb = null): string
+	{
+		$rgb = array_values($rgb ?: [$this->r, $this->g, $this->b]);
+		return '#' .
+			str_pad(dechex((int)$rgb[0]), 2, '0', STR_PAD_LEFT) .
+			str_pad(dechex((int)$rgb[1]), 2, '0', STR_PAD_LEFT) .
+			str_pad(dechex((int)$rgb[2]), 2, '0', STR_PAD_LEFT);
+	}
+
+	public function __toString(): string
+	{
+		return $this->getCSS([$this->r, $this->g, $this->b]);
+	}
+
+	public function getComplement255(): self
+	{
+		return new self([
+			255 - $this->r,
+			255 - $this->g,
+			255 - $this->b]);
+	}
+
+	public function getComplement(): string
+	{
+		return $this->alter_color(180, 0, 0);
+	}
+
 	/**
-     * @param int $deltaHue [0..360]
-     * @param int $deltaSaturation [0..100]
-     * @param int $deltaLightness [0..100]
-     */
-    public function alter_color($deltaHue = 0, $deltaSaturation = 0, $deltaLightness = 0): string
+	 * @param int $deltaHue [0..360]
+	 * @param int $deltaSaturation [0..100]
+	 * @param int $deltaLightness [0..100]
+	 */
+	public function alter_color($deltaHue = 0, $deltaSaturation = 0, $deltaLightness = 0): string
 	{
 		$hsv = $this->RGB_TO_HSV($this->r, $this->g, $this->b);
 		$hsl = $this->hsv_to_hsl($hsv['H'], $hsv['S'], $hsv['V']);
@@ -98,27 +145,13 @@ class Color
 		return $this->getCSS($rgb);
 	}
 
-	public function __toString(): string
-	{
-		return $this->getCSS([$this->r, $this->g, $this->b]);
-	}
-
-	public function getCSS($rgb = null): string
-	{
-		$rgb = array_values($rgb ?: [$this->r, $this->g, $this->b]);
-		return '#' .
-			str_pad(dechex((int)$rgb[0]), 2, '0', STR_PAD_LEFT) .
-			str_pad(dechex((int)$rgb[1]), 2, '0', STR_PAD_LEFT) .
-			str_pad(dechex((int)$rgb[2]), 2, '0', STR_PAD_LEFT);
-	}
-
 	/**
-     * http://stackoverflow.com/questions/1773698/rgb-to-hsv-in-php
-     * @param int $R
-     * @param int $G
-     * @param int $B
-     */
-    public function RGB_TO_HSV($R, $G, $B): array  // RGB Values:Number 0-255
+	 * http://stackoverflow.com/questions/1773698/rgb-to-hsv-in-php
+	 * @param int $R
+	 * @param int $G
+	 * @param int $B
+	 */
+	public function RGB_TO_HSV($R, $G, $B): array  // RGB Values:Number 0-255
 	{                                 // HSV Results:Number 0-1
 		$HSL = [];
 
@@ -168,9 +201,35 @@ class Color
 	}
 
 	/**
-     * http://stackoverflow.com/questions/3597417/php-hsv-to-rgb-formula-comprehension
-     */
-    public function HSVtoRGB(array $hsv): array
+	 * http://ariya.blogspot.de/2008/07/converting-between-hsl-and-hsv.html
+	 * @param int $h
+	 * @param int $s
+	 * @param int $v
+	 */
+	public function hsv_to_hsl($h, $s, $v): array
+	{
+		$hh = $h;
+		$ll = (2 - $s) * $v;
+		$ss = $s * $v;
+		$ss /= ($ll <= 1) ? ($ll) : 2 - ($ll);
+		$ll /= 2;
+		return [$hh, $ss, $ll];
+	}
+
+	public function hsl_to_hsv($hh, $ss, $ll): array
+	{
+		$h = $hh;
+		$ll *= 2;
+		$ss *= ($ll <= 1) ? $ll : 2 - $ll;
+		$v = ($ll + $ss) / 2;
+		$s = (2 * $ss) / ($ll + $ss);
+		return [$h, $s, $v];
+	}
+
+	/**
+	 * http://stackoverflow.com/questions/3597417/php-hsv-to-rgb-formula-comprehension
+	 */
+	public function HSVtoRGB(array $hsv): array
 	{
 		list($H, $S, $V) = $hsv;
 		//0
@@ -210,65 +269,6 @@ class Color
 		}
 
 		return [$R * 255, $G * 255, $B * 255];
-	}
-
-	/**
-     * http://ariya.blogspot.de/2008/07/converting-between-hsl-and-hsv.html
-     * @param int $h
-     * @param int $s
-     * @param int $v
-     */
-    public function hsv_to_hsl($h, $s, $v): array
-	{
-		$hh = $h;
-		$ll = (2 - $s) * $v;
-		$ss = $s * $v;
-		$ss /= ($ll <= 1) ? ($ll) : 2 - ($ll);
-		$ll /= 2;
-		return [$hh, $ss, $ll];
-	}
-
-	public function hsl_to_hsv($hh, $ss, $ll): array
-	{
-		$h = $hh;
-		$ll *= 2;
-		$ss *= ($ll <= 1) ? $ll : 2 - $ll;
-		$v = ($ll + $ss) / 2;
-		$s = (2 * $ss) / ($ll + $ss);
-		return [$h, $s, $v];
-	}
-
-	public function getComplement255(): self
-	{
-		return new self([
-			255 - $this->r,
-			255 - $this->g,
-			255 - $this->b]);
-	}
-
-	public function getComplement(): string
-	{
-		return $this->alter_color(180, 0, 0);
-	}
-
-	/**
-     * https://sighack.com/post/averaging-rgb-colors-the-right-way
-     * https://youtu.be/LKnqECcg6Gw
-     */
-    public static function average(array $colors): array
-	{
-		$sumSquared = [0, 0, 0];    // rgb
-		foreach ($colors as $color) {
-			$sumSquared[0] += $color[0] * $color[0];
-			$sumSquared[1] += $color[1] * $color[1];
-			$sumSquared[2] += $color[2] * $color[2];
-		}
-
-		$amount = count($colors);
-		return [
-			intval(sqrt($sumSquared[0] / $amount)),
-			intval(sqrt($sumSquared[1] / $amount)),
-			intval(sqrt($sumSquared[2] / $amount))];
 	}
 
 }

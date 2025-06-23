@@ -106,7 +106,7 @@ class AutoLoad
 
 		// before composer <- incorrect
 		// composer autoload is much faster and should be first
-		$result = spl_autoload_register([$instance, 'load'], true, false);
+		$result = spl_autoload_register($instance->load(...), true, false);
 		if ($result) {
 			//echo __METHOD__ . ' OK'.BR;
 		} else {
@@ -193,33 +193,33 @@ class AutoLoad
 
 		$this->setComponentsPath();
 
-		if (0 !== 0) {
-			echo '<pre>';
-			print_r([
-				'SCRIPT_FILENAME' => $_SERVER['SCRIPT_FILENAME'],
-				'rp(SCRIPT_FILENAME)' => realpath($_SERVER['SCRIPT_FILENAME']),
-				'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
-				'documentRoot' => $this->documentRoot . '',
-				'getcwd()' => getcwd(),
-				'__FILE__' => __FILE__,
-				'$scriptWithPath' => $scriptWithPath,
-				'dirname(__FILE__)' => dirname(__FILE__),
-				'baseHref' => Request::getLocation() . '',
-//				'$relToNadlibCLI' => $relToNadlibCLI,
-//				'$relToNadlibPU' => $relToNadlibPU,
-				'$this->nadlibRoot' => $this->nadlibRoot,
-//				'Config->documentRoot' => isset($config) ? $config->documentRoot : NULL,
-				'$this->appRoot' => $this->appRoot . '',
-				'appRootIsRoot' => $appRootIsRoot,
-//				'Config->appRoot' => isset($config) ? $config->appRoot : null,
-				'$this->nadlibFromDocRoot' => $this->nadlibFromDocRoot,
-				'$this->nadlibFromCWD' => $this->nadlibFromCWD,
-				'request->getDocumentRoot()' => Request::getInstance()->getDocumentRoot() . '',
-				'request->getLocation()' => Request::getInstance()->getLocation() . '',
-				'this->componentsPath' => $this->componentsPath . '',
-			]);
-			echo '</pre>';
-		}
+//		if (0 !== 0) {
+//			echo '<pre>';
+//			print_r([
+//				'SCRIPT_FILENAME' => $_SERVER['SCRIPT_FILENAME'],
+//				'rp(SCRIPT_FILENAME)' => realpath($_SERVER['SCRIPT_FILENAME']),
+//				'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
+//				'documentRoot' => $this->documentRoot . '',
+//				'getcwd()' => getcwd(),
+//				'__FILE__' => __FILE__,
+//				'$scriptWithPath' => $scriptWithPath,
+//				'dirname(__FILE__)' => dirname(__FILE__),
+//				'baseHref' => Request::getLocation() . '',
+////				'$relToNadlibCLI' => $relToNadlibCLI,
+////				'$relToNadlibPU' => $relToNadlibPU,
+//				'$this->nadlibRoot' => $this->nadlibRoot,
+////				'Config->documentRoot' => isset($config) ? $config->documentRoot : NULL,
+//				'$this->appRoot' => $this->appRoot . '',
+//				'appRootIsRoot' => $appRootIsRoot,
+////				'Config->appRoot' => isset($config) ? $config->appRoot : null,
+//				'$this->nadlibFromDocRoot' => $this->nadlibFromDocRoot,
+//				'$this->nadlibFromCWD' => $this->nadlibFromCWD,
+//				'request->getDocumentRoot()' => Request::getInstance()->getDocumentRoot() . '',
+//				'request->getLocation()' => Request::getInstance()->getLocation() . '',
+//				'this->componentsPath' => $this->componentsPath . '',
+//			]);
+//			echo '</pre>';
+//		}
 	}
 
 	public function detectAppRoot(): \Path
@@ -232,7 +232,7 @@ class AutoLoad
 	public function setComponentsPath(): void
 	{
 		if (file_exists('composer.json')) {
-			$json = json_decode(file_get_contents('composer.json'), 1);
+			$json = json_decode(file_get_contents('composer.json'), true, 512, JSON_THROW_ON_ERROR);
 			//debug($json['config']);
 			if (isset($json['config'])
 				&& isset($json['config']['component-dir'])) {
@@ -242,22 +242,22 @@ class AutoLoad
 			}
 		}
 
-		if (!$this->componentsPath) {
-			$this->componentsPath = new Path($this->appRoot);
-			$this->componentsPath->setAsDir();
-			if (!$this->componentsPath->appendIfExists('components')) {
-				$this->componentsPath->up();
-				if (!$this->componentsPath->appendIfExists('components')) {
-					$this->componentsPath->up();
-					if (!$this->componentsPath->appendIfExists('components')) {
-						$this->componentsPath = new Path($this->documentRoot);
-						if ($this->componentsPath->appendIfExists('components')) {    // no !
-							//$this->componentsPath = $this->componentsPath->relativeFromDocRoot();	// to check exists()
-						}
-					}
-				}
-			}
-		}
+//		if (!$this->componentsPath) {
+//			$this->componentsPath = new Path($this->appRoot);
+//			$this->componentsPath->setAsDir();
+//			if (!$this->componentsPath->appendIfExists('components')) {
+//				$this->componentsPath->up();
+//				if (!$this->componentsPath->appendIfExists('components')) {
+//					$this->componentsPath->up();
+//					if (!$this->componentsPath->appendIfExists('components')) {
+//						$this->componentsPath = new Path($this->documentRoot);
+//						if ($this->componentsPath->appendIfExists('components')) {    // no !
+//							//$this->componentsPath = $this->componentsPath->relativeFromDocRoot();	// to check exists()
+//						}
+//					}
+//				}
+//			}
+//		}
 	}
 
 	/**
@@ -274,9 +274,7 @@ class AutoLoad
 			}
 
 			if (isset($_SESSION[__CLASS__])) {
-				$this->classFileMap = isset($_SESSION[__CLASS__]['classFileMap'])
-					? $_SESSION[__CLASS__]['classFileMap']
-					: [];
+				$this->classFileMap = $_SESSION[__CLASS__]['classFileMap'] ?? [];
 			}
 
 			if (ifsetor($_SERVER['argc']) && in_array('-al', (array)ifsetor($_SERVER['argv']))) {
@@ -314,10 +312,9 @@ class AutoLoad
 
 	/**
 	 * Main __autoload() function
-	 * @param string $class
 	 * @throws Exception
 	 */
-	public function load($class): bool
+	public function load(string $class): void
 	{
 		$this->count++;
 
@@ -349,12 +346,10 @@ class AutoLoad
 			//pre_print_r($file, $this->folders->folders, $this->folders->collectDebug);
 			$this->logError($class . ' not found by AutoLoad');
 			//echo '<font color="red">'.$classFile.'-'.$file.'</font> ';
-			return false;
 		}
 
 //echo $classFile.' ';
 		$this->logSuccess($class . ' OK');
-		return true;
 	}
 
 	public function loadFileForClass(string $class)
@@ -382,16 +377,16 @@ class AutoLoad
 			if ($file) {
 				$this->classFileMap[$class] = $file;    // save
 				$this->logSuccess($class . ' found in ' . $file);
-				if (false
-					&& $this->debug
-					&& class_exists('AppController', false)
-					&& !Request::isCLI()) {
-					$subject = 'Class [' . $class . '] loaded from [' . $classFile . ']';
-					//$this->log($subject);
-					$c = new AppController();
-					echo $c->encloseInToggle(
-						implode("\n", $this->folders->collectDebug), $subject);
-				}
+//				if (false
+//					&& $this->debug
+//					&& class_exists('AppController', false)
+//					&& !Request::isCLI()) {
+//					$subject = 'Class [' . $class . '] loaded from [' . $classFile . ']';
+//					//$this->log($subject);
+//					$c = new AppController();
+//					echo $c->encloseInToggle(
+//						implode("\n", $this->folders->collectDebug), $subject);
+//				}
 
 				/** @noinspection PhpIncludeInspection */
 				include_once $file;

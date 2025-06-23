@@ -6,24 +6,18 @@
  */
 class ExcelReader
 {
-	protected $excel;
-
-	protected $isCache = TRUE;
-
-	protected $filename = 'cache/';
-
-	protected $xml;
-
 	/**
-     * @var mixed[]
-     */
-    public $ll;
+	 * @var mixed[]
+	 */
+	public $ll;
+	protected $excel;
+	protected $isCache = TRUE;
+	protected $filename = 'cache/';
+	protected $xml;
 
 	public function __construct($excelFile, $usePersistance = false)
 	{
-		$this->excel = $excelFile[0] === '/'
-			? $excelFile
-			: $excelFile;
+		$this->excel = $excelFile[0] === '/' ? $excelFile : $excelFile;
 		$this->filename .= basename($this->excel) . '.serial';
 
 		// read from excel - SimpleXML can't be serialized
@@ -45,22 +39,13 @@ class ExcelReader
 	{
 		$data = NULL;
 		if (file_exists($this->filename) && (filemtime($this->filename) > filemtime($this->excel) && $this->isCache)) {
-            $data = file_get_contents($this->filename);
-            if ($data) {
-					$data = unserialize($data);
-				}
-        }
+			$data = file_get_contents($this->filename);
+			if ($data) {
+				$data = unserialize($data);
+			}
+		}
 
 		return $data;
-	}
-
-	public function savePersistant($data): void
-	{
-		//$data = serialize($data);   // Serialization of 'SimpleXMLElement' is not allowed
-		$data = json_encode($data, defined(JSON_PRETTY_PRINT)
-			? JSON_PRETTY_PRINT
-			: null);
-		file_put_contents($this->filename, $data);
 	}
 
 	public function readExcel(): void
@@ -78,25 +63,17 @@ class ExcelReader
 		}
 	}
 
-	/**
-     * @return string[]
-     */
-    public function getSheets(): array
+	public function savePersistant($data): void
 	{
-		$list = [];
-		foreach ($this->xml->Worksheet as $sheet) {
-			$attr = $sheet->attributes('ss', true);
-			$list[] = trim($attr['Name']);
-		}
-
-		//d($sheet->asXML());
-		return $list;
+		//$data = serialize($data);   // Serialization of 'SimpleXMLElement' is not allowed
+		$data = json_encode($data, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
+		file_put_contents($this->filename, $data);
 	}
 
 	/**
-     * @return array<int, non-empty-array<(int<min, -2> | int<0, max>), string>>
-     */
-    public function getSheet($sheet = 0): array
+	 * @return array<int, non-empty-array<(int<min, -2> | int<0, max>), string>>
+	 */
+	public function getSheet($sheet = 0): array
 	{
 		$data = [];
 		$s = $this->xml->Worksheet[$sheet]->Table;
@@ -128,6 +105,21 @@ class ExcelReader
 		}
 
 		return $data;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getSheets(): array
+	{
+		$list = [];
+		foreach ($this->xml->Worksheet as $sheet) {
+			$attr = $sheet->attributes('ss', true);
+			$list[] = trim($attr['Name']);
+		}
+
+		//d($sheet->asXML());
+		return $list;
 	}
 
 }

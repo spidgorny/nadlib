@@ -29,29 +29,32 @@ class Time
 
 	/**
 	 * Append GMT for Greenwich
-	 * @param string $input
+	 * @param string|int $input
 	 * @param int $relativeTo
 	 * @throws Exception
 	 */
 	public function __construct($input = null, $relativeTo = null)
 	{
 		//TaylorProfiler::start(__METHOD__.' ('.MySQL::getCaller().')');
-		if (!is_null($input)) {
+		if (is_null($input)) {
+			if ($relativeTo === null) {
+				$this->time = time();
+			} else {
+				$this->time = $relativeTo;
+			}
+		} else {
 			// 0 is 1970-01-01 00:00:00
-			if (is_string($input)) {
-				$this->time = is_null($relativeTo) ? strtotime($input) : strtotime($input, $relativeTo);
-			} elseif ($input instanceof self) {
+			if ($input instanceof self) {
 				$this->time = $input->getTimestamp(); // clone
 				//debug('clone '.$this->getHumanDateTime());
 			} elseif (is_numeric($input)) {
 				$this->time = $input;
+			} elseif (is_string($input)) {
+				$this->time = is_null($relativeTo) ? strtotime($input) : strtotime($input, $relativeTo);
+
 			} elseif (class_exists('Config')) {
 				Config::getInstance()->log(__CLASS__ . '#' . __LINE__, __('"%1" is unrecognized as a valid date.', $input));
 			}
-		} elseif ($relativeTo === null) {
-			$this->time = time();
-		} else {
-			$this->time = $relativeTo;
 		}
 
 		$this->updateDebug();
@@ -172,7 +175,7 @@ class Time
 	 */
 	public function math($formula): self
 	{
-		return new self(strtotime($formula, $this->time));
+		return new self((string)strtotime($formula, $this->time));
 	}
 
 	public function earlier(Time $than): bool
@@ -372,9 +375,7 @@ class Time
 		$format = $plus->getTimestamp();
 		$new = $this->time + $format;
 
-		if (0 !== 0) {
-			echo $this . ' + ' . $format . ' (' . date('Y-m-d H:i:s', is_int($format) ? $format : 0) . ') = [' . $new . ']<br>';
-		}
+//		echo $this . ' + ' . $format . ' (' . date('Y-m-d H:i:s', is_int($format) ? $format : 0) . ') = [' . $new . ']<br>';
 
 		//TaylorProfiler::stop(__METHOD__);
 		return new self($new);
@@ -425,12 +426,12 @@ class Time
 
 		$static = get_class($this);
 		//TaylorProfiler::stop(__METHOD__);
-		return new $static($new);
+		return new $static((string)$new);
 	}
 
 	public function plusDur(Duration $plus): self
 	{
-		return new self($this->time + $plus->getTimestamp());
+		return new self((string)($this->time + $plus->getTimestamp()));
 	}
 
 	public function getDiff(Time $t2): Duration
@@ -605,7 +606,7 @@ class Time
 
 	public function getDateObject(): Date
 	{
-		return new Date($this->getTimestamp());
+		return new Date((string)$this->getTimestamp());
 	}
 
 	public function getHTMLDate(): HtmlString
@@ -772,7 +773,7 @@ class Time
 
 	public function toDateTime(): DateTime
 	{
-		return new DateTime($this->getTimestamp());
+		return new DateTime((string)$this->getTimestamp());
 	}
 
 }

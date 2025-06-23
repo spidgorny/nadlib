@@ -177,9 +177,7 @@ class IndexBE extends IndexBase
 	{
 		$v = new View($this->template, $this);
 		$v->content = $this->content . $content;
-		$v->title = $this->controller
-			? strip_tags($this->controller->title)
-			: null;
+		$v->title = strip_tags($this->controller->title);
 		$v->sidebar = $this->showSidebar();
 		$v->version = @file_get_contents('VERSION');
 

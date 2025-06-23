@@ -69,7 +69,7 @@ class MergedContent implements ArrayAccess
 			$render = $combined;
 		} elseif (is_object($render)) {
 			try {
-				$render .= '';
+				$render = $render->__toString();
 			} catch (ErrorException $e) {
 				debug_pre_print_backtrace();
 //				debug('Object of class ', get_class($render), 'could not be converted to string');

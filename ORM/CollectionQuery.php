@@ -83,11 +83,10 @@ class CollectionQuery
 		$res = $this->db->perform($this->query);
 		$data = $this->db->fetchAll($res);
 
-		if (method_exists($this->db, 'fixRowDataTypes')) {
-			$data = collect($data)->map(function ($row) use ($res) {
-				return $this->db->fixRowDataTypes($res, $row);
-			})->toArray();
-		}
+		$data = collect($data)->map(function ($row) use ($res) {
+			return $this->db->fixRowDataTypes($res, $row);
+		})->toArray();
+
 		// fetchAll does implement free()
 		TaylorProfiler::stop($taylorKey);
 		return $data;
@@ -145,7 +144,7 @@ class CollectionQuery
 			// joins are not implemented yet (IMHO)
 			$query = $this->db->getSelectQuerySW(
 				$this->table,
-				$where instanceof SQLWhere ? $where : new SQLWhere($where),
+				new SQLWhere($where),
 				$this->orderBy,
 				$this->select
 			);

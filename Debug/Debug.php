@@ -2,13 +2,13 @@
 
 namespace spidgorny\nadlib\Debug;
 
-use DebugCLI;
-use DebugBulma;
-use DebugHTML;
-use slTable;
-use ReflactionClass;
 use ArrayPlus;
+use DebugBulma;
+use DebugCLI;
+use DebugHTML;
+use ReflactionClass;
 use Request;
+use slTable;
 
 class Debug
 {
@@ -35,14 +35,14 @@ class Debug
 		self::$instance = $this;
 		$this->renderer = ifsetor($debugRenderer, $this->detectRenderer());
 //		pre_print_r($_COOKIE);
-		if (0 && ifsetor($_COOKIE['debug'])) {
-			llog([
-				'canCLI' => DebugCLI::canCLI(),
-				'canDebugster' => $this->canDebugster(),
-				'canBulma' => DebugBulma::canBulma(),
-				'canHTML' => $this->canHTML(),
-			]);
-		}
+//		if (0 && ifsetor($_COOKIE['debug'])) {
+//			llog([
+//				'canCLI' => DebugCLI::canCLI(),
+//				'canDebugster' => $this->canDebugster(),
+//				'canBulma' => DebugBulma::canBulma(),
+//				'canHTML' => $this->canHTML(),
+//			]);
+//		}
 
 		$this->request = Request::getInstance();
 	}
@@ -212,17 +212,12 @@ class Debug
 		$line = ifsetor($first['line']);
 		$file = ifsetor($first['file']);
 
-		$isPhpStorm = false;    // don't like it
-		if ($isPhpStorm) {
-			$path = $file;
-		} else {
-			$path = basename(dirname($file, 2)) .
-				'/' . basename(dirname($file)) .
-				'/' . basename($file);
-			if ($path[0] === 'C') {
-				llog($file, $path);
-				exit;
-			}
+		$path = basename(dirname($file, 2)) .
+			'/' . basename(dirname($file)) .
+			'/' . basename($file);
+		if ($path[0] === 'C') {
+			llog($file, $path);
+			exit;
 		}
 
 		if (isset($first['object']) && $first['object']) {
@@ -532,11 +527,9 @@ class Debug
 
 		$debugHTML = new DebugHTML($this);
 		$content = $debugHTML->render($params);
-		if (!is_null($content)) {
-			print($content);
-		}
+		print($content);
 
-		if (ob_get_level() == 0) {
+		if (ob_get_level() === 0) {
 			flush();
 		}
 	}

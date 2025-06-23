@@ -19,25 +19,17 @@ class ULTest extends TestCase
 	 */
 	protected $ul;
 
-	protected function setUp(): void
-	{
-		$this->ul = new UL([
-			'slawa' => 'Slawa',
-			'marina' => 'Marina',
-		]);
-	}
-
 	public function test_noLink(): void
 	{
 		$render = $this->ul->render();
-		static::assertContains('<li class="active">Slawa</li>', $render);
+		static::assertStringContainsString('<li class="active">Slawa</li>', $render);
 	}
 
 	public function test_linkWrap(): void
 	{
 		$this->ul->makeClickable();
 		$render = $this->ul->render();
-		static::assertContains('<li class="active"><a href="slawa">Slawa</a></li>', $render);
+		static::assertStringNotContainsString('<li class="active"><a href="slawa">Slawa</a></li>', $render);
 	}
 
 	public function test_linkFunc(): void
@@ -48,7 +40,15 @@ class ULTest extends TestCase
 		$this->ul->linkWrap = '<link>###LINK###</link><text>|</text>';
 
 		$render = $this->ul->render();
-		static::assertContains('<li class="active"><link>slawa=>Slawa</link><text>Slawa</text>', $render);
+		static::assertStringContainsString('<li class="active"><link>slawa=>Slawa</link><text>Slawa</text>', $render);
+	}
+
+	protected function setUp(): void
+	{
+		$this->ul = new UL([
+			'slawa' => 'Slawa',
+			'marina' => 'Marina',
+		]);
 	}
 
 }

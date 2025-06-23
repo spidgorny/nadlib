@@ -215,7 +215,7 @@ class PGArray extends AsIs
 		$r = [];
 		while (($data = fgetcsv($temp, 4096, $delimiter, $enclosure, $escape)) !== false) {
 //			$data = array_map('stripcslashes', $data);
-			$data = array_map(function ($str): string|array {
+			$data = array_map(static function ($str): string {
 				// exactly opposite to setPGArray()
 				$str = str_replace('\"', '"', $str);
 				// this is needed because even with

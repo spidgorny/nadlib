@@ -7,11 +7,11 @@
 class CsvIterator implements Iterator, Countable
 {
 
-const ROW_SIZE = 4194304;
+	const ROW_SIZE = 4194304;
 	/**
-     * @var string
-     */
-    public $filename; // 4096*1024;
+	 * @var string
+	 */
+	public $filename; // 4096*1024;
 	/**
 	 * The pointer to the cvs file.
 	 * @var resource
@@ -38,7 +38,7 @@ const ROW_SIZE = 4194304;
 	 * @var int - cached amount of rows in a file
 	 */
 	protected $numRows; // != 0
-protected $lastRead = -1;
+	protected $lastRead = -1;
 	/**
 	 * The delimiter for the csv file.
 	 * @var string
@@ -69,11 +69,11 @@ protected $lastRead = -1;
 	}
 
 	/**
-     * Reads past the UTF-8 bom if it is there.
-     * @param string $mode
-     * @return resource
-     */
-    public function fopen_utf8(string $filename, $mode)
+	 * Reads past the UTF-8 bom if it is there.
+	 * @param string $mode
+	 * @return resource
+	 */
+	public function fopen_utf8(string $filename, $mode)
 	{
 		$file = fopen($filename, $mode);
 		if (!$file) {

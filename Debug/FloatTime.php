@@ -75,7 +75,7 @@ class FloatTime
 	}
 
 	/**
-	 * @return int|number|string
+	 * @return int|numeric-string
 	 * @throws DatabaseException
 	 */
 	private function getDBTime()

@@ -1,4 +1,7 @@
 <?php /** @noinspection ForgottenDebugOutputInspection */
+
+use spidgorny\nadlib\Debug\Debug;
+
 /********************************************************************************\
  * Copyright (C) Carl Taylor (cjtaylor@adepteo.com)                             *
  * Copyright (C) Torben Nehmer (torben@nehmer.net) for Code Cleanup             *
@@ -22,12 +25,12 @@
 class TaylorProfiler
 {
 	/**
-	 * @var SplObjectStorage
+	 * @var ?SplObjectStorage
 	 */
 	static public $sos;
 
 	/**
-	 * @var TaylorProfiler
+	 * @var ?TaylorProfiler
 	 */
 	static public $instance;
 
@@ -115,26 +118,19 @@ class TaylorProfiler
 				$this->count[$name]++;
 			}
 
-			if (false) {
-				$hash = md5($name);
-				$hash = substr($hash, 0, 6);
-				echo '<span style="background: #' . $hash . '">', $name,
-				' START', '</span>', BR;
-			}
+//			if (false) {
+//				$hash = md5($name);
+//				$hash = substr($hash, 0, 6);
+//				echo '<span style="background: #' . $hash . '">', $name,
+//				' START', '</span>', BR;
+//			}
 		}
 	}
 
 	public static function getName()
 	{
-		if (class_exists('Debug') && method_exists('Debug', 'getCaller')) {
-			$name = Debug::getCaller(3);    // three is best
-		} elseif (class_exists('dbLayerPG')) {
-			$name = dbLayerPG::getCaller(3, 2);
-		} else {
-			$name = 'noname';
-		}
-
-		return $name;
+		// three is best
+		return Debug::getCaller(3);
 	}
 
 	/**
@@ -178,7 +174,7 @@ class TaylorProfiler
 		$self->isLog = true;
 	}
 
-		/**
+	/**
 	 * @param bool $output_enabled
 	 * @param bool $trace_enabled
 	 * @return null|TaylorProfiler
@@ -188,12 +184,11 @@ class TaylorProfiler
 		return ifsetor($GLOBALS['profiler']) instanceof self
 			? $GLOBALS['profiler']
 			: (
-			self::$instance
-				?: self::$instance = new self($output_enabled, $trace_enabled)
+			self::$instance ?: self::$instance = new self($output_enabled, $trace_enabled)
 			);
 	}//end start_time
 
-public static function getMemoryUsage(): string
+	public static function getMemoryUsage(): string
 	{
 		static $max;
 		static $previous;
@@ -247,7 +242,7 @@ public static function getMemoryUsage(): string
 	{
 		$totalTime = self::getElapsedTime();
 		[$seconds, $ms] = explode('.', $totalTime);
-		return gmdate('H:i:s', $seconds) . '.' . $ms;
+		return gmdate('H:i:s', (int)$seconds) . '.' . $ms;
 	}
 
 	public static function getElapsedTime(): string
@@ -306,9 +301,7 @@ public static function getMemoryUsage(): string
 	public static function dumpQueries()
 	{
 		$queryLog = class_exists('Config', false)
-			? (Config::getInstance()->getDB()
-				? Config::getInstance()->getDB()->getQueryLog()
-				: null)
+			? Config::getInstance()->getDB()->getQueryLog()
 			: null;
 		if ($queryLog) {
 			return $queryLog->dumpQueriesTP();
@@ -358,12 +351,12 @@ public static function getMemoryUsage(): string
 
 			$this->cur_timer = array_pop($this->stack) ?? '';
 			$this->resumeTimer($this->cur_timer);
-			if (false) {
-				$hash = md5($name);
-				$hash = substr($hash, 0, 6);
-				echo '<span style="background: #' . $hash . '">', $name,
-				' STOP', '</span>', BR;
-			}
+//			if (false) {
+//				$hash = md5($name);
+//				$hash = substr($hash, 0, 6);
+//				echo '<span style="background: #' . $hash . '">', $name,
+//				' STOP', '</span>', BR;
+//			}
 		}
 	}
 
@@ -531,14 +524,10 @@ public static function getMemoryUsage(): string
 				$table[] = [
 					'nr' => ++$i,
 					'count' => $row['count'],
-					'time, ms' => number_format($total * 1000, 2, '.', '') . '',
-					'avg/1' => number_format(ifsetor($row['avg']), 2, '.', '') . '',
-					'percent' => is_numeric($perc)
-						? number_format($perc, 2, '.', '') . '%'
-						: $perc,
-					'bar' => is_numeric($perc)
-						? ProgressBar::getImage($perc)
-						: null,
+					'time, ms' => number_format($total * 1000, 2, '.', ''),
+					'avg/1' => number_format(ifsetor($row['avg']), 2, '.', ''),
+					'percent' => number_format($perc, 2, '.', '') . '%',
+					'bar' => ProgressBar::getImage($perc),
 					'routine' => $routine,
 				];
 			}
@@ -651,7 +640,7 @@ public static function getMemoryUsage(): string
 		$ret = null;
 		$amem = ArrayPlus::create($this->trace)->column('memory');
 		if (count($amem) !== 0) {
-			$ret = max($amem);
+			$ret = max($amem->toArray());
 		}
 
 		return $ret;

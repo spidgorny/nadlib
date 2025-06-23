@@ -25,9 +25,9 @@ class ServerStat extends AppControllerBE
 	}
 
 	/**
-     * AJAX
-     */
-    public function updateHereAction(): string
+	 * AJAX
+	 */
+	public function updateHereAction(): string
 	{
 		$content = $this->renderEverything();
 		return $content . '<script> updateHere(); </script>';
@@ -90,9 +90,9 @@ class ServerStat extends AppControllerBE
 	}
 
 	/**
-     * @return mixed[]
-     */
-    public function getPerformanceInfo(): array
+	 * @return mixed[]
+	 */
+	public function getPerformanceInfo(): array
 	{
 		$this->LOG = is_array($this->LOG) ? $this->LOG : [];
 
@@ -220,9 +220,9 @@ class ServerStat extends AppControllerBE
 	}
 
 	/**
-     * @return float[]|int[]|null[]
-     */
-    public function getCpuUsage($_statPath = '/proc/stat'): array
+	 * @return float[]|int[]|null[]
+	 */
+	public function getCpuUsage($_statPath = '/proc/stat'): array
 	{
 		TaylorProfiler::start(__METHOD__);
 		$percentages = [
@@ -308,9 +308,9 @@ class ServerStat extends AppControllerBE
 		$days = intval($seconds / 86400);
 
 		$uptimeString = $days . "D ";
-		$uptimeString .= str_pad($hours, 2, '0', STR_PAD_LEFT) . ":";
-		$uptimeString .= str_pad($mins, 2, '0', STR_PAD_LEFT) . ":";
-		return $uptimeString . str_pad($secs, 2, '0', STR_PAD_LEFT);
+		$uptimeString .= str_pad((string)$hours, 2, '0', STR_PAD_LEFT) . ":";
+		$uptimeString .= str_pad((string)$mins, 2, '0', STR_PAD_LEFT) . ":";
+		return $uptimeString . str_pad((string)$secs, 2, '0', STR_PAD_LEFT);
 	}
 
 	public function getQueryLog(): \slTable

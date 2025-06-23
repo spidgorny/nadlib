@@ -11,28 +11,6 @@ class ModelWithCollection extends Model
 	public static $itemClassName;
 
 	/**
-	 * @return Collection
-	 * @throws Exception
-	 * @deprecated
-	 */
-	public function getCollection(array $where = [], $orderBy = null)
-	{
-		$col = Collection::createForTable($this->db, $this->table);
-		$col->idField = $this->idField;
-		$col::$itemClassName = static::$itemClassName;
-		$col->objectifyByInstance = method_exists(static::$itemClassName, 'getInstance');
-		$col->where = $where;
-		if ($orderBy) {
-			$col->orderBy = $orderBy;
-		}
-
-		// because it will try to run query on DBLayerJSON
-		// that's OK because we don't use DBLayerJSON anymore
-//		$col->count = $this->getCount();
-		return $col;
-	}
-
-	/**
 	 * @param $id
 	 * @return mixed
 	 * @deprecated
@@ -51,6 +29,27 @@ class ModelWithCollection extends Model
 		// don't uncomment as this leads to recursive calls to $this->getCollection()
 		return $this->getCollection()->getCount();
 //		return $this->db->numRows('SELECT count(*) FROM '.$this->table);
+	}
+
+	/**
+	 * @return Collection
+	 * @throws Exception
+	 * @deprecated
+	 */
+	public function getCollection(array $where = [], $orderBy = null)
+	{
+		$col = Collection::createForTable($this->db, $this->table);
+		$col->idField = $this->idField;
+		$col::$itemClassName = static::$itemClassName;
+		$col->where = $where;
+		if ($orderBy) {
+			$col->orderBy = $orderBy;
+		}
+
+		// because it will try to run query on DBLayerJSON
+		// that's OK because we don't use DBLayerJSON anymore
+//		$col->count = $this->getCount();
+		return $col;
 	}
 
 }

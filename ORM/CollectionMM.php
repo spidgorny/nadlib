@@ -70,18 +70,18 @@ class CollectionMM extends Collection
 	 * Will detect double-call and do nothing.
 	 *
 	 * @param string $class - required, but is supplied by the subclasses
-	 * @param bool $byInstance
 	 * @return object[]
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
-	public function objectify($class = '', $byInstance = false)
+	public function objectify($class = '')
 	{
+		$byInstance = method_exists($class, 'getInstance');
 		$this->members = [];   // somehow necessary
 		$class = $class ?: static::$itemClassName;
-		if (!$this->members) {
-			foreach ($this->getData() as $row) {
-				$key = $row[$this->idField];
-				$this->members[$key] = $byInstance ? call_user_func($class . '::getInstance', $key, $this->db) : new $class($key, $this->db);
-			}
+		foreach ($this->getData() as $row) {
+			$key = $row[$this->idField];
+			$this->members[$key] = $byInstance ? call_user_func($class . '::getInstance', $key, $this->db) : new $class($key, $this->db);
 		}
 
 		return $this->members;

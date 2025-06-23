@@ -1,6 +1,13 @@
 <?php
 
-class PersistantOODBase extends OODBase
+/**
+ * PersistentOODBase is a base class for objects that are persistent in the database.
+ * It extends OODBase and provides functionality to automatically save changes to the database
+ * when the object is destructed or when save() is called.
+ *
+ * @package nadlib\ORM
+ */
+class PersistentOODBase extends OODBase
 {
 
 	public static $inserted = 0;
@@ -19,7 +26,7 @@ class PersistantOODBase extends OODBase
 
 	// define them in a subclass for static::inserted to work
 
-	public function __construct($initer = null, ?DBInterface $db = null)
+	public function __construct($initer, DBInterface $db)
 	{
 		parent::__construct($initer, $db);
 		$this->originalData = $this->data;
@@ -68,14 +75,14 @@ class PersistantOODBase extends OODBase
 	public function save(?array $where = null): string
 	{
 		if ($this->isChanged()) {
-			0 && debug([
-				'stateHash' => $this->stateHash,
-				'originalData' => $this->originalData,
-				'getStateHash' => $this->getStateHash(),
-				'data' => $this->data,
-				'table' => $this->table,
-				'id' => $this->id,
-			]);
+//			0 && debug([
+//				'stateHash' => $this->stateHash,
+//				'originalData' => $this->originalData,
+//				'getStateHash' => $this->getStateHash(),
+//				'data' => $this->data,
+//				'table' => $this->table,
+//				'id' => $this->id,
+//			]);
 			if ($this->isUpdate()) {
 				//debug(__CLASS__, $this->id, $this->getStateHash(), $this->stateHash, $this->data, $this->originalData);
 				//debug(get_class($this), $this->id, $this->originalData, $this->data);
@@ -92,12 +99,12 @@ class PersistantOODBase extends OODBase
 			static::$skipped++;
 		}
 
-		nodebug([
-			$this->stateHash => $this->originalData,
-			$this->getStateHash() => $this->data,
-			$this->table => $this->id,
-			'action' => $action,
-		]);
+//		nodebug([
+//			$this->stateHash => $this->originalData,
+//			$this->getStateHash() => $this->data,
+//			$this->table => $this->id,
+//			'action' => $action,
+//		]);
 		//debug('table: '.$this->table.' action: '.$action.' id: '.$this->id);
 		return $action;
 	}
@@ -107,11 +114,9 @@ class PersistantOODBase extends OODBase
 		return $this->getStateHash() !== $this->stateHash;
 	}
 
-	public function isUpdate()
+	public function isUpdate(): bool
 	{
-		return is_array($this->id)
-			? trim(implode('', $this->id))
-			: $this->id;
+		return (bool)$this->id;
 	}
 
 	/**

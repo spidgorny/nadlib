@@ -92,7 +92,7 @@ class Collection implements IteratorAggregate, ToStringable
 	public $desc = [];
 
 	/**
-	 * @var callable
+	 * @var ?callable
 	 */
 	public $prepareRenderRow;
 
@@ -102,8 +102,6 @@ class Collection implements IteratorAggregate, ToStringable
 	 * @var bool
 	 */
 	public $allowMerge = false;
-
-	public $objectifyByInstance = false;
 
 	/**
 	 * In case of MSSQL it needs to be set from outside
@@ -557,28 +555,32 @@ class Collection implements IteratorAggregate, ToStringable
 	/**
 	 * Will detect double-call and do nothing.
 	 *
-	 * @param string $class - required, but is supplied by the subclasses
-	 * @param bool $byInstance - will call getInstance() instead of "new"
-	 * @return object[]|OODBase[]
+	 * @template T of OODBase|Model
+	 * @param class-string<T> $class - required, but is supplied by the subclasses
+	 * @return T[]
 	 * @throws Exception
 	 */
-	public function objectify($class = null, $byInstance = false)
+	public function objectify($class = null)
 	{
 		$class = $class ?: static::$itemClassName;
 		if ($this->members) {
 			return $this->members;
 		}
 
+		$byInstance = method_exists($class, 'getInstance');
 		$this->log(__METHOD__, ['class' => $class, 'instance' => $byInstance]);
 		$this->members = [];   // somehow necessary
 		foreach ($this->getData() as $row) {
 			$key = $row[$this->idField];
 			if ($byInstance) {
-				//$this->members[$key] = call_user_func_array(array($class, 'getInstance'), array($row));
 				$this->members[$key] = call_user_func($class . '::getInstance', $row, $this->db);
 			} else {
-				$this->members[$key] = new $class($row, $this->db);
-				$this->members[$key]->setDB($this->db);
+				$ref = new ReflectionClass($class);
+				if ($ref->getExtensionName() === Model::class) {
+					$this->members[$key] = new $class($this->db, $row);
+				} else {
+					$this->members[$key] = new $class($row, $this->db);
+				}
 			}
 		}
 
@@ -660,17 +662,16 @@ class Collection implements IteratorAggregate, ToStringable
 	{
 		$class = static::$itemClassName;
 		/** @var OODBase $obj */
-		$obj = method_exists($class, 'getInstance') ? $class::getInstance($row, $this->db) : new $class($row, $this->db);
+		$obj = method_exists($class, 'getInstance')
+			? $class::makeInstance($row, $this->db) : new $class($row, $this->db);
 
 		if (method_exists($obj, 'render')) {
 			$content = $obj->render();
-		} elseif (method_exists($obj, 'getSingleLink')) {
+		} else {
 			$link = $obj->getSingleLink();
 			$content = $link ? new HTMLTag('a', [
 				'href' => $link,
 			], (string)$obj->getName()) : (string)$obj->getName();
-		} else {
-			$content = $obj->getName();
 		}
 
 		return $content;
@@ -773,7 +774,7 @@ class Collection implements IteratorAggregate, ToStringable
 	 */
 	public function mergeData(Collection $c2): void
 	{
-		array_keys($this->getData()->getData());
+//		array_keys($this->getData()->getData());
 		//$this->data = array_merge($this->data, $c2->data);	// don't preserve keys
 		$myObjects = $this->objectify();
 		$data2 = $c2->getData()->getData();

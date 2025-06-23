@@ -265,7 +265,7 @@ post_max_size: ' . $post_max_size . '">' .
 		}
 
 		if (!$uf) {
-			throw new UploadException(sprintf('[%s] is not a valid %s index', $from, $_FILES));
+			throw new UploadException(sprintf('[%s] is not a valid %s index', $from, json_encode($_FILES, JSON_THROW_ON_ERROR)));
 		}
 
 		if (!$this->checkError($uf)) {
@@ -373,7 +373,7 @@ post_max_size: ' . $post_max_size . '">' .
 		}
 
 		if (!$uf) {
-			throw new UploadException(sprintf('[%s] is not a valid %s index', $from, $_FILES));
+			throw new UploadException(sprintf('[%s] is not a valid %s index', $from, json_encode($_FILES, JSON_THROW_ON_ERROR)));
 		}
 
 		if (!$this->checkError($uf)) {

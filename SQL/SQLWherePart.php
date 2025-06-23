@@ -15,7 +15,7 @@ class SQLWherePart
 	protected $sql = '';
 
 	/**
-	 * @var string
+	 * @var string|int
 	 */
 	protected $field;
 
@@ -23,23 +23,6 @@ class SQLWherePart
 	{
 		$this->sql = $sql;
 //		$this->db = Config::getInstance()->getDB();
-	}
-
-	/**
-     * Not used directly
-     * @throws MustBeStringException
-     * @see SQLWhereEqual
-     */
-    public function __toString(): string
-	{
-		if ($this->field && !is_numeric($this->field)) {
-			$part1 = $this->db->quoteWhere(
-				[$this->field => $this->sql]
-			);
-			return implode('', $part1);
-		}
-
-		return $this->sql . '';
 	}
 
 	public function injectDB(DBInterface $db): static
@@ -64,9 +47,9 @@ class SQLWherePart
 	}
 
 	/**
-     * Sub-classes should return their parameters
-     */
-    public function getParameter()
+	 * Sub-classes should return their parameters
+	 */
+	public function getParameter()
 	{
 		return null;
 	}
@@ -74,6 +57,23 @@ class SQLWherePart
 	public function perform()
 	{
 		return $this->db->perform($this->__toString());
+	}
+
+	/**
+	 * Not used directly
+	 * @throws MustBeStringException
+	 * @see SQLWhereEqual
+	 */
+	public function __toString(): string
+	{
+		if ($this->field && !is_numeric($this->field)) {
+			$part1 = $this->db->quoteWhere(
+				[$this->field => $this->sql]
+			);
+			return implode('', $part1);
+		}
+
+		return $this->sql . '';
 	}
 
 	public function getField()

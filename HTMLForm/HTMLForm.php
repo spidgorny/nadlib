@@ -157,7 +157,7 @@ class HTMLForm implements ToStringable
 	/**
 	 * Set empty to unset prefix
 	 *
-	 * @param string|null $p
+	 * @param string[]|string|null $p
 	 *
 	 * @return $this
 	 */
@@ -220,7 +220,7 @@ class HTMLForm implements ToStringable
 	}
 
 	/**
-	 * @param string $name
+	 * @param string|string[] $name
 	 * @param string $value
 	 * @param array $more - may be array
 	 */
@@ -275,13 +275,13 @@ class HTMLForm implements ToStringable
 
 	public function getID($from): string
 	{
-		$elementID = is_array($from) ? 'id-' . implode('-', $from) : 'id-' . $from;
+		$elementID = is_array($from) ? implode('-', $from) : $from;
 
 		if ($elementID === '0') {
-			$elementID = uniqid('id-', true);
+			$elementID = uniqid('', true);
 		}
 
-		return $elementID;
+		return 'id-' . $elementID;
 	}
 
 	/**
@@ -456,7 +456,7 @@ class HTMLForm implements ToStringable
 
 	public function getFormTag(): string
 	{
-		$attributes = is_string($this->formMore) ? HTMLTag::parseAttributes($this->formMore) : $this->formMore;
+		$attributes = $this->formMore;
 
 		if ($this->action) {
 			$attributes += [
@@ -535,16 +535,17 @@ class HTMLForm implements ToStringable
 			FROM ' . $desc['from'] . '
 			WHERE NOT hidden AND NOT deleted
 			ORDER BY value');
-			$options = ArrayPlus::from($options)->IDalize('value', 'value');
+			$options = ArrayPlus::from($options)->IDalize('value');
 		} else {
 			$options = $desc['options'];
 		}
 
 		if (class_exists('Index')) {
 //			Index::getInstance()->addJQuery();
-			$content[] = $this->selection($fieldName, $options, $desc['value'], false, 'onchange="jQuery(this).nextAll(\'input\').val(
+			$content[] = $this->selection($fieldName, $options, $desc['value'], false, [
+				'onchange' => "jQuery(this).nextAll(\'input\').val(
 			jQuery(this).val()
-		);"', false, $desc);
+		);"], false, $desc);
 			$content[] = $this->input($fieldName, $desc['value']);
 		}
 		return $content;
@@ -570,7 +571,7 @@ class HTMLForm implements ToStringable
 	{
 		$sel = new HTMLFormSelection($name, $aOptions, $default);
 		$sel->autoSubmit = $autoSubmit;
-		$sel->more = is_string($more) ? HTMLTag::parseAttributes($more) : $more;
+		$sel->more = $more;
 		$sel->multiple = $multiple;
 		$sel->setDesc($desc);
 		//debug($name, $desc);
@@ -624,7 +625,7 @@ class HTMLForm implements ToStringable
 	 * This is checking using isset()
 	 *
 	 * @param $name
-	 * @param array $value
+	 * @param array|string $value
 	 */
 	public function keyset($name, $value = [], array $desc = []): array
 	{
@@ -687,7 +688,7 @@ class HTMLForm implements ToStringable
 	 * @param $value
 	 * @param bool $checked
 	 * @param string $label
-	 * @param string $more
+	 * @param string|string[] $more
 	 */
 	public function radioLabel($name, $value, $checked, $label = "", $more = ''): array
 	{
@@ -701,7 +702,7 @@ class HTMLForm implements ToStringable
 			value="' . htmlspecialchars($value, ENT_QUOTES) . '" ' .
 			($checked ? "checked" : "") . '
 			id="' . $id . '"
-			' . (is_array($more) ? $this->getAttrHTML($more) : $more) . '> ';
+			' . (is_array($more) ? self::getAttrHTML($more) : $more) . '> ';
 		$content[] = $this->hsc($label) . "</label>";
 		return $content;
 	}
@@ -786,8 +787,7 @@ document.observe("dom:loaded", () => {
 			" class="checkarray ' . $sName . '">';
 		$newName = array_merge($name, ['']);
 		foreach ($options as $value => $row) {
-			$checked = (!is_array($selected) && $selected == $value) ||
-				(is_array($selected) && in_array($value, $selected));
+			$checked = in_array($value, $selected, false);
 			$content[] = '<label class="checkline_' . ($checked ? 'active' : 'normal') . '" style="white-space: nowrap;">';
 			$more = collect($more)->map(fn($val) => str_replace(urlencode("###KEY###"), $value, $val))->toArray();
 			$content[] = $this->check($newName, $value, $checked, $more);
@@ -839,7 +839,7 @@ document.observe("dom:loaded", () => {
 
 		print("</select>");
 	}
-	
+
 	public function flipSwitch(string $name, string $value, $checked, string $more = ''): void
 	{
 		$id = uniqid('flipSwitch_', true);

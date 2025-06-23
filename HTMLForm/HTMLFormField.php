@@ -74,6 +74,14 @@ class HTMLFormField extends HTMLFormType
 		return is_string($type) ? $type : get_class($type);
 	}
 
+	public function getContent(): string
+	{
+		if (!$this->content) {
+			$this->render();
+		}
+		return $this->content;
+	}
+
 	public function render(): string|array|ToStringable
 	{
 		$fieldName = $this->fieldName;
@@ -128,13 +136,13 @@ class HTMLFormField extends HTMLFormType
 
 	public function getID($from): string
 	{
-		$elementID = is_array($from) ? 'id-' . implode('-', $from) : 'id-' . $from;
+		$elementID = is_array($from) ? implode('-', $from) : $from;
 
 		if ($elementID === '0') {
 			$elementID = uniqid('id-', true);
 		}
 
-		return $elementID;
+		return 'id-' . $elementID;
 	}
 
 	public function setForm(HTMLForm $form): void
@@ -152,7 +160,7 @@ class HTMLFormField extends HTMLFormType
 	/**
 	 * @param string $type
 	 * @param mixed $fieldValue
-	 * @param string $fieldName
+	 * @param string|string[] $fieldName
 	 * @throws Exception
 	 */
 	private function switchTypeRaw($type, $fieldValue, $fieldName): string|array
@@ -338,14 +346,6 @@ class HTMLFormField extends HTMLFormType
 	public function getArray()
 	{
 		return $this->data;
-	}
-
-	public function getContent(): string
-	{
-		if (!$this->content) {
-			$this->render();
-		}
-		return $this->content;
 	}
 
 	public function isCheckbox(): bool

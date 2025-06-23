@@ -11,7 +11,7 @@ abstract class HTMLFormProcessor extends SimpleController
 {
 
 	/**
-	 * @var array
+	 * @var array|Request
 	 */
 	public $default = [];
 
@@ -22,34 +22,27 @@ abstract class HTMLFormProcessor extends SimpleController
 	 * @var array
 	 */
 	public $method = [];
-
+	public $postUrl;
 	protected string $prefix;
-
 	/**
 	 * @var HTMLFormValidate
 	 */
 	protected $validator;
-
 	/**
 	 * Stored result of the validation. HTMLFormValidate doesn't cache the result
 	 * @var bool
 	 */
 	protected $validated = false;
-
 	protected string $submitButton = 'Save';
-
 	/**
 	 * @var HTMLFormTable
 	 */
 	protected $form;
-
 	/**
 	 * Distinguishes initial display of the form (false) from after submit (true)
 	 * @var bool
 	 */
 	protected $submitted = false;
-
-	public $postUrl;
 
 	public function __construct(array $default = [])
 	{

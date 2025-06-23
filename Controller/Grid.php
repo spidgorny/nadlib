@@ -75,13 +75,11 @@ trait Grid
 			$this->filter->setRequest($this->request->getArray('filter'));
 		}
 
-		if (method_exists($this->user, 'getPref')) {
-			$prefFilter = $this->user->getPref('Filter.' . $cn);
+		$prefFilter = $this->user->getPref('Filter.' . $cn);
 //				debug($prefFilter);
-			if ($prefFilter) {
+		if ($prefFilter) {
 //				$this->log(__METHOD__, 'setPreferences', $prefFilter);
-				$this->filter->setPreferences($prefFilter);
-			}
+			$this->filter->setPreferences($prefFilter);
 		}
 
 //			d($cn, $this->filter,
@@ -89,20 +87,20 @@ trait Grid
 //				$_SESSION
 //			);
 		//debug(get_class($this), 'Filter.'.$cn, $this->filter);
-		0 && debug([
-			'controller' => $this->request->getControllerString(),
-			'this' => get_class($this),
-			//'allowEdit' => $allowEdit,
-			'this->filter' => $this->filter,
-			'_REQUEST' => $_REQUEST,
-		]);
+//		0 && debug([
+//			'controller' => $this->request->getControllerString(),
+//			'this' => get_class($this),
+//			//'allowEdit' => $allowEdit,
+//			'this->filter' => $this->filter,
+//			'_REQUEST' => $_REQUEST,
+//		]);
 	}
 
 	public function initPageSize(): void
 	{
 		$sizeFromPreferences = $this->user->getSetting(get_class($this) . '.pageSize');
 //		$this->log(__METHOD__, 'sizeFromPreferences', $sizeFromPreferences);
-		$this->pageSize = $this->pageSize ?: new PageSize($sizeFromPreferences);
+		$this->pageSize = new PageSize($sizeFromPreferences);
 		$this->user->setSetting(get_class($this) . '.pageSize', $this->pageSize->get());
 	}
 
@@ -165,11 +163,10 @@ trait Grid
 		//$this->injectCollection();
 //		}
 
-		$cn = $cn ?: get_class($this->collection);
 		//debug($cn);
 		assert($cn > '');
 
-		if ($this->filter && method_exists($this->user, 'setPref')) {
+		if ($this->filter) {
 			//				$this->log(__METHOD__, 'setPref', $this->filter->getArrayCopy());
 			$this->user->setPref('Filter.' . $cn, (array)$this->filter);
 		}
@@ -177,18 +174,16 @@ trait Grid
 		//debug(spl_object_hash(Index::getInstance()->controller), spl_object_hash($this));
 		//if (Index::getInstance()->controller == $this) {	// Menu may make instance of multiple controllers
 
-		if (method_exists($this->user, 'setPref') && $this->request->is_set('slTable')) {
+		if ($this->request->is_set('slTable')) {
 			$this->user->setPref('Sort.' . $cn, $this->request->getArray('slTable'));
 		}
 
 		// SORTING
 		$sortRequest = $this->request->getArray('slTable');
-		if (method_exists($this->user, 'getPref')) {
-			if ($sortRequest) {
-				$this->sort = $sortRequest;
-			} else {
-				$this->sort = ($this->user->getPref('Sort.' . $cn) ?: $this->sort);
-			}
+		if ($sortRequest) {
+			$this->sort = $sortRequest;
+		} else {
+			$this->sort = ($this->user->getPref('Sort.' . $cn) ?: $this->sort);
 		}
 	}
 
@@ -283,7 +278,7 @@ trait Grid
 			$this->columns = new VisibleColumns($urlColumns);
 			$this->user->setPref('Columns.' . $cn, $this->columns->getData());
 			llog('Columns set from URL', $this->columns->getData());
-		} elseif (!$this->columns && method_exists($this->user, 'getPref')) {
+		} elseif (!$this->columns) {
 			$prefs = $this->user->getPref('Columns.' . $cn);
 			if ($prefs) {
 				$this->columns = new VisibleColumns($prefs);

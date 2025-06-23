@@ -9,7 +9,7 @@ class SQLSelectQuery extends SQLWherePart
 	public $join;
 
 	/**
-	 * @var SQLWhere
+	 * @var ?SQLWhere
 	 */
 	public $where;
 
@@ -254,7 +254,7 @@ class SQLSelectQuery extends SQLWherePart
 		}
 
 		//		debug(__METHOD__, $table, $where, $where->getParameters());
-		$sq = new SQLSelectQuery($select, $from, $where, $join, $group, null, $order, $limit);
+		$sq = new SQLSelectQuery($db, $select, $from, $where, $join, $group, null, $order, $limit);
 		$sq->injectDB($db);
 		return $sq;
 	}

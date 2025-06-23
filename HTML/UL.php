@@ -4,9 +4,9 @@ class UL implements ToStringable
 {
 
 	/**
-     * @var mixed[]
-     */
-    public $items = [];
+	 * @var mixed[]
+	 */
+	public $items = [];
 
 	public $before = '<ul>';
 
@@ -35,7 +35,7 @@ class UL implements ToStringable
 	public $linkWrap = '';
 
 	/**
-	 * @var Closure callback to link generation function(index, name)
+	 * @var ?closure callback to link generation function(index, name)
 	 */
 	public $linkFunc;
 
@@ -43,6 +43,29 @@ class UL implements ToStringable
 	{
 		$this->items = $items;
 		$this->activeClass = key($this->items);
+	}
+
+	public static function DL(array $assoc): \UL
+	{
+		$ul = new UL($assoc);
+		$links = array_keys($assoc);
+		$ul->links = array_combine($links, $links);
+		$ul->wrap = '<dt>###CLASS###</dt>|';
+		$ul->linkWrap = '<dd>|</dd>';
+		$ul->before = '<dl class="dl-horizontal">';
+		$ul->after = '</dl>';
+		return $ul;
+	}
+
+	public static function recursive(array $epesEmployees): \UL
+	{
+		foreach ($epesEmployees as &$el) {
+			if ($el instanceof Recursive) {
+				$el = $el->value . UL::recursive($el->getChildren());
+			}
+		}
+
+		return new UL($epesEmployees);
 	}
 
 	public function add($value, $key = null): void
@@ -61,16 +84,21 @@ class UL implements ToStringable
 		$this->links = array_combine($this->links, $this->links);
 	}
 
+	public function __toString(): string
+	{
+		return $this->render();
+	}
+
 	public function render(): string
 	{
 		$out = $this->withoutUL();
-		return $this->before . implode("\n", $out) . $this->after;
+		return $this->before . MergedContent::mergeStringArrayRecursive($out) . $this->after;
 	}
 
 	/**
-     * @return mixed[][]|string[]
-     */
-    public function withoutUL(): array
+	 * @return mixed[][]|string[]
+	 */
+	public function withoutUL(): array
 	{
 		$out = [];
 		foreach ($this->items as $class => $li) {
@@ -104,46 +132,6 @@ class UL implements ToStringable
 		return $out;
 	}
 
-	public function __toString(): string
-	{
-		return $this->render();
-	}
-
-	public static function DL(array $assoc): \UL
-	{
-		$ul = new UL($assoc);
-		$links = array_keys($assoc);
-		$ul->links = array_combine($links, $links);
-		$ul->wrap = '<dt>###CLASS###</dt>|';
-		$ul->linkWrap = '<dd>|</dd>';
-		$ul->before = '<dl class="dl-horizontal">';
-		$ul->after = '</dl>';
-		return $ul;
-	}
-
-	public static function recursive(array $epesEmployees): \UL
-	{
-		foreach ($epesEmployees as &$el) {
-			if ($el instanceof Recursive) {
-				$el = $el->value . UL::recursive($el->getChildren());
-			}
-		}
-
-		return new UL($epesEmployees);
-	}
-
-	public function cli(): void
-	{
-		foreach ($this->items as $class => $li) {
-			echo '* ', strip_tags($li);
-			if (!is_numeric($class)) {
-				echo ' [', $class, ']', BR;
-			} else {
-				echo BR;
-			}
-		}
-	}
-
 	/**
 	 * @param $class
 	 * @param $li
@@ -160,6 +148,18 @@ class UL implements ToStringable
 		}
 
 		return $link;
+	}
+
+	public function cli(): void
+	{
+		foreach ($this->items as $class => $li) {
+			echo '* ', strip_tags($li);
+			if (!is_numeric($class)) {
+				echo ' [', $class, ']', BR;
+			} else {
+				echo BR;
+			}
+		}
 	}
 
 	public function clear(): void

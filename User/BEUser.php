@@ -23,7 +23,7 @@ class BEUser implements UserModelInterface
 
 	public function try2login($user, $password = null): void
 	{
-		if (session_status() != PHP_SESSION_ACTIVE && !Request::isCLI() && !headers_sent()) {
+		if (session_status() !== PHP_SESSION_ACTIVE && !Request::isCLI() && !headers_sent()) {
 			llog('session_start in BEUser');
 			header('X-Session-Start: ' . __METHOD__);
 			session_start();

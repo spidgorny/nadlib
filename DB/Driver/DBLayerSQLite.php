@@ -50,32 +50,32 @@ class DBLayerSQLite extends DBLayerBase
 	}
 
 	/**
-	 * @param SQLiteResult $res
+	 * @param ?SQLiteResult $res
 	 * @throws Exception
 	 */
 	public function numRows($res = null): int
 	{
 		$numRows = 0;
-		if ($res instanceof SQLite3Result) {
-			$res->reset();
-			//debug(get_class($res), get_class_methods($res));
-			//$all = $this->fetchAll($res);   // will free() inside
-			//$numRows = sizeof($all);
-			while ($this->fetchAssoc($res) !== false) {
-				$numRows++;
-			}
-
-			$res->reset();
-		} else {
+		if (!$res instanceof SQLite3Result) {
 			debug($res);
 			throw new DatabaseException('invalid result');
 		}
+
+		$res->reset();
+		//debug(get_class($res), get_class_methods($res));
+		//$all = $this->fetchAll($res);   // will free() inside
+		//$numRows = sizeof($all);
+		while ($this->fetchAssoc($res) !== false) {
+			$numRows++;
+		}
+
+		$res->reset();
 
 		return $numRows;
 	}
 
 	/**
-	 * @param SQLite3Result $res
+	 * @param SQLite3Result|SQLSelectQuery|string $res
 	 * @return mixed
 	 * @throws Exception
 	 */
@@ -157,7 +157,7 @@ class DBLayerSQLite extends DBLayerBase
 	}
 
 	/**
-	 * @param SQLite3Result|string $res_or_query
+	 * @param SQLite3Result|string|SQLSelectQuery $res_or_query
 	 * @throws Exception
 	 */
 	public function fetchAll($res_or_query, $index_by_key = null): array
@@ -211,7 +211,7 @@ class DBLayerSQLite extends DBLayerBase
 	}
 
 	/**
-	 * @param SQLite3Result $res
+	 * @param SQLite3Result|null $res
 	 */
 	public function free($res): void
 	{

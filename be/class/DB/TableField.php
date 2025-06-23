@@ -31,74 +31,32 @@ class TableField
 		} elseif (isset($row['array dims'])) {
 			$self = self::initPostgreSQL($row);
 		} else {
-			throw new Exception(__METHOD__ . ' Unable to identify DB type');
+			throw new \RuntimeException(__METHOD__ . ' Unable to identify DB type');
 		}
 
 		return $self;
 	}
 
 	/**
-     * Field    string[2]    id
-     * Type    string[7]    int(11)
-     * Null    string[2]    NO
-     * Key    string[3]    PRI
-     * Default    NULL
-     * Extra    string[14]    auto_increment
-     */
-    public static function initMySQL(array $row): self
-	{
-		$self = new self();
-		$self->field = $row['Field'];
-		$self->type = $row['Type'];
-		$self->isNull = $row['Null'] == 'YES';
-		$self->key = $row['Key'];
-		$self->default = $row['Default'];
-		$self->extra = trimExplode(' ', $row['Extra']);
-		return $self;
-	}
-
-	/**
-     * cid    string[1]    0
-     * name    string[2]    id
-     * type    string[7]    integer
-     * notnull    string[1]    1
-     * dflt_value    NULL
-     * pk    string[1]    1
-     * Field    string[2]    id
-     * Type    string[7]    integer
-     * Null    string[2]    NO
-     */
-    public static function initSQLite(array $desc): self
+	 * cid    string[1]    0
+	 * name    string[2]    id
+	 * type    string[7]    integer
+	 * notnull    string[1]    1
+	 * dflt_value    NULL
+	 * pk    string[1]    1
+	 * Field    string[2]    id
+	 * Type    string[7]    integer
+	 * Null    string[2]    NO
+	 */
+	public static function initSQLite(array $desc): self
 	{
 		$self = new self();
 		$self->field = $desc['name'];
 		$self->type = $desc['type'];
-		$self->isNull = !(bool) $desc['notnull'];
+		$self->isNull = !(bool)$desc['notnull'];
 		$self->default = self::unQuote($desc['dflt_value']);
 		$self->key = $desc['pk'] ? 'PRIMARY_KEY' : '';
 		//debug($desc, $self); exit();
-		return $self;
-	}
-
-	/**
-     * array(8) {
-     * 'num'  =>  int(15)
-     * 'type'  =>  string(4) "int4"
-     * 'len'  =>  int(4)
-     * 'not null'  =>  bool(false)
-     * 'has default'  =>  bool(false)
-     * 'array dims'  =>  int(0)
-     * 'is enum'  =>  bool(false)
-     * 'pg_field'  =>  string(12) "id_publisher"
-     */
-    public static function initPostgreSQL(array $desc): self
-	{
-		$self = new self();
-		$self->field = $desc['pg_field'];
-		$self->type = $desc['type'];
-		$self->isNull = !$desc['not null'];
-		$self->default = $desc['has default'] ? null : null;
-		$self->extra = $desc;
 		return $self;
 	}
 
@@ -110,6 +68,48 @@ class TableField
 		}
 
 		return $string;
+	}
+
+	/**
+	 * Field    string[2]    id
+	 * Type    string[7]    int(11)
+	 * Null    string[2]    NO
+	 * Key    string[3]    PRI
+	 * Default    NULL
+	 * Extra    string[14]    auto_increment
+	 */
+	public static function initMySQL(array $row): self
+	{
+		$self = new self();
+		$self->field = $row['Field'];
+		$self->type = $row['Type'];
+		$self->isNull = $row['Null'] === 'YES';
+		$self->key = $row['Key'];
+		$self->default = $row['Default'];
+		$self->extra = trimExplode(' ', $row['Extra']);
+		return $self;
+	}
+
+	/**
+	 * array(8) {
+	 * 'num'  =>  int(15)
+	 * 'type'  =>  string(4) "int4"
+	 * 'len'  =>  int(4)
+	 * 'not null'  =>  bool(false)
+	 * 'has default'  =>  bool(false)
+	 * 'array dims'  =>  int(0)
+	 * 'is enum'  =>  bool(false)
+	 * 'pg_field'  =>  string(12) "id_publisher"
+	 */
+	public static function initPostgreSQL(array $desc): self
+	{
+		$self = new self();
+		$self->field = $desc['pg_field'];
+		$self->type = $desc['type'];
+		$self->isNull = !$desc['not null'];
+		$self->default = $desc['has default'] ? null : null;
+		$self->extra = $desc;
+		return $self;
 	}
 
 	public function __toString(): string
@@ -162,6 +162,11 @@ class TableField
 			'float' => 'float',
 		];
 		return ifsetor($map[$type], $type);
+	}
+
+	public function toArray()
+	{
+		return get_object_vars($this);
 	}
 
 }

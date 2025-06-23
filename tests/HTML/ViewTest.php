@@ -3,7 +3,6 @@
 namespace HTML;
 
 use HTMLProcessor;
-use MockController;
 use MockIndexDCI;
 use PHPUnit\Framework\TestCase;
 use View;
@@ -65,7 +64,6 @@ alert("xss");
 	 */
 	public function test_double(): void
 	{
-		new MockController();
 		$i = new MockIndexDCI();
 		$v = new View(__DIR__ . '/template.phtml', $i);
 		$html = $v->render();

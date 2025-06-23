@@ -19,9 +19,9 @@ class AutoLoadFolders
 	public $debug = false;
 
 	/**
-     * @var \AutoLoad
-     */
-    public $al;
+	 * @var \AutoLoad
+	 */
+	public $al;
 
 	/**
 	 * @var Debug
@@ -48,11 +48,11 @@ class AutoLoadFolders
 		}
 
 		$this->folders = unique_multidim_array($this->folders);
-		if (0 !== 0) {
-			pre_print_r([
-				$this->folders, $this->al->stat
-			]);
-		}
+//		if (0 !== 0) {
+//			pre_print_r([
+//				$this->folders, $this->al->stat
+//			]);
+//		}
 	}
 
 	public function getFoldersFromSession(): array
@@ -61,9 +61,9 @@ class AutoLoadFolders
 	}
 
 	/**
-     * @return mixed[]
-     */
-    public function getFolders(): array
+	 * @return mixed[]
+	 */
+	public function getFolders(): array
 	{
 		TaylorProfiler::start(__METHOD__);
 		require_once __DIR__ . '/../HTTP/Request.php';
@@ -81,62 +81,6 @@ class AutoLoadFolders
 
 		TaylorProfiler::stop(__METHOD__);
 		return $folders;
-	}
-
-	public function loadConfig(): void
-	{
-		if ($this->debug) {
-			debug_pre_print_backtrace();
-			pre_print_r([
-				'SCRIPT_FILENAME' => dirname($_SERVER['SCRIPT_FILENAME']),
-				'getcwd' => getcwd(),
-				'exists(cwd)' => file_exists(getcwd()),
-				'appRoot' => $this->al->getAppRoot() . '',
-				'exists(appRoot)' => file_exists($this->al->getAppRoot()),
-				'exists(appRoot.class)' => file_exists($this->al->getAppRoot() . 'class'),
-			]);
-		}
-
-		if (!class_exists('ConfigBase')) {
-			require_once __DIR__ . '/ConfigBase.php';
-		}
-
-		if (!class_exists('Config', false)) {
-            if ($this->debug) {
-				echo __METHOD__ . ': Config class is found', BR;
-			}
-
-            //$configPath = dirname(URL::getScriptWithPath()).'/class/class.Config.php';
-            $configPath1 = $this->al->getAppRoot() . 'class' . DIRECTORY_SEPARATOR . 'class.Config.php';
-            $configPath2 = $this->al->getAppRoot() . 'class' . DIRECTORY_SEPARATOR . 'Config.php';
-            $this->al->stat['configPath'] = $configPath1;
-            //			pre_print_r($configPath1, file_exists($configPath1));
-            //			pre_print_r($configPath2, file_exists($configPath2));
-            //			exit();
-            if (file_exists($configPath1)) {
-				/** @noinspection PhpIncludeInspection */
-				include_once $configPath1;
-				if ($this->debug) {
-					echo __METHOD__ . ': Config in ' . $configPath1, BR;
-				}
-			} elseif (file_exists($configPath2)) {
-				/** @noinspection PhpIncludeInspection */
-				include_once $configPath2;
-				//print('<div class="message">'.$configPath.' FOUND.</div>'.BR);
-				if ($this->debug) {
-					echo __METHOD__ . ': Config in ' . $configPath2, BR;
-				}
-			} elseif ($this->debug) {
-                // some projects don't need Config
-                //print('<div class="error">'.$configPath.' not found.</div>'.BR);
-                echo __METHOD__ . ': Config class is found but file is unknown ', BR;
-                debug($configPath1, $configPath2);
-            }
-        } elseif ($this->debug) {
-            echo __METHOD__ . ': Config class is found', BR;
-            $rc = new ReflectionClass('Config');
-            echo __METHOD__ . ': ' . $rc->getFileName(), BR;
-        }
 	}
 
 	public function getFoldersFromConfigBase()
@@ -161,6 +105,62 @@ class AutoLoadFolders
 		return $folders;
 	}
 
+	public function loadConfig(): void
+	{
+		if ($this->debug) {
+			debug_pre_print_backtrace();
+			pre_print_r([
+				'SCRIPT_FILENAME' => dirname($_SERVER['SCRIPT_FILENAME']),
+				'getcwd' => getcwd(),
+				'exists(cwd)' => file_exists(getcwd()),
+				'appRoot' => $this->al->getAppRoot() . '',
+				'exists(appRoot)' => file_exists($this->al->getAppRoot()),
+				'exists(appRoot.class)' => file_exists($this->al->getAppRoot() . 'class'),
+			]);
+		}
+
+		if (!class_exists('ConfigBase')) {
+			require_once __DIR__ . '/ConfigBase.php';
+		}
+
+		if (!class_exists('Config', false)) {
+			if ($this->debug) {
+				echo __METHOD__ . ': Config class is found', BR;
+			}
+
+			//$configPath = dirname(URL::getScriptWithPath()).'/class/class.Config.php';
+			$configPath1 = $this->al->getAppRoot() . 'class' . DIRECTORY_SEPARATOR . 'class.Config.php';
+			$configPath2 = $this->al->getAppRoot() . 'class' . DIRECTORY_SEPARATOR . 'Config.php';
+			$this->al->stat['configPath'] = $configPath1;
+			//			pre_print_r($configPath1, file_exists($configPath1));
+			//			pre_print_r($configPath2, file_exists($configPath2));
+			//			exit();
+			if (file_exists($configPath1)) {
+				/** @noinspection PhpIncludeInspection */
+				include_once $configPath1;
+				if ($this->debug) {
+					echo __METHOD__ . ': Config in ' . $configPath1, BR;
+				}
+			} elseif (file_exists($configPath2)) {
+				/** @noinspection PhpIncludeInspection */
+				include_once $configPath2;
+				//print('<div class="message">'.$configPath.' FOUND.</div>'.BR);
+				if ($this->debug) {
+					echo __METHOD__ . ': Config in ' . $configPath2, BR;
+				}
+			} elseif ($this->debug) {
+				// some projects don't need Config
+				//print('<div class="error">'.$configPath.' not found.</div>'.BR);
+				echo __METHOD__ . ': Config class is found but file is unknown ', BR;
+				debug($configPath1, $configPath2);
+			}
+		} elseif ($this->debug) {
+			echo __METHOD__ . ': Config class is found', BR;
+			$rc = new ReflectionClass('Config');
+			echo __METHOD__ . ': ' . $rc->getFileName(), BR;
+		}
+	}
+
 	public function addFolder($path, $namespace = null): void
 	{
 		TaylorProfiler::start(__METHOD__);
@@ -183,10 +183,10 @@ class AutoLoadFolders
 	}
 
 	/**
-     * Called to autoload a class from a namespace
-     * @return string
-     */
-    public function findInFolders(string $className, string $namespace): string|array|null
+	 * Called to autoload a class from a namespace
+	 * @return string
+	 */
+	public function findInFolders(string $className, string $namespace): string|array|null
 	{
 		TaylorProfiler::start(__METHOD__ . ' - ' . $className);
 		//pre_var_dump($className, $namespace);
@@ -196,7 +196,7 @@ class AutoLoadFolders
 			$this->folders[$namespace],
 			$this->folders[null]
 		);
-		assert(count($map));
+		assert((bool)count($map));
 //		pre_print_r(
 //			array_keys($this->folders),
 //			$map,
@@ -232,9 +232,9 @@ class AutoLoadFolders
 			}
 
 			// Index != index.php on Windows
-            //				pre_print_r([$className, $file, basename($file)]);
-            if ($className === 'Index' && basename(realpath($file)) !== $className . '.php') {
-$file = null;
+			//				pre_print_r([$className, $file, basename($file)]);
+			if ($className === 'Index' && basename(realpath($file)) !== $className . '.php') {
+				$file = null;
 			}
 
 			//echo $file, ': ', file_exists($file) ? 'YES' : '-', BR;

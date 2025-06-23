@@ -10,8 +10,10 @@ class NextPrevBrowser
 	public $prevText = '&#x25C4;';
 	public $nextText = '&#x25BA;';
 	protected \Collection $collection;
+
 	/** @var ArrayPlus */
 	protected $data;
+
 	/** @var Pager */
 	protected $pager;
 
@@ -25,14 +27,14 @@ class NextPrevBrowser
 	}
 
 	/**
-     * Only $model->id is used to do ArrayPlus::getNextKey() and $mode->getName() for display
-     *
-     * If pager is used then it tries to retrieve page before and after to make sure that first and last
-     * elements on the page still have prev and next elements. But it's SLOW!
-     *
-     * @throws Exception
-     */
-    public function getNextPrevBrowser(OODBase $model): string
+	 * Only $model->id is used to do ArrayPlus::getNextKey() and $mode->getName() for display
+	 *
+	 * If pager is used then it tries to retrieve page before and after to make sure that first and last
+	 * elements on the page still have prev and next elements. But it's SLOW!
+	 *
+	 * @throws Exception
+	 */
+	public function getNextPrevBrowser(OODBase $model): string
 	{
 		if ($this->pager) {
 			//$this->pager->debug();
@@ -64,14 +66,11 @@ class NextPrevBrowser
 				$nextData = [];
 			}
 		} else {
-            $prevData = [];
-            $nextData = [];
-        }
+			$prevData = [];
+			$nextData = [];
+		}
 
-		$central = ($this->data instanceof ArrayPlus)
-			? $this->data->getData()
-			: ($this->data ?: [])  // NOT NULL
-		;
+		$central = $this->data->getData();
 
 //		llog($model->id,
 //			str_replace($model->id, '*' . $model->id . '*', implode(', ', array_keys((array)$prevData))),
@@ -113,11 +112,11 @@ class NextPrevBrowser
 	}
 
 	/**
-     * Override to make links from different type of objects
-     * @param $prev
-     * @param $arrow
-     */
-    protected function getNextPrevLink(array $prev, $arrow): HTMLTag
+	 * Override to make links from different type of objects
+	 * @param $prev
+	 * @param $arrow
+	 */
+	protected function getNextPrevLink(array $prev, $arrow): HTMLTag
 	{
 		if (ifsetor($prev['singleLink'])) {
 			$content = new HTMLTag('a', [
@@ -139,11 +138,11 @@ class NextPrevBrowser
 	}
 
 	/**
-     * @param $prev
-     * @param $model OODBase
-     * @param $next
-     */
-    protected function renderPrevNext(string $prev, $model, string $next): string
+	 * @param $prev
+	 * @param $model OODBase
+	 * @param $next
+	 */
+	protected function renderPrevNext(string $prev, $model, string $next): string
 	{
 		return $prev . ' ' . $model->getName() . ' ' . $next;
 	}

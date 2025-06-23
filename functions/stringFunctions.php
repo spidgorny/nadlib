@@ -81,12 +81,6 @@ function containsAny($haystack, array $needle): bool
  */
 function trimExplode($sep, $str, $max = 0): array
 {
-	$is_string = is_object($str) ? method_exists($str, '__toString') : is_string($str) || is_int($str);
-
-	if (!$is_string) {
-		throw new RuntimeException('trimExplode: must be string, but got ' . new HtmlString(typ($str)));
-	}
-
 	if ($max) {
 		$parts = explode($sep, $str, $max); // checked by isset so NULL makes it 0
 	} else {

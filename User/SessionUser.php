@@ -44,28 +44,28 @@ class SessionUser extends PlainSessionUser
 		$u = new $oodUserClass(); // not to mess-up with current object
 		$u->findInDB(['email' => $email]);
 		if ($u->id) {
-			throw new Exception(__('Your e-mail is known to the system. Please enter a password.<br>
+			throw new \RuntimeException(__('Your e-mail is known to the system. Please enter a password.<br>
 			<a href="?c=ForgotPassword">Forgot password?</a>'));
-		} else {
-			$password = random_int(1000000, 9999999);
-			print 'Generated password: ' . $password;
-
-			$this->insert([
-				'email' => $email,
-				'password' => $password,
-			]);
-
-			$dataObj = new stdClass();
-			$dataObj->email = $email;
-			$dataObj->password = $password;
-
-			$config = Config::getInstance();
-			$body = new View(__DIR__ . '/emailNewAutoAccount.phtml', $dataObj);
-			mail($email, 'Account created', $body, "From: " . $config->mailFrom);
-
-			$this->saveLogin($email, md5($password));
-			//$this->autologin();
 		}
+
+		$password = (string)random_int(1000000, 9999999);
+		print 'Generated password: ' . $password;
+
+		$this->insert([
+			'email' => $email,
+			'password' => $password,
+		]);
+
+		$dataObj = new stdClass();
+		$dataObj->email = $email;
+		$dataObj->password = $password;
+
+		$config = Config::getInstance();
+		$body = new View(__DIR__ . '/emailNewAutoAccount.phtml', $dataObj);
+		mail($email, 'Account created', $body, "From: " . $config->mailFrom);
+
+		$this->saveLogin($email, md5($password));
+		//$this->autologin();
 	}
 
 	/**

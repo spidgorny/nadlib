@@ -168,23 +168,16 @@ class AlterIndex extends AppControllerBE
 				$indexCompare[] = [
 						'same' => 'sql file',
 						'###TR_MORE###' => 'style="background: pink"',
-					] + $index;
+					] + $index->toArray();
 
-				if (is_array($localIndex)) {
-					$indexCompare[] = [
-							'same' => 'database',
-							'###TR_MORE###' => 'style="background: pink"',
-						] + $localIndex;
-				} else {
-					$indexCompare[] = [
-						'Table' => new HTMLTag('td', [
-							'colspan' => 10,
-						], 'CREATE ' . ($index['Non_unique'] ? '' : 'UNIQUE') .
-							' INDEX ' . $index['Key_name'] .
-							' ON ' . $index['Table'] . ' (' . $index['Key_name'] . ')'
-						),
-					];
-				}
+				$indexCompare[] = [
+					'Table' => new HTMLTag('td', [
+						'colspan' => 10,
+					], 'CREATE ' . ($index['Non_unique'] ? '' : 'UNIQUE') .
+						' INDEX ' . $index['Key_name'] .
+						' ON ' . $index['Table'] . ' (' . $index['Key_name'] . ')'
+					),
+				];
 			} else {
 				//$content .= 'Same index: '.$index['Key_name'].' '.$localIndex['Key_name'].'<br />';
 				$index['same'] = 'same';
@@ -197,7 +190,7 @@ class AlterIndex extends AppControllerBE
 		return $indexCompare;
 	}
 
-	public function convertFromOtherDB(array $desc): array
+	public function convertFromOtherDB(array $desc): TableField
 	{
 		if ($desc['tbl_name']) {    // SQLite
 			$desc['Table'] = $desc['tbl_name'];
@@ -211,7 +204,7 @@ class AlterIndex extends AppControllerBE
 			unset($desc['sql']);
 		}
 
-		return $desc;
+		return TableField::initPostgreSQL($desc);
 	}
 
 }

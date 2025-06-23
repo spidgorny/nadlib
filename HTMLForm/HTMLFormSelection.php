@@ -4,7 +4,7 @@ class HTMLFormSelection extends HTMLFormField
 {
 
 	/**
-	 * @var array
+	 * @var ?array
 	 */
 	public $options;
 
@@ -43,7 +43,6 @@ class HTMLFormSelection extends HTMLFormField
 
 	public function render(): string|array|\ToStringable
 	{
-		$this->form = $this->form ?: new HTMLForm();
 		$content[] = "<select " .
 			$this->form->getName($this->field, $this->multiple ? '[]' : '');
 		if ($this->autoSubmit) {
@@ -84,6 +83,42 @@ class HTMLFormSelection extends HTMLFormField
 
 		$mc = new MergedContent($content);
 		return $mc->getContent();
+	}
+
+	/**
+	 * Retrieves data from DB
+	 * Provide either 'options' assoc array
+	 * OR a DB 'table', 'title' column, 'idField' column 'where' and 'order'
+	 * @return array
+	 */
+	public function fetchSelectionOptions(array $desc)
+	{
+		if (ifsetor($desc['from']) && $desc['title']) {
+			/** @var DBLayerBase $db */
+			$db = Config::getInstance()->getDB();
+			$options = $db->getTableOptions($desc['from'],
+				$desc['title'],
+				$desc['where'] ?? [],
+				$desc['order'] ?? '',
+				$desc['idField'] ?? 'id',
+				ifsetor($desc['prefix'])
+			//$desc['noDeleted']
+			);
+			//debug($db->lastQuery, $options);
+		} else {
+			$options = [];
+		}
+
+		if (isset($desc['options'])) {
+			$options += $desc['options'];
+		}
+
+		if (isset($desc['map'])) {
+			$options = array_map($desc['map'], $options);
+		}
+
+		//Debug::debug_args($options, $desc['options']);
+		return $options;
 	}
 
 	/**
@@ -145,42 +180,6 @@ class HTMLFormSelection extends HTMLFormField
 		}
 
 		return $content;
-	}
-
-	/**
-	 * Retrieves data from DB
-	 * Provide either 'options' assoc array
-	 * OR a DB 'table', 'title' column, 'idField' column 'where' and 'order'
-	 * @return array
-	 */
-	public function fetchSelectionOptions(array $desc)
-	{
-		if (ifsetor($desc['from']) && $desc['title']) {
-			/** @var DBLayerBase $db */
-			$db = Config::getInstance()->getDB();
-			$options = $db->getTableOptions($desc['from'],
-				$desc['title'],
-				$desc['where'] ?? [],
-				$desc['order'] ?? '',
-				$desc['idField'] ?? 'id',
-				ifsetor($desc['prefix'])
-			//$desc['noDeleted']
-			);
-			//debug($db->lastQuery, $options);
-		} else {
-			$options = [];
-		}
-
-		if (isset($desc['options'])) {
-			$options += $desc['options'];
-		}
-
-		if (isset($desc['map'])) {
-			$options = array_map($desc['map'], $options);
-		}
-
-		//Debug::debug_args($options, $desc['options']);
-		return $options;
 	}
 
 }

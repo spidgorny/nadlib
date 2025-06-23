@@ -103,10 +103,10 @@ class ProgressBar
 	}
 
 	/**
-     * Return only URL
-     * @param        $p
-     */
-    public static function getBar($p, string $append = ''): string
+	 * Return only URL
+	 * @param        $p
+	 */
+	public static function getBar($p, string $append = ''): string
 	{
 		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
 		if (!$prefix || $prefix == '/') {
@@ -286,9 +286,9 @@ class ProgressBar
 	}
 
 	/**
-     * http://stackoverflow.com/questions/263890/how-do-i-find-the-width-height-of-a-terminal-window
-     */
-    public function getTerminalSizeOnWindows(): array
+	 * http://stackoverflow.com/questions/263890/how-do-i-find-the-width-height-of-a-terminal-window
+	 */
+	public function getTerminalSizeOnWindows(): array
 	{
 		$output = [];
 		$size = ['width' => 0, 'height' => 0];
@@ -354,7 +354,7 @@ class ProgressBar
 	public function setIndexSSE($index): void
 	{
 		if (!headers_sent()) {
-			if (true || Request::getInstance()->isAjax()) {
+			if (Request::getInstance()->isAjax()) {
 				header('Content-Type: text/event-stream');
 				header('Cache-Control: no-cache');
 			} else {    // debug
@@ -377,7 +377,7 @@ class ProgressBar
 
 	public function done($content): void
 	{
-		echo 'data: ', json_encode(['complete' => $content]), "\n\n";
+		echo 'data: ', json_encode(['complete' => $content], JSON_THROW_ON_ERROR), "\n\n";
 	}
 
 }

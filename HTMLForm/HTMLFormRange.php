@@ -20,7 +20,7 @@ class HTMLFormRange extends HTMLFormType
 
 	/**
 	 * @param string|string[] $field
-	 * @param int $value
+	 * @param string|int $value
 	 */
 	public function __construct($field, $value = 0)
 	{
@@ -31,7 +31,7 @@ class HTMLFormRange extends HTMLFormType
 	}
 
 	/**
-	 * @param string $value
+	 * @param string|int $value
 	 */
 	public function setValue($value): void
 	{

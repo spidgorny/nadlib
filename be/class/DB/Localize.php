@@ -252,7 +252,7 @@ class Localize extends AppControllerBE
 			$row = $this->db->fetchOneSelectQuery($this->table, ['id' => $rel]);
 		} else {
 			//$code = $this->request->getTrim('code');
-			[$lang, $code] = json_decode($rel, 1);
+			[$lang, $code] = json_decode($rel, true, 512, JSON_THROW_ON_ERROR);
 			$res = $this->db->runSelectQuery($this->table, [
 				'code' => $code,
 				'lang' => $lang,

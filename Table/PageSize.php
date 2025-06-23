@@ -6,6 +6,10 @@ class PageSize extends Controller
 {
 
 	/**
+	 * @var int - default for all instances
+	 */
+	public static $default = 20;
+	/**
 	 * Public to allow apps to adjust the amount
 	 * @var array
 	 */
@@ -22,20 +26,12 @@ class PageSize extends Controller
 		500 => 500,
 		1000 => 1000,
 	];
-
+	public $log = [];
 	protected $selected;
-
 	protected \spidgorny\nadlib\HTTP\URL $url;
 
 	/**
-	 * @var int - default for all instances
-	 */
-	public static $default = 20;
-
-	public $log = [];
-
-	/**
-	 * @param null $selected - default for this instance
+	 * @param int $selected - default for this instance
 	 */
 	public function __construct($selected = null)
 	{
@@ -71,12 +67,6 @@ class PageSize extends Controller
 		$this->selected = $this->get();
 	}
 
-	public function set($value): void
-	{
-		$this->selected = $value;
-		$this->options[$this->selected] = $value;
-	}
-
 	/**
 	 * Returns the $this->selected value making sure it's not too big
 	 * @return int
@@ -84,6 +74,12 @@ class PageSize extends Controller
 	public function get(): mixed
 	{
 		return min($this->selected, max($this->options));
+	}
+
+	public function set($value): void
+	{
+		$this->selected = $value;
+		$this->options[$this->selected] = $value;
 	}
 
 	public function getAllowed()
@@ -95,6 +91,11 @@ class PageSize extends Controller
 		}
 	}
 
+	public function __toString(): string
+	{
+		return $this->render() . '';
+	}
+
 	public function render(): string
 	{
 		$content = '';
@@ -104,16 +105,11 @@ class PageSize extends Controller
 
 		$this->url->unsetParam('pageSize');
 		$this->url->setParam('pageSize', '');
-            // will end with pageSize=
+		// will end with pageSize=
 		$content = '<select
 			onchange="location = \'' . $this->url . '\'+this.options[this.selectedIndex].value;"
 			class="input-small">' . $content . '</select>';
 		return $content;
-	}
-
-	public function __toString(): string
-	{
-		return $this->render() . '';
 	}
 
 }

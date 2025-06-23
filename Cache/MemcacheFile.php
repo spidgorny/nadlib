@@ -66,7 +66,7 @@ class MemcacheFile implements MemcacheInterface
 	}
 
 	/**
-	 * @param null $key - can be NULL to be used from the constructor
+	 * @param string $key - can be NULL to be used from the constructor
 	 * @param int $expire
 	 * @return mixed|null|string
 	 */
@@ -102,7 +102,7 @@ class MemcacheFile implements MemcacheInterface
 			$key = md5($key);
 		}
 
-		 // str_replace('(', '-', str_replace(')', '-', $key))
+		// str_replace('(', '-', str_replace(')', '-', $key))
 		return $this->folder . $key . '.cache';
 	}
 
@@ -155,10 +155,10 @@ class MemcacheFile implements MemcacheInterface
 	}
 
 	/**
-     * @param string $key
-     * @throws Exception
-     */
-    public function getAge($key): \Duration
+	 * @param string $key
+	 * @throws Exception
+	 */
+	public function getAge($key): \Duration
 	{
 		$file = $this->map($key);
 		return new Duration(time() - @filemtime($file));

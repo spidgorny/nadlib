@@ -60,8 +60,8 @@ class HTMLImage extends HTMLTag
 	public function getLatLon(): array
 	{
 		$lat = null;
-        $lon = null;
-        $exif = $this->getExif();
+		$lon = null;
+		$exif = $this->getExif();
 		if ($exif && $exif["GPSLatitude"]) {
 			$lat = $this->getGps($exif["GPSLatitude"], $exif['GPSLatitudeRef']);
 			$lon = $this->getGps($exif["GPSLongitude"], $exif['GPSLongitudeRef']);
@@ -98,13 +98,9 @@ class HTMLImage extends HTMLTag
 	{
 		$parts = explode('/', $coordPart);
 
-		if (count($parts) <= 0) {
-            return 0;
-        }
-
-		if (count($parts) == 1) {
-            return $parts[0];
-        }
+		if (count($parts) === 1) {
+			return $parts[0];
+		}
 
 		return floatval($parts[0]) / floatval($parts[1]);
 	}

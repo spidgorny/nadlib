@@ -18,10 +18,10 @@ class MIME
 	}
 
 	/**
-     * Tries different methods
-     * @param $filename
-     */
-    public function get_mime_type($filename): string
+	 * Tries different methods
+	 * @param $filename
+	 */
+	public function get_mime_type($filename): string
 	{
 		$mime = null;
 		if (is_file($filename)) {
@@ -51,23 +51,19 @@ class MIME
 	}
 
 	/**
-     * http://www.php.net/manual/en/function.finfo-open.php#78927
-     * @param $filepath
-     */
-    protected function get_mime_type_system(string $filepath): string
+	 * http://www.php.net/manual/en/function.finfo-open.php#78927
+	 * @param $filepath
+	 */
+	protected function get_mime_type_system(string $filepath): string
 	{
 		ob_start();
 		system('file --mime-type -i --mime -b ' . $filepath);
 		$output = ob_get_clean();
 		$output = explode("; ", $output);    // text/plain; charset=us-ascii
-		if (is_array($output)) {
-			$output = $output[0];
-		}
+		$output = $output[0];
 
 		$output = explode(" ", $output);    // text/plain charset=us-ascii
-		if (is_array($output)) {
-			$output = $output[0];
-		}
+		$output = $output[0];
 
 		return $output;
 	}

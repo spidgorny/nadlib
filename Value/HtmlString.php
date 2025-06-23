@@ -22,7 +22,7 @@ class HtmlString implements ToStringable
 
 	/**
 	 * htmlspecialchars which knows about HtmlString()
-	 * @param string $string
+	 * @param string|HtmlString $string
 	 */
 	public static function hsc($string): \HtmlString|string
 	{

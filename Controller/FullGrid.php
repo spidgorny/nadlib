@@ -1,9 +1,12 @@
 <?php
 
+use nadlib\Controller\Filter;
+
 /**
  * Class FullGrid
  * handles sorting by columns, paging, filtering,
  * selecting visible columns
+ * @property Filter $filter
  */
 trait FullGrid
 {
@@ -13,27 +16,6 @@ trait FullGrid
 	 * @var FilterController
 	 */
 	public $filterController;
-
-	public function initFilter(): void
-	{
-		// menu is making an instance of each class because of tryMenuSuffix
-		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
-//		parent::initFilter();
-
-		$allowEdit = $this->request->getControllerString() === get_class($this);
-//		debug($allowEdit);
-		if ($allowEdit) {
-			$this->saveFilterAndSort(get_class($this));
-		}
-
-		if (!($this->filter instanceof nadlib\Controller\Filter)) {
-			$filterFieldsFromUrl = $this->request->getArray('filter');
-			$this->filter = new nadlib\Controller\Filter($filterFieldsFromUrl);
-		}
-
-		$this->filterController = new FilterController();
-		$this->filterController->setFilter($this->filter);
-	}
 
 	/**
 	 * Will create collection object
@@ -53,7 +35,7 @@ trait FullGrid
 
 //			$this->log(__METHOD__, 'collection Where', $this->collection->where);
 
-		$this->collection->pager = new Pager($this->pageSize?->get());
+		$this->collection->pager = new Pager($this->pageSize->get());
 		$this->collection->pager->setNumberOfRecords($this->collection->getCount());
 		$this->collection->pager->detectCurrentPage();
 
@@ -63,6 +45,32 @@ trait FullGrid
 		$this->setColumns(get_class($this), $allowEdit);
 	}
 
+	public function initFilter(): void
+	{
+		// menu is making an instance of each class because of tryMenuSuffix
+		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
+//		parent::initFilter();
+
+		$allowEdit = $this->request->getControllerString() === get_class($this);
+//		debug($allowEdit);
+		if ($allowEdit) {
+			$this->saveFilterAndSort(get_class($this));
+		}
+
+//		if (!($this->filter instanceof nadlib\Controller\Filter)) {
+//			$filterFieldsFromUrl = $this->request->getArray('filter');
+//			$this->filter = new nadlib\Controller\Filter($filterFieldsFromUrl);
+//		}
+
+		$this->filterController = new FilterController();
+		$this->filterController->setFilter($this->filter);
+	}
+
+	/**
+	 * @param class-string|null $collectionName
+	 * @throws JsonException
+	 * @throws ReflectionException
+	 */
 	public function makeCollection($collectionName)
 	{
 		if (is_string($collectionName)) {
@@ -115,11 +123,10 @@ trait FullGrid
 
 		//			$sortBy = new SQLOrder($this->collection->orderBy);
 		//			$sortBy = $sortBy->getField();
-		if (!$sortBy && !$sortBy) {
+//		if (!$sortBy && !$sortBy) {
 // don't do default, because a Collection has it's own default
-			//$sortBy = ifsetor($this->model->idField);
-
-		}
+		//$sortBy = ifsetor($this->model->idField);
+//		}
 
 		llog('sortBy', $sortBy);
 		if ($sortBy) {
@@ -158,12 +165,7 @@ trait FullGrid
 	 */
 	public function getFilterForm(array $fields = [])
 	{
-		if (method_exists($this, 'getFilterDesc')) {
-			$this->filterController->desc = $this->getFilterDesc($fields);
-		} else {
-			$fields = $fields ?: $this->collection->thes;
-			$this->filterController->setFields($fields);
-		}
+		$this->filterController->desc = $this->getFilterDesc($fields);
 
 		$this->filterController->linker->linkVars['c'] = get_class($this);
 		return $this->filterController->render();

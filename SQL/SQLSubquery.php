@@ -26,13 +26,13 @@ class SQLSubquery extends SQLFrom
 
 	public function getParameters()
 	{
-		/** @var SQLSelectQuery $selectQuery */
+		/** @var SQLSelectQuery|string $selectQuery */
 		$selectQuery = $this->parts[0];
 		if (is_object($selectQuery)) {
 			return $selectQuery->getParameters();
-		} else {
-			return $this->parameters;
 		}
+
+		return $this->parameters;
 	}
 
 	public function setParameters(array $p): void

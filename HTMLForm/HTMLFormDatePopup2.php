@@ -34,6 +34,10 @@ class HTMLFormDatePopup2 extends HTMLFormType
 		$this->id = uniqid('', true);
 	}
 
+	/**
+	 * @param string|int|array|null|Time $value
+	 * @return void
+	 */
 	public function setValue($value): void
 	{
 		if ($value instanceof Time) {

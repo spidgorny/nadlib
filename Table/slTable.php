@@ -184,96 +184,6 @@ class slTable implements ToStringable
 		//debug(array($by, $or));
 	}
 
-	public function generateThes()
-	{
-		if (count($this->thes) === 0) {
-			$thes = [];
-			foreach ($this->data as $current) {
-				$thes = array_merge($thes, array_keys($current));
-				$thes = array_unique($thes);    // if put outside the loop may lead to out of memory error
-			}
-
-			if ($thes !== []) {
-				$thes = array_combine($thes, $thes);
-				foreach ($thes as $i => &$th) {
-					if (is_string($i) && (!strlen($i)
-							|| (strlen($i) && $i[strlen($i) - 1] !== '.'))
-					) {
-						$th = ['name' => $th];
-					} else {
-						unset($thes[$i]);
-					}
-				}
-
-				unset($th);
-				unset($thes['###TD_CLASS###']);
-				unset($thes['###TR_MORE###']);
-				$this->thes($thes);
-				$this->isOddEven = true;
-				//$this->thesMore = 'style="background-color: #5cacee; color: white;"';
-				if (!$this->more) {
-					$this->more = [
-						'class' => 'nospacing',
-					];
-				}
-			}
-		}
-
-		return $this->thes;
-	}
-
-	public static function showAssoc(array $assoc, $isRecursive = false, $showNumericKeys = true, $no_hsc = false): self
-	{
-		foreach ($assoc as $key => &$val) {
-			if ($isRecursive && (is_array($val) || is_object($val))) {
-				if (is_object($val)) {
-					$val = get_object_vars($val);
-				}
-
-				$val = self::showAssoc($val, $isRecursive, $showNumericKeys, $no_hsc);
-				$val = new HtmlString($val);    // to prevent hsc later
-			}
-
-			if (!$showNumericKeys && is_numeric($key)) {
-				$key = '';
-			}
-
-			if ($val instanceof HtmlString || $val instanceof HTMLTag) {
-				//debug($val);
-				//$val = $val;
-			} elseif (is_array($val)) {
-				//debug($key, $val);
-				//throw new InvalidArgumentException('slTable array instead of scalar');
-				//return '['.implode(', ', $val).']';
-			} elseif (!$no_hsc) {
-				if (is_object($val)) {
-					$val = '[' . get_class($val) . ']';
-				} elseif (mb_strpos($val, "\n") !== false) {
-					$val = htmlspecialchars($val);
-					$val = new HtmlString('<pre style="white-space: pre-wrap;">' . htmlspecialchars($val) . '</pre>');
-				} else {
-					$val = htmlspecialchars($val, ENT_NOQUOTES);
-				}
-
-				$no_hsc = true;
-			} else {
-				// will be done by slTable
-				//$val = htmlspecialchars($val);
-			}
-
-			$val = [
-				//0 => $key instanceof HtmlString ? $key : htmlspecialchars($key),
-				0 => htmlspecialchars($key),
-				'' => $val,
-			];
-		}
-
-		return new self($assoc, 'class="visual nospacing table table-striped"', [
-			0 => '',
-			'' => ['no_hsc' => $no_hsc],
-		]);
-	}
-
 	public function addRowData($row): void
 	{
 		$this->data[] = $row;
@@ -383,7 +293,7 @@ class slTable implements ToStringable
 
 		$this->generateThead();
 		$this->generation->text('<tbody>');
-		$data = is_array($this->data) || $this->data instanceof Traversable ? $this->data : [];
+		$data = (is_array($this->data) || $this->data instanceof Traversable) ? $this->data : [];
 
 		$i = -1;
 		foreach ($data as $key => $row) { // (almost $this->data)
@@ -417,6 +327,44 @@ class slTable implements ToStringable
 		$this->genFooter();
 		$t->tablee();
 		$this->generation = $t;
+	}
+
+	public function generateThes()
+	{
+		if (count($this->thes) === 0) {
+			$thes = [];
+			foreach ($this->data as $current) {
+				$thes = array_merge($thes, array_keys($current));
+				$thes = array_unique($thes);    // if put outside the loop may lead to out of memory error
+			}
+
+			if ($thes !== []) {
+				$thes = array_combine($thes, $thes);
+				foreach ($thes as $i => &$th) {
+					if (is_string($i) && (!strlen($i)
+							|| (strlen($i) && $i[strlen($i) - 1] !== '.'))
+					) {
+						$th = ['name' => $th];
+					} else {
+						unset($thes[$i]);
+					}
+				}
+
+				unset($th);
+				unset($thes['###TD_CLASS###']);
+				unset($thes['###TR_MORE###']);
+				$this->thes($thes);
+				$this->isOddEven = true;
+				//$this->thesMore = 'style="background-color: #5cacee; color: white;"';
+				if (!$this->more) {
+					$this->more = [
+						'class' => 'nospacing',
+					];
+				}
+			}
+		}
+
+		return $this->thes;
 	}
 
 	public function sort(): void
@@ -476,10 +424,6 @@ class slTable implements ToStringable
 			// this is problematic as it will create html props for all column params
 //				$this->thesMore[HTMLTag::key($thk)] = ifsetor($thv['thmore']);
 
-			if (!is_array($thMore)) {
-				$thMore = ['' => $thMore];
-			}
-
 			if (isset($thv['align']) && $thv['align']) {
 				$thMore[$thk]['style'] = ifsetor($thMore[$thk]['style'])
 					. '; text-align: ' . $thv['align'];
@@ -506,7 +450,7 @@ class slTable implements ToStringable
 					$thes2[$thk] = $thvName;
 				}
 			} else {
-				if (is_array($thv) && isset($thv['clickSort']) && $thv['clickSort']) {
+				if (isset($thv['clickSort']) && $thv['clickSort']) {
 					$link = URL::getCurrent();
 					$link->setParam($thv['clickSort'], $thk);
 					$thvName = new HtmlString('<a href="' . $link . '">' . $thvName . '</a>');
@@ -628,7 +572,7 @@ class slTable implements ToStringable
 					$out .= (isset($k['after']) ? $k['after'] : '');
 
 					if (isset($k['colspan']) && $k['colspan']) {
-						$skipCols = isset($k['colspan']) ? $k['colspan'] - 1 : 0;
+						$skipCols = $k['colspan'] - 1;
 					}
 
 					$more = $this->getCellMore($k, $iCol, $col, $row);
@@ -746,10 +690,6 @@ class slTable implements ToStringable
 		}
 	}
 
-	/*
-	 * @throws Exception
-	 */
-
 	/**
 	 * @deprecated - use addRowData
 	 */
@@ -759,13 +699,17 @@ class slTable implements ToStringable
 		$this->iCol = 0;
 	}
 
-	/// https://stackoverflow.com/questions/21104373/tostring-must-not-throw-an-exception-error-when-using-string/26006176
+	/*
+	 * @throws Exception
+	 */
 
 	public function addVal($col, $val): void
 	{
 		$this->data[$this->iRow][$col] = $val;
 		$this->iCol++;
 	}
+
+	/// https://stackoverflow.com/questions/21104373/tostring-must-not-throw-an-exception-error-when-using-string/26006176
 
 	public function __toString(): string
 	{
@@ -866,6 +810,58 @@ class slTable implements ToStringable
 		return new self($data, 'class="visual nospacing table table-striped"', [
 			0 => '',
 			'' => ['no_hsc' => true],
+		]);
+	}
+
+	public static function showAssoc(array $assoc, $isRecursive = false, $showNumericKeys = true, $no_hsc = false): self
+	{
+		foreach ($assoc as $key => &$val) {
+			if ($isRecursive && (is_array($val) || is_object($val))) {
+				if (is_object($val)) {
+					$val = get_object_vars($val);
+				}
+
+				$val = self::showAssoc($val, $isRecursive, $showNumericKeys, $no_hsc);
+				$val = new HtmlString($val);    // to prevent hsc later
+			}
+
+			if (!$showNumericKeys && is_numeric($key)) {
+				$key = '';
+			}
+
+			if ($val instanceof HtmlString || $val instanceof HTMLTag) {
+				//debug($val);
+				//$val = $val;
+			} elseif (is_array($val)) {
+				//debug($key, $val);
+				//throw new InvalidArgumentException('slTable array instead of scalar');
+				//return '['.implode(', ', $val).']';
+			} elseif (!$no_hsc) {
+				if (is_object($val)) {
+					$val = '[' . get_class($val) . ']';
+				} elseif (mb_strpos($val, "\n") !== false) {
+					$val = htmlspecialchars($val);
+					$val = new HtmlString('<pre style="white-space: pre-wrap;">' . htmlspecialchars($val) . '</pre>');
+				} else {
+					$val = htmlspecialchars($val, ENT_NOQUOTES);
+				}
+
+				$no_hsc = true;
+			} else {
+				// will be done by slTable
+				//$val = htmlspecialchars($val);
+			}
+
+			$val = [
+				//0 => $key instanceof HtmlString ? $key : htmlspecialchars($key),
+				0 => htmlspecialchars($key),
+				'' => $val,
+			];
+		}
+
+		return new self($assoc, 'class="visual nospacing table table-striped"', [
+			0 => '',
+			'' => ['no_hsc' => $no_hsc],
 		]);
 	}
 

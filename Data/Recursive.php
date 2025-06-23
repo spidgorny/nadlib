@@ -15,9 +15,9 @@ class Recursive
 	public $value;
 
 	/**
-     * @var mixed[]
-     */
-    public $elements = [];
+	 * @var mixed[]
+	 */
+	public $elements = [];
 
 	public function __construct($value, array $elements = [])
 	{
@@ -41,9 +41,9 @@ class Recursive
 	}
 
 	/**
-     * @return Recursive
-     */
-    public function findPath(array $path)
+	 * @return Recursive
+	 */
+	public function findPath(array $path)
 	{
 		//debug($path);
 		if ($path !== []) {
@@ -61,11 +61,11 @@ class Recursive
 	}
 
 	/**
-     * Callback = function ($value, [$index]) {}
-     * NOT TESTED
-     * @param callable $callback
-     */
-    public function eachRecursive($callback): static
+	 * Callback = function ($value, [$index]) {}
+	 * NOT TESTED
+	 * @param callable $callback
+	 */
+	public function eachRecursive($callback): static
 	{
 		foreach ($this->elements as $i => &$el) {
 			$el = $el instanceof Recursive ? $el->eachRecursive($callback) : call_user_func($callback, $el, $i);
@@ -76,18 +76,18 @@ class Recursive
 	}
 
 	/**
-     * Callback = function ($value, [$index]) {}
-     *
-     * @param callable $callback
-     * @param int $level
-     */
-    public function eachRecursiveKey($callback, $level = 0): static
+	 * Callback = function ($value, [$index]) {}
+	 *
+	 * @param callable $callback
+	 * @param int $level
+	 */
+	public function eachRecursiveKey($callback, $level = 0): static
 	{
 		$new = [];
 		foreach ($this->elements as $i => $el) {
 			$val = $el instanceof Recursive ? $el->eachRecursiveKey($callback, $level + 1) : null;
 
-            $res = call_user_func($callback, $val, $i);
+			$res = call_user_func($callback, $val, $i);
 			if (!is_null($res)) {
 				list($val, $key) = $res;
 				$new[$key] = $val;

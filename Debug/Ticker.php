@@ -97,7 +97,7 @@ class Ticker
 	}
 
 	/**
-	 * @return self
+	 * @return static
 	 */
 	public static function getInstance()
 	{

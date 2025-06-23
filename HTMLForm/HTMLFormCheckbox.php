@@ -18,9 +18,6 @@ class HTMLFormCheckbox extends HTMLFormField
 
 	public function render(): string
 	{
-		$this->form = $this->form instanceof HTMLForm
-			? $this->form
-			: new HTMLForm();
 		//$value = htmlspecialchars($value, ENT_QUOTES);
 		//$this->stdout .= "<input type=checkbox ".$this->getName($name)." ".($checked?"checked":"")." value=\"$value\" $more>";
 		$more = $this->desc['more'];

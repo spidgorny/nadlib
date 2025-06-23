@@ -45,7 +45,7 @@ class ACL
 		//$this->callStack = get_call_stack();    // only Zend Debugger
 		//debug($this->callStack);
 
-		$bt = debug_backtrace(false);
+		$bt = debug_backtrace();
 		$this->callStack = $bt[1];
 		$this->callStack['function'] = $bt[2]['function'];
 		//debug($this->callStack);

@@ -36,8 +36,10 @@ class ModelTest extends TestCase
 	public function test_isset_empty_array(): void
 	{
 		$a['k'] = null;
+		// @phpstan-ignore-next-line
 		static::assertFalse(isset($a['k']));
-		static::assertTrue(\array_key_exists('k', $a));
+		// @phpstan-ignore-next-line
+		static::assertArrayHasKey('k', $a);
 	}
 
 	public function _test_getFormFromModel2(): void

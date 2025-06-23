@@ -139,27 +139,27 @@ class ExeFile extends File
 	{
 		$FileName = $this->getPathname();
 		$handle = fopen($FileName, 'rb');
-        if (!$handle) {
-            return false;
-        }
+		if (!$handle) {
+			return false;
+		}
 
 		$Header = fread($handle, 64);
 
 		if (substr($Header, 0, 2) !== 'MZ') {
-            return false;
-        }
+			return false;
+		}
 
 		$PEOffset = unpack("V", substr($Header, 60, 4));
 		if ($PEOffset[1] < 64) {
-            return false;
-        }
+			return false;
+		}
 
 		fseek($handle, $PEOffset[1], SEEK_SET);
 		$Header = fread($handle, 24);
 
 		if (substr($Header, 0, 2) !== 'PE') {
-            return false;
-        }
+			return false;
+		}
 
 		$Machine = unpack("v", substr($Header, 4, 2));
 		if ($Machine[1] != 332) {
@@ -212,25 +212,25 @@ class ExeFile extends File
 			return false;
 		}
 
-		if (0 !== 0) {
-			$SubOff[1] &= 0x7fffffff;
-			$InfoOff = unpack("V", substr($Info, $SubOff[1] + 20, 4)); //offset of first FILEINFO
-			$InfoOff[1] &= 0x7fffffff;
-			$InfoOff = unpack("V", substr($Info, $InfoOff[1] + 20, 4));    //offset to data
-			$DataOff = unpack("V", substr($Info, $InfoOff[1], 4));
-			$DataSize = unpack("V", substr($Info, $InfoOff[1] + 4, 4));
-			$CodePage = unpack("V", substr($Info, $InfoOff[1] + 8, 4));
-			$DataOff[1] -= $InfoVirt[1];
-			$Version = unpack("v4", substr($Info, $DataOff[1] + 48, 8));
-			$x = $Version[2];
-			$Version[2] = $Version[1];
-			$Version[1] = $x;
-			$x = $Version[4];
-			$Version[4] = $Version[3];
-			$Version[3] = $x;
-
-			return $Version;
-		}
+//		if (0 !== 0) {
+//			$SubOff[1] &= 0x7fffffff;
+//			$InfoOff = unpack("V", substr($Info, $SubOff[1] + 20, 4)); //offset of first FILEINFO
+//			$InfoOff[1] &= 0x7fffffff;
+//			$InfoOff = unpack("V", substr($Info, $InfoOff[1] + 20, 4));    //offset to data
+//			$DataOff = unpack("V", substr($Info, $InfoOff[1], 4));
+//			$DataSize = unpack("V", substr($Info, $InfoOff[1] + 4, 4));
+//			$CodePage = unpack("V", substr($Info, $InfoOff[1] + 8, 4));
+//			$DataOff[1] -= $InfoVirt[1];
+//			$Version = unpack("v4", substr($Info, $DataOff[1] + 48, 8));
+//			$x = $Version[2];
+//			$Version[2] = $Version[1];
+//			$Version[1] = $x;
+//			$x = $Version[4];
+//			$Version[4] = $Version[3];
+//			$Version[3] = $x;
+//
+//			return $Version;
+//		}
 
 		//view data...
 		//echo print_r(explode("\x00\x00\x00", $Info));

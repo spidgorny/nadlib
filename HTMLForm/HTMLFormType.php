@@ -56,7 +56,7 @@ abstract class HTMLFormType implements HTMLFormFieldInterface
 	}
 
 	/**
-	 * @param string|int|array $value
+	 * @param string|int|array|null $value
 	 */
 	public function setValue($value): void
 	{

@@ -30,7 +30,7 @@ class URLGet
 	protected $url;
 	protected $html = '';
 	/**
-	 * @var Proxy
+	 * @var ?Proxy
 	 */
 	protected $proxy;
 
@@ -128,15 +128,15 @@ class URLGet
 		$headers = ArrayPlus::create($this->headers)->getHeaders("\r\n");
 		$headers = trimExplode("\r\n", $headers);
 		curl_setopt($process, CURLOPT_HTTPHEADER, $headers);
-		curl_setopt($process, CURLOPT_HEADER, 1);
+		curl_setopt($process, CURLOPT_HEADER, true);
 		//curl_setopt($process, CURLOPT_USERAGENT, $this->user_agent);
 		//if ($this->cookies == TRUE) curl_setopt($process, CURLOPT_COOKIEFILE, $this->cookie_file);
 		//if ($this->cookies == TRUE) curl_setopt($process, CURLOPT_COOKIEJAR, $this->cookie_file);
 		//curl_setopt($process, CURLOPT_ENCODING , $this->compression);
 		curl_setopt($process, CURLOPT_TIMEOUT, $this->timeout);
 		//curl_setopt($process, CURLOPT_POSTFIELDS, $data);
-		curl_setopt($process, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($process, CURLOPT_FOLLOWLOCATION, 1);
+		curl_setopt($process, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($process, CURLOPT_FOLLOWLOCATION, true);
 		//curl_setopt($process, CURLOPT_POST, 1);
 
 		curl_setopt_array($process, $options);
@@ -188,7 +188,7 @@ class URLGet
 
 		//debug($this->context);
 		$ctx = stream_context_create($this->context);
-		$html = file_get_contents($this->url, 0, $ctx);
+		$html = file_get_contents($this->url, false, $ctx);
 		$this->info = $http_response_header;
 		return $html;
 	}

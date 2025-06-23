@@ -144,13 +144,13 @@ border-radius: 5px;">');
 			}
 
 			ini_set('xdebug.file_link_format', 'phpstorm://open?file=%f&line=%l');
-			if (false) {
-				trigger_error('test');
-				$file = __FILE__;
-				$line = __LINE__;
-				$link = 'idea://open?file=' . $file . '&line=' . $line;
-				echo '<pre>Error in <a href="' . $link . '">' . $file . '#' . $line . '</a></pre>';
-			}
+//			if (false) {
+//				trigger_error('test');
+//				$file = __FILE__;
+//				$line = __LINE__;
+//				$link = 'idea://open?file=' . $file . '&line=' . $line;
+//				echo '<pre>Error in <a href="' . $link . '">' . $file . '#' . $line . '</a></pre>';
+//			}
 		} else {
 			@header('X-nadlib: PRODUCTION');
 			error_reporting(0);
@@ -166,7 +166,7 @@ border-radius: 5px;">');
 			if (class_exists('Config', false) && !Request::isCLI()) {
 				//print_r(Config::getInstance()->config['Config']);
 				// set_time_limit() has been disabled for security reasons
-				$timeLimit = Config::getInstance()->timeLimit ?? 5;
+				$timeLimit = Config::getInstance()->timeLimit;
 				@set_time_limit($timeLimit);    // small enough to notice if the site is having perf. problems
 			}
 

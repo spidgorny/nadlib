@@ -551,7 +551,7 @@ class HTMLFormTable extends HTMLForm
 	 * Non-static due to $this->withValue and $this->formatDate
 	 *
 	 * @param array $desc - Structure of the HTMLFormTable
-	 * @param array $assoc - Values in one of the supported formats.
+	 * @param array|null $assoc - Values in one of the supported formats.
 	 * @param bool $forceInsert
 	 * @return    array    HTMLFormTable structure.
 	 */
@@ -560,6 +560,7 @@ class HTMLFormTable extends HTMLForm
 		foreach ($assoc as $key => $val) {
 			//$descKey = ifsetor($desc[$key]);		// CREATES $key => NULL INDEXES
 
+			/** @var array|HTMLFormField $descKey */
 			$descKey = $desc[$key] ?? null;
 			if (!$descKey) {
 				continue;
@@ -575,7 +576,7 @@ class HTMLFormTable extends HTMLForm
 				$desc[$key]['value'] = $this->withValue ? $val['value'] : $val;
 			}
 
-			/** @var HTMLFormType|HTMLFormDatePicker $type */
+			/** @var HTMLFormType|HTMLFormDatePicker|string $type */
 			$type = ifsetor($descKey['type']);
 			$sType = is_object($type)
 				? get_class($type)
@@ -596,6 +597,7 @@ class HTMLFormTable extends HTMLForm
 					$desc[$key]['dependant'] = $this->fillValues($descKey['dependant'], $assoc);
 					//t3lib_div::debug($desc[$key]['dependant']);
 				}
+				// @phpstan-ignore-next-line
 			} elseif ($descKey instanceof HTMLFormField) {
 				//debug($key, gettype2($sType), is_object($type));
 				$descKey->setValue($val);

@@ -205,10 +205,10 @@ class AlterTable extends AlterIndex
 
 			$indexCompare = [];
 			foreach ($desc['columns'] as $i => $index) {
-				$index = $this->convertFromOtherDB($index);    // TODO: make it TableField
+				$index = $this->convertFromOtherDB($index);
 				$localIndex = $local[$table]['columns'][$i];
 				if ($localIndex) {
-					$localIndex = $this->convertFromOtherDB($localIndex);    // TODO: make it TableField
+					$localIndex = $this->convertFromOtherDB($localIndex);
 
 					$index['Field'] = $i;
 					$localIndex['Field'] = $i;
@@ -217,16 +217,16 @@ class AlterTable extends AlterIndex
 						$indexCompare[] = ['same' => 'sql file',
 								'###TR_MORE###' => 'style="background: lightgreen"',
 								'Field' => $i,
-							] + $index;
+							] + $index->toArray();
 						$this->same++;
 					} else {
 						$indexCompare[] = ['same' => 'json file',
 								'###TR_MORE###' => 'style="background: yellow"',
-							] + $index;
+							] + $index->toArray();
 						$indexCompare[] = ['same' => 'database',
 								'###TR_MORE###' => 'style="color: white; background: red"',
 								'Field' => $i,
-							] + $localIndex;
+							] + $localIndex->toArray();
 						$indexCompare[] = ['same' => 'ALTER',
 							'###TR_MORE###' => 'style="color: white; background: green"',
 							'Field' => $i,
@@ -235,7 +235,7 @@ class AlterTable extends AlterIndex
 							],
 //								$localIndex['Type']
 //								? $this->handler->getChangeQuery($table, $index) :
-								 $this->handler->getAlterQuery($table, $desc['name'], $index)
+								$this->handler->getAlterQuery($table, $desc['name'], $index)
 							)
 						];
 						$this->different++;
@@ -243,7 +243,7 @@ class AlterTable extends AlterIndex
 				} else {
 					$indexCompare[] = ['same' => 'json file',
 							'###TR_MORE###' => 'style="background: yellow"',
-						] + $index;
+						] + $index->toArray();
 					$indexCompare[] = [
 						'same' => 'missing',
 						'Type' => new HTMLTag('td', [
@@ -265,9 +265,8 @@ class AlterTable extends AlterIndex
 	}
 
 	/**
-	 * TODO
-	 * @param array $a
-	 * @param array $b
+	 * @param TableField $a
+	 * @param TableField $b
 	 * @see AlterTableHandler
 	 */
     public function sameType($a, $b): bool

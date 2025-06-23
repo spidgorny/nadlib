@@ -10,7 +10,7 @@ class Menu /*extends Controller*/
 
 	/**
 	 * Public for access rights. Will convert to ArrayPlus automatically
-	 * @var ArrayPlus
+	 * @var ArrayPlus|array
 	 */
 	public $items;
 
@@ -487,7 +487,7 @@ class Menu /*extends Controller*/
 	{
 		$fullRecursive = new Recursive(null, $this->items->getData());
 		$sub = $fullRecursive->findPath($rootPath);
-		$items = $sub instanceof Recursive ? $sub->getChildren() : [];
+		$items = $sub->getChildren();
 
 		if ($this->tryMenuSuffix) {
 			foreach ($items as $class => &$name) {

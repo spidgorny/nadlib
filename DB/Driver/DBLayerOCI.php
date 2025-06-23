@@ -28,11 +28,6 @@ class DBLayerOCI extends DBLayerBase
 		//debug('<div class="error">OCI CONNECT</div>');
 	}
 
-	public function __toString(): string
-	{
-		return '[Object of type dbLayerOCI]';
-	}
-
 	/**
 	 * @param string $tns
 	 * @param string $user
@@ -49,6 +44,11 @@ class DBLayerOCI extends DBLayerBase
 		}
 
 		return (bool)$this->connection;
+	}
+
+	public function __toString(): string
+	{
+		return '[Object of type dbLayerOCI]';
 	}
 
 	public function getConnection()
@@ -122,7 +122,7 @@ class DBLayerOCI extends DBLayerBase
 		foreach ($debug as $i => $row) {
 			if ($i > 1) {
 				unset($row['object']);
-				$deb .= implode(', ', $row);
+				$deb .= implode(', ', json_encode($row, JSON_THROW_ON_ERROR));
 				$deb .= "\n";
 			}
 		}
@@ -159,9 +159,14 @@ class DBLayerOCI extends DBLayerBase
 		return $this->lastResult;
 	}
 
-	public function done($result): void
+	public function numRows($result = null): int
 	{
-		oci_free_statement($result);
+		$i = 0;
+		while (($row = $this->fetchAssoc($result)) !== false) {
+			$i++;
+		}
+
+		return $i;
 	}
 
 	/*	function transaction() {
@@ -169,9 +174,10 @@ class DBLayerOCI extends DBLayerBase
 			ora_commitoff($this->CONNECTION);
 		}
 	*/
-	public function commit(): void
+
+	public function fetchAssoc($result): array|false
 	{
-		oci_commit($this->connection);
+		return oci_fetch_array($result, OCI_RETURN_NULLS | OCI_ASSOC);
 	}
 
 	/*
@@ -179,6 +185,17 @@ class DBLayerOCI extends DBLayerBase
 			ora_rollback($this->CONNECTION);
 		}
 	*/
+
+	public function done($result): void
+	{
+		oci_free_statement($result);
+	}
+
+	public function commit(): void
+	{
+		oci_commit($this->connection);
+	}
+
 	public function quoteSQL($value, $more = []): int|string
 	{
 		if ($value == "CURRENT_TIMESTAMP") {
@@ -213,24 +230,9 @@ class DBLayerOCI extends DBLayerBase
 		return $ret;
 	}
 
-	public function fetchAssoc($result): array|false
-	{
-		return oci_fetch_array($result, OCI_RETURN_NULLS | OCI_ASSOC);
-	}
-
 	public function numRowsFast($result): int|false
 	{
 		return oci_num_rows($result);
-	}
-
-	public function numRows($result = null): int
-	{
-		$i = 0;
-		while (($row = $this->fetchAssoc($result)) !== false) {
-			$i++;
-		}
-
-		return $i;
 	}
 
 	public function to_date($timestamp): string

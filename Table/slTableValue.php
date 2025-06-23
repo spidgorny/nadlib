@@ -210,7 +210,7 @@ class slTableValue
 
 			case "excel":
 				$out = str_replace(',', '.', $val); // from excel?
-				$out = number_format($out, 2, ',', '.');
+				$out = number_format((float)$out, 2, ',', '.');
 				break;
 
 			case 'check':
@@ -334,7 +334,7 @@ class slTableValue
 						}
 
 						$out = htmlspecialchars($out);
-					} elseif ($out === '' && ifsetor($k['default'])) {
+					} elseif (ifsetor($k['default'])) {
 						$out = htmlspecialchars($k['default']);
 					} else {
 						$out = htmlspecialchars($val ?? '');
@@ -386,7 +386,7 @@ class slTableValue
 				$list = trimExplode(',', $val);
 				$out = [];
 				foreach ($list as $listVal) {
-					$row = $this->db->fetchOneSelectQuery($k['from'], $id . " = '" . $listVal . "'");
+					$row = $this->db->fetchOneSelectQuery($k['from'], [$id => $listVal]);
 					$out[] = $row[$what];
 				}
 
@@ -415,10 +415,10 @@ class slTableValue
 		if ($timestamp) {
 			//return gmdate('H:i', $timestamp);
 			$whole = floor($timestamp / (60 * 60));
-			$whole = str_pad($whole, 2, '0', STR_PAD_LEFT);
+			$whole = str_pad((string)$whole, 2, '0', STR_PAD_LEFT);
 
 			$rest = ($timestamp / 60) % 60;
-			$rest = str_pad($rest, 2, '0', STR_PAD_LEFT);
+			$rest = str_pad((string)$rest, 2, '0', STR_PAD_LEFT);
 			return $whole . ':' . $rest;
 		}
 

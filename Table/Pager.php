@@ -256,7 +256,7 @@ class Pager
 	/**
 	 * 0 - page 10
 	 * Alternative maybe ceil($div)-1 ?
-	 * @return float
+	 * @return int
 	 */
 	public function getMaxPage()
 	{
@@ -379,17 +379,6 @@ class Pager
 		return $content;
 	}
 
-	public function getCSS(): string
-	{
-		if (class_exists('lessc')) {
-			$l = new lessc();
-			$css = $l->compileFile(dirname(__FILE__) . '/../CSS/PaginationControl.less');
-			return '<style>' . $css . '</style>';
-		} else {
-			return '';
-		}
-	}
-
 	public function showSearchBrowser(): string
 	{
 		$this->log(__METHOD__);
@@ -495,7 +484,7 @@ class Pager
 		return $this->itemsPerPage;
 	}
 
-	public function getSinglePageLink($k, string $text): string
+	public function getSinglePageLink($k, string|int|float $text): string
 	{
 		$link = $this->url->setParam('Pager_' . $this->prefix, [
 			'page' => $k,
@@ -523,6 +512,17 @@ class Pager
 
 		return '<div class="pageSize pull-right floatRight">' .
 			$this->pageSize->render() . '&nbsp;' . __('per page') . '</div>';
+	}
+
+	public function getCSS(): string
+	{
+		if (class_exists('lessc')) {
+			$l = new lessc();
+			$css = $l->compileFile(dirname(__FILE__) . '/../CSS/PaginationControl.less');
+			return '<style>' . $css . '</style>';
+		} else {
+			return '';
+		}
 	}
 
 	public function debug(): array
@@ -635,7 +635,7 @@ class Pager
 
 			$this->setCurrentPage($pagerData['page']);
 			$this->saveCurrentPage();
-		} elseif ($this->user && method_exists($this->user, 'getPref')) {
+		} elseif ($this->user) {
 			$pager = $this->user->getPref('Pager.' . $this->prefix);
 			if ($pager) {
 				//debug(__METHOD__, $this->prefix, $pager['page']);

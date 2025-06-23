@@ -21,8 +21,6 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 */
 	private static $_defaultEncoding;
 
-	private static bool $_caseSensitive = true;
-
 	/**
 	 * Whether the mbstring extension is installed and loaded.
 	 * @access private
@@ -241,10 +239,10 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	public static function random($length, $charset = self::ALNUM): self
 	{
 		$length = (int)$length;
-		$count = count($charset);
+		$count = strlen($charset);
 		$str = '';
 		while ($length--) {
-			$str .= $charset[mt_rand(0, $count - 1)];
+			$str .= $charset[random_int(0, $count - 1)];
 		}
 
 		return new self($str);
@@ -556,7 +554,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 		} elseif ($this->getEncoding() === 'UTF-8' && function_exists('utf8_strrpos')) {
 			$pos = utf8_strrpos($this->_string, (string)$substr, ($offset === 0 ? null : $offset));
 		} elseif (function_exists('iconv_strrpos')) {
-			$pos = iconv_strrpos($this->_string, (string)$substr, (int)$offset);
+			$pos = iconv_strrpos($this->_string, (string)$substr);
 		} else {
 			$pos = strrpos($this->_string, (string)$substr, (int)$offset);
 		}
@@ -704,7 +702,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * and 0 in case the strings are equal.
 	 * This method is case-sensitive. See also {@link compareToIgnoreCase()}
 	 * @param string $string
-	 * @param null $characters upper limit of characters to use in comparison (default null)
+	 * @param string|null $characters upper limit of characters to use in comparison (default null)
 	 * @return int
 	 */
 	public function compareTo($string, $characters = null): int
@@ -949,7 +947,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 
 	/**
 	 * Removes all occurrences of a substring from the string.
-	 * @param string $substr substring
+	 * @param string|string[] $substr substring
 	 * @return StringPlus
 	 */
 	public function remove($substr): StringPlus
@@ -1110,19 +1108,6 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 */
 	public function substringBeforeFirst($separator, $inclusive = false): ?StringPlus
 	{
-		if (version_compare(PHP_VERSION, '5.3.0') < 0) {
-			$pos = $this->indexOf($separator);
-			if ($pos === false) {
-				return null;
-			}
-
-			if ($inclusive) {
-				++$pos;
-			}
-
-			return $this->substring(0, $pos);
-		}
-
 		$excString = strstr($this->_string, $separator, true);
 		if ($excString === false) {
 			return null;
@@ -1172,8 +1157,8 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	 * Gets the String that is nested in between two Strings.
 	 * If one of the delimiters is null, it will use the other one.
 	 * Only the first match will be returned. If no match is found returns null.
-	 * @param String $left left  delimiter
-	 * @param null $right right delimiter
+	 * @param string|StringPlus|null $left left  delimiter
+	 * @param string|StringPlus|null $right right delimiter
 	 * @return StringPlus|null
 	 */
 	public function substringBetween($left, $right = null): ?StringPlus
@@ -1233,8 +1218,8 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 	/**
 	 * Same as {@link substringBetween}, but returns array with all matches.
 	 * If no match is found, returns null.
-	 * @param string $substr1
-	 * @param string $substr2
+	 * @param ?string $substr1
+	 * @param ?string $substr2
 	 * @return array
 	 */
 	public function substringsBetween($substr1, $substr2 = null)

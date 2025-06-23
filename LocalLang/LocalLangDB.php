@@ -103,7 +103,7 @@ class LocalLangDB extends LocalLang
 			'$this->db' => (bool)$this->db,
 			'$this->ll[code]' => ifsetor($this->ll[$code]),
 		]);
-		if (DEVELOPMENT && $code && $this->saveMissingMessages && $this->db) {
+		if (DEVELOPMENT && $code && $this->saveMissingMessages) {
 			try {
 				$where = [
 					'code' => $code,
@@ -157,6 +157,11 @@ class LocalLangDB extends LocalLang
 		}
 	}
 
+	public function insert(array $array)
+	{
+
+	}
+
 	public function getRow($id)
 	{
 		return ifsetor($this->rows[$id]);
@@ -204,11 +209,6 @@ class LocalLangDB extends LocalLang
 
 	public function delete($code)
 	{
-	}
-
-	public function insert(array $array)
-	{
-
 	}
 
 }

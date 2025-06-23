@@ -106,19 +106,19 @@ class LDAPLogin
 					// Warning: ldap_bind(): Unable to bind to server: Invalid credentials
 					$ldapbind = @ldap_bind($this->_ldapconn, $info[$i]['dn'], $password);
 
-					if ($ldapbind) {
-						/** @var LDAPUser $user */
-						$user = new $this->userClass();
-						$user->initLDAP($info[$i]);
-						return $user;
-					} else {
+					if (!$ldapbind) {
 						$this->error = "LDAP login failed. Probably wrong password";
 						//echo getDebug($ldapbind);
 						return false;
 					}
+
+					/** @var LDAPUser $user */
+					$user = new $this->userClass();
+					$user->initLDAP($info[$i]);
+					return $user;
 				}
 			} else {
-				throw new LoginException(error_get_last());
+				throw new LoginException(json_encode(error_get_last(), JSON_THROW_ON_ERROR));
 			}
 		}
 
@@ -155,9 +155,8 @@ class LDAPLogin
 		$search = ldap_search($this->_ldapconn, $group, $query);
 		$info = ldap_get_entries($this->_ldapconn, $search);
 		unset($info['count']);
-		$userClass = get_class($this->userClass);
 		foreach ($info as &$user) {
-			$user = new $userClass($user);
+			$user = new $this->userClass($user);
 		}
 
 		return $info;
@@ -171,16 +170,15 @@ class LDAPLogin
 	{
 		$this->_connectLdap();
 
-		$search = ldap_search($this->_ldapconn, $this->LDAP_BASEDN, $query, [], null, 50);
+		$search = ldap_search($this->_ldapconn, $this->LDAP_BASEDN, $query, [], 0, 50);
 		if (!$search) {
 			return null;
 		}
 
 		$info = ldap_get_entries($this->_ldapconn, $search);
 		unset($info['count']);
-		$userClass = get_class($this->userClass);
 		foreach ($info as &$user) {
-			$user = new $userClass($user);
+			$user = new $this->userClass($user);
 		}
 
 		return $info;

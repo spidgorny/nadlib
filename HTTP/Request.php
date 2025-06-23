@@ -172,14 +172,14 @@ class Request
 			//pre_print_r($docRoot);
 		}
 
-		0 && pre_print_r([
-			'script' => $script,
-			'docRootRaw' => $docRootRaw,
-			'beginTheSame' => $beginTheSame,
-			'contains' => $contains,
-			'replaceFrom' => dirname($script),
-			'docRoot' => $docRoot,
-		]);
+//		0 && pre_print_r([
+//			'script' => $script,
+//			'docRootRaw' => $docRootRaw,
+//			'beginTheSame' => $beginTheSame,
+//			'contains' => $contains,
+//			'replaceFrom' => dirname($script),
+//			'docRoot' => $docRoot,
+//		]);
 		return $docRoot;
 	}
 
@@ -329,10 +329,10 @@ class Request
 	}
 
 	/**
-	 * @return array|string
+	 * @return string
 	 * //~depidsvy/something
 	 */
-	private static function getDocumentRootByScript(): array|string
+	private static function getDocumentRootByScript(): string
 	{
 		$script = $_SERVER['SCRIPT_FILENAME'];
 		$pos = strpos($script, '/public_html');
@@ -899,9 +899,9 @@ class Request
 	{
 		$date = $this->getInt($name);
 		if ($date !== 0) {
-			$y = substr($date, 0, 4);
-			$m = substr($date, 4, 2);
-			$d = substr($date, 6, 2);
+			$y = substr((string)$date, 0, 4);
+			$m = substr((string)$date, 4, 2);
+			$d = substr((string)$date, 6, 2);
 			$date = strtotime(sprintf('%s-%s-%s', $y, $m, $d));
 			$date = new Date($date);
 		} else {
@@ -959,9 +959,7 @@ class Request
 			$path = new Path($url);
 
 			//			debug($al->documentRoot);
-			if (false) {    // doesn't work in ORS
-				$path->remove(clone $al->documentRoot);
-			} elseif ($al->documentRoot instanceof Path) {        // works in ORS
+			if ($al->documentRoot instanceof Path) {        // works in ORS
 				$path->remove(clone $al->documentRoot);
 			}
 
@@ -1382,14 +1380,14 @@ class Request
 					'timeout' => 1,
 				]
 			]);
-			$data = file_get_contents($url, null, $context);
+			$data = file_get_contents($url, false, $context);
 		} else {
 			$context = stream_context_create([
 				'http' => [
 					'timeout' => 1,
 				]
 			]);
-			$data = file_get_contents($url, null, $context);
+			$data = file_get_contents($url, false, $context);
 		}
 
 		return $data;

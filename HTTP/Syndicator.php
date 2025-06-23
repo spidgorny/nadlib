@@ -60,7 +60,7 @@ class Syndicator
 	public $log = [];
 
 	/**
-	 * @var callable callback to check that downloaded file is what is expected
+	 * @var ?callable callback to check that downloaded file is what is expected
 	 */
 	public $validateDownload;
 
@@ -94,11 +94,11 @@ class Syndicator
 	}
 
 	/**
-     * @param string $url
-     * @param bool $caching
-     * @param string $recodeUTF8
-     */
-    public static function readAndParseHTML($url, $caching = true, $recodeUTF8 = 'utf-8'): self
+	 * @param string $url
+	 * @param bool $caching
+	 * @param string $recodeUTF8
+	 */
+	public static function readAndParseHTML($url, $caching = true, $recodeUTF8 = 'utf-8'): self
 	{
 		$s = new self($url, $caching, $recodeUTF8);
 		$s->input = 'HTML';
@@ -119,19 +119,19 @@ class Syndicator
 				$this->log(__METHOD__, 'No cache. Download File.');
 				$html = $this->downloadFile($this->url, $retries);
 				if (is_callable($this->validateDownload)) {
-                    $ok = call_user_func($this->validateDownload, $html);
-                    if ($ok) {
+					$ok = call_user_func($this->validateDownload, $html);
+					if ($ok) {
 						$this->cache->set($this->url, $html);
 						$this->proxyOK();
 					} else {
 						$this->proxyFail();
 					}
-                } elseif (strlen($html) !== 0) {
-                    $this->cache->set($this->url, $html);
-                    $this->proxyOK();
-                } else {
-						$this->proxyFail();
-					}
+				} elseif (strlen($html) !== 0) {
+					$this->cache->set($this->url, $html);
+					$this->proxyOK();
+				} else {
+					$this->proxyFail();
+				}
 
 				//debug($cache->map($this->url).' Size: '.strlen($html), 'Set cache');
 			}
@@ -265,10 +265,10 @@ class Syndicator
 	}
 
 	/**
-     * http://code.google.com/p/php-excel-reader/issues/attachmentText?id=8&aid=2334947382699781699&name=val_patch.php&token=45f8ef6a787d2ab55cb821688e28142d
-     * @param $str
-     */
-    public function detect_cyr_charset($str): string
+	 * http://code.google.com/p/php-excel-reader/issues/attachmentText?id=8&aid=2334947382699781699&name=val_patch.php&token=45f8ef6a787d2ab55cb821688e28142d
+	 * @param $str
+	 */
+	public function detect_cyr_charset($str): string
 	{
 		$charsets = [
 			'koi8-r' => 0,
@@ -279,55 +279,55 @@ class Syndicator
 		];
 		for ($i = 0, $length = strlen($str); $i < $length; $i++) {
 			$char = ord($str[$i]);
-            //non-russian characters
-            if ($char < 128 || $char > 256) {
-                continue;
-            }
+			//non-russian characters
+			if ($char < 128) {
+				continue;
+			}
 
-            //CP866
-            if (($char > 159 && $char < 176) || ($char > 223 && $char < 242)) {
-                $charsets['CP866'] += LOWERCASE;
-            }
+			//CP866
+			if (($char > 159 && $char < 176) || ($char > 223 && $char < 242)) {
+				$charsets['CP866'] += LOWERCASE;
+			}
 
-            if ($char < 160) {
-                $charsets['CP866'] += UPPERCASE;
-            }
+			if ($char < 160) {
+				$charsets['CP866'] += UPPERCASE;
+			}
 
-            //KOI8-R
-            if ($char > 191 && $char < 223) {
-                $charsets['koi8-r'] += LOWERCASE;
-            }
+			//KOI8-R
+			if ($char > 191 && $char < 223) {
+				$charsets['koi8-r'] += LOWERCASE;
+			}
 
-            if ($char > 222 && $char < 256) {
-                $charsets['koi8-r'] += UPPERCASE;
-            }
+			if ($char > 222) {
+				$charsets['koi8-r'] += UPPERCASE;
+			}
 
-            //WIN-1251
-            if ($char > 223 && $char < 256) {
-                $charsets['Windows-1251'] += LOWERCASE;
-            }
+			//WIN-1251
+			if ($char > 223) {
+				$charsets['Windows-1251'] += LOWERCASE;
+			}
 
-            if ($char > 191 && $char < 224) {
-                $charsets['Windows-1251'] += UPPERCASE;
-            }
+			if ($char > 191 && $char < 224) {
+				$charsets['Windows-1251'] += UPPERCASE;
+			}
 
-            //MAC
-            if ($char > 221 && $char < 255) {
-                $charsets['MAC'] += LOWERCASE;
-            }
+			//MAC
+			if ($char > 221 && $char < 255) {
+				$charsets['MAC'] += LOWERCASE;
+			}
 
-            if ($char < 160) {
-                $charsets['MAC'] += UPPERCASE;
-            }
+			if ($char < 160) {
+				$charsets['MAC'] += UPPERCASE;
+			}
 
-            //ISO-8859-5
-            if ($char > 207 && $char < 240) {
-                $charsets['ISO-8859-5'] += LOWERCASE;
-            }
+			//ISO-8859-5
+			if ($char > 207 && $char < 240) {
+				$charsets['ISO-8859-5'] += LOWERCASE;
+			}
 
-            if ($char > 175 && $char < 208) {
-                $charsets['ISO-8859-5'] += UPPERCASE;
-            }
+			if ($char > 175 && $char < 208) {
+				$charsets['ISO-8859-5'] += UPPERCASE;
+			}
 
 		}
 
@@ -417,11 +417,11 @@ class Syndicator
 	}
 
 	/**
-     * @param $url
-     * @param bool $caching
-     * @param string $recodeUTF8
-     */
-    public static function readAndParseXML($url, $caching = true, $recodeUTF8 = 'utf-8'): self
+	 * @param $url
+	 * @param bool $caching
+	 * @param string $recodeUTF8
+	 */
+	public static function readAndParseXML($url, $caching = true, $recodeUTF8 = 'utf-8'): self
 	{
 		$s = new self($url, $caching, $recodeUTF8);
 		$s->input = 'XML';
@@ -431,11 +431,11 @@ class Syndicator
 	}
 
 	/**
-     * @param $url
-     * @param bool $caching
-     * @param string $recodeUTF8
-     */
-    public static function readAndParseJSON($url, $caching = true, $recodeUTF8 = 'utf-8'): self
+	 * @param $url
+	 * @param bool $caching
+	 * @param string $recodeUTF8
+	 */
+	public static function readAndParseJSON($url, $caching = true, $recodeUTF8 = 'utf-8'): self
 	{
 		$s = new self($url, $caching, $recodeUTF8);
 		$s->input = 'JSON';

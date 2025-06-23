@@ -31,29 +31,6 @@ class HTMLFormDatePicker extends HTMLFormField
 //		$index->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . 'js/HTMLFormDatePicker.js');
 	}
 
-	public function render(): string
-	{
-//		echo __METHOD__, BR;
-		//debug($this->field, $this->value);
-		if ($this->value && $this->value !== '0000-00-00') {
-			if (is_int($this->value) || is_numeric($this->value)) {
-				$val = date($this->format, $this->value);
-			} else {
-				$val = strtotime($this->value);    // hope for Y-m-d
-				$val = date($this->format, $val);
-			}
-		} else {
-			$val = '';
-		}
-
-		$this->content = $this->form->input($this->field, $val, [
-				'format' => $this->jsFormat
-			] + $this->jsParams,
-			$this->inputType, ifsetor($this->desc['class'], ''));
-
-		return $this->content;
-	}
-
 	/**
 	 * Convert to timestamp using the supplied format
 	 * @param $value
@@ -64,7 +41,7 @@ class HTMLFormDatePicker extends HTMLFormField
 		//debug($value, is_integer($value), is_numeric($value), strtotime($value));
 		if ($value && (is_int($value) || is_numeric($value))) {
 			$val = intval($value);
-		} elseif ($value && is_string($value) && $this->jsFormat == 'dd.mm.yy') {
+		} elseif ($value && is_string($value) && $this->jsFormat === 'dd.mm.yy') {
 			$val = explode('.', $value);
 			$val = array_reverse($val);
 			$val = implode('-', $val);
@@ -90,6 +67,29 @@ class HTMLFormDatePicker extends HTMLFormField
 	{
 //		echo __METHOD__, BR;
 		return $this->render();
+	}
+
+	public function render(): string
+	{
+//		echo __METHOD__, BR;
+		//debug($this->field, $this->value);
+		if ($this->value && $this->value !== '0000-00-00') {
+			if (is_int($this->value) || is_numeric($this->value)) {
+				$val = date($this->format, $this->value);
+			} else {
+				$val = strtotime($this->value);    // hope for Y-m-d
+				$val = date($this->format, $val);
+			}
+		} else {
+			$val = '';
+		}
+
+		$this->content = $this->form->input($this->field, $val, [
+				'format' => $this->jsFormat
+			] + $this->jsParams,
+			$this->inputType, ifsetor($this->desc['class'], ''));
+
+		return $this->content;
 	}
 
 }

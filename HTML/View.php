@@ -11,7 +11,7 @@ class View extends stdClass implements ToStringable
 	//use ViewPHP7;
 
 	/**
-	 * @var HasGetter
+	 * @var ?HasGetter
 	 */
 	public $caller;
 

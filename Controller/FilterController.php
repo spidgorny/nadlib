@@ -13,7 +13,7 @@ class FilterController extends Controller
 	public $filter;
 
 	/**
-	 * @var OODBase - used to retrieve options for a specific db field
+	 * @var ?OODBase - used to retrieve options for a specific db field
 	 */
 	public $model;
 
@@ -34,26 +34,6 @@ class FilterController extends Controller
 	{
 		$this->fields = $fields;
 		$this->desc = $this->getFilterDesc($this->fields);
-	}
-
-	public function setFilter(Filter $filter): void
-	{
-		$this->filter = $filter;
-	}
-
-	public function render(): \HTMLFormTable
-	{
-		$f = new HTMLFormTable($this->desc);
-		$f->setAllOptional();
-		$f->method(HTMLForm::METHOD_GET);
-		$f->defaultBR = true;
-//		llog($this->linker->linkVars);
-		$f->stdout .= $f->formHideArray($this->linker->linkVars);
-		$f->prefix('filter');
-		$f->showForm();
-		$f->prefix(null);
-		$f->stdout .= $f->submit(__('Filter'));
-		return $f;
 	}
 
 	/**
@@ -163,6 +143,26 @@ class FilterController extends Controller
 //		debug(__METHOD__, $res, )
 
 		return $res;
+	}
+
+	public function setFilter(Filter $filter): void
+	{
+		$this->filter = $filter;
+	}
+
+	public function render(): \HTMLFormTable
+	{
+		$f = new HTMLFormTable($this->desc);
+		$f->setAllOptional();
+		$f->method(HTMLForm::METHOD_GET);
+		$f->defaultBR = true;
+//		llog($this->linker->linkVars);
+		$f->stdout .= $f->formHideArray($this->linker->linkVars);
+		$f->prefix('filter');
+		$f->showForm();
+		$f->prefix(null);
+		$f->stdout .= $f->submit(__('Filter'));
+		return $f;
 	}
 
 	/**

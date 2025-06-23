@@ -43,10 +43,16 @@ class RandomStringGenerator
 		$this->alphabetLength = strlen($alphabet);
 	}
 
+	public static function likeYouTube(): string
+	{
+		$gen = new self();
+		return $gen->generate(10);
+	}
+
 	/**
-     * @param int $length
-     */
-    public function generate($length): string
+	 * @param int $length
+	 */
+	public function generate($length): string
 	{
 		$token = '';
 
@@ -105,19 +111,12 @@ class RandomStringGenerator
 		return $parts;
 	}
 
-	public static function likeYouTube(): string
-	{
-		$gen = new self();
-		return $gen->generate(10);
-	}
-
 	/**
-     * http://www.anyexample.com/programming/php/php__password_generation.xml
-     * @param int $syllables
-     */
-    public function generateReadablePassword($syllables = 3): string
+	 * http://www.anyexample.com/programming/php/php__password_generation.xml
+	 * @param int $syllables
+	 */
+	public function generateReadablePassword($syllables = 3, $use_prefix = false): string
 	{
-		$use_prefix = false;
 		// Define function unless it is already exists
 		// 20 prefixes
 		$prefix = ['aero', 'anti', 'auto', 'bi', 'bio',
@@ -144,8 +143,8 @@ class RandomStringGenerator
 			$doubles = ['n', 'm', 't', 's'];
 			$c = ae_arr($consonants);
 			// maybe double it
-            if (in_array($c, $doubles) && $i != 0 && rand(0, 2) == 1) { // 33% probability
-                $c .= $c;
+			if (in_array($c, $doubles) && $i != 0 && random_int(0, 2) == 1) { // 33% probability
+				$c .= $c;
 			}
 
 			$password .= $c;
@@ -155,10 +154,10 @@ class RandomStringGenerator
 			$password .= ae_arr($vowels);
 
 			// if suffix begin with vovel
-            if ($i == $syllables - 1 && in_array($password_suffix[0], $vowels)) {
-                // add one more consonant
-                $password .= ae_arr($consonants);
-            }
+			if ($i == $syllables - 1 && in_array($password_suffix[0], $vowels)) {
+				// add one more consonant
+				$password .= ae_arr($consonants);
+			}
 
 		}
 

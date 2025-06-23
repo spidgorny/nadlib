@@ -57,11 +57,11 @@ class ArrayPlus extends ArrayObject implements HasGetter
 	{
 		$replacement = (array)$replacement;
 		$key_indices = array_flip(array_keys($input));
-		if (isset($input[$offset]) && is_string($offset)) {
+		if (isset($input[$offset]) && $offset) {
 			$offset = $key_indices[$offset];
 		}
 
-		if (isset($input[$length]) && is_string($length)) {
+		if (isset($input[$length]) && $length) {
 			$length = $key_indices[$length] - $offset;
 		}
 
@@ -450,7 +450,7 @@ class ArrayPlus extends ArrayObject implements HasGetter
 
 	/**
 	 * http://stackoverflow.com/a/9944080/417153
-	 * @param string $key
+	 * @param string|int $key
 	 */
 	public function getPrevKey($key): false|int|string
 	{
@@ -465,7 +465,7 @@ class ArrayPlus extends ArrayObject implements HasGetter
 
 	/**
 	 * http://stackoverflow.com/a/9944080/417153
-	 * @param string $key
+	 * @param string|int $key
 	 */
 	public function getNextKey($key): false|int|string
 	{
@@ -510,8 +510,8 @@ class ArrayPlus extends ArrayObject implements HasGetter
 
 	public function findAlternativeFromMenu($current)
 	{
+		/** @var Recursive|null $rec */
 		foreach ($this->getData() as $rec) {
-			/** @var Recursive $rec */
 			//$found = $rec->findPath($this->current);
 			if ($rec instanceof Recursive) {
 				$children = $rec->getChildren();
@@ -666,7 +666,7 @@ class ArrayPlus extends ArrayObject implements HasGetter
 
 	/**
 	 * http://www.if-not-true-then-false.com/2009/php-tip-convert-stdclass-object-to-multidimensional-array-and-convert-multidimensional-array-to-stdclass-object/
-	 * @param object $d
+	 * @param object|array $d
 	 * @return array
 	 */
 	protected function objectToArray($d)
@@ -1180,23 +1180,21 @@ class ArrayPlus extends ArrayObject implements HasGetter
 	{
 		//		debug($where, sizeof($this->events));
 		$this->setData(
-			array_filter($this->getData(), function (array $row) use ($where): bool {
+			array_filter($this->getData(), static function (array|object $row) use ($where): bool {
 				//			$same = array_intersect_key((array)$row, $where);
 
 				$okList = [];
 				foreach ($where as $k => $v) {
-					if (is_object($v)) {
-						//					var_dump($v);
-					}
+//					if (is_object($v)) {
+					//					var_dump($v);
+//					}
 
 					if ($v instanceof FilterBetween) {
 						$ok = $v->apply($row->$k);
 					} elseif (is_array($v)) {
 						$ok = in_array($row->$k, $v);
 					} else {
-						$value = is_object($row)
-							? $row->$k
-							: ifsetor($row[$k]);
+						$value = is_object($row) ? $row->$k : ifsetor($row[$k]);
 						$ok = $v == $value;
 					}
 

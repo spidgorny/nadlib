@@ -13,7 +13,8 @@ class TestQueue extends AppControllerBE
 		return $this->processTask('DeleteUser');
 	}
 
-	private function processTask(string $type): string {
+	private function processTask(string $type): string
+	{
 		$content = '';
 		$counter = 0;
 		$msgQ = new MessageQueue($type);
@@ -31,12 +32,14 @@ class TestQueue extends AppControllerBE
 		return $content;
 	}
 
-	public function processNotifyUserAction(): string {
+	public function processNotifyUserAction(): string
+	{
 		return $this->processTask('NotifyUser');
 	}
 
-	public function createAction(): void {
-		$taskData = json_decode('{"array":[1,2,3],"boolean":true,"null":null,"number":123,"object":{"a":"b","c":"d","e":"f"},"string":"Hello World"}');
+	public function createAction(): void
+	{
+		$taskData = json_decode('{"array":[1,2,3],"boolean":true,"null":null,"number":123,"object":{"a":"b","c":"d","e":"f"},"string":"Hello World"}', true, 512, JSON_THROW_ON_ERROR);
 
 		$msgQ = new MessageQueue('DeleteUser');
 		$msgQ->push($taskData);

@@ -55,16 +55,16 @@ class Duration extends Time
 	}
 
 	/**
-     * Parses the human string like '24h 10m'
-     * No spaces allowed between the number and value
-     */
-    public static function fromHuman(string $string): \Duration
+	 * Parses the human string like '24h 10m'
+	 * No spaces allowed between the number and value
+	 */
+	public static function fromHuman(string $string): \Duration
 	{
 		$total = 0;
 		$parts = trimExplode(' ', $string);
 		foreach ($parts as $p) {
 			$value = floatval($p);
-			$uom = str_replace($value, '', $p);
+			$uom = str_replace((string)$value, '', $p);
 			//debug($p, $value, $uom);
 			switch ($uom) {
 				case 's':
@@ -151,11 +151,11 @@ class Duration extends Time
 	}
 
 	/**
-     * All in one method
-     *
-     * @param int $perCount
-     */
-    public function toString($perCount = 2): string
+	 * All in one method
+	 *
+	 * @param int $perCount
+	 */
+	public function toString($perCount = 2): string
 	{
 		$content = '';
 		$duration = $this->int2array();
@@ -247,9 +247,9 @@ class Duration extends Time
 	}
 
 	/**
-     * Return human-readable time units
-     */
-    public function __toString(): string
+	 * Return human-readable time units
+	 */
+	public function __toString(): string
 	{
 		//return floor($this->time / 3600/24).gmdate('\d H:i:s', $this->time).' ('.$this->time.')';
 		return $this->toString();
