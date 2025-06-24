@@ -39,9 +39,9 @@ class DBLayerJSONTable extends DBLayerBase
 	}
 
 	/**
-     * @return mixed[]
-     */
-    public function fetchAll($res_or_query, $index_by_key = null): array
+	 * @return mixed[]
+	 */
+	public function fetchAll($res_or_query, $index_by_key = null): array
 	{
 		//return $this->data;
 		$data = [];
@@ -100,12 +100,12 @@ class DBLayerJSONTable extends DBLayerBase
 		return count($this->data);
 	}
 
-	public function runInsertQuery($table, array $data): void
+	public function runInsertQuery($table, array $data, array $where = []): void
 	{
 		$this->data[] = $data;
 	}
 
-	public function runUpdateQuery($table, array $data, array $where): void
+	public function runUpdateQuery($table, array $data, array $where, $orderBy = ''): void
 	{
 		foreach ($this->data as &$row) {
 			if ($this->matchWhere($row, $where)) {

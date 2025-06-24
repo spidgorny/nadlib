@@ -95,7 +95,7 @@ class Pager
 	protected $prefix;
 
 	/**
-	 * @var UserModelInterface
+	 * @var ?UserModelInterface
 	 */
 	protected $user;
 

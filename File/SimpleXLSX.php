@@ -210,7 +210,7 @@ class SimpleXLSX
 			$aP = unpack('v1VN/v1GPF/v1CM/v1FT/v1FD/V1CRC/V1CS/V1UCS/v1FNL/v1EFL', $vZ);
 
 			// Check if data is encrypted
-			$bE = ($aP['GPF'] && 0x0001) ? TRUE : FALSE;
+			$bE = ($aP['GPF'] & 0x0001) ? TRUE : FALSE;
 			$nF = $aP['FNL'];
 			$mF = $aP['EFL'];
 

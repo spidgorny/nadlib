@@ -32,14 +32,14 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 	{
 		$this->connection = new mysqli($host, $login, $password, $this->dbName);
 		if (!$this->connection) {
-			throw new Exception(mysqli_error($this->connection), mysqli_errno($this->connection));
+			throw new \RuntimeException(mysqli_error($this->connection), mysqli_errno($this->connection));
 		}
 
 		$this->connection->set_charset('utf8');
 	}
 
 	/**
-	 * @param resource $res
+	 * @param resource|mysqli_result|string|SQLSelectQuery|mysqli_stmt $res
 	 * @return array|false
 	 * @throws DatabaseException
 	 */
@@ -49,27 +49,33 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 		if ($res instanceof mysqli_result) {
 			//			debug(gettype2($res), $data);
 			return (array)$res->fetch_assoc();
-		} elseif (is_string($res)) {
+		}
+
+		if (is_string($res)) {
 			$res = $this->perform($res);
 			return $res->fetch_assoc();
-		} elseif ($res instanceof SQLSelectQuery) {
+		}
+
+		if ($res instanceof SQLSelectQuery) {
 			$res = $this->perform($res . '', $res->getParameters());
 			return $res->fetch_assoc();
-		} elseif ($res instanceof mysqli_stmt) {
+		}
+
+		if ($res instanceof mysqli_stmt) {
 			$res->fetch();
 			return $this->columns;
-		} else {
-			debug(typ($res));
-			throw new InvalidArgumentException(__METHOD__);
 		}
+
+		debug(typ($res));
+		throw new InvalidArgumentException(__METHOD__);
 	}
 
 	/**
-     * @param       $query
-     * @return bool|mysqli_result
-     * @throws DatabaseException
-     */
-    public function perform($query, array $params = [])
+	 * @param       $query
+	 * @return bool|mysqli_result
+	 * @throws DatabaseException
+	 */
+	public function perform($query, array $params = [])
 	{
 		$this->lastQuery = $query;
 
@@ -79,26 +85,13 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 				$types = str_repeat('s', count($params));
 				//			debug($types, $params, $query.'');
 				$stmt->bind_param(...array_merge(
-						[$types],
-						$this->makeValuesReferenced($params)
-					));
+					[$types],
+					$this->makeValuesReferenced($params)
+				));
 				$stmt->execute();
 				$stmt->store_result();
 				debug($stmt);
-				if (method_exists($stmt, 'get_result')) {
-					$ok = $stmt->get_result();
-				} else {
-					$meta = $stmt->result_metadata();
-					$data = [];
-					while ($field = $meta->fetch_field()) {
-						//						debug($field);
-						$this->columns[$field->name] = &$data[$field->name];
-						// pass by reference
-					}
-
-					//debug($data, $meta, $field, $this->columns);
-					$ok = $stmt->bind_result(...$this->columns);
-				}
+				$ok = $stmt->get_result();
 
 				if (!$ok) {
 					throw new DatabaseException(mysqli_error($this->connection));
@@ -127,9 +120,9 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 	}
 
 	/**
-     * @return mixed[]
-     */
-    private function makeValuesReferenced(array $arr): array
+	 * @return mixed[]
+	 */
+	private function makeValuesReferenced(array $arr): array
 	{
 		$refs = [];
 		foreach (array_keys($arr) as $key) {
@@ -151,14 +144,14 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 
 	public function escapeBool($value): int
 	{
-		return intval((bool) $value);
+		return intval((bool)$value);
 	}
 
 	/**
-     * @param resource $res
-     * @return mixed
-     */
-    public function lastInsertID($res, $table = null)
+	 * @param resource $res
+	 * @return mixed
+	 */
+	public function lastInsertID($res, $table = null)
 	{
 		return $this->connection->insert_id;
 	}
@@ -193,10 +186,10 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 	}
 
 	/**
-     * @param string $table Table name
-     * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
-     */
-    public function getReplaceQuery($table, $columns): string
+	 * @param string $table Table name
+	 * @param array $columns array('name' => 'John', 'lastname' => 'Doe')
+	 */
+	public function getReplaceQuery($table, $columns): string
 	{
 		$fields = implode(", ", $this->quoteKeys(array_keys($columns)));
 		$values = implode(", ", $this->quoteValues(array_values($columns)));

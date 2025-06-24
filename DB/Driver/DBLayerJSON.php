@@ -4,7 +4,7 @@
  * @method  runDeleteQuery($table, array $where)
  * @method  runInsertUpdateQuery($table, array $fields, array $where, array $insert = [])
  */
-class DBLayerJSON extends DBLayerBase implements DBInterface
+class DBLayerJSON extends DBLayerBase
 {
 
 	public $folderName;
@@ -22,17 +22,17 @@ class DBLayerJSON extends DBLayerBase implements DBInterface
 	{
 		if ($res_or_query instanceof DBLayerJSONTable) {
 			return $res_or_query->fetchAll($res_or_query, $index_by_key);
-		} else {
-			debug($res_or_query, $this->currentQuery);
-			$table = $this->extractTable($res_or_query ?: $this->currentQuery);
-			if ($table) {
-				$t = $this->getTable($table);
-				return $t->fetchAll($res_or_query, $index_by_key);
-			} else {
-				debug($res_or_query);
-				throw new InvalidArgumentException('Unable to find table name after FROM in SQL');
-			}
 		}
+
+		debug($res_or_query, $this->currentQuery);
+		$table = $this->extractTable($res_or_query ?: $this->currentQuery);
+		if ($table) {
+			$t = $this->getTable($table);
+			return $t->fetchAll($res_or_query, $index_by_key);
+		}
+
+		debug($res_or_query);
+		throw new InvalidArgumentException('Unable to find table name after FROM in SQL');
 	}
 
 	public function extractTable($res_or_query)
@@ -65,9 +65,9 @@ class DBLayerJSON extends DBLayerBase implements DBInterface
 	{
 		if ($res instanceof DBLayerJSONTable) {
 			return $res->fetchAssoc($res);
-		} else {
-			throw new InvalidArgumentException('fetchAssoc needs to have reference to the DBLayerJSONTable');
 		}
+
+		throw new InvalidArgumentException('fetchAssoc needs to have reference to the DBLayerJSONTable');
 	}
 
 	public function numRows($res = null): int
@@ -88,19 +88,19 @@ class DBLayerJSON extends DBLayerBase implements DBInterface
 		return $t->numRows($res);
 	}
 
-	public function runInsertQuery($table, array $data)
+	public function runInsertQuery($table, array $data, array $where = [])
 	{
 		$t = $this->getTable($table);
 		$t->runInsertQuery($table, $data);
 	}
 
-	public function runUpdateQuery($table, array $data, array $where)
+	public function runUpdateQuery($table, array $data, array $where, string $orderBy = '')
 	{
 		$t = $this->getTable($table);
 		$t->runUpdateQuery($table, $data, $where);
 	}
 
-	public function getSelectQuery($table, array $where = [], $order = '', $addSelect = null)
+	public function getSelectQuery($table, $where = [], $order = '', $addSelect = ''): DBLayerJSONTable
 	{
 		$query = parent::getSelectQuery($table, $where, $order, $addSelect);
 		$this->currentQuery = $query;
@@ -116,7 +116,7 @@ class DBLayerJSON extends DBLayerBase implements DBInterface
 		$t->runSelectQuery($table, $where, $order, $addSelect);
 	}
 
-	public function __call(string $method, array $params)
+	public function __call($method, array $params)
 	{
 //		echo $method, BR;
 		return parent::__call($method, $params);
@@ -125,7 +125,7 @@ class DBLayerJSON extends DBLayerBase implements DBInterface
 	public function perform($query, array $params = [])
 	{
 		$this->currentQuery = $query;
-		parent::perform($query, $params);
+//		parent::perform($query, $params);
 		if (!($query instanceof DBLayerJSONTable)) {
 			$table = $this->extractTable($query);
 			$t = $this->getTable($table);

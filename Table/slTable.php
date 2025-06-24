@@ -258,7 +258,7 @@ class slTable implements ToStringable
 	 * Useful only when the complete result set is visible on a single page.
 	 * Otherwise you're sorting just a portion of the data.
 	 *
-	 * @param string $by - can be array (for easy explode(' ', 'field DESC') processing
+	 * @param string|string[] $by - can be array (for easy explode(' ', 'field DESC') processing
 	 * @param bool $or
 	 */
 	public function setSortBy($by = null, $or = null): void
@@ -293,7 +293,7 @@ class slTable implements ToStringable
 
 		$this->generateThead();
 		$this->generation->text('<tbody>');
-		$data = (is_array($this->data) || $this->data instanceof Traversable) ? $this->data : [];
+		$data = is_array($this->data) ? $this->data : [];
 
 		$i = -1;
 		foreach ($data as $key => $row) { // (almost $this->data)

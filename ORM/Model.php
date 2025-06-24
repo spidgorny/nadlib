@@ -42,10 +42,7 @@ class Model
 	 */
 	public function __construct(DBInterface $db, array $data = [])
 	{
-		if ($db instanceof \DBInterface) {
-			$this->setDB($db);
-		}
-
+		$this->setDB($db);
 		$this->setData($data);
 	}
 
@@ -150,9 +147,7 @@ class Model
 	{
 		$data = $this->db->fetchAllSelectQuery($this->table, $where);
 		$this->lastSelectQuery = $this->db->getLastQuery();
-		if (!($data instanceof ArrayPlus)) {
-			$data = new ArrayPlus($data);
-		}
+		$data = new ArrayPlus($data);
 
 		$data->map(function ($row): static {
 			return new static($this->db, $row);
@@ -193,9 +188,7 @@ class Model
 	{
 		$data = $this->db->fetchAllSelectQuery($this->table, $where);
 		$this->lastSelectQuery = $this->db->getLastQuery();
-		if (!($data instanceof ArrayPlus)) {
-			$data = new ArrayPlus($data);
-		}
+		$data = new ArrayPlus($data);
 
 		return $data;
 	}

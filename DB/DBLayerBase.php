@@ -63,9 +63,9 @@ abstract class DBLayerBase implements DBInterface
 		$this->qb = $qb;
 	}
 
-	public function __call(string $method, array $params)
+	public function __call($method, array $params)
 	{
-		if (!$this->qb && !$this->qb) {
+		if (!$this->qb) {
 			throw new DatabaseException(__CLASS__ . ' has no QB');
 		}
 

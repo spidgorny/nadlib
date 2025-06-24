@@ -1,7 +1,5 @@
 <?php
 
-use PgSql\Connection;
-
 /**
  * Class dbLayerPDO
  * @mixin SQLBuilder
@@ -11,7 +9,7 @@ class DBLayerPDO extends DBLayerBase
 {
 
 	/**
-	 * @var Connection
+	 * @var PDO
 	 */
 	public $connection;
 

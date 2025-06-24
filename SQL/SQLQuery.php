@@ -8,6 +8,10 @@ class SQLQuery extends PHPSQLParser
 
 	public $parsed;
 
+	/**
+	 * @param string|SQLQuery|false $sql
+	 * @param $calcPositions
+	 */
 	public function __construct($sql = false, $calcPositions = false)
 	{
 		if ($sql instanceof self) {
@@ -57,7 +61,7 @@ class SQLQuery extends PHPSQLParser
 		if ($this->parsed['ORDER'] && $this->parsed['ORDER'][0]['base_expr'] !== 'FIELD') {
 			$this->parsed['ORDER'][0]['expr_type'] = 'colref';
 		}
-        
+
 		//debug($sql->parsed);
 	}
 

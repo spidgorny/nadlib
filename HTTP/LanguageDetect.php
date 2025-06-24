@@ -22,11 +22,11 @@ class LanguageDetect
 	public function getAcceptedLanguages(): array
 	{
 		$languagesArr = [];
-		$rawAcceptedLanguagesArr = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '');
 
-		if ($rawAcceptedLanguagesArr == []) {
+		if (!($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '')) {
 			return $languagesArr;
 		}
+		$rawAcceptedLanguagesArr = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
 
 		$acceptedLanguagesArr = [];
 		foreach ($rawAcceptedLanguagesArr as $languageAndQualityStr) {

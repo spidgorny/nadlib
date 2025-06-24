@@ -50,13 +50,13 @@ class DBLayerSQLite extends DBLayerBase
 	}
 
 	/**
-	 * @param ?SQLiteResult $res
+	 * @param ?SQLite3Result $res
 	 * @throws Exception
 	 */
 	public function numRows($res = null): int
 	{
 		$numRows = 0;
-		if (!$res instanceof SQLite3Result) {
+		if (!($res instanceof SQLite3Result)) {
 			debug($res);
 			throw new DatabaseException('invalid result');
 		}
@@ -85,12 +85,6 @@ class DBLayerSQLite extends DBLayerBase
 			$res = $this->perform($res);
 		} elseif ($res instanceof SQLSelectQuery) {
 			$res = $this->perform($res . '', $res->getParameters());
-		} elseif ($res instanceof SQLite3Result) {
-//			$res = $res;
-		} else {
-			debug($res);
-			debug_pre_print_backtrace();
-			throw new DatabaseException('unknown res');
 		}
 
 //		debug($this->lastQuery, typ($res));
@@ -106,7 +100,7 @@ class DBLayerSQLite extends DBLayerBase
 
 	/**
 	 * @param string $query
-	 * @return null|SQLite3Result|SQLiteResult
+	 * @return null|SQLite3Result|SQLite3Result
 	 * @throws DatabaseException
 	 */
 	public function perform($query, array $params = [])

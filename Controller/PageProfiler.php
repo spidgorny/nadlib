@@ -51,7 +51,7 @@ class PageProfiler
 	{
 		if (class_exists('Index')) {
 			$index = Index::getInstance();
-			$exceptions = $index->controller ? get_class($index->controller) : null == 'Lesser';
+			$exceptions = $index->controller ? get_class($index->controller) : false;
 		} else {
 			$exceptions = false;
 		}

@@ -50,7 +50,7 @@ class Linker
 	{
 		if (!$prefix && $this->useRouter) { // default value is = mod_rewrite
 			$class = ifsetor($params['c']);
-			if ($class && !$prefix) {
+			if ($class) {
 				unset($params['c']);    // RealURL
 				$prefix = $class;
 			} else {
@@ -176,11 +176,11 @@ class Linker
 		}
 
 		$f->stdout .= $f->formHideArray($hidden);
-		if (false) {    // this is too specific, not and API
+//		if (false) {    // this is too specific, not and API
 //			if ($id = $this->request->getInt('id')) {
 //				$f->hidden('id', $id);
 //			}
-		}
+//		}
 
 		if (!is_null($action)) {
 			$f->hidden('action', $action);

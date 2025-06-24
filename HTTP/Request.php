@@ -959,9 +959,7 @@ class Request
 			$path = new Path($url);
 
 			//			debug($al->documentRoot);
-			if ($al->documentRoot instanceof Path) {        // works in ORS
-				$path->remove(clone $al->documentRoot);
-			}
+			$path->remove(clone $al->documentRoot);
 
 			//			debug($url.'', $path.'', $al->documentRoot.'');
 		}

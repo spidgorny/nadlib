@@ -169,17 +169,13 @@ trait CachedGetInstance
 	/**
 	 * Still searches in DB with findInDB, but makes a new object for you
 	 *
-	 * @return mixed
+	 * @return static|null
 	 * @throws Exception
 	 */
 	public static function findInstance(array $where, $static = null)
 	{
 		if (!$static) {
-			if (function_exists('get_called_class')) {
-				$static = static::class;
-			} else {
-				throw new \RuntimeException('__METHOD__ requires object specifier until PHP 5.3.');
-			}
+			$static = static::class;
 		}
 
 		/** @var static $obj */
@@ -206,7 +202,7 @@ trait CachedGetInstance
 
 		// first search instances
 		$c = static::findInstanceByName($name, $field);
-		if ($c instanceof \OODBase || is_subclass_of($c, OODBase::class)) {
+		if ($c instanceof \OODBase) {
 			return $c;
 		}
 

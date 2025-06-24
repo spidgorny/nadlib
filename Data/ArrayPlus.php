@@ -666,8 +666,8 @@ class ArrayPlus extends ArrayObject implements HasGetter
 
 	/**
 	 * http://www.if-not-true-then-false.com/2009/php-tip-convert-stdclass-object-to-multidimensional-array-and-convert-multidimensional-array-to-stdclass-object/
-	 * @param object|array $d
-	 * @return array
+	 * @param object|array|scalar $d
+	 * @return array|scalar
 	 */
 	protected function objectToArray($d)
 	{
@@ -684,10 +684,10 @@ class ArrayPlus extends ArrayObject implements HasGetter
 			* for recursive call
 			*/
 			return array_map([$this, __FUNCTION__], $d);
-		} else {
-			// Return array
-			return $d;
 		}
+
+// Return array
+		return $d;
 	}
 
 	/**

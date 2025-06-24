@@ -167,7 +167,7 @@ class SQLBuilder
 		return $this->getSelectQuery($table, $where, $order, $select);
 	}
 
-	public function getSelectQuery($table, $where = [], $orderAndLimit = '', $addSelect = ''): SQLSelectQuery
+	public function getSelectQuery($table, $where = [], $orderAndLimit = '', $addSelect = '')
 	{
 		$sqlWhere = $where instanceof SQLWhere ? $where : new SQLWhere($where);
 		if (strpos($orderAndLimit ?? '', 'LIMIT') > 0) {  // ORDER BY xxx LIMIT yyy
@@ -285,7 +285,7 @@ class SQLBuilder
 	/**
 	 * Used to really quote different values so that they can be attached to "field = "
 	 *
-	 * @param mixed $value
+	 * @param mixed|SQLDate|Time $value
 	 * @param string $key
 	 * @return string
 	 * @throws MustBeStringException
@@ -313,21 +313,17 @@ class SQLBuilder
 			return $value->__toString();
 		}
 
-		if ($value instanceof Time) {
-			return $this->quoteSQL($value->getMySQL(), $key);
-		}
-
 		if ($value instanceof SQLDate) {
 			//debug($content, $value);
 			return "'" . $this->db->escape($value->__toString()) . "'";
 		}
 
 		if ($value instanceof Time) {
-			//debug($content);
+//			return $this->quoteSQL($value->getMySQL(), $key);
 			return "'" . $this->db->escape($value->toSQL()) . "'";
 		}
 
-		if ($value instanceof SimpleXMLElement && $this->getScheme() == 'mysql') {
+		if ($value instanceof SimpleXMLElement && $this->getScheme() === 'mysql') {
 			return "COMPRESS('" . $this->db->escape($value->asXML()) . "')";
 		}
 
@@ -474,7 +470,7 @@ class SQLBuilder
 	}
 
 	/**
-	 * @param resource|string $res
+	 * @param resource|string|SQLSelectQuery $res
 	 * @param string $key can be set to NULL to avoid assoc array
 	 */
 	public function fetchAll($res, $key = null): array
@@ -651,7 +647,7 @@ class SQLBuilder
 	}
 
 	/**
-	 * @param string|SQLSelectQuery $query
+	 * @param string|SQLSelectQuery|Result $query
 	 * @param string|null $className - if provided it will return DatabaseInstanceIterator
 	 * @return DatabaseInstanceIterator|DatabaseResultIteratorAssoc
 	 * @throws DatabaseException

@@ -9,7 +9,7 @@ class MarshalParams
 {
 
 	/**
-	 * @var object
+	 * @var object|callable[]
 	 * This is an object with functions which require DI or
 	 * Container should have functions starting with 'get' and the class name
 	 */
@@ -74,7 +74,7 @@ class MarshalParams
 			if ($param->isArray() || $param->isDefaultValueAvailable()) {
 				$init[$name] = $param->getDefaultValue();
 			} else {
-				$type = method_exists($param, 'getType') ? $param->getType() : $param->getClass()->name;
+				$type = $param->getType();
 				$types = trimExplode('|', $type);
 				$init[$name] = $type ? $this->getParameterValue($param, $types[0]) : null;
 			}
@@ -86,29 +86,33 @@ class MarshalParams
 	public function getParameterValue($param, string|ReflectionNamedType $type)
 	{
 		$container = $this->container;
-		$typeClass = ($type instanceof ReflectionNamedType && method_exists($type, 'getName'))
-			? $type->getName()
-			: $type . '';
+		$typeClass = $type instanceof ReflectionNamedType ? $type->getName() : $type . '';
 		if (!is_string($type) && $type->isBuiltin()) {
-			$value = $param->getDefaultValue();
-		} elseif (is_object($container)) {
+			return $param->getDefaultValue();
+		}
+
+		if (is_object($container)) {
 			$typeGenerator = 'get' . $typeClass;
 //						debug($typeClass, get_class($container), $typeGenerator);
 			// does not work with namespaces
 			// e.g. Config->getSymfony\\Contracts\\Cache\\CacheInterface
 			//llog($param->getName(), $typeGenerator);
 			if (method_exists($container, $typeGenerator)) {
-				$value = $container->$typeGenerator();
-			} else {
-				// build the dependency
-				$value = $this->makeInstanceWithInjection($typeClass);
+				return $container->$typeGenerator();
 			}
-		} elseif (is_array($container)) {
-			$injector = ifsetor($container[$typeClass]);
-			$value = is_callable($injector) ? $injector() : $injector;
+
+// build the dependency
+			return $this->makeInstanceWithInjection($typeClass);
 		}
 
-		return $value;
+		if (is_array($container)) {
+			$injector = ifsetor($container[$typeClass]);
+			return is_callable($injector) ? $injector() : $injector;
+		}
+
+		throw new InvalidArgumentException(
+			'Container should be an object or an array with functions starting with "get" and the class name'
+		);
 	}
 
 	/**
@@ -159,7 +163,7 @@ class MarshalParams
 	public function getParameterByReflection(ReflectionParameter $param)
 	{
 		$name = $param->getName();
-		$typeName = $param->getType() instanceof ReflectionNamedType ? $param->getType()?->getName() : null;
+		$typeName = $param->getType() instanceof ReflectionNamedType ? $param->getType()->getName() : null;
 		if ($typeName === 'array') {
 			return $this->request->getArray($name);
 		}

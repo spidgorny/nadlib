@@ -7,7 +7,7 @@ class IndexBase /*extends Controller*/
 {    // infinite loop
 
 	/**
-	 * @var Index|IndexBE|static
+	 * @var Index|IndexBE|static|null
 	 */
 	protected static $instance;
 
@@ -25,7 +25,7 @@ class IndexBase /*extends Controller*/
 	public $content;
 
 	/**
-	 * @var Controller
+	 * @var ?Controller
 	 */
 	public $controller;
 
@@ -423,14 +423,12 @@ class IndexBase /*extends Controller*/
 	{
 		TaylorProfiler::start(__METHOD__);
 		$content = '';
-		if (method_exists($this->controller, 'sidebar')) {
-			try {
-				$content = $this->controller->sidebar();
-				$content = $this->s($content);
-			} catch (Exception $e) {
-				llog('showSidebar', $e->getMessage());
-				// no sidebar
-			}
+		try {
+			$content = $this->controller->sidebar();
+			$content = $this->s($content);
+		} catch (Exception $e) {
+			llog('showSidebar', $e->getMessage());
+			// no sidebar
 		}
 
 		TaylorProfiler::stop(__METHOD__);
@@ -448,7 +446,7 @@ class IndexBase /*extends Controller*/
 			// display Exception
 			$view = $this->renderTemplate($content);
 			//echo gettype2($view), BR;
-			$contentOut[] = $view instanceof View ? $view->render() : $view;
+			$contentOut[] = $view->render();
 		} else {
 			//$contentOut .= $this->content;    // NO! it's JSON (maybe)
 			$contentOut[] = $this->s($content);
@@ -469,7 +467,7 @@ class IndexBase /*extends Controller*/
 
 		$v = new View($this->template, $this);
 		$v->content = $contentOut;
-		$v->title = $this->controller ? strip_tags(ifsetor($this->controller->title)) : null;
+		$v->title = strip_tags(ifsetor($this->controller->title));
 		$v->sidebar = $this->sidebar;
 		$v->baseHref = $this->request->getLocation();
 		//$lf = new LoginForm('inlineForm');	// too specific - in subclass

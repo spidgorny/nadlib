@@ -46,14 +46,14 @@ class HTMLFormValidate
 					$type = get_class($type);
 				}
 
-				$isCheckbox = !is_object($type) && in_array($type, [
-						'check',
-						'checkbox',
-						'captcha',
-						'recaptcha',
-						'recaptchaAjax',
-						'select',
-					]);
+				$isCheckbox = in_array($type, [
+					'check',
+					'checkbox',
+					'captcha',
+					'recaptcha',
+					'recaptchaAjax',
+					'select',
+				]);
 				$dWithError = $this->validateField($field, $d, $type, $isCheckbox);
 				$d['error'] = ifsetor($dWithError['error']);
 				//debug($field, $d['error']);

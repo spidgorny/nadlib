@@ -174,17 +174,17 @@ class Menu /*extends Controller*/
 			$this->current = $this->request->getControllerString();
 		}
 
-		00 && debug([
-			'cwd' => getcwd(),
-			'docRoot' => $this->request->getDocumentRoot() . '',
-			'getPathAfterDocRoot' => $this->request->getPathAfterDocRoot() . '',
-			'useRouter' => $this->useRouter(),
-			'useControllerSlug' => $this->useControllerSlug,
-			'rootPath' => $rootPath,
-			'getControllerString' => $this->request->getControllerString(),
-			'level' => $level,
-			'current' => $this->current
-		]);
+//		00 && debug([
+//			'cwd' => getcwd(),
+//			'docRoot' => $this->request->getDocumentRoot() . '',
+//			'getPathAfterDocRoot' => $this->request->getPathAfterDocRoot() . '',
+//			'useRouter' => $this->useRouter(),
+//			'useControllerSlug' => $this->useControllerSlug,
+//			'rootPath' => $rootPath,
+//			'getControllerString' => $this->request->getControllerString(),
+//			'level' => $level,
+//			'current' => $this->current
+//		]);
 	}
 
 	public function setControllerVarName($c): void

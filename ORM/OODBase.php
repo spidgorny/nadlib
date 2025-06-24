@@ -135,7 +135,7 @@ abstract class OODBase implements ArrayAccess
 	/**
 	 * Retrieves data from DB.
 	 *
-	 * @param int|array|SQLWhere $id
+	 * @param scalar|array|SQLWhere $id
 	 * @throws Exception
 	 */
 	public function init($id): void
@@ -145,23 +145,15 @@ abstract class OODBase implements ArrayAccess
 		} elseif ($id instanceof SQLWhere) {
 			$where = $id->getAsArray();
 			$this->findInDB($where);
-		} elseif (is_scalar($id)) {
+		} else {
 //			debug('set id', $id);
 			$this->id = $id;
-			if (is_array($this->idField)) {
-				// TODO
-				throw new InvalidArgumentException(__METHOD__ . '->idField is an array. Init failed.');
-			}
-
 // will do $this->init()
 			$this->findByID($this->id);
 //			debug('data set', $this->data);
 			if (!$this->data) {
 				$this->id = null;
 			}
-		} elseif (!is_null($id)) {
-			debug($id);
-			throw new \RuntimeException(get_class($this) . '::' . __FUNCTION__);
 		}
 	}
 
@@ -171,11 +163,9 @@ abstract class OODBase implements ArrayAccess
 		$this->data = array_merge($this->data, $row);
 		$idField = $this->idField;
 
-		if (!is_array($idField)) {
-			$parts = trimExplode('.', $idField);
-			if (count($parts) === 2) {    //table.id
-				$idField = $parts[1];
-			}
+		$parts = trimExplode('.', $idField);
+		if (count($parts) === 2) {    //table.id
+			$idField = $parts[1];
 		}
 
 		if (isset($this->data[$idField]) && $this->data[$idField]) {
@@ -284,8 +274,8 @@ abstract class OODBase implements ArrayAccess
 	/**
 	 * Used by bijou.
 	 * @param array $insert
-	 * @param null $class
-	 * @return int|null
+	 * @param string|null $class
+	 * @return object|null
 	 * @throws DatabaseException
 	 * @throws MustBeStringException
 	 */
@@ -302,7 +292,7 @@ abstract class OODBase implements ArrayAccess
 		$res = $db->perform($query);
 		if ($res) {
 			$id = $db->lastInsertID($res, constant($class . '::table'));
-			$object = $class ? new $class($id) : $id;
+			$object = new $class($id);
 		} else {
 			$object = null;
 		}
@@ -476,13 +466,12 @@ abstract class OODBase implements ArrayAccess
 		json_encode($this->id, JSON_THROW_ON_ERROR);
 //		$this->log($action, $data);
 		$where = [];
-		if (is_array($this->idField)) {
-			foreach ($this->idField as $field) {
-				$where[$field] = $this->data[$field];
-			}
-		} else {
-			$where[$this->idField] = $this->id;
-		}
+//		if (is_array($this->idField)) {
+//			foreach ($this->idField as $field) {
+//				$where[$field] = $this->data[$field];
+//			}
+//		} else {
+		$where[$this->idField] = $this->id;
 
 		if (!$this->db) {
 			debug_pre_print_backtrace();
@@ -503,18 +492,18 @@ abstract class OODBase implements ArrayAccess
 		// may lead to infinite loop
 		//$this->init($this->id);
 		// will call init($fromFindInDB = true)
-		if (is_array($this->idField)) {
-			if (is_array($this->id)) {
-				$this->findInDB($this->id);
-			} else {
-				debug_pre_print_backtrace();
-				throw new RuntimeException(__METHOD__ . ':' . __LINE__);
-			}
-		} else {
-			$this->findInDB([
-				$this->idField => $this->id,
-			]);
-		}
+//		if (is_array($this->idField)) {
+//			if (is_array($this->id)) {
+//				$this->findInDB($this->id);
+//			} else {
+//				debug_pre_print_backtrace();
+//				throw new RuntimeException(__METHOD__ . ':' . __LINE__);
+//			}
+//		} else {
+		$this->findInDB([
+			$this->idField => $this->id,
+		]);
+//		}
 
 		TaylorProfiler::stop(__METHOD__);
 		return $res;
@@ -540,22 +529,23 @@ abstract class OODBase implements ArrayAccess
 		// this needs to be checked first,
 		// because SQLite will give some kind of ID
 		// even if you provide your own
-		if (is_array($this->idField)) {
-			$id = $this->db->lastInsertID($res, $this->table);
-		} elseif (ifsetor($data[$this->idField])) {
+//		if (is_array($this->idField)) {
+//			$id = $this->db->lastInsertID($res, $this->table);
+
+		if (ifsetor($data[$this->idField])) {
 			$id = $data[$this->idField];
 		} else {
 			$id = $this->db->lastInsertID($res, $this->table);
 		}
 
 		if ($id) {
-			$this->init($id ?: $this->id);
+			$this->init($id);
 		} else {
 			//debug($this->lastQuery, $this->db->lastQuery);
 			$errorMessage = 'OODBase for ' . $this->table . ' no insert id after insert. ';
 			$errorCode = null;
 			if ($this->db instanceof DBLayerPDO) {
-				$errorMessage .= json_encode($this->db->getConnection()->errorInfo());
+				$errorMessage .= json_encode($this->db->getConnection()->errorInfo(), JSON_THROW_ON_ERROR);
 				$errorCode = $this->db->getConnection()->errorCode();
 			}
 

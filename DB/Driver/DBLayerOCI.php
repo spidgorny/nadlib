@@ -260,7 +260,7 @@ class DBLayerOCI extends DBLayerBase
 		// TODO: Implement getPlaceholder() method.
 	}
 
-	public function __call(string $name, array $arguments)
+	public function __call($name, array $arguments)
 	{
 		// TODO: Implement @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
 		// TODO: Implement @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')

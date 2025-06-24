@@ -724,7 +724,7 @@ class Collection implements IteratorAggregate, ToStringable
 	public function objectifyAsPlus(): \ArrayPlus
 	{
 		return ArrayPlus::create(
-			$this->objectify(static::$itemClassName, $this->objectifyByInstance)
+			$this->objectify(static::$itemClassName)
 		);
 	}
 
@@ -889,7 +889,7 @@ class Collection implements IteratorAggregate, ToStringable
 	 */
 	public function getIterator(): Traversable
 	{
-		return new ArrayPlus($this->objectify(static::$itemClassName, $this->objectifyByInstance));
+		return new ArrayPlus($this->objectify(static::$itemClassName));
 	}
 
 	public function get($id)

@@ -11,9 +11,9 @@ class Ticker
 {
 
 	/**
-	 * @var static
+	 * @var ?static
 	 */
-	public static Ticker $instance;
+	public static ?Ticker $instance;
 
 	/**
 	 * @var string "html"

@@ -15,7 +15,7 @@ class DBLayer extends DBLayerBase
 	 */
 	public $connection;
 
-	/** @var Result */
+	/** @var Result|false */
 	public $lastResult;
 
 	/**
@@ -136,7 +136,7 @@ class DBLayer extends DBLayerBase
 	}
 
 	/**
-	 * @param string $query
+	 * @param string|SQLSelectQuery $query
 	 * @return Result|null|resource
 	 * @throws DatabaseException
 	 * @throws MustBeStringException
@@ -199,7 +199,7 @@ class DBLayer extends DBLayerBase
 
 	/**
 	 * Overrides because of pg_fetch_all
-	 * @param resource|string $result
+	 * @param resource|string|SQLSelectQuery $result
 	 * @throws Exception
 	 */
 	public function fetchAll($result, $key = null): array
@@ -392,7 +392,7 @@ class DBLayer extends DBLayerBase
 	 * /**/
 	/**
 	 * fetchAll() equivalent with $key and $val properties
-	 * @param string $query
+	 * @param string|resource $query
 	 * @param string $key
 	 * @param mixed $val
 	 * @throws DatabaseException
@@ -662,10 +662,6 @@ order by a.attnum';
 
 		if (is_int($value)) {  // is_numeric - bad: operator does not exist: character varying = integer
 			return $value;
-		}
-
-		if (is_bool($value)) {
-			return $value ? "'t'" : "'f'";
 		}
 
 //		if ($value instanceof SQLParam) {

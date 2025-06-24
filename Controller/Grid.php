@@ -21,7 +21,7 @@ trait Grid
 
 	/**
 	 * Defines which columns are visible in a table
-	 * @var VisibleColumns
+	 * @var ?VisibleColumns
 	 */
 	public $columns;
 
@@ -294,19 +294,19 @@ trait Grid
 				$this->columns = new VisibleColumns($gridColumns);
 //				llog(__METHOD__, 'Columns set from getGridColumns');
 			}
-		}
 
-		if (!$this->columns && ifsetor($this->model->thes)) {
-			$this->columns = new VisibleColumns(array_keys($this->model->thes));
+			if (ifsetor($this->model->thes)) {
+				$this->columns = new VisibleColumns(array_keys($this->model->thes));
 //			llog(__METHOD__, 'Columns set from model');
-		}
+			}
 
-		if (!$this->columns && $this->collection && $this->collection->thes) {
-			$keysOfThes = array_keys($this->collection->thes);
-			$this->columns = new VisibleColumns($keysOfThes);
+			if ($this->collection && $this->collection->thes) {
+				$keysOfThes = array_keys($this->collection->thes);
+				$this->columns = new VisibleColumns($keysOfThes);
 //			llog(__METHOD__, 'Columns set from collection ' . typ($this->collection) . ': ' . json_encode($this->columns));
-		} elseif (!$this->columns) {
-			$this->columns = new VisibleColumns();
+			} elseif (!$this->columns) {
+				$this->columns = new VisibleColumns();
+			}
 		}
 
 //		llog(__METHOD__, $this->columns->getData());

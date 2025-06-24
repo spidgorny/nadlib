@@ -496,11 +496,9 @@ class HTMLFormTable extends HTMLForm
 	{
 		$arr = $arr ?: $this->desc;
 		$res = [];
-		if (is_array($arr)) {
-			foreach ($arr as $key => $ar) {
-				if (is_array($ar) && !ifsetor($ar['disabled'])) {
-					$res[$key] = ifsetor($ar['type']) instanceof HTMLFormDatePicker ? $ar['type']->getISODate($ar[$col]) : $ar[$col];
-				}
+		foreach ($arr as $key => $ar) {
+			if (is_array($ar) && !ifsetor($ar['disabled'])) {
+				$res[$key] = ifsetor($ar['type']) instanceof HTMLFormDatePicker ? $ar['type']->getISODate($ar[$col]) : $ar[$col];
 			}
 		}
 
@@ -587,7 +585,7 @@ class HTMLFormTable extends HTMLForm
 
 			// set $val
 			// this code is never executed due to 'continue' above
-			if (is_array($descKey) || $forceInsert) {
+			if ($forceInsert) {
 				//debug($key, gettype2($sType), is_object($type));
 				if (is_object($type)) {
 					$type->setValue($val);

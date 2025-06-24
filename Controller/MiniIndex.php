@@ -39,18 +39,22 @@ class MiniIndex extends AppControllerBE
 	 * Set $createAllowed to true only in index.php when making the original Index
 	 * all other situation will return NULL if it's not instantiated yet
 	 * thus avoiding infinite loops.
-	 * @param bool $createAllowed
 	 * @return MiniIndex
 	 */
-	public static function getInstance($createAllowed = true)
+	public static function getInstance()
 	{
-		$self = get_called_class();
-		if (!self::$miniIndex && $createAllowed) {
-			self::$miniIndex = new $self();
-			/** @var self::$miniIndex MiniIndex */
-			self::$miniIndex->init();
+		if (!self::$miniIndex) {
+			throw new \RuntimeException('MiniIndex is not instantiated yet. Please instantiate it in index.php');
 		}
 
+		return self::$miniIndex;
+	}
+
+	public static function createInstance(): MiniIndex
+	{
+		$self = static::class;
+		self::$miniIndex = new $self();
+		self::$miniIndex->init();
 		return self::$miniIndex;
 	}
 

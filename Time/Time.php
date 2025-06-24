@@ -29,7 +29,7 @@ class Time
 
 	/**
 	 * Append GMT for Greenwich
-	 * @param string|int $input
+	 * @param string|int|static $input
 	 * @param int $relativeTo
 	 * @throws Exception
 	 */
@@ -49,11 +49,8 @@ class Time
 				//debug('clone '.$this->getHumanDateTime());
 			} elseif (is_numeric($input)) {
 				$this->time = $input;
-			} elseif (is_string($input)) {
+			} else {
 				$this->time = is_null($relativeTo) ? strtotime($input) : strtotime($input, $relativeTo);
-
-			} elseif (class_exists('Config')) {
-				Config::getInstance()->log(__CLASS__ . '#' . __LINE__, __('"%1" is unrecognized as a valid date.', $input));
 			}
 		}
 

@@ -64,17 +64,14 @@ class WordCloud
 	public function __construct($words = [])
 	{
 		// If we are trying to parse some works, in any format / type
-		if ($words !== false) {
-			// If we have a string
-			if (is_string($words)) {
-				$this->addString($words);
-			} elseif (count($words)) {
-				foreach ($words as $value) {
-					$this->addWord($value);
-				}
+		// If we have a string
+		if (is_string($words)) {
+			$this->addString($words);
+		} elseif (count($words)) {
+			foreach ($words as $value) {
+				$this->addWord($value);
 			}
 		}
-
 	}
 
 	/*
