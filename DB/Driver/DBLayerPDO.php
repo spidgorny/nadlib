@@ -156,8 +156,7 @@ class DBLayerPDO extends DBLayerBase
 
 	public function isConnected(): bool
 	{
-		return (bool)$this->connection
-			&& PGSQL_CONNECTION_OK == pg_connection_status($this->connection);
+		return (bool)$this->connection;
 	}
 
 	/**

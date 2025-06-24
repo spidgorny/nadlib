@@ -737,8 +737,12 @@ abstract class OODBase implements ArrayAccess
 	 */
 	public static function makeInstance(array $row, DBInterface $db, ...$args)
 	{
+		if (static::$instances[$row['id']]) {
+			return static::$instances[static::class][$row['id']];
+		}
 		$obj = new static(null, $db, ...$args);
 		$obj->initByRow($row);
+		static::$instances[static::class][$obj->id] = $obj;
 		return $obj;
 	}
 
@@ -747,8 +751,7 @@ abstract class OODBase implements ArrayAccess
 		$collection = Collection::createForTable($this->db, $this->table, $where, $orderBy);
 		$collection->idField = $this->idField;
 
-		$static = get_called_class();
-		Collection::$itemClassName = $static;
+		Collection::$itemClassName = static::class;
 		return $collection;
 	}
 

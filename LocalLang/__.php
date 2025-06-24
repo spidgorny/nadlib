@@ -4,7 +4,7 @@ if (!function_exists('__')) {    // conflict with cakePHP
 
 	/**
 	 * @param string $code
-	 * @param Array<string|int|float> ...$sub
+	 * @param Array<string|int|float> $sub
 	 * @return string
 	 */
 	function __($code, ...$sub)

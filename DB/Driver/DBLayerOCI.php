@@ -39,7 +39,7 @@ class DBLayerOCI extends DBLayerBase
 	{
 		$this->connection = oci_connect($user, $pass, $tns);
 		if (!$this->connection) {
-			print('Error in Oracle library: connection failed. Reason: ' . getDebug(oci_error($this->connection)) . BR);
+			print('Error in Oracle library: connection failed. Reason: ' . (oci_error()['message']) . BR);
 			return null;
 		}
 
@@ -122,7 +122,7 @@ class DBLayerOCI extends DBLayerBase
 		foreach ($debug as $i => $row) {
 			if ($i > 1) {
 				unset($row['object']);
-				$deb .= implode(', ', json_encode($row, JSON_THROW_ON_ERROR));
+				$deb .= json_encode($row, JSON_THROW_ON_ERROR);
 				$deb .= "\n";
 			}
 		}
@@ -139,7 +139,7 @@ class DBLayerOCI extends DBLayerBase
 				'results' => $numRows,
 				'elapsed' => $a['elapsed'],
 				'count' => 1 + $a['count'],
-				'total' => $elapsed + $a['total'],
+				'total' => (float)$elapsed + $a['total'],
 			];
 		} else {
 			$this->LOG[$query] = [

@@ -92,7 +92,7 @@ class IndexBase /*extends Controller*/
 	 */
 	protected $user;
 
-	protected ?ConfigInterface $config;
+	protected ConfigInterface $config;
 
 	/**
 	 * @var DBInterface
@@ -104,7 +104,7 @@ class IndexBase /*extends Controller*/
 	 */
 	protected $request;
 
-	public function __construct(?ConfigInterface $config = null)
+	public function __construct(ConfigInterface $config)
 	{
 		TaylorProfiler::start(__METHOD__);
 		//parent::__construct();

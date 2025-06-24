@@ -28,7 +28,7 @@ class ControllerRouter
 
 	/**
 	 * @param string $className
-	 * @param Config $config
+	 * @param ConfigInterface $config
 	 * @return object
 	 * @throws ReflectionException
 	 */

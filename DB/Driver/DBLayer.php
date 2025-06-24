@@ -774,9 +774,7 @@ order by a.attnum';
 
 	public function free($res): void
 	{
-		if (is_resource($res)) {
-			pg_free_result($res);
-		}
+		pg_free_result($res);
 	}
 
 	public function escapeBool($value): string

@@ -452,7 +452,7 @@ class SQLBuilder
 	 * Return ALL rows
 	 * This used to retrieve a single row !!!
 	 * @param string $table
-	 * @param array $where
+	 * @param array|SQLWhere $where
 	 * @param string $order
 	 * @param string $addFields
 	 * @param string $idField - will return data as assoc indexed by this column

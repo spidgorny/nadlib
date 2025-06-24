@@ -38,8 +38,8 @@ class ModelWithCollection extends Model
 	 */
 	public function getCollection(array $where = [], $orderBy = null)
 	{
-		$col = Collection::createForTable($this->db, $this->table);
-		$col->idField = $this->idField;
+		$col = Collection::createForTable($this->db, static::$table);
+		$col->idField = static::$idField;
 		$col::$itemClassName = static::$itemClassName;
 		$col->where = $where;
 		if ($orderBy) {

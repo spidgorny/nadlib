@@ -1198,7 +1198,7 @@ class StringPlus implements Iterator, ArrayAccess, Countable
 
 	public function length(): int
 	{
-		return count($this->_string);
+		return strlen($this->_string);
 	}
 
 	/**

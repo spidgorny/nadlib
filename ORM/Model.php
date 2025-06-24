@@ -20,9 +20,9 @@
 class Model
 {
 
+	public static $table;
+	public static $idField = 'id';
 	protected static $instances = [];
-	public $table;
-	public $idField = 'id';
 	public $titleColumn = 'name';
 	public $id;
 
@@ -69,8 +69,24 @@ class Model
 	 */
 	public static function getInstance(array $data, ?DBInterface $db = null): static
 	{
+		$id = static::$idField;
+		if (static::$instances[static::class][$data[$id]]) {
+			return static::$instances[static::class][$data[$id]];
+		}
+
+		static::$instances[static::class][$data[$id]] = static::makeInstance($data, $db);
+		return static::$instances[static::class][$data[$id]];
+	}
+
+	public static function makeInstance(array $data, ?DBInterface $db = null): static
+	{
+		if (static::$instances[static::class][$data['id']]) {
+			return static::$instances[static::class][$data['id']];
+		}
+
 		$obj = new static($db ?: Config::getInstance()->getDB(), $data);
 		$obj->setData($data);
+		static::$instances[static::class][$data['id']] = $obj;
 		return $obj;
 	}
 
@@ -93,8 +109,8 @@ class Model
 
 	public function getByID($id): static
 	{
-		$found = $this->db->fetchOneSelectQuery($this->table, [
-			$this->idField => $id,
+		$found = $this->db->fetchOneSelectQuery(static::$table, [
+			static::$idField => $id,
 		]);
 		$this->lastSelectQuery = $this->db->getLastQuery();
 		if ($found) {
@@ -145,7 +161,7 @@ class Model
 	 */
 	public function query($where = [])
 	{
-		$data = $this->db->fetchAllSelectQuery($this->table, $where);
+		$data = $this->db->fetchAllSelectQuery(static::$table, $where);
 		$this->lastSelectQuery = $this->db->getLastQuery();
 		$data = new ArrayPlus($data);
 
@@ -186,11 +202,9 @@ class Model
 	 */
 	public function getData($where = [])
 	{
-		$data = $this->db->fetchAllSelectQuery($this->table, $where);
+		$data = $this->db->fetchAllSelectQuery(static::$table, $where);
 		$this->lastSelectQuery = $this->db->getLastQuery();
-		$data = new ArrayPlus($data);
-
-		return $data;
+		return new ArrayPlus($data);
 	}
 
 	public function getSingleLink(): string
@@ -211,11 +225,11 @@ class Model
 
 	public function insert(array $data, array $where = [])
 	{
-		if (!isset($data[$this->idField])) {
-			$data[$this->idField] = RandomStringGenerator::likeYouTube();
+		if (!isset($data[static::$idField])) {
+			$data[static::$idField] = RandomStringGenerator::likeYouTube();
 		}
 
-		$res = $this->db->runInsertQuery($this->table, $data, $where);
+		$res = $this->db->runInsertQuery(static::$table, $data, $where);
 		$this->lastInsertQuery = $this->db->getLastQuery();
 		$this->setData($data);
 		return $res;
@@ -228,8 +242,8 @@ class Model
 	 */
 	public function update(array $data)
 	{
-		$res = $this->db->runUpdateQuery($this->table, $data, [
-			$this->idField => $this->{$this->idField},
+		$res = $this->db->runUpdateQuery(static::$table, $data, [
+			static::$idField => $this->{static::$idField},
 		]);
 		if ($this->db->affectedRows($res) !== 1) {
 			throw new DatabaseException($this->db->getLastQuery() . ' updated ' . $this->db->affectedRows($res) . ' rows');
@@ -336,7 +350,7 @@ class Model
 
 		$at = new AlterTable();
 		$handler = $at->handler;
-		return $handler->getCreateQuery($this->table, $columns);
+		return $handler->getCreateQuery(static::$table, $columns);
 	}
 
 }

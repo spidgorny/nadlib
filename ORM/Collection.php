@@ -255,14 +255,9 @@ class Collection implements IteratorAggregate, ToStringable
 			}
 		}
 
-		// although this is ugly - SoftwareGrid still needs that
-		if (!($this->data instanceof ArrayPlus)) {
-			$this->data = ArrayPlus::create($this->data);
-
-			// PROBLEM! This is supposed to be the total amount
-			// Don't uncomment
-			//$this->count = sizeof($this->data);
-		}
+		// PROBLEM! This is supposed to be the total amount
+		// Don't uncomment
+		//$this->count = sizeof($this->data);
 
 		return $this->data;
 	}
@@ -579,6 +574,7 @@ class Collection implements IteratorAggregate, ToStringable
 				if ($ref->getExtensionName() === Model::class) {
 					$this->members[$key] = new $class($this->db, $row);
 				} else {
+					/** @var class-string<OODBase> $class */
 					$this->members[$key] = new $class($row, $this->db);
 				}
 			}
@@ -661,9 +657,8 @@ class Collection implements IteratorAggregate, ToStringable
 	public function renderListItem(array $row)
 	{
 		$class = static::$itemClassName;
-		/** @var OODBase $obj */
-		$obj = method_exists($class, 'getInstance')
-			? $class::makeInstance($row, $this->db) : new $class($row, $this->db);
+		/** @var OODBase|Model $obj */
+		$obj = $class::makeInstance($row, $this->db);
 
 		if (method_exists($obj, 'render')) {
 			$content = $obj->render();

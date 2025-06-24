@@ -74,7 +74,7 @@ class ModelQuery implements IteratorAggregate
 	public function queryData(array $where, $orderBy = 'ORDER BY id DESC')
 	{
 		$this->where($where);
-		return $this->db->fetchAllSelectQuery($this->itemInstance->table, $this->where, $orderBy);
+		return $this->db->fetchAllSelectQuery($this->itemInstance::$table, $this->where, $orderBy);
 	}
 
 }

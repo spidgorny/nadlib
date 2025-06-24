@@ -4,7 +4,7 @@ if (!function_exists('__')) {
 
 	/**
 	 * @param string $a
-	 * @param string|int|float ...$sub
+	 * @param Array<string|int|float> $sub
 	 * @return string
 	 */
 	function __($a, ...$sub)
