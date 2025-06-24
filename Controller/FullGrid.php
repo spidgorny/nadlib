@@ -50,12 +50,8 @@ trait FullGrid
 		// menu is making an instance of each class because of tryMenuSuffix
 		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
 //		parent::initFilter();
-
-		$allowEdit = $this->request->getControllerString() === get_class($this);
-//		debug($allowEdit);
-		if ($allowEdit) {
-			$this->saveFilterAndSort(get_class($this));
-		}
+		$this->setFilter();
+		$this->saveFilterAndSort(get_class($this));
 
 //		if (!($this->filter instanceof nadlib\Controller\Filter)) {
 //			$filterFieldsFromUrl = $this->request->getArray('filter');

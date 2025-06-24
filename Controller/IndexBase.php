@@ -467,7 +467,7 @@ class IndexBase /*extends Controller*/
 
 		$v = new View($this->template, $this);
 		$v->content = $contentOut;
-		$v->title = strip_tags(ifsetor($this->controller->title));
+		$v->title = strip_tags($this->controller?->title);
 		$v->sidebar = $this->sidebar;
 		$v->baseHref = $this->request->getLocation();
 		//$lf = new LoginForm('inlineForm');	// too specific - in subclass

@@ -8,6 +8,9 @@
 class SQLOr extends SQLWherePart
 {
 
+	/**
+	 * @var Array<SQLLike|string> $or
+	 */
 	protected array $or;
 
 	/**
@@ -99,13 +102,12 @@ class SQLOr extends SQLWherePart
 	public function getParameter(): array
 	{
 		$params = [];
-		/**
-		 * @var SQLLike $sub
-		 */
 		foreach ($this->or as $sub) {
-			$plus = $sub->getParameter();
-			if ($plus) {
-				$params[] = $plus;
+			if ($sub instanceof SQLWherePart) {
+				$plus = $sub->getParameter();
+				if ($plus) {
+					$params[] = $plus;
+				}
 			}
 		}
 

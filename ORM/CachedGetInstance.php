@@ -202,7 +202,7 @@ trait CachedGetInstance
 
 		// first search instances
 		$c = static::findInstanceByName($name, $field);
-		if ($c instanceof \OODBase) {
+		if ($c instanceof static) {
 			return $c;
 		}
 
