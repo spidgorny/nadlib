@@ -67,24 +67,33 @@ trait FullGrid
 	 * @throws JsonException
 	 * @throws ReflectionException
 	 */
-	public function makeCollection($collectionName)
-	{
-		if (is_string($collectionName)) {
-			$this->log(__METHOD__ . ' new collection', $collectionName);
-			$this->collection = new $collectionName(null, [], '', $this->db);
-			// this needs to be set after collection is created
-			$this->collection->orderBy = $this->getOrderBy();
-			return $this->collection;
-		}
+	abstract public function makeCollection($collectionName);
+//	{
+//		if (is_string($collectionName)) {
+//			$this->log(__METHOD__ . ' new collection', $collectionName);
+//			$this->collection = new $collectionName(null, [], '', $this->db);
+//			// this needs to be set after collection is created
+//			$this->collection->orderBy = $this->getOrderBy();
+//			return $this->collection;
+//		}
+//
+//		$re = new ReflectionClass($this);
+//		$reCol = $re->getProperty('collection');
+//		$doc = new DocCommentParser($reCol->getDocComment());
+//		$collectionName = $doc->getFirstTagValue('var');
+//		$collectionName = first(trimExplode('|', $collectionName));
+//		$this->log(__METHOD__ . ' new collection by reflection', $collectionName);
+//		$this->collection = new $collectionName(null, [], '', $this->db);
+//		return $this->collection;
+//	}
 
-		$re = new ReflectionClass($this);
-		$reCol = $re->getProperty('collection');
-		$doc = new DocCommentParser($reCol->getDocComment());
-		$collectionName = $doc->getFirstTagValue('var');
-		$collectionName = first(trimExplode('|', $collectionName));
-		$this->log(__METHOD__ . ' new collection by reflection', $collectionName);
-		$this->collection = new $collectionName(null, [], '', $this->db);
-		return $this->collection;
+	/**
+	 * @return array
+	 * @throws Exception
+	 */
+	public function getFilterWhere()
+	{
+		return $this->filterController->getFilterWhere();
 	}
 
 	/**
@@ -136,15 +145,6 @@ trait FullGrid
 
 		//debug($this->sort, $sortBy);
 		return $ret;
-	}
-
-	/**
-	 * @return array
-	 * @throws Exception
-	 */
-	public function getFilterWhere()
-	{
-		return $this->filterController->getFilterWhere();
 	}
 
 	public function sidebar()

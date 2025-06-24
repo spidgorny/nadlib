@@ -67,6 +67,10 @@ trait Grid
 	 */
 	public function setFilter(string $cn = __CLASS__): void
 	{
+		if ($this->filter instanceof Filter) {
+			// already set
+			return;
+		}
 		$this->filter = new Filter();
 //		$action = $this->request->getTrim('action');
 //		$this->log(__METHOD__, 'isSubmit', $this->request->isSubmit());
