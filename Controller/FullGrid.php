@@ -133,7 +133,7 @@ trait FullGrid
 
 		llog('sortBy', $sortBy);
 		if ($sortBy) {
-			if ($this->collection->thes[$sortBy]['sqlSortBy']) {
+			if ($this->collection->thes[$sortBy]['sqlSortBy'] ?? null) {
 				$sortBy = $this->collection->thes[$sortBy]['sqlSortBy'];
 			}
 //			$this->collection->select .= ', ' . $this->db->quoteKey($sortBy);

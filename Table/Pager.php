@@ -275,7 +275,6 @@ class Pager
 
 	public function initBySelectQuery(SQLSelectQuery $originalSQL, array $parameters = []): void
 	{
-		$this->log(__METHOD__);
 		$key = __METHOD__ . ' (' . substr($originalSQL, 0, 300) . ')';
 		TaylorProfiler::start($key);
 		if (!$originalSQL->getSelect()->contains('count(*)')) {
@@ -289,7 +288,7 @@ class Pager
 				new SQLSelect('count(*) AS count'),
 				$subQuery
 			);
-			llog($query->__toString(), $query->getParameters());
+//			llog($query->__toString(), $query->getParameters());
 		} else {
 			$query = $originalSQL;
 		}

@@ -9,7 +9,7 @@ if (!function_exists('first')) {
 	function first(array $list): mixed
 	{
 		reset($list);
-		return current($list);
+		return current($list) ?: null;
 	}
 }
 
