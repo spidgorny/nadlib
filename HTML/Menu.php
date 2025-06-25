@@ -487,7 +487,7 @@ class Menu /*extends Controller*/
 	{
 		$fullRecursive = new Recursive(null, $this->items->getData());
 		$sub = $fullRecursive->findPath($rootPath);
-		$items = $sub->getChildren();
+		$items = $sub?->getChildren() ?? [];
 
 		if ($this->tryMenuSuffix) {
 			foreach ($items as $class => &$name) {
@@ -507,14 +507,14 @@ class Menu /*extends Controller*/
 			}
 		}
 
-		if (-1 == $this->level) {
-			debug([
-				'level' => $this->level,
-				'rootpath' => $rootPath,
-				'sub' => $sub,
-				'items' => $items
-			]);
-		}
+//		if (-1 == $this->level) {
+//			debug([
+//				'level' => $this->level,
+//				'rootpath' => $rootPath,
+//				'sub' => $sub,
+//				'items' => $items
+//			]);
+//		}
 
 		return $items;
 	}

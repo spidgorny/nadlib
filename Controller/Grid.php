@@ -15,7 +15,7 @@ trait Grid
 	public $model;
 
 	/**
-	 * @var Filter
+	 * @var ?Filter
 	 */
 	public $filter;
 
@@ -67,7 +67,7 @@ trait Grid
 	 */
 	public function setFilter(string $cn = __CLASS__): void
 	{
-		if ($this->filter instanceof Filter) {
+		if ($this->filter) {
 			// already set
 			return;
 		}
@@ -299,7 +299,7 @@ trait Grid
 //				llog(__METHOD__, 'Columns set from getGridColumns');
 			}
 
-			if (ifsetor($this->model->thes)) {
+			if ($this->model && $this->model->thes) {
 				$this->columns = new VisibleColumns(array_keys($this->model->thes));
 //			llog(__METHOD__, 'Columns set from model');
 			}

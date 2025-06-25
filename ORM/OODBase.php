@@ -737,7 +737,7 @@ abstract class OODBase implements ArrayAccess
 	 */
 	public static function makeInstance(array $row, DBInterface $db, ...$args)
 	{
-		if (static::$instances[$row['id']]) {
+		if (static::$instances[static::class][$row['id']] ?? null) {
 			return static::$instances[static::class][$row['id']];
 		}
 		$obj = new static(null, $db, ...$args);

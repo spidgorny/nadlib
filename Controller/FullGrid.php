@@ -19,14 +19,13 @@ trait FullGrid
 
 	/**
 	 * Will create collection object
-	 * @param string $collectionName
 	 * @throws LoginException
 	 * @throws ReflectionException
 	 */
-	public function postInit($collectionName = null): void
+	public function postInit(): void
 	{
-		$this->initFilter();  // called with wrong $cn in Grid
-		$this->collection = $this->makeCollection($collectionName);
+		$this->constructGrid();  // called with wrong $cn in Grid
+		$this->makeCollection(); // this will create collection object
 		// after construct because we need to modify join
 		$this->collection->where = array_merge(
 			$this->collection->where,
@@ -45,29 +44,20 @@ trait FullGrid
 		$this->setColumns(get_class($this), $allowEdit);
 	}
 
-	public function initFilter(): void
-	{
-		// menu is making an instance of each class because of tryMenuSuffix
-		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
-//		parent::initFilter();
-		$this->setFilter();
-		$this->saveFilterAndSort(get_class($this));
-
-//		if (!($this->filter instanceof nadlib\Controller\Filter)) {
-//			$filterFieldsFromUrl = $this->request->getArray('filter');
-//			$this->filter = new nadlib\Controller\Filter($filterFieldsFromUrl);
-//		}
-
-		$this->filterController = new FilterController();
-		$this->filterController->setFilter($this->filter);
-	}
-
 	/**
-	 * @param class-string|null $collectionName
 	 * @throws JsonException
 	 * @throws ReflectionException
 	 */
-	abstract public function makeCollection($collectionName);
+	abstract public function makeCollection(): void;
+
+	/**
+	 * @return array
+	 * @throws Exception
+	 */
+	public function getFilterWhere()
+	{
+		return $this->filterController->getFilterWhere();
+	}
 //	{
 //		if (is_string($collectionName)) {
 //			$this->log(__METHOD__ . ' new collection', $collectionName);
@@ -87,13 +77,21 @@ trait FullGrid
 //		return $this->collection;
 //	}
 
-	/**
-	 * @return array
-	 * @throws Exception
-	 */
-	public function getFilterWhere()
+	public function initFilter(): void
 	{
-		return $this->filterController->getFilterWhere();
+		// menu is making an instance of each class because of tryMenuSuffix
+		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
+//		parent::initFilter();
+		$this->setFilter();
+		$this->saveFilterAndSort(get_class($this));
+
+//		if (!($this->filter instanceof nadlib\Controller\Filter)) {
+//			$filterFieldsFromUrl = $this->request->getArray('filter');
+//			$this->filter = new nadlib\Controller\Filter($filterFieldsFromUrl);
+//		}
+
+		$this->filterController = new FilterController();
+		$this->filterController->setFilter($this->filter);
 	}
 
 	/**
@@ -112,7 +110,7 @@ trait FullGrid
 			$sortBy = $this->model->thes[$sortBy]['source'];
 		}
 
-		if ($this->collection instanceof Collection && $this->collection->thes) {
+		if ($this->collection->thes) {
 			$desc = ifsetor($this->collection->thes[$sortBy]);
 			//debug(array_keys($this->collection->thes), $desc);
 			if (is_array($desc) &&
