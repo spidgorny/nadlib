@@ -32,11 +32,6 @@ class DBLayer extends DBLayerBase
 	 */
 	public $lastQuery;
 
-	/**
-	 * @var string DB name
-	 */
-	public $db;
-
 	public $reserved = [
 		'SELECT', 'LIKE', 'TO',
 	];

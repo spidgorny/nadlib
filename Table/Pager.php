@@ -263,7 +263,7 @@ class Pager
 		if ($this->itemsPerPage) {
 			$div = $this->numberOfRecords / $this->itemsPerPage;
 			// because a single page is 0
-			$maxpage = max(0, ceil($div) - 1);
+			$maxpage = (int)max(0, ceil($div) - 1);
 		} else {
 			$maxpage = 0;
 			$this->log('$this->itemsPerPage: ' . $this->itemsPerPage);
@@ -289,6 +289,7 @@ class Pager
 				new SQLSelect('count(*) AS count'),
 				$subQuery
 			);
+			llog($query->__toString(), $query->getParameters());
 		} else {
 			$query = $originalSQL;
 		}
@@ -298,10 +299,29 @@ class Pager
 
 		$res = $query->fetchAssoc();
 		llog('initBySelectQuery', $query, $res);
-		$this->setNumberOfRecords($res['count']);
+		$this->setNumberOfRecords((int)$res['count']);
 		// validate the requested page is within the allowed range
 		$this->setCurrentPage($this->requestedPage);
 		TaylorProfiler::stop($key);
+	}
+
+	public function __toString(): string
+	{
+		$properties = get_object_vars($this);
+		unset($properties['graphics']);
+		foreach ($properties as &$val) {
+			if (is_object($val) && method_exists($val, '__toString')) {
+				$val = $val->__toString();
+			} elseif (is_array($val)) {
+				foreach ($val as &$v) {
+					if (is_array($v)) {
+						$v = json_encode($v, JSON_THROW_ON_ERROR);
+					}
+				}
+			}
+		}
+
+		return '<blockquote style="background-color: silver; border: solid 1px lightblue;"><pre>' . get_class($this) . ' [' . print_r($properties, true) . ']</pre></blockquote>';
 	}
 
 	/**
@@ -310,7 +330,7 @@ class Pager
 	 */
 	public function getSQLLimit($query)
 	{
-		$scheme = $this->db->getScheme();
+//		$scheme = $this->db->getScheme();
 		if ($query instanceof SQLSelectQuery) {
 			$query->setLimit(new SQLLimit($this->itemsPerPage, $this->getStartingRecord()));
 		} else {
@@ -554,25 +574,6 @@ class Pager
 	public function getPageLastItem($page): float|int
 	{
 		return min($this->numberOfRecords, $page * $this->itemsPerPage + $this->itemsPerPage);
-	}
-
-	public function __toString(): string
-	{
-		$properties = get_object_vars($this);
-		unset($properties['graphics']);
-		foreach ($properties as &$val) {
-			if (is_object($val) && method_exists($val, '__toString')) {
-				$val = $val->__toString();
-			} elseif (is_array($val)) {
-				foreach ($val as &$v) {
-					if (is_array($v)) {
-						$v = json_encode($v);
-					}
-				}
-			}
-		}
-
-		return '<blockquote style="background-color: silver; border: solid 1px lightblue;"><pre>' . get_class($this) . ' [' . print_r($properties, true) . ']</pre></blockquote>';
 	}
 
 	public function getURL(): string
