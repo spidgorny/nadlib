@@ -456,8 +456,6 @@ class Collection implements IteratorAggregate, ToStringable
 				}
 			}
 		}
-
-		//debug_pre_print_backtrace();
 	}
 
 	/**

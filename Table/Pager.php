@@ -297,6 +297,7 @@ class Pager
 		$query->injectDB($this->db);
 
 		$res = $query->fetchAssoc();
+		llog('initBySelectQuery', $query, $res);
 		$this->setNumberOfRecords($res['count']);
 		// validate the requested page is within the allowed range
 		$this->setCurrentPage($this->requestedPage);
