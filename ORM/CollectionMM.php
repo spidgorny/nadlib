@@ -37,6 +37,7 @@ class CollectionMM extends Collection
 	/**
 	 * @param string $field1
 	 * @param string $field2
+	 * @throws Exception
 	 */
 	public function __construct($field1, $field2, DBInterface $db)
 	{
@@ -48,6 +49,8 @@ class CollectionMM extends Collection
 
 	/**
 	 * @param $id
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	public function getField1Values($id): void
 	{
@@ -58,6 +61,8 @@ class CollectionMM extends Collection
 
 	/**
 	 * @param $id
+	 * @throws DatabaseException
+	 * @throws MustBeStringException
 	 */
 	public function getField2Values($id): void
 	{

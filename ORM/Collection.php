@@ -155,7 +155,7 @@ class Collection implements IteratorAggregate, ToStringable
 	protected $logger;
 
 	/**
-	 * @param int|string|null $pid
+	 * @param int|string|null|array $pid
 	 *        if -1 - will not retrieve data from DB
 	 *        if 00 - will retrieve all data
 	 *        if >0 - will retrieve data where PID = $pid

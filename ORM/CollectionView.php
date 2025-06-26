@@ -81,7 +81,7 @@ class CollectionView
 	public function renderTable()
 	{
 		$count = $this->collection->getCount();
-//		llog($this->collection->getQueryWithLimit() . '', $count);
+		llog($this->collection->getQueryWithLimit() . '', $count);
 		if ($count === 0) {
 			return '<div class="message alert alert-warning">' . __($this->noDataMessage) . '</div>';
 		}
