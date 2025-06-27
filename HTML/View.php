@@ -289,7 +289,7 @@ class View extends stdClass implements ToStringable
 			};
 		}
 
-		$this->caller->$var = &$val;
+		$this->caller->$var = $val;
 	}
 
 	public function __isset($name)
