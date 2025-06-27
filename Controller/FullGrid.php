@@ -186,12 +186,19 @@ trait FullGrid
 
 	public function setVisibleColumns(): void
 	{
-		if ($this->columns) {
-			foreach ($this->collection->thes as $cn => $_) {
-				if (!$this->columns->isVisible($cn)) {
-					//unset($this->collection->thes[$cn]);
-					$this->collection->thes[$cn]['!show'] = true;
-				}
+		if (!$this->columns) {
+			throw new RuntimeException(
+				'You need to set columns before setting visible columns!'
+			);
+		}
+		llog('countVisible', $this->columns->countVisible());
+		if (!$this->columns->countVisible()) {
+			return;
+		}
+		foreach ($this->collection->thes as $cn => $_) {
+			if (!$this->columns->isVisible($cn)) {
+				//unset($this->collection->thes[$cn]);
+				$this->collection->thes[$cn]['!show'] = true;
 			}
 		}
 	}

@@ -136,7 +136,7 @@ class Debug
 		$traceObj = ArrayPlus::create($db)->column('object')->getData();
 		if (!array_search('slTable', $traceObj, true) && class_exists('slTable', false)) {
 			$trace = '<pre style="white-space: pre-wrap; margin: 0;">' .
-				new slTable($db, 'class="nospacing"', [
+				new slTable($db, ['class' => "nospacing"], [
 					'file' => 'file',
 					'line' => 'line',
 					'class' => 'class',

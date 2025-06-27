@@ -271,6 +271,44 @@ class AlterDB extends AppControllerBE
 		return $content;
 	}
 
+	public function findStringWith(array $options, array $with)
+	{
+		foreach ($options as $el) {
+			$false = false;
+			foreach ($with as $search) {
+				if (strpos($el, $search) === false) {
+					$false = true;
+					continue;
+				}
+			}
+
+			if (!$false) {
+				return $el;
+			}
+		}
+
+		return null;
+	}
+
+	public function showTable(array $list, $table)
+	{
+		$content = [];
+		if ($list !== []) {
+			$s = new slTable($list, ['class' => "table"], [
+				'field' => 'field',
+				'file' => 'file',
+				'current' => 'current',
+				'sql' => 'sql',
+				'do' => [
+					'name' => 'do',
+					'no_hsc' => true,
+				],
+			]);
+			$content = $this->encloseInAA($s, $table, 'h2');
+		}
+
+		return $content;
+	}
 
 	public function showExtras(array $diff): string
 	{
@@ -302,45 +340,6 @@ class AlterDB extends AppControllerBE
 		//debug($update_statements, Debug::LEVELS, 1);
 		//debug($update_statements['create_table']);
 		return $content;
-	}
-
-	public function showTable(array $list, $table)
-	{
-		$content = [];
-		if ($list !== []) {
-			$s = new slTable($list, 'class="table"', [
-				'field' => 'field',
-				'file' => 'file',
-				'current' => 'current',
-				'sql' => 'sql',
-				'do' => [
-					'name' => 'do',
-					'no_hsc' => true,
-				],
-			]);
-			$content = $this->encloseInAA($s, $table, 'h2');
-		}
-
-		return $content;
-	}
-
-	public function findStringWith(array $options, array $with)
-	{
-		foreach ($options as $el) {
-			$false = false;
-			foreach ($with as $search) {
-				if (strpos($el, $search) === false) {
-					$false = true;
-					continue;
-				}
-			}
-
-			if (!$false) {
-				return $el;
-			}
-		}
-
-		return null;
 	}
 
 	public function doAction(): void

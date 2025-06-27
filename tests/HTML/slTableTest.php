@@ -19,7 +19,7 @@ class slTableTest extends TestCase
 
 	public function test_construct_with_more(): void
 	{
-		$s = new slTable([], 'class="whatever"');
+		$s = new slTable([], ['class' => "whatever"]);
 		static::assertEquals([
 			'class' => 'whatever',
 		], $s->more);
@@ -45,7 +45,7 @@ class slTableTest extends TestCase
 
 	public function test_construct_with_more_id_string(): void
 	{
-		$s = new slTable([], 'id="qwe"');
+		$s = new slTable([], ['id' => "qwe"]);
 		static::assertEquals([
 			'id' => 'qwe',
 		], $s->more);
@@ -54,7 +54,7 @@ class slTableTest extends TestCase
 
 	public function test_construct_with_more_id_string_more(): void
 	{
-		$s = new slTable([], 'id="qwe" cellpadding="2"');
+		$s = new slTable([], ['id' => "qwe", 'cellpadding' => "2"]);
 		static::assertEquals([
 			'id' => 'qwe',
 			'cellpadding' => 2,

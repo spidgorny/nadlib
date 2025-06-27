@@ -4,9 +4,9 @@ class IniCheck extends AppControllerBE
 {
 
 	/**
-     * @return mixed[]
-     */
-    public function render(): array
+	 * @return mixed[]
+	 */
+	public function render(): array
 	{
 		$content = [];
 		$iniFile = AutoLoad::getInstance()->getAppRoot() . '/php.ini';
@@ -26,6 +26,28 @@ class IniCheck extends AppControllerBE
 
 		//$content[] = getDebug(get_loaded_extensions());
 		return $content;
+	}
+
+	/**
+	 * @return mixed[]
+	 */
+	public function parseHtAccess($htaccess): array
+	{
+		$ini = [];
+		$lines = file($htaccess);
+		foreach ($lines as $line) {
+			$line = str_replace("\t", ' ', $line);
+			$parts = trimExplode(' ', $line);
+			if ($parts !== []) {
+				if ($parts[0] == 'php_value') {
+					$ini[$parts[1]] = unquote($parts[2]);
+				} elseif ($parts[0] == 'php_flag') {
+					$ini[$parts[1]] = strtolower($parts[2]) === 'on';
+				}
+			}
+		}
+
+		return $ini;
 	}
 
 	public function showSection(array $iniData)
@@ -56,30 +78,8 @@ class IniCheck extends AppControllerBE
 			}
 		}
 
-		$content[] = new slTable($table, 'class="table niceTable nospacing" width="100%"');
+		$content[] = new slTable($table, ['class' => "table niceTable nospacing", 'width' => "100%"]);
 		return $content;
-	}
-
-	/**
-     * @return mixed[]
-     */
-    public function parseHtAccess($htaccess): array
-	{
-		$ini = [];
-		$lines = file($htaccess);
-		foreach ($lines as $line) {
-			$line = str_replace("\t", ' ', $line);
-			$parts = trimExplode(' ', $line);
-			if ($parts !== []) {
-				if ($parts[0] == 'php_value') {
-					$ini[$parts[1]] = unquote($parts[2]);
-				} elseif ($parts[0] == 'php_flag') {
-					$ini[$parts[1]] = strtolower($parts[2]) === 'on';
-				}
-			}
-		}
-
-		return $ini;
 	}
 
 }

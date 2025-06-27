@@ -137,7 +137,7 @@ trait CachedGetInstance
 		}
 
 		$stats = $stats->getData();
-		$s = new slTable($stats, 'class="table"', [
+		$s = new slTable($stats, ['class' => "table"], [
 			'class' => 'Class',
 			'count' => 'Count',
 			'bar' => [

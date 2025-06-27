@@ -17,7 +17,7 @@ class ClearCache extends AppControllerBE
 		$content = $this->performAction($this->detectAction());
 		$files = $this->getFiles();
 		$content .= '<h1>Files in ' . $this->dir . ' (' . count($files) . ')</h1>';
-		$s = new slTable($files, '', [
+		$s = new slTable($files, [], [
 			'filelink' => [
 				'name' => 'file',
 				'no_hsc' => true,

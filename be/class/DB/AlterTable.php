@@ -74,7 +74,7 @@ class AlterTable extends AlterIndex
 				]];
 			}
 
-			$s = new slTable($indexCompare, 'class="table" width="100%"', [
+			$s = new slTable($indexCompare, ['class' => "table", 'width' => "100%"], [
 				'same' => [
 					'name' => 'same',
 				],
@@ -190,7 +190,7 @@ class AlterTable extends AlterIndex
 				}
 			}
 
-			$s = new slTable($indexCompare, 'class="table"');
+			$s = new slTable($indexCompare, ['class' => "table"]);
 			$content .= $s;
 		}
 
@@ -257,7 +257,7 @@ class AlterTable extends AlterIndex
 				//debug($index, $localIndex); exit();
 			}
 
-			$s = new slTable($indexCompare, 'class="table nospacing"');
+			$s = new slTable($indexCompare, ['class' => "table nospacing"]);
 			$content .= $s;
 		}
 

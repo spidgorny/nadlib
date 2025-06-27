@@ -294,13 +294,15 @@ class Request
 
 	public static function isPHPUnit(): bool
 	{
-		//debug($_SERVER); exit();
+//		llog($_SERVER);
 		$phpunit = defined('PHPUnit');
 		$phar = (bool)ifsetor($_SERVER['IDE_PHPUNIT_PHPUNIT_PHAR']);
 		$loader = (bool)ifsetor($_SERVER['IDE_PHPUNIT_CUSTOM_LOADER']);
 		$phpStorm = basename($_SERVER['PHP_SELF']) === 'ide-phpunit.php';
 		$phpStorm2 = basename($_SERVER['PHP_SELF']) === 'phpunit';
-		return $phar || $loader || $phpStorm || $phpStorm2 || $phpunit;
+		$pest = basename($_SERVER['PHP_SELF']) === 'pest';
+//		llog($phar, $loader, $phpStorm, $phpStorm2, $phpunit);
+		return $phar || $loader || $phpStorm || $phpStorm2 || $phpunit || $pest;
 	}
 
 	/**

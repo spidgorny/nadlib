@@ -128,7 +128,7 @@ class slTable implements ToStringable
 	 */
 	protected $request;
 
-	public function __construct($id = null, $more = '', array $thes = [])
+	public function __construct($id = null, array $more = [], array $thes = [])
 	{
 		if (is_array($id) || is_object($id)) {    // Iterator object
 			$this->data = $id;
@@ -139,11 +139,7 @@ class slTable implements ToStringable
 			$this->ID = md5(microtime());
 		}
 
-		if ($more) {
-			$this->more = is_string($more)
-				? HTMLTag::parseAttributes($more)
-				: $more;
-		}
+		$this->more = $more;
 
 		if (isset($this->more['id'])) {
 			$this->ID = $this->more['id'];
@@ -273,7 +269,7 @@ class slTable implements ToStringable
 //		$this->sort();
 	}
 
-	public function generate($caller = ''): void
+	public function generate(): void
 	{
 		// footer needs to be displayed
 		if ((!count($this->data) || $this->data == false) && !$this->footer) {
@@ -592,16 +588,14 @@ class slTable implements ToStringable
 	}
 
 	/**
-	 * @param string $caller
-	 *
 	 * @return string
 	 * @throws Exception
 	 */
-	public function getContent($caller = '')
+	public function getContent()
 	{
 		if (!$this->generation->isDone()) {
 			$this->generation->reset();
-			$this->generate($caller);
+			$this->generate();
 		}
 
 		return $this->generation->getContent();
@@ -807,7 +801,7 @@ class slTable implements ToStringable
 			];
 		}
 
-		return new self($data, 'class="visual nospacing table table-striped"', [
+		return new self($data, ['class' => "visual nospacing table table-striped"], [
 			0 => '',
 			'' => ['no_hsc' => true],
 		]);
@@ -859,7 +853,7 @@ class slTable implements ToStringable
 			];
 		}
 
-		return new self($assoc, 'class="visual nospacing table table-striped"', [
+		return new self($assoc, ['class' => "visual nospacing table table-striped"], [
 			0 => '',
 			'' => ['no_hsc' => $no_hsc],
 		]);

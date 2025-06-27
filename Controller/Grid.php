@@ -242,7 +242,7 @@ trait Grid
 		$content = [];
 		if ($this->filter) {
 			$f = new HTMLFormTable((array)$this->filter);
-			$f->method('GET');
+			$f->method(HTMLForm::METHOD_GET);
 			$f->defaultBR = true;
 			$this->filter = new Filter($f->fill($this->request->getAll()));
 			$f->showForm();
@@ -274,68 +274,64 @@ trait Grid
 	 */
 	public function setColumns(string $cn, $allowEdit): void
 	{
-//		$this->log(__METHOD__, $cn);
+		$this->log(__METHOD__, $cn);
 		// request
 		$urlColumns = $this->request->getArray('columns');
-		if ($allowEdit && $urlColumns) {
+		if ($allowEdit && ($urlColumns || $this->request->get('btnSubmit') === 'Set Visible Columns')) {
 			llog('urlColumns', $urlColumns);
 			$this->columns = new VisibleColumns($urlColumns);
 			$this->user->setPref('Columns.' . $cn, $this->columns->getData());
 			llog('Columns set from URL', $this->columns->getData());
-		} elseif (!$this->columns) {
-			$prefs = $this->user->getPref('Columns.' . $cn);
-			if ($prefs) {
-				$this->columns = new VisibleColumns($prefs);
-//				llog(__METHOD__, 'Columns set from getPref');
-			}
+			return;
 		}
 
 		if (!$this->columns) {
-			// default
-			$gridColumns = array_keys($this->getGridColumns());
-//			llog(__METHOD__, ['getGridColumns' => $gridColumns]);
-			if ($gridColumns !== []) {
-				$this->columns = new VisibleColumns($gridColumns);
-//				llog(__METHOD__, 'Columns set from getGridColumns');
-			}
-
-			if ($this->model && $this->model->thes) {
-				$this->columns = new VisibleColumns(array_keys($this->model->thes));
-//			llog(__METHOD__, 'Columns set from model');
-			}
-
-			if ($this->collection && $this->collection->thes) {
-				$keysOfThes = array_keys($this->collection->thes);
-				$this->columns = new VisibleColumns($keysOfThes);
-//			llog(__METHOD__, 'Columns set from collection ' . typ($this->collection) . ': ' . json_encode($this->columns));
-			} elseif (!$this->columns) {
-				$this->columns = new VisibleColumns();
+			$prefs = $this->user->getPref('Columns.' . $cn);
+			llog('columns from getPref', $prefs);
+			if ($prefs) {
+				$this->columns = new VisibleColumns($prefs);
+				llog(__METHOD__, 'Columns set from getPref');
+				return;
 			}
 		}
 
-//		llog(__METHOD__, $this->columns->getData());
+		if ($this->model && $this->model->thes) {
+			$this->columns = new VisibleColumns(array_fill_keys(array_keys($this->model->thes), true));
+			llog(__METHOD__, 'Columns set from model');
+			return;
+		}
+
+		if ($this->collection && $this->collection->thes) {
+			$keysOfThes = array_keys($this->collection->thes);
+			$this->columns = new VisibleColumns(array_fill_keys($keysOfThes, true));
+			llog(__METHOD__, 'Columns set from collection ' . typ($this->collection) . ': ' . json_encode($this->columns, JSON_THROW_ON_ERROR));
+			return;
+		}
+
+		$this->columns = new VisibleColumns();
+		llog(__METHOD__, $this->columns->getData());
 	}
 
 	/**
 	 * Pluck $this->thes[*]['name']
+	 * To display in a column selector
 	 * @return array
 	 */
 	public function getGridColumns()
 	{
-		if ($this->collection) {
-//			llog(__METHOD__, 'Collection exists');
-			return ArrayPlus::create($this->collection->thes)
-				->makeTable('name')
-				->column('name')
-				//->combineSelf() ?!? WTF
-				->mapBoth(function ($key, $val) {
-					return $val ?? $key;
-				})
-				->getData();
+		if (!$this->collection) {
+			throw new RuntimeException('Collection is not set in ' . get_class($this));
 		}
 
-//		llog(__METHOD__, 'No collection');
-		return [];
+//			llog(__METHOD__, 'Collection exists');
+		return ArrayPlus::create($this->collection->thes)
+			->makeTable('name')
+			->column('name')
+			//->combineSelf() ?!? WTF
+			->mapBoth(function ($key, $val) {
+				return $val ?? $key;
+			})
+			->getData();
 	}
 
 }

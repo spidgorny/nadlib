@@ -3,9 +3,9 @@
 class HTMLForm implements ToStringable
 {
 
-	public const METHOD_GET = 'GET';
+	public const string METHOD_GET = 'GET';
 
-	public const METHOD_POST = 'POST';
+	public const string METHOD_POST = 'POST';
 
 	public $stdout = "";
 
@@ -58,7 +58,7 @@ class HTMLForm implements ToStringable
 				array_pop($this->prefix);
 			} else {
 				//$ret .= "<input type=hidden name=" . $name . ($name?"[":"") . $k . ($name?"]":"") . " value='$a'>";
-				$content[] = $this->hidden($k, $a);
+				$this->hidden($k, $a);
 			}
 		}
 		return $this->s($content);

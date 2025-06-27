@@ -208,7 +208,7 @@ abstract class SimpleController
 
 	public function detectAction()
 	{
-		if (Request::isCLI()) {
+		if (Request::isCLI() && !Request::isPHPUnit()) {
 			// php(0) index.php(0) controller(1) action(2)
 			return ifsetor($_SERVER['argv'][2]);
 		}

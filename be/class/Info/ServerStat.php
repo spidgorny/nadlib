@@ -211,7 +211,7 @@ class ServerStat extends AppControllerBE
 			'value' => implode('', array_slice(explode(' ', @file_get_contents('/proc/loadavg')), 0, 1)),
 		];
 
-		$s = new slTable($conf, '', [
+		$s = new slTable($conf, [], [
 			'param' => '',
 			'value' => '',
 		]);
@@ -315,7 +315,7 @@ class ServerStat extends AppControllerBE
 
 	public function getQueryLog(): \slTable
 	{
-		$s = new slTable('dumpQueries', 'width="100%"');
+		$s = new slTable('dumpQueries', ['width' => "100%"]);
 		$s->thes([
 			'query' => ['name' => 'Query', 'no_hsc' => true, 'colspan' => 7, 'new_tr' => true],
 			'function' => '<a href="javascript: void(0);" onclick="toggleRows(\'dumpQueries\');">Func.</a>',

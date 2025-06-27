@@ -10,7 +10,7 @@ class CollectionView
 	 * @var bool
 	 */
 	public $useSorting = true;
-	public $tableMore = [
+	public array $tableMore = [
 		'class' => 'nospacing table table-striped',
 		'width' => '100%',
 	];
@@ -120,7 +120,7 @@ class CollectionView
 	public function getDataTable(): \slTable
 	{
 		$data = $this->collection->getData()->getData();
-		$s = new slTable($data, HTMLTag::renderAttr($this->tableMore));
+		$s = new slTable($data, $this->tableMore);
 		$s->thes($this->collection->thes);
 		$s->ID = get_class($this->collection);
 		$s->sortable = $this->useSorting;

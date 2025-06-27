@@ -767,11 +767,19 @@ class ArrayPlus extends ArrayObject implements HasGetter
 		return implode('', $this->getData());
 	}
 
+	/**
+	 * Searches table for specific columns and counts where $k is true
+	 * @param string|callable $k
+	 * @return int
+	 */
 	public function count_if($k): int
 	{
 		$count = 0;
 		foreach ($this as $val) {
-			if (ifsetor($val[$k])) {
+			if (is_string($k) && ifsetor($val[$k])) {
+				$count++;
+			}
+			if (is_callable($k) && $k($val)) {
 				$count++;
 			}
 		}

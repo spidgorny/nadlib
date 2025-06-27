@@ -582,7 +582,7 @@ abstract class OODBase implements ArrayAccess
 				}
 			}
 
-			$s = new slTable($assoc, 'class="table table-striped"', [
+			$s = new slTable($assoc, ['class' => "table table-striped"], [
 				0 => '',
 				'' => ['no_hsc' => true]
 			]);

@@ -532,7 +532,7 @@ class TaylorProfiler
 				];
 			}
 
-			$s = new slTable($table, 'class="nospacing no-print table" width="100%"');
+			$s = new slTable($table, ['class' => "nospacing no-print table", 'width' => "100%"]);
 			$s->thes([
 				'nr' => 'nr',
 				'count' => [

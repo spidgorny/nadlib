@@ -99,7 +99,7 @@ class Localize extends AppControllerBE
 		$table = array_slice($table, $pager->getStartingRecord(), $pager->getPageSize(), true);
 		$content[] = $pager->renderPageSelectors($this->url);
 
-		$s = new slTable($table, 'id="localize" width="100%" class="table _table-striped"', [
+		$s = new slTable($table, ['id' => "localize", 'width' => "100%", 'class' => "table _table-striped"], [
 			'key' => [
 				'name' => 'Key',
 				'no_hsc' => true,

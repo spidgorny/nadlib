@@ -129,7 +129,7 @@ class AlterIndex extends AppControllerBE
 			$content .= '<h4 id="table-' . $table . '">Table: ' . $table . '</h4>';
 
 			$indexCompare = $this->compareTable($table, $local, $desc);
-			$content .= new slTable($indexCompare, 'class="nospacing table table-striped"', [
+			$content .= new slTable($indexCompare, ['class' => "nospacing table table-striped"], [
 				'same' => 'Same',
 				'Table' => 'Table',
 				'Non_unique' => 'Non_unique',

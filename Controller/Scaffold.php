@@ -342,7 +342,7 @@ abstract class Scaffold extends AppControllerBE
 
 		if ($data) {
 			debug($this->model->data, $data);
-			$s = new slTable($data, 'class="nospacing spaceBelow"');
+			$s = new slTable($data, ['class' => "nospacing spaceBelow"]);
 			$s->thes($this->thes);
 			$content = $s->getContent();
 		} else {

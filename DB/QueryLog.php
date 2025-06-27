@@ -16,8 +16,8 @@ class QueryLog
 	public function log(string $query, $diffTime, ?int $results = null, $ok = null): void
 	{
 		$key = md5(trim($query));
-        //		debug(__METHOD__, $query, $diffTime, $key, array_keys($this->queryLog));
-        $old = $this->queryLog[$key] ?? [];
+		//		debug(__METHOD__, $query, $diffTime, $key, array_keys($this->queryLog));
+		$old = $this->queryLog[$key] ?? [];
 
 		$this->queryLog[$key] = [
 			'query' => $query . '',
@@ -30,9 +30,9 @@ class QueryLog
 	}
 
 	/**
-     * Renders the list of queries accumulated
-     */
-    public function dumpQueries(): string
+	 * Renders the list of queries accumulated
+	 */
+	public function dumpQueries(): string
 	{
 		$q = $this->queryLog;
 		arsort($q);
@@ -49,7 +49,7 @@ class QueryLog
 			];
 		}
 
-		$q = new slTable($q, 'class="view_array table" width="1024"', [
+		$q = new slTable($q, ['class' => "view_array table", 'width' => "1024"], [
 			'times' => 'Times',
 			'time' => [
 				'name' => 'Time',
@@ -94,7 +94,7 @@ class QueryLog
 			}
 		}
 
-		$s = new slTable(null, 'width="100%" class="table"');
+		$s = new slTable(null, ['width' => "100%", 'class' => "table"]);
 		$s->thes([
 			'query' => [
 				'label' => 'Query',
@@ -139,7 +139,7 @@ class QueryLog
 			];
 		}
 
-		return new slTable($log, 'class="table"', [
+		return new slTable($log, ['class' => "table"], [
 			'times' => 'times',
 			'sumtime' => [
 				'name' => 'sumtime (' . number_format($sumTime, 3) . ')',

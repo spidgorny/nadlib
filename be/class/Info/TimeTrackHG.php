@@ -4,9 +4,9 @@ class TimeTrackHG extends AppControllerBE
 {
 
 	/**
-     * @var string
-     */
-    public $cacheFile;
+	 * @var string
+	 */
+	public $cacheFile;
 
 	public function __construct()
 	{
@@ -19,7 +19,7 @@ class TimeTrackHG extends AppControllerBE
 		$content[] = $this->performAction($this->detectAction());
 		if (file_exists($this->cacheFile)) {
 			$times = file_get_contents($this->cacheFile);
-			$times = json_decode($times, true);
+			$times = json_decode($times, true, 512, JSON_THROW_ON_ERROR);
 
 			$total = $this->showTotal($times);
 			$who = $this->showByWho($times);
@@ -60,7 +60,7 @@ class TimeTrackHG extends AppControllerBE
 			$line['what'] = preg_replace("/#(\w+)/", "<a href=\"\\1\">#\\1</a>", $line['what']);
 		}
 
-		$s = new slTable($times, 'class="table table=striped"');
+		$s = new slTable($times, ['class' => "table table=striped"]);
 		$s->generateThes();
 		$s->thes['what'] = [
 			'name' => 'what',
@@ -90,9 +90,9 @@ class TimeTrackHG extends AppControllerBE
 	}
 
 	/**
-     * From HYBH
-     */
-    public function readFile(array $file): array
+	 * From HYBH
+	 */
+	public function readFile(array $file): array
 	{
 		$i = 0;
 		$iEmpty = 0;
@@ -112,9 +112,9 @@ class TimeTrackHG extends AppControllerBE
 	}
 
 	/**
-     * @return array{who: mixed, when: mixed, time: mixed, what: mixed}[]
-     */
-    public function parseTime(array $lines): array
+	 * @return array{who: mixed, when: mixed, time: mixed, what: mixed}[]
+	 */
+	public function parseTime(array $lines): array
 	{
 		$times = [];
 		foreach ($lines as $line) {

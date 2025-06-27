@@ -120,7 +120,7 @@ class DebugPanel
 			$table[] = $row;
 		}
 
-		return new slTable($table, 'class="view_array array"');
+		return new slTable($table, ['class' => "view_array array"]);
 	}
 
 	public static function getInstance()
