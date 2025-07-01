@@ -36,7 +36,7 @@ class MiniRouter
 			return null;  // default index controller
 		}
 
-		if ($staticPath) {
+		if ($staticPath->__toString()) {
 			// vendor/spidgorny/nadlib/HTTP
 			$fullPath = realpath(__DIR__ . '/../../../../' . $staticPath);
 //			llog($fullPath);

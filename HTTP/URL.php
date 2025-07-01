@@ -417,15 +417,14 @@ class URL
 			//$path = str_replace($this->documentRoot, '', $path);	// WHY???
 		}
 
-
-		nodebug([
-			'class($this->path)' => get_class($this->path),
-			'$this->path' => $this->path . '',
-			'documentRoot' => $this->documentRoot . '',
-			'class($path)' => get_class($path),
-			'path' => $path . '',
-		]);
-		return $this->path;
+//		nodebug([
+//			'class($this->path)' => get_class($this->path),
+//			'$this->path' => $this->path . '',
+//			'documentRoot' => $this->documentRoot . '',
+//			'class($path)' => get_class($path),
+//			'path' => $path . '',
+//		]);
+		return $path;
 	}
 
 	/**
