@@ -558,7 +558,7 @@ class SQLBuilder
 			}
 
 			$new[$i] = $new[$i] !== '' && $new[$i] !== '0' ? $new[$i] . ' ' . $word : $word . '';
-			if (!$in || ($in && $word->contains(']'))) {
+			if (!$in || ($word->contains(']'))) {
 				++$i;
 				$in = false;
 			}

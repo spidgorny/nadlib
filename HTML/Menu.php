@@ -70,7 +70,7 @@ class Menu /*extends Controller*/
 	public $request;
 	public $forceRootPath;
 	public $useDropDown = true;
-	protected ?\UserModelInterface $user;
+	protected ?UserModelInterface $user;
 
 	public function __construct(array $items, $level = null, ?UserModelInterface $user = null)
 	{
@@ -314,7 +314,7 @@ class Menu /*extends Controller*/
 
 		$path = $this->useRecursiveURL ? array_merge($root, [$class]) : [$class];
 
-		if ($path && $this->useControllerSlug) {
+		if ($this->useControllerSlug) {
 			if ($this->useRecursiveURL) {
 				$link = cap($this->basePath) . implode('/', $path);
 			} else {
@@ -533,7 +533,7 @@ class Menu /*extends Controller*/
 		}
 	}
 
-	public function renderBreadcrumbs(): ?\UL
+	public function renderBreadcrumbs(): ?UL
 	{
 		$ul = new UL($this->items->getData());
 		$ul->links = $this->items->getKeys()->getData();

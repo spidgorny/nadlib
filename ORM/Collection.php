@@ -140,7 +140,7 @@ class Collection implements IteratorAggregate, ToStringable
 	protected $controller;
 
 	/**
-	 * @var CollectionView
+	 * @var ?CollectionView
 	 */
 	protected $view;
 
@@ -150,7 +150,7 @@ class Collection implements IteratorAggregate, ToStringable
 	protected $processed = false;
 
 	/**
-	 * @var LoggerInterface
+	 * @var ?LoggerInterface
 	 */
 	protected $logger;
 

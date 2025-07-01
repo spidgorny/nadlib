@@ -58,7 +58,7 @@ class Duration extends Time
 	 * Parses the human string like '24h 10m'
 	 * No spaces allowed between the number and value
 	 */
-	public static function fromHuman(string $string): \Duration
+	public static function fromHuman(string $string): Duration
 	{
 		$total = 0;
 		$parts = trimExplode(' ', $string);
@@ -129,7 +129,7 @@ class Duration extends Time
 		return $this->time;
 	}
 
-	public static function fromSeconds($ini_get): \Duration
+	public static function fromSeconds($ini_get): Duration
 	{
 		return new Duration($ini_get);
 	}
@@ -137,7 +137,7 @@ class Duration extends Time
 	public function format($rules): string
 	{
 		die(__METHOD__ . " - don't use.");
-		return 'not implemented';
+//		return 'not implemented';
 	}
 
 	public function getTime($format = 'H:i:s'): string

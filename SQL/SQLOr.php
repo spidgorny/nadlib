@@ -33,20 +33,9 @@ class SQLOr extends SQLWherePart
 	 */
 	public function __toString(): string
 	{
-		$ors = [];
 //		llog(typ($this->db)->cli());
-		if (!$this->db) {
-			ob_start();
-			debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-			$bt = ob_get_clean();
-			llog($bt);
-			$e = new RuntimeException('SQLOr does not have $db set');
-			trigger_error($e, E_USER_ERROR);
-//			throw $e;	// unable to throw, return without quoteWhere()
-		} else {                        // MySQL
-			$ors = $this->db->quoteWhere($this->or);
+		$ors = $this->db->quoteWhere($this->or);
 //			llog($this->or, $ors);
-		}
 
 
 		//debug($this, $ors, $res);

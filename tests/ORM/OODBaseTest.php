@@ -19,7 +19,7 @@ class OODBaseTest extends TestCase
 	protected function setUp(): void
 	{
 		self::markTestSkipped('PG dependent');
-		$this->sut = new SpecificOODBase();
+//		$this->sut = new SpecificOODBase();
 	}
 
 	public function test_getBool(): void

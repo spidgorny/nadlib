@@ -527,7 +527,7 @@ class TaylorProfiler
 					'time, ms' => number_format($total * 1000, 2, '.', ''),
 					'avg/1' => number_format(ifsetor($row['avg']), 2, '.', ''),
 					'percent' => number_format($perc, 2, '.', '') . '%',
-					'bar' => ProgressBar::getImage($perc),
+					'bar' => (new ProgressBar)->getImage($perc),
 					'routine' => $routine,
 				];
 			}
@@ -606,7 +606,7 @@ class TaylorProfiler
 		return null;
 	}
 
-	public function printTrace($enabled = false): ?\slTable
+	public function printTrace($enabled = false): ?slTable
 	{
 		if ($this->trace_enabled || $enabled) {
 			$prev = 0;
@@ -624,7 +624,7 @@ class TaylorProfiler
 		return null;
 	}
 
-	public function analyzeTraceForLeak(): \slTable
+	public function analyzeTraceForLeak(): slTable
 	{
 		$func = [];
 		foreach ($this->trace as $trace) {

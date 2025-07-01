@@ -32,54 +32,52 @@ class POPOBase
 		$reflector = new ReflectionClass($this);
 		try {
 			$prop = $reflector->getProperty($name);
-			if ($prop) {
-				$type = $prop->getType() instanceof \ReflectionNamedType ? $prop->getType()->getName() : null;
-				if (!$type) {
-					$docText = $prop->getDocComment();
-					$doc = new DocCommentParser($docText);
-					$type = $doc->getFirstTagValue('var');
+			$type = $prop->getType() instanceof ReflectionNamedType ? $prop->getType()->getName() : null;
+			if (!$type) {
+				$docText = $prop->getDocComment();
+				$doc = new DocCommentParser($docText);
+				$type = $doc->getFirstTagValue('var');
 //					llog($docText, $type, $value);
-				}
+			}
 
 //				llog($name, $type.'', $value);
-				switch ($type) {
-					case 'integer':
-					case 'int':
-						$value = (int)$value;
-						break;
-					case 'string':
-						$value = (string)($value);
-						break;
-					case 'boolean':
-					case 'bool':
-						$value = (bool)$value;
-						break;
-					case 'float':
-						$value = (float)$value;
-						break;
-					case 'DateTime':
-					case \DateTime::class:
-						if (is_object($value)) {
-							$value = new DateTime($value->date);
-						} elseif ($value) {
-							$value = new DateTime($value);
-						}
+			switch ($type) {
+				case 'integer':
+				case 'int':
+					$value = (int)$value;
+					break;
+				case 'string':
+					$value = (string)($value);
+					break;
+				case 'boolean':
+				case 'bool':
+					$value = (bool)$value;
+					break;
+				case 'float':
+					$value = (float)$value;
+					break;
+				case 'DateTime':
+				case DateTime::class:
+					if (is_object($value)) {
+						$value = new DateTime($value->date);
+					} elseif ($value) {
+						$value = new DateTime($value);
+					}
 
-						break;
-					case 'DateTimeImmutable':
-						if (is_object($value)) {
-							$value = new DateTimeImmutable($value->date);
-						} elseif ($value) {
-							$value = new DateTimeImmutable($value);
-						}
+					break;
+				case 'DateTimeImmutable':
+					if (is_object($value)) {
+						$value = new DateTimeImmutable($value->date);
+					} elseif ($value) {
+						$value = new DateTimeImmutable($value);
+					}
 
-						break;
-					default:
-						// inner subclasses
-						if ($type && class_exists($type)) {
-							$value = new $type($value);
-						}
-				}
+					break;
+				default:
+					// inner subclasses
+					if ($type && class_exists($type)) {
+						$value = new $type($value);
+					}
 			}
 		} catch (ReflectionException $reflectionException) {
 			$this->_missingProperties[$name] = TAB . 'public $' . $name . ';';

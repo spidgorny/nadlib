@@ -5,6 +5,7 @@ namespace nadlib;
 use ArrayPlus;
 use DBInterface;
 use nadlib\HTTP\Session;
+use RuntimeException;
 use SQLSelectQuery;
 use SQLWhere;
 
@@ -27,7 +28,7 @@ class SessionDatabase implements DBInterface
 {
 
 	/**
-	 * @var static
+	 * @var ?static
 	 */
 	protected static $instance;
 
@@ -36,7 +37,7 @@ class SessionDatabase implements DBInterface
 	 */
 	public $data = [];
 
-	protected \nadlib\HTTP\Session $session;
+	protected Session $session;
 
 	/**
 	 * @phpstan-consistent-constructor
@@ -201,13 +202,13 @@ class SessionDatabase implements DBInterface
 	public function getSelectQuery($table, array $where, $orderBy = null): never
 	{
 //		return SQLSelectQuery::getSelectQueryP($this, $table, $where, $orderBy);
-		throw new \RuntimeException('Not implemented');
+		throw new RuntimeException('Not implemented');
 	}
 
 	public function getSelectQuerySW($table, SQLWhere $where, $orderBy = '', $addSelect = ''): never
 	{
 //		return SQLSelectQuery::getSelectQueryP($this, $table, $where->getAsArray(), $orderBy);
-		throw new \RuntimeException('Not implemented');
+		throw new RuntimeException('Not implemented');
 	}
 
 	public function getCount(SQLSelectQuery $query): int

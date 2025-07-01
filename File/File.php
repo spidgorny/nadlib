@@ -25,7 +25,7 @@ class File
 	 */
 	public $fly;
 
-	public FileAttributes $meta;
+	public ?FileAttributes $meta;
 
 	/**
 	 * @var string|null the path in the $name is relative to this
@@ -104,7 +104,7 @@ class File
 		return md5_file($this->getPathname());
 	}
 
-	public function getURL(): string|\Path
+	public function getURL(): string|Path
 	{
 		$path = new Path($this->getPathname());
 		return $path->getURL();

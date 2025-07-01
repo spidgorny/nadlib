@@ -55,21 +55,19 @@ class PathTest extends TestCase
 
 	public function test_relativeFromAppRoot(): void
 	{
-		static::markTestSkipped(
-			'Cannot work from nadlib as a standalone.'
-		);
+		static::markTestSkipped('Cannot work from nadlib as a standalone.');
 
 		//$source = 'components/jquery/jquery.js?1453328048';
-		$source = 'components/bootstrap/less/bootstrap.js?1453328048';
-		$path = new Path($source);
-		$relative = $path->relativeFromAppRoot();
-		//debug($relative.'');
-		static::assertContains($relative . '', [
-			'nadlib/' . $source,
-			'vendor/spidgorny/nadlib/' . $source,
-			'Users/DEPIDSVY/nadlib/' . $source,
-			'tests/HTTP/' . $source,
-		]);
+//		$source = 'components/bootstrap/less/bootstrap.js?1453328048';
+//		$path = new Path($source);
+//		$relative = $path->relativeFromAppRoot();
+//		//debug($relative.'');
+//		static::assertContains($relative . '', [
+//			'nadlib/' . $source,
+//			'vendor/spidgorny/nadlib/' . $source,
+//			'Users/DEPIDSVY/nadlib/' . $source,
+//			'tests/HTTP/' . $source,
+//		]);
 	}
 
 	public function test_append(): void

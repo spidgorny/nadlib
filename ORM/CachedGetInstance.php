@@ -131,7 +131,7 @@ trait CachedGetInstance
 		if ($max != 0) {
 			//debug((array)$stats); exit();
 			$stats->addColumn('bar', function (array $row, $i) use ($max): string {
-				return ProgressBar::getImage($row['count'] / $max * 100);
+				return (new ProgressBar)->getImage($row['count'] / $max * 100);
 			});
 		}
 
@@ -222,7 +222,7 @@ trait CachedGetInstance
 		return $c;
 	}
 
-	public static function findInstanceByName($name, $field = null, ?DBInterface $db = null): ?\OODBase
+	public static function findInstanceByName($name, $field = null, ?DBInterface $db = null): ?OODBase
 	{
 		$self = static::class;
 		if (ifsetor(self::$instances[$self], [])) {

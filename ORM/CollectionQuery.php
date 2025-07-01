@@ -20,7 +20,7 @@ class CollectionQuery
 
 	protected $query;
 
-	protected ?\Pager $pager;
+	protected ?Pager $pager;
 
 	/**
 	 * @param $table
@@ -95,7 +95,7 @@ class CollectionQuery
 	public function getQueryWithLimit()
 	{
 		$query = $this->getQuery();
-		if ($this->pager instanceof \Pager) {
+		if ($this->pager instanceof Pager) {
 			// do it only once
 			if (!$this->pager->numberOfRecords) {
 				//debug($this->pager->getObjectInfo());
@@ -120,10 +120,6 @@ class CollectionQuery
 	public function getQuery($where = [])
 	{
 		TaylorProfiler::start($profiler = get_class($this) . '::' . __FUNCTION__ . sprintf(' (%s)', $this->table));
-		if (!$this->db) {
-			debug_pre_print_backtrace();
-		}
-
 		if (!$where) {
 			$where = $this->where;
 		}

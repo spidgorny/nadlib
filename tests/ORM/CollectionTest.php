@@ -13,16 +13,14 @@ class CollectionTest extends NadlibTestCase
 
 	public function test_lazyMemeberIterator(): void
 	{
-		$this->markTestSkipped(
-			'RequestCollection was not found.'
-		);
+		$this->markTestSkipped('RequestCollection was not found.');
 
-		$rc = new RequestCollection();
-		$rc->orderBy = 'ORDER BY ctime DESC LIMIT 10';
-
-		$iterator = $rc->getLazyMemberIterator('ORSRequest');
-		$current = $iterator->current();
-		debug($current);
+//		$rc = new RequestCollection();
+//		$rc->orderBy = 'ORDER BY ctime DESC LIMIT 10';
+//
+//		$iterator = $rc->getLazyMemberIterator('ORSRequest');
+//		$current = $iterator->current();
+//		debug($current);
 	}
 
 	/**

@@ -19,7 +19,7 @@ class SQLTest extends TestCase
 	protected function setUp(): void
 	{
 		self::markTestSkipped('PG dependent');
-		$this->db = Config::getInstance()->getDB();
+//		$this->db = Config::getInstance()->getDB();
 	}
 
 	public function test_SQLNow_PG(): void

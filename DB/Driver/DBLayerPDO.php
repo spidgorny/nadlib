@@ -371,9 +371,7 @@ class DBLayerPDO extends DBLayerBase
 	 */
 	public function free($res): void
 	{
-		if ($res) {
-			$res->closeCursor();
-		}
+		$res->closeCursor();
 	}
 
 	public function quoteKey($key): string

@@ -16,7 +16,7 @@ class DBLayerSQLite extends DBLayerBase
 	public $file;
 
 	/**
-	 * @var SQLite3
+	 * @var ?SQLite3
 	 */
 	public $connection;
 

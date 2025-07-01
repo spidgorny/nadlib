@@ -57,15 +57,15 @@ class URLTest extends TestCase
 	public function test_replaceController(): void
 	{
 		static::markTestSkipped();
-		$url = new URL('http://localhost/level1/level2/level3');
-		$url->replaceController('Class2');
-		static::assertEquals('http://localhost/Class2', $url . '');
-
-		$url = new URL('http://localhost/docroot/level1/level2/level3');
-//		debug($url->documentRoot);
-		$url->documentRoot = '/docroot';
-		$url->replaceController('Class2');
-		static::assertEquals('http://localhost/docroot/Class2', $url . '');
+//		$url = new URL('http://localhost/level1/level2/level3');
+//		$url->replaceController('Class2');
+//		static::assertEquals('http://localhost/Class2', $url . '');
+//
+//		$url = new URL('http://localhost/docroot/level1/level2/level3');
+////		debug($url->documentRoot);
+//		$url->documentRoot = '/docroot';
+//		$url->replaceController('Class2');
+//		static::assertEquals('http://localhost/docroot/Class2', $url . '');
 	}
 
 }

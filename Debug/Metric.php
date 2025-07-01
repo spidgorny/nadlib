@@ -26,6 +26,9 @@ class Metric
 //		$this->testPercentage();
 	}
 
+	/**
+	 * @throws JsonException
+	 */
 	public function render(): void
 	{
 		$this->save = true;
@@ -50,7 +53,7 @@ class Metric
 		}
 
 //		debug($last['generated'], $attr['generated']);
-		$save = $this->save && ifsetor($last['generated']) !== $attr['generated'];
+		$save = ifsetor($last['generated']) !== $attr['generated'];
 		if ($save) {
 			file_put_contents(
 				getcwd() . '/metric.log',
@@ -72,13 +75,13 @@ class Metric
 	}
 
 	/**
-     * Computes the proportions between the given metrics.
-     *
-     * @param array $metrics The aggregated project metrics.
-     * @return array<string, float>
-     * @return int[]|float[]
-     */
-    protected function computeProportions(array $metrics): array
+	 * Computes the proportions between the given metrics.
+	 *
+	 * @param array $metrics The aggregated project metrics.
+	 * @return array<string, float>
+	 * @return int[]|float[]
+	 */
+	protected function computeProportions(array $metrics): array
 	{
 		$proportions = [];
 		foreach ($this->thresholds as $names => $_) {

@@ -3,6 +3,9 @@
 class TestConfig extends ConfigBase
 {
 
+	/** @var ?DBInterface */
+	protected $db;
+
 	public function getDB()
 	{
 		if (!$this->db) {
@@ -13,7 +16,7 @@ class TestConfig extends ConfigBase
 		return $this->db;
 	}
 
-	public function getQB(): \SQLBuilder
+	public function getQB(): SQLBuilder
 	{
 		return new SQLBuilder($this->getDB());
 	}

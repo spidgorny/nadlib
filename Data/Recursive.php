@@ -48,7 +48,7 @@ class Recursive
 		//debug($path);
 		if ($path !== []) {
 			$current = array_shift($path);
-			/** @var Recursive $find */
+			/** @var ?Recursive $find */
 			$find = ifsetor($this->elements[$current]);
 			if ($find && $path) {
 				$find = $find->findPath($path);
@@ -89,7 +89,7 @@ class Recursive
 
 			$res = call_user_func($callback, $val, $i);
 			if (!is_null($res)) {
-				list($val, $key) = $res;
+				[$val, $key] = $res;
 				$new[$key] = $val;
 			} else {
 				// unset

@@ -35,7 +35,7 @@ abstract class HTMLFormProcessor extends SimpleController
 	protected $validated = false;
 	protected string $submitButton = 'Save';
 	/**
-	 * @var HTMLFormTable
+	 * @var ?HTMLFormTable
 	 */
 	protected $form;
 	/**
@@ -152,7 +152,7 @@ abstract class HTMLFormProcessor extends SimpleController
 	public function showForm()
 	{
 		if (!$this->form) {
-			throw new \RuntimeException(__METHOD__ . ': initialize form with getForm()');
+			throw new RuntimeException(__METHOD__ . ': initialize form with getForm()');
 		}
 
 		$this->form->prefix($this->prefix);

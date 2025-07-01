@@ -53,10 +53,7 @@ class SwiftMailer implements MailerInterface
 		$message = $this->getSwiftMessage($cc, $bcc, $attachments, $additionalSenders);
 
 		$mailer = new Swift_Mailer($this->transport);
-		$failedRecipients = [];
-		$sent = $mailer->send($message, $failedRecipients);
-
-		return count($failedRecipients) ? $failedRecipients : $sent;
+		return $mailer->send($message);
 	}
 
 	/**
@@ -66,7 +63,7 @@ class SwiftMailer implements MailerInterface
 	 * @param array $additionalSenders - assoc array
 	 * @throws Exception
 	 */
-	public function getSwiftMessage($cc = null, $bcc = null, $attachments = [], array $additionalSenders = []): \Swift_Message
+	public function getSwiftMessage($cc = null, $bcc = null, $attachments = [], array $additionalSenders = []): Swift_Message
 	{
 		$messageHTML = $this->body;
 		$messageText = strip_tags($this->body);

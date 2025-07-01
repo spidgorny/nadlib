@@ -18,10 +18,6 @@ class AlterCharset extends AppControllerBE
 	{
 		$this->index->addJS(AutoLoad::getInstance()->nadlibFromDocRoot . '/js/keepScrollPosition.js');
 		$content = $this->performAction($this->detectAction());
-		if (!is_object($this->db)) {
-			debug($this->db);
-			return 'No db object';
-		}
 
 		$tables = $this->db->getTables();
 		foreach ($tables as $table) {

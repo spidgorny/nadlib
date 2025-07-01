@@ -27,7 +27,7 @@ class View extends stdClass implements ToStringable
 	public $data = [];
 
 	/**
-	 * @var Controller
+	 * @var ?Controller
 	 */
 	public $controller;
 

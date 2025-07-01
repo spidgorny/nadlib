@@ -80,7 +80,7 @@ abstract class OODBase implements ArrayAccess
 	protected $where = [];
 
 	/**
-	 * @var LoggerInterface
+	 * @var ?LoggerInterface
 	 */
 	protected $logger;
 
@@ -473,11 +473,6 @@ abstract class OODBase implements ArrayAccess
 //		} else {
 		$where[$this->idField] = $this->id;
 
-		if (!$this->db) {
-			debug_pre_print_backtrace();
-			debug(gettypes(get_object_vars($this)));
-		}
-
 		$query = $this->db->getUpdateQuery($this->table, $data, $where);
 		//debug($query);
 		//echo $query, BR;
@@ -692,7 +687,7 @@ abstract class OODBase implements ArrayAccess
 		];
 	}
 
-	public function getNameLink(): string|\ToStringable
+	public function getNameLink(): string|ToStringable
 	{
 		return new HTMLTag('a', [
 			'href' => $this->getSingleLink(),

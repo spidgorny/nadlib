@@ -7,34 +7,31 @@ class NadlibTest extends TestCase
 
 	public function test_requireAll(): void
 	{
-
-		static::markTestSkipped(
-			'AppController was not found. Line 29.'
-		);
+		static::markTestSkipped('AppController was not found. Line 29.');
 
 		//return;
-		$skip = [
-			'MemcacheMemory',
-			'DBInterface',
-			'SQLQuery',
-		];
-//		require_once __DIR__ . '/AppController4Test.php';
-//		class_alias('AppController4Test', 'AppController');
-
-		$files = glob('**/*');
-		foreach ($files as $file) {
-			if (preg_match('/class\..*\.php$/', $file)) {
-				$class = trimExplode('.', basename($file));
-				$class = $class[1];
-				//echo $class."\n";
-				if (!in_array($class, $skip) && !class_exists($class, false)) {
-					/** @noinspection PhpIncludeInspection */
-					require_once $file;
-				}
-			}
-		}
-
-		static::assertTrue(true);
+//		$skip = [
+//			'MemcacheMemory',
+//			'DBInterface',
+//			'SQLQuery',
+//		];
+////		require_once __DIR__ . '/AppController4Test.php';
+////		class_alias('AppController4Test', 'AppController');
+//
+//		$files = glob('**/*');
+//		foreach ($files as $file) {
+//			if (preg_match('/class\..*\.php$/', $file)) {
+//				$class = trimExplode('.', basename($file));
+//				$class = $class[1];
+//				//echo $class."\n";
+//				if (!in_array($class, $skip) && !class_exists($class, false)) {
+//					/** @noinspection PhpIncludeInspection */
+//					require_once $file;
+//				}
+//			}
+//		}
+//
+//		static::assertTrue(true);
 	}
 
 }

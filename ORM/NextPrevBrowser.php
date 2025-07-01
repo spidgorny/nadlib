@@ -9,7 +9,7 @@ class NextPrevBrowser
 
 	public $prevText = '&#x25C4;';
 	public $nextText = '&#x25BA;';
-	protected \Collection $collection;
+	protected Collection $collection;
 
 	/** @var ArrayPlus */
 	protected $data;
@@ -36,37 +36,32 @@ class NextPrevBrowser
 	 */
 	public function getNextPrevBrowser(OODBase $model): string
 	{
-		if ($this->pager) {
-			//$this->pager->debug();
-			if ($this->pager->currentPage > 0) {
-				$copy = clone $this->collection;
-				$copy->pager->setCurrentPage($copy->pager->currentPage - 1);
-				$copy->retrieveData();
-				$copy->preprocessData();
-				$prevData = $copy->getData()->getData();
-			} else {
-				$prevData = [];
-			}
-
-			llog('loading pageKeys');
-			$pageKeys = $this->data->getKeys()->getData();
-			llog('pageKeys', $pageKeys);
-			if ($this->pager->currentPage < $this->pager->getMaxPage() &&
-				end($pageKeys) == $model->id    // last element on the page
-			) {
-				$copy = clone $this->collection;
-				$nextPageNumber = $copy->pager->currentPage + 1;
-				llog('nextPageNumber', $nextPageNumber);
-				$copy->pager->setCurrentPage($nextPageNumber);
-				$copy->retrieveData();
-				llog('fetched', $copy->getData()->count());
-				$copy->preprocessData();
-				$nextData = $copy->getData()->getData();
-			} else {
-				$nextData = [];
-			}
+		//$this->pager->debug();
+		if ($this->pager->currentPage > 0) {
+			$copy = clone $this->collection;
+			$copy->pager->setCurrentPage($copy->pager->currentPage - 1);
+			$copy->retrieveData();
+			$copy->preprocessData();
+			$prevData = $copy->getData()->getData();
 		} else {
 			$prevData = [];
+		}
+
+		llog('loading pageKeys');
+		$pageKeys = $this->data->getKeys()->getData();
+		llog('pageKeys', $pageKeys);
+		if ($this->pager->currentPage < $this->pager->getMaxPage() &&
+			end($pageKeys) == $model->id    // last element on the page
+		) {
+			$copy = clone $this->collection;
+			$nextPageNumber = $copy->pager->currentPage + 1;
+			llog('nextPageNumber', $nextPageNumber);
+			$copy->pager->setCurrentPage($nextPageNumber);
+			$copy->retrieveData();
+			llog('fetched', $copy->getData()->count());
+			$copy->preprocessData();
+			$nextData = $copy->getData()->getData();
+		} else {
 			$nextData = [];
 		}
 

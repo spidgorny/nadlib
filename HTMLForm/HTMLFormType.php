@@ -9,7 +9,7 @@ abstract class HTMLFormType implements HTMLFormFieldInterface
 {
 
 	/**
-	 * @var HTMLForm
+	 * @var ?HTMLForm
 	 */
 	public $form;
 
@@ -71,10 +71,9 @@ abstract class HTMLFormType implements HTMLFormFieldInterface
 	/**
 	 * Can't inherit abstract function HTMLFormFieldInterface::render() (previously declared abstract in HTMLFormType)
 	 */
-	public function render(): string|array|\ToStringable
+	public function render(): string|array|ToStringable
 	{
 		die(__METHOD__ . ' is abstract');
-		return '';
 	}
 
 	/**

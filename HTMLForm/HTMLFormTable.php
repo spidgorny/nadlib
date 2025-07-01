@@ -59,7 +59,7 @@ class HTMLFormTable extends HTMLForm
 	public $isValid = false;
 
 	/**
-	 * @var HTMLForm
+	 * @var ?HTMLForm
 	 */
 	protected $mainForm;
 

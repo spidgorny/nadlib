@@ -22,22 +22,22 @@ class Runner
 	{
 		echo 'Ready...', BR;
 		while (true) {
-			/** @var RunnerTask $command */
+			/** @var ?RunnerTask $command */
 			$command = $this->getNextCommand();
 			if ($command) {
 				$command();
 			} else {
 				echo 'Nothing to do for ' . TaylorProfiler::getElapsedTimeString() . ' :-(', BR;
 			}
-            
+
 			sleep(1);
 		}
 	}
 
-	public function getNextCommand(): ?\RunnerTask
+	public function getNextCommand(): ?RunnerTask
 	{
 		$task = RunnerTask::getNext();
-		if ($task instanceof \RunnerTask) {
+		if ($task instanceof RunnerTask) {
 			$task->reserve();
 			$this->currentTask = $task;
 			if ($task->isValid()) {
@@ -47,7 +47,7 @@ class Runner
 				$task->failed($e);
 			}
 		}
-        
+
 		return null;
 	}
 

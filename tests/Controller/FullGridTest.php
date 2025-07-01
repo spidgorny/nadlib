@@ -2,12 +2,8 @@
 
 namespace nadlib\Controller;
 
-use Config;
-use DBPlacebo;
 use FullGrid4Test;
-use LoginException;
 use PHPUnit\Framework\TestCase;
-use ReflectionException;
 
 class FullGridTest extends TestCase
 {
@@ -16,13 +12,11 @@ class FullGridTest extends TestCase
 	{
 		parent::setUp();
 		self::markTestSkipped('PG dependent');
-		$config = Config::getInstance();
-		$config->setDB(new DBPlacebo());
+//		$config = Config::getInstance();
+//		$config->setDB(new DBPlacebo());
 	}
 
 	/**
-	 * @throws ReflectionException
-	 * @throws LoginException
 	 */
 	public function testGetColumnsForm(): void
 	{

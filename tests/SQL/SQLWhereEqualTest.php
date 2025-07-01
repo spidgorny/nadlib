@@ -23,7 +23,7 @@ class SQLWhereEqualTest extends TestCase
 	{
 		parent::setUp();
 		self::markTestSkipped('PG dependent');
-		$this->db = Config::getInstance()->getDB();
+//		$this->db = Config::getInstance()->getDB();
 	}
 
 	public function testGetWhereItem(): void

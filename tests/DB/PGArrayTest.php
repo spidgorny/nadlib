@@ -3,7 +3,7 @@
 namespace DB;
 
 use DBInterface;
-use DBLayer;
+use JsonException;
 use PGArray;
 use PHPUnit\Framework\TestCase;
 
@@ -114,7 +114,7 @@ line'])", $insert);
 	}
 
 	/**
-	 * @throws \JsonException
+	 * @throws JsonException
 	 */
 	public function test_upload_request(): void
 	{
@@ -125,7 +125,7 @@ line'])", $insert);
 			"LotcheckUploadRequestModel:{\"action\":\"sendRequest\",\"banner\":\"\",\"server\":\"UJI SILVER BULLET\",\"lotcheck_status\":\"Upload to test server\",\"template_id\":\"4\",\"temp_email_to\":\"epes@nintendo.de,sqc_DataUpload@hamster.nintendo.co.jp,ml_lotcheck_report_os@hamster.nintendo.co.jp,Hiroyuki.Okazaki@nintendo.de\",\"temp_email_cc\":\"howitta@nal.nintendo.com.au,Richard.Sheridan@nintendo.de,Hiroyuki.Uesugi@nintendo.de,eShop_NOE@nintendo.de,lotcheck@nintendo.de,ml-ncl-gsl-oem-lotcheck@nintendo.co.jp,ml-ncl-gsl-oem-order@nintendo.co.jp\",\"temp_email_bc\":\"\",\"temp_email_subject\":\"UPLOAD *Before Lotcheck* - 3DSWare - CN_BBEP_00.00.cia\",\"temp_email_message\":\"Dear all,\\r\\nplease be advised that the following files will be posted to our \\r\\ndirectory TESTSERVER on UJIs FTP-server.\\r\\n\\r\\nAdditional files: CN_BBEP00.zip\\n\\n\\nSystem: CTR\\/KTR\\nTitle: Pinball Breaker 2\\nFilename: CN_BBEP_00.00.cia\\nCRC: 941656BE\\n\\nSTATUS: Upload to test server\",\"queue\":\"Lotcheck\",\"queue_text\":\"Lotcheck\",\"btnSubmit\":\"Send Upload Request\",\"d\":null,\"attachments\":[\"CN_BBEP00.zip\"]}",
 		], $res);
 		foreach ($res as $part) {
-			list($class, $params) = trimExplode(':', $part, 2);
+			[$class, $params] = trimExplode(':', $part, 2);
 			if ($params[0] === '{') {
 				$params = json_decode($params, false, 512, JSON_THROW_ON_ERROR);
 				static::assertEquals('sendRequest', $params->action);
@@ -136,14 +136,14 @@ line'])", $insert);
 	protected function setUp(): void
 	{
 		self::markTestSkipped('PG dependent');
-		$config = Config::getInstance();
-		$this->db = $config->getDB();
-		if (!$this->db instanceof DBLayer) {
-			static::markTestSkipped('Only for PGSQL');
-		}
-
-		$pga = new PGArray($this->db);
-		$this->sut = $pga;
+//		$config = Config::getInstance();
+//		$this->db = $config->getDB();
+//		if (!$this->db instanceof DBLayer) {
+//			static::markTestSkipped('Only for PGSQL');
+//		}
+//
+//		$pga = new PGArray($this->db);
+//		$this->sut = $pga;
 	}
 
 }
