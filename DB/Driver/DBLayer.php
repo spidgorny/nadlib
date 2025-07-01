@@ -132,7 +132,7 @@ class DBLayer extends DBLayerBase
 
 	/**
 	 * @param string|SQLSelectQuery $query
-	 * @return Result|null|resource
+	 * @return Result|null
 	 * @throws DatabaseException
 	 * @throws MustBeStringException
 	 */
@@ -194,7 +194,7 @@ class DBLayer extends DBLayerBase
 
 	/**
 	 * Overrides because of pg_fetch_all
-	 * @param resource|string|SQLSelectQuery $result
+	 * @param Result|string|SQLSelectQuery $result
 	 * @throws Exception
 	 */
 	public function fetchAll($result, $key = null): array
@@ -387,7 +387,7 @@ class DBLayer extends DBLayerBase
 	 * /**/
 	/**
 	 * fetchAll() equivalent with $key and $val properties
-	 * @param string|resource $query
+	 * @param string|Result $query
 	 * @param string $key
 	 * @param mixed $val
 	 * @throws DatabaseException
@@ -463,7 +463,7 @@ class DBLayer extends DBLayerBase
 	}
 
 	/**
-	 * @param resource|string $res
+	 * @param Result|string $res
 	 * @return array|false
 	 * @throws DatabaseException
 	 * @throws MustBeStringException
@@ -547,7 +547,7 @@ class DBLayer extends DBLayerBase
 
 	/**
 	 * Called after dataSeek()
-	 * @param resource $res
+	 * @param Result $res
 	 * @return array
 	 * @throws DatabaseException
 	 * @throws MustBeStringException
@@ -586,7 +586,7 @@ class DBLayer extends DBLayerBase
 
 	/**
 	 * Compatibility.
-	 * @param resource $res
+	 * @param Result $res
 	 * @param string $table - optional
 	 */
 	public function lastInsertID($res, $table = null)

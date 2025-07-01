@@ -61,7 +61,7 @@ class AlterCharset extends AppControllerBE
 
 		//$s->generateThes();
 		//var_export($s->thes);
-		return new slTable($badList, '', [
+		return new slTable($badList, [], [
 			'Field' =>
 				[
 					'name' => 'Field',

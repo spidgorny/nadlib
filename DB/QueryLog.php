@@ -4,7 +4,7 @@ class QueryLog
 {
 
 	/**
-	 * @var array
+	 * @var array<string, array<string, mixed>>
 	 * ['query'
 	 * 'sumtime',
 	 * 'times'
@@ -115,7 +115,7 @@ class QueryLog
 		return $s->getContent();
 	}
 
-	public function dumpQueriesTP(): \slTable
+	public function dumpQueriesTP(): slTable
 	{
 		$queryLog = ArrayPlus::create($this->queryLog);
 		//debug($queryLog);

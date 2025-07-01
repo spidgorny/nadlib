@@ -840,7 +840,7 @@ document.observe("dom:loaded", () => {
 		print("</select>");
 	}
 
-	public function flipSwitch(string $name, string $value, $checked, string $more = ''): void
+	public function flipSwitch(string $name, string|int $value, $checked, string $more = ''): void
 	{
 		$id = uniqid('flipSwitch_', true);
 		$this->stdout .= '<div class="onoffswitch">
