@@ -49,7 +49,7 @@ class URL
 	public $cookie_file;
 	public $compression;
 	/**
-	 * @var Proxy
+	 * @var ?Proxy
 	 */
 	public $proxy;
 	/**

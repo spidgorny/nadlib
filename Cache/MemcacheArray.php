@@ -28,7 +28,7 @@ class MemcacheArray implements ArrayAccess
 	 */
 	public $data;
 	/**
-	 * @var callable
+	 * @var ?callable
 	 */
 	public $onDestruct;
 	/**
@@ -139,7 +139,7 @@ class MemcacheArray implements ArrayAccess
 //		}
 
 		$serialized = serialize($this->data);
-		if ($this->fc && strcmp($this->state, $serialized)) {
+		if (strcmp($this->state, $serialized)) {
 			//debug(__METHOD__, $this->fc->map($this->file), sizeof($this->data), array_keys($this->data));
 			$this->fc->set($this->file, $this->data);
 		}

@@ -5,10 +5,10 @@ use spidgorny\nadlib\HTTP\URL;
 class AutoLoad
 {
 
-	private static ?\AutoLoad $instance = null;
+	private static ?AutoLoad $instance = null;
 
 	/**
-	 * @var AutoLoadFolders
+	 * @var ?AutoLoadFolders
 	 */
 	public $folders;
 
@@ -75,7 +75,7 @@ class AutoLoad
 	];
 
 	/**
-	 * @var Path from the root of the OS to the application root
+	 * @var ?Path from the root of the OS to the application root
 	 * Z:/web/have-you-been-here/
 	 */
 	protected $appRoot;
@@ -97,7 +97,7 @@ class AutoLoad
 		require_once __DIR__ . '/AutoLoadFolders.php';
 	}
 
-	public static function register(): ?\AutoLoad
+	public static function register(): ?AutoLoad
 	{
 		$instance = self::getInstance();
 		if (!$instance->folders) {
@@ -123,9 +123,9 @@ class AutoLoad
 		return null;
 	}
 
-	public static function getInstance(): \AutoLoad
+	public static function getInstance(): AutoLoad
 	{
-		if (!self::$instance instanceof \AutoLoad) {
+		if (!self::$instance instanceof AutoLoad) {
 			self::$instance = new self();
 			self::$instance->detectNadlibRoot();
 
@@ -222,7 +222,7 @@ class AutoLoad
 //		}
 	}
 
-	public function detectAppRoot(): \Path
+	public function detectAppRoot(): Path
 	{
 		require_once __DIR__ . '/AppRootDetector.php';
 		$ard = new AppRootDetector();

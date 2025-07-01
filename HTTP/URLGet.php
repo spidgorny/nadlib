@@ -7,7 +7,7 @@ class URLGet
 
 	public $timeout = 10;
 	/**
-	 * @var Index
+	 * @var ?Index
 	 */
 	public $logger;
 	/**

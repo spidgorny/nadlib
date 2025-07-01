@@ -4,7 +4,7 @@ class MiniIndex extends AppControllerBE
 {
 
 	/**
-	 * @var MiniIndex
+	 * @var ?MiniIndex
 	 */
 	protected static $miniIndex;
 
@@ -14,7 +14,7 @@ class MiniIndex extends AppControllerBE
 	public $menu;
 
 	/**
-	 * @var AppControllerBE|SimpleController
+	 * @var AppControllerBE|SimpleController|null
 	 */
 	public $controller;
 
@@ -44,7 +44,7 @@ class MiniIndex extends AppControllerBE
 	public static function getInstance()
 	{
 		if (!self::$miniIndex) {
-			throw new \RuntimeException('MiniIndex is not instantiated yet. Please instantiate it in index.php');
+			throw new RuntimeException('MiniIndex is not instantiated yet. Please instantiate it in index.php');
 		}
 
 		return self::$miniIndex;
@@ -70,7 +70,7 @@ class MiniIndex extends AppControllerBE
 
 	public function render()
 	{
-		if ((property_exists($this->controller, 'layout') && $this->controller->layout === 'none') || $this->request->isAjax()) {
+		if (($this->controller instanceof AppControllerBE && property_exists($this->controller, 'layout') && $this->controller->layout === 'none') || $this->request->isAjax()) {
 			$content = $this->renderController();
 		} else {
 			$v = new View('template.phtml', $this);
@@ -153,7 +153,7 @@ class MiniIndex extends AppControllerBE
 	{
 		$content = '';
 		$profiler = $GLOBALS['profiler'];
-		/** @var TaylorProfiler $profiler */
+		/** @var ?TaylorProfiler $profiler */
 		if ($profiler) {
 			$content = $profiler->renderFloat();
 			$content .= $profiler->printTimers(true);

@@ -11,7 +11,7 @@ class DBLayer extends DBLayerBase
 {
 
 	/**
-	 * @var Connection|resource
+	 * @var Connection|resource|null
 	 */
 	public $connection;
 
@@ -43,7 +43,7 @@ class DBLayer extends DBLayerBase
 	public $port;
 
 	/**
-	 * @var MemcacheArray
+	 * @var ?MemcacheArray
 	 */
 	protected $mcaTableColumns;
 
@@ -704,7 +704,7 @@ order by a.attnum';
 			return call_user_func_array([$this->getQb(), $method], $params);
 		}
 
-		throw new \RuntimeException('Method ' . __CLASS__ . '::' . $method . " doesn't exist.");
+		throw new RuntimeException('Method ' . __CLASS__ . '::' . $method . " doesn't exist.");
 	}
 
 	public function getQb()

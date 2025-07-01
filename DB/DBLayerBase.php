@@ -8,7 +8,7 @@ abstract class DBLayerBase implements DBInterface
 {
 
 	/**
-	 * @var SQLBuilder
+	 * @var ?SQLBuilder
 	 */
 	public $qb;
 
@@ -284,7 +284,7 @@ abstract class DBLayerBase implements DBInterface
 	{
 		$tableDesc = $this->getTableFields($table);
 		foreach ($set as $key => &$val) {
-			/** @var TableField $desc */
+			/** @var ?TableField $desc */
 			$desc = ifsetor($tableDesc[$key]);
 			if ($desc && $desc->isBoolean()) {
 //				debug($desc);

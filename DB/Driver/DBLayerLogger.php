@@ -51,16 +51,12 @@ class DBLayerLogger extends DBLayerBase implements DBInterface
 
 	public function __call($method, array $params)
 	{
-		if (!$this->qb) {
-			throw new Exception(get_called_class() . ' does not have QB');
-		}
-
 		if (method_exists($this->qb, $method)) {
 			$this->log($method);
 			return call_user_func_array([$this->qb, $method], $params);
-		} else {
-			throw new Exception($method . ' not found in ' . get_called_class() . ' and SQLBuilder');
 		}
+
+		throw new Exception($method . ' not found in ' . get_called_class() . ' and SQLBuilder');
 	}
 
 	public function numRows($res = null): void

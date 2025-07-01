@@ -7,7 +7,7 @@
 abstract class LocalLang
 {
 	/**
-	 * @var LocalLang|LocalLangJsonPerController
+	 * @var LocalLang|LocalLangJsonPerController|null
 	 */
 	public static $instance;
 	/**
@@ -133,20 +133,20 @@ abstract class LocalLang
 		}
 
 		if (is_array($replace)) {
-            $trans = ifsetor($replace[$this->lang]);
-            $trans = $this->Tp($trans, $s2, $s3);
-        } elseif (isset($this->ll[$text])) {
-            $trans = ifsetor($this->ll[$text], $text);
-            $trans = $this->Tp($trans, $replace, $s2, $s3);
-            $trans = $this->getEditLinkMaybe($trans, $text, '');
-            //if ($text == 'Search') { debug($text, $trans); }
-        } else {
-				//debug($this->ll);
-				//debug($text, $this->ll[$text], spl_object_hash($this));
-				$this->saveMissingMessage($text);
-				$trans = $this->Tp($text, $replace, $s2, $s3);
-				$trans = $this->getEditLinkMaybe($trans);
-			}
+			$trans = ifsetor($replace[$this->lang]);
+			$trans = $this->Tp($trans, $s2, $s3);
+		} elseif (isset($this->ll[$text])) {
+			$trans = ifsetor($this->ll[$text], $text);
+			$trans = $this->Tp($trans, $replace, $s2, $s3);
+			$trans = $this->getEditLinkMaybe($trans, $text, '');
+			//if ($text == 'Search') { debug($text, $trans); }
+		} else {
+			//debug($this->ll);
+			//debug($text, $this->ll[$text], spl_object_hash($this));
+			$this->saveMissingMessage($text);
+			$trans = $this->Tp($text, $replace, $s2, $s3);
+			$trans = $this->getEditLinkMaybe($trans);
+		}
 
 		if ($this->debug = $text == 'asd') {
 			//debug($text, isset($this->ll[$text]), $this->ll[$text], $trans);

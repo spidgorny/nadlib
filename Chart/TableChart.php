@@ -7,12 +7,12 @@ class TableChart
 {
 
 	/**
-     * @var mixed[]
-     */
-    public $rows;
-    
+	 * @var mixed[]
+	 */
+	public $rows;
+
 	public $y;
-    
+
 	public $x;
 
 	/**
@@ -21,7 +21,7 @@ class TableChart
 	public $html;
 
 	/**
-	 * @var callable
+	 * @var callable|null
 	 */
 	public $linkGenerator;
 
@@ -47,12 +47,12 @@ class TableChart
 			if ($this->linkGenerator) {
 				$div = call_user_func($this->linkGenerator, $row, $h, $div);
 			}
-            
+
 			$content[] = '<td style="border: solid 1px silver; vertical-align: bottom">
 				' . $div . '
 			</td>';
 		}
-		
+
 		return [
 			'<table width="100%" style="height: 300px; border: solid 1px silver">',
 			$content,

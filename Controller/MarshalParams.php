@@ -105,14 +105,13 @@ class MarshalParams
 			return $this->makeInstanceWithInjection($typeClass);
 		}
 
-		if (is_array($container)) {
-			$injector = ifsetor($container[$typeClass]);
-			return is_callable($injector) ? $injector() : $injector;
-		}
+		// array of callables
+		$injector = ifsetor($container[$typeClass]);
+		return is_callable($injector) ? $injector() : $injector;
 
-		throw new InvalidArgumentException(
-			'Container should be an object or an array with functions starting with "get" and the class name'
-		);
+//		throw new InvalidArgumentException(
+//			'Container should be an object or an array with functions starting with "get" and the class name'
+//		);
 	}
 
 	/**

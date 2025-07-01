@@ -234,10 +234,10 @@ class DBLayerPDO extends DBLayerBase
 		$driver_options = [];
 		if ($this->isMySQL()) {
 			// save memory
-			if ($this->lastResult) {
+//			if ($this->lastResult) {
 //				$this->lastResult->fetchAll();
 //				$this->lastResult->closeCursor();
-			}
+//			}
 
 //			$this->connection->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
 			$driver_options[PDO::ATTR_CURSOR] = PDO::CURSOR_SCROLL;

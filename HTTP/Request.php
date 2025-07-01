@@ -12,7 +12,7 @@ class Request
 {
 	/**
 	 * Singleton
-	 * @var Request
+	 * @var ?Request
 	 */
 	protected static $instance;
 
@@ -105,7 +105,7 @@ class Request
 	 * [PHP_SELF]           => /merged/index.php
 	 * [cwd]                => C:\Users\DEPIDSVY\NetBeansProjects\merged
 	 */
-	public static function getDocumentRoot(): \Path
+	public static function getDocumentRoot(): Path
 	{
 		// PHP Warning:  strpos(): Empty needle in /var/www/html/vendor/spidgorny/nadlib/HTTP/class.Request.php on line 706
 
@@ -189,7 +189,7 @@ class Request
 	 * Returns the full URL to the document root of the current site
 	 * @param bool $isUTF8
 	 */
-	public static function getLocation($isUTF8 = false): \spidgorny\nadlib\HTTP\URL
+	public static function getLocation($isUTF8 = false): URL
 	{
 		$docRoot = self::getDocRoot();
 //		llog($docRoot.'');
@@ -616,7 +616,7 @@ class Request
 	 * Similar to getArray() but the result is an object of a Request
 	 * @param $name
 	 */
-	public function getSubRequest($name): \Request
+	public function getSubRequest($name): Request
 	{
 		return new Request($this->getArray($name));
 	}
@@ -647,7 +647,7 @@ class Request
 	 * @return Time
 	 * @throws Exception
 	 */
-	public function getTime($name, $rel = null): ?\Time
+	public function getTime($name, $rel = null): ?Time
 	{
 		if ($this->is_set($name) && $this->getTrim($name)) {
 			return new Time($this->getTrim($name), $rel);
@@ -662,7 +662,7 @@ class Request
 	 * @param string $name
 	 * @return Date
 	 */
-	public function getDate($name, $rel = null): ?\Date
+	public function getDate($name, $rel = null): ?Date
 	{
 		if ($this->is_set($name) && $this->getTrim($name)) {
 			return new Date($this->getTrim($name), $rel);
@@ -737,7 +737,7 @@ class Request
 		$this->data['c'] = $class;
 	}
 
-	public function getRefererIfNotSelf(Controller $controller): ?\spidgorny\nadlib\HTTP\URL
+	public function getRefererIfNotSelf(Controller $controller): ?URL
 	{
 		$referer = $this->getReferer();
 		$rController = $this->getRefererController();
@@ -750,7 +750,7 @@ class Request
 		return $ok ? $referer : null;
 	}
 
-	public function getReferer(): ?\spidgorny\nadlib\HTTP\URL
+	public function getReferer(): ?URL
 	{
 		return ifsetor($_SERVER['HTTP_REFERER']) ? new URL($_SERVER['HTTP_REFERER']) : null;
 	}
@@ -759,7 +759,7 @@ class Request
 	{
 		$return = null;
 		$url = $this->getReferer();
-		if ($url instanceof \spidgorny\nadlib\HTTP\URL) {
+		if ($url instanceof URL) {
 			$url->setParams([]);   // get rid of any action
 			$rr = $url->getRequest();
 			$return = $rr->getControllerString();
@@ -813,7 +813,7 @@ class Request
 			if (class_exists($c)) {
 				$ret = new $c();
 			} elseif ($c) {
-				throw new \RuntimeException('Class ' . $c . " can't be found.");
+				throw new RuntimeException('Class ' . $c . " can't be found.");
 			}
 		}
 
@@ -897,7 +897,7 @@ class Request
 		return ifsetor($_SERVER['REQUEST_METHOD']) === 'POST';
 	}
 
-	public function getDateFromYMD($name): ?\Date
+	public function getDateFromYMD($name): ?Date
 	{
 		$date = $this->getInt($name);
 		if ($date !== 0) {
@@ -1000,7 +1000,7 @@ class Request
 		return $path;
 	}
 
-	public function baseHrefFromServer(): \Path
+	public function baseHrefFromServer(): Path
 	{
 		$al = AutoLoad::getInstance();
 		$appRoot = $al->getAppRoot()->normalize()->realPath();
@@ -1396,7 +1396,7 @@ class Request
 	public function goBack(): bool
 	{
 		$ref = $this->getReferer();
-		if ($ref instanceof \spidgorny\nadlib\HTTP\URL) {
+		if ($ref instanceof URL) {
 			$this->redirect($ref);
 		}
 

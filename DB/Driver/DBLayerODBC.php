@@ -39,12 +39,8 @@ class DBLayerODBC extends DBLayerBase implements DBInterface
 
 	public function perform($query, array $params = [])
 	{
-		if ($this->connection) {
-			$this->result = odbc_exec($this->connection, $query);
-			if (!$this->result) {
-				throw new Exception($this->lastError());
-			}
-		} else {
+		$this->result = odbc_exec($this->connection, $query);
+		if (!$this->result) {
 			throw new Exception($this->lastError());
 		}
 
@@ -74,7 +70,7 @@ class DBLayerODBC extends DBLayerBase implements DBInterface
 
 	public function escapeBool($value): bool
 	{
-		return (bool) $value;
+		return (bool)$value;
 	}
 
 	public function free($res): void
@@ -101,19 +97,15 @@ class DBLayerODBC extends DBLayerBase implements DBInterface
 
 	public function fetchAssoc($res): array|false
 	{
-		if ($this->connection) {
-			if (is_null($this->cursor)) {
-				$row = odbc_fetch_array($res);
-			} else {
-				// row numbering starts with 1 - @see php.net
-				$row = odbc_fetch_array($res, 1 + $this->cursor++);
-			}
-
-			//debug(__METHOD__, $this->cursor, $row);
-			return $row;
+		if (is_null($this->cursor)) {
+			$row = odbc_fetch_array($res);
+		} else {
+			// row numbering starts with 1 - @see php.net
+			$row = odbc_fetch_array($res, 1 + $this->cursor++);
 		}
 
-		throw new RuntimeException(__METHOD__);
+		//debug(__METHOD__, $this->cursor, $row);
+		return $row;
 	}
 
 	public function getVersion(): void

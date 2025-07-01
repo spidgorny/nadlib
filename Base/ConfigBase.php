@@ -40,7 +40,7 @@ class ConfigBase implements ConfigInterface
 	];
 	/**
 	 * del: Public to allow Request to know if there's an instance
-	 * @var static
+	 * @var ?static
 	 */
 	protected static $instance;
 	public $db_server = '127.0.0.1';
@@ -77,7 +77,7 @@ class ConfigBase implements ConfigInterface
 	public $mailFrom = '';
 
 	/**
-	 * @var LocalLang
+	 * @var ?LocalLang
 	 */
 	public $ll;
 
@@ -89,7 +89,7 @@ class ConfigBase implements ConfigInterface
 	protected $db_password = 'root';
 
 	/**
-	 * @var DBInterface
+	 * @var ?DBInterface
 	 */
 	protected $db;
 
@@ -203,7 +203,7 @@ class ConfigBase implements ConfigInterface
 	 */
 	public function log(string $class, string $message): void
 	{
-		throw new \RuntimeException($class . ' ' . $message);
+		throw new RuntimeException($class . ' ' . $message);
 	}
 
 	/**
@@ -254,13 +254,14 @@ class ConfigBase implements ConfigInterface
 
 		if ($this->db_database) {
 			if (extension_loaded('pdo_mysql')) {
-				$this->db = new DBLayerPDO(
-					$this->db_database,
-					$this->db_server,
+				$this->db = new DBLayerPDO();
+				$this->db->connect(
 					$this->db_user,
 					$this->db_password,
 					'mysql',
-					''
+					'mysql',
+					$this->db_server,
+					$this->db_database,
 				);
 				$this->db->perform('set names utf8');
 			} else {

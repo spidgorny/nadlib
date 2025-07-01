@@ -34,30 +34,32 @@ class MiniRouter
 		llog('StaticPath: ' . $staticPath . '');
 		if ($staticPath == '/') {
 			return null;  // default index controller
-		} elseif ($staticPath) {
+		}
+
+		if ($staticPath) {
 			// vendor/spidgorny/nadlib/HTTP
 			$fullPath = realpath(__DIR__ . '/../../../../' . $staticPath);
 //			llog($fullPath);
 			if (is_file($fullPath)) {
 //				llog(['fullPath' => $fullPath]);
 				return false;
-			} else {
-				// Windows
-				$staticPath = str_replace('\\', '/', $staticPath);
-				$parts = trimExplode('/', $staticPath);
-				$first = first($parts);
-				if ($first && !class_exists($first)) {
-					http_response_code(404);
-					header('X-Path: ' . $fullPath);
-					//echo 'Class '.$first.' not found';
-					return null;
-				} else {
-					return $first;  // the class from the URL
-				}
 			}
+
+// Windows
+			$staticPath = str_replace('\\', '/', $staticPath);
+			$parts = trimExplode('/', $staticPath);
+			$first = first($parts);
+			if ($first && !class_exists($first)) {
+				http_response_code(404);
+				header('X-Path: ' . $fullPath);
+				//echo 'Class '.$first.' not found';
+				return null;
+			}
+
+			return $first;  // the class from the URL
 		}
 
-		return $staticPath;  // true means PHP
+		return true;  // true means PHP
 	}
 
 }

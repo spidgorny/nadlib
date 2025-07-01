@@ -31,10 +31,6 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 	public function connect($host, $login, $password): void
 	{
 		$this->connection = new mysqli($host, $login, $password, $this->dbName);
-		if (!$this->connection) {
-			throw new \RuntimeException(mysqli_error($this->connection), mysqli_errno($this->connection));
-		}
-
 		$this->connection->set_charset('utf8');
 	}
 
@@ -114,7 +110,7 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 		return $stmt;
 	}
 
-	public function prepare($sql): \mysqli_stmt|false
+	public function prepare($sql): mysqli_stmt|false
 	{
 		return mysqli_prepare($this->connection, $sql);
 	}

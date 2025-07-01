@@ -91,8 +91,7 @@ class PageProfiler
 
 	protected function getPOST(): string
 	{
-		$content = '';
-		$content .= $this->html->h4('POST');
+		$content = $this->html->h4('POST');
 		return $content . $this->html->pre(json_encode($_POST, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
 	}
 
@@ -101,8 +100,7 @@ class PageProfiler
 	 */
 	protected function getHeader(): string
 	{
-		$content = '';
-		$content .= $this->html->h4('Header');
+		$content = $this->html->h4('Header');
 
 		$header = '';
 
@@ -116,8 +114,7 @@ class PageProfiler
 	 */
 	protected function getFooter(): string
 	{
-		$content = '';
-		$content .= $this->html->h4('Footer');
+		$content = $this->html->h4('Footer');
 //		$footer = json_encode($index->footer, JSON_PRETTY_PRINT);
 		$footer = '';
 		$footer = str_replace('\/', '/', $footer);
@@ -125,11 +122,13 @@ class PageProfiler
 		return $content . $this->html->pre($footer);
 	}
 
+	/**
+	 * @throws JsonException
+	 */
 	protected function getSession(): string
 	{
-		$content = '';
-		$content .= $this->html->h4('Session');
-		$session = json_encode($_SESSION, JSON_PRETTY_PRINT);
+		$content = $this->html->h4('Session');
+		$session = json_encode($_SESSION, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
 		$session = str_replace('\/', '/', $session);
 		return $content . $this->html->pre($session);
 	}
@@ -142,12 +141,10 @@ class PageProfiler
 		$content = [];
 		/** @var TaylorProfiler $profiler */
 		$profiler = TaylorProfiler::getInstance();
-		if ($profiler) {
-			$content[] = $profiler->printTimers(true);
-			$content[] = TaylorProfiler::dumpQueries();
-			//$content[] = $profiler->printTrace(true);
-			//$content[] = $profiler->analyzeTraceForLeak();
-		}
+		$content[] = $profiler->printTimers(true);
+		$content[] = TaylorProfiler::dumpQueries();
+		//$content[] = $profiler->printTrace(true);
+		//$content[] = $profiler->analyzeTraceForLeak();
 
 		return $content;
 	}
