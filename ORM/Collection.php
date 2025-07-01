@@ -43,7 +43,7 @@ class Collection implements IteratorAggregate, ToStringable
 	/**
 	 * Initialize in postInit() to run paged SQL
 	 * initialize if necessary with = new Pager(); in postInit()
-	 * @var Pager|PagerWithExcel|null
+	 * @var Pager|null
 	 */
 	public $pager;
 
@@ -625,7 +625,7 @@ class Collection implements IteratorAggregate, ToStringable
 		return $result;
 	}
 
-	public function renderList(): ?\UL
+	public function renderList(): ?UL
 	{
 		$list = [];
 		if ($this->getCount() === 0) {
@@ -714,7 +714,7 @@ class Collection implements IteratorAggregate, ToStringable
 		return $this->getView()->renderMembers();
 	}
 
-	public function objectifyAsPlus(): \ArrayPlus
+	public function objectifyAsPlus(): ArrayPlus
 	{
 		return ArrayPlus::create(
 			$this->objectify(static::$itemClassName)
@@ -795,7 +795,7 @@ class Collection implements IteratorAggregate, ToStringable
 	 * @param string $class
 	 * @return LazyMemberIterator
 	 */
-	public function getLazyMemberIterator($class = null): \LazyMemberIterator
+	public function getLazyMemberIterator($class = null): LazyMemberIterator
 	{
 		if (!$class) {
 			$class = static::$itemClassName;
@@ -807,7 +807,7 @@ class Collection implements IteratorAggregate, ToStringable
 		return $memberIterator;
 	}
 
-	public function getLazyIterator(): \DatabaseResultIteratorAssoc
+	public function getLazyIterator(): DatabaseResultIteratorAssoc
 	{
 		$query = $this->getCollectionQuery()->getQuery();
 		//debug($query);

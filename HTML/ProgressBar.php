@@ -80,15 +80,15 @@ class ProgressBar
 		$this->textid = 'pb_text-' . $pbid;
 	}
 
-	public static function getImageWithText($p, string $css = 'display: inline-block; width: 100%; text-align: center; white-space: nowrap;', $append = ''): \HtmlString
+	public function getImageWithText($p, string $css = 'display: inline-block; width: 100%; text-align: center; white-space: nowrap;', $append = ''): HtmlString
 	{
 		return new HtmlString('<div style="' . $css . '">' .
 			number_format($p, 2) . '&nbsp;%&nbsp;
-			' . self::getImage($p, $append) . '
+			' . $this->getImage($p, $append) . '
 		</div>');
 	}
 
-	public static function getImage($p, $append = '', array $imgAttributes = []): string
+	public function getImage($p, $append = '', array $imgAttributes = []): string
 	{
 		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
 		// absolute URL to work even before <base href> is defined
@@ -109,7 +109,7 @@ class ProgressBar
 	public static function getBar($p, string $append = ''): string
 	{
 		$prefix = AutoLoad::getInstance()->nadlibFromDocRoot;
-		if (!$prefix || $prefix == '/') {
+		if (!$prefix || $prefix === '/') {
 			$prefix = 'vendor/spidgorny/nadlib/';
 		}
 
@@ -245,7 +245,7 @@ class ProgressBar
 		return $i / $this->count * 100;
 	}
 
-	public function setProgressBarProgress($percentDone, $text = '', $after = '', string $cssStyles = '', $appendImageParams = ''): \HtmlString
+	public function setProgressBarProgress($percentDone, $text = '', $after = '', string $cssStyles = '', $appendImageParams = ''): HtmlString
 	{
 		return new HtmlString('<div style="' . $cssStyles . '">' .
 			number_format($percentDone, 2) . '&nbsp;%&nbsp;
