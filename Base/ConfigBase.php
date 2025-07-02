@@ -82,7 +82,7 @@ class ConfigBase implements ConfigInterface
 	public $config;
 
 	/**
-	 * @var UserModelInterface
+	 * @var ?UserModelInterface
 	 */
 	protected $user;
 

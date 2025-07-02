@@ -256,7 +256,7 @@ class DBLayer extends DBLayerBase
 			$this->queryLog->log($query, $prof->elapsed(), $this->AFFECTED_ROWS);
 		}
 		$this->queryCount++;
-		return $this->LAST_PERFORM_RESULT;
+		return $this->LAST_PERFORM_RESULT ?: null;
 	}
 
 	/**
