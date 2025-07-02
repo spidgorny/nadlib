@@ -85,7 +85,7 @@ class HTMLForm implements ToStringable
 	/**
 	 * Set empty to unset prefix
 	 *
-	 * @param string|null $p
+	 * @param string|null|string[] $p
 	 *
 	 * @return $this
 	 */

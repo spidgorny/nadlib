@@ -566,7 +566,7 @@ class DBLayer extends DBLayerBase
 	/**
 	 * Overrides because of pg_fetch_all
 	 * @param resource|string $result
-	 * @param null $key
+	 * @param string|null $key
 	 * @return array
 	 * @throws Exception
 	 */

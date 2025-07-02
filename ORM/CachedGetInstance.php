@@ -182,7 +182,7 @@ trait CachedGetInstance
 	/**
 	 * Is cached in instances
 	 * @param string $name
-	 * @param null $field
+	 * @param string|null $field
 	 * @return self|static
 	 * @throws Exception
 	 */

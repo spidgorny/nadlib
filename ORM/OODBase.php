@@ -807,6 +807,11 @@ abstract class OODBase
 		return new ArrayPlus($ids);
 	}
 
+	public static function makeInstance(array $row)
+	{
+		return new static($row);
+	}
+
 	/**
 	 * @param array $where
 	 * @throws Exception
