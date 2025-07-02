@@ -140,7 +140,7 @@ class Pager
 		}
 		$this->itemsPerPage = $items;
 		if (ArrayPlus::create($this->log)->containsPartly('detectCurrentPage')) {
-			$this->log[] = __METHOD__.' WARNING: make sure to call detectCurrentPage again';
+			$this->log[] = __METHOD__ . ' WARNING: make sure to call detectCurrentPage again';
 		}
 		$this->pageSize->set($items);
 	}
@@ -165,10 +165,7 @@ class Pager
 		if (null === $this->numberOfRecords) {
 			throw new InvalidArgumentException('Pager->detectCurrentPage() called before Pager->setNumberOfRecords()');
 		}
-		$pagerData = ifsetor(
-			$_REQUEST['Pager.' . $this->prefix],
-			ifsetor($_REQUEST['Pager_' . $this->prefix])
-		);
+		$pagerData = ifsetor($_REQUEST['Pager.' . $this->prefix], []);
 //		debug($pagerData);
 		$this->log[] = __METHOD__ . ': ' . json_encode($pagerData);
 		if ($pagerData) {
@@ -247,24 +244,24 @@ class Pager
 		$this->log[] = __METHOD__;
 		$key = __METHOD__ . ' (' . substr($originalSQL, 0, 300) . ')';
 		TaylorProfiler::start($key);
-		if (!$originalSQL->getSelect()->contains('count(*)')) {
-			$queryWithoutOrder = clone $originalSQL;
-			$queryWithoutOrder->unsetOrder();
+		$queryWithoutOrder = clone $originalSQL;
+		$queryWithoutOrder->unsetOrder();
 
-			$subQuery = new SQLSubquery($queryWithoutOrder, 'counted');
-			$subQuery->parameters = $parameters;
+		$subQuery = new SQLSubquery($queryWithoutOrder, 'counted');
+		$subQuery->parameters = $parameters;
 
-			$query = new SQLSelectQuery(
-				new SQLSelect('count(*) AS count'),
-				$subQuery
-			);
-		} else {
-			$query = $originalSQL;
-		}
+		$query = new SQLSelectQuery(
+			new SQLSelect('count(*) AS count'),
+			$subQuery
+		);
 		$this->countQuery = $query;
 		$query->injectDB($this->db);
 
 		$res = $query->fetchAssoc();
+		if (!$res) {
+			llog($this->countQuery->__toString());
+			throw new RuntimeException('Pager->initBySelectQuery() failed: ' . $this->db->getLastQuery());
+		}
 		$this->setNumberOfRecords($res['count']);
 		// validate the requested page is within the allowed range
 		$this->setCurrentPage($this->requestedPage);
@@ -377,7 +374,7 @@ class Pager
 		$this->log[] = __METHOD__;
 		$content = '';
 		if ($url) {
-			$this->url = clone $url;	// this->url may be modified
+			$this->url = clone $url;  // this->url may be modified
 		}
 
 		$content .= '<div class="paginationControl pagination">' . "\n";
@@ -560,7 +557,7 @@ class Pager
 		foreach ($properties as $key => &$val) {
 			if (is_object($val) && method_exists($val, '__toString')) {
 				$val = $val->__toString();
-			} else if (is_array($val)) {
+			} elseif (is_array($val)) {
 				foreach ($val as &$v) {
 					if (is_array($v)) {
 						$v = $v->__toString();
@@ -568,7 +565,7 @@ class Pager
 				}
 			}
 		}
-		return '<blockquote style="background-color: silver; border: solid 1px lightblue;"><pre>' . get_class($this) . ' [' . print_r($properties, TRUE) . ']</pre></blockquote>';
+		return '<blockquote style="background-color: silver; border: solid 1px lightblue;"><pre>' . get_class($this) . ' [' . print_r($properties, true) . ']</pre></blockquote>';
 	}
 
 	public function getURL()

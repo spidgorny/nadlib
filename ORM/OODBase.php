@@ -17,7 +17,7 @@ abstract class OODBase
 	use MagicDataProps;
 
 	/**
-	 * @var DBLayerBase|DBInterface|SQLBuilder|DBLayerPDO
+	 * @var DBLayerBase|DBInterface|SQLBuilder|DBLayerPDO|null
 	 * public to allow unset($o->db); before debugging
 	 */
 	protected $db;

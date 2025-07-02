@@ -15,7 +15,7 @@ class DBLayer extends DBLayerBase
 	/**
 	 * @var resource
 	 */
-	public $connection = NULL;
+	public $connection = null;
 
 	public $LAST_PERFORM_RESULT;
 
@@ -131,7 +131,7 @@ class DBLayer extends DBLayerBase
 		if ($host) {
 			$this->host = $host;
 		}
-		$string = "host={$this->host} dbname={$this->database} user={$this->user} password={$this->pass}";
+		$string = "host={$this->host} dbname={$this->database} user={$this->user} password={$this->pass} connect_timeout=4";
 		$this->connection = pg_connect($string);
 		if (!$this->connection) {
 			throw new DatabaseException("No PostgreSQL connection to $host. " . json_encode(error_get_last()));
@@ -389,7 +389,7 @@ class DBLayer extends DBLayerBase
 	 * @throws DatabaseException
 	 * @throws MustBeStringException
 	 */
-	public function getTableDataSql($query, $key = NULL, $val = null)
+	public function getTableDataSql($query, $key = null, $val = null)
 	{
 		if (is_string($query)) {
 			$result = $this->perform($query);
@@ -603,7 +603,7 @@ class DBLayer extends DBLayerBase
 
 	/**
 	 * @param resource/query $result
-	 * @return array
+	 * @return array|null
 	 * @throws DatabaseException
 	 * @throws MustBeStringException
 	 */
@@ -618,7 +618,7 @@ class DBLayer extends DBLayerBase
 		 * 		if (!$row) {
 					$row = array();
 				}*/
-		return $row;
+		return $row ?: null; // pg_fetch_assoc returns false on no rows
 	}
 
 	/**

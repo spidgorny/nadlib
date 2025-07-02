@@ -183,11 +183,11 @@ class IndexBase /*extends Controller*/
 	 * @return Index
 	 * @throws Exception
 	 */
-	public static function getInstance($createNew = false, ConfigInterface $config = null)
+	public static function getInstance(ConfigInterface $config = null)
 	{
 		TaylorProfiler::start(__METHOD__);
 		$instance = self::$instance ?: null;
-		if (!$instance && $createNew) {
+		if (!$instance && $config) {
 			$static = get_called_class();
 			$instance = new $static($config);
 			self::$instance = $instance;

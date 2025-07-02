@@ -47,7 +47,7 @@ abstract class SimpleController
 			echo get_class($this) . '::' . __METHOD__ . BR;
 		}
 		$this->index = class_exists('Index', false)
-			? Index::getInstance(false) : null;
+			? Index::getInstance() : null;
 		$this->request = Request::getInstance();
 		$this->title = $this->title ?: last(trimExplode('\\', get_class($this)));
 		//debug_pre_print_backtrace();
