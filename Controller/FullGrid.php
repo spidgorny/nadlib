@@ -83,7 +83,9 @@ trait FullGrid
 		//debug(get_class($this->index->controller), get_class($this), $this->request->getControllerString());
 //		parent::initFilter();
 		$this->setFilter();
-		$this->saveFilterAndSort();
+
+		// should only be called by the controller explicitly
+//		$this->saveFilterAndSort();
 
 //		if (!($this->filter instanceof nadlib\Controller\Filter)) {
 //			$filterFieldsFromUrl = $this->request->getArray('filter');

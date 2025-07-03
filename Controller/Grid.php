@@ -58,7 +58,7 @@ trait Grid
 
 		llog(__METHOD__, $cn, 'allowEdit', $allowEdit);
 		if ($allowEdit) {
-			$this->setFilter($cn);
+			$this->setFilter();
 		}
 	}
 
@@ -66,7 +66,7 @@ trait Grid
 	 * Only get filter if it's not need to be cleared
 	 * @throws LoginException
 	 */
-	public function setFilter(string $cn = __CLASS__): void
+	public function setFilter(): void
 	{
 		if ($this->filter) {
 			// already set
@@ -80,6 +80,7 @@ trait Grid
 			$this->filter->setRequest($this->request->getArray('filter'));
 		}
 
+		$cn = get_class($this);
 		$prefFilter = $this->user->getPref('Filter.' . $cn);
 //				debug($prefFilter);
 		if ($prefFilter) {
@@ -167,9 +168,9 @@ trait Grid
 		//debug($cn);
 		assert($cn > '');
 
-		if ($this->filter) {
-			$this->log(__METHOD__, 'setPref', $this->filter->getArrayCopy());
-			$this->user->setPref('Filter.' . $cn, (array)$this->filter);
+		if ($this->filter->getArrayCopy()) {
+//			$this->log(__METHOD__, 'setPref', 'Filter.' . $cn, $this->filter->getArrayCopy());
+			$this->user->setPref('Filter.' . $cn, $this->filter->getArrayCopy());
 		}
 
 		//debug(spl_object_hash(Index::getInstance()->controller), spl_object_hash($this));
