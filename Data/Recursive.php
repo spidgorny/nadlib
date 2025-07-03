@@ -41,7 +41,7 @@ class Recursive
 	}
 
 	/**
-	 * @return ?Recursive
+	 * @return ?Recursive|string
 	 */
 	public function findPath(array $path)
 	{
