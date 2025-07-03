@@ -41,7 +41,7 @@ class Recursive
 	}
 
 	/**
-	 * @return ?Recursive|string
+	 * @return Recursive|string|null
 	 */
 	public function findPath(array $path)
 	{
@@ -68,7 +68,7 @@ class Recursive
 	public function eachRecursive($callback): static
 	{
 		foreach ($this->elements as $i => &$el) {
-			$el = $el instanceof Recursive ? $el->eachRecursive($callback) : call_user_func($callback, $el, $i);
+			$el = $el instanceof self ? $el->eachRecursive($callback) : call_user_func($callback, $el, $i);
 		}
 
 		unset($el);
