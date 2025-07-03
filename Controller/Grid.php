@@ -56,6 +56,7 @@ trait Grid
 		$cn = $this->request->getControllerString();
 		$allowEdit = $cn === get_class($this);
 
+		llog(__METHOD__, $cn, 'allowEdit', $allowEdit);
 		if ($allowEdit) {
 			$this->setFilter($cn);
 		}
@@ -150,15 +151,11 @@ trait Grid
 	}
 
 	/**
-	 * @param string $cn Supply get_class($this->collection) to the function
-	 * or it should be called after $this->collection is initialized
 	 * @throws LoginException
 	 */
-	public function saveFilterAndSort($cn = null): void
+	public function saveFilterAndSort(): void
 	{
-		if (!$cn) {
-			$cn = get_class($this);
-		}
+		$cn = get_class($this);
 
 //		$this->log(__METHOD__, $cn);
 		// why do we inject collection
@@ -171,7 +168,7 @@ trait Grid
 		assert($cn > '');
 
 		if ($this->filter) {
-			//				$this->log(__METHOD__, 'setPref', $this->filter->getArrayCopy());
+			$this->log(__METHOD__, 'setPref', $this->filter->getArrayCopy());
 			$this->user->setPref('Filter.' . $cn, (array)$this->filter);
 		}
 
