@@ -269,7 +269,7 @@ class HTMLForm implements ToStringable
 	{
 		$this->stdout .= '<div>';
 		$id = $this->getID($this->getPrefix() + [$name]);
-		$this->check($name, $value, $checked, $more + ['id' => $id], $autoSubmit);
+		$this->stdout .= $this->check($name, $value, $checked, $more + ['id' => $id], $autoSubmit);
 		$this->stdout .= ' <label for="' . $id . '">' . ($label) . '</label></div>';
 	}
 
