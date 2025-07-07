@@ -14,7 +14,7 @@ class ErrorLogLogger implements LoggerInterface
 	{
 		$output = json_encode($data, JSON_THROW_ON_ERROR);
 		/** @noinspection ForgottenDebugOutputInspection */
-		error_log('[' . $method . '] ' . $output);
+		error_log($level . '[' . $method . '] ' . $output);
 	}
 
 	public function emergency($message, array $context = array())

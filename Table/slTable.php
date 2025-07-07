@@ -18,7 +18,7 @@ class slTable implements ToStringable
 
 	/**
 	 * 2D array of rows and columns
-	 * @var array|Traversable
+	 * @var array|ArrayObject
 	 */
 	public $data = [];
 
