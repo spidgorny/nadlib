@@ -382,7 +382,7 @@ class Collection implements IteratorAggregate, ToStringable
 	{
 		$profiler = get_class($this) . '::' . __FUNCTION__ . sprintf(' (%s): ', $this->table) . $this->getCount();
 		TaylorProfiler::start($profiler);
-		$this->log(get_class($this) . '::' . __FUNCTION__ . '()');
+		$this->log(get_class($this) . '::' . __FUNCTION__ . "(start, processed: $this->processed)");
 		if (!$this->processed) {
 			$count = $this->getCount();
 			// Iterator by reference
@@ -397,7 +397,7 @@ class Collection implements IteratorAggregate, ToStringable
 			$this->count = $count;
 		}
 
-		$this->log(get_class($this) . '::' . __FUNCTION__ . '() done');
+		$this->log(get_class($this) . '::' . __FUNCTION__ . '(done)');
 		TaylorProfiler::stop($profiler);
 		return $this->data;    // return something else if you augment $this->data
 	}
@@ -941,7 +941,7 @@ class Collection implements IteratorAggregate, ToStringable
 		return $this->logger;
 	}
 
-	public function setLogger($log): void
+	public function setLogger(LoggerInterface $log): void
 	{
 		$this->logger = $log;
 	}

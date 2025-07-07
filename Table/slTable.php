@@ -289,7 +289,7 @@ class slTable implements ToStringable
 
 		$this->generateThead();
 		$this->generation->text('<tbody>');
-		$data = is_array($this->data) ? $this->data : [];
+		$data = is_array($this->data) ? $this->data : $this->data->getArrayCopy();
 
 		$i = -1;
 		foreach ($data as $key => $row) { // (almost $this->data)
@@ -315,7 +315,7 @@ class slTable implements ToStringable
 
 			$t->tr($trMore);
 			//debug_pre_print_backtrace();
-			$this->genRow($t, $row);
+			$this->genRow($row);
 			$t->tre();
 		}
 
@@ -327,7 +327,7 @@ class slTable implements ToStringable
 
 	public function generateThes()
 	{
-		if (count($this->thes) === 0) {
+		if (!count($this->thes)) {
 			$thes = [];
 			foreach ($this->data as $current) {
 				$thes = array_merge($thes, array_keys($current));
@@ -506,7 +506,10 @@ class slTable implements ToStringable
 	}
 
 	/**
-	 * @param $key
+	 * @param array $row
+	 * @param int $i
+	 * @param string $key
+	 * @return array
 	 */
 	public function getRowClass(array $row, int $i, string $key): array
 	{
@@ -526,10 +529,12 @@ class slTable implements ToStringable
 		return $class;
 	}
 
-	public function genRow(HTMLTableBuf $t, array $row): void
+	public function genRow(array $row): void
 	{
+		$t = $this->generation;
 		$skipCols = 0;
 		$iCol = 0;
+		llog('genRow', $row);
 		foreach ($this->thes as $col => $k) {
 			$k = is_array($k) ? $k : ['name' => $k];
 
@@ -645,20 +650,21 @@ class slTable implements ToStringable
 
 	public function genFooter(): void
 	{
-		if ($this->footer) {
-			$this->generation->tfoot('<tfoot>');
-			$class = [];
-			$class[] = 'footer';
-			$tr = [
-				'class' => implode(' ', $class),
-			];
-			$this->generation->ftr($tr);
-			$this->generation->curPart = 'tfoot';
-			$this->genRow($this->generation, $this->footer);
-			$this->generation->curPart = 'tbody';
-			$this->generation->ftre();
-			$this->generation->tfoot('</tfoot>');
+		if (!$this->footer) {
+			return;
 		}
+		$this->generation->tfoot('<tfoot>');
+		$class = [];
+		$class[] = 'footer';
+		$tr = [
+			'class' => implode(' ', $class),
+		];
+		$this->generation->ftr($tr);
+		$this->generation->curPart = 'tfoot';
+		$this->genRow($this->footer);
+		$this->generation->curPart = 'tbody';
+		$this->generation->ftre();
+		$this->generation->tfoot('</tfoot>');
 	}
 
 	/**

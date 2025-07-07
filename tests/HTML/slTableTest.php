@@ -11,7 +11,7 @@ class slTableTest extends TestCase
 
 	public function test_construct(): void
 	{
-		$s = new slTable();
+		$s = new slTable(null, ['class' => 'nospacing']);
 		static::assertEquals([
 			'class' => 'nospacing',
 		], $s->more);
@@ -92,9 +92,14 @@ class slTableTest extends TestCase
 	{
 		$s = new slTable([
 			['a' => 1],
+		], [], [
+			'a' => [
+				'name' => 'a',
+			],
 		]);
 		$request = new Request();
 		$request->clear();
+		$request->setArray(['slTable' => ['sortBy' => 'a']]);
 
 		$s->sortable = true;    // required for detectSortBy()
 		$s->detectSortBy($request->getArray('slTable'));
@@ -146,6 +151,15 @@ class slTableTest extends TestCase
 //		llog($html);
 		static::assertEquals(2, substr_count($html, '<tr'));
 		static::assertEquals(2, substr_count($html, '</tr'));
+	}
+
+	public function test_has_output(): void
+	{
+		$s = new slTable([
+			['a' => 2174],
+		]);
+		static::assertStringStartsWith('<table id=', $s->getContent());
+		static::assertStringContainsString('2174', $s->getContent());
 	}
 
 }
