@@ -534,7 +534,6 @@ class slTable implements ToStringable
 		$t = $this->generation;
 		$skipCols = 0;
 		$iCol = 0;
-		llog('genRow', $row);
 		foreach ($this->thes as $col => $k) {
 			$k = is_array($k) ? $k : ['name' => $k];
 
