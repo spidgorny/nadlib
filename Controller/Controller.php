@@ -69,10 +69,12 @@ abstract class Controller extends SimpleController
 	 */
 	protected DBInterface $db;
 	protected float $lastMicrotime;
+	protected bool $isDev = false;
 
 	public function __construct()
 	{
 		parent::__construct();
+		$this->isDev = getenv('DEVELOPMENT');
 //		if (!$this->config && $this->index) {
 //			$this->config = $this->index->getConfig();
 //		}
@@ -172,7 +174,7 @@ abstract class Controller extends SimpleController
 		$start = $this->lastMicrotime ?? $_SERVER['REQUEST_TIME_FLOAT'];
 		$content = $this->s($content);
 		if ($caption) {
-			$duration = DEVELOPMENT ? ' (' . number_format(microtime(true) - $start, 4) . ')' : '';
+			$duration = $this->isDev ? ' (' . number_format(microtime(true) - $start, 4) . ')' : '';
 			$content = [
 				'caption' => $this->getCaption($caption . $duration, $h),
 				$content

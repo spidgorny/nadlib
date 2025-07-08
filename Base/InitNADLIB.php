@@ -116,7 +116,7 @@ class InitNADLIB
 	 */
 	private function setErrorReporting(): void
 	{
-		if (DEVELOPMENT) {
+		if ($this->development) {
 			$isCLI = Request::isCLI();
 			if (headers_sent($file, $line) && $file && $line && !Request::isPHPUnit() && !$isCLI) {
 				// debug() not loaded yet
@@ -160,7 +160,7 @@ border-radius: 5px;">');
 
 	private function setCache(): void
 	{
-		if (DEVELOPMENT) {
+		if ($this->development) {
 			TaylorProfiler::getInstance(!ifsetor($_REQUEST['fast']));    // usually true
 			/* @var TaylorProfiler $profiler */
 			if (class_exists('Config', false) && !Request::isCLI()) {
