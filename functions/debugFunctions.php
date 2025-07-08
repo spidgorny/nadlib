@@ -15,21 +15,8 @@ if (!function_exists('debug')) {
 	function debug(...$params): void
 	{
 		$params = func_num_args() === 1 ? $params[0] : func_get_args();
-		if (class_exists(Debug::class)) {
-			$debug = Debug::getInstance();
-			$debug->debug($params);
-		} elseif (DEVELOPMENT) {
-			ob_start();
-			var_dump($params);
-			$dump = ob_get_clean();
-			$dump = str_replace("=>\n", ' =>', $dump);
-			if (!function_exists('xdebug_break')) {
-				$dump = htmlspecialchars($dump);
-			}
-
-			echo '<pre>' . $dump . '</pre>';
-			debug_pre_print_backtrace();
-		}
+		$debug = Debug::getInstance();
+		$debug->debug($params);
 	}
 }
 

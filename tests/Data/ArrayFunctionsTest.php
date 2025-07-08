@@ -5,10 +5,6 @@ namespace Data;
 
 use PHPUnit\Framework\TestCase;
 
-if (!\defined('DEVELOPMENT')) {
-	\define('DEVELOPMENT', true);
-}
-
 
 /**
  * Created by PhpStorm.

@@ -157,7 +157,7 @@ class MiniIndex extends AppControllerBE
 		if ($profiler) {
 			$content = $profiler->renderFloat();
 			$content .= $profiler->printTimers(true);
-		} elseif (DEVELOPMENT) {
+		} elseif (isDev()) {
 			$content = TaylorProfiler::renderFloat();
 		}
 

@@ -1428,7 +1428,7 @@ class Request
 			echo '<meta http-equiv="refresh" content="0; url=' . $controller . '">';
 			echo 'Redirecting to <a href="' . $controller . '">' . $controller . '</a>';
 		} else {
-			$this->redirectJS($controller, DEVELOPMENT ? 10000 : 0);
+			$this->redirectJS($controller, isDev() ? 10000 : 0);
 		}
 
 		if ($exit && !self::isPHPUnit()) {

@@ -39,7 +39,7 @@ class ContentEditable
 		$index->addJQuery();
 		$index->addJQueryUI();
 		$index->addJS("components/rangy/rangy-core.js");
-		if (DEVELOPMENT) {
+		if (isDev()) {
 			$index->addJS("components/hallo/hallo.js");
 		} else {
 			$index->addJS("components/hallo/hallo.min.js");

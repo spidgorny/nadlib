@@ -31,6 +31,7 @@ class RunDispatcher extends AppControllerBE
 
 	public function render(): void
 	{
+		// @phpstan-ignore-next-line
 		while (true) {
 			$queue = $this->runner->getTaskQueue();
 			echo getmypid(),

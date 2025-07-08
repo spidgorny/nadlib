@@ -25,7 +25,7 @@ class DebugCLI
 
 	public function debug($args): void
 	{
-		if (!DEVELOPMENT) {
+		if (!isDev()) {
 			return;
 		}
 

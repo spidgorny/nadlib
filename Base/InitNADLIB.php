@@ -91,22 +91,13 @@ class InitNADLIB
 	{
 		//debug($_COOKIE);
 		if (!defined('DEVELOPMENT')) {
-			if (Request::isCLI()) {
-				define('DEVELOPMENT', $this->development);
-				//echo 'DEVELOPMENT: ', DEVELOPMENT, BR;
-			} else {
-				define('DEVELOPMENT', ifsetor($_COOKIE['debug']));
-			}
+			/** @const bool DEVELOPMENT */
+			define('DEVELOPMENT', Request::isCLI() ? $this->development : ifsetor($_COOKIE['debug']));
 		}
 
 		date_default_timezone_set('Europe/Berlin');    // before using header()
 		if (extension_loaded('mbstring')) {
 			mb_internal_encoding('UTF-8');
-		} else {
-//			echo 'PHP: ', phpversion(), BR;
-//			pre_print_r(get_loaded_extensions());
-//			echo 'Ini file: ', php_ini_loaded_file(), BR;
-//			phpinfo();
 		}
 
 		setlocale(LC_ALL, 'UTF-8');

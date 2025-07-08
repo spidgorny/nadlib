@@ -60,7 +60,7 @@ class PageProfiler
 			? $_COOKIE['debug_page']
 			: ifsetor($_COOKIE['debug']);
 
-		return DEVELOPMENT
+		return isDev()
 			&& !$this->request->isAjax()
 			&& !$exceptions
 			&& !$this->request->isCLI()

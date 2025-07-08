@@ -90,20 +90,19 @@ class LocalLangDB extends LocalLang
 	 * Instead of searching if the original language (en) record exists
 	 * it tries to insert and then catches the UNIQUE constraint exception.
 	 * @param $code
-	 * @throws Exception
 	 */
 	public function saveMissingMessage($code): void
 	{
-		nodebug([
-			'object' => spl_object_hash($this),
-			'method' => __METHOD__,
-			'DEVELOPMENT' => DEVELOPMENT,
-			'code' => $code,
-			'$this->saveMissingMessages' => $this->saveMissingMessages,
-			'$this->db' => (bool)$this->db,
-			'$this->ll[code]' => ifsetor($this->ll[$code]),
-		]);
-		if (DEVELOPMENT && $code && $this->saveMissingMessages) {
+//		nodebug([
+//			'object' => spl_object_hash($this),
+//			'method' => __METHOD__,
+//			'DEVELOPMENT' => DEVELOPMENT,
+//			'code' => $code,
+//			'$this->saveMissingMessages' => $this->saveMissingMessages,
+//			'$this->db' => (bool)$this->db,
+//			'$this->ll[code]' => ifsetor($this->ll[$code]),
+//		]);
+		if (isDev() && $code && $this->saveMissingMessages) {
 			try {
 				$where = [
 					'code' => $code,

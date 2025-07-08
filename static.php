@@ -11,6 +11,7 @@ if (!defined('TAB')) {
 }
 
 if (!defined('DEVELOPMENT')) {
+	/** @const bool DEVELOPMENT */
 	define('DEVELOPMENT', (bool)getenv('DEVELOPMENT'));
 }
 
@@ -31,3 +32,8 @@ if (!defined("ERROR")) {
 }
 
 define("NL", "\r\n");
+
+function isDev(): bool
+{
+	return DEVELOPMENT;
+}

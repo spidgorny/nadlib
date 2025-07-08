@@ -531,20 +531,20 @@ class IndexBase /*extends Controller*/
 		$jQueryPath->setAsFile();
 
 		$appRoot = $al->getAppRoot();
-		nodebug([
-			'jQueryPath' => $jQueryPath,
-			'jQueryPath->exists()' => $jQueryPath->exists(),
-			'appRoot' => $appRoot,
-			'componentsPath' => $al->componentsPath,
-			'fe(jQueryPath)' => file_exists($jQueryPath->getUncapped()),
-			'fe(appRoot)' => file_exists($appRoot . $jQueryPath->getUncapped()),
-			'fe(nadlibFromDocRoot)' => file_exists($al->nadlibFromDocRoot . $jQueryPath),
-			'fe(componentsPath)' => file_exists($al->componentsPath . $jQueryPath),
-			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
-			'documentRoot' => $al->documentRoot,
-			'componentsPath.jQueryPath' => $al->componentsPath . $jQueryPath,
-		]);
-		if (DEVELOPMENT || !$this->loadJSfromGoogle) {
+//		nodebug([
+//			'jQueryPath' => $jQueryPath,
+//			'jQueryPath->exists()' => $jQueryPath->exists(),
+//			'appRoot' => $appRoot,
+//			'componentsPath' => $al->componentsPath,
+//			'fe(jQueryPath)' => file_exists($jQueryPath->getUncapped()),
+//			'fe(appRoot)' => file_exists($appRoot . $jQueryPath->getUncapped()),
+//			'fe(nadlibFromDocRoot)' => file_exists($al->nadlibFromDocRoot . $jQueryPath),
+//			'fe(componentsPath)' => file_exists($al->componentsPath . $jQueryPath),
+//			'DOCUMENT_ROOT' => $_SERVER['DOCUMENT_ROOT'],
+//			'documentRoot' => $al->documentRoot,
+//			'componentsPath.jQueryPath' => $al->componentsPath . $jQueryPath,
+//		]);
+		if (isDev() || !$this->loadJSfromGoogle) {
 			if ($jQueryPath->exists()) {
 				$this->addJS($jQueryPath->relativeFromAppRoot()->getUncapped());
 				return $this;
@@ -728,7 +728,7 @@ class IndexBase /*extends Controller*/
 
 	public function implodeJS(): string
 	{
-		if (!DEVELOPMENT) {
+		if (!isDev()) {
 			$min = new MinifyJS($this->footer);
 			$content = $min->implodeJS();
 			if ($content) {

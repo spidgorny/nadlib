@@ -55,7 +55,7 @@ class Debug
 		if ($this->canDebugster()) {
 			return 'Debugster';
 		}
-		if (DEVELOPMENT) {
+		if (isDev()) {
 			if (DebugBulma::canBulma()) {
 				return DebugBulma::class;
 			}

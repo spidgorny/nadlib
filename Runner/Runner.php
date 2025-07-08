@@ -21,6 +21,7 @@ class Runner
 	public function run(): void
 	{
 		echo 'Ready...', BR;
+		// @phpstan-ignore-next-line
 		while (true) {
 			/** @var ?RunnerTask $command */
 			$command = $this->getNextCommand();
