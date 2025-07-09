@@ -110,7 +110,7 @@ trait JsonController
 				'message' => $e->getMessage(),
 				'file' => $e->getFile(),
 				'line' => $e->getLine(),
-				'stack_trace' => DEVELOPMENT ? trimExplode("\n", $e->getTraceAsString()) : null,
+				'stack_trace' => isDev() ? trimExplode("\n", $e->getTraceAsString()) : null,
 				'request' => $this->request->getAll(),
 				'headers' => getallheaders(),
 				'timestamp' => date('Y-m-d H:i:s'),

@@ -160,7 +160,7 @@ class Pager
 	}
 
 	/**
-	 * @return UserModelInterface
+	 * @return ?UserModelInterface
 	 */
 	public function getUser()
 	{

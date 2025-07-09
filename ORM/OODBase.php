@@ -871,9 +871,9 @@ abstract class OODBase implements ArrayAccess
 		return get_class($this) . '-' . $this->getID() . '-' . substr(md5($this->hash()), 0, 8);
 	}
 
-	public function getID(): string
+	public function getID(): int|string|null
 	{
-		return (string)$this->id;
+		return $this->id ? (int)$this->id : null;
 	}
 
 	public function hash(): string
