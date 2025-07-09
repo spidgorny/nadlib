@@ -4,7 +4,7 @@ trait CachedGetInstance
 {
 
 	/**
-	 * array<int, static>
+	 * <array<string, array<int, static>>
 	 */
 	public static $instances = [];
 
