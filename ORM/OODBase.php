@@ -146,13 +146,9 @@ abstract class OODBase implements ArrayAccess
 			$where = $id->getAsArray();
 			$this->findInDB($where);
 		} else {
-//			debug('set id', $id);
-			$this->id = $id;
-// will do $this->init()
-			$this->findByID($this->id);
-//			debug('data set', $this->data);
-			if (!$this->data) {
-				$this->id = null;
+			$this->findByID($id);
+			if ($this->data) {
+				$this->id = $id;
 			}
 		}
 	}
@@ -199,7 +195,7 @@ abstract class OODBase implements ArrayAccess
 			$selectPlus
 		);
 		$row = $this->db->fetchAssoc($res);
-//		llog('findInDB', $row);
+		llog('findInDB(' . ($where[$this->idField] ?? null) . '):', $row);
 
 		//debug($this->where + $where, $this->db->lastQuery);
 		$this->lastSelectQuery = $this->db->lastQuery;

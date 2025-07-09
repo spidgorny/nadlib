@@ -158,7 +158,9 @@ class Debug
 		foreach ($db as &$row) {
 			$file = ifsetor($row['file']);
 			$row['file'] = basename(dirname($file)) . '/' . basename($file);
-			$row['object'] = (isset($row['object']) && is_object($row['object'])) ? get_class($row['object']) : null;
+			$row['object'] = (isset($row['object']) && is_object($row['object']))
+				? get_class($row['object']) . '[' . substr(md5(spl_object_hash($row['object'])), 0, 6) . ']'
+				: $row['class'] ?? 'null';
 			$row['args'] = count($row['args']);
 		}
 
@@ -484,6 +486,14 @@ class Debug
 		}
 
 		llog('-----');
+	}
+
+	public static function getLogTrace($limit = 10)
+	{
+		return collect(self::getSimpleTrace())
+			->skip(2)
+			->take($limit)
+			->map(fn($x) => $x['object'] . '->' . $x['function'] . '() ' . $x['file'] . '#' . $x['line'])->toArray();
 	}
 
 	/**
