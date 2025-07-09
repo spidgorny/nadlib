@@ -90,7 +90,7 @@ trait CachedGetInstance
 			//debug($static, $intID, $id);
 			$inst = self::$instances[$static][$intID] ?? $inst;
 			if (!$inst->id) {
-				$inst->init($id);    // array
+				$inst->initByRow($id);    // array
 				static::storeInstance($inst, $intID);    // int id
 			}
 		} elseif ($id) {

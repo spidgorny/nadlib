@@ -32,8 +32,3 @@ if (!defined("ERROR")) {
 }
 
 define("NL", "\r\n");
-
-function isDev(): bool
-{
-	return DEVELOPMENT;
-}
