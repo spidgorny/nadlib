@@ -195,7 +195,7 @@ abstract class OODBase implements ArrayAccess
 			$selectPlus
 		);
 		$row = $this->db->fetchAssoc($res);
-		llog('findInDB(' . ($where[$this->idField] ?? null) . '):', $row);
+//		llog('findInDB(' . ($where[$this->idField] ?? null) . '):', $row);
 
 		//debug($this->where + $where, $this->db->lastQuery);
 		$this->lastSelectQuery = $this->db->lastQuery;

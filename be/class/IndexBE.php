@@ -173,10 +173,9 @@ class IndexBE extends IndexBase
 		return $content;
 	}
 
-	public function renderTemplate($content): \View
+	public function renderTemplate($content): string
 	{
 		$v = new View($this->template, $this);
-		$v->content = $this->content . $content;
 		$v->title = strip_tags($this->controller->title);
 		$v->sidebar = $this->showSidebar();
 		$v->version = @file_get_contents('VERSION');
@@ -186,8 +185,10 @@ class IndexBE extends IndexBase
 		// is the root of the project
 		$v->baseHref = $this->request->getLocation();
 		//$v->baseHref = str_replace('/vendor/spidgorny/nadlib/be', '', $v->baseHref);	// for CSS
-		$content = $v->render();  // not concatenate but replace
-		return $content;
+		// not concatenate but replace
+		return $v->render([
+			'content' => $this->content . $content,
+		]);
 	}
 
 	public function showSidebar(): string

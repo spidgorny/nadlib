@@ -81,7 +81,7 @@ trait CachedGetInstance
 				// BEFORE init() to avoid loop
 				static::storeInstance($inst, $id);
 				// separate call to avoid infinite loop in ORS
-				llog('getInstanceByID', $static, $id, 'init');
+//				llog('getInstanceByID', $static, $id, 'init');
 				$inst->init($id);
 			}
 		} elseif (is_array($id)) {

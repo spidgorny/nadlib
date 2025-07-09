@@ -441,39 +441,30 @@ class IndexBase /*extends Controller*/
 	public function renderTemplateIfNotAjax($content): array
 	{
 		$contentOut = [];
-//		llog('renderTemplateIfNotAjax', gettype($content));
 		if (!$this->request->isAjax() && !Request::isCLI()) {
-			// display Exception
-			$view = $this->renderTemplate($content);
-			//echo gettype2($view), BR;
-			$contentOut[] = $view->render();
+			$contentOut[] = $this->renderTemplate($content);
 		} else {
-			//$contentOut .= $this->content;    // NO! it's JSON (maybe)
 			$contentOut[] = $this->s($content);
 		}
 
 		return $contentOut;
 	}
 
-	public function renderTemplate($content): View
+	public function renderTemplate($content): string
 	{
 		TaylorProfiler::start(__METHOD__);
 		$contentOut = '';
-		// this is already output
-		$contentOut .= $this->content->getContent();
-		// clear for the next output. May affect saveMessages()
-//		$this->content->clear();
+		$contentOut .= $this->content->getContentAndClear();
 		$contentOut .= $this->s($content);
 
 		$v = new View($this->template, $this);
-		$v->content = $contentOut;
 		$v->title = strip_tags($this->controller?->title);
 		$v->sidebar = $this->sidebar;
 		$v->baseHref = $this->request->getLocation();
 		//$lf = new LoginForm('inlineForm');	// too specific - in subclass
 		//$v->loginForm = $lf->dispatchAjax();
 		TaylorProfiler::stop(__METHOD__);
-		return $v;
+		return $v->render(['content' => $contentOut]);
 	}
 
 	public function renderProfiler(): array

@@ -55,7 +55,6 @@ class MergedContent implements ArrayAccess
 
 	public function getContent()
 	{
-		TaylorProfiler::start(__METHOD__);
 //		llog('mergeStringArrayRecursive', gettype($render));
 		return $this->mergeStringArrayRecursiveMethod($this->content);
 	}
@@ -101,6 +100,18 @@ class MergedContent implements ArrayAccess
 	{
 //		debug_pre_print_backtrace();
 		return $this->getContent();
+	}
+
+	public function getContentAndClear(): string
+	{
+		$content = $this->getContent();
+		$this->clear();
+		return $content;
+	}
+
+	public function clear(): void
+	{
+		$this->content = [];
 	}
 
 	public function offsetExists(mixed $offset): bool
@@ -188,12 +199,6 @@ class MergedContent implements ArrayAccess
 	public function __unset($key)
 	{
 		unset($this->content[$key]);
-	}
-
-	public function clear(): void
-	{
-		debug('clear');
-		$this->content = [];
 	}
 
 	protected function walkMergeArray($value, $key)
