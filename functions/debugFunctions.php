@@ -405,3 +405,8 @@ function elapsed()
 {
 	return microtime(true) - (float)$_SERVER['REQUEST_TIME_FLOAT'];
 }
+
+function isDev(): bool
+{
+	return (bool)DEVELOPMENT;
+}
