@@ -10,19 +10,6 @@ use SQLSelectQuery;
 use SQLWhere;
 
 /**
- * @method  fetchSelectQuery($table, $where = [], $order = '', $addFields = '', $idField = null)
- * @method  describeView($viewName)
- * @method  getFirstValue($query)
- * @method  performWithParams($query, $params)
- * @method  getConnection()
- * @method  getViews()
- * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
- * @method  getInsertQuery($table, array $data)
- * @method  getDeleteQuery($table, array $where = [], $what = '')
- * @method  getUpdateQuery($table, array $set, array $where)
- * @method  runDeleteQuery($table, array $where)
- * @phpstan-consistent-constructor
- * @method  runInsertUpdateQuery($table, array $fields, array $where, array $insert = [])
  */
 class SessionDatabase implements DBInterface
 {
@@ -324,5 +311,15 @@ class SessionDatabase implements DBInterface
 	public function getMoney($source = '$1,234.56'): float
 	{
 		return (float)$source;
+	}
+
+	public function getComment($table, $column)
+	{
+		// TODO: Implement getComment() method.
+	}
+
+	public function getForeignKeys(string $table)
+	{
+		// TODO: Implement getForeignKeys() method.
 	}
 }

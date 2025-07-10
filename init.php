@@ -46,15 +46,17 @@ if (!function_exists('ifsetor')) {
 	}
 }
 
-/**
- * Makes sure the value is not empty even if it is set
- * @param mixed $variable
- * @param mixed $default
- * @return mixed
- */
-function ifvalor(&$variable, $default = null)
-{
-	return isset($variable) && $variable ? $variable : $default;
+if (!function_exists('ifvalor')) {
+	/**
+	 * Makes sure the value is not empty even if it is set
+	 * @param mixed $variable
+	 * @param mixed $default
+	 * @return mixed
+	 */
+	function ifvalor(&$variable, $default = null)
+	{
+		return isset($variable) && $variable ? $variable : $default;
+	}
 }
 
 if (!function_exists('boolval')) {

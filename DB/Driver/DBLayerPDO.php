@@ -3,7 +3,6 @@
 /**
  * Class dbLayerPDO
  * @mixin SQLBuilder
- * @method runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
  */
 class DBLayerPDO extends DBLayerBase
 {
@@ -498,4 +497,13 @@ class DBLayerPDO extends DBLayerBase
 		return 'mysql';  // maybe?
 	}
 
+	public function getComment($table, $column)
+	{
+		// TODO: Implement getComment() method.
+	}
+
+	public function getForeignKeys(string $table)
+	{
+		// TODO: Implement getForeignKeys() method.
+	}
 }

@@ -426,12 +426,12 @@ abstract class Controller extends SimpleController
 
 	public function makeNewOf($className, $id)
 	{
-		return new $className($id);
+		return new $className($id, $this->db);
 	}
 
 	public function getInstanceOf($className, $id)
 	{
-		return $className::getInstance($id);
+		return $className::getInstance($id, $this->db);
 	}
 
 	public function setDB(DBInterface $db): void

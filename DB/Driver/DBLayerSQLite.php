@@ -3,10 +3,6 @@
 /**
  * Class dbLayerSQLite
  * @mixin SQLBuilder
- * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
- * @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
- * @method  runDeleteQuery($table, array $where)
- * @method  runInsertUpdateQuery($table, array $fields, array $where, array $insert = [])
  */
 class DBLayerSQLite extends DBLayerBase
 {
@@ -296,5 +292,15 @@ class DBLayerSQLite extends DBLayerBase
 	public function __call($name, array $params)
 	{
 		// TODO: Implement @method  runInsertUpdateQuery($table, array $fields, array $where, array $insert = [])
+	}
+
+	public function getComment($table, $column)
+	{
+		// TODO: Implement getComment() method.
+	}
+
+	public function getForeignKeys(string $table)
+	{
+		// TODO: Implement getForeignKeys() method.
 	}
 }

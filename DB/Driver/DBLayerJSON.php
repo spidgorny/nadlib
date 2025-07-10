@@ -1,8 +1,6 @@
 <?php
 
 /**
- * @method  runDeleteQuery($table, array $where)
- * @method  runInsertUpdateQuery($table, array $fields, array $where, array $insert = [])
  */
 class DBLayerJSON extends DBLayerBase
 {
@@ -149,5 +147,15 @@ class DBLayerJSON extends DBLayerBase
 	public function getPlaceholder($field): void
 	{
 		// TODO: Implement getPlaceholder() method.
+	}
+
+	public function getComment($table, $column)
+	{
+		// TODO: Implement getComment() method.
+	}
+
+	public function getForeignKeys(string $table)
+	{
+		// TODO: Implement getForeignKeys() method.
 	}
 }

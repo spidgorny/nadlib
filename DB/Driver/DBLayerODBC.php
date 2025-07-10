@@ -7,7 +7,7 @@ use Odbc\Result;
  * Class dbLayerODBC
  * @mixin SQLBuilder
  */
-class DBLayerODBC extends DBLayerBase implements DBInterface
+class DBLayerODBC extends DBLayerBase
 {
 
 	/**
@@ -120,5 +120,15 @@ class DBLayerODBC extends DBLayerBase implements DBInterface
 	public function getPlaceholder($field): void
 	{
 		// TODO: Implement getPlaceholder() method.
+	}
+
+	public function getComment($table, $column)
+	{
+		// TODO: Implement getComment() method.
+	}
+
+	public function getForeignKeys(string $table)
+	{
+		// TODO: Implement getForeignKeys() method.
 	}
 }

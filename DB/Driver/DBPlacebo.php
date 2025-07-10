@@ -3,14 +3,6 @@
 /**
  * Class dbPlacebo
  * @mixin SQLBuilder
- * @method  describeView($viewName)
- * @method  fetchAllSelectQuery($table, array $where, $order = '', $selectPlus = '', $key = null)
- * @method  getFirstValue($query)
- * @method  performWithParams($query, $params)
- * @method  getConnection()
- * @method  getViews()
- * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
- * @method  runDeleteQuery($table, array $where)
  */
 class DBPlacebo extends DBLayerBase
 {
@@ -196,5 +188,15 @@ class DBPlacebo extends DBLayerBase
 	public function getVersion(): void
 	{
 		// TODO: Implement getVersion() method.
+	}
+
+	public function getComment($table, $column)
+	{
+		// TODO: Implement getComment() method.
+	}
+
+	public function getForeignKeys(string $table)
+	{
+		// TODO: Implement getForeignKeys() method.
 	}
 }
