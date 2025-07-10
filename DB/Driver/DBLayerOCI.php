@@ -267,4 +267,14 @@ class DBLayerOCI extends DBLayerBase
 		// TODO: Implement @method  runInsertUpdateQuery($table, array $fields, array $where, array $insert = [])
 		// TODO: Implement @method  runDeleteQuery($table, array $where)
 	}
+
+	public function getComment($table, $column)
+	{
+		// TODO: Implement getComment() method.
+	}
+
+	public function getForeignKeys(string $table)
+	{
+		// TODO: Implement getForeignKeys() method.
+	}
 }

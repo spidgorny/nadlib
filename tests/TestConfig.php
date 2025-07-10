@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @todo: move to DCI
+ */
 class TestConfig extends DCIConfig
 {
 
