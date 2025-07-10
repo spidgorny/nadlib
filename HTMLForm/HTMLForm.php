@@ -207,11 +207,13 @@ class HTMLForm implements ToStringable
 	 * @param string $name
 	 * @param string $value
 	 */
-	public function tinput(string $text, $name, $value = "", array $more = []): void
+	public function tinput(string $text, $name, $value = "", array $more = []): array
 	{
-		$this->text('<tr><td>' . $text . '</td><td>');
-		$this->input($name, $value, $more);
-		$this->text('</td></tr>');
+		return [
+			$this->text('<tr><td>' . $text . '</td><td>'),
+			$this->input($name, $value, $more),
+			$this->text('</td></tr>')
+		];
 	}
 
 	public function text($a): string

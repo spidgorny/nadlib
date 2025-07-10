@@ -33,7 +33,7 @@ class HTMLFormTest extends TestCase
 	public function test_input(): void
 	{
 		$f = new HTMLForm();
-		$f->input('name', 'value', ['more' => 'more'], 'text', 'class');
+		$f->stdout .= $f->input('name', 'value', ['more' => 'more'], 'text', 'class');
 
 		$sInput = $f->getBuffer();
 //		echo $sInput, PHP_EOL;
@@ -45,7 +45,7 @@ class HTMLFormTest extends TestCase
 	public function test_input_more(): void
 	{
 		$f = new HTMLForm();
-		$f->input('name', 'value', [
+		$f->stdout .= $f->input('name', 'value', [
 			'class' => 'more',
 			'id' => 'more',
 			'type' => 'more',
