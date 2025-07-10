@@ -822,8 +822,8 @@ class Collection implements IteratorAggregate, ToStringable
 
 	public function clearInstances(): void
 	{
-		unset($this->data);
-		unset($this->members);
+		$this->data = ArrayPlus::create();
+		$this->members = [];
 	}
 
 	public function getJson(): array

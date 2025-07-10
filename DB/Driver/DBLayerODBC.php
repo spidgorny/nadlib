@@ -1,23 +1,22 @@
 <?php
 
+use Odbc\Connection;
+use Odbc\Result;
+
 /**
  * Class dbLayerODBC
  * @mixin SQLBuilder
- * @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
- * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
- * @method  runDeleteQuery($table, array $where)
- * @method  runInsertUpdateQuery($table, array $fields, array $where, array $insert = [])
  */
 class DBLayerODBC extends DBLayerBase implements DBInterface
 {
 
 	/**
-	 * @var resource
+	 * @var resource|Connection
 	 */
 	public $connection;
 
 	/**
-	 * @var resource
+	 * @var resource|Result
 	 */
 	public $result;
 
@@ -75,9 +74,7 @@ class DBLayerODBC extends DBLayerBase implements DBInterface
 
 	public function free($res): void
 	{
-		if (is_resource($res)) {
-			odbc_free_result($res);
-		}
+		odbc_free_result($res);
 	}
 
 	public function lastInsertID($result, $key = null): void

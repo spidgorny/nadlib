@@ -134,7 +134,7 @@ abstract class HTMLFormProcessor extends SimpleController
 
 	abstract public function getDesc();
 
-	public function getForm(HTMLFormTable $preForm = null)
+	public function getForm(?HTMLFormTable $preForm = null)
 	{
 		$f = $preForm ?: $this->form;
 		if ($this->ajax) {
