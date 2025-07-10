@@ -1,9 +1,9 @@
 <?php
 
-class TestConfig extends ConfigBase
+class TestConfig extends DCIConfig
 {
 
-	/** @var ?DBInterface */
+	/** @var DBLayerDCI|DBPlacebo|null */
 	protected $db;
 
 	public function getDB()

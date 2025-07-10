@@ -64,7 +64,6 @@ trait Grid
 
 	/**
 	 * Only get filter if it's not need to be cleared
-	 * @throws LoginException
 	 */
 	public function setFilter(): void
 	{
@@ -299,7 +298,7 @@ trait Grid
 			return;
 		}
 
-		if ($this->collection && $this->collection->thes) {
+		if ($this->collection->thes) {
 			$keysOfThes = array_keys($this->collection->thes);
 			$this->columns = new VisibleColumns(array_fill_keys($keysOfThes, true));
 			llog(__METHOD__, 'Columns set from collection ' . typ($this->collection) . ': ' . json_encode($this->columns, JSON_THROW_ON_ERROR));
@@ -317,10 +316,6 @@ trait Grid
 	 */
 	public function getGridColumns()
 	{
-		if (!$this->collection) {
-			throw new RuntimeException('Collection is not set in ' . get_class($this));
-		}
-
 //			llog(__METHOD__, 'Collection exists');
 		return ArrayPlus::create($this->collection->thes)
 			->makeTable('name')

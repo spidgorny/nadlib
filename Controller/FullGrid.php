@@ -1,12 +1,9 @@
 <?php
 
-use nadlib\Controller\Filter;
-
 /**
  * Class FullGrid
  * handles sorting by columns, paging, filtering,
  * selecting visible columns
- * @property Filter $filter
  */
 trait FullGrid
 {
