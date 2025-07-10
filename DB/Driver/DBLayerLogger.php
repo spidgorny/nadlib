@@ -3,12 +3,8 @@
 /**
  * Class DBLayerLogger
  * @mixin SQLBuilder
- * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
- * @method  getSelectQuery(string $table, array $where = [], $order = '', $addSelect = '')
- * @method  runDeleteQuery($table, array $where)
- * @method  runInsertUpdateQuery($table, array $fields, array $where, array $insert = [])
  */
-class DBLayerLogger extends DBLayerBase implements DBInterface
+class DBLayerLogger extends DBLayerBase
 {
 
 	public $logger;
@@ -169,5 +165,15 @@ class DBLayerLogger extends DBLayerBase implements DBInterface
 	public function getPlaceholder($field): void
 	{
 		// TODO: Implement getPlaceholder() method.
+	}
+
+	public function getComment($table, $column)
+	{
+		// TODO: Implement getComment() method.
+	}
+
+	public function getForeignKeys(string $table)
+	{
+		// TODO: Implement getForeignKeys() method.
 	}
 }

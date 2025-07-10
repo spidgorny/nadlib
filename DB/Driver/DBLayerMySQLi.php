@@ -3,11 +3,8 @@
 /**
  * Class MySQLi
  * Should work but it doesn't get num_rows() after store_result().
- * @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
- * @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
- * @method  runDeleteQuery($table, array $where)
  */
-class DBLayerMySQLi extends DBLayerBase implements DBInterface
+class DBLayerMySQLi extends DBLayerBase
 {
 
 	/**
@@ -203,5 +200,15 @@ class DBLayerMySQLi extends DBLayerBase implements DBInterface
 		// TODO: Implement @method  getSelectQuery($table, array $where = [], $order = '', $addSelect = '')
 		// TODO: Implement @method  runSelectQuery($table, array $where = [], $order = '', $addSelect = '')
 		// TODO: Implement @method  runDeleteQuery($table, array $where)
+	}
+
+	public function getComment($table, $column)
+	{
+		// TODO: Implement getComment() method.
+	}
+
+	public function getForeignKeys(string $table)
+	{
+		// TODO: Implement getForeignKeys() method.
 	}
 }

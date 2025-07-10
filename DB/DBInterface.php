@@ -71,4 +71,8 @@ interface DBInterface
 
 	public function getMoney($source = '$1,234.56'): float;
 
+	public function getComment($table, $column);
+
+	public function getForeignKeys(string $table);
+
 }
