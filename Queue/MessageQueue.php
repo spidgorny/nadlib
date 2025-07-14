@@ -10,13 +10,13 @@
 class MessageQueue extends OODBase
 {
 
-	const STATUS_NEW = 'NEW';
+	public const string STATUS_NEW = 'NEW';
 
-	const STATUS_IN_PROGRESS = 'IN PROGRESS';
+	public const string STATUS_IN_PROGRESS = 'IN PROGRESS';
 
-	const STATUS_DONE = 'DONE';
+	public const string STATUS_DONE = 'DONE';
 
-	const STATUS_FAILED = 'FAILED';
+	public const string STATUS_FAILED = 'FAILED';
 
 	public $table = 'message_queue';
 
@@ -35,9 +35,9 @@ class MessageQueue extends OODBase
 	private $taskData = [];
 
 
-	public function __construct($type = null, ?DBInterface $db = null)
+	public function __construct($type, DBInterface $db)
 	{
-		parent::__construct($type, $db);
+		parent::__construct(null, $db);
 
 		if (empty($type)) {
 			throw new RuntimeException('Type not set!');
@@ -109,9 +109,9 @@ class MessageQueue extends OODBase
 
 		if (!empty($this->data['id'])) {
 			return true;
-		} else {
-			return false;
 		}
+
+		return false;
 	}
 
 	/**
