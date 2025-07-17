@@ -17,7 +17,7 @@ class TestQueue extends AppControllerBE
 	{
 		$content = '';
 		$counter = 0;
-		$msgQ = new MessageQueue($type);
+		$msgQ = new MessageQueue($type, $this->db);
 
 		while ($taskObj = $msgQ->getTaskObject()) {
 			try {
@@ -41,7 +41,7 @@ class TestQueue extends AppControllerBE
 	{
 		$taskData = json_decode('{"array":[1,2,3],"boolean":true,"null":null,"number":123,"object":{"a":"b","c":"d","e":"f"},"string":"Hello World"}', true, 512, JSON_THROW_ON_ERROR);
 
-		$msgQ = new MessageQueue('DeleteUser');
+		$msgQ = new MessageQueue('DeleteUser', $this->db);
 		$msgQ->push($taskData);
 	}
 }
