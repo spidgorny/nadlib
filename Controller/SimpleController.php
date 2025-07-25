@@ -213,7 +213,7 @@ abstract class SimpleController
 
 		$action = $this->request->getTrim('action');
 		if ($action) {
-			return $action;
+			return $action . 'Action';
 		}
 
 		if (count($this->request->getURLLevels()) >= 2) {
