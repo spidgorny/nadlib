@@ -168,8 +168,6 @@ abstract class SimpleController
 			throw new Exception404('No action provided');
 		}
 
-		$method .= 'Action';        // ZendFramework style
-
 		$proxy = $this;
 		// used to call an $action on PrepareGive, PrepareBurn instead of direct PrepareRequest class
 		$proxyClassName = $this->request->getTrim('proxy');
@@ -220,12 +218,16 @@ abstract class SimpleController
 
 		if (count($this->request->getURLLevels()) >= 2) {
 			$secondSlug = $this->request->getLastNameless();
-			if (method_exists($this, $secondSlug . 'Action')) {
+			llog('second slug', $secondSlug, 'in', get_class($this));
+			if (!str_endsWith($secondSlug, 'Action')) {
+				$secondSlug .= 'Action'; // ZendFramework style
+			}
+			if (method_exists($this, $secondSlug)) {
 				return $secondSlug;
 			}
 		}
 
-		return 'index';
+		return 'indexAction';
 	}
 
 	/**

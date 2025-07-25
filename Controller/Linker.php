@@ -234,6 +234,27 @@ class Linker
 
 	public function makeActionURL($action = '', array $params = [], $path = ''): URL
 	{
+		if (is_array($action)) {
+			$action = $action[1];
+		} elseif (is_callable($action)) {
+			$reflection = new ReflectionFunction($action);
+
+			// Check if it's a method bound as a closure
+			if (!$reflection->isClosure()) {
+				throw new InvalidArgumentException('Action must be a closure or a string.');
+			}
+
+			if (!$reflection->getClosureScopeClass()) {
+				throw new InvalidArgumentException('Closure must be bound to a class.');
+			}
+
+			// This is a closure created from a class method context
+//			$scopeClass = $reflection->getClosureScopeClass()->getName();
+			$action = $reflection->getName();
+		} elseif ($action instanceof Closure) {
+			throw new InvalidArgumentException('Closure cannot be converted to a URL action name.');
+		}
+		// if it's a string, it's used as is
 		$urlParams = [
 				'c' => $params['c'] ?? $this->controllerName,
 				'action' => $action,
