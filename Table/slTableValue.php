@@ -315,8 +315,9 @@ class slTableValue
 					} elseif ($val instanceof HTMLForm) {
 						$out = $val->getContent() . '';   // to avoid calling getName()
 					} elseif (is_object($val)) {
-						if (ifsetor($k['call'])) {
-							$out = $val->$k['call']();
+						$callMethod = (string)($k['call'] ?? null);
+						if ($callMethod) {
+							$out = $val->$callMethod();
 						} elseif (method_exists($val, 'getName')) {
 							$out = $val->getName();
 						} elseif (method_exists($val, '__toString')) {
@@ -326,9 +327,7 @@ class slTableValue
 						}
 					} elseif (is_array($val)) {
 						if (is_assoc($val)) {
-							$out = json_encode($val, defined('JSON_PRETTY_PRINT')
-								? JSON_PRETTY_PRINT
-								: null);
+							$out = json_encode($val, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
 						} else {
 							$out = '[' . implode(', ', $val) . ']';
 						}
