@@ -216,6 +216,7 @@ abstract class SimpleController
 			return $action . 'Action';
 		}
 
+		// /Controller/Action (without Action suffix)
 		if (count($this->request->getURLLevels()) >= 2) {
 			$secondSlug = $this->request->getLastNameless();
 			llog('second slug', $secondSlug, 'in', get_class($this));
