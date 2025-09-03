@@ -29,23 +29,12 @@ trait JsonController
 //		llog('apache_headers in JsonController for', get_class($this), $headers);
 
 		$authorization = $this->request->getHeader('Authorization');
-		if ($authorization) {
 //		llog($authorization);
-			//debug($headers, $authorization);
-			invariant($authorization, new AccessDeniedException('No Authorization Header', 401));
-			if (!in_array($authorization, $registeredApps, true)) {
-				throw new LoginException('Authorization failed.', 401);
-			}
+		//debug($headers, $authorization);
+		invariant($authorization, new AccessDeniedException('No Authorization Header', 401));
+		if (!in_array($authorization, $registeredApps, true)) {
+			throw new LoginException('Authorization failed.', 401);
 		}
-
-		startSessionDCI();
-		llog('session', $_SESSION);
-		$user = DCI::getInstance()->loginFromHTTP();
-		if ($user?->isAdmin()) {
-			return;
-		}
-
-		throw new AccessDeniedException('No valid Authorization', 403);
 	}
 
 	public function getActionAndArguments(): array
@@ -73,14 +62,6 @@ trait JsonController
 		$thisParents = [
 			get_class($this),
 			$thisParents->getParentClass()->getName(),
-			'SoftwareImage',
-			'SoftwareImg',
-			AddVersion::class,
-			AddJob::class,
-			ArchiveComplete::class,
-			UpsertSoftware::class,
-			UpsertVersion::class,
-			VersionFiles::class,
 		];
 //		llog('$thisParents', $thisParents);
 		foreach (array_reverse($levels) as $i => $el) {
