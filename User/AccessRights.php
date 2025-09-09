@@ -63,12 +63,11 @@ class AccessRights extends OODBase implements AccessRightsInterface
 		}
 
 		$this->arCache = $data;
-		//debug($this->arCache);
+//		llog('arCache for', $this->groupID, $this->arCache);
 	}
 
 	public function can($what)
 	{
-		//debug($what, $this->arCache);
 		if (isset($this->arCache[$what])) {
 			return $this->arCache[$what];
 		}
