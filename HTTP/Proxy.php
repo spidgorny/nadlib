@@ -22,7 +22,7 @@ class Proxy extends OODBase
 	/**
 	 * @var DBInterface
 	 */
-	public $db;
+	public DBInterface $db;
 
 	public $ratio = 0;
 

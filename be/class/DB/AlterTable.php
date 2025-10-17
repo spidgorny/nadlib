@@ -40,6 +40,9 @@ class AlterTable extends AlterIndex
 		}
 	}
 
+	/**
+	 * @return array
+	 */
 	public function sidebar(): array
 	{
 		return [$this->showDBInfo(), $this->listFiles()];

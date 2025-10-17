@@ -66,10 +66,10 @@ abstract class OODBase implements ArrayAccess
 	public $forceInit;
 
 	/**
-	 * @var DBLayerBase|DBInterface|SQLBuilder|DBLayerPDO|DBLayer
+	 * @var DBLayerBase|DBInterface|DBLayerPDO|DBLayer
 	 * public to allow unset($o->db); before debugging
 	 */
-	protected $db;
+	protected DBInterface $db;
 
 	protected $titleColumn = 'name';
 

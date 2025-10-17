@@ -20,7 +20,7 @@ class AccessRights extends OODBase implements AccessRightsInterface
 	/**
 	 * @var DBInterface
 	 */
-	protected $db;
+	protected DBInterface $db;
 
 	/**
 	 * AccessRights constructor.

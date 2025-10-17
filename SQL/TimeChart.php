@@ -37,7 +37,7 @@ class TimeChart
 	];
 
 	/**
-	 * @var array[array]
+	 * @var array<array>
 	 */
 	public $data;
 

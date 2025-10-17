@@ -6,7 +6,7 @@
 class SessionUser extends PlainSessionUser
 {
 
-	public function __construct($id = null)
+	public function __construct($id, protected DBInterface $db)
 	{
 		parent::__construct($id);
 		if (get_class($this) === 'LoginUser') {
