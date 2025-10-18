@@ -43,7 +43,7 @@ trait CachedGetInstance
 	}
 
 	/**
-	 * @param int $id
+	 * @param int|array $id
 	 * @param DBInterface $db
 	 * @return static
 	 */
