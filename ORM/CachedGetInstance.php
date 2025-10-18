@@ -4,7 +4,7 @@ trait CachedGetInstance
 {
 
 	/**
-	 * <array<string, array<int, static>>
+	 * array<class-string, array<int, static>>
 	 */
 	public static $instances = [];
 
@@ -47,7 +47,7 @@ trait CachedGetInstance
 	 * @param DBInterface $db
 	 * @return static
 	 */
-	public static function getInstance($id, DBInterface $db)
+	public static function getInstance($id, DBInterface $db): static|OODBase
 	{
 		return self::getInstanceByID($id, $db);
 	}
