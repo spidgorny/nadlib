@@ -34,6 +34,10 @@ class AccessRights extends OODBase implements AccessRightsInterface
 		if ($this->groupID) {
 			$this->reload();
 		}
+		if (!$idGroup) {
+			llog('==================> Creating AccessRights for group ' . $this->groupID, array_keys($this->arCache));
+			llog(debug_get_backtrace());
+		}
 	}
 
 	public function reload(): void
@@ -72,6 +76,8 @@ class AccessRights extends OODBase implements AccessRightsInterface
 			return $this->arCache[$what];
 		}
 
+		llog('RisAccessRights for group ' . $this->groupID . ': ' . json_encode
+			($this->arCache, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
 		throw new AccessDeniedException('Checking non-existing access-right: ' . $what);
 	}
 
