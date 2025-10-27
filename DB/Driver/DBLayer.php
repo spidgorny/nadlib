@@ -921,7 +921,7 @@ WHERE ccu.table_name='" . $table . "'");
 	{
 		return pg_version($this->getConnection()) + [
 				'options' => pg_options($this->getConnection()),
-				'busy' => $this->getConnection()($this->getConnection()),
+				'busy' => $this->getConnection(),
 				'status' => pg_connection_status($this->getConnection()),
 				'status_ok' => PGSQL_CONNECTION_OK,
 				'status_bad' => PGSQL_CONNECTION_BAD,
