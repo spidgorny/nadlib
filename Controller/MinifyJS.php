@@ -40,6 +40,7 @@ class MinifyJS
 				$include[$file] = $this->footer[$file];
 			}
 		}
+		unset($file);
 
 		// remove common base folder
 		// "slawa/mrbs/"
