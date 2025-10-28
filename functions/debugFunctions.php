@@ -4,6 +4,44 @@
 //require_once __DIR__ . DIRECTORY_SEPARATOR . '../static.php';
 use spidgorny\nadlib\Debug\Debug;
 
+if (!function_exists('ifsetor')) {
+	/**
+	 * Shortcut for
+	 * isset($variable) ? $variable : $default
+	 * BUT, it creates a NULL elements with the multidimensional arrays!!!
+	 * @see http://nikic.github.io/2014/01/10/The-case-against-the-ifsetor-function.html
+	 * @param mixed $variable
+	 * @param mixed $default
+	 * @return mixed
+	 * @see https://wiki.php.net/rfc/ifsetor
+	 */
+	function ifsetor(&$variable, $default = null)
+	{
+		if (isset($variable)) {
+			$tmp = $variable;
+		} else {
+			$variable = $default;    // prevent setting NULL
+			$tmp = $default;
+		}
+
+		return $tmp;
+	}
+}
+
+if (!function_exists('ifvalor')) {
+	/**
+	 * Makes sure the value is not empty even if it is set
+	 * @param mixed $variable
+	 * @param mixed $default
+	 * @return mixed
+	 */
+	function ifvalor(&$variable, $default = null)
+	{
+		return isset($variable) && $variable ? $variable : $default;
+	}
+}
+
+
 /**
  * May already be defined in TYPO3
  */
@@ -60,267 +98,263 @@ if (!function_exists('d')) {
 
 		echo '<pre>' . $dump . '</pre>';
 	}
+}
+/**
+ * @param ...$a
+ */
+function nodebug(...$a): void
+{
+}
 
-	/**
-	 * @param ...$a
-	 */
-	function nodebug(...$a): void
-	{
+function getDebug(...$params): string
+{
+	$debug = Debug::getInstance();
+	$dh = new DebugHTML($debug);
+	$content = DebugHTML::printStyles();
+	if (ifsetor($params[1]) === DebugHTML::LEVELS) {
+		$levels = ifsetor($params[2]);
+		$params[1] = $levels;
 	}
 
-	function getDebug(...$params): string
-	{
-		$debug = Debug::getInstance();
-		$dh = new DebugHTML($debug);
-		$content = DebugHTML::printStyles();
-		if (ifsetor($params[1]) === DebugHTML::LEVELS) {
-			$levels = ifsetor($params[2]);
-			$params[1] = $levels;
-		}
+	return $content . $dh::view_array(...$params);
+}
 
-		return $content . $dh::view_array(...$params);
-	}
-
-	/**
-	 * @param array ...$a
-	 * @noinspection ForgottenDebugOutputInspection
-	 */
-	function pre_print_r(...$a): void
-	{
-		if (PHP_SAPI !== 'cli') {
-			echo '<pre class="pre_print_r" style="white-space: pre-wrap;">';
-			/** @noinspection ForgottenDebugOutputInspection */
-			print_r(count($a) === 1 ? $a[0] : $a);
-			echo '</pre>';
-		} else {
-			/** @noinspection ForgottenDebugOutputInspection */
-			print_r(count($a) === 1 ? $a[0] : $a);
-			echo PHP_EOL;
-		}
-	}
-
-	function get_print_r(...$a): string
-	{
-		return '<pre class="pre_print_r" style="white-space: pre-wrap;">' .
-			print_r($a, true) .
-			'</pre>';
-	}
-
-	/** @noinspection ForgottenDebugOutputInspection */
-	function pre_var_dump(...$a): void
-	{
-		echo '<pre class="pre_var_dump" style="white-space: pre-wrap; font-size: 8pt;">';
+/**
+ * @param array ...$a
+ * @noinspection ForgottenDebugOutputInspection
+ */
+function pre_print_r(...$a): void
+{
+	if (PHP_SAPI !== 'cli') {
+		echo '<pre class="pre_print_r" style="white-space: pre-wrap;">';
 		/** @noinspection ForgottenDebugOutputInspection */
-		var_dump(count($a) === 1 ? $a[0] : $a);
+		print_r(count($a) === 1 ? $a[0] : $a);
 		echo '</pre>';
+	} else {
+		/** @noinspection ForgottenDebugOutputInspection */
+		print_r(count($a) === 1 ? $a[0] : $a);
+		echo PHP_EOL;
+	}
+}
+
+function get_print_r(...$a): string
+{
+	return '<pre class="pre_print_r" style="white-space: pre-wrap;">' .
+		print_r($a, true) .
+		'</pre>';
+}
+
+/** @noinspection ForgottenDebugOutputInspection */
+function pre_var_dump(...$a): void
+{
+	echo '<pre class="pre_var_dump" style="white-space: pre-wrap; font-size: 8pt;">';
+	/** @noinspection ForgottenDebugOutputInspection */
+	var_dump(count($a) === 1 ? $a[0] : $a);
+	echo '</pre>';
+}
+
+function debug_once(...$a): void
+{
+	static $used = null;
+	if (is_null($used)) {
+		$used = [];
 	}
 
-	function debug_once(...$a): void
-	{
-		static $used = null;
-		if (is_null($used)) {
-			$used = [];
-		}
+	$trace = debug_backtrace();
+	array_shift($trace); // debug_once itself
+	$first = array_shift($trace);
+	$key = $first['file'] . '.' . $first['line'];
+	if (!ifsetor($used[$key])) {
+		$v = func_get_args();
+		//$v[] = $key;
+		debug(...$v);
+		$used[$key] = true;
+	}
+}
 
-		$trace = debug_backtrace();
-		array_shift($trace); // debug_once itself
-		$first = array_shift($trace);
-		$key = $first['file'] . '.' . $first['line'];
-		if (!ifsetor($used[$key])) {
-			$v = func_get_args();
-			//$v[] = $key;
-			debug(...$v);
-			$used[$key] = true;
-		}
+function debug_size(...$a): void
+{
+	if (is_object($a[0])) {
+		$vals = get_object_vars($a[0]);
+		$keys = array_keys($vals);
+	} else {
+		$vals = $a;
+		$keys = array_keys($a);
 	}
 
-	function debug_size(...$a): void
-	{
-		if (is_object($a[0])) {
-			$vals = get_object_vars($a[0]);
-			$keys = array_keys($vals);
-		} else {
-			$vals = $a;
-			$keys = array_keys($a);
+	$assoc = [];
+	foreach ($keys as $key) {
+		$sxe = $vals[$key];
+		if ($sxe instanceof SimpleXMLElement) {
+			$sxe = $sxe->asXML();
 		}
 
-		$assoc = [];
-		foreach ($keys as $key) {
-			$sxe = $vals[$key];
-			if ($sxe instanceof SimpleXMLElement) {
-				$sxe = $sxe->asXML();
-			}
-
-			//$len = strlen(serialize($vals[$key]));
-			$len = strlen(json_encode($sxe, JSON_THROW_ON_ERROR));
-			//$len = gettype($vals[$key]) . ' '.get_class($vals[$key]);
-			$assoc[$key] = $len;
-		}
-
-		debug($assoc);
+		//$len = strlen(serialize($vals[$key]));
+		$len = strlen(json_encode($sxe, JSON_THROW_ON_ERROR));
+		//$len = gettype($vals[$key]) . ' '.get_class($vals[$key]);
+		$assoc[$key] = $len;
 	}
 
-	function debug_get_backtrace(): string
-	{
-		ob_start();
-		debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+	debug($assoc);
+}
 
-		$content = ob_get_clean();
-		$content = str_replace(dirname(getcwd()), '', $content);
-		return str_replace('C:\\Users\\' . getenv('USERNAME') . '\\AppData\\Roaming\\Composer\\vendor\\phpunit\\phpunit\\src\\', '', $content);
-	}
+function debug_get_backtrace(): string
+{
+	ob_start();
+	debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
-	function debug_pre_print_backtrace(): void
-	{
-		require_once __DIR__ . '/../HTTP/Request.php';
-		if (!Request::isCLI()) {
-			print '<pre style="
+	$content = ob_get_clean();
+	$content = str_replace(dirname(getcwd()), '', $content);
+	return str_replace('C:\\Users\\' . getenv('USERNAME') . '\\AppData\\Roaming\\Composer\\vendor\\phpunit\\phpunit\\src\\', '', $content);
+}
+
+function debug_pre_print_backtrace(): void
+{
+	require_once __DIR__ . '/../HTTP/Request.php';
+	if (!Request::isCLI()) {
+		print '<pre style="
 				white-space: pre-wrap;
 				background: #eeeeee;
 				border-radius: 5px;
 				padding: 0.5em;
 				">';
-		}
+	}
 
-		ob_start();
-		if (PHP_VERSION >= '5.3.6') {
-			/** @noinspection ForgottenDebugOutputInspection */
-			debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-		} else {
-			/** @noinspection ForgottenDebugOutputInspection */
-			debug_print_backtrace();
-		}
+	ob_start();
+	if (PHP_VERSION >= '5.3.6') {
+		/** @noinspection ForgottenDebugOutputInspection */
+		debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+	} else {
+		/** @noinspection ForgottenDebugOutputInspection */
+		debug_print_backtrace();
+	}
 
-		$content = ob_get_clean();
-		$content = str_replace(dirname(getcwd()), '', $content);
+	$content = ob_get_clean();
+	$content = str_replace(dirname(getcwd()), '', $content);
 
-		$search = 'C:\\Users\\' . getenv('USERNAME') .
-			'\\AppData\\Roaming\\Composer\\vendor\\phpunit\\phpunit\\src\\';
-		$content = str_replace($search, '', $content);
-		echo $content;
-		if (!Request::isCLI()) {
-			print '</pre>';
+	$search = 'C:\\Users\\' . getenv('USERNAME') .
+		'\\AppData\\Roaming\\Composer\\vendor\\phpunit\\phpunit\\src\\';
+	$content = str_replace($search, '', $content);
+	echo $content;
+	if (!Request::isCLI()) {
+		print '</pre>';
+	}
+}
+
+/**
+ * http://php.net/manual/en/function.error-reporting.php#65884
+ * @param int $value
+ */
+function error2string($value): string
+{
+	$level_names = [
+		E_ERROR => 'E_ERROR',
+		E_WARNING => 'E_WARNING',
+		E_PARSE => 'E_PARSE',
+		E_NOTICE => 'E_NOTICE',
+		E_CORE_ERROR => 'E_CORE_ERROR',
+		E_CORE_WARNING => 'E_CORE_WARNING',
+		E_COMPILE_ERROR => 'E_COMPILE_ERROR',
+		E_COMPILE_WARNING => 'E_COMPILE_WARNING',
+		E_USER_ERROR => 'E_USER_ERROR',
+		E_USER_WARNING => 'E_USER_WARNING',
+		E_USER_NOTICE => 'E_USER_NOTICE'];
+	if (defined('E_STRICT')) {
+		$level_names[E_STRICT] = 'E_STRICT';
+	}
+
+	$levels = [];
+	if (($value & E_ALL) === E_ALL) {
+		$levels[] = 'E_ALL';
+		$value &= ~E_ALL;
+	}
+
+	foreach ($level_names as $level => $name) {
+		if (($value & $level) === $level) {
+			$levels[] = $name;
 		}
 	}
 
-	/**
-	 * http://php.net/manual/en/function.error-reporting.php#65884
-	 * @param int $value
-	 */
-	function error2string($value): string
-	{
-		$level_names = [
-			E_ERROR => 'E_ERROR',
-			E_WARNING => 'E_WARNING',
-			E_PARSE => 'E_PARSE',
-			E_NOTICE => 'E_NOTICE',
-			E_CORE_ERROR => 'E_CORE_ERROR',
-			E_CORE_WARNING => 'E_CORE_WARNING',
-			E_COMPILE_ERROR => 'E_COMPILE_ERROR',
-			E_COMPILE_WARNING => 'E_COMPILE_WARNING',
-			E_USER_ERROR => 'E_USER_ERROR',
-			E_USER_WARNING => 'E_USER_WARNING',
-			E_USER_NOTICE => 'E_USER_NOTICE'];
-		if (defined('E_STRICT')) {
-			$level_names[E_STRICT] = 'E_STRICT';
-		}
+	return implode(' | ', $levels);
+}
 
-		$levels = [];
-		if (($value & E_ALL) === E_ALL) {
-			$levels[] = 'E_ALL';
-			$value &= ~E_ALL;
-		}
+/**
+ * similar to gettype() but return more information depending on data type in HTML
+ * @param mixed $something
+ * @param bool $withHash
+ * @param ?bool $isCLI
+ * @return HTMLTag|HtmlString
+ */
+function typ($something, $withHash = true, ?bool $isCLI = null): \HTMLTag|\HtmlString
+{
+	if ($isCLI === null) {
+		$isCLI = Request::isCLI();
+	}
 
-		foreach ($level_names as $level => $name) {
-			if (($value & $level) === $level) {
-				$levels[] = $name;
+	$type = gettype($something);
+	if ($type === 'object') {
+		if ($withHash) {
+			$hash = md5(spl_object_hash($something));
+			$hash = substr($hash, 0, 6);
+			require_once __DIR__ . '/../HTTP/Request.php';
+			if (!$isCLI) {
+				require_once __DIR__ . '/../Value/Color.php';
+				$color = new Color('#' . $hash);
+				$complement = $color->getComplement();
+				$hash = new HTMLTag('span', [
+					'class' => 'tag',
+					'style' => 'background: ' . $color . '; color: ' . $complement,
+				], $hash);
 			}
 		}
 
-		return implode(' | ', $levels);
+		$typeName = get_class($something) . '#' . $hash;
+	} else {
+		$typeName = get_class($something);
 	}
 
-	/**
-	 * similar to gettype() but return more information depending on data type in HTML
-	 * @param mixed $something
-	 * @param bool $withHash
-	 */
-	function typ($something, $withHash = true, $isCLI = null): \HTMLTag|\HtmlString
-	{
-		if ($isCLI === null) {
-			$isCLI = Request::isCLI();
-		}
+	$bulma = [
+		'string' => 'is-primary',
+		'NULL' => 'is-danger',
+		'object' => 'is-warning',
+		'array' => 'is-link',
+		'boolean' => 'is-info',
+		'integer' => 'is-success',
+		'resource' => '',
+	];
+	$class = ifsetor($bulma[$type]) . ' tag';
 
-		$type = gettype($something);
-		if ($type === 'object') {
-			if ($withHash) {
-				$hash = md5(spl_object_hash($something));
-				$hash = substr($hash, 0, 6);
-				require_once __DIR__ . '/../HTTP/Request.php';
-				if (!Request::isCLI()) {
-					require_once __DIR__ . '/../Value/Color.php';
-					$color = new Color('#' . $hash);
-					$complement = $color->getComplement();
-					if (!$isCLI) {
-						$hash = new HTMLTag('span', [
-							'class' => 'tag',
-							'style' => 'background: ' . $color . '; color: ' . $complement,
-						], $hash);
-					}
-				}
-
-				$typeName = get_class($something) . '#' . $hash;
-			} else {
-				$typeName = get_class($something);
-			}
-		} else {
-			$typeName = $type;
-		}
-
-		$bulma = [
-			'string' => 'is-primary',
-			'NULL' => 'is-danger',
-			'object' => 'is-warning',
-			'array' => 'is-link',
-			'boolean' => 'is-info',
-			'integer' => 'is-success',
-			'resource' => '',
-		];
-		$class = ifsetor($bulma[$type]) . ' tag';
-
-		if ($type === 'string') {
-			$typeName .= '[' . strlen($something) . ']';
-		}
-
-		if ($type === 'array') {
-			$typeName .= '[' . count($something) . ']';
-		}
-
-		if (!Request::isCLI()) {
-			return new HTMLTag('span', ['class' => $class], $typeName, true);
-		}
-
-		return new HtmlString($typeName);
+	if ($type === 'string') {
+		$typeName .= '[' . strlen($something) . ']';
 	}
 
-	/**
-	 * @param array|mixed $something
-	 * @return array|HtmlString|HTMLTag
-	 */
-	function gettypes($something): array|\HTMLTag|\HtmlString
-	{
-		if (is_array($something)) {
-			$types = [];
-			foreach ($something as $key => $element) {
-				$types[$key] = trim(strip_tags(typ($element)));
-			}
-
-			return $types;
-		}
-
-		return typ($something);
+	if ($type === 'array') {
+		$typeName .= '[' . count($something) . ']';
 	}
 
+	if (!$isCLI) {
+		return new HTMLTag('span', ['class' => $class], $typeName, true);
+	}
+
+	return new HtmlString($typeName);
+}
+
+/**
+ * @param array|mixed $something
+ * @return array|HtmlString|HTMLTag
+ */
+function gettypes($something): array|\HTMLTag|\HtmlString
+{
+	if (is_array($something)) {
+		$types = [];
+		foreach ($something as $key => $element) {
+			$types[$key] = trim(strip_tags(typ($element)));
+		}
+
+		return $types;
+	}
+
+	return typ($something);
 }
 
 if (!function_exists('invariant')) {

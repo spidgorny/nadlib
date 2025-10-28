@@ -144,9 +144,10 @@ function get_path_separator($path): string
 /**
  * @param string $path
  * @param string $plus
+ * @param string|null $plus2
  * @return string
  */
-function path_plus($path, $plus, $plus2 = null)
+	function path_plus(string $path, string $plus, ?string $plus2 = null)
 {
 //		llog('path_plus', $path, $plus);
 	$freq = array_count_values(str_split($path));
@@ -292,4 +293,25 @@ function str_contains_any($haystack, $needles, $case_sensitive = false): bool
 	}
 
 	return false;
+}
+
+if (!function_exists('parseFloat')) {
+	function parseFloat($str)
+	{
+		preg_match_all('!\d+(?:\.\d+)?!', $str, $matches);
+		$floats = array_map('floatval', $matches[0]);
+		return ifsetor($floats[0]);
+	}
+
+	function parseFloat2($str): float
+	{
+		return (float)filter_var($str, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+	}
+}
+
+if (!function_exists('boolval')) {
+	function boolval($val): bool
+	{
+		return (bool)$val;
+	}
 }
