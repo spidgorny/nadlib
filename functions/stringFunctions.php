@@ -294,3 +294,24 @@ function str_contains_any($haystack, $needles, $case_sensitive = false): bool
 
 	return false;
 }
+
+if (!function_exists('parseFloat')) {
+	function parseFloat($str)
+	{
+		preg_match_all('!\d+(?:\.\d+)?!', $str, $matches);
+		$floats = array_map('floatval', $matches[0]);
+		return ifsetor($floats[0]);
+	}
+
+	function parseFloat2($str): float
+	{
+		return (float)filter_var($str, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+	}
+}
+
+if (!function_exists('boolval')) {
+	function boolval($val): bool
+	{
+		return (bool)$val;
+	}
+}
