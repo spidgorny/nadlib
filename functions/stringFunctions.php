@@ -144,7 +144,7 @@ function get_path_separator($path): string
 /**
  * @param string $path
  * @param string $plus
-	 * @param ?string $plus2
+ * @param string|null $plus2
  * @return string
  */
 	function path_plus(string $path, string $plus, ?string $plus2 = null)
