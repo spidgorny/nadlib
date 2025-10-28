@@ -250,7 +250,7 @@ class Flot extends Controller
 			$array = $rows ? array_values($rows) : [];
 			$rows = 'var ' . $jsKey . ' = {
 				label: "' . $key . '",
-				data: ' . json_encode($array) . ',
+				data: ' . json_encode($array, JSON_THROW_ON_ERROR) . ',
 				stack: true,
 				bars: {
 					show: true,
@@ -259,6 +259,7 @@ class Flot extends Controller
 				}
 			};';
 		}
+		unset($rows);
 
 		$cKeys = [];
 		foreach ($cumulative as $key => &$rows) {
@@ -267,7 +268,7 @@ class Flot extends Controller
 			$cKeys[] = $jsKey;
 			$array = $rows ? array_values($rows) : [];
 			$rows = 'var ' . $jsKey . ' = {
-				data: ' . json_encode($array) . ',
+				data: ' . json_encode($array, JSON_THROW_ON_ERROR) . ',
 				lines: {
 					show: true,
 					fill: false
@@ -275,11 +276,11 @@ class Flot extends Controller
 				yaxis: 2
 			};';
 		}
+		unset($rows);
 
 		//$max *= 2;
 
-		$config = json_encode($this->jsConfig, defined('JSON_PRETTY_PRINT')
-			? JSON_PRETTY_PRINT : null);
+		$config = json_encode($this->jsConfig, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
 		if (false !== strpos($config, 'ticksWeeks')) {
 			$al = AutoLoad::getInstance();
 			$this->index->addJS($al->nadlibFromDocRoot . 'js/flot-weeks.js');

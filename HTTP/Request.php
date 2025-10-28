@@ -679,12 +679,15 @@ class Request
 			foreach ($files as &$row) {
 				$row = $row[$prefix2];
 			}
+			unset($row);
 		}
 
 		if ($files) {
+			// @phpstan-ignore-next-line
 			foreach ($files as &$row) {
 				$row = $row[$name];
 			}
+			unset($row);
 		}
 
 		//debug($files);

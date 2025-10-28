@@ -812,7 +812,7 @@ class SQLBuilder
 	{
 		$data = $this->fetchAll($query);
 		if ($key) {
-			$data = array_column($data, $val, $key);
+			$data = array_column_assoc($data, $val, $key);
 		}
 
 		return $data;

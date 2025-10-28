@@ -257,13 +257,17 @@ class Time
 			"years",
 			"decades"
 		];
+		// @phpstan-ignore-next-line
 		foreach ($periods as &$period) {
 			$period = __($period);
 		}
+		unset($period); // just in case
 
+		// @phpstan-ignore-next-line
 		foreach ($pperiods as &$period) {
 			$period = __($period);
 		}
+		unset($period); // just in case
 
 		$lengths = ["60", "60", "24", "7", "4.35", "12", "10"];
 

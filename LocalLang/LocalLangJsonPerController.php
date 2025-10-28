@@ -17,7 +17,7 @@ class LocalLangJsonPerController extends LocalLangJson
 	 */
 	public $general;
 
-	public function __construct($langFolder, $controller, ?LocalLangJson $general = null)
+	public function __construct($langFolder = null, $controller = null, ?LocalLangJson $general = null)
 	{
 		parent::__construct($langFolder);
 		$this->controller = $controller;
@@ -59,7 +59,7 @@ class LocalLangJsonPerController extends LocalLangJson
 
 	public function __destruct()
 	{
-		$jsonEncode = json_encode($this->ll, JSON_PRETTY_PRINT);
+		$jsonEncode = json_encode($this->ll, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
 		$file = $this->getFilename();
 		if (!is_file($file) || (filesize($file) < mb_strlen($jsonEncode))) {
 			file_put_contents($file, $jsonEncode);

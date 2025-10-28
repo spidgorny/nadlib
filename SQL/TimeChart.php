@@ -37,7 +37,7 @@ class TimeChart
 	];
 
 	/**
-	 * @var array[array]
+	 * @var array<array>
 	 */
 	public $data;
 
@@ -70,6 +70,27 @@ class TimeChart
 		if ($this->db->getScheme() === 'mysql') {
 			$this->options['year-week'] = '%Y-W%u';
 		}
+	}
+
+	public function __toString(): string
+	{
+		return $this->render() . '';
+	}
+
+	public function render(): string
+	{
+		$this->fetch();
+		if ($this->data) {
+			$f = $this->getFlot();
+			$content = $f->render($this->groupBy);
+			//$s = new slTable($data);
+			//$content .= $s;
+		} else {
+			//debug($this->query);
+			$content = '';
+		}
+
+		return $content;
 	}
 
 	public function fetch(): void
@@ -105,22 +126,6 @@ class TimeChart
 		return $content;
 	}
 
-	public function render(): string
-	{
-		$this->fetch();
-		if ($this->data) {
-			$f = $this->getFlot();
-			$content = $f->render($this->groupBy);
-			//$s = new slTable($data);
-			//$content .= $s;
-		} else {
-			//debug($this->query);
-			$content = '';
-		}
-
-		return $content;
-	}
-
 	public function getFlot(): \Flot
 	{
 		$this->fetch();
@@ -133,11 +138,6 @@ class TimeChart
 		$f->max *= 1.1;
 		$f->setMinMax();
 		return $f;
-	}
-
-	public function __toString(): string
-	{
-		return $this->render() . '';
 	}
 
 }

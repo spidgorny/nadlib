@@ -53,6 +53,7 @@ class MinifyJS
 //				debug($docRoot, $file, $file2);
 			$file = $file2;
 		}
+		unset($file);
 
 		$path = 'vendor/mrclay/minify/';
 		$path .= '?' . http_build_query([

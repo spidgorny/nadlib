@@ -292,6 +292,7 @@ function typ($something, $withHash = true, ?bool $isCLI = null): \HTMLTag|\HtmlS
 	}
 
 	$type = gettype($something);
+	$hash = null;
 	if ($type === 'object') {
 		if ($withHash) {
 			$hash = md5(spl_object_hash($something));
@@ -423,7 +424,7 @@ if (!function_exists('llog')) {
 				? [
 					'type' => get_debug_type(first($args)),
 					'value' => first($vars)
-				] : $vars, $jsonOptions | JSON_PRETTY_PRINT);
+				] : $vars, JSON_THROW_ON_ERROR | $jsonOptions | JSON_PRETTY_PRINT);
 		}
 
 		/** @noinspection ForgottenDebugOutputInspection */
@@ -440,6 +441,7 @@ function elapsed()
 	return microtime(true) - (float)$_SERVER['REQUEST_TIME_FLOAT'];
 }
 
+// @phpstan-ignore-next-line
 function isDev(): bool
 {
 	return (bool)DEVELOPMENT;

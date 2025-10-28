@@ -106,7 +106,7 @@ abstract class LocalLang
 	public static function getInstance($forceLang = null, $filename = null)
 	{
 		if (!self::$instance) {
-			self::$instance = new static($forceLang, $filename);
+			self::$instance = new static($forceLang);
 		}
 
 		return self::$instance;
