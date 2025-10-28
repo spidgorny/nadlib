@@ -244,8 +244,10 @@ if (!function_exists('d')) {
 	 * similar to gettype() but return more information depending on data type in HTML
 	 * @param mixed $something
 	 * @param bool $withHash
+	 * @param ?bool $isCLI
+	 * @return HTMLTag|HtmlString
 	 */
-	function typ($something, $withHash = true, $isCLI = null): \HTMLTag|\HtmlString
+	function typ($something, $withHash = true, ?bool $isCLI = null): \HTMLTag|\HtmlString
 	{
 		if ($isCLI === null) {
 			$isCLI = Request::isCLI();
@@ -257,69 +259,70 @@ if (!function_exists('d')) {
 				$hash = md5(spl_object_hash($something));
 				$hash = substr($hash, 0, 6);
 				require_once __DIR__ . '/../HTTP/Request.php';
-				if (!Request::isCLI()) {
+				if (!$isCLI) {
 					require_once __DIR__ . '/../Value/Color.php';
 					$color = new Color('#' . $hash);
 					$complement = $color->getComplement();
-					if (!$isCLI) {
-						$hash = new HTMLTag('span', [
-							'class' => 'tag',
-							'style' => 'background: ' . $color . '; color: ' . $complement,
-						], $hash);
-					}
+					$hash = new HTMLTag('span', [
+						'class' => 'tag',
+						'style' => 'background: ' . $color . '; color: ' . $complement,
+					], $hash);
 				}
-
-				$typeName = get_class($something) . '#' . $hash;
-			} else {
-				$typeName = get_class($something);
 			}
+
+			$typeName = get_class($something) . '#' . $hash;
 		} else {
-			$typeName = $type;
+			$typeName = get_class($something);
 		}
-
-		$bulma = [
-			'string' => 'is-primary',
-			'NULL' => 'is-danger',
-			'object' => 'is-warning',
-			'array' => 'is-link',
-			'boolean' => 'is-info',
-			'integer' => 'is-success',
-			'resource' => '',
-		];
-		$class = ifsetor($bulma[$type]) . ' tag';
-
-		if ($type === 'string') {
-			$typeName .= '[' . strlen($something) . ']';
-		}
-
-		if ($type === 'array') {
-			$typeName .= '[' . count($something) . ']';
-		}
-
-		if (!Request::isCLI()) {
-			return new HTMLTag('span', ['class' => $class], $typeName, true);
-		}
-
-		return new HtmlString($typeName);
 	}
 
-	/**
-	 * @param array|mixed $something
-	 * @return array|HtmlString|HTMLTag
-	 */
-	function gettypes($something): array|\HTMLTag|\HtmlString
-	{
-		if (is_array($something)) {
-			$types = [];
-			foreach ($something as $key => $element) {
-				$types[$key] = trim(strip_tags(typ($element)));
-			}
+else {
+		$typeName = $type;
+	}
 
-			return $types;
+	$bulma = [
+		'string' => 'is-primary',
+		'NULL' => 'is-danger',
+		'object' => 'is-warning',
+		'array' => 'is-link',
+		'boolean' => 'is-info',
+		'integer' => 'is-success',
+		'resource' => '',
+	];
+	$class = ifsetor($bulma[$type]) . ' tag';
+
+	if ($type === 'string') {
+		$typeName .= '[' . strlen($something) . ']';
+	}
+
+	if ($type === 'array') {
+		$typeName .= '[' . count($something) . ']';
+	}
+
+	if (!$isCLI) {
+		return new HTMLTag('span', ['class' => $class], $typeName, true);
+	}
+
+	return new HtmlString($typeName);
+}
+
+/**
+ * @param array|mixed $something
+ * @return array|HtmlString|HTMLTag
+ */
+function gettypes($something): array|\HTMLTag|\HtmlString
+{
+	if (is_array($something)) {
+		$types = [];
+		foreach ($something as $key => $element) {
+			$types[$key] = trim(strip_tags(typ($element)));
 		}
 
-		return typ($something);
+		return $types;
 	}
+
+	return typ($something);
+}
 
 }
 

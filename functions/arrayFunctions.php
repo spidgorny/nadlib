@@ -213,14 +213,15 @@ if (!function_exists('array_find')) {
 	}
 }
 
+if (!function_exists('array_find')) {
 // https://www.reddit.com/r/PHPhelp/comments/7987wv/is_there_a_php_equivalent_of_javascripts_arrayfind/
-function array_find_fast(callable $callback, array $array)
-{
-	foreach ($array as $key => $value) {
-		if ($callback($value, $key, $array)) {
-			return $value;
+	function array_find_fast(callable $callback, array $array)
+	{
+		foreach ($array as $key => $value) {
+			if ($callback($value, $key, $array)) {
+				return $value;
+			}
 		}
-	}
 
 	return null;
 }
@@ -241,5 +242,6 @@ if (!function_exists('array_flatten')) {
 		}
 
 		return $result;
+	}
 	}
 }

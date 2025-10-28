@@ -144,9 +144,10 @@ function get_path_separator($path): string
 /**
  * @param string $path
  * @param string $plus
+	 * @param ?string $plus2
  * @return string
  */
-function path_plus($path, $plus, $plus2 = null)
+	function path_plus(string $path, string $plus, ?string $plus2 = null)
 {
 //		llog('path_plus', $path, $plus);
 	$freq = array_count_values(str_split($path));
