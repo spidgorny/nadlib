@@ -276,10 +276,6 @@ if (!function_exists('d')) {
 		}
 	}
 
-else {
-		$typeName = $type;
-	}
-
 	$bulma = [
 		'string' => 'is-primary',
 		'NULL' => 'is-danger',
