@@ -320,8 +320,6 @@ function gettypes($something): array|\HTMLTag|\HtmlString
 	return typ($something);
 }
 
-}
-
 if (!function_exists('invariant')) {
 	/**
 	 * @param $test
