@@ -223,7 +223,8 @@ if (!function_exists('array_find')) {
 			}
 		}
 
-	return null;
+		return null;
+	}
 }
 
 if (!function_exists('array_flatten')) {
@@ -242,6 +243,5 @@ if (!function_exists('array_flatten')) {
 		}
 
 		return $result;
-	}
 	}
 }
