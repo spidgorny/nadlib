@@ -311,7 +311,7 @@ function typ($something, $withHash = true, ?bool $isCLI = null): \HTMLTag|\HtmlS
 
 		$typeName = get_class($something) . '#' . $hash;
 	} else {
-		$typeName = get_class($something);
+		$typeName = get_debug_type($something);
 	}
 
 	$bulma = [
