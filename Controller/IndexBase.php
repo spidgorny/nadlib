@@ -141,17 +141,11 @@ class IndexBase /*extends Controller*/
 			ini_set('session.use_trans_sid', false);
 			ini_set('session.use_only_cookies', true);
 			ini_set('session.cookie_httponly', true);
-			ini_set('session.hash_bits_per_character', 6);
-			ini_set('session.hash_function', 'sha512');
 			llog('session_start() in IndexBase');
 			$ok = session_start();
 			if (!$ok) {
 				throw new RuntimeException('session_start() failed');
-			} else {
-				//debug('session_start', session_id());
 			}
-		} else {
-//			debug('session already started', session_id(), session_status());
 		}
 		if (ifsetor($_SESSION['HTTP_USER_AGENT'])) {
 			if ($_SESSION['HTTP_USER_AGENT'] !== $_SERVER['HTTP_USER_AGENT']) {
@@ -171,8 +165,6 @@ class IndexBase /*extends Controller*/
 		} else {
 			$_SESSION['REMOTE_ADDR'] = ifsetor($_SERVER['REMOTE_ADDR']);
 		}
-//		debug($_SESSION['HTTP_USER_AGENT'], $_SESSION['REMOTE_ADDR']);
-//		debug($_SERVER['HTTP_USER_AGENT'], $_SERVER['REMOTE_ADDR']);
 	}
 
 	/**
@@ -202,7 +194,7 @@ class IndexBase /*extends Controller*/
 	 */
 	public static function makeInstance(Config $config = null)
 	{
-		return static::getInstance(true, $config);
+		return static::getInstance($config);
 	}
 
 	/**

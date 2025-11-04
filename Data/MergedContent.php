@@ -19,16 +19,6 @@ class MergedContent implements ArrayAccess
 		$this->content = $parts;
 	}
 
-	protected static function walkMerge($value, $key, &$combined = '')
-	{
-		$combined .= $value . "\n";
-	}
-
-	protected static function walkMergeArray($value, $key, &$combined)
-	{
-		$combined[] = $value;
-	}
-
 	public function __toString()
 	{
 //		debug_pre_print_backtrace();
@@ -37,36 +27,32 @@ class MergedContent implements ArrayAccess
 
 	public function getContent()
 	{
-		return $this->mergeStringArrayRecursive($this->content);
+		return self::mergeStringArrayRecursive($this->content);
 	}
 
 	/**
-	 * @param string|string[] $render
+	 * @param string|string[]|object $render
 	 * @return string
 	 */
-	static function mergeStringArrayRecursive($render)
+	static function mergeStringArrayRecursive($render): string
 	{
-		TaylorProfiler::start(__METHOD__);
-//		llog('mergeStringArrayRecursive', gettype($render));
 		if (is_array($render)) {
 			$arrayOfObjects = array_flatten($render);
 			$sureStrings = self::stringify($arrayOfObjects);
-			$combined = implode('', $sureStrings);
-			$render = $combined;
-		} elseif (is_object($render)) {
+			return implode('', $sureStrings);
+		}
+
+		if (is_object($render)) {
 			try {
-				$render = $render . '';
+				return $render . '';
 			} catch (ErrorException $e) {
-				debug_pre_print_backtrace();
+//				debug_pre_print_backtrace();
 //				debug('Object of class ', get_class($render), 'could not be converted to string');
 //				debug($render);
-				$render = '?[' . get_class($render) . ']?';
+				return '?[' . get_class($render) . ']?';
 			}
-		} else {
-			$render = $render . '';    // just in case
 		}
-		TaylorProfiler::stop(__METHOD__);
-		return $render;
+		return $render . '';
 	}
 
 	public static function stringify(array $objects)
