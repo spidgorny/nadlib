@@ -108,7 +108,6 @@ class IndexBase /*extends Controller*/
 
 	public function __construct(ConfigInterface $config)
 	{
-		TaylorProfiler::start(__METHOD__);
 		//parent::__construct();
 		$this->config = $config;
 		$this->db = $this->config->getDB();
@@ -131,7 +130,6 @@ class IndexBase /*extends Controller*/
 //		$this->controller = (object)[
 //			'layout' => null,
 //		];
-		TaylorProfiler::stop(__METHOD__);
 	}
 
 	/**
@@ -139,13 +137,13 @@ class IndexBase /*extends Controller*/
 	 */
 	public function initSession()
 	{
-		debug('is session started', session_id(), session_status());
 		if (!Request::isCLI() && !Session::isActive() && !headers_sent()) {
 			ini_set('session.use_trans_sid', false);
 			ini_set('session.use_only_cookies', true);
 			ini_set('session.cookie_httponly', true);
 			ini_set('session.hash_bits_per_character', 6);
 			ini_set('session.hash_function', 'sha512');
+			llog('session_start() in IndexBase');
 			$ok = session_start();
 			if (!$ok) {
 				throw new RuntimeException('session_start() failed');
@@ -178,7 +176,6 @@ class IndexBase /*extends Controller*/
 	}
 
 	/**
-	 * @param bool $createNew - must be false
 	 * @param ConfigInterface|null $config
 	 * @return Index
 	 * @throws Exception
@@ -188,7 +185,7 @@ class IndexBase /*extends Controller*/
 		TaylorProfiler::start(__METHOD__);
 		$instance = self::$instance ?: null;
 		if (!$instance && $config) {
-			$static = get_called_class();
+			$static = static::class;
 			$instance = new $static($config);
 			self::$instance = $instance;
 		}

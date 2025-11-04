@@ -1,6 +1,7 @@
 <?php
 
-require_once __DIR__.'/ConfigInterface.php';
+require_once __DIR__ . '/ConfigInterface.php';
+
 /**
  * Class ConfigBase - a Config, Singleton, Factory, Repository, DependencyInjectionContainer and Locator in one class.
  * Extend with a name Class and add any configuration parameters and factory calls.
@@ -95,11 +96,11 @@ class ConfigBase implements ConfigInterface
 
 	public $isCron = false;
 
+	/**
+	 * @throws JsonException
+	 */
 	protected function __construct()
 	{
-		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') {
-			echo __METHOD__ . "<br />\n";
-		}
 		$this->documentRoot = Request::getDocumentRoot();
 //		debug($this->documentRoot);
 
@@ -121,13 +122,10 @@ class ConfigBase implements ConfigInterface
 		$configJSON = $appRoot . 'class/config.json';
 		//print_r(array($configJSON, file_exists($configJSON)));
 		if (file_exists($configJSON)) {
-			$this->config = json_decode(file_get_contents($configJSON), true);
+			$this->config = json_decode(file_get_contents($configJSON), true, 512, JSON_THROW_ON_ERROR);
 			$this->mergeConfig($this);
 		}
 		$this->isCron = Request::isCron();
-		if (isset($_REQUEST['d']) && $_REQUEST['d'] == 'log') {
-			echo __METHOD__ . BR;
-		}
 	}
 
 	public static function hasInstance()

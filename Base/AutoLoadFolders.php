@@ -64,6 +64,7 @@ class AutoLoadFolders
 					//echo '$this->useCookies', $this->useCookies, BR;
 					//echo 'session_start ', __METHOD__, BR;
 					//debug_pre_print_backtrace();
+					llog('session_start in ' . __METHOD__);
 					$ok = session_start();
 					if (!$ok) {
 						throw new RuntimeException('session_start() failed');
@@ -343,7 +344,7 @@ class AutoLoadFolders
 		if ($this->saveFolders) {
 			$_SESSION[__CLASS__]['folders'] = $this->folders;
 		} else {
-			$_SESSION[__CLASS__]['folders'] = NULL;
+			$_SESSION[__CLASS__]['folders'] = null;
 		}
 	}
 
