@@ -250,7 +250,7 @@ trait Grid
 		return $content;
 	}
 
-	public function getFilterWhere()
+	public function getFilterWhere(): array
 	{
 		$where = [];
 		if ($this->filter) {

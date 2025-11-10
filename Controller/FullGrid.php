@@ -51,7 +51,7 @@ trait FullGrid
 	 * @return array
 	 * @throws Exception
 	 */
-	public function getFilterWhere()
+	public function getFilterWhere(): array
 	{
 		return $this->filterController->getFilterWhere();
 	}
