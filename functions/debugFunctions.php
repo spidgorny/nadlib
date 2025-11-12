@@ -367,8 +367,8 @@ if (!function_exists('invariant')) {
 	 * @param string|Exception $message The error message if the condition fails
 	 * @return void
 	 * @throws \RuntimeException|Exception
-	 * @phpstan-assert !null $condition
-	 * @phpstan-assert !false $condition
+	 * @phpstan-assert !null $test
+	 * @phpstan-assert !false $test
 	 */
 	function invariant($test, string|Exception $message): void
 	{
