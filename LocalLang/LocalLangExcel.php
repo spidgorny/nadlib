@@ -93,7 +93,7 @@ class LocalLangExcel extends LocalLang
 
 		//debug($data);
 		foreach ($data as $lang => &$trans) {
-			if ($lang != 'code') {
+			if ($lang !== 'code') {
 				//$trans = array_unique($trans);
 				//debug(sizeof($trans));
 				$trans = array_slice($trans, 0, count($data['code']));
