@@ -43,7 +43,7 @@ abstract class SimpleController
 
 	protected HTML $html;
 
-	protected ?LoggerInterface $logger;
+	protected ?LoggerInterface $logger = null;
 
 	public function __construct()
 	{
@@ -66,7 +66,7 @@ abstract class SimpleController
 	 */
 	public static function getInstance()
 	{
-		$static = get_called_class();
+		$static = static::class;
 		//if ($static == 'Controller') throw new Exception('Unable to create Controller instance');
 		$isset = isset(self::$instance[$static]);
 		//debug(array_keys(self::$instance), $static, $isset);
