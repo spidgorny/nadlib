@@ -275,38 +275,38 @@ trait Grid
 		// request
 		$urlColumns = $this->request->getArray('columns');
 		if ($allowEdit && ($urlColumns || $this->request->get('btnSubmit') === 'Set Visible Columns')) {
-			llog('urlColumns', $urlColumns);
+			$this->log('urlColumns', $urlColumns);
 			$this->columns = new VisibleColumns($urlColumns);
 			$this->user->setPref('Columns.' . $cn, $this->columns->getData());
-			llog('Columns set from URL', $this->columns->getData());
+			$this->log('Columns set from URL', $this->columns->getData());
 			return;
 		}
 
 		if (!$this->columns) {
 			$prefs = $this->user->getPref('Columns.' . $cn);
-			llog('columns from getPref', $prefs);
+			$this->log('columns from getPref', $prefs);
 			if ($prefs) {
 				$this->columns = new VisibleColumns($prefs);
-				llog(__METHOD__, 'Columns set from getPref');
+				$this->log(__METHOD__, 'Columns set from getPref');
 				return;
 			}
 		}
 
 		if ($this->model && $this->model->thes) {
 			$this->columns = new VisibleColumns(array_fill_keys(array_keys($this->model->thes), true));
-			llog(__METHOD__, 'Columns set from model');
+			$this->log(__METHOD__, 'Columns set from model');
 			return;
 		}
 
 		if ($this->collection->thes) {
 			$keysOfThes = array_keys($this->collection->thes);
 			$this->columns = new VisibleColumns(array_fill_keys($keysOfThes, true));
-			llog(__METHOD__, 'Columns set from collection ' . typ($this->collection) . ': ' . json_encode($this->columns, JSON_THROW_ON_ERROR));
+			$this->log(__METHOD__, 'Columns set from collection ' . typ($this->collection) . ': ' . json_encode($this->columns, JSON_THROW_ON_ERROR));
 			return;
 		}
 
 		$this->columns = new VisibleColumns();
-		llog(__METHOD__, $this->columns->getData());
+		$this->log(__METHOD__, $this->columns->getData());
 	}
 
 	/**

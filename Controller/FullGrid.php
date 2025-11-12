@@ -130,7 +130,7 @@ trait FullGrid
 		//$sortBy = ifsetor($this->model->idField);
 //		}
 
-		llog('sortBy', $sortBy);
+		$this->log('sortBy', $sortBy);
 		if ($sortBy) {
 			if ($this->collection->thes[$sortBy]['sqlSortBy'] ?? null) {
 				$sortBy = $this->collection->thes[$sortBy]['sqlSortBy'];

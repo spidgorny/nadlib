@@ -222,7 +222,7 @@ abstract class SimpleController
 		// /Controller/Action (without Action suffix)
 		if (count($this->request->getURLLevels()) >= 2) {
 			$secondSlug = $this->request->getLastNameless();
-			llog('second slug', $secondSlug, 'in', get_class($this));
+			$this->log('second slug', $secondSlug, 'in', get_class($this));
 			if (!str_endsWith($secondSlug, 'Action')) {
 				$secondSlug .= 'Action'; // ZendFramework style
 			}
@@ -232,6 +232,16 @@ abstract class SimpleController
 		}
 
 		return 'indexAction';
+	}
+
+	public function log($action, ...$data): void
+	{
+//		llog($action, ...$data);
+		if (count($data) === 1) {
+			$data = $data[0];
+		}
+
+		$this->log[] = new LogEntry($action, $data);
 	}
 
 	/**
@@ -269,16 +279,6 @@ abstract class SimpleController
 		return '<' . $hTag . '>' .
 			$caption .
 			'</' . $hTag . '>';
-	}
-
-	public function log($action, ...$data): void
-	{
-		llog($action, ...$data);
-		if (count($data) === 1) {
-			$data = $data[0];
-		}
-
-		$this->log[] = new LogEntry($action, $data);
 	}
 
 }
