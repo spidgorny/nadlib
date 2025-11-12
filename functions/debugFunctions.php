@@ -363,24 +363,24 @@ if (!function_exists('invariant')) {
 	 * Assert that a condition is true, throwing an exception if it's not
 	 *
 	 * @template T
-	 * @param T $condition The condition to check
+	 * @param T $test The condition to check
 	 * @param string|Exception $message The error message if the condition fails
 	 * @return void
-	 * @throws \RuntimeException
+	 * @throws \RuntimeException|Exception
 	 * @phpstan-assert !null $condition
 	 * @phpstan-assert !false $condition
 	 */
-	function invariant($test, string|Exception $format_str): void
+	function invariant($test, string|Exception $message): void
 	{
 		if ($test) {
 			return;
 		}
 
-		if ($format_str instanceof Exception) {
-			throw $format_str;
+		if ($message instanceof Exception) {
+			throw $message;
 		}
 
-		throw new RuntimeException($format_str);
+		throw new RuntimeException($message);
 	}
 }
 
