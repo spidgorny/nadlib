@@ -1,6 +1,7 @@
 <?php
 
 use nadlib\IndexInterface;
+use Psr\Log\LoggerInterface;
 use spidgorny\nadlib\HTTP\URL;
 
 /**
@@ -41,6 +42,8 @@ abstract class SimpleController
 	public $log = [];
 
 	protected HTML $html;
+
+	protected ?LoggerInterface $logger;
 
 	public function __construct()
 	{
