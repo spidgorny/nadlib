@@ -575,7 +575,7 @@ class Request
 		return $val;
 	}
 
-	public function getTrimArray($name): array|int|float|string|false|null
+	public function getTrimArray($name): array
 	{
 		$list = $this->getArray($name);
 		if ($list !== []) {

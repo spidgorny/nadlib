@@ -22,6 +22,17 @@ class LocalLangDB extends LocalLang
 	 */
 	protected $rows = [];
 
+	public static function getInstanceFromDB($forceLang = null)
+	{
+		static $instance = null;
+		if (!$instance) {
+			$instance = new static($forceLang);
+			$instance->init();
+		}
+
+		return $instance;
+	}
+
 	/**
 	 * Why is it not called from the constructor?
 	 * Because we need to specify the desired language $this->lang
@@ -38,17 +49,6 @@ class LocalLangDB extends LocalLang
 			$apRows = ArrayPlus::create($this->rows);
 			$this->ll = $apRows->column_assoc('code', 'text')->getData();
 		}
-	}
-
-	public static function getInstance($forceLang = null, $filename = null)
-	{
-		static $instance = null;
-		if (!$instance) {
-			$instance = new static($forceLang);
-			$instance->init();
-		}
-
-		return $instance;
 	}
 
 	public function readDB($lang)

@@ -799,7 +799,7 @@ class SQLBuilder
 			}
 
 			if ($this->db->isPostgres()) {
-				return (new DBLayer())->getReserved();
+				return new DBLayer()->getReserved();
 			}
 
 			return [];
@@ -812,7 +812,7 @@ class SQLBuilder
 	{
 		$data = $this->fetchAll($query);
 		if ($key) {
-			$data = array_column_assoc($data, $val, $key);
+			$data = ArrayPlus::create($data)->column_assoc($key, $val);
 		}
 
 		return $data;

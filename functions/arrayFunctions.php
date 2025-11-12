@@ -140,12 +140,7 @@ function array_map_keys($callback, array $array): array
  */
 function array_widths(array $arr): array
 {
-	$widths = [];
-	foreach ($arr as $key => $row) {
-		$widths[$key] = count($row);
-	}
-
-	return $widths;
+	return array_map(static fn($row) => count($row), $arr);
 }
 
 /**
@@ -185,7 +180,7 @@ function arrayToObject($array): mixed
 	// First we convert the array to a json string
 	$json = json_encode($array, JSON_THROW_ON_ERROR);
 
-	// The we convert the json string to a stdClass()
+	// Then we convert the JSON string to a stdClass()
 	return json_decode($json, false, 512, JSON_THROW_ON_ERROR);
 }
 
