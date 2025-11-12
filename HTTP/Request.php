@@ -1499,10 +1499,7 @@ class Request
 	public function getIDrequired()
 	{
 		$value = $this->getID();
-		if (!$value) {
-			throw new InvalidArgumentException('ID is required.');
-		}
-
+		invariant($value, new InvalidArgumentException('ID is required.'));
 		return $value;
 	}
 
