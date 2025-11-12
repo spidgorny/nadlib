@@ -25,19 +25,7 @@ class LazyMemberIteratorTest extends TestCase
 	 */
 	protected $sut;
 
-	protected function setUp(): void
-	{
-		$set = [];
-		for ($i = 0; $i < 10; $i++) {
-			$set[] = range(10 * $i, 10 * $i + 4);
-		}
-
-		$this->list = new ArrayIterator($set);
-		$this->sut = new LazyMemberIterator(
-			$this->list,
-			LazyObject::class
-		);
-	}
+	protected \DBInterface $db;
 
 	public function test_count(): void
 	{
@@ -93,6 +81,17 @@ class LazyMemberIteratorTest extends TestCase
 				range($i * 10, $i * 10 + 4)
 			);
 		}
+	}
+
+	protected function setUp(): void
+	{
+		$set = [];
+		for ($i = 0; $i < 10; $i++) {
+			$set[] = range(10 * $i, 10 * $i + 4);
+		}
+
+		$this->list = new ArrayIterator($set);
+		$this->sut = new LazyMemberIterator($this->list, LazyObject::class, $this->db);
 	}
 
 }

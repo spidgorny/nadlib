@@ -112,9 +112,7 @@ class SQLBuilder
 
 	public static function getFirstWord($table)
 	{
-		if (!$table) {
-			throw new InvalidArgumentException(__METHOD__ . ' called on [' . $table . ']');
-		}
+		invariant($table, new InvalidArgumentException(__METHOD__ . ' called on [' . $table . ']'));
 
 		$table1 = trimExplode(' ', $table);
 		$table0 = $table1[0];
