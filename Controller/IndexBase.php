@@ -26,7 +26,7 @@ class IndexBase /*extends Controller*/
 	public $content;
 
 	/**
-	 * @var ?Controller|MockController
+	 * @var Controller|MockController|null
 	 */
 	public $controller;
 
