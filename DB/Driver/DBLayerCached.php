@@ -31,12 +31,36 @@ class DBLayerCached extends DBLayer
 
 	protected function getCacheKey(string $method, $args): ?string
 	{
-		if (collect($args)->some(fn($x): bool => $x instanceof PgSql\Result)) {
+		try {
+			// Check for PgSql\Result without using collect to avoid autoload issues
+			foreach ($args as $arg) {
+				if ($arg instanceof PgSql\Result) {
+					return null;
+				}
+			}
+
+			// Process args without collect to avoid potential circular dependencies
+			$processedArgs = [];
+			foreach ($args as $arg) {
+				if ($arg instanceof SQLSelectQuery) {
+					$processedArgs[] = $arg->getQuery();
+				} else {
+					$processedArgs[] = $arg;
+				}
+			}
+
+			// Use json_encode instead of serialize to avoid object recursion issues
+			$serialized = json_encode($processedArgs);
+			if ($serialized === false) {
+				// If JSON encoding fails, fall back to null (no caching)
+				return null;
+			}
+
+			return md5($method . $serialized);
+		} catch (\Throwable $e) {
+			// If anything goes wrong, don't cache
 			return null;
 		}
-
-		$args = collect($args)->map(fn($x): mixed => $x instanceof SQLSelectQuery ? $x->getQuery() : $x)->toArray();
-		return md5($method . serialize($args));
 	}
 
 	public function fetchAssoc($res): array|false

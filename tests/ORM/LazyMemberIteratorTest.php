@@ -5,14 +5,14 @@ namespace ORM;
 use ArrayIterator;
 use ArrayObject;
 use LazyMemberIterator;
-use PHPUnit\Framework\TestCase;
+use Tests\AppDev\OnlineRequestSystem\MyTestCase;
 
 class LazyObject extends ArrayObject
 {
 }
 
 
-class LazyMemberIteratorTest extends TestCase
+class LazyMemberIteratorTest extends MyTestCase
 {
 
 	/**
@@ -25,7 +25,10 @@ class LazyMemberIteratorTest extends TestCase
 	 */
 	protected $sut;
 
-	protected \DBInterface $db;
+	/**
+	 * @var \DBInterface
+	 */
+	protected $db;
 
 	public function test_count(): void
 	{
@@ -85,6 +88,7 @@ class LazyMemberIteratorTest extends TestCase
 
 	protected function setUp(): void
 	{
+		parent::setUp();
 		$set = [];
 		for ($i = 0; $i < 10; $i++) {
 			$set[] = range(10 * $i, 10 * $i + 4);
