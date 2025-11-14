@@ -28,6 +28,16 @@ class DBLayer extends DBLayerBase
 	public $AFFECTED_ROWS;
 
 	/**
+	 * Extract first word from table string (e.g., "users u" => "users")
+	 * @param string $table
+	 * @return string
+	 */
+	public static function getFirstWord($table)
+	{
+		return SQLBuilder::getFirstWord($table);
+	}
+
+	/**
 	 * @var string
 	 */
 	public $lastQuery;
