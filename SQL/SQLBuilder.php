@@ -797,7 +797,7 @@ class SQLBuilder
 			}
 
 			if ($this->db->isPostgres()) {
-				return new DBLayer()->getReserved();
+				return (new DBLayer())->getReserved();
 			}
 
 			return [];
