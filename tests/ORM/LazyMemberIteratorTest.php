@@ -5,14 +5,14 @@ namespace ORM;
 use ArrayIterator;
 use ArrayObject;
 use LazyMemberIterator;
-use Tests\AppDev\OnlineRequestSystem\MyTestCase;
+use PHPUnit\Framework\TestCase;
 
 class LazyObject extends ArrayObject
 {
 }
 
 
-class LazyMemberIteratorTest extends MyTestCase
+class LazyMemberIteratorTest extends TestCase
 {
 
 	/**

@@ -145,6 +145,7 @@ class ConfigBase implements ConfigInterface
 	 */
 	public static function getInstance()
 	{
+		// @phpstan-ignore-next-line
 		if (!self::$instance) {
 			self::$instance = new static();
 			//self::$instance->postInit();	// will try to connect to the DB before autoload
