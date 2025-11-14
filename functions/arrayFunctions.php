@@ -140,12 +140,7 @@ function array_map_keys($callback, array $array): array
  */
 function array_widths(array $arr): array
 {
-	$widths = [];
-	foreach ($arr as $key => $row) {
-		$widths[$key] = count($row);
-	}
-
-	return $widths;
+	return array_map(static fn($row) => count($row), $arr);
 }
 
 /**
@@ -185,7 +180,7 @@ function arrayToObject($array): mixed
 	// First we convert the array to a json string
 	$json = json_encode($array, JSON_THROW_ON_ERROR);
 
-	// The we convert the json string to a stdClass()
+	// Then we convert the JSON string to a stdClass()
 	return json_decode($json, false, 512, JSON_THROW_ON_ERROR);
 }
 
@@ -213,16 +208,18 @@ if (!function_exists('array_find')) {
 	}
 }
 
+if (!function_exists('array_find')) {
 // https://www.reddit.com/r/PHPhelp/comments/7987wv/is_there_a_php_equivalent_of_javascripts_arrayfind/
-function array_find_fast(callable $callback, array $array)
-{
-	foreach ($array as $key => $value) {
-		if ($callback($value, $key, $array)) {
-			return $value;
+	function array_find_fast(callable $callback, array $array)
+	{
+		foreach ($array as $key => $value) {
+			if ($callback($value, $key, $array)) {
+				return $value;
+			}
 		}
-	}
 
-	return null;
+		return null;
+	}
 }
 
 if (!function_exists('array_flatten')) {

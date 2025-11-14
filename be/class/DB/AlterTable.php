@@ -43,9 +43,9 @@ class AlterTable extends AlterIndex
 	/**
 	 * @return array
 	 */
-	public function sidebar(): array
+	public function sidebar(): string
 	{
-		return [$this->showDBInfo(), $this->listFiles()];
+		return $this->s([$this->showDBInfo(), $this->listFiles()]);
 	}
 
 	public function renderTableStruct(array $struct, array $local): string

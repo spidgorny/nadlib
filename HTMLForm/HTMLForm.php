@@ -190,7 +190,7 @@ class HTMLForm implements ToStringable
 		return $this->getName($name, $namePlus, $onlyValue);
 	}
 
-	public function getNameTag($name): string
+	public function getNameAttributeAsStringDeprecated($name): string
 	{
 		return $this->getName($name, '', false);
 	}
@@ -731,7 +731,7 @@ class HTMLForm implements ToStringable
 //		$index->addJS($location . "js/jscal2.js");
 //		$index->addJS($location . "js/lang/en.js");
 
-		$content = '<input id="calendar-' . $fieldName . '" name="' . $this->getName($fieldName) . '" value="' .
+		$content = '<input id="calendar-' . $fieldName . '" name="' . $this->getName($fieldName, '', true) . '" value="' .
 			($fieldValue ? date('Y-m-d', $fieldValue) : '') . '"/>
 		<button id="calendar-trigger-' . $fieldName . '" onclick="return false;">...</button>';
 

@@ -40,6 +40,7 @@ class MinifyJS
 				$include[$file] = $this->footer[$file];
 			}
 		}
+		unset($file);
 
 		// remove common base folder
 		// "slawa/mrbs/"
@@ -53,6 +54,7 @@ class MinifyJS
 //				debug($docRoot, $file, $file2);
 			$file = $file2;
 		}
+		unset($file);
 
 		$path = 'vendor/mrclay/minify/';
 		$path .= '?' . http_build_query([

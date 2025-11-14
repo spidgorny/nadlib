@@ -575,7 +575,7 @@ class Request
 		return $val;
 	}
 
-	public function getTrimArray($name): array|int|float|string|false|null
+	public function getTrimArray($name): array
 	{
 		$list = $this->getArray($name);
 		if ($list !== []) {
@@ -679,12 +679,15 @@ class Request
 			foreach ($files as &$row) {
 				$row = $row[$prefix2];
 			}
+			unset($row);
 		}
 
 		if ($files) {
+			// @phpstan-ignore-next-line
 			foreach ($files as &$row) {
 				$row = $row[$name];
 			}
+			unset($row);
 		}
 
 		//debug($files);
@@ -1496,10 +1499,7 @@ class Request
 	public function getIDrequired()
 	{
 		$value = $this->getID();
-		if (!$value) {
-			throw new InvalidArgumentException('ID is required.');
-		}
-
+		invariant($value, new InvalidArgumentException('ID is required.'));
 		return $value;
 	}
 

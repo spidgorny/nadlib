@@ -280,15 +280,16 @@ abstract class OODBase implements ArrayAccess
 		TaylorProfiler::start(__METHOD__);
 		//$insert = $this->db->getDefaultInsertFields() + $insert; // no overwriting?
 		//debug($insert);
-		$class = $class ?: get_called_class();
+		$class = $class ?: static::class;
 
+		/** @var DBInterface $db */
 		$db = Config::getInstance()->getDB();
 		$query = $db->getInsertQuery(constant($class . '::table'), $insert);
 		//t3lib_div::debug($query);
 		$res = $db->perform($query);
 		if ($res) {
 			$id = $db->lastInsertID($res, constant($class . '::table'));
-			$object = new $class($id);
+			$object = $class::getInstance($id, $db);
 		} else {
 			$object = null;
 		}

@@ -38,9 +38,10 @@ class ConfigBase implements ConfigInterface
 		'be/class/Test',
 		'Queue',
 	];
+
 	/**
 	 * del: Public to allow Request to know if there's an instance
-	 * @var ?static
+	 * @var static
 	 */
 	protected static $instance;
 	public $db_server = '127.0.0.1';

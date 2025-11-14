@@ -401,8 +401,11 @@ abstract class Controller extends SimpleController
 
 	public function log($action, ...$data): void
 	{
-		llog($action, ...$data);
-//		$this->log[] = new LogEntry($action, $data);
+		if ($this->logger) {
+			$this->logger->log('info', $action, $data);
+		} else {
+			$this->log[] = new LogEntry($action, $data);
+		}
 	}
 
 	/**

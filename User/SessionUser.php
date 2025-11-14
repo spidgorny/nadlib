@@ -6,8 +6,9 @@
 class SessionUser extends PlainSessionUser
 {
 
-	public function __construct($id, protected DBInterface $db)
+	public function __construct($id = null, ?DBInterface $db = null)
 	{
+		$this->db = $db;
 		parent::__construct($id);
 		if (get_class($this) === 'LoginUser') {
 			$this->autologin(); // the main difference of SessionUser from PlainSessionUser

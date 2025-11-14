@@ -27,7 +27,7 @@ class AlterIndex extends AppControllerBE
 		}
 	}
 
-	public function sidebar(): array
+	public function sidebar(): string
 	{
 		$content = [];
 		if (class_exists('AdminPage')) {
@@ -38,7 +38,7 @@ class AlterIndex extends AppControllerBE
 		$content[] = $this->showDBInfo();
 		$content[] = $this->listFiles();
 
-		return $content;
+		return $this->s($content);
 	}
 
 	public function showDBInfo(): array

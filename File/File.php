@@ -61,6 +61,16 @@ class File
 		return $file;
 	}
 
+	/**
+	 * Get the full pathname of the file.
+	 * 
+	 * Returns the complete path to the file by combining directory and filename.
+	 * If $dir is set, it returns $dir/$name.
+	 * If $relativeTo is set, it uses path_plus() to combine $relativeTo and $name.
+	 * If neither is set, it returns just the $name.
+	 * 
+	 * @return string The full pathname of the file
+	 */
 	public function getPathname()
 	{
 		if ($this->dir !== '' && $this->dir !== '0') {
@@ -68,6 +78,9 @@ class File
 		}
 
 //		llog(__METHOD__, $this->relativeTo, $this->name, $absolute);
+		if ($this->relativeTo === null) {
+			return $this->name;
+		}
 		return path_plus($this->relativeTo, $this->name);
 	}
 

@@ -20,7 +20,7 @@ class NadlibTestCase extends TestCase
 	}
 
 
-	public function assertEqualsIngnoreSpaces($must, $is): void
+	public function assertEqualsIgnoreSpaces($must, $is): void
 	{
 		$must = $this->normalize($must);
 		$is = $this->normalize($is);
@@ -29,7 +29,11 @@ class NadlibTestCase extends TestCase
 
 	public function normalize($s): string
 	{
-		return implode(PHP_EOL, trimExplode("\n", $s));
+		// Replace all kinds of line breaks with spaces
+		$s = preg_replace('/\r\n|\r|\n/', ' ', $s);
+		// Replace multiple spaces with one space
+		$s = preg_replace('/\s+/', ' ', $s);
+		return trim($s);
 	}
 
 }

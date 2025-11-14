@@ -37,13 +37,13 @@ class LocalLangJson extends LocalLangDummy
 	{
 //		$this->log(__METHOD__, $this->getFilename());
 		$file = file_get_contents($this->getFilename());
-		$this->ll = json_decode($file, true);
+		$this->ll = json_decode($file, true, 512, JSON_THROW_ON_ERROR);
 		//debug($file, $this->ll);
 	}
 
 	public function __destruct()
 	{
-		$jsonEncode = json_encode($this->ll, JSON_PRETTY_PRINT);
+		$jsonEncode = json_encode($this->ll, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
 		$file = $this->getFilename();
 		if (filesize($file) < mb_strlen($jsonEncode)) {
 			file_put_contents($file, $jsonEncode);
@@ -71,7 +71,7 @@ class LocalLangJson extends LocalLangDummy
 		} else {
 			$trans = $text;
 		}
-        
+
 		return $trans;
 	}
 
