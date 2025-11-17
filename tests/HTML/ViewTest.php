@@ -22,7 +22,7 @@ class ViewTest extends TestCase
 		$v->content = 'asd';
 
 		$content = $v->render();
-		static::assertContains('asd', $content);
+		static::assertStringContainsString('asd', $content);
 	}
 
 	public function test_cleanComment(): void
@@ -73,4 +73,16 @@ alert("xss");
 		static::assertEquals(1, $countSidebar);
 	}
 
+	public function test_variablesFromSecondArgument(): void
+	{
+		$v = new \View(__DIR__ . '/ViewVariablesTemplate.phtml', [
+			'greeting' => 'Hello',
+			'target' => 'World',
+		]);
+		$html = $v->render();
+
+		static::assertStringContainsString('Hello', $html);
+		static::assertStringContainsString('World', $html);
+		static::assertStringContainsString('<p>Hello World</p>', $html);
+	}
 }
