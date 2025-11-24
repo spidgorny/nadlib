@@ -202,23 +202,24 @@ function objectToArray($object): mixed
 }
 
 if (!function_exists('array_find')) {
-	function array_find($array, $callback): mixed
-	{
-		return current(array_filter($array, $callback));
-	}
-}
-
-if (!function_exists('array_find')) {
-// https://www.reddit.com/r/PHPhelp/comments/7987wv/is_there_a_php_equivalent_of_javascripts_arrayfind/
-	function array_find_fast(callable $callback, array $array)
+// PHP 8.4 compatible signature: https://www.php.net/manual/en/function.array-find.php
+	function array_find(array $array, callable $callback): mixed
 	{
 		foreach ($array as $key => $value) {
-			if ($callback($value, $key, $array)) {
+			if ($callback($value, $key)) {
 				return $value;
 			}
 		}
 
 		return null;
+	}
+}
+
+if (!function_exists('array_find_fast')) {
+// Faster version using array_filter
+	function array_find_fast(array $array, callable $callback): mixed
+	{
+		return current(array_filter($array, $callback)) ?: null;
 	}
 }
 
