@@ -201,19 +201,21 @@ function objectToArray($object): mixed
 	return json_decode($json, true, 512, JSON_THROW_ON_ERROR);
 }
 
-if (!function_exists('array_find')) {
-// PHP 8.4 compatible signature: https://www.php.net/manual/en/function.array-find.php
-	function array_find(array $array, callable $callback): mixed
-	{
-		foreach ($array as $key => $value) {
-			if ($callback($value, $key)) {
-				return $value;
-			}
-		}
-
-		return null;
-	}
-}
+// Skip array_find definition to avoid conflicts with PHP 8.4 polyfill or native function
+// This function is available natively in PHP 8.4+, and may be polyfilled by Symfony
+// if (!function_exists('array_find')) {
+// // PHP 8.4 compatible signature: https://www.php.net/manual/en/function.array-find.php
+// 	function array_find(array $array, callable $callback): mixed
+// 	{
+// 		foreach ($array as $key => $value) {
+// 			if ($callback($value, $key)) {
+// 				return $value;
+// 			}
+// 		}
+//
+// 		return null;
+// 	}
+// }
 
 if (!function_exists('array_find_fast')) {
 // Faster version using array_filter
