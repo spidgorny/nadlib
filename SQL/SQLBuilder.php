@@ -115,7 +115,7 @@ class SQLBuilder
 			return $res;
 		} elseif (is_scalar($value)) {
 			$sql = "'" . $this->db->escape($value) . "'";
-			if ($this->db->getScheme() == 'ms') {
+			if ($this->db->getScheme() === 'ms') {
 				$sql = 'N' . $sql;    // UTF-8 encoding
 			}
 			return $sql;
@@ -721,7 +721,7 @@ class SQLBuilder
 		}
 		$row = $this->fetchAssoc($result);
 		while ($row != false && $row != null) {
-			list($key, $val) = array_values($row);
+			[$key, $val] = array_values($row);
 			$data[$key] = $val;
 
 			$row = $this->fetchAssoc($result);
