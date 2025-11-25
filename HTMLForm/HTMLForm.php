@@ -3,9 +3,9 @@
 class HTMLForm implements ToStringable
 {
 
-	public const string METHOD_GET = 'GET';
+	public const METHOD_GET = 'GET';
 
-	public const string METHOD_POST = 'POST';
+	public const METHOD_POST = 'POST';
 
 	public $stdout = "";
 
