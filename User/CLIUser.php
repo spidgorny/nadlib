@@ -112,4 +112,9 @@ class CLIUser implements UserModelInterface
 	{
 		// TODO: Implement setPref() method.
 	}
+
+	public function getCity()
+	{
+		// TODO: Implement getCity() method.
+	}
 }

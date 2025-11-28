@@ -42,7 +42,7 @@ class ArrayFunctionsTest extends TestCase
 			'qwe',
 			'123',
 		];
-		static::assertEquals('qwe', array_find_fast(static fn($line): bool => str_startsWith($line, 'q'), $data));
+		static::assertEquals('qwe', array_find_fast($data, static fn($line): bool => str_startsWith($line, 'q')));
 	}
 
 }
