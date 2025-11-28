@@ -18,7 +18,7 @@ class LazyMemberIterator extends IteratorIterator implements Countable
 	 * @param Traversable $iterator $array
 	 * @param string $class
 	 */
-	public function __construct(Traversable $iterator, $class)
+	public function __construct(Traversable $iterator, $class, protected DBInterface $db)
 	{
 		//echo __METHOD__, BR;
 		//debug($iterator, sizeof($iterator));
@@ -55,9 +55,9 @@ class LazyMemberIterator extends IteratorIterator implements Countable
 	}
 
 	/**
-     * This was fucking missing(!) without any warnings
-     */
-    public function valid(): bool
+	 * This was fucking missing(!) without any warnings
+	 */
+	public function valid(): bool
 	{
 		/** @var DatabaseResultIteratorAssoc $iterator */
 		$iterator = $this->getInnerIterator();
@@ -87,10 +87,10 @@ class LazyMemberIterator extends IteratorIterator implements Countable
 		//debug($array);
 		//debug($array);
 		if ($array) {
-			return new $this->class($array);
-		} else {
-			return null;
+			return new $this->class($array, $this->db);
 		}
+
+		return null;
 	}
 
 }

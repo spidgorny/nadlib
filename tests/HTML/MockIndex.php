@@ -1,5 +1,7 @@
 <?php
 
+use spidgorny\nadlib\HTML\MockController;
+
 class MockIndex
 {
 

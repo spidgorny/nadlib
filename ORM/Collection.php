@@ -177,7 +177,7 @@ class Collection implements IteratorAggregate, ToStringable
 		$this->controller = $controller;
 
 		if (!$this->select) {
-			$firstWordFromTable = $this->db->getFirstWord($this->table);
+			$firstWordFromTable = $this->db::getFirstWord($this->table);
 //			$firstWordFromTable2 = SQLBuilder::getFirstWord($this->table);
 //			debug($this->table, $firstWordFromTable, $firstWordFromTable2, typ($this->db));
 			$this->select =
@@ -802,7 +802,7 @@ class Collection implements IteratorAggregate, ToStringable
 		}
 
 		$arrayIterator = $this->getLazyIterator();
-		$memberIterator = new LazyMemberIterator($arrayIterator, $class);
+		$memberIterator = new LazyMemberIterator($arrayIterator, $class, $this->db);
 		$memberIterator->count = $arrayIterator->count();
 		return $memberIterator;
 	}

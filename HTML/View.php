@@ -268,7 +268,14 @@ class View extends stdClass implements ToStringable
 	{
 //		llog('$this->caller', get_debug_type($this->caller));
 		if ($this->caller !== null) {
-			return $this->caller->$var;
+			// Check if property exists in caller to avoid PHP 8.4 undefined property warnings
+			if (property_exists($this->caller, $var) || isset($this->caller->$var)) {
+				return $this->caller->$var;
+			}
+			// If caller is ArrayPlus or array-like, try to get from data
+			if ($this->caller instanceof ArrayPlus) {
+				return $this->caller->getData()[$var] ?? null;
+			}
 		}
 
 		if (isset($this->$var)) {

@@ -103,7 +103,7 @@ abstract class LocalLang
 		return isset($this->ll[$lang]);
 	}
 
-	public static function getInstance($forceLang = null, $filename = null)
+	public static function getInstance($forceLang = null)
 	{
 		if (!self::$instance) {
 			self::$instance = new static($forceLang);

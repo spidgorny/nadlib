@@ -140,12 +140,7 @@ function array_map_keys($callback, array $array): array
  */
 function array_widths(array $arr): array
 {
-	$widths = [];
-	foreach ($arr as $key => $row) {
-		$widths[$key] = count($row);
-	}
-
-	return $widths;
+	return array_map(static fn($row) => count($row), $arr);
 }
 
 /**
@@ -185,7 +180,7 @@ function arrayToObject($array): mixed
 	// First we convert the array to a json string
 	$json = json_encode($array, JSON_THROW_ON_ERROR);
 
-	// The we convert the json string to a stdClass()
+	// Then we convert the JSON string to a stdClass()
 	return json_decode($json, false, 512, JSON_THROW_ON_ERROR);
 }
 
@@ -206,24 +201,27 @@ function objectToArray($object): mixed
 	return json_decode($json, true, 512, JSON_THROW_ON_ERROR);
 }
 
-if (!function_exists('array_find')) {
-	function array_find($array, $callback): mixed
-	{
-		return current(array_filter($array, $callback));
-	}
-}
+// Skip array_find definition to avoid conflicts with PHP 8.4 polyfill or native function
+// This function is available natively in PHP 8.4+, and may be polyfilled by Symfony
+// if (!function_exists('array_find')) {
+// // PHP 8.4 compatible signature: https://www.php.net/manual/en/function.array-find.php
+// 	function array_find(array $array, callable $callback): mixed
+// 	{
+// 		foreach ($array as $key => $value) {
+// 			if ($callback($value, $key)) {
+// 				return $value;
+// 			}
+// 		}
+//
+// 		return null;
+// 	}
+// }
 
-if (!function_exists('array_find')) {
-// https://www.reddit.com/r/PHPhelp/comments/7987wv/is_there_a_php_equivalent_of_javascripts_arrayfind/
-	function array_find_fast(callable $callback, array $array)
+if (!function_exists('array_find_fast')) {
+// Faster version using array_filter
+	function array_find_fast(array $array, callable $callback): mixed
 	{
-		foreach ($array as $key => $value) {
-			if ($callback($value, $key, $array)) {
-				return $value;
-			}
-		}
-
-		return null;
+		return current(array_filter($array, $callback)) ?: null;
 	}
 }
 

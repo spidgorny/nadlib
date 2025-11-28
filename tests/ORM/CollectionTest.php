@@ -35,7 +35,8 @@ class CollectionTest extends NadlibTestCase
 
 		$c = new Collection(null, [], '', $db);
 		$query100 = $c->getQueryWithLimit();
-		$this->assertEqualsIngnoreSpaces('SELECT
+		// @todo: fix empty WHERE clause
+		$this->assertEqualsIgnoreSpaces('SELECT
 "Collection".*
 FROM "Collection"
  WHERE

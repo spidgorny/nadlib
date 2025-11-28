@@ -38,9 +38,10 @@ class ConfigBase implements ConfigInterface
 		'be/class/Test',
 		'Queue',
 	];
+
 	/**
 	 * del: Public to allow Request to know if there's an instance
-	 * @var ?static
+	 * @var static
 	 */
 	protected static $instance;
 	public $db_server = '127.0.0.1';
@@ -144,6 +145,7 @@ class ConfigBase implements ConfigInterface
 	 */
 	public static function getInstance()
 	{
+		// @phpstan-ignore-next-line
 		if (!self::$instance) {
 			self::$instance = new static();
 			//self::$instance->postInit();	// will try to connect to the DB before autoload

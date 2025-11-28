@@ -30,24 +30,17 @@ class LocalLangExcel extends LocalLang
 	{
 		$data = [];
 		if (file_exists($this->filename) && (filemtime($this->filename) > filemtime($this->excel) && $this->isCache)) {
-            $data = file_get_contents($this->filename);
-            $data = unserialize($data);
-        }
+			$data = file_get_contents($this->filename);
+			$data = unserialize($data);
+		}
 
 		return $data;
 	}
 
-	public function savePersistant($data): void
-	{
-		$data = serialize($data);
-		file_put_contents($this->filename, $data);
-		//debug('save');
-	}
-
 	/**
-     * @return non-empty-array<int, non-falsy-string>[]
-     */
-    public function readExcel(array $keys): array
+	 * @return non-empty-array<int, non-falsy-string>[]
+	 */
+	public function readExcel(array $keys): array
 	{
 		//debug($keys);
 		$data = [];
@@ -100,7 +93,7 @@ class LocalLangExcel extends LocalLang
 
 		//debug($data);
 		foreach ($data as $lang => &$trans) {
-			if ($lang != 'code') {
+			if ($lang !== 'code') {
 				//$trans = array_unique($trans);
 				//debug(sizeof($trans));
 				$trans = array_slice($trans, 0, count($data['code']));
@@ -123,33 +116,40 @@ class LocalLangExcel extends LocalLang
 		return $data;
 	}
 
-	public static function getInstance($forceLang = null, $filename = null)
+	public function savePersistant($data): void
+	{
+		$data = serialize($data);
+		file_put_contents($this->filename, $data);
+		//debug('save');
+	}
+
+	public static function getInstanceFromExcel($forceLang = null)
 	{
 		static $instance = null;
 		if (!$instance) {
-			$instance = new LocalLangExcel();
+			$instance = new LocalLangExcel($forceLang);
 		}
 
 		return $instance;
 	}
 
 	public function saveMissingMessage($text): void
-    {
-        $missingWords = [];
-        $fp = fopen('lib/missing.txt', 'r');
-        while (!feof($fp)) {
-				$line = fgets($fp);
-				$line = trim($line);
-				$missingWords[$line] = $line;
-			}
+	{
+		$missingWords = [];
+		$fp = fopen('lib/missing.txt', 'r');
+		while (!feof($fp)) {
+			$line = fgets($fp);
+			$line = trim($line);
+			$missingWords[$line] = $line;
+		}
 
-        fclose($fp);
-        //debug($missingWords);
-        if (!isset($missingWords[$text])) {
-				$fp = fopen('lib/missing.txt', 'a');
-				fwrite($fp, $text . "\n");
-				fclose($fp);
-			}
-    }
+		fclose($fp);
+		//debug($missingWords);
+		if (!isset($missingWords[$text])) {
+			$fp = fopen('lib/missing.txt', 'a');
+			fwrite($fp, $text . "\n");
+			fclose($fp);
+		}
+	}
 
 }

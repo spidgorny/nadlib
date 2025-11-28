@@ -27,7 +27,7 @@ abstract class UserBase extends OODBase implements UserModelInterface
 		//debug($this->prefs);
 		//debug($this->db);
 		//debug($this->id);
-		if ($this->db !== null && $this->db->isConnected() && $this->id && $this->prefs) {
+		if ($this->db->isConnected() && $this->id && $this->prefs) {
 
 			// this is just an example - move it to the app class
 			//$this->update(array('prefs' => serialize($this->prefs)));

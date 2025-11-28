@@ -70,7 +70,7 @@ class Model
 	public static function getInstance(array $data, ?DBInterface $db = null): static
 	{
 		$id = static::$idField;
-		if (static::$instances[static::class][$data[$id]]) {
+		if (static::$instances[static::class][$data[$id]] ?? null) {
 			return static::$instances[static::class][$data[$id]];
 		}
 
@@ -80,7 +80,7 @@ class Model
 
 	public static function makeInstance(array $data, ?DBInterface $db = null): static
 	{
-		if (static::$instances[static::class][$data['id']]) {
+		if (static::$instances[static::class][$data['id']] ?? null) {
 			return static::$instances[static::class][$data['id']];
 		}
 

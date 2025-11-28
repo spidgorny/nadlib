@@ -345,7 +345,7 @@ abstract class Controller extends SimpleController
 	}
 
 	/**
-	 * @return string|string[]|HTMLForm|ToStringable
+	 * @return string|string[]|HTMLForm|ToStringable|array<mixed>
 	 */
 	public function sidebar()
 	{
@@ -401,8 +401,11 @@ abstract class Controller extends SimpleController
 
 	public function log($action, ...$data): void
 	{
-		llog($action, ...$data);
-//		$this->log[] = new LogEntry($action, $data);
+		if ($this->logger) {
+			$this->logger->log('info', $action, $data);
+		} else {
+			$this->log[] = new LogEntry($action, $data);
+		}
 	}
 
 	/**

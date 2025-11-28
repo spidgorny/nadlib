@@ -575,7 +575,7 @@ class Request
 		return $val;
 	}
 
-	public function getTrimArray($name): array|int|float|string|false|null
+	public function getTrimArray($name): array
 	{
 		$list = $this->getArray($name);
 		if ($list !== []) {
@@ -1499,10 +1499,7 @@ class Request
 	public function getIDrequired()
 	{
 		$value = $this->getID();
-		if (!$value) {
-			throw new InvalidArgumentException('ID is required.');
-		}
-
+		invariant($value, new InvalidArgumentException('ID is required.'));
 		return $value;
 	}
 

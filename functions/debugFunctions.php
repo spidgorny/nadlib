@@ -360,23 +360,27 @@ function gettypes($something): array|\HTMLTag|\HtmlString
 
 if (!function_exists('invariant')) {
 	/**
-	 * @param $test
-	 * @param $format_str
-	 * @param ...$args
-	 * @throws Exception
-	 * @assert $test
+	 * Assert that a condition is true, throwing an exception if it's not
+	 *
+	 * @template T
+	 * @param T $test The condition to check
+	 * @param string|Exception $message The error message if the condition fails
+	 * @return void
+	 * @throws \RuntimeException|Exception
+	 * @phpstan-assert !null $test
+	 * @phpstan-assert !false $test
 	 */
-	function invariant($test, $format_str = null, ...$args): void
+	function invariant($test, string|Exception $message): void
 	{
 		if ($test) {
 			return;
 		}
 
-		if ($format_str instanceof Exception) {
-			throw $format_str;
+		if ($message instanceof Exception) {
+			throw $message;
 		}
 
-		throw new RuntimeException($format_str ? vsprintf($format_str, $args) : 'Invariant failed');
+		throw new RuntimeException($message);
 	}
 }
 

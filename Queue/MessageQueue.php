@@ -10,13 +10,13 @@
 class MessageQueue extends OODBase
 {
 
-	public const string STATUS_NEW = 'NEW';
+	public const STATUS_NEW = 'NEW';
 
-	public const string STATUS_IN_PROGRESS = 'IN PROGRESS';
+	public const STATUS_IN_PROGRESS = 'IN PROGRESS';
 
-	public const string STATUS_DONE = 'DONE';
+	public const STATUS_DONE = 'DONE';
 
-	public const string STATUS_FAILED = 'FAILED';
+	public const STATUS_FAILED = 'FAILED';
 
 	public $table = 'message_queue';
 

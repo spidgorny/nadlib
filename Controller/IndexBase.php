@@ -2,6 +2,7 @@
 
 use nadlib\HTML\Messages;
 use nadlib\HTTP\Session;
+use spidgorny\nadlib\HTML\MockController;
 
 class IndexBase /*extends Controller*/
 {    // infinite loop
@@ -25,7 +26,7 @@ class IndexBase /*extends Controller*/
 	public $content;
 
 	/**
-	 * @var ?Controller
+	 * @var Controller|MockController|null
 	 */
 	public $controller;
 

@@ -66,10 +66,10 @@ abstract class OODBase implements ArrayAccess
 	public $forceInit;
 
 	/**
-	 * @var DBLayerBase|DBInterface|SQLBuilder|DBLayerPDO|DBLayer
+	 * @var DBLayerBase|DBInterface|DBLayerPDO|DBLayer
 	 * public to allow unset($o->db); before debugging
 	 */
-	protected $db;
+	protected DBInterface $db;
 
 	protected $titleColumn = 'name';
 
@@ -198,7 +198,7 @@ abstract class OODBase implements ArrayAccess
 //		llog('findInDB(' . ($where[$this->idField] ?? null) . '):', $row);
 
 		//debug($this->where + $where, $this->db->lastQuery);
-		$this->lastSelectQuery = $this->db->lastQuery;
+		$this->lastSelectQuery = $this->db->getLastQuery();
 //		$this->log(__METHOD__, $this->lastSelectQuery . '');
 //		debug($rows, $this->lastSelectQuery);
 		if (is_array($row) && $row) {
@@ -476,7 +476,7 @@ abstract class OODBase implements ArrayAccess
 		$this->lastQuery = $query;
 		$res = $this->db->perform($query);
 		//debug($query, $res, $this->db->lastQuery, $this->id);
-		$this->lastQuery = $this->db->lastQuery;    // save before commit
+		$this->lastQuery = $this->db->getLastQuery();    // save before commit
 		// If the input arrays have the same string keys,
 		// then the later value for that key will overwrite the previous one.
 		//$this->data = array_merge($this->data, $data);
@@ -817,7 +817,7 @@ abstract class OODBase implements ArrayAccess
 				$op = 'INSERT ' . $this->id;
 			} else {
 				debug($this->lastQuery);
-				$op = $this->db->lastQuery;    // for debug
+				$op = $this->db->getLastQuery();    // for debug
 			}
 
 //			debug($this->id, $this->data, $op, $this->db->lastQuery);
