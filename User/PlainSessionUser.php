@@ -150,4 +150,9 @@ class PlainSessionUser extends UserBase
 	{
 		// TODO: Implement getPerson() method.
 	}
+
+	public function getCity()
+	{
+		// TODO: Implement getCity() method.
+	}
 }

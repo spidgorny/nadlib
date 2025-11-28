@@ -146,4 +146,9 @@ class BEUser implements UserModelInterface
 	{
 		// TODO: Implement setPref() method.
 	}
+
+	public function getCity()
+	{
+		// TODO: Implement getCity() method.
+	}
 }
