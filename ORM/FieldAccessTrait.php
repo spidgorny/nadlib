@@ -14,7 +14,7 @@ trait FieldAccessTrait
 		return get_class($this) . ': "' . $this->getName() . '" (id:' . $this->id . ' ' . $this->getHash() . ')';
 	}
 
-	public function getName(): ?string
+	public function getName(): string
 	{
 		if (is_array($this->titleColumn)) {
 			return array_reduce($this->titleColumn, function (?string $initial, $key): string {

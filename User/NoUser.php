@@ -167,4 +167,10 @@ class NoUser implements UserModelInterface
 	{
 		// TODO: Implement isJuniorTechnician() method.
 	}
+
+	public function getCity()
+	{
+		return null;
+	}
+
 }

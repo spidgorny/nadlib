@@ -42,4 +42,6 @@ interface UserModelInterface extends SomeKindOfUser
 
 	public function getPerson();
 
+	public function getCity();
+
 }
