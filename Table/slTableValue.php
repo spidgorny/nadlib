@@ -18,11 +18,6 @@ class slTableValue
 	];
 
 	/**
-	 * @var DBInterface
-	 */
-	public $db;
-
-	/**
 	 * @var slTable
 	 */
 	public $caller;
@@ -33,7 +28,7 @@ class slTableValue
 	//public $SLTABLE_IMG_CROSS = '<img src="/img/uncheck.png">';
 	public $SLTABLE_IMG_CROSS = '☐';
 
-	public function __construct($value, array $desc = [])
+	public function __construct($value, array $desc = [], protected ?DBInterface $db = null)
 	{
 		if ($value instanceof slTableValue) {
 			$value = $value->value;
@@ -43,7 +38,6 @@ class slTableValue
 
 		$this->value = $value;
 		$this->desc += $desc;
-		$this->db = Config::getInstance()->getDB();
 	}
 
 	public function injectDB(DBInterface $db): void

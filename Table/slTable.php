@@ -128,6 +128,8 @@ class slTable implements ToStringable
 	 */
 	protected $request;
 
+	public ?DBInterface $db = null;
+
 	public function __construct($id = null, array $more = [], array $thes = [])
 	{
 		if (is_array($id) || is_object($id)) {    // Iterator object
@@ -563,7 +565,7 @@ class slTable implements ToStringable
 					}
 
 					if (!($val instanceof slTableValue)) {
-						$val = new slTableValue($val, $k);
+						$val = new slTableValue($val, $k, $this->db);
 					}
 
 					$out = (isset($k['before']) ? $k['before'] : '');
@@ -745,7 +747,7 @@ class slTable implements ToStringable
 
 				$footer[$col] = $footer[$col] ? new slTableValue($footer[$col], [
 					'align' => 'right',
-				]) : '';
+				], $this->db) : '';
 			}
 		}
 
