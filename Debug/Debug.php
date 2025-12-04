@@ -260,10 +260,18 @@ class Debug
 		reset($btl);
 		$bt = current($btl);
 		for ($i = 0; $i < $stepBack; $i++) {
-			$bt = next($btl);
+			$next = next($btl);
+			if ($next !== false) {
+				$bt = $next;
+			}
 		}
 
-		$btBefore = $btl[$stepBack - 1];
+		// Ensure $bt is an array to prevent PHP 8.2 deprecation warning
+		if (!is_array($bt)) {
+			$bt = [];
+		}
+
+		$btBefore = $btl[$stepBack - 1] ?? [];
 		$object = ifsetor($bt['object']);
 		return ifsetor($bt['class'], is_object($object) ? get_class($object) : null)
 			. '::' . ifsetor($bt['function']) . '#' . ifsetor($btBefore['line']);
