@@ -36,7 +36,7 @@ class DBLayerMySQLi extends DBLayerBase
 	 * @return array|false
 	 * @throws DatabaseException
 	 */
-	public function fetchAssoc($res)
+	public function fetchAssoc($res, array $args = [])
 	{
 		//		debug(gettype2($res));
 		if ($res instanceof mysqli_result) {
@@ -45,7 +45,7 @@ class DBLayerMySQLi extends DBLayerBase
 		}
 
 		if (is_string($res)) {
-			$res = $this->perform($res);
+			$res = $this->perform($res, $args);
 			return $res->fetch_assoc();
 		}
 

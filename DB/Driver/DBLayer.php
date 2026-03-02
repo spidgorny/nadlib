@@ -478,10 +478,10 @@ class DBLayer extends DBLayerBase
 	 * @throws DatabaseException
 	 * @throws MustBeStringException
 	 */
-	public function fetchAssoc($res): array|false
+	public function fetchAssoc($res, array $args = []): array|false
 	{
 		if (is_string($res)) {
-			$res = $this->perform($res);
+			$res = $this->perform($res, $args);
 		}
 
 		return pg_fetch_assoc($res);

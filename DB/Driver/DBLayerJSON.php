@@ -59,7 +59,7 @@ class DBLayerJSON extends DBLayerBase
 		return $this->tables[$name];
 	}
 
-	public function fetchAssoc($res)
+	public function fetchAssoc($res, array $args = [])
 	{
 		if ($res instanceof DBLayerJSONTable) {
 			return $res->fetchAssoc($res);

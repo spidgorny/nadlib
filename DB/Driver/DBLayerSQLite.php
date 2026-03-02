@@ -75,10 +75,10 @@ class DBLayerSQLite extends DBLayerBase
 	 * @return mixed
 	 * @throws Exception
 	 */
-	public function fetchAssoc($res)
+	public function fetchAssoc($res, array $args = [])
 	{
 		if (is_string($res)) {
-			$res = $this->perform($res);
+			$res = $this->perform($res, $args);
 		} elseif ($res instanceof SQLSelectQuery) {
 			$res = $this->perform($res . '', $res->getParameters());
 		}

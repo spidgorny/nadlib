@@ -87,7 +87,7 @@ class DBPlacebo extends DBLayerBase
 		// TODO: Implement escapeBool() method.
 	}
 
-	public function fetchAssoc($res)
+	public function fetchAssoc($res, array $args = [])
 	{
 		$return = $this->returnNextTime;
 		$this->returnNextTime = [];

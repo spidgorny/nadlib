@@ -175,7 +175,7 @@ class DBLayerOCI extends DBLayerBase
 		}
 	*/
 
-	public function fetchAssoc($result): array|false
+	public function fetchAssoc($result, array $args = []): array|false
 	{
 		return oci_fetch_array($result, OCI_RETURN_NULLS | OCI_ASSOC);
 	}

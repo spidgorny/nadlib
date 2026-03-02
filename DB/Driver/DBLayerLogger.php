@@ -97,7 +97,7 @@ class DBLayerLogger extends DBLayerBase
 		$this->log(__METHOD__);
 	}
 
-	public function fetchAssoc($res): void
+	public function fetchAssoc($res, array $args = []): void
 	{
 		$this->log(__METHOD__);
 	}

@@ -102,7 +102,7 @@ class SessionDatabase implements DBInterface
 		debug(__METHOD__);
 	}
 
-	public function fetchAssoc($res): void
+	public function fetchAssoc($res, array $args = []): void
 	{
 		debug(__METHOD__);
 	}

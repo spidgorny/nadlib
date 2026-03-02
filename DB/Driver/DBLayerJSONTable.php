@@ -56,7 +56,7 @@ class DBLayerJSONTable extends DBLayerBase
 		return $data;
 	}
 
-	public function fetchAssoc($res)
+	public function fetchAssoc($res, array $args = [])
 	{
 		$row = null;
 		if ($this->where) {

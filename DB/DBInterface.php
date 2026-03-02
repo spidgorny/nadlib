@@ -25,7 +25,7 @@ interface DBInterface
 
 	public function escapeBool($value);
 
-	public function fetchAssoc($res);
+	public function fetchAssoc($res, array $args = []);
 
 	public function transaction();
 

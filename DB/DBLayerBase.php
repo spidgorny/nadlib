@@ -174,7 +174,7 @@ abstract class DBLayerBase implements DBInterface
 		return $value;
 	}
 
-	public function fetchAssoc($res)
+	public function fetchAssoc($res, array $args = [])
 	{
 		return [];
 	}

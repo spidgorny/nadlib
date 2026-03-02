@@ -63,14 +63,14 @@ class DBLayerCached extends DBLayer
 		}
 	}
 
-	public function fetchAssoc($res): array|false
+	public function fetchAssoc($res, array $args = []): array|false
 	{
 		$cacheKey = $this->getCacheKey(__METHOD__, func_get_args());
 		if (isset($this->cache[$cacheKey])) {
 			return $this->cache[$cacheKey];
 		}
 
-		$data = parent::fetchAssoc($res);
+		$data = parent::fetchAssoc($res, $args);
 		if ($cacheKey) {
 			$this->cache[$cacheKey] = $data;
 		}
