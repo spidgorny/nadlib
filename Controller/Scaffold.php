@@ -232,7 +232,7 @@ abstract class Scaffold extends AppControllerBE
 	 */
 	protected function getForm($action = 'add')
 	{
-		$this->form->method('POST');
+		$this->form->method(HTMLForm::METHOD_POST);
 		$this->form->stdout .= $this->form->hidden('c', get_class($this));
 		$this->form->stdout .= $this->form->hidden('pageType', get_class($this));
 		$this->form->stdout .= $this->form->hidden('action', $action);

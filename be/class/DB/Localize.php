@@ -278,7 +278,7 @@ class Localize extends AppControllerBE
 	public function sidebar()
 	{
 		$f = new HTMLForm();
-		$f->method('GET');
+		$f->method(HTMLForm::METHOD_GET);
 		$f->hidden('c', get_class($this));
 		$f->stdout .= $f->input('search', $this->request->getTrim('search'), [], 'text', "span2");
 		$f->stdout .= $f->submit('Search');

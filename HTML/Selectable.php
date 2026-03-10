@@ -19,16 +19,14 @@ class Selectable
 	 * @public to be visible in debug
 	 */
 	public $selected;
-
-	/**
-	 * @var array of all possible data from DB
-	 */
-	protected $rows;
-
 	/**
 	 * @var array of a single record from $this->rows
 	 */
 	public $data;
+	/**
+	 * @var array of all possible data from DB
+	 */
+	protected $rows;
 
 	/**
 	 * @param $selected - id / array row
@@ -74,7 +72,7 @@ class Selectable
 		$request = Request::getInstance();
 
 		$f = new HTMLForm();
-		$f->method('GET');
+		$f->method(HTMLForm::METHOD_GET);
 
 		$nameless = $request->getURLLevel(0);
 		//debug($nameless);

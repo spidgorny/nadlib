@@ -25,7 +25,7 @@ trait FieldAccessTrait
 			}, '');
 		}
 
-		return ifsetor($this->data[$this->titleColumn], $this->id);
+		return ifsetor($this->data[$this->titleColumn], $this->id) ?: '';
 	}
 
 	public function getHash($length = null): string

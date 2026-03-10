@@ -141,7 +141,7 @@ abstract class HTMLFormProcessor extends SimpleController
 			$f->formMore['onsubmit'] = "return ajaxSubmitForm(this);";
 		}
 
-		$f->method('POST');
+		$f->method(HTMLForm::METHOD_POST);
 		$f->action($this->postUrl);
 		$f->hidden('ajax', $this->ajax);
 		return $f;
