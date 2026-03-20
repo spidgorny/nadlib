@@ -45,6 +45,11 @@ class slTableValue
 		$this->db = $db;
 	}
 
+	protected function getDB(): DBInterface
+	{
+		return $this->db ?? Config::getInstance()->getDB();
+	}
+
 	/*	function render() {
 			$value = $this->value;
 			if (is_array($value)) {
@@ -243,14 +248,14 @@ class slTableValue
 						foreach ($parts as $id) {
 							$obj[] = is_object($k['class'])
 								? $k['class']
-								: $k['class']::getInstance($id, $this->db);
+								: $k['class']::getInstance($id, $this->getDB());
 						}
 
 						$out = implode(', ', $obj);
 					} else {
 						$obj = is_object($k['class'])
 							? $k['class']
-							: $k['class']::getInstance($val, $this->db);
+							: $k['class']::getInstance($val, $this->getDB());
 						$out = $obj . '';
 					}
 				}
