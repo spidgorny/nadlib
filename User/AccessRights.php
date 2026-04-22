@@ -35,8 +35,8 @@ class AccessRights extends OODBase implements AccessRightsInterface
 			$this->reload();
 		}
 		if (!$idGroup) {
-			llog('==================> Creating AccessRights for group ' . $this->groupID, array_keys($this->arCache));
-			llog(debug_get_backtrace());
+			// llog('==================> Creating AccessRights for group ' . $this->groupID, array_keys($this->arCache));
+			// llog(debug_get_backtrace());
 		}
 	}
 
