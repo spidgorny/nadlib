@@ -8,6 +8,8 @@ class DBPlacebo extends DBLayerBase
 {
 	public $lastQuery;
 
+	public array $queries = [];
+
 	/**
 	 * @var array
 	 */
@@ -15,11 +17,59 @@ class DBPlacebo extends DBLayerBase
 
 	protected $insertedRow = [];
 
+	protected array $queuedResults = [];
+
+	protected int $nextInsertId = 1000;
+
+	protected int $lastInsertId = 0;
+
 	public function __construct()
 	{
-		//llog(__METHOD__, Debug::getCaller());
-		// recursion:
-		//$this->qb = Config::getInstance()->getQb();
+		$this->qb = new SQLBuilder($this);
+	}
+
+	protected function normalizeQuery(string $query): string
+	{
+		return trim((string) preg_replace('/\s+/', ' ', $query));
+	}
+
+	protected function recordQuery($query)
+	{
+		$this->queries[] = $this->normalizeQuery((string)$query);
+		$this->lastQuery = $query;
+		return $query;
+	}
+
+	protected function normalizeColumns(array $columns): array
+	{
+		foreach ($columns as $key => $value) {
+			if (is_bool($value)) {
+				$columns[$key] = new AsIs($value ? 'true' : 'false');
+			}
+		}
+
+		return $columns;
+	}
+
+	protected function dequeueResult(): mixed
+	{
+		if ($this->queuedResults !== []) {
+			return array_shift($this->queuedResults);
+		}
+
+		$return = $this->returnNextTime;
+		$this->returnNextTime = [];
+		return $return;
+	}
+
+	public function clearQueries(): void
+	{
+		$this->queries = [];
+	}
+
+	public function queueResult(mixed $result): void
+	{
+		$this->queuedResults[] = $result;
 	}
 
 	public static function getFirstWord($asd)
@@ -29,6 +79,7 @@ class DBPlacebo extends DBLayerBase
 
 	public function perform($query, array $params = []): string
 	{
+		$this->recordQuery($query);
 		return '';
 	}
 
@@ -64,7 +115,7 @@ class DBPlacebo extends DBLayerBase
 
 	public function lastInsertID($res = null, $table = null): int
 	{
-		return rand();
+		return $this->lastInsertId;
 	}
 
 	public function free($res): void
@@ -82,16 +133,14 @@ class DBPlacebo extends DBLayerBase
 		return $string;
 	}
 
-	public function escapeBool($value): void
+	public function escapeBool($value)
 	{
-		// TODO: Implement escapeBool() method.
+		return $value ? 'true' : 'false';
 	}
 
 	public function fetchAssoc($res, array $args = [])
 	{
-		$return = $this->returnNextTime;
-		$this->returnNextTime = [];
-		return $return;
+		return $this->dequeueResult();
 	}
 
 	public function transaction(): void
@@ -111,44 +160,51 @@ class DBPlacebo extends DBLayerBase
 
 	public function getScheme(): string
 	{
-		return get_class($this) . '://';
+		return self::class . '://';
 	}
 
-	public function getTablesEx(): void
+	public function getTablesEx(): array
 	{
-		// TODO: Implement getTablesEx() method.
+		return [];
 	}
 
-	public function getTableColumnsEx($table): void
+	public function getTableColumnsEx($table): array
 	{
-		// TODO: Implement getTableColumnsEx() method.
+		return [];
 	}
 
-	public function getIndexesFrom($table): void
+	public function getIndexesFrom($table): array
 	{
-		// TODO: Implement getIndexesFrom() method.
+		return [];
 	}
 
 	public function fetchOneSelectQuery($table, array $where = [], $order = '', $selectPlus = '')
 	{
-		$query = $this->getSelectQuery($table, $where, $order, $selectPlus);
-		$this->lastQuery = $query;
-		return $this->fetchAll(null);
+		$this->getSelectQuery($table, $where, $order, $selectPlus);
+		return $this->dequeueResult();
 	}
 
 	public function getSelectQuery($table, array $where = [], $order = '', $selectPlus = '')
 	{
 		$query = $this->qb->getSelectQuery($table, $where, $order, $selectPlus);
-		$this->lastQuery = $query;
-		return $query;
+		return $this->recordQuery($query);
+	}
+
+	public function getInsertQuery($table, array $columns, array $where = []): string
+	{
+		$query = $this->qb->getInsertQuery($table, $this->normalizeColumns($columns), $where);
+		return $this->recordQuery($query);
+	}
+
+	public function getUpdateQuery($table, $columns, array $where, string $orderBy = ''): string
+	{
+		return $this->qb->getUpdateQuery($table, $this->normalizeColumns($columns), $where, $orderBy);
 	}
 
 	public function fetchAll($res_or_query, $index_by_key = null): array
 	{
-		$return = $this->returnNextTime;
-		//debug(__METHOD__, typ($this), $return);
-		$this->returnNextTime = [];
-		return $return;
+		$return = $this->dequeueResult();
+		return is_array($return) ? $return : [];
 	}
 
 	public function getSelectQuerySW($table, SQLWhere $where, $order = '', $selectPlus = '')
@@ -178,11 +234,12 @@ class DBPlacebo extends DBLayerBase
 	public function runInsertQuery($table, array $columns): void
 	{
 		if (!ifsetor($columns['id'])) {
-			$columns['id'] = rand();
+			$columns['id'] = $this->nextInsertId++;
 		}
 
+		$this->lastInsertId = $columns['id'];
 		$this->insertedRow = $columns;
-		$this->returnNextTime = $columns;
+		array_unshift($this->queuedResults, $columns);
 	}
 
 	public function getVersion(): void
