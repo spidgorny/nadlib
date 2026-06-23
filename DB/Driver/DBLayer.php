@@ -68,6 +68,7 @@ class DBLayer extends DBLayerBase
 	protected $pass;
 
 	protected $lastBacktrace;
+	protected int $connectTimeout = 2;
 
 	/**
 	 * @param string $dbName
@@ -83,6 +84,10 @@ class DBLayer extends DBLayerBase
 		$this->pass = $pass;
 		$this->host = $host;
 		$this->port = $port;
+		$connectTimeout = getenv('DB_CONNECT_TIMEOUT');
+		if (is_numeric($connectTimeout) && (int)$connectTimeout > 0) {
+			$this->connectTimeout = (int)$connectTimeout;
+		}
 		//			$this->connect($dbName, $user, $pass, $host);
 		if ($dbName && ($this->isConnected() && $this->getVersion() >= 8.4)) {
 			$query = "select * from pg_get_keywords() WHERE catcode IN ('R', 'T')";
@@ -127,7 +132,15 @@ class DBLayer extends DBLayerBase
 			return null;
 		}
 
-		$string = sprintf('host=%s port=%s dbname=%s user=%s password=%s', $this->host, $this->port, $this->dbName, $this->user, $this->pass);
+		$string = sprintf(
+			'host=%s port=%s dbname=%s user=%s password=%s connect_timeout=%d',
+			$this->host,
+			$this->port,
+			$this->dbName,
+			$this->user,
+			$this->pass,
+			$this->connectTimeout
+		);
 //		llog('pg_connect', $string);
 		$this->connection = pg_connect($string);
 		if (!$this->connection) {

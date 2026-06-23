@@ -27,14 +27,15 @@ class RenderException
 			return [''];
 		}
 
-		http_response_code($this->code ?: $e->getCode());
-		header('X-Exception:' . get_class($this->e));
-		$message = $this->e->getMessage();
-		$message = str_replace(array("\n", "\r"), " ", $message);
-		header('X-Message:' . $message);
-
 		$accept = $_SERVER['HTTP_ACCEPT'] ?? '';
-		header('X-Accept:' . $accept);
+		if (!headers_sent()) {
+			http_response_code($this->code ?: $e->getCode());
+			header('X-Exception:' . get_class($this->e));
+			$message = $this->e->getMessage();
+			$message = str_replace(array("\n", "\r"), " ", $message);
+			header('X-Message:' . $message);
+			header('X-Accept:' . $accept);
+		}
 		if ($accept === 'application/json') {
 			Request::getInstance()->set('ajax', true);
 			return new JSONResponse([
