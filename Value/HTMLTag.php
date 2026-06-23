@@ -283,7 +283,7 @@ class HTMLTag implements ArrayAccess, ToStringable
 
 			// inject
 			if ($val !== false) {  // false is not a proper html value
-				$set[] = $key . '="' . htmlspecialchars($val ?? '', ENT_QUOTES | PHP_QUERY_RFC3986) . '"';
+				$set[] = $key . '="' . htmlspecialchars($val ?? '', ENT_QUOTES) . '"';
 			}
 		}
 

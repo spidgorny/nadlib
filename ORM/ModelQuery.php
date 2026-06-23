@@ -61,7 +61,7 @@ class ModelQuery implements IteratorAggregate
 		foreach ($data as $row) {
 			/** @var class-string $itemClassName */
 			$itemClassName = static::$itemClassName;
-			$list->append(new $itemClassName($this->db, $row));
+			$list[] = new $itemClassName($this->db, $row);
 		}
 
 		return $list;
