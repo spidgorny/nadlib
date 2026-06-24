@@ -85,7 +85,7 @@ class IndexBase /*extends Controller*/
 		],
 	];
 
-	public $wrapClass = 'ui-state-error alert alert-error alert-danger padding flash flash-warn flash-error';
+	public $wrapClass = 'alert alert-error alert-danger padding flash flash-warn flash-error';
 
 	/**
 	 * @var UserModelInterface

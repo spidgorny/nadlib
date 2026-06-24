@@ -19,7 +19,7 @@ class Messages extends MergedContent
 	public function error($text): string
 	{
 		$text = \MergedContent::mergeStringArrayRecursive($text);
-		$msg = '<div class="error error_top ui-state-error alert alert-error alert-danger padding">' . $text . '</div>';
+		$msg = '<div class="error error_top alert alert-error alert-danger padding">' . $text . '</div>';
 		$this->content[] = $msg;
 
 //		debug($this->content);
@@ -44,11 +44,6 @@ class Messages extends MergedContent
 		return $msg;
 	}
 
-	public function saveMessages(): void
-	{
-		$_SESSION[__CLASS__]['messages'] = $this->content;
-	}
-
 	public function restoreMessages(): void
 	{
 //		debug('restoring');
@@ -61,6 +56,11 @@ class Messages extends MergedContent
 	public function __destruct()
 	{
 		$this->saveMessages();
+	}
+
+	public function saveMessages(): void
+	{
+		$_SESSION[__CLASS__]['messages'] = $this->content;
 	}
 
 }

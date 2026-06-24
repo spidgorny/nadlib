@@ -109,19 +109,7 @@ trait FullGrid
 			$sortBy = $this->model->thes[$sortBy]['source'];
 		}
 
-		if ($this->collection->thes) {
-			$desc = ifsetor($this->collection->thes[$sortBy]);
-			//debug(array_keys($this->collection->thes), $desc);
-			if (is_array($desc) &&
-				ifsetor($desc['source']) &&
-				ifsetor($desc['sortable']) !== false) {
-				$sortBy = $desc['source'];
-			}
-
-			if (ifsetor($desc['sortable']) === false) {
-				$sortBy = null;
-			}
-		}
+		$sortBy = $this->validateSortBy($sortBy);
 
 		//			$sortBy = new SQLOrder($this->collection->orderBy);
 		//			$sortBy = $sortBy->getField();
@@ -132,8 +120,10 @@ trait FullGrid
 
 		$this->log('sortBy', $sortBy);
 		if ($sortBy) {
-			if ($this->collection->thes[$sortBy]['sqlSortBy'] ?? null) {
-				$sortBy = $this->collection->thes[$sortBy]['sqlSortBy'];
+			$thes = (array)ifsetor($this->collection->thes);
+			$desc = $thes[$sortBy] ?? null;
+			if (is_array($desc) && ($desc['sqlSortBy'] ?? null)) {
+				$sortBy = $desc['sqlSortBy'];
 			}
 //			$this->collection->select .= ', ' . $this->db->quoteKey($sortBy);
 			$ret = 'ORDER BY ' . $this->db->quoteKey($sortBy) . ' ' .
@@ -142,6 +132,43 @@ trait FullGrid
 
 		//debug($this->sort, $sortBy);
 		return $ret;
+	}
+
+	protected function validateSortBy($sortBy)
+	{
+		if (!$sortBy || !$this->collection->thes) {
+			return null;
+		}
+
+		$thes = (array)$this->collection->thes;
+		$desc = $thes[$sortBy] ?? null;
+		if ($desc !== null) {
+			if (is_array($desc)) {
+				if (($desc['sortable'] ?? null) === false) {
+					return null;
+				}
+				if (!empty($desc['source'])) {
+					return $desc['source'];
+				}
+			}
+			return $sortBy;
+		}
+
+		// Session/URL may contain a stale sort key. Allow only known "source"
+		// aliases of sortable columns, otherwise ignore the value safely.
+		foreach ($thes as $columnDesc) {
+			if (!is_array($columnDesc)) {
+				continue;
+			}
+			if (($columnDesc['sortable'] ?? null) === false) {
+				continue;
+			}
+			if (($columnDesc['source'] ?? null) === $sortBy) {
+				return $sortBy;
+			}
+		}
+
+		return null;
 	}
 
 	public function sidebar()
