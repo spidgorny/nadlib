@@ -7,6 +7,7 @@ use spidgorny\nadlib\HTTP\URL;
  * Has powerful configuration options.
  * @see slTableValue for a single table cell renderer.
  */
+
 class slTable implements ToStringable
 {
 
@@ -122,13 +123,11 @@ class slTable implements ToStringable
 	 * @var bool
 	 */
 	public $isCLI = false;
-
+	public ?DBInterface $db = null;
 	/**
 	 * @var Request
 	 */
 	protected $request;
-
-	public ?DBInterface $db = null;
 
 	public function __construct($id = null, array $more = [], array $thes = [])
 	{
@@ -154,6 +153,15 @@ class slTable implements ToStringable
 		}
 
 		$this->sortLinkPrefix = new URL();
+		// Keep sort links relative so reverse-proxy host/port mismatches do not leak
+		// into generated links (e.g. 127.0.0.1:4218 in dev ingress setups).
+		unset(
+			$this->sortLinkPrefix->components['scheme'],
+			$this->sortLinkPrefix->components['user'],
+			$this->sortLinkPrefix->components['pass'],
+			$this->sortLinkPrefix->components['host'],
+			$this->sortLinkPrefix->components['port']
+		);
 		$this->generation = new HTMLTableBuf();
 		$this->isCLI = Request::isCLI();
 	}
