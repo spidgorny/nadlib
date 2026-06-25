@@ -274,7 +274,7 @@ trait Grid
 		$this->log(__METHOD__, $cn);
 		// request
 		$urlColumns = $this->request->getArray('columns');
-		if ($allowEdit && ($urlColumns || $this->request->get('btnSubmit') === 'Set Visible Columns')) {
+		if ($urlColumns || $this->request->get('btnSubmit') === 'Set Visible Columns') {
 			$this->log('urlColumns', $urlColumns);
 			$this->columns = new VisibleColumns($urlColumns);
 			$this->user->setPref('Columns.' . $cn, $this->columns->getData());

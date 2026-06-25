@@ -364,6 +364,8 @@ class Pager
 		if ($url instanceof \spidgorny\nadlib\HTTP\URL) {
 			$this->url = clone $url;  // this->url may be modified
 		}
+		// Keep pagination links host-agnostic (avoid 127.0.0.1 leaks in proxied setups).
+		$this->url->setHost('');
 
 		$content .= '<div class="paginationControl pagination">' . "\n";
 		$content .= $this->getInlineCSS();
@@ -527,7 +529,9 @@ class Pager
 	public function renderPageSize(): string
 	{
 		$this->log(__METHOD__);
-		$this->pageSize->setURL(new URL(null, []));
+		$pageSizeUrl = new URL(null, []);
+		$pageSizeUrl->setHost('');
+		$this->pageSize->setURL($pageSizeUrl);
 		$this->pageSize->set($this->itemsPerPage);
 
 		return '<div class="pageSize pull-right floatRight">' .
