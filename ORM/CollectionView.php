@@ -125,22 +125,20 @@ class CollectionView
 		$s->ID = get_class($this->collection);
 		$s->sortable = $this->useSorting;
 
-		// removed for phpstan, but not sure if it is needed
-//		if (class_exists('Index') && Index::getInstance()) {
-//			$index = Index::getInstance();
-//			$controller = $index->getController();
-//			$sort = ifsetor($controller->sort);
-////			debug($sort);
-//			if ($sort) {
-//				$s->setSortBy(ifsetor($sort['sortBy']), ifsetor($sort['sortOrder']));    // UGLY
-//				//debug(Index::getInstance()->controller);
-//				$s->sortLinkPrefix = new URL(
-//					null,
-//					ifsetor($controller->linkVars)
-//						? $controller->linkVars
-//						: []);
-//			}
-//		}
+		if (class_exists('Index') && Index::getInstance()) {
+			$index = Index::getInstance();
+			$controller = $index->getController();
+			$sort = ifsetor($controller->sort);
+			if (is_array($sort) && (ifsetor($sort['sortBy']) || array_key_exists('sortOrder', $sort))) {
+				$s->detectSortBy($sort);
+				$s->sortLinkPrefix = new URL(
+					null,
+					ifsetor($controller->linkVars)
+						? $controller->linkVars
+						: []
+				);
+			}
+		}
 
 		return $s;
 	}
