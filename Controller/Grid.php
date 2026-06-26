@@ -170,6 +170,9 @@ trait Grid
 		if ($this->filter->getArrayCopy()) {
 //			$this->log(__METHOD__, 'setPref', 'Filter.' . $cn, $this->filter->getArrayCopy());
 			$this->user->setPref('Filter.' . $cn, $this->filter->getArrayCopy());
+		} else {
+			// Clear persisted filter when the current filter is explicitly empty.
+			$this->user->setPref('Filter.' . $cn, []);
 		}
 
 		//debug(spl_object_hash(Index::getInstance()->controller), spl_object_hash($this));

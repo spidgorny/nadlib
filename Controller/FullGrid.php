@@ -217,13 +217,16 @@ trait FullGrid
 				'You need to set columns before setting visible columns!'
 			);
 		}
-		llog('countVisible', $this->columns->countVisible());
 		if (!$this->columns->countVisible()) {
 			return;
 		}
 		foreach ($this->collection->thes as $cn => $_) {
 			if (!$this->columns->isVisible($cn)) {
-				//unset($this->collection->thes[$cn]);
+				if (!is_array($this->collection->thes[$cn])) {
+					$this->collection->thes[$cn] = [
+						'name' => $this->collection->thes[$cn],
+					];
+				}
 				$this->collection->thes[$cn]['!show'] = true;
 			}
 		}
