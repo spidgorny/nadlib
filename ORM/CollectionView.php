@@ -131,7 +131,7 @@ class CollectionView
 			$sort = ifsetor($controller->sort);
 			if (is_array($sort) && (ifsetor($sort['sortBy']) || array_key_exists('sortOrder', $sort))) {
 				$s->detectSortBy($sort);
-				$s->sortLinkPrefix = new URL(
+				$s->sortLinkPrefix = new \spidgorny\nadlib\HTTP\URL(
 					null,
 					ifsetor($controller->linkVars)
 						? $controller->linkVars
