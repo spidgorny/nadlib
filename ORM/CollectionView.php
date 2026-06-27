@@ -125,16 +125,17 @@ class CollectionView
 		$s->ID = get_class($this->collection);
 		$s->sortable = $this->useSorting;
 
-		if (class_exists('Index') && Index::getInstance()) {
+		if (class_exists('Index')) {
 			$index = Index::getInstance();
 			$controller = $index->getController();
-			$sort = ifsetor($controller->sort);
+			$controllerVars = get_object_vars($controller);
+			$sort = ifsetor($controllerVars['sort']);
 			if (is_array($sort) && (ifsetor($sort['sortBy']) || array_key_exists('sortOrder', $sort))) {
 				$s->detectSortBy($sort);
 				$s->sortLinkPrefix = new \spidgorny\nadlib\HTTP\URL(
 					ifsetor($_SERVER['REQUEST_URI'], '/'),
-					ifsetor($controller->linkVars)
-						? $controller->linkVars
+					ifsetor($controllerVars['linkVars'])
+						? (array)$controllerVars['linkVars']
 						: []
 				);
 			}
