@@ -125,20 +125,27 @@ class CollectionView
 		$s->ID = get_class($this->collection);
 		$s->sortable = $this->useSorting;
 
-		if (class_exists('Index')) {
-			$index = Index::getInstance();
-			$controller = $index->getController();
-			$controllerVars = get_object_vars($controller);
-			$sort = ifsetor($controllerVars['sort']);
-			if (is_array($sort) && (ifsetor($sort['sortBy']) || array_key_exists('sortOrder', $sort))) {
-				$s->detectSortBy($sort);
-				$s->sortLinkPrefix = new \spidgorny\nadlib\HTTP\URL(
-					ifsetor($_SERVER['REQUEST_URI'], '/'),
-					ifsetor($controllerVars['linkVars'])
-						? (array)$controllerVars['linkVars']
-						: []
-				);
-			}
+		$index = Index::getInstance();
+		$controller = $index->getController();
+		$controllerVars = get_object_vars($controller);
+		/** @var mixed $sort */
+		$sort = $controllerVars['sort'] ?? null;
+		$hasSortBy = is_array($sort)
+			&& array_key_exists('sortBy', $sort)
+			&& $sort['sortBy'] !== null
+			&& $sort['sortBy'] !== '';
+		$hasSortOrder = is_array($sort)
+			&& array_key_exists('sortOrder', $sort)
+			&& $sort['sortOrder'] !== null
+			&& $sort['sortOrder'] !== '';
+		if (is_array($sort) && ($hasSortBy || $hasSortOrder)) {
+			$s->detectSortBy($sort);
+			/** @var mixed $linkVars */
+			$linkVars = $controllerVars['linkVars'] ?? [];
+			$s->sortLinkPrefix = new \spidgorny\nadlib\HTTP\URL(
+				$_SERVER['REQUEST_URI'] ?? '/',
+				is_array($linkVars) ? $linkVars : []
+			);
 		}
 
 		return $s;
