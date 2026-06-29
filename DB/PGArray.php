@@ -385,7 +385,7 @@ class PGArray extends AsIs
 				$quote = $ch;
 			} elseif ($string && $ch == $quote && $s[$i - 1] == "\\") {
 				$v = substr($v, 0, -1) . $ch;
-			} elseif ($string && $ch == $quote && $s[$i - 1] != "\\") {
+			} elseif ($ch == $quote && $s[$i - 1] != "\\") {
 				$string = false;
 			} else {
 				$v .= $ch;
