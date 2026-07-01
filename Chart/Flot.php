@@ -210,32 +210,22 @@ class Flot extends Controller
 		}
 
 		$this->index->addJQuery();
-		$this->index->addJS('
-		<!--[if lte IE 8]><script language="javascript" type="text/javascript"
-			src="' . $this->flotPath . 'excanvas.min.js"></script><![endif]-->
-    	<script language="javascript" type="text/javascript" defer="1"
-    	    src="' . $this->flotPath . 'jquery.canvaswrapper.js"></script>
-		<script language="javascript" type="text/javascript" defer="1"
-    	    src="' . $this->flotPath . 'jquery.colorhelpers.js"></script>
-		<script language="javascript" type="text/javascript" defer="1"
-    	    src="' . $this->flotPath . 'jquery.flot.js"></script>
-		<script language="javascript" type="text/javascript" defer="1"
-    	    src="' . $this->flotPath . 'jquery.flot.saturated.js"></script>
-		<script language="javascript" type="text/javascript" defer="1"
-    	    src="' . $this->flotPath . 'jquery.flot.browser.js"></script>
-		<script language="javascript" type="text/javascript" defer="1"
-    	    src="' . $this->flotPath . 'jquery.flot.drawSeries.js"></script>
-		<script language="javascript" type="text/javascript" defer="1"
-    	    src="' . $this->flotPath . 'jquery.flot.uiConstants.js"></script>
-    	<script language="javascript" type="text/javascript" defer="1"
-    	    src="' . $this->flotPath . 'jquery.flot.stack.js"></script>
-    	<script language="javascript" type="text/javascript" defer="1"
-    	    src="' . $this->flotPath . 'jquery.flot.hover.js"></script>
-    	<script language="javascript" type="text/javascript" defer="1"
-    	    src="' . $this->flotPath . 'jquery.flot.time.js"></script>
-    	<script language="javascript" type="text/javascript" defer="1"
-    	    src="' . $this->flotPath . 'jquery.flot.axislabels.js"></script>
-');
+		$flotScripts = [
+			'jquery.canvaswrapper.js',
+			'jquery.colorhelpers.js',
+			'jquery.flot.js',
+			'jquery.flot.saturated.js',
+			'jquery.flot.browser.js',
+			'jquery.flot.drawSeries.js',
+			'jquery.flot.uiConstants.js',
+			'jquery.flot.stack.js',
+			'jquery.flot.hover.js',
+			'jquery.flot.time.js',
+			'jquery.flot.axislabels.js',
+		];
+		foreach ($flotScripts as $flotScript) {
+			$this->index->addJS($this->flotPath . $flotScript, ['defer' => true]);
+		}
 
 		$content = '<div id="' . $divID . '" style="
 			width: ' . $this->width . ';
@@ -287,7 +277,7 @@ class Flot extends Controller
 			$config = str_replace('"ticksWeeks"', 'ticksWeeks', $config); // hack
 		}
 
-		$this->index->addJS('
+		$content .= '
     	<script type="text/javascript">
 var deferCounter = 0;
 function defer(method) {
@@ -314,7 +304,7 @@ defer(function () {
 		], ' . $config . ');
 	});
 });
-</script>');
+</script>';
 		return $content;
 	}
 
