@@ -118,11 +118,16 @@ class Flot extends Controller
 			if ($timeMaybe) {
 				$time = is_string($timeMaybe) ? strtotime($timeMaybe) : $timeMaybe;
 				$barHeight = $row[$this->amountKey];
-				if (is_string($barHeight)) {
-					$barHeight = strtotime($barHeight);
+				if (is_numeric($barHeight)) {
+					$barHeight = (float)$barHeight;
+				} elseif (is_string($barHeight)) {
+					$barHeightMaybe = strtotime($barHeight);
+					$barHeight = $barHeightMaybe !== false ? $barHeightMaybe : 0;
 				}
 
-				$chart[$key][$time] = $time != -1 && $time > 100 ? [$time * 1000, $barHeight] : [$timeMaybe, $barHeight];
+				if ($time !== false && $time != -1 && $time > 100) {
+					$chart[$key][$time] = [$time * 1000, $barHeight];
+				}
 			} else {
 				unset($rows[$i]);
 			}
